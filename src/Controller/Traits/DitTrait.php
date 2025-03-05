@@ -13,10 +13,6 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 
 trait DitTrait
 {
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/dit/new")
-    {
-        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
-    } 
 
     private function demandeDevis($dits){
         return $dits->getDemandeDevis() === null ? 'NON' : $dits->getDemandeDevis();
@@ -54,7 +50,7 @@ trait DitTrait
                 $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
                 if (empty($data)) {
                     $message = 'ce matériel n\'est pas enregistrer dans Irium';
-                    $this->alertRedirection($message);
+                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
                 }
@@ -122,7 +118,7 @@ trait DitTrait
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
             if (empty($data)) {
                 $message = 'ce matériel n\'est pas enregistrer dans Irium';
-                $this->alertRedirection($message);
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel
                 $demandeIntervention->setNumParc($data[0]['num_parc']);

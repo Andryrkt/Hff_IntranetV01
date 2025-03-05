@@ -8,6 +8,8 @@ use App\Entity\admin\Service;
 use App\Entity\cas\CasierValider;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
+use Symfony\Component\Finder\Glob;
 
 trait BadmsForm2Trait
 {
@@ -137,7 +139,7 @@ trait BadmsForm2Trait
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
 
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/';
+        $fileDossier = GlobalVariablesService::get('chemin_upload_file'). '/bdm/fichiers/';
 
         $file->move($fileDossier, $fileName);
 
@@ -153,14 +155,15 @@ trait BadmsForm2Trait
         $pdfFiles = [];
 
         // Ajouter le fichier PDF principal en tête du tableau
-        $mainPdf = sprintf(
-            '%s/Upload/bdm/%s_%s%s.pdf',
-            rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
-            $badm->getNumBadm(),
-            $badm->getAgenceEmetteurId()->getCodeAgence(),
-            $badm->getServiceEmetteurId()->getCodeService()
-        );
+        // $mainPdf = sprintf(
+        //     '%s/Upload/bdm/%s_%s%s.pdf',
+        //     rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+        //     $badm->getNumBadm(),
+        //     $badm->getAgenceEmetteurId()->getCodeAgence(),
+        //     $badm->getServiceEmetteurId()->getCodeService()
+        // );
 
+        $mainPdf = GlobalVariablesService::get('chemin_upload_file') . '\/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
@@ -308,7 +311,7 @@ trait BadmsForm2Trait
             $image = '';
             $extension = '';
         } elseif ($idTypeMouvement === 5) {
-            $image = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image = GlobalVariablesService::get('chemin_upload_file') . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 

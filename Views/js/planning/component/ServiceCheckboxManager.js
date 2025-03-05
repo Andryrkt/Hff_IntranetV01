@@ -1,3 +1,5 @@
+import { FetchManager } from '../../api/FetchManager';
+
 export class ServiceCheckboxManager {
   constructor(config) {
     this.config = config;
@@ -25,13 +27,13 @@ export class ServiceCheckboxManager {
 
     const searchForm = document.querySelector(this.config.elements.searchForm);
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener('DOMContentLoaded', () => {
       this.render();
 
-      searchForm.addEventListener("submit", this.handleFormSubmit);
+      searchForm.addEventListener('submit', this.handleFormSubmit);
     });
 
-    agenceDebiteurInput.addEventListener("change", this.handleAgenceChange);
+    agenceDebiteurInput.addEventListener('change', this.handleAgenceChange);
   }
 
   setState(newState) {
@@ -41,7 +43,7 @@ export class ServiceCheckboxManager {
 
   handleFormSubmit(event) {
     event.preventDefault(); // Empêche le rechargement de la page
-    console.log("Formulaire soumis. État actuel :", this.state);
+    console.log('Formulaire soumis. État actuel :', this.state);
   }
 
   handleAgenceChange(event) {
@@ -54,10 +56,12 @@ export class ServiceCheckboxManager {
 
     this.setState({ isLoading: true, agenceSelected: true });
 
+    // Instanciation de FetchManager avec la base URL
+    const fetchManager = new FetchManager();
     const url = this.config.urls.serviceFetch(agenceDebiteur);
 
-    fetch(url)
-      .then((response) => response.json())
+    fetchManager
+      .get(url)
       .then((services) => {
         const updatedServices = services.map((service) => ({
           ...service,
@@ -70,7 +74,7 @@ export class ServiceCheckboxManager {
         });
       })
       .catch((error) => {
-        console.error("Error fetching services:", error);
+        console.error('Error fetching services:', error);
         this.setState({ isLoading: false });
       });
   }
@@ -99,28 +103,28 @@ export class ServiceCheckboxManager {
   }
 
   renderSpinner() {
-    const spinner = document.createElement("div");
-    spinner.className = "spinner-border text-primary";
-    spinner.role = "status";
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner-border text-primary';
+    spinner.role = 'status';
     spinner.innerHTML = '<span class="sr-only">Chargement...</span>';
     return spinner;
   }
 
   renderSelectAllCheckbox() {
-    const div = document.createElement("div");
-    div.className = "form-check";
+    const div = document.createElement('div');
+    div.className = 'form-check';
 
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.id = "planning_search_selectAll";
-    checkbox.className = "form-check-input";
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = 'planning_search_selectAll';
+    checkbox.className = 'form-check-input';
     checkbox.checked = this.state.allChecked;
-    checkbox.addEventListener("change", this.handleSelectAllChange);
+    checkbox.addEventListener('change', this.handleSelectAllChange);
 
-    const label = document.createElement("label");
-    label.htmlFor = "planning_search_selectAll";
-    label.className = "form-check-label";
-    label.textContent = "Tout sélectionner";
+    const label = document.createElement('label');
+    label.htmlFor = 'planning_search_selectAll';
+    label.className = 'form-check-label';
+    label.textContent = 'Tout sélectionner';
 
     div.appendChild(checkbox);
     div.appendChild(label);
@@ -130,21 +134,21 @@ export class ServiceCheckboxManager {
 
   renderServiceCheckboxes() {
     return this.state.services.map((service, index) => {
-      const div = document.createElement("div");
-      div.className = "form-check";
+      const div = document.createElement('div');
+      div.className = 'form-check';
 
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = "planning_search[serviceDebite][]";
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.name = 'planning_search[serviceDebite][]';
       checkbox.value = service.value;
       checkbox.id = `service_${index}`;
-      checkbox.className = "form-check-input";
+      checkbox.className = 'form-check-input';
       checkbox.checked = service.checked;
-      checkbox.addEventListener("change", this.handleServiceCheckboxChange);
+      checkbox.addEventListener('change', this.handleServiceCheckboxChange);
 
-      const label = document.createElement("label");
+      const label = document.createElement('label');
       label.htmlFor = checkbox.id;
-      label.className = "form-check-label";
+      label.className = 'form-check-label';
       label.textContent = service.text;
 
       div.appendChild(checkbox);

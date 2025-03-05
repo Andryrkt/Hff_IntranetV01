@@ -2,21 +2,22 @@
 
 namespace App\Controller\tik;
 
-use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiCommentaires;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Entity\tik\TkiPlanning;
-use App\Form\admin\tik\TkiCommentairesType;
-use App\Form\tik\DetailTikType;
-use App\Repository\admin\StatutDemandeRepository;
 use App\Service\EmailService;
+use App\Controller\Controller;
+use App\Entity\tik\TkiPlanning;
+use App\Form\tik\DetailTikType;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\tik\TkiCommentaires;
+use App\Form\admin\tik\TkiCommentairesType;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\admin\StatutDemandeRepository;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 class DetailTikController extends Controller
 {
@@ -420,7 +421,7 @@ class DetailTikController extends Controller
                 'statut'      => "refuse",
                 'subject'     => "{$tab['numTik']} - Ticket refusé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -437,7 +438,7 @@ class DetailTikController extends Controller
                 'statut'      => "suspendu",
                 'subject'     => "{$tab['numTik']} - Ticket suspendu",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -455,7 +456,7 @@ class DetailTikController extends Controller
                 'statut'      => "valide",
                 'subject'     => "{$tab['numTik']} - Ticket validé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -485,7 +486,7 @@ class DetailTikController extends Controller
                 'statut'      => "comment",
                 'subject'     => "{$tab['numTik']} - Commentaire émis",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -504,7 +505,7 @@ class DetailTikController extends Controller
                 'statut'      => "resolu",
                 'subject'     => "{$tab['numTik']} - Ticket résolu",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -523,7 +524,7 @@ class DetailTikController extends Controller
                 'statut'      => "planifie",
                 'subject'     => "{$tab['numTik']} - Ticket planifié",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -542,7 +543,7 @@ class DetailTikController extends Controller
                 'statut'      => "transfere",
                 'subject'     => "{$tab['numTik']} - Ticket transféré",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
             ]
         ];
     }

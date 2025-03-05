@@ -1,3 +1,8 @@
+import { FetchManager } from '../api/FetchManager';
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 /**
  * Methode pour le draw and drop du fichier
  * @param {*} idSuffix
@@ -11,33 +16,33 @@ function initializeFileHandlers(idSuffix) {
   const pdfPreview = document.getElementById(`pdf-preview-${idSuffix}`);
   const pdfEmbed = document.getElementById(`pdf-embed-${idSuffix}`);
 
-  uploadBtn.addEventListener("click", function () {
+  uploadBtn.addEventListener('click', function () {
     fileInput.click();
   });
 
-  fileInput.addEventListener("change", function () {
+  fileInput.addEventListener('change', function () {
     handleFiles(this.files, fileName, fileSize, pdfPreview, pdfEmbed);
   });
 
-  dropzone.addEventListener("dragover", function (e) {
+  dropzone.addEventListener('dragover', function (e) {
     e.preventDefault();
     e.stopPropagation();
-    this.style.backgroundColor = "#e2e6ea";
+    this.style.backgroundColor = '#e2e6ea';
   });
 
-  dropzone.addEventListener("dragleave", function (e) {
+  dropzone.addEventListener('dragleave', function (e) {
     e.preventDefault();
     e.stopPropagation();
-    this.style.backgroundColor = "#f8f9fa";
+    this.style.backgroundColor = '#f8f9fa';
   });
 
-  dropzone.addEventListener("drop", function (e) {
+  dropzone.addEventListener('drop', function (e) {
     e.preventDefault();
     e.stopPropagation();
     const files = e.dataTransfer.files;
     fileInput.files = files;
     handleFiles(files, fileName, fileSize, pdfPreview, pdfEmbed);
-    this.style.backgroundColor = "#f8f9fa";
+    this.style.backgroundColor = '#f8f9fa';
   });
 }
 
@@ -49,11 +54,11 @@ function handleFiles(
   pdfEmbedElement
 ) {
   const file = files[0];
-  if (file && file.type === "application/pdf") {
+  if (file && file.type === 'application/pdf') {
     const reader = new FileReader();
     reader.onload = function (e) {
       pdfEmbedElement.src = e.target.result;
-      pdfPreviewElement.style.display = "block";
+      pdfPreviewElement.style.display = 'block';
     };
     reader.readAsDataURL(file);
 
@@ -62,14 +67,14 @@ function handleFiles(
       file.size
     )}`;
   } else {
-    alert("Veuillez déposer un fichier PDF.");
-    fileNameElement.textContent = "";
-    fileSizeElement.textContent = "";
+    alert('Veuillez déposer un fichier PDF.');
+    fileNameElement.textContent = '';
+    fileSizeElement.textContent = '';
   }
 }
 
 function formatFileSize(size) {
-  const units = ["B", "KB", "MB", "GB"];
+  const units = ['B', 'KB', 'MB', 'GB'];
   let unitIndex = 0;
   let adjustedSize = size;
 
@@ -82,12 +87,12 @@ function formatFileSize(size) {
 }
 
 // Utilisation pour plusieurs fichier
-initializeFileHandlers("1");
+initializeFileHandlers('1');
 
 /**
  * Methode pour l'autocomplet nom client
  */
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   let preloadedData = [];
 
   /**
@@ -95,20 +100,20 @@ document.addEventListener("DOMContentLoaded", function () {
    */
   async function preloadData(url) {
     try {
-      const response = await fetch(url);
+      const response = await fetchManager.get(url);
       preloadedData = await response.json(); // Stocke les données
     } catch (error) {
-      console.error("Erreur lors du préchargement des données :", error);
+      console.error('Erreur lors du préchargement des données :', error);
     }
   }
 
-  const url = "/Hffintranet/autocomplete/all-client";
+  const url = 'autocomplete/all-client';
   preloadData(url); //recupérer les donner à partir de l'url
 
-  const nomClientInput = document.querySelector("#ac_soumis_nomClient");
-  const suggestionContainer = document.querySelector("#suggestion");
+  const nomClientInput = document.querySelector('#ac_soumis_nomClient');
+  const suggestionContainer = document.querySelector('#suggestion');
 
-  nomClientInput.addEventListener("input", filtrerLesDonner);
+  nomClientInput.addEventListener('input', filtrerLesDonner);
 
   /**
    * Methode permet de filtrer les donner selon les donnée saisi dans l'input
@@ -117,15 +122,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const nomClient = nomClientInput.value.trim();
 
     // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (nomClient === "") {
-      suggestionContainer.innerHTML = ""; // Efface les suggestions
+    if (nomClient === '') {
+      suggestionContainer.innerHTML = ''; // Efface les suggestions
       return;
     }
 
     // let filteredData = [];
 
     const filteredData = preloadedData.filter((item) => {
-      const phrase = item.label + " - " + item.value;
+      const phrase = item.label + ' - ' + item.value;
       return phrase.toLowerCase().includes(nomClient.toLowerCase());
     });
 
@@ -140,17 +145,17 @@ document.addEventListener("DOMContentLoaded", function () {
   function showSuggestions(suggestionsContainer, data) {
     // Vérifie si le tableau est vide
     if (data.length === 0) {
-      suggestionsContainer.innerHTML = ""; // Efface les suggestions
+      suggestionsContainer.innerHTML = ''; // Efface les suggestions
       return; // Arrête l'exécution de la fonction
     }
 
-    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
+    suggestionsContainer.innerHTML = ''; // Efface les suggestions existantes
     data.forEach((item) => {
-      const suggestion = document.createElement("div");
-      suggestion.textContent = item.label + " - " + item.value; // Affiche le label
-      suggestion.addEventListener("click", () => {
+      const suggestion = document.createElement('div');
+      suggestion.textContent = item.label + ' - ' + item.value; // Affiche le label
+      suggestion.addEventListener('click', () => {
         nomClientInput.value = item.value; // Remplit le champ avec la sélection
-        suggestionsContainer.innerHTML = ""; // Efface les suggestions
+        suggestionsContainer.innerHTML = ''; // Efface les suggestions
       });
       suggestionsContainer.appendChild(suggestion);
     });
