@@ -19,7 +19,6 @@ use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
 
-
 trait DomsTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom)
@@ -491,5 +490,39 @@ trait DomsTrait
     private function formatMontant(?string $montant = null): string
     {
         return $montant === null ? '0' : $montant;
+    }
+
+    private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom)
+    {
+        $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find(11);
+        $userId = $this->sessionService->get('user_id');
+        $user = $em->getRepository(User::class)->find($userId);
+        $dom
+            ->setSousTypeDocument($sousTypeDocument)
+            ->setDateDemande(new DateTime)
+            ->setIdStatutDemande($em->getRepository(StatutDemande::class)->find(1))
+            ->setUtilisateurCreation($user->getNomUtilisateur())
+            ->setNomSessionUtilisateur($user->getNomUtilisateur())
+            ->setNumeroOrdreMission($this->autoINcriment('DOM'))
+            ->setAgenceDebiteurId($oldDom->getAgenceDebiteurId())
+            ->setServiceDebiteurId($oldDom->getServiceDebiteurId())
+            ->setAgenceEmetteurId($oldDom->getAgenceEmetteurId())
+            ->setServiceEmetteurId($oldDom->getServiceEmetteurId())
+            ->setCategorie($oldDom->getCategorie())
+            ->setSite($oldDom->getSite())
+            ->setMatricule($oldDom->getMatricule())
+            ->setNom($oldDom->getNom())
+            ->setPrenom($oldDom->getPrenom())
+            ->setMotifDeplacement($oldDom->getMotifDeplacement())
+            ->setClient($oldDom->getClient())
+            ->setFiche($oldDom->getFiche())
+            ->setIndemniteForfaitaire($oldDom->getIndemniteForfaitaire())
+            ->setLieuIntervention($oldDom->getLieuIntervention())
+            ->setVehiculeSociete($oldDom->getVehiculeSociete())
+            ->setNumVehicule($oldDom->getNumVehicule())
+            ->setDevis($oldDom->getDevis())
+            ->setIdemnityDepl($oldDom->getIdemnityDepl())
+            ->setModePayement($oldDom->getModePayement())
+        ;
     }
 }
