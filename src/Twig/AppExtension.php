@@ -34,7 +34,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'user' => $user,
-                'base_path' => $_ENV['BASE_PATH_COURT'],
+            'base_path' => $_ENV['BASE_PATH_COURT'],
             'notification' => $notification,
         ];
     }

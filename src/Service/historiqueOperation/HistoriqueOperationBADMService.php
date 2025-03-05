@@ -6,6 +6,6 @@ class HistoriqueOperationBADMService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(8);
+        $this->setIdTypeDocument(8);
     }
 }

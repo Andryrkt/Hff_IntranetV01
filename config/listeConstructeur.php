@@ -9,8 +9,8 @@ use Symfony\Component\Finder\Glob;
 
 try {
 
-    $chemin = 'C:\wamp64\www\Upload\variable_global/liste_constructeur.json';
-    $jsonService = new JsonFileService($chemin);
+    ;
+    $jsonService = new JsonFileService();
 
     //CHEMIN DE BASE
     $cheminBaseLong = $jsonService->getSection("CHEMIN DE BASE LONG") ?? "";

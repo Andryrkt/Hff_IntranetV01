@@ -6,6 +6,6 @@ class HistoriqueOperationCASService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(9);
+        $this->setIdTypeDocument(9);
     }
 }

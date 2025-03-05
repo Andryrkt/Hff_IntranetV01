@@ -27,9 +27,8 @@ class TwigMailerService
     private $twigEnvironment;
     private $assetFolder;
 
-    public function __construct(PHPMailer $phpMailer, Environment $twigEnvironment)
+    public function __construct(Environment $twigEnvironment)
     {
-        $this->setPhpMailer($phpMailer);
         $this->setTwigEnvironment($twigEnvironment);
     }
 
@@ -137,4 +136,6 @@ class TwigMailerService
             throw new \Exception("PHPMailer::send failed: " . $this->phpMailer->ErrorInfo);
         }
     }
+
+   
 }

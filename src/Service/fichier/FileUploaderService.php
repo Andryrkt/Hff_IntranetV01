@@ -15,9 +15,9 @@ class FileUploaderService
     private string $targetDirectory;
     private FusionPdf $fusionPdf;
 
-    public function __construct(string $targetDirectory)
+    public function __construct()
     {
-        $this->targetDirectory = $targetDirectory;
+        $this->targetDirectory = 'uploads/';
         $this->fusionPdf = new FusionPdf();
     }
 

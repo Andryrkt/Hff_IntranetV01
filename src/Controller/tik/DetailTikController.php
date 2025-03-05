@@ -7,10 +7,12 @@ use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Form\tik\DetailTikType;
 use App\Entity\admin\StatutDemande;
+use App\Controller\AbstractController;
 use App\Entity\admin\utilisateur\User;
 use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\tik\TkiCommentaires;
+use App\Service\tik\HandleRequestService;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,41 +20,36 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class DetailTikController extends Controller
+class DetailTikController extends AbstractController
 {
     use lienGenerique;
-    use EnvoiFichier;
-    private $emailTikService;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->emailTikService = new EmailTikService;
-    }
 
     /**  
      * @Route("/tik-detail/{id<\d+>}", name="detail_tik")
      */
-    public function detail($id, Request $request)
-    {
+    public function detail($id, Request $request, HandleRequestService $handleRequestService, EntityManagerInterface $em, SessionInterface $sessionService)  {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
         /** 
          * @var DemandeSupportInformatique $supportInfo l'entité du DemandeSupportInformatique correspondant à l'id $id
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $em->getRepository(DemandeSupportInformatique::class)->find($id);
 
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
 
-        $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
+        $handleRequestService->setSupportInfo($supportInfo);
 
         if (!$supportInfo) {
-            self::$twig->display('404.html.twig');
+            $this->render('404.html.twig');
         } else {
             $formDetail = self::$validator->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 

@@ -37,7 +37,8 @@ class EmailService
         // $this->mailer->SMTPDebug = 2;
         // $this->mailer->Debugoutput = 'html';
 
-        $this->twigMailer = new TwigMailerService($this->mailer, $this->twig);
+        $this->twigMailer = new TwigMailerService($this->twig);
+        $this->twigMailer->setPhpMailer($this->mailer);
     }
 
     public function setFrom($fromEmail, $fromName)

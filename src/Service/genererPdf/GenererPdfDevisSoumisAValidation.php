@@ -12,7 +12,8 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
     function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
     {
-        $pdf = new HeaderPdf($email);
+        $pdf = new HeaderPdf();
+        $pdf->setEmail($email);
         $generator = new PdfTableGenerator();
 
         $pdf->AddPage();
@@ -135,7 +136,8 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
     {
         // $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
-        $pdf = new HeaderPdf($email);
+        $pdf = new HeaderPdf();
+        $pdf->setEmail($email);
 
         $pdf->AddPage();
 

@@ -2,15 +2,18 @@
 
 namespace App\Service\tik;
 
+use Dom\Entity;
 use App\Controller\Controller;
-use App\Controller\Traits\tik\EnvoiFichier;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiCommentaires;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\tik\TkiPlanning;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Entity\admin\tik\TkiCommentaires;
+use App\Controller\Traits\tik\EnvoiFichier;
+use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class HandleRequestService
 {
@@ -20,20 +23,20 @@ class HandleRequestService
     private $tkiCommentaire;
     private $em;
     private $form;
-    private $sessionService;
+    private SessionInterface $sessionService;
     private User $connectedUser;
     private DemandeSupportInformatique $supportInfo;
     private StatutDemande $statut;
 
-    public function __construct(User $connectedUser, DemandeSupportInformatique $supportInfo)
+    public function __construct( SessionInterface $session, EntityManagerInterface $em)
     {
         $this->emailTikService = new EmailTikService;
         $this->tkiCommentaire = new TkiCommentaires;
-        $this->em = Controller::getEntity();
-        $this->sessionService = new SessionManagerService;
-        $this->connectedUser = $connectedUser;
-        $this->supportInfo = $supportInfo;
+        $this->em = $em;
+        $this->sessionService = $session;
+        $this->connectedUser = $em->getRepository(User::class)->find($session->get('user_id'));
     }
+
 
     /** 
      * Méthode pour gérer la requête selon l'action
@@ -368,6 +371,18 @@ class HandleRequestService
     public function setTkiCommentaire($tkiCommentaire)
     {
         $this->tkiCommentaire = $tkiCommentaire;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of supportInfo
+     *
+     * @return  self
+     */ 
+    public function setSupportInfo($supportInfo)
+    {
+        $this->supportInfo = $supportInfo;
 
         return $this;
     }

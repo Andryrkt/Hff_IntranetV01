@@ -5,6 +5,8 @@ namespace App\Service\historiqueOperation;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
@@ -16,7 +18,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     private $typeOperationRepository;
     private $typeDocumentRepository;
     protected $sessionService;
-    private $typeDocumentId;
+    private int $typeDocumentId;
 
     /** 
      * Constructeur pour l'historique des opérations de document par type
@@ -36,13 +38,19 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 12 : BC - Bon de commande
      *  - 13 : AC - Accusé de réception
      */
-    public function __construct(int $typeDocumentId)
+    public function __construct(SessionInterface $session, EntityManagerInterface $em)
     {
-        $this->em                      = Controller::getEntity();
-        $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
-        $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
-        $this->sessionService = new SessionManagerService();
+        $this->em                      = $em;
+        $this->userRepository          = $em->getRepository(User::class);
+        $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
+        $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
+        $this->sessionService = $session;
+    }
+
+    
+
+    public function setIdTypeDocument(int $typeDocumentId): void
+    {
         $this->typeDocumentId = $typeDocumentId;
     }
 

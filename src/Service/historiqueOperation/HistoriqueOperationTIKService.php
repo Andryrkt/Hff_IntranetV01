@@ -6,6 +6,6 @@ class HistoriqueOperationTIKService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(5);
+        $this->setIdTypeDocument(5);
     }
 }

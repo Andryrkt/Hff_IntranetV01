@@ -7,20 +7,21 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\SessionManagerService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AccessControlService 
 {
     private EntityManagerInterface $em;
-    private SessionManagerService $sessionService;
+    private SessionInterface $sessionService;
 
 
     public function __construct(
         EntityManagerInterface $em,
-        SessionManagerService $sessionService
+        SessionInterface $session
     ) {
         $this->em             = $em;
-        $this->sessionService = $sessionService;
+        $this->sessionService = $session;
     }
 
     /**

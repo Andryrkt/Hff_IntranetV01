@@ -6,6 +6,6 @@ class HistoriqueOperationDEVService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(11);
+        $this->setIdTypeDocument(11);
     }
 }

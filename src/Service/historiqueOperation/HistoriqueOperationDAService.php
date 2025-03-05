@@ -6,6 +6,6 @@ class HistoriqueOperationDAService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(6);
+        $this->setIdTypeDocument(6);
     }
 }

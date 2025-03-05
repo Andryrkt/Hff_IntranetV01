@@ -10,9 +10,9 @@ class JsonFileService
     /**
      * Constructeur, prend en paramètre le chemin vers le fichier JSON.
      */
-    public function __construct($filePath)
+    public function __construct()
     {
-        $this->filePath = $filePath;
+        $this->filePath = 'C:\wamp64\www\Upload\variable_global/liste_constructeur.json';
         $this->load();
     }
 

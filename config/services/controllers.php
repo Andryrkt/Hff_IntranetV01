@@ -5,25 +5,27 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 return function (ContainerBuilder $containerBuilder) {
     $finder = new Finder();
-    
-    // Cherche dans tous les sous-dossiers de /src/Controller, /src/Service et /src/Api
-    $directories = ['Controller', 'Service', 'Api'];
-    
-    foreach ($directories as $dir) {
-        $finder->files()->in(dirname(__DIR__, 2) . "/src/$dir")->name('*.php');
-    }
+
+    // Définition des dossiers à scanner
+    $directories = [dirname(__DIR__, 2) . '/src/Controller', dirname(__DIR__, 2) . '/src/Service', dirname(__DIR__, 2) . '/src/Api'];
+
+    // Chercher tous les fichiers PHP dans ces dossiers
+    $finder->files()->in($directories)->name('*.php');
 
     foreach ($finder as $file) {
         $relativePath = substr($file->getRealPath(), strlen(dirname(__DIR__, 2)) + 5, -4);
         $className = 'App\\' . str_replace(['/', '\\'], '\\', $relativePath);
 
-        // Charger la classe si elle n'est pas encore incluse
-        require_once $file->getRealPath();
+        // Vérifier si la classe existe (évite les erreurs de chargement)
+        if (!class_exists($className, false)) {
+            require_once $file->getRealPath();
+        }
 
         if (!class_exists($className)) {
             continue;
         }
 
+        // Enregistrement de la classe dans le conteneur
         $containerBuilder->register($className, $className)
             ->setAutowired(true) // Injection automatique des dépendances
             ->setAutoconfigured(true) // Active l'injection des dépendances

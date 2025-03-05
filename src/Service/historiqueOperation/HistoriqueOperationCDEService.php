@@ -6,6 +6,6 @@ class HistoriqueOperationCDEService extends HistoriqueOperationService
 {
     public function __construct()
     {
-        parent::__construct(10);
+        $this->setIdTypeDocument(10);
     }
 }
