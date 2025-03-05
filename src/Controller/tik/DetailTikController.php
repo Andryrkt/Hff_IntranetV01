@@ -421,7 +421,7 @@ class DetailTikController extends Controller
                 'statut'      => "refuse",
                 'subject'     => "{$tab['numTik']} - Ticket refusé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -438,7 +438,7 @@ class DetailTikController extends Controller
                 'statut'      => "suspendu",
                 'subject'     => "{$tab['numTik']} - Ticket suspendu",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -456,7 +456,7 @@ class DetailTikController extends Controller
                 'statut'      => "valide",
                 'subject'     => "{$tab['numTik']} - Ticket validé",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -486,7 +486,7 @@ class DetailTikController extends Controller
                 'statut'      => "comment",
                 'subject'     => "{$tab['numTik']} - Commentaire émis",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -505,7 +505,7 @@ class DetailTikController extends Controller
                 'statut'      => "resolu",
                 'subject'     => "{$tab['numTik']} - Ticket résolu",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -524,7 +524,7 @@ class DetailTikController extends Controller
                 'statut'      => "planifie",
                 'subject'     => "{$tab['numTik']} - Ticket planifié",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -543,7 +543,7 @@ class DetailTikController extends Controller
                 'statut'      => "transfere",
                 'subject'     => "{$tab['numTik']} - Ticket transféré",
                 'tab'         => $tab,
-                'action_url'  => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
     }
@@ -571,7 +571,7 @@ class DetailTikController extends Controller
         $fileNames = [];
         // Récupérez les fichiers uploadés depuis le formulaire
         $files        = $form->get('fileNames')->getData();
-        $chemin       = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $chemin       = $_ENV['BASE_PATH_FICHIER'].'/tik/fichiers';
         $fileUploader = new FileUploaderService($chemin);
         if ($files) {
             foreach ($files as $file) {

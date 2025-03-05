@@ -138,7 +138,7 @@ trait BadmDuplicationTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
        
-        $fileDossier = GlobalVariablesService::get('chemin_upload_file') . '/bdm/fichiers/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/';
        
         $file->move($fileDossier, $fileName);
 
@@ -272,7 +272,7 @@ trait BadmDuplicationTrait
             $image = '';
             $extension = '';
         } elseif($idTypeMouvement === 5) {
-            $image =  GlobalVariablesService::get('chemin_upload_file') . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image =  $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 

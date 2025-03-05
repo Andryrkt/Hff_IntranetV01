@@ -90,7 +90,7 @@ class DatabaseInformix
     private function logError($message)
     {
         $formattedMessage = sprintf("[%s] %s\n", date("Y-m-d H:i:s"), $message);
-        error_log($formattedMessage, 3, GlobalVariablesService::get('chemin_log')."/log/app_errors.log");
+        error_log($formattedMessage, 3, $_ENV['BASE_PATH_LOG']."/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

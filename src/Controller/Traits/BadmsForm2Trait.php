@@ -139,7 +139,7 @@ trait BadmsForm2Trait
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
 
-        $fileDossier = GlobalVariablesService::get('chemin_upload_file'). '/bdm/fichiers/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER']. '/bdm/fichiers/';
 
         $file->move($fileDossier, $fileName);
 
@@ -163,7 +163,7 @@ trait BadmsForm2Trait
         //     $badm->getServiceEmetteurId()->getCodeService()
         // );
 
-        $mainPdf = GlobalVariablesService::get('chemin_upload_file') . '\/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
+        $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '\/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
@@ -311,7 +311,7 @@ trait BadmsForm2Trait
             $image = '';
             $extension = '';
         } elseif ($idTypeMouvement === 5) {
-            $image = GlobalVariablesService::get('chemin_upload_file') . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image = $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 

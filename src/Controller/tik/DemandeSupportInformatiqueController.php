@@ -153,7 +153,7 @@ class DemandeSupportInformatiqueController extends Controller
         $fileNames = [];
         // Récupérez les fichiers uploadés depuis le formulaire
         $files = $form->get('fileNames')->getData();
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/tik/fichiers';
         $fileUploader = new FileUploaderService($chemin);
         if ($files) {
             foreach ($files as $file) {
@@ -205,7 +205,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'statut'     => "newTik",
                 'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(GlobalVariablesService::get('chemin_base_court')."/tik-detail/{$tab['id']}")
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);

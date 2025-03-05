@@ -25,7 +25,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
 
         // Logo HFF
-        $logoPath = GlobalVariablesService::get('chemin_base_long') . '/Views/assets/logoHff.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
 
         // Grand titre du pdf
@@ -215,7 +215,7 @@ class GeneratePdfDom extends GeneratePdf
         $pdf->Cell($w50, 10, $tab['mode'], 0, 1);
 
         // génération de fichier
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dom/';
         $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
     }
 

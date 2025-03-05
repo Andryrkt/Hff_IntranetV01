@@ -27,7 +27,7 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->AddPage();
 
         // Ajout du logo
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henriFraise.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'].'/Views/assets/henriFraise.jpg';
         $pdf->Image($logoPath, 10, 10, 50);
         $pdf->Ln(15);
 

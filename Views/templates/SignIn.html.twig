@@ -17,6 +17,10 @@
 									{{ error_msg }}
 								</div>
 							{% endif %}
+							{% set path = App.base_path %}
+							<pre>
+		{{ dump(path) }}
+	</pre>
 							<div class="form-outline mb-4" data-mdb-input-init>
 								<label class="form-label" for="username">Utilisateur</label>
 								<div class="input-group">
