@@ -79,6 +79,11 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
 									</li>
+									{% if trop_percu(item.numeroOrdreMission) %}
+										<li>
+											<a class="dropdown-item fw-bold" href="#">Trop perçu</a>
+										</li>
+									{% endif %}
 								</ul>
 							</div>
 						</td>

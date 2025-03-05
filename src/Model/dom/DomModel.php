@@ -16,17 +16,35 @@ class DomModel extends Model
     {
         $SqlDate = "SELECT  Date_Debut, Date_Fin
         FROM Demande_ordre_mission
-        WHERE  Matricule = '".$matricule."'  
+        WHERE  Matricule = '" . $matricule . "'  
         AND ID_Statut_Demande NOT IN (9, 33, 34, 35, 44)";
 
         $execSqlDate = $this->connexion->query($SqlDate);
-        
+
         $DateM = array();
         while ($tab_list = odbc_fetch_array($execSqlDate)) {
             $DateM[] = $tab_list;
         }
 
         return $DateM;
+    }
+
+    public function verifierSiTropPercu(string $numeroDom)
+    {
+        $sql = "SELECT
+                    CASE
+                        WHEN (dom.Nombre_Jour - COALESCE(SUM(domtp.Nombre_Jour_Tp), 0)) > 0 THEN 'Trop_percu'
+                        ELSE ''
+                    END AS reponse
+                FROM Demande_ordre_mission dom
+                LEFT JOIN Demande_ordre_mission_tp domtp
+                    ON dom.Numero_Ordre_Mission = domtp.Numero_Ordre_Mission
+                WHERE dom.Numero_Ordre_Mission = '" . $numeroDom . "'
+                GROUP BY dom.Numero_Ordre_Mission, dom.Nombre_Jour";
+
+        $result = odbc_fetch_array($this->connexion->query($sql));
+
+        return $result['reponse'] === 'Trop_percu';
     }
 
 
@@ -77,7 +95,7 @@ class DomModel extends Model
     //     }
     //     return $ListCatge;
     // }
-    
+
     /**
      * selection site (region ) 
      * @param  TypeM: type de mission 
@@ -126,7 +144,7 @@ class DomModel extends Model
     //     return $exsqlcount ? odbc_fetch_array($exsqlcount)['nbCount'] : false;
     // }
 
-/*
+    /*
     public function agenceDebiteur()
     {
         $statement = " SELECT 
