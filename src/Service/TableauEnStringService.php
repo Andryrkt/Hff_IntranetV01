@@ -40,7 +40,7 @@ class TableauEnStringService
         return $result;
     }
 
-    /**
+     /**
      * Methode general pour transformer un tableau en string
      *
      * @param array $tab
@@ -50,6 +50,11 @@ class TableauEnStringService
     {
         // Fonction de validation et de transformation
         $flattenedArray = self::flattenArray($tab);
+
+        // Si le tableau est vide, renvoyer deux quotes simples
+        if (empty($flattenedArray)) {
+            return $quote . $quote;
+        }
         
         // Échappe les caractères spéciaux si nécessaire
         $escapedArray = array_map(function ($el) use ($quote) {
@@ -63,5 +68,4 @@ class TableauEnStringService
         // Joindre les éléments avec le séparateur
         return implode($separateur, $escapedArray);
     }
-
 }

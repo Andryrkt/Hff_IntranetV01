@@ -37,7 +37,7 @@ class ListApi extends Controller
      */
     public function sectionAffecteeModal($id)
     {
-        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section'];
+        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section','Chef d\'équipe'];
 
         // Récupération des données
         $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
@@ -100,6 +100,12 @@ class ListApi extends Controller
      * */
     public function ri($numOr)
     {
+        if(empty($numOr)){
+            header("Content-type:application/json");
+            echo json_encode([]);
+            return;
+        }
+        
         $ditListeModel = new DitListModel();
         $ri = $ditListeModel->recupItvComment($numOr);
         $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);

@@ -1,13 +1,27 @@
-document.addEventListener('DOMContentLoaded', function () {
-  adjustStickyPositions();
+import { fetchData } from '../../../utils/fetchUtils';
+import { baseUrl } from '../../../utils/config';
 
-  // Ajoutez un écouteur d'événements pour surveiller l'ouverture/fermeture de l'accordéon
-  document
-    .querySelector('button.accordion-button.enteteAccordion')
-    .addEventListener('click', function () {
-      // Utilisation de délai pour laisser le temps à l'animation de se terminer
-      setTimeout(adjustStickyPositions, 350); // durée de l'animation: estimé à 300ms
-    });
+const spinner = document.getElementById('spinner');
+
+// Fonction pour afficher et masquer le spinner
+function toggleSpinner(show) {
+  spinner.style.display = show ? 'block' : 'none';
+}
+
+async function loadOperations() {
+  toggleSpinner(true); // Afficher le spinner pendant la récupération des données
+  const operations = await fetchData(
+    `${baseUrl}api/operation-document-fetch-all`
+  ); // Données JSON injectées par le back-end
+  toggleSpinner(false); // Masquer le spinner après la récupération des données
+  return operations;
+}
+
+// Initialisation des opérations
+let operations = [];
+loadOperations().then((data) => {
+  operations = data;
+  renderTable(operations);
 });
 
 function adjustStickyPositions() {

@@ -155,17 +155,6 @@ class Controller
         self::$paginator = $paginator;
     }
 
-    protected function SessionStart()
-    {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-        if (empty($_SESSION['user'])) {
-            header("Location:/Hffintranet/");
-            session_destroy();
-            exit();
-        }
-    }
 
     protected function SessionDestroy()
     {
@@ -184,7 +173,7 @@ class Controller
         session_unset();
 
         // Redirige vers la page d'accueil
-        header("Location: /Hffintranet/");
+        $this->redirectToRoute('security_signin'); //security_signin
 
         // Ferme l'écriture de la session pour éviter les problèmes de verrouillage
         session_write_close();

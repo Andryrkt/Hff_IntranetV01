@@ -2,7 +2,7 @@
 
 {% block nav %}{% endblock %}
 {% block stylesheets%}
-<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
 {% endblock%}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -61,7 +61,7 @@
 									{{ macroForm.affichage('N° Or', dit.numeroOr)}}
 								</div>
 								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
-								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
 							</div>
 						</div>
@@ -251,5 +251,5 @@
 {% block footer %}{% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dit/ditValidation.js"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/ditValidation.js"></script>
 {% endblock %}

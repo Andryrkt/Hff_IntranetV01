@@ -1,3 +1,5 @@
+{% set role_ids = App.user.roleIds %}
+
 <div class="accordion" id="formAccordion">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
@@ -10,7 +12,6 @@
 				{{ form_start(form, { 'attr': { 'id': 'planning_search_form' } }) }}
 
 				<div class="row">
-
 					<div class="col-12 col-md-2">
 						{{form_row(form.agence)}}
 						{{form_row(form.agenceDebite)}}
@@ -30,13 +31,19 @@
 					<div class="col-12 col-md-2">
 						{{form_row(form.facture)}}
 						{{form_row(form.numOr)}}
+						{{form_row(form.typeDocument)}}
 						{{form_row(form.orBackOrder)}}
-						
+						{% if 1 in role_ids %}
+						{{form_row(form.orNonValiderDw)}}
+						{% else %}
+						{{form_row(form.orNonValiderDw, {'row_attr': {'class': 'd-none'}})}}
+						{% endif %}					
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.plan)}}
 						{{form_row(form.numSerie)}}
 						{{form_row(form.numParc)}}
+						{{form_row(form.reparationRealise)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{# {{form_row(form.annee)}} #}

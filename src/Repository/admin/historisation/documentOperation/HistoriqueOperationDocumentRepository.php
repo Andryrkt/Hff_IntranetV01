@@ -2,6 +2,7 @@
 
 namespace App\Repository\admin\historisation\documentOperation;
 
+<<<<<<< HEAD
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
@@ -94,3 +95,9 @@ class HistoriqueOperationDocumentRepository extends EntityRepository
         }
     }
 }
+=======
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
+
+class HistoriqueOperationDocumentRepository extends EntityRepository {}
+>>>>>>> e2449b113a26f4a16e2de08d779a4e263ca62975

@@ -116,7 +116,7 @@ class DitRiSoumisAValidationController extends Controller
                     if ($file) { // Vérification si le fichier existe
                         try {
                             $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
-                            $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/';
+                            $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/vri/';
 
                             // Créer une copie temporaire du fichier
                             $tempFile = tempnam(sys_get_temp_dir(), 'upload_');

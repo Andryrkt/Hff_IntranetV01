@@ -25,7 +25,7 @@ class RequestSoumisValidation
                 WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
             END 
             * 
-            ".self::getPrixReelCase()."
+            '.self::getPrixReelCase().'
         ) as MONTANT_ITV";
     }
 
@@ -33,11 +33,11 @@ class RequestSoumisValidation
     {
         return " Sum(
             CASE
-                WHEN slor_typlig = 'P' AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") 
+                WHEN slor_typlig = 'P' AND slor_constp in ('AGR','ATC','AUS','CAT','CGM','CMX','DNL','DYN','GRO','HYS','JDR','KIT','MAN','MNT','OLY','OOM','PAR','PDV','PER','PUB','REM','SHM','TBI','THO') 
                 THEN (nvl(slor_qterel, 0) + nvl(slor_qterea, 0) + nvl(slor_qteres, 0) + nvl(slor_qtewait, 0) - nvl(slor_qrec, 0))
             END 
             * 
-            ".self::getPrixReelCase()."
+            '.self::getPrixReelCase().'
         ) AS MONTANT_PIECE";
     }
 
@@ -48,7 +48,7 @@ class RequestSoumisValidation
                     WHEN slor_typlig = 'M' THEN slor_qterea
                 END 
                 *
-                ".self::getPrixReelCase()."
+                '.self::getPrixReelCase().'
             ) AS MONTANT_MO";
     }
 
@@ -61,7 +61,7 @@ class RequestSoumisValidation
                     )
                 END 
                 *
-                ".self::getPrixReelCase()."
+                '.self::getPrixReelCase().'
             ) AS MONTANT_ACHATS_LOCAUX
         ";
     }
@@ -74,7 +74,7 @@ class RequestSoumisValidation
                     AND slor_constp like 'Z%' THEN slor_qterea
                 END 
                 *
-                ".self::getPrixReelCase()."
+                '.self::getPrixReelCase().'
             ) AS MONTANT_DIVERS
         ";
     }
@@ -90,7 +90,7 @@ class RequestSoumisValidation
                     THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
                 END 
                 * 
-                ".self::getPrixReelCase()."
+                '.self::getPrixReelCase().'
             ) AS MONTANT_LUBRIFIANTS
         ";
     }
@@ -117,22 +117,22 @@ class RequestSoumisValidation
             AND slor_soc = seor_soc
             AND sitv_soc = seor_soc
             AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
-            AND seor_numor = '{$condition['numDevis']}'
+            AND seor_numor in ({$condition['numDevis']})
         ";
     }
 
     public static function buildQuery(array $condition)
     {
         $selectColumns = [
-            "sitv_succdeb as SERV_DEBITEUR",
-            "slor_numor",
-            "sitv_datdeb",
-            "trim(seor_refdem) as NUMERO_DIT",
-            "sitv_interv as NUMERO_ITV",
-            "trim(sitv_comment) as LIBELLE_ITV",
-            "trim(sitv_natop) as NATURE_OPERATION",
-            "trim(seor_devise) as devise",
-            "count(slor_constp) as NOMBRE_LIGNE",
+            'sitv_succdeb as num_agence',
+            'slor_numor as numero_devis',
+            'sitv_datdeb',
+            'trim(seor_refdem) as numero_dit',
+            'sitv_interv as numero_itv',
+            'trim(sitv_comment) as libell_itv',
+            'trim(sitv_natop) as nature_operation',
+            'trim(seor_devise) as devise',
+            'count(slor_constp) as nombre_ligne',
             self::getMontantITV(),
             self::getMontantPiece(),
             self::getMontantMo(),
@@ -142,59 +142,59 @@ class RequestSoumisValidation
             self::getMontantForfait()
         ];
 
-        $query = "SELECT " . implode(", ", $selectColumns) . " 
+        $query = 'SELECT ' . implode(', ', $selectColumns) . ' 
                     FROM sav_eor, sav_lor, sav_itv
-                    WHERE " . self::getConditions($condition) . " 
+                    WHERE ' . self::getConditions($condition) . ' 
                     GROUP BY 1, 2, 3, 4, 5, 6, 7, 8
-                    ORDER BY slor_numor, sitv_interv";
+                    ORDER BY slor_numor, sitv_interv';
 
         return $query;
     }
 
 /** FORFAIT */
-    public static function getConditionsForfait(array $condition)
-    {
-        return "
-            seor_numor = slor_numor
-            AND seor_serv = 'DEV'
-            AND sitv_numor = slor_numor
-            AND sitv_interv = slor_nogrp / 100
-            AND seor_soc = 'HF'
-            AND slor_soc = seor_soc
-            AND sitv_soc = seor_soc
-            AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
-            AND seor_numor = '{$condition['numDevis']}'
-            AND slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE' --ajout de ceci pour le forfait
-        ";
-    }
+    // public static function getConditionsForfait(array $condition)
+    // {
+    //     return '
+    //         seor_numor = slor_numor
+    //         AND seor_serv = 'DEV'
+    //         AND sitv_numor = slor_numor
+    //         AND sitv_interv = slor_nogrp / 100
+    //         AND seor_soc = 'HF'
+    //         AND slor_soc = seor_soc
+    //         AND sitv_soc = seor_soc
+    //         AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
+    //         AND seor_numor = '{$condition['numDevis']}'
+    //         AND slor_constp = 'ZDI' AND slor_refp = 'FORFAIT' AND sitv_natop = 'VTE' --ajout de ceci pour le forfait
+    //     ';
+    // }
 
-    public static function buildQueryForfait(array $condition)
-    {
-        $selectColumns = [
-            "sitv_succdeb as SERV_DEBITEUR",
-            "slor_numor",
-            "sitv_datdeb",
-            "trim(seor_refdem) as NUMERO_DIT",
-            "sitv_interv as NUMERO_ITV",
-            "trim(sitv_comment) as LIBELLE_ITV",
-            "trim(sitv_natop) as NATURE_OPERATION",
-            "count(slor_constp) as NOMBRE_LIGNE",
-            self::getMontantITV(),
-            self::getMontantPiece(),
-            self::getMontantMo(),
-            self::getMontantAchatLocaux(),
-            self::getMontantFraisDivers(),
-            self::getMontantLubrifiants(),
-            self::getMontantForfait()
-        ];
+    // public static function buildQueryForfait(array $condition)
+    // {
+    //     $selectColumns = [
+    //         'sitv_succdeb as SERV_DEBITEUR',
+    //         'slor_numor',
+    //         'sitv_datdeb',
+    //         'trim(seor_refdem) as NUMERO_DIT',
+    //         'sitv_interv as NUMERO_ITV',
+    //         'trim(sitv_comment) as LIBELLE_ITV',
+    //         'trim(sitv_natop) as NATURE_OPERATION',
+    //         'count(slor_constp) as NOMBRE_LIGNE',
+    //         self::getMontantITV(),
+    //         self::getMontantPiece(),
+    //         self::getMontantMo(),
+    //         self::getMontantAchatLocaux(),
+    //         self::getMontantFraisDivers(),
+    //         self::getMontantLubrifiants(),
+    //         self::getMontantForfait()
+    //     ];
 
-        $query = "SELECT " . implode(", ", $selectColumns) . " 
-                    FROM sav_eor, sav_lor, sav_itv
-                    WHERE " . self::getConditionsForfait($condition) . " 
-                    GROUP BY 1, 2, 3, 4, 5, 6, 7
-                    ORDER BY slor_numor, sitv_interv";
+    //     $query = 'SELECT ' . implode(', ', $selectColumns) . ' 
+    //                 FROM sav_eor, sav_lor, sav_itv
+    //                 WHERE ' . self::getConditionsForfait($condition) . ' 
+    //                 GROUP BY 1, 2, 3, 4, 5, 6, 7
+    //                 ORDER BY slor_numor, sitv_interv';
 
-        return $query;
-    }
+    //     return $query;
+    // }
 
 }

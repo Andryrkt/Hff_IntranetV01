@@ -2,22 +2,22 @@
 
 namespace App\Controller\tik;
 
+use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
-use App\Controller\Traits\tik\EnvoiFichier;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiCommentaires;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\tik\TkiPlanning;
-use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
-use App\Repository\admin\StatutDemandeRepository;
-use App\Service\tik\EmailTikService;
-use App\Service\tik\HandleRequestService;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\tik\TkiCommentaires;
+use App\Form\admin\tik\TkiCommentairesType;
+use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\admin\StatutDemandeRepository;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 class DetailTikController extends Controller
 {
@@ -154,35 +154,189 @@ class DetailTikController extends Controller
      * 
      * @return bool
      */
-    private function canComment(User $connectedUser, DemandeSupportInformatique $tik): bool
+    private function emailTikRefuse($tab): array
     {
-        /** 
-         * @var User $demandeur l'utilisateur qui a fait la demande de support info
-         */
-        $demandeur   = $tik->getUserId();
+        return [
+            'to'        => $tab['emailUserDemandeur'],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "refuse",
+                'subject'     => "{$tab['numTik']} - Ticket refusé",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
 
-        /** 
-         * @var User $validateur l'utilisateur qui a validé ou refusé la demande
-         */
-        $validateur  = $tik->getValidateur();
+    /** 
+     * email pour un ticket suspendu
+     */
+    private function emailTikSuspendu($tab): array
+    {
+        return [
+            'to'        => $tab['emailUserDemandeur'],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "suspendu",
+                'subject'     => "{$tab['numTik']} - Ticket suspendu",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
 
-        /** 
-         * @var User $intervenant l'utilisateur qui a été assigné à la demande
-         */
-        $intervenant = $tik->getIntervenant();
+    /** 
+     * email pour un ticket validé
+     */
+    private function emailTikValide($tab): array
+    {
+        return [
+            'to'        => $tab['emailUserDemandeur'],
+            'cc'        => [$tab['emailIntervenant']],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "valide",
+                'subject'     => "{$tab['numTik']} - Ticket validé",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
 
-        /** 
-         * @var array $authorizedUsers les utilisateurs autorisés à commenter
-         */
-        $authorizedUsers = [$demandeur->getId(),];
-
-        if ($validateur !== null) {
-            $authorizedUsers[] = $validateur->getId();
+    /** 
+     * email pour un ticket commenté
+     */
+    private function emailTikCommente($tab, $emailUserConnected): array
+    {
+        if (isset($tab['emailValidateur'])) {
+            $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+            $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+            $to = $cc[0];
+            $cc = !empty($cc[1]) ? [$cc[1]] : [];
+        } else {
+            $emailValidateurs = array_map(function ($validateur) {
+                return $validateur->getMail();
+            }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
+            $to = $emailValidateurs[0];
+            $cc = array_slice($emailValidateurs, 1);
         }
-        if ($intervenant !== null) {
-            $authorizedUsers[] = $intervenant->getId();
+        return [
+            'to'        => $to,
+            'cc'        => $cc,
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "comment",
+                'subject'     => "{$tab['numTik']} - Commentaire émis",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket résolu
+     */
+    private function emailTikResolu($tab): array
+    {
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
+        return [
+            'to'        => $tabEmail[0],
+            'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "resolu",
+                'subject'     => "{$tab['numTik']} - Ticket résolu",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket planifié
+     */
+    private function emailTikPlanifie($tab): array
+    {
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur']]));
+        return [
+            'to'        => $tabEmail[0],
+            'cc'        => !empty($tabEmail[1]) ? [$tabEmail[1]] : [],
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "planifie",
+                'subject'     => "{$tab['numTik']} - Ticket planifié",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * email pour un ticket transferé
+     */
+    private function emailTikTransfere($tab): array
+    {
+        $tabEmail = array_values(array_filter([$tab['emailUserDemandeur'], $tab['emailValidateur'], $tab['emailIntervenant']]));
+        return [
+            'to'        => $tabEmail[0],
+            'cc'        => array_slice($tabEmail, 1),
+            'template'  => $tab['template'],
+            'variables' => [
+                'statut'      => "transfere",
+                'subject'     => "{$tab['numTik']} - Ticket transféré",
+                'tab'         => $tab,
+                'action_url'  => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
+            ]
+        ];
+    }
+
+    /** 
+     * fonction pour vérifier l'envoi du mail ou non 
+     */
+    private function envoyerEmail(array $content)
+    {
+        $email = new EmailService;
+
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
+
+        $content['cc'] = $content['cc'] ?? [];
+
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+
+    /** 
+     * Fonction pour le traitement de fichier
+     */
+    private function traitementEtEnvoiDeFichier($form, TkiCommentaires $commentaire)
+    {
+        //TRAITEMENT FICHIER
+        $fileNames = [];
+        // Récupérez les fichiers uploadés depuis le formulaire
+        $files        = $form->get('fileNames')->getData();
+        $chemin       = $_ENV['BASE_PATH_FICHIER'].'/tik/fichiers';
+        $fileUploader = new FileUploaderService($chemin);
+        if ($files) {
+            foreach ($files as $file) {
+                // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
+                $prefix   = $commentaire->getNumeroTicket() . '_commentaire_';
+                $fileName = $fileUploader->upload($file, $prefix);
+                // Obtenir la taille du fichier dans l'emplacement final
+                $filePath = $chemin . '/' . $fileName;
+                $fileSize = round(filesize($filePath) / 1024, 2); // Taille en Ko avec 2 décimales
+                if (file_exists($filePath)) {
+                    $fileSize = round(filesize($filePath) / 1024, 2);
+                } else {
+                    $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
+                }
+
+                $fileNames[] = [
+                    'name' => $fileName,
+                    'size' => $fileSize
+                ];
+            }
         }
 
-        return in_array($connectedUser->getId(), $authorizedUsers);
+        // Enregistrez les noms des fichiers dans votre entité
+        $commentaire->setFileNames($fileNames);
     }
 }

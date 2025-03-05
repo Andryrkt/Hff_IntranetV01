@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -135,7 +135,6 @@
 											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
 										</li>
 										<li>
-											{# {% if item.estOrASoumi and item.estOrEqDit %} #}
 											{% if item.estOrASoumi %}
 												<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Soumission document à valider</a>
 											{% endif %}
@@ -175,7 +174,7 @@
 							<td>{{ item.agenceServiceDebiteur}}</td>
 							<td>
 								{{ item.objetDemande}}</td>
-							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section '] %}
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 							<td>
 								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
 									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
@@ -220,6 +219,6 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
-	<script src="/Hffintranet/Views/js/dit/listDitModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
 {% endblock %}

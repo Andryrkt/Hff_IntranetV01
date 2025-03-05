@@ -13,7 +13,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
     /**
      * generer pdf facture à validation
      */
-    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr, $email)
+    function GenererPdfFactureSoumisAValidation($ditfacture, $numDevis, $montantPdf, $etatOr, $email, $interneExterne)
     {
         $pdf = new TCPDF();
 
@@ -279,8 +279,16 @@ class GenererPdfFactureAValidation extends GeneratePdf
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vfac/';
-        $pdf->Output($Dossier.'factureValidation_'.$ditfacture->getNumeroFact().'_'.$ditfacture->getNumeroSoumission(). '.pdf', 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/vfac/';
+        if($interneExterne == 'INTERNE') {
+            $filePath = $Dossier . 'factureValidation_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        } else {
+            $filePath = $Dossier . 'validation_facture_client_' . $ditfacture->getNumeroFact() . '_' . $ditfacture->getNumeroSoumission() . '.pdf';
+        }
+
+        $pdf->Output($filePath, 'F');
+        
+        return $filePath;
     }
 
 }

@@ -52,7 +52,13 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (monTicket === '0') {
         modalBodyContent.textContent = `Vous n'avez pas l'autorisation pour modifier ce ticket.`;
       } else {
-        modalBodyContent.textContent = `Impossible de modifier ce ticket car il a été déjà validé/refusé.`;
+        updateMessage(
+          confirmationModal,
+          `api/modification-ticket-fetch/${numTik}`,
+          modalBodyContent,
+          modalConfirmationSpinner,
+          modalConfirmationContainer
+        );
       }
     });
   });

@@ -214,7 +214,7 @@ trait PlanningModelTrait
                    $vStatutInterneExterne = " AND SITV_NATOP = 'CES'  and SITV_TYPEOR not in ('501','601','602','603','604','605','606','607','608','609','610','611','701','702','703','704','705','706')";
                    break;
             case "EXTERNE":
-                   $vStatutInterneExterne = "AND SITV_NATOP <> 'CES' ";
+                   $vStatutInterneExterne = "AND seor_numcli >1 ";
                    break;
           }
           return $vStatutInterneExterne;
