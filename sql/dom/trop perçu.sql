@@ -13,6 +13,7 @@ SELECT montant, site_id, catg_id, rmq_id, '11', date_creation, date_modification
 WHERE sousTypeDoc_id = '2';
 
 CREATE TABLE Demande_ordre_mission_tp (
+    id int IDENTITY(1,1) NOT NULL,
     Numero_Ordre_Mission varchar(11) not null,
     Numero_Ordre_Mission_Tp  varchar(11) not null,
     Nombre_Jour_Tp int not null

@@ -68,45 +68,10 @@ class DomTropPercuController extends Controller
                 ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
                 ->setNombreJourTp($dom->getNombreJour())
             ;
-            self::$em
-                ->persist($domTp)
-                ->flush()
-            ;
+            self::$em->persist($domTp);
+            self::$em->flush();
 
             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user, true);
-
-            // $domForm = $form->getData();
-
-            // $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em, $user);
-
-            // $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
-
-            // if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' && $form1Data['sousTypeDocument']->getCodeSousType() !== 'TROP PERCU') {
-            //     if ($verificationDateExistant) {
-            //         $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
-            //         $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-            //     } else {
-            //         if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
-            //             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-            //         } else {
-            //             if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-            //                 $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-            //             } else {
-            //                 $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-
-            //                 $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-            //             }
-            //         }
-            //     }
-            // } else {
-            //     if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-            //         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
-            //     } else {
-            //         $message = "Assurez vous que le Montant Total est inférieur à 500.000";
-
-            //         $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
-            //     }
-            // }
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
         }

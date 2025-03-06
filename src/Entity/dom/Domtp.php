@@ -5,6 +5,7 @@ namespace App\Entity\dom;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
+ * @ORM\Entity
  * @ORM\Table(name="Demande_ordre_mission_tp")
  * @ORM\HasLifecycleCallbacks
  */
