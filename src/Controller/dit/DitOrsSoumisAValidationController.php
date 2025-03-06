@@ -62,15 +62,10 @@ class DitOrsSoumisAValidationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
-
-            if (strpos($originalName, 'Ordre de réparation') !== 0) {
-                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
-
-                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            }
 
             /** DEBUT CONDITION DE BLOCAGE */
+            $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+
             $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
             
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
@@ -86,9 +81,15 @@ class DitOrsSoumisAValidationController extends Controller
             $invalidPositions = ['FC', 'FE', 'CP', 'ST'];
 
             $refClient = $ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
+
+            $situationOrSoumis = $ditOrsoumisAValidationModel->recupBlockageStatut($numOrBaseDonner[0]['numor']);
+           
             /** FIN CONDITION DE BLOCAGE */
 
-            if ($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()) {
+            if (strpos($originalName, 'Ordre de réparation') !== 0) {
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            } elseif ($numOrBaseDonner[0]['numor'] !== $ditInsertionOrSoumis->getNumeroOR()) {
                 $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             } elseif ($datePlanning) {
@@ -105,6 +106,9 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             } elseif (empty($refClient)) {
                 $message = "Echec de la soumission car la référence client est vide.";
+                $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            } elseif ($situationOrSoumis[0]['retour'] === 'bloquer') {
+                $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             } else {
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
