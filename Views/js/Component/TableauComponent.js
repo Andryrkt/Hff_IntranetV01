@@ -61,17 +61,8 @@ export class TableauComponent {
     // Vérifier si les données sont présentes
     if (this.props.data && this.props.data.length > 0) {
       // Si des données existent, les afficher
-      this.props.data.forEach((row) => {
-        const tableRow = document.createElement("tr");
-        this.props.columns.forEach((column) => {
-          const td = document.createElement("td");
-          // Utiliser defaultValue si la donnée est vide ou inexistante
-          if (column.format && typeof column.format === "function") {
-            td.textContent =
-              column.format(row[column.key]) || this.props.defaultValue || "-";
-          } else {
-            td.textContent = row[column.key] || this.props.defaultValue || "-";
-          }
+      this.props.data.forEach((row, index) => {
+        let tableRow;
 
         if (this.props.customRenderRow) {
           tableRow = this.props.customRenderRow(row, index, this.props.data);

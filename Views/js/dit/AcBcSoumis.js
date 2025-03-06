@@ -1,7 +1,7 @@
 import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
 import { FetchManager } from "../api/FetchManager.js";
 import { AutoComplete } from "../utils/AutoComplete.js";
-const fetchManager = new FetchManager("/Hffintranet");
+const fetchManager = new FetchManager();
 /** ============================================
  * FICHIER BC AC
  *==================================================*/

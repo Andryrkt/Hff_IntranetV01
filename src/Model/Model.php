@@ -164,14 +164,4 @@ class Model
         }
         return $data;
     }
-
-    public function retournerResultGcot04($sql)
-    {
-        $statement = $this->connexion04Gcot->query($sql);
-        $data = [];
-        while ($tabType = odbc_fetch_array($statement)) {
-        $data[] = $tabType;
-        }
-        return $data;
-    }
 }

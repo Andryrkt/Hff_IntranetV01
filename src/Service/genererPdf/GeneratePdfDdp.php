@@ -14,7 +14,7 @@ class GeneratePdfDdp extends GeneratePdf
     {
         $pdf = new TCPDF();
 
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henriFraise.jpg'; // chemin du logo
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg'; // chemin du logo
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)

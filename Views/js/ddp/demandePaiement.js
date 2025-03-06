@@ -10,6 +10,7 @@ import {
   setLocale,
   formatNumberSpecial,
 } from "../utils/formatNumberUtils.js";
+import { baseUrl } from "../utils/config.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const numFrnInput = document.querySelector(
@@ -29,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /**====================================
    * AUTOCOMPLETE numero Fournisseur
    *====================================*/
-  const fetchManager = new FetchManager("/Hffintranet");
+  const fetchManager = new FetchManager();
 
   async function fetchFournisseurs() {
     return await fetchManager.get("api/info-fournisseur-ddp");
@@ -276,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function afficherFichier(nomFichie) {
     try {
       const fileName = nomFichier(nomFichie);
-      const url = `/Hffintranet/api/recuperer-fichier/${fileName}`;
+      const url = `${baseUrl}/api/recuperer-fichier/${fileName}`;
       window.open(url, "_blank");
     } catch (error) {
       console.error("Erreur lors de l'ouverture du fichier : ", error);
@@ -305,10 +306,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function selectAgence() {
     const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
+    const url = `agence-fetch/${agenceDebiteur}`;
     toggleSpinner(true);
-    fetch(url)
-      .then((response) => response.json())
+    fetchManager
+      .get(url)
       .then((services) => {
         console.log(services);
         updateServiceOptions(services);
