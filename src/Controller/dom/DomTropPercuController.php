@@ -9,6 +9,7 @@ use App\Form\dom\DomForm2Type;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\dom\Domtp;
 use App\Form\dom\DomTropPercuFormType;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
@@ -60,6 +61,18 @@ class DomTropPercuController extends Controller
                 ->setHeureFin($dom->getHeureFin()->format('H:i'))
                 ->setModePayement($domForm->getModePayement() . ':' . $mode)
             ;
+
+            $domTp = new Domtp;
+            $domTp
+                ->setNumeroOrdreMission($oldDom->getNumeroOrdreMission())
+                ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
+                ->setNombreJourTp($dom->getNombreJour())
+            ;
+            self::$em
+                ->persist($domTp)
+                ->flush()
+            ;
+
             $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user, true);
 
             // $domForm = $form->getData();
