@@ -22,7 +22,7 @@ trait DitOrSoumisAValidationTrait
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function uploadFile($file,  $ditfacture, string $fieldName, int $index): ?string
+    public function uploadFile($file,  $ditfacture, string $fieldName, int $index, string $suffix): ?string
     {
         // Validation des extensions et types MIME
         $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
@@ -39,10 +39,11 @@ trait DitOrSoumisAValidationTrait
         // Générer un nom de fichier sécurisé et unique
 
         $fileName = sprintf(
-            'orValidation_%s_%s_%02d.%s',
+            'orValidation_%s-%s_%02d#%s.%s',
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $index,
+            $suffix,
             $file->guessExtension()
         );
 
@@ -73,16 +74,18 @@ trait DitOrSoumisAValidationTrait
     private function envoiePieceJoint(
         FormInterface $form,
         $ditfacture,
-        $fusionPdf
+        $fusionPdf,
+        $suffix
     ): void {
         $pdfFiles = [];
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/vor/orValidation_%s_%s.pdf',
+            '%s/Upload/vor/orValidation_%s-%s#%s.pdf',
             $_SERVER['DOCUMENT_ROOT'],
             $ditfacture->getNumeroOR(),
-            $ditfacture->getNumeroVersion()
+            $ditfacture->getNumeroVersion(),
+            $suffix
         );
 
         // Vérifier que le fichier principal existe avant de l'ajouter
@@ -103,7 +106,7 @@ trait DitOrSoumisAValidationTrait
                     // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
                     if (preg_match('/^pieceJoint(\d{2})$/', $fieldName, $matches)) {
                         $index = (int)$matches[1];
-                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index);
+                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index, $suffix);
                         if ($pdfPath !== null) {
                             $pdfFiles[] = $pdfPath;
                         }
