@@ -100,7 +100,10 @@ document.addEventListener('DOMContentLoaded', () => {
   /** Blocage de Formulaire */
   const formTropPercu = document.querySelector('form');
   formTropPercu.addEventListener('submit', function (e) {
-    e.preventDefault();
+    if (errorMessage.textContent !== '') {
+      e.preventDefault();
+      dateFinInput.focus();
+    }
   });
 
   /**

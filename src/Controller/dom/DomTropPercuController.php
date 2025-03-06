@@ -52,9 +52,15 @@ class DomTropPercuController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $domForm = $form->getData();
 
-            dump($dom);
-            dd($form->getData());
+            $mode = $form->get('mode')->getData();
+            $dom
+                ->setHeureDebut($dom->getHeureDebut()->format('H:i'))
+                ->setHeureFin($dom->getHeureFin()->format('H:i'))
+                ->setModePayement($domForm->getModePayement() . ':' . $mode)
+            ;
+            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user, true);
 
             // $domForm = $form->getData();
 
@@ -89,7 +95,7 @@ class DomTropPercuController extends Controller
             //     }
             // }
 
-            // $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
         }
 
         // $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur

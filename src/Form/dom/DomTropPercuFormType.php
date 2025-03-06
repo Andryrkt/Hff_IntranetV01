@@ -101,13 +101,14 @@ class DomTropPercuFormType extends AbstractType
             )
             ->add(
                 'dateDemande',
-                TextType::class,
+                DateType::class,
                 [
                     'label' => 'Date',
+                    'widget' => 'single_text',
                     'attr' => [
                         'class' => 'disabled',
                     ],
-                    'data' => $dom->getDateDemande()->format('d/m/Y')
+                    'data' => $dom->getDateDemande()
                 ]
             )
             ->add(

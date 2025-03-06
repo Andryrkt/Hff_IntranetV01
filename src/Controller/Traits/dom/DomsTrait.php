@@ -367,7 +367,7 @@ trait DomsTrait
         ;
     }
 
-    private function donnerPourPdf($dom, $domForm, $em, $user)
+    private function donnerPourPdf($dom, $domForm, $em, $user, $tropPercu)
     {
         if (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':', $dom->getModePayement())[0] === 'ESPECE') {
             $mode = 'TEL ' . explode(':', $dom->getModePayement())[1];
@@ -378,19 +378,23 @@ trait DomsTrait
         }
 
         $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
+
+        $agenceEmetteur = $tropPercu ? $dom->getAgenceEmetteurId()->getCodeAgence() . ' ' . $dom->getAgenceEmetteurId()->getLibelleAgence() : $dom->getAgenceEmetteur();
+        $serviceEmetteur = $tropPercu ? $dom->getServiceEmetteurId()->getCodeService() . ' ' . $dom->getServiceEmetteurId()->getLibelleService() : $dom->getServiceEmetteur();
+
         return  [
             "MailUser"              => $email,
             "dateS"                 => $dom->getDateDemande()->format("d/m/Y"),
             "NumDom"                => $dom->getNumeroOrdreMission(),
             "typMiss"               => $dom->getSousTypeDocument()->getCodeSousType(),
-            "Site"                  => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
-            "Code_serv"             => $dom->getAgenceEmetteur(),
-            "serv"                  => $dom->getServiceEmetteur(),
+            "Site"                  => $dom->getSite() === null ? '' : ($tropPercu ? $dom->getSite() : $dom->getSite()->getNomZone()),
+            "Code_serv"             => $agenceEmetteur,
+            "serv"                  => $serviceEmetteur,
             "Nom"                   => $dom->getNom(),
             "Prenoms"               => $dom->getPrenom(),
             "matr"                  => $dom->getMatricule(),
             "motif"                 => $dom->getMotifDeplacement(),
-            "CategoriePers"         => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
+            "CategoriePers"         => $dom->getCategorie() === null ? '' : ($tropPercu ? $dom->getCategorie() : $dom->getCategorie()->getDescription()),
             "NbJ"                   => $dom->getNombreJour(),
             "dateD"                 => $dom->getDateDebut()->format("d/m/Y"),
             "heureD"                => $dom->getHeureDebut(),
@@ -416,7 +420,7 @@ trait DomsTrait
             "AllMontant"            => $this->formatMontant($dom->getTotalGeneralPayer()),
             "libmodepaie"           => explode(':', $dom->getModePayement())[0],
             "mode"                  => $mode,
-            "codeAg_serv"           => substr($domForm->getAgenceEmetteur(), 0, 2) . substr($domForm->getServiceEmetteur(), 0, 3),
+            "codeAg_serv"           => substr($agenceEmetteur, 0, 2) . substr($serviceEmetteur, 0, 3),
             "codeServiceDebitteur"  => $dom->getAgence()->getCodeAgence(),
             "serviceDebitteur"      => $dom->getService()->getCodeService()
         ];
@@ -431,7 +435,7 @@ trait DomsTrait
         $em->flush();
     }
 
-    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user)
+    public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user, $tropPercu = false)
     {
         //RECUPERATION de la dernière NumeroDordre de mission 
         $this->enregistreDernierNumDansApplication($dom, $em);
@@ -441,7 +445,7 @@ trait DomsTrait
         $em->flush();
 
         //GENERER un PDF
-        $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user);
+        $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user, $tropPercu);
         $genererPdfDom = new GeneratePdfDom();
         $genererPdfDom->genererPDF($tabInternePdf);
         //Fusion piece joint
@@ -522,6 +526,7 @@ trait DomsTrait
             ->setMotifDeplacement($oldDom->getMotifDeplacement())
             ->setClient($oldDom->getClient())
             ->setFiche($oldDom->getFiche())
+            ->setLibelleCodeAgenceService($oldDom->getAgenceEmetteurId()->getLibelleAgence() . '-' . $oldDom->getServiceEmetteurId()->getLibelleService())
             ->setIndemniteForfaitaire($oldDom->getIndemniteForfaitaire())
             ->setLieuIntervention($oldDom->getLieuIntervention())
             ->setVehiculeSociete($oldDom->getVehiculeSociete())
@@ -530,6 +535,8 @@ trait DomsTrait
             ->setIdemnityDepl($oldDom->getIdemnityDepl())
             ->setDroitIndemnite($oldDom->getDroitIndemnite())
             ->setModePayement($oldDom->getModePayement())
+            ->setSiteId($oldDom->getSiteId())
+            ->setCategoryId($oldDom->getCategoryId())
         ;
     }
 }
