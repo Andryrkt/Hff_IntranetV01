@@ -497,13 +497,19 @@ trait DomsTrait
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find(11);
         $userId = $this->sessionService->get('user_id');
         $user = $em->getRepository(User::class)->find($userId);
+        $statutOuvert = $em->getRepository(StatutDemande::class)->find(1);
         $dom
             ->setSousTypeDocument($sousTypeDocument)
             ->setDateDemande(new DateTime)
-            ->setIdStatutDemande($em->getRepository(StatutDemande::class)->find(1))
+            ->setIdStatutDemande($statutOuvert)
+            ->setCodeStatut($statutOuvert->getCodeStatut())
             ->setUtilisateurCreation($user->getNomUtilisateur())
             ->setNomSessionUtilisateur($user->getNomUtilisateur())
             ->setNumeroOrdreMission($this->autoINcriment('DOM'))
+            ->setTypeDocument($oldDom->getTypeDocument())
+            ->setDebiteur($oldDom->getDebiteur())
+            ->setEmetteur($oldDom->getEmetteur())
+            ->setCodeAgenceServiceDebiteur($oldDom->getCodeAgenceServiceDebiteur())
             ->setAgenceDebiteurId($oldDom->getAgenceDebiteurId())
             ->setServiceDebiteurId($oldDom->getServiceDebiteurId())
             ->setAgenceEmetteurId($oldDom->getAgenceEmetteurId())

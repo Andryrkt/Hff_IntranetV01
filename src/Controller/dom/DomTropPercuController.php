@@ -47,7 +47,8 @@ class DomTropPercuController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            dd($dom);
+            dump($dom);
+            dd($form->getData());
 
             // $domForm = $form->getData();
 

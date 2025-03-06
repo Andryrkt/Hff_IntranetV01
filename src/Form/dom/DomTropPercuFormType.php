@@ -6,32 +6,19 @@ namespace App\Form\dom;
 use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
-use App\Entity\admin\dom\Indemnite;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Repository\admin\AgenceRepository;
-use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TimeType;
-use Symfony\Component\Validator\Constraints\GreaterThan;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 
 class DomTropPercuFormType extends AbstractType
 {
@@ -63,8 +50,7 @@ class DomTropPercuFormType extends AbstractType
                         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                     },
                     'attr' => [
-                        'class' => 'agenceDebiteur',
-                        'disabled' => $sousTypeDocument === 'TROP PERCU',
+                        'class' => 'agenceDebiteur disabled',
                     ]
                 ]
             )
@@ -80,13 +66,12 @@ class DomTropPercuFormType extends AbstractType
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
                     'attr' => [
-                        'class' => 'serviceDebiteur',
-                        'disabled' => $sousTypeDocument === 'TROP PERCU',
+                        'class' => 'serviceDebiteur disabled',
                     ]
                 ]
             )
             ->add(
-                'agenceEmetteur',
+                'agenceEmetteurId',
                 EntityType::class,
                 [
                     'label' => 'Agence',
@@ -95,14 +80,13 @@ class DomTropPercuFormType extends AbstractType
                     'choice_label' => function (Agence $agence): string {
                         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                     },
-                    'required' => false,
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
             ->add(
-                'serviceEmetteur',
+                'serviceEmetteurId',
                 EntityType::class,
                 [
                     'label' => 'Service',
@@ -111,9 +95,8 @@ class DomTropPercuFormType extends AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'required' => false,
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
@@ -123,20 +106,24 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Date',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getDateDemande()->format('d/m/Y')
                 ]
             )
             ->add(
                 'sousTypeDocument',
-                TextType::class,
+                EntityType::class,
                 [
                     'label' => 'Type de Mission :',
+                    'class' => SousTypeDocument::class,
+                    'choice_label' => function (SousTypeDocument $sousTypeDocument): string {
+                        return $sousTypeDocument->getCodeSousType();
+                    },
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
-                    'data' => $dom->getSousTypeDocument()->getCodeSousType()
+                    'data' => $dom->getSousTypeDocument()
                 ]
             )
             ->add(
@@ -148,7 +135,7 @@ class DomTropPercuFormType extends AbstractType
                         'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                     ],
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getCategorie()
                 ]
@@ -158,7 +145,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Site:',
                     'attr' => [
-                        'disabled' => true,
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getSite()
                 ]
@@ -169,7 +156,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Indeminté forfaitaire journalière(s)',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' =>  $dom->getIndemniteForfaitaire()
                 ]
@@ -180,7 +167,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Matricule',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getMatricule()
                 ]
@@ -191,7 +178,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Nom',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getNom()
                 ]
@@ -202,7 +189,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Prénoms',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                     'data' => $dom->getPrenom()
                 ]
@@ -264,10 +251,11 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Motif',
-                    'data'  => $dom->getMotifDeplacement(),
+                    'required' => false,
                     'attr' => [
-                        'readonly' => true
+                        'class' => 'disabled',
                     ],
+                    'data'  => $dom->getMotifDeplacement(),
                 ]
             )
             ->add(
@@ -275,11 +263,11 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nom du client',
-                    'required' => true,
-                    'data'  => $dom->getClient(),
+                    'required' => false,
                     'attr' => [
-                        'readonly' => true
+                        'class' => 'disabled',
                     ],
+                    'data'  => $dom->getClient(),
                 ]
             )
             ->add(
@@ -288,10 +276,10 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'N° fiche',
                     'required' => false,
-                    'data'  => $dom->getFiche(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
+                    'data'  => $dom->getFiche(),
                 ]
             )
             ->add(
@@ -299,10 +287,10 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Lieu d\'intervention',
-                    'required' => true,
+                    'required' => false,
                     'data'  => $dom->getLieuIntervention(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
@@ -311,9 +299,10 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => "Véhicule société",
+                    'required' => false,
                     'data'  => $dom->getVehiculeSociete(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
@@ -325,7 +314,7 @@ class DomTropPercuFormType extends AbstractType
                     'required' => false,
                     'data'  => $dom->getNumVehicule(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
@@ -337,7 +326,7 @@ class DomTropPercuFormType extends AbstractType
                     'required' => false,
                     'data'  => $dom->getIdemnityDepl(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ],
                 ]
             )
@@ -348,7 +337,7 @@ class DomTropPercuFormType extends AbstractType
                     'mapped' => false,
                     'label' => 'Total indemnité de déplacement',
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ]
                 ]
             )
@@ -359,7 +348,7 @@ class DomTropPercuFormType extends AbstractType
                     'label' => 'Devise :',
                     'data' => $dom->getDevis(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ]
                 ]
             )
@@ -372,7 +361,7 @@ class DomTropPercuFormType extends AbstractType
                     'label' => 'supplément journalier',
                     'required' => false,
                     'attr' => [
-                        'disabled' => true,
+                        'class' => 'disabled',
                     ]
                 ]
             )
@@ -383,7 +372,7 @@ class DomTropPercuFormType extends AbstractType
                     'label' => "Total de l'indemnite forfaitaire",
                     'data' => $dom->getTotalIndemniteForfaitaire(),
                     'attr' => [
-                        'disabled' => true
+                        'class' => 'disabled',
                     ]
                 ]
             )
@@ -497,7 +486,9 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Mode paiement',
                     'data' => $modePayement,
-                    'disabled' => true
+                    'attr' => [
+                        'class' => 'disabled',
+                    ],
                 ]
             )
             ->add(
@@ -508,7 +499,9 @@ class DomTropPercuFormType extends AbstractType
                     'label' => $modePayement,
                     'required' => true,
                     'data' => $mode,
-                    'disabled' => true
+                    'attr' => [
+                        'class' => 'disabled',
+                    ],
                 ]
             )
             ->add(

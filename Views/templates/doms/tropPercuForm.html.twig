@@ -63,10 +63,10 @@
 						<!-- extern (temporaire) -->
 						<div class="row">
 							<div class="col-4 ">
-								{{ form_row(form.agenceEmetteur)}}
+								{{ form_row(form.agenceEmetteurId)}}
 							</div>
 							<div class="col-4 ">
-								{{ form_row(form.serviceEmetteur)}}
+								{{ form_row(form.serviceEmetteurId)}}
 							</div>
 						</div>
 					</div>
@@ -130,26 +130,26 @@
 						{{ form_row(form.dateDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.dateFin, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.nombreJour, {'attr' : { 'class' : 'text_end'}})}}
-						{{ form_row(form.client, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.client)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.heureDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.heureFin, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.motifDeplacement)}}
 						{{ form_row(form.fiche)}}
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-12">
-						{{ form_row(form.lieuIntervention, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.lieuIntervention)}}
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-12 col-md-6">
-						{{ form_row(form.vehiculeSociete, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.idemnityDepl, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.vehiculeSociete)}}
+						{{ form_row(form.idemnityDepl)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.numVehicule)}}
@@ -161,10 +161,10 @@
 						{{ form_row(form.devis)}}
 					</div>
 					<div class="col-12 col-md">
-						{{ form_row(form.indemniteForfaitaire, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.indemniteForfaitaire)}}
 					</div>
 					<div class="col-12 col-md">
-						{{ form_row(form.supplementJournaliere, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.supplementJournaliere)}}
 					</div>
 
 					<div class="col-12 col-md">
@@ -193,7 +193,7 @@
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-6">
-						{{ form_row(form.modePayement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.modePayement)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.mode)}}
