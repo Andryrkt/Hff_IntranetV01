@@ -3,12 +3,14 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Entity\admin\ddp\DocDemandePaiement;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -34,13 +36,24 @@ class DemandePaiementController extends Controller
      */
     public function afficheForm(Request $request, $id)
     {
+         //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         $form = self::$validator->createBuilder(DemandePaiementType::class, null)->getForm();
         
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $numDdp = $this->autoDecrementDIT('DDP');
+            $this->modificationDernierIdApp($numDdp);
+
             $data = $form->getData();
+            
+            $data->setNumeroDdp($numDdp);
             $data = $this->ajoutTypeDemande($data, $id);
+
+            $docDdp = new DocDemandePaiement();
+            $docDdp->setNumeroDdp($numDdp);
 
             dd($data);
 
@@ -50,6 +63,21 @@ class DemandePaiementController extends Controller
             'id' => $id,
             'form' => $form->createView()
         ]);
+    }
+
+    /**
+     * modification du dernier id de l'application dans la table application
+     *
+     * @param string $numDdp
+     * @return void
+     */
+    private function modificationDernierIdApp(string $numDdp)
+    {
+        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
+        $application->setDerniereId($numDdp);
+        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+        self::$em->persist($application);
+        self::$em->flush();
     }
 
     /**

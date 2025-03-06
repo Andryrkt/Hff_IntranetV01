@@ -30,7 +30,7 @@ class DemandePaiement
      *
      * @var string|null
      */
-    private ?string $numero;
+    private ?string $numeroDdp;
 
 
     /**
@@ -143,9 +143,9 @@ class DemandePaiement
      *
      * @return  string|null
      */ 
-    public function getNumero()
+    public function getNumeroDdp()
     {
-        return $this->numero;
+        return $this->numeroDdp;
     }
 
     /**
@@ -155,9 +155,9 @@ class DemandePaiement
      *
      * @return  self
      */ 
-    public function setNumero($numero)
+    public function setNumeroDdp($numeroDdp)
     {
-        $this->numero = $numero;
+        $this->numeroDdp = $numeroDdp;
 
         return $this;
     }

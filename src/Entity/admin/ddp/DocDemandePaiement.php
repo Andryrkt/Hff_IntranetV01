@@ -25,7 +25,7 @@ class DocDemandePaiement
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_paiement")
      */
-    private ?string $numero;
+    private ?string $numeroDdp;
 
     private $typeDocumentId;
 
@@ -52,9 +52,9 @@ class DocDemandePaiement
     /**
      * Get the value of numero
      */ 
-    public function getNumero()
+    public function getNumeroDdp()
     {
-        return $this->numero;
+        return $this->numeroDdp;
     }
 
     /**
@@ -62,9 +62,9 @@ class DocDemandePaiement
      *
      * @return  self
      */ 
-    public function setNumero($numero)
+    public function setNumeroDdp($numeroDdp)
     {
-        $this->numero = $numero;
+        $this->numeroDdp = $numeroDdp;
 
         return $this;
     }
