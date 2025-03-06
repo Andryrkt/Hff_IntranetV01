@@ -41,6 +41,12 @@ class DomTropPercuController extends Controller
         $oldDom = self::$em->getRepository(Dom::class)->find($id);
 
         $this->initialisationFormTropPercu(self::$em, $dom, $oldDom);
+        $criteria = [
+            'oldDateDebut' => $oldDom->getDateDebut()->format('d/m/Y'),
+            'oldDateFin' => $oldDom->getDateFin()->format('d/m/Y'),
+            'oldNombreJour' => $oldDom->getNombreJour(),
+            'nombreJourTropPercu' => $this->DomModel->getNombreJourTropPercu($oldDom->getNumeroOrdreMission()),
+        ];
 
         $form = self::$validator->createBuilder(DomTropPercuFormType::class, $dom)->getForm();
         $form->handleRequest($request);
@@ -91,7 +97,7 @@ class DomTropPercuController extends Controller
         self::$twig->display('doms/tropPercuForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => 'PERMANENT',
-            // 'criteria'      => $criteria
+            'criteria'      => $criteria
         ]);
     }
 }

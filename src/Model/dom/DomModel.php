@@ -47,6 +47,16 @@ class DomModel extends Model
         return !$result ? $result : $result['reponse'] === 'Trop_percu';
     }
 
+    public function getNombreJourTropPercu(string $numeroDom)
+    {
+        $sql = "SELECT COALESCE(SUM(domtp.Nombre_Jour_Tp), 0) AS reponse
+                FROM Demande_ordre_mission_tp domtp
+                WHERE domtp.Numero_Ordre_Mission = '$numeroDom'";
+
+        $result = odbc_fetch_array($this->connexion->query($sql));
+
+        return $result['reponse'];
+    }
 
     /**
      * recuperer le nom et prenoms du matricule 

@@ -31,7 +31,6 @@ class DomTropPercuFormType extends AbstractType
          */
         $dom = $options['data'];
         $idSousTypeDocument = $dom->getSousTypeDocument()->getId();
-        $sousTypeDocument = $dom->getSousTypeDocument()->getCodeSousType();
 
         $payement = explode(':', $dom->getModePayement());
         $modePayement = $payement[0];
@@ -335,6 +334,7 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
+                    'required' => false,
                     'label' => 'Total indemnité de déplacement',
                     'attr' => [
                         'class' => 'disabled',
@@ -359,6 +359,7 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'mapped' => false,
                     'label' => 'supplément journalier',
+                    'data' => $dom->getDroitIndemnite(),
                     'required' => false,
                     'attr' => [
                         'class' => 'disabled',

@@ -26,9 +26,10 @@
 					</div>
 				</div>
 
-				<input type="hidden" id="sousTypeDoc" value="{{criteria.sousTypeDoc.id}}">
-				<input type="hidden" id="categorie" value="{{criteria.categorie.id}}">
-				<input type="hidden" id="rmq" value="{{criteria.rmq.id}}">
+				<input type="hidden" id="oldDateDebut" value="{{criteria.oldDateDebut}}">
+				<input type="hidden" id="oldDateFin" value="{{criteria.oldDateFin}}">
+				<input type="hidden" id="oldNombreJour" value="{{criteria.oldNombreJour}}">
+				<input type="hidden" id="nombreJourTropPercu" value="{{criteria.nombreJourTropPercu}}">
 
 				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
 
@@ -153,7 +154,7 @@
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.numVehicule)}}
-						{{ form_row(form.totalIndemniteDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.totalIndemniteDeplacement)}}
 					</div>
 				</div>
 				<div class="row">

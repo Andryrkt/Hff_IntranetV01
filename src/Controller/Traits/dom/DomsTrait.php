@@ -528,6 +528,7 @@ trait DomsTrait
             ->setNumVehicule($oldDom->getNumVehicule())
             ->setDevis($oldDom->getDevis())
             ->setIdemnityDepl($oldDom->getIdemnityDepl())
+            ->setDroitIndemnite($oldDom->getDroitIndemnite())
             ->setModePayement($oldDom->getModePayement())
         ;
     }
