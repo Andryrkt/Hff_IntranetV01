@@ -1,22 +1,21 @@
-// const selecteur2 = document.querySelectorAll(".selecteur2");
+import { FetchManager } from '../../api/FetchManager';
 
-// selecteur2.forEach((el) => {
-//   console.log(el);
-// });
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
 
 /**
  * SELECTE 2/ permet de faire une recherche sur le select
  */
-document.addEventListener("DOMContentLoaded", function () {
-  $(".selecteur2").select2({
+document.addEventListener('DOMContentLoaded', function () {
+  $('.selecteur2').select2({
     allowClear: true,
-    placeholder: "Sélectionnez une option",
-    theme: "bootstrap",
+    placeholder: 'Sélectionnez une option',
+    theme: 'bootstrap',
   });
 
   let isProgrammaticChange = false;
 
-  $("#contact_agence_ate_matricule").on("change", function () {
+  $('#contact_agence_ate_matricule').on('change', function () {
     if (isProgrammaticChange) {
       // Si c'est un changement déclenché par le script, on arrête ici
       isProgrammaticChange = false; // Réinitialiser le drapeau
@@ -28,18 +27,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (id) {
       // Faire une requête AJAX pour récupérer les informations
-      fetch(`/Hffintranet/api/contact-agence-ate/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erreur lors de la récupération des données");
-          }
-          return response.json();
-        })
+      fetchManager
+        .get(`api/contact-agence-ate/${id}`)
         .then((data) => {
           console.log(data);
 
@@ -47,25 +36,25 @@ document.addEventListener("DOMContentLoaded", function () {
           isProgrammaticChange = true;
 
           // Mettre à jour les champs et déclencher le changement
-          $("#contact_agence_ate_nom").val(data.id).trigger("change");
-          $("#contact_agence_ate_email").val(data.id).trigger("change");
-          $("#contact_agence_ate_prenom").val(data.prenom);
-          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
+          $('#contact_agence_ate_nom').val(data.id).trigger('change');
+          $('#contact_agence_ate_email').val(data.id).trigger('change');
+          $('#contact_agence_ate_prenom').val(data.prenom);
+          $('#contact_agence_ate_telephone').val('+261' + data.telephone);
         })
         .catch((error) => {
-          console.error("Erreur : ", error);
+          console.error('Erreur : ', error);
         });
     } else {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
-      $("#contact_agence_ate_nom").val("");
-      $("#contact_agence_ate_email").val("");
-      $("#contact_agence_ate_prenom").val("");
-      $("#contact_agence_ate_telephone").val("");
+      $('#contact_agence_ate_nom').val('');
+      $('#contact_agence_ate_email').val('');
+      $('#contact_agence_ate_prenom').val('');
+      $('#contact_agence_ate_telephone').val('');
     }
   });
 
   /** Changer le NOm */
-  $("#contact_agence_ate_nom").on("change", function () {
+  $('#contact_agence_ate_nom').on('change', function () {
     if (isProgrammaticChange) {
       // Si c'est un changement déclenché par le script, on arrête ici
       isProgrammaticChange = false; // Réinitialiser le drapeau
@@ -77,18 +66,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (id) {
       // Faire une requête AJAX pour récupérer les informations
-      fetch(`/Hffintranet/api/contact-agence-ate/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erreur lors de la récupération des données");
-          }
-          return response.json();
-        })
+      fetchManager
+        .get(`api/contact-agence-ate/${id}`)
         .then((data) => {
           console.log(data);
 
@@ -97,25 +76,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Mettre à jour les champs et déclencher le changement
 
-          $("#contact_agence_ate_matricule").val(data.id).trigger("change");
-          $("#contact_agence_ate_email").val(data.id).trigger("change");
-          $("#contact_agence_ate_prenom").val(data.prenom);
-          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
+          $('#contact_agence_ate_matricule').val(data.id).trigger('change');
+          $('#contact_agence_ate_email').val(data.id).trigger('change');
+          $('#contact_agence_ate_prenom').val(data.prenom);
+          $('#contact_agence_ate_telephone').val('+261' + data.telephone);
         })
         .catch((error) => {
-          console.error("Erreur : ", error);
+          console.error('Erreur : ', error);
         });
     } else {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
-      $("#contact_agence_ate_matricule").val("");
-      $("#contact_agence_ate_email").val("");
-      $("#contact_agence_ate_prenom").val("");
-      $("#contact_agence_ate_telephone").val("");
+      $('#contact_agence_ate_matricule').val('');
+      $('#contact_agence_ate_email').val('');
+      $('#contact_agence_ate_prenom').val('');
+      $('#contact_agence_ate_telephone').val('');
     }
   });
 
   /** Changer le mail */
-  $("#contact_agence_ate_email").on("change", function () {
+  $('#contact_agence_ate_email').on('change', function () {
     if (isProgrammaticChange) {
       // Si c'est un changement déclenché par le script, on arrête ici
       isProgrammaticChange = false; // Réinitialiser le drapeau
@@ -127,18 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (id) {
       // Faire une requête AJAX pour récupérer les informations
-      fetch(`/Hffintranet/api/contact-agence-ate/${id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erreur lors de la récupération des données");
-          }
-          return response.json();
-        })
+      fetchManager
+        .get(`api/contact-agence-ate/${id}`)
         .then((data) => {
           console.log(data);
 
@@ -147,20 +116,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
           // Mettre à jour les champs et déclencher le changement
 
-          $("#contact_agence_ate_matricule").val(data.id).trigger("change");
-          $("#contact_agence_ate_nom").val(data.id).trigger("change");
-          $("#contact_agence_ate_prenom").val(data.prenom);
-          $("#contact_agence_ate_telephone").val("+261" + data.telephone);
+          $('#contact_agence_ate_matricule').val(data.id).trigger('change');
+          $('#contact_agence_ate_nom').val(data.id).trigger('change');
+          $('#contact_agence_ate_prenom').val(data.prenom);
+          $('#contact_agence_ate_telephone').val('+261' + data.telephone);
         })
         .catch((error) => {
-          console.error("Erreur : ", error);
+          console.error('Erreur : ', error);
         });
     } else {
       // Réinitialiser les champs si aucune matricule n'est sélectionnée
-      $("#contact_agence_ate_matricule").val("");
-      $("#contact_agence_ate_nom").val("");
-      $("#contact_agence_ate_prenom").val("");
-      $("#contact_agence_ate_telephone").val("");
+      $('#contact_agence_ate_matricule').val('');
+      $('#contact_agence_ate_nom').val('');
+      $('#contact_agence_ate_prenom').val('');
+      $('#contact_agence_ate_telephone').val('');
     }
   });
 });

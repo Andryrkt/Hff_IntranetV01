@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="margin-bottom: 1%; z-index: 1030;">
 	<div
 		class="container">
-		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="/Hffintranet/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
+		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ App.base_path }}/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
 		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset("build/images/logoHFF.jpg")}}" id="LogoHFF" alt="" width="150px"></a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
@@ -24,6 +24,8 @@
 				{% set hasTIK = false %}
 				{% set hasDAP = false %}
 				{% set hasDDP = false %}
+				{% set hasCFR = false %}
+				{% set hasINV = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -42,6 +44,10 @@
 						{% set hasDAP = true %}
 					{% elseif item.codeApp == 'DDP' %}
 						{% set hasDDP = true %}
+					{% elseif item.codeApp == 'CFR' %}
+						{% set hasCFR = true %}
+					{% elseif item.codeApp == 'INV' %}
+						{% set hasINV = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -201,18 +207,34 @@
 							<li>
 								<a class="dropdown-item" href="{{ path("cis_liste_a_livrer")}}">Liste des CIS à livrer</a>
 							</li>
-							<li class="dropdown-header">
-								CDE Fournisseur
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">soumission commande fournisseur</a>
-							</li>
+							{% if hasCFR %}
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li class="dropdown-header">
+									CDE Fournisseur
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">Soumission commande fournisseur</a>
+								</li>
+							{% endif %}
 							{# <li class="dropdown-header"> #}
-						{# CDE #}
+							{# CDE #}
 							{# </li> #}
 							{# <li> #}
 							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
 							{# </li> #}
+								{% if hasINV %}
+									<li>
+								<hr class="dropdown-divider"> </li>
+								<li class="dropdown-header">
+									INVENTAIRE
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}">
+										Liste inventaire</a>
+								</li>
+							{% endif %}
 						</ul>
 					</li>
 				{% endif %}
@@ -243,9 +265,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							{# <li>
-																																				<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-																																			</li> #}
+							<li>
+									<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}

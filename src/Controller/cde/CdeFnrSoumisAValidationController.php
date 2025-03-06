@@ -74,10 +74,12 @@ class CdefnrSoumisAValidationController extends Controller
     private function conditionDeBlockage( FormInterface $form, CdefnrSoumisAValidation $data): array 
     {
         $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+        $statut = $this->cdeFnrRepository->findStatut($data->getNumCdeFournisseur());
 
         return [
             'numFnrEgale' => strpos($originalName, $data->getCodeFournisseur()) !== false,
             'numCdeFnrEgale' => strpos($originalName, $data->getNumCdeFournisseur()) !== false,
+            'conditionStatut' => $statut === "Soumis à validation" || $statut === "Validé",
         ];
     }
 
@@ -89,10 +91,15 @@ class CdefnrSoumisAValidationController extends Controller
         } elseif (!$blockages['numCdeFnrEgale']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un cde fournisseur ";
             $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
-        } else {
+        } elseif ($blockages['conditionStatut']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$data->getNumCdeFournisseur()} est déjà en cours de validation ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
+        } 
+        else {
             return true;
         }
     }
+
     private function autoIncrement($num)
     {
         if ($num === null) {
@@ -115,7 +122,7 @@ class CdefnrSoumisAValidationController extends Controller
                 ->setCodeFournisseur($data->getCodeFournisseur())
                 ->setNumCdeFournisseur($data->getNumCdeFournisseur())
                 ->setLibelleFournisseur($data->getLibelleFournisseur())
-                ->setDateHeureSoumission(new \DateTime($this->getDatesystem()))
+                ->setDateHeureSoumission(new \DateTime())
                 ->setStatut('Soumis à validation')
                 ->setNumVersion($this->autoIncrement($numeroVersionMax))
                 ->setDateCommande($dateCommande)
@@ -132,7 +139,7 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)
     {
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cde_fournisseur/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/cde_fournisseur/';
         $fileUploader = new FileUploaderService($chemin);
         $options = [
             'prefix' => 'cdefrn',

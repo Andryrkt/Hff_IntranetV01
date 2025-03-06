@@ -2,15 +2,16 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Traits\FormatageTrait;
 use IntlDateFormatter;
 use App\Entity\dit\AcSoumis;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfAcSoumis extends GeneratePdf
 {
     use FormatageTrait;
 
-    function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax)
+    function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax, $nomFichier)
     {
         // Création de l'objet PDF
         $pdf = new HeaderFooterAcPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -34,7 +35,7 @@ class GenererPdfAcSoumis extends GeneratePdf
         // Ajouter une page
         $pdf->AddPage();
 
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Public/build/images/logoHFF.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG']. '/Public/build/images/logoHFF.jpg';
         $pdf->Image($logoPath, 27, 10, 40, '', 'jpg');
 
         // Définir la police pour l'email
@@ -115,11 +116,11 @@ class GenererPdfAcSoumis extends GeneratePdf
 
 
 
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Public/build/images/footer.png';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Public/build/images/footer.png';
         $pdf->Image($logoPath, 27, 265, 160, '', 'png');
         // Générer le fichier PDF
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
-        $filePath = $Dossier . 'bc_' . $numeroDunom . '_' . $acSoumis->getNumeroVersion() . '.pdf';
+        $Dossier = $_ENV['BASE_PATH_FICHIER']. '/dit/ac_bc/';
+        $filePath = $Dossier . $nomFichier;
         $pdf->Output($filePath, 'F');
     }
 }

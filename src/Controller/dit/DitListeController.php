@@ -76,12 +76,12 @@ class DitListeController extends Controller
             }
         }
 
+
         $criteria = [];
         //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
-
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
@@ -197,7 +197,7 @@ class DitListeController extends Controller
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
         $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/csv/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'].'/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),

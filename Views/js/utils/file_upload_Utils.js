@@ -76,3 +76,23 @@ export function formatFileSize(size) {
 
   return `${adjustedSize.toFixed(2)} ${units[unitIndex]}`;
 }
+
+export function disableDropzone(id) {
+  const dropzone = document.getElementById(`dropzone-${id}`);
+  const uploadBtn = document.getElementById(`upload-btn-${id}`);
+  const hiddenInput = document.getElementById(`hidden-input-${id}`);
+
+  dropzone.classList.add("disabled-dropzone");
+  uploadBtn.disabled = true;
+  //   hiddenInput.disabled = true; // Si c'est un input type file
+}
+
+export function enableDropzone(id) {
+  const dropzone = document.getElementById(`dropzone-${id}`);
+  const uploadBtn = document.getElementById(`upload-btn-${id}`);
+  const hiddenInput = document.getElementById(`hidden-input-${id}`);
+
+  dropzone.classList.remove("disabled-dropzone");
+  uploadBtn.disabled = false;
+  //   hiddenInput.disabled = false;
+}

@@ -63,7 +63,7 @@ class DitDevisSoumisAValidationController extends Controller
 
             $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
             $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository, $originalName);
-            // if ($this->blockageSoumission($blockages, $numDevis)) {
+            if ($this->blockageSoumission($blockages, $numDevis)) {
                 
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
 
@@ -82,7 +82,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
                 
-                $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
+                $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
                 $fileUploader = new FileUploaderService($chemin);
                 $file =  $form->get('pieceJoint01')->getData();
                 //generer le nom du fichier
@@ -100,7 +100,7 @@ class DitDevisSoumisAValidationController extends Controller
 
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
-            // }
+            }
         }
 
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [

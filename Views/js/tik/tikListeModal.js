@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         updateMessage(
           confirmationModal,
-          `/Hffintranet/api/modification-ticket-fetch/${numTik}`,
+          `api/modification-ticket-fetch/${numTik}`,
           modalBodyContent,
           modalConfirmationSpinner,
           modalConfirmationContainer

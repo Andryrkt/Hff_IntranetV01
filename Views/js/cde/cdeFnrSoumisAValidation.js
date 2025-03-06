@@ -1,235 +1,286 @@
-import { FetchManager } from "../api/FetchManager.js";
-import { TableauComponent } from "../Component/TableauComponent.js";
-import { formaterNombre } from "../utils/formatNumberUtils.js";
-import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
+import { FetchManager } from '../api/FetchManager.js';
+import { TableauComponent } from '../Component/TableauComponent.js';
+import { formaterNombre } from '../utils/formatNumberUtils.js';
+import { limitInputLength, allowOnlyNumbers } from '../utils/inputUtils.js';
+import {
+  initializeFileHandlers,
+  disableDropzone,
+  enableDropzone,
+} from '../utils/file_upload_Utils.js';
+import { AutoComplete } from '../utils/AutoComplete.js';
+import { setupConfirmationButtons } from '../utils/ui/boutonConfirmUtils.js';
 
-document.addEventListener("DOMContentLoaded", function () {
-  const fetchManager = new FetchManager("/Hffintranet");
+document.addEventListener('DOMContentLoaded', function () {
+  const fetchManager = new FetchManager();
 
-  let preloadedData = [];
+  disableDropzone(1); //griser l'envoie du fichier
 
   const numFrnInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_codeFournisseur"
+    '#cde_fnr_soumis_a_validation_codeFournisseur'
   );
   const nomFrnInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_libelleFournisseur"
+    '#cde_fnr_soumis_a_validation_libelleFournisseur'
   );
   const suggestionContainerNum = document.querySelector(
-    "#suggestion-num-fournisseur"
+    '#suggestion-num-fournisseur'
   );
   const suggestionContainerNom = document.querySelector(
-    "#suggestion-nom-fournisseur"
+    '#suggestion-nom-fournisseur'
   );
+  const numCdeInput = document.querySelector(
+    '#cde_fnr_soumis_a_validation_numCdeFournisseur'
+  );
+  const overlay = document.getElementById('loading-overlay-petite');
 
-  async function fetchListeFournisseur(endpoint) {
+  const boutonInput = document.querySelector('#bouton-cde-fnr');
+
+  /** Mettre les champs numero fournisseur à n'accepter que les chiffres*/
+  allowOnlyNumbers(numFrnInput);
+  /** Limite le nombre de caractère du champ numero fournisseur */
+  limitInputLength(numFrnInput, 7);
+  /** N'accepte que les nombres pour le champ numero commande */
+  allowOnlyNumbers(numCdeInput);
+  /** Limite le nombre de caractère du champ numero commande */
+  limitInputLength(numCdeInput, 8);
+
+  numCdeInput.disabled = true; //griser le champ numero commande
+
+  /**=================================================
+   *AUTOCOMPLET LES CHAMPS NUMERO ET NOM FOURNISSEUR
+   *=================================================*/
+
+  async function fetchFournisseurs() {
+    return await fetchManager.get('api/liste-fournisseur');
+  }
+
+  function displayFournisseur(item) {
+    return `${item.num_fournisseur} - ${item.nom_fournisseur}`;
+  }
+
+  function onSelectFournisseur(item) {
+    numFrnInput.value = item.num_fournisseur;
+    nomFrnInput.value = item.nom_fournisseur;
+    autocompletCde(item.num_fournisseur);
+  }
+
+  // Activation sur le champ "Numéro Fournisseur"
+  new AutoComplete({
+    inputElement: numFrnInput,
+    suggestionContainer: suggestionContainerNum,
+    loaderElement: document.querySelector('#loader-num-fournisseur'), // Ajout du loader
+    debounceDelay: 300, // Délai en ms
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+    itemToStringCallback: (item) =>
+      `${item.num_fournisseur} - ${item.nom_fournisseur}`,
+  });
+
+  // Activation sur le champ "Nom Fournisseur"
+  new AutoComplete({
+    inputElement: nomFrnInput,
+    suggestionContainer: suggestionContainerNom,
+    loaderElement: document.querySelector('#loader-nom-fournisseur'), // Ajout du loader
+    debounceDelay: 300, // Délai en ms
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: displayFournisseur,
+    onSelectCallback: onSelectFournisseur,
+    itemToStringCallback: (item) =>
+      `${item.num_fournisseur} - ${item.nom_fournisseur}`,
+  });
+
+  /**===========================================
+   * AUTOCOMPLET NUMERO COMMANDE FOURNISSEUR
+   *===========================================*/
+
+  const erreurCdeInput = document.querySelector('#erreur-num-cde');
+  let prelodDataCde = [];
+
+  async function fetchCommandesFrn() {
     try {
-      const fornisseurs = await fetchManager.get(endpoint);
-      preloadedData = fornisseurs;
-      // console.log("Données récupérées:", fornisseurs);
+      const response = await fetchManager.get(`api/num-cde-fnr`);
+      prelodDataCde = response;
     } catch (error) {
       console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
+        `Erreur lors de la récupération des commandes pour le fournisseur:`,
+        error
       );
+      prelodDataCde = [];
     }
   }
+  // Appelle le chargement des commandes au démarrage
+  fetchCommandesFrn();
 
-  const endpoint = "api/liste-fournisseur";
-  fetchListeFournisseur(endpoint);
-
-  numFrnInput.addEventListener("input", filtrerLesDonnerNum);
-  nomFrnInput.addEventListener("input", filtrerLesDonnerNom);
-
-  /**
-   * Methode permet de filtrer les donner selon les donnée saisi dans l'input
-   */
-  function filtrerLesDonnerNum() {
-    const numFrn = numFrnInput.value.trim();
-
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (numFrn === "") {
-      suggestionContainerNum.innerHTML = ""; // Efface les suggestions
-      return;
-    }
-
-    const filteredData = preloadedData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(numFrn.toLowerCase());
-    });
-
-    showSuggestions(suggestionContainerNum, filteredData);
+  function displayCommandes(item) {
+    return `${item.num_cde}`;
   }
 
-  function filtrerLesDonnerNom() {
-    const nomFrn = nomFrnInput.value.trim();
+  function onSelectCommandes(item) {
+    console.log('Sélection effectuée : ', item);
 
-    // Si l'input est vide, efface les suggestions et arrête l'exécution
-    if (nomFrn === "") {
-      suggestionContainerNom.innerHTML = ""; // Efface les suggestions
-      return;
-    }
+    numCdeInput.value = item.num_cde;
 
-    const filteredData = preloadedData.filter((item) => {
-      const phrase = item.num_fournisseur + " - " + item.nom_fournisseur;
-      return phrase.toLowerCase().includes(nomFrn.toLowerCase());
+    initTableau(item.num_cde);
+  }
+
+  function filtreNumCdeFrn(orders, numFournisseur) {
+    return orders.filter((order) => order.num_fournisseur === numFournisseur);
+  }
+
+  // let autoCompleteCde;
+  function autocompletCde(numFournisseur) {
+    // if (!autoCompleteCde) {
+    new AutoComplete({
+      inputElement: numCdeInput,
+      suggestionContainer: document.querySelector('#suggestion-num-cde'),
+      loaderElement: document.querySelector('#loader-num-cde'),
+      debounceDelay: 300,
+      fetchDataCallback: () => {
+        return dataCde(numFournisseur);
+      },
+      displayItemCallback: displayCommandes,
+      onSelectCallback: onSelectCommandes,
+      itemToStringCallback: (item) => `${item.num_cde}`,
     });
-
-    showSuggestions(suggestionContainerNom, filteredData);
+    // } else {
+    //   autoCompleteCde.fetchDataCallback = () => fetchCommandes(numFournisseur);
+    // }
   }
 
   /**
-   * Methode permet d'afficher les donner sur le div du suggestion
-   * @param {HTMLElement} suggestionsContainer
-   * @param {Array} data
+   * Renvoi les donnée filtrer
+   * @param {string} numFournisseur
+   * @returns
    */
-  function showSuggestions(suggestionsContainer, data) {
-    // Vérifie si le tableau est vide
-    if (data.length === 0) {
-      suggestionsContainer.innerHTML = ""; // Efface les suggestions
-      return; // Arrête l'exécution de la fonction
-    }
+  function dataCde(numFournisseur) {
+    erreurCdeInput.innerHTML = '';
 
-    suggestionsContainer.innerHTML = ""; // Efface les suggestions existantes
-    data.forEach((item) => {
-      const numFournisseur = item.num_fournisseur;
-      const nomFournisseur = item.nom_fournisseur;
-      const suggestion = document.createElement("div");
-      suggestion.textContent = numFournisseur + " - " + nomFournisseur; // Affiche la liste des suggestions
-      suggestion.addEventListener("click", () => {
-        updateClientFields(numFournisseur, nomFournisseur); // Remplit le champ avec la sélection
-        suggestionsContainer.innerHTML = ""; // Efface les suggestions
-      });
-      suggestionsContainer.appendChild(suggestion);
-    });
-  }
+    const cdeFiltred = filtreNumCdeFrn(prelodDataCde, numFournisseur);
 
-  function updateClientFields(numFournisseur, nomFournisseur) {
-    // Vérification si les éléments sont présents dans le DOM
-    if (numFrnInput && nomFrnInput) {
-      numFrnInput.value = numFournisseur;
-      nomFrnInput.value = nomFournisseur;
-      const endpointCde = `api/cde-fnr-non-receptionner/${numFournisseur}`;
-      fetchListeCdeFournisseur(endpointCde);
+    siChangeNumcde(cdeFiltred); //block si l'utilisateur ne rentre pas la vrais valeur
+
+    if (!cdeFiltred.length) {
+      numCdeInput.disabled = true;
+      erreurCdeInput.innerHTML =
+        'pas de commande à soumettre pour ce numéro fournissseur';
     } else {
-      console.error("Les éléments du formulaire n'ont pas été trouvés.");
+      numCdeInput.disabled = false;
     }
+    return cdeFiltred;
   }
 
-  /**
-   * Mettre les champs numero fournisseur et numero commande à n'accepter que les chiffres
-   */
-  function allowOnlyNumbers(inputElement) {
-    inputElement.addEventListener("input", () => {
-      inputElement.value = inputElement.value.replace(/[^0-9]/g, "");
+  function siChangeNumcde(cdeFiltred) {
+    numCdeInput.addEventListener('input', () => {
+      console.log(numCdeInput.value);
+      const exists = cdeFiltred
+        .map((item) => item.num_cde)
+        .includes(numCdeInput.value);
+      console.log(exists);
+
+      if (!exists) {
+        disableDropzone(1);
+        boutonInput.disabled = true;
+      }
     });
   }
 
-  allowOnlyNumbers(numFrnInput);
-  const numCmdInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
-  );
-  allowOnlyNumbers(numCmdInput);
-
-  /**
+  /**=========================================
    * Affichage du liste commande fournisseur
-   */
-  let preloadedDataCde = [];
+   *=========================================*/
   const columns = [
-    { label: "N° cde", key: "num_cde" },
+    { label: 'N° cde', key: 'num_cde' },
     {
-      label: "Date",
-      key: "date_cde",
-      format: (value) => new Date(value).toLocaleDateString("fr-FR"),
+      label: 'Date',
+      key: 'date_cde',
+      format: (value) => new Date(value).toLocaleDateString('fr-FR'),
     },
-    { label: "Libelle", key: "libelle_cde" },
+    { label: 'Libelle', key: 'libelle_cde' },
     {
-      label: "Prix TTC",
-      key: "prix_cde_ttc",
-      align: "right",
+      label: 'Prix TTC',
+      key: 'prix_cde_ttc',
+      align: 'right',
       format: (value) => formaterNombre(value),
     },
     {
-      label: "Prix TTC Devise",
-      key: "prix_cde_ttc_devise",
-      align: "right",
-      format: (value) => formaterNombre(value),
+      label: 'Constructeur',
+      key: 'constructeur',
+      align: 'center',
     },
-    { label: "Devise", key: "devise_cde", align: "center" },
-    { label: "Type", key: "type_cde", align: "center" },
+    {
+      label: 'ref pièce',
+      key: 'ref_piece',
+    },
+    {
+      label: 'Nbre pièces',
+      key: 'nbr_piece',
+      align: 'center',
+    },
+    { label: 'Devise', key: 'devise_cde', align: 'center' },
+    { label: 'Type', key: 'type_cde', align: 'center' },
   ];
 
-  async function fetchListeCdeFournisseur(
-    endpoint,
-    spinnerElement,
-    containerElement
-  ) {
+  async function fetchListeCdeFournisseur() {
     try {
-      // Afficher le spinner avant le début du chargement
-      // toggleSpinner(spinnerElement, containerElement, true);
+      const commandes = await fetchManager.get(`api/cde-fnr-non-receptionner`);
+      return commandes;
+    } catch (error) {
+      console.error('Erreur lors du chargement des commandes :', error);
+      return [];
+    }
+  }
 
-      const $tableauContainer = document.querySelector("#tableau_cde_frn");
-      $tableauContainer.innerHTML = "";
+  async function initTableau(numCde) {
+    try {
+      effaceTab();
+      overlay.style.display = 'flex';
+      const infoCde = await fetchListeCdeFournisseur();
 
-      const cdes = await fetchManager.get(endpoint);
+      const data = filtreListCdeFrn(infoCde, numCde);
 
       const tableauComponent = new TableauComponent({
         columns: columns,
-        data: cdes,
-        theadClass: "table-dark",
+        data: data,
+        theadClass: 'table-dark',
       });
-
-      tableauComponent.mount("tableau_cde_frn");
+      tableauComponent.mount('tableau_cde_frn');
+      boutonInput.disabled = false;
+      enableDropzone(1);
     } catch (error) {
-      console.error(
-        "Erreur lors de la récupération des données:",
-        error.message
-      );
+      console.error("Erreur lors de l'afichage du tableau cde :", error);
     } finally {
-      // Cacher le spinner après le chargement des données (qu'il y ait une erreur ou non)
-      // toggleSpinner(spinnerElement, containerElement, false);
+      overlay.style.display = 'none';
     }
   }
 
-  /**====================
-   * FICHIER
-   *=====================*/
-  const fileInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_pieceJoint01"
-  );
-  initializeFileHandlers("1", fileInput);
+  function filtreListCdeFrn(orders, numCde) {
+    return orders.filter((order) => order.num_cde === numCde);
+  }
 
-  /**==================================================
-   * sweetalert pour le bouton Enregistrer
-   *==================================================*/
-  const btnCdeFnr = document.querySelector("#bouton-cde-fnr");
-  btnCdeFnr.addEventListener("click", (e) => {
-    e.preventDefault();
-    const overlay = document.getElementById("loading-overlay");
-    Swal.fire({
-      title: "Êtes-vous sûr ?",
-      text: `Vous êtes en train de soumettre une commande à validation dans DocuWare `,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#fbbb01",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "OUI",
-    })
-      .then((result) => {
-        if (result.isConfirmed) {
-          Swal.fire({
-            title: "Fait Attention!",
-            text: "Veuillez de ne pas fermer l’onglet durant le traitement.",
-            icon: "warning",
-          }).then((res) => {
-            overlay.classList.remove("hidden");
-            // Soumettre le formulaire
-            const form = document.querySelector("#myForm");
-            form.submit();
-          });
-        }
-      })
-      .finally(() => {
-        overlay.classList.add("hidden");
-      });
-  });
+  function effaceTab() {
+    const parent = document.querySelector('#tableau_cde_frn');
+    const secondChild = parent.children[1];
+
+    if (secondChild) {
+      secondChild.remove(); // Plus besoin d'appeler removeChild sur le parent
+      console.log('Deuxième enfant supprimé !');
+      disableDropzone(1);
+      boutonInput.disabled = true;
+    } else {
+      console.warn("Le deuxième enfant n'existe pas !");
+    }
+  }
+
+  /**=================================================
+   * FICHIER
+   *=================================================*/
+  const fileInput = document.querySelector(
+    `#cde_fnr_soumis_a_validation_pieceJoint01`
+  );
+
+  initializeFileHandlers('1', fileInput);
+
+  /** ====================================================
+   * bouton Enregistrer
+   *===================================================*/
+  setupConfirmationButtons();
 });
