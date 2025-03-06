@@ -86,11 +86,11 @@ class GeneretePdfInventaire extends GeneratePdf
         }
 
         // Affichage du nombre de lignes
-        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetFont('dejavusans', '', 6.5);
         $pdf->Cell(50, 7, 'Nombre de lignes : ' . count($data), 0, 0, 'L');
 
         // Affichage du total
-        $pdf->Cell($usable_heigth - 130, 7, '', 0, 0);
+        $pdf->Cell($usable_heigth - 120, 7, '', 0, 0);
         $pdf->Cell(35, 7, 'Total écart', 0, 0, 'R');
         $pdf->Cell(35, 7, str_replace('.', ' ', $this->formatNumber($total)), 0, 1, 'R');
 

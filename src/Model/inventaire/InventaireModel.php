@@ -141,7 +141,7 @@ class InventaireModel extends Model
                      CONCAT(
                         TRUNC(
                         (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
-                    '%') as pourcentage_ecart
+                    ' %') as pourcentage_ecart
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
                     and ainvp_numinv = '" . $numInvMax . "'
                     ";
@@ -172,7 +172,7 @@ class InventaireModel extends Model
                         ainvp_prix as PMP,
                         ainvp_prix * ainvp_stktheo as montant_inventaire,
                         ainvp_prix * ainvp_ecart as montant_ajuste,
-                        ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) || '%' as pourcentage_ecart
+                        ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) || ' %' as pourcentage_ecart
                         FROM art_invp
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp

@@ -249,6 +249,11 @@ class PlanningSearchType extends AbstractType
                     'label'    => 'Nombre de mois',
                     'data'     => 3
                 ])
+                ->add('orNonValiderDw', 
+                    CheckboxType::class,[
+                        'label' => 'OR non valider DW',
+                        'required' => false
+                    ])
                 ;
 
     }
