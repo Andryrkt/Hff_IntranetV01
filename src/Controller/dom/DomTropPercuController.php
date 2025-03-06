@@ -42,8 +42,8 @@ class DomTropPercuController extends Controller
 
         $this->initialisationFormTropPercu(self::$em, $dom, $oldDom);
         $criteria = [
-            'oldDateDebut' => $oldDom->getDateDebut()->format('d/m/Y'),
-            'oldDateFin' => $oldDom->getDateFin()->format('d/m/Y'),
+            'oldDateDebut' => $oldDom->getDateDebut()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
+            'oldDateFin' => $oldDom->getDateFin()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
             'oldNombreJour' => $oldDom->getNombreJour(),
             'nombreJourTropPercu' => $this->DomModel->getNombreJourTropPercu($oldDom->getNumeroOrdreMission()),
         ];

@@ -1,4 +1,5 @@
 import { FetchManager } from '../api/FetchManager';
+import { formatDateOrEmpty } from '../planning/utils/date-utils';
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
@@ -14,6 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const nombreDeJourInput = document.querySelector(
     '#dom_trop_percu_form_nombreJour'
   );
+  const oldDateDebutInput = document.querySelector('#oldDateDebut');
+  const oldDateFinInput = document.querySelector('#oldDateFin');
+  const oldNombreJourInput = document.querySelector('#oldNombreJour');
+  const nombreJourTropPercuInput = document.querySelector(
+    '#nombreJourTropPercu'
+  );
 
   const errorMessage = document.createElement('div');
   errorMessage.style.color = 'red';
@@ -28,33 +35,73 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
+  function getDateWithoutTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
   function calculateDays() {
+    errorMessage.textContent = '';
+    errorMessage.style.display = 'none';
     const dateDebutValue = dateDebutInput.value;
     const dateFinValue = dateFinInput.value;
+    const oldDateDebutValue = oldDateDebutInput.value;
+    const oldDateFinValue = oldDateFinInput.value;
+    const oldNombreJourValue = parseInt(oldNombreJourInput.value);
+    const nombreJourTropPercuValue = parseInt(nombreJourTropPercuInput.value);
 
     if (dateDebutValue && dateFinValue) {
-      const dateDebut = new Date(dateDebutValue);
-      const dateFin = new Date(dateFinValue);
+      const dateDebut = getDateWithoutTime(new Date(dateDebutValue));
+      const dateFin = getDateWithoutTime(new Date(dateFinValue));
+      const oldDateDebut = getDateWithoutTime(new Date(oldDateDebutValue));
+      const oldDateFin = getDateWithoutTime(new Date(oldDateFinValue));
 
       if (dateDebut > dateFin) {
         errorMessage.textContent =
           'La date de début ne peut pas être supérieure à la date de fin.';
         errorMessage.style.display = 'block';
         nombreDeJourInput.value = '';
+      } else if (dateDebut < oldDateDebut) {
+        errorMessage.textContent = `La date de début ne peut pas être inférieur à la date de début (${formatDateOrEmpty(
+          oldDateDebut
+        )}) de l'ancien DOM.`;
+        errorMessage.style.display = 'block';
+        nombreDeJourInput.value = '';
+      } else if (dateFin > oldDateFin) {
+        errorMessage.textContent = `La date de fin ne peut pas être supérieur à la date de fin (${formatDateOrEmpty(
+          oldDateFin
+        )}) de l'ancien DOM.`;
+        errorMessage.style.display = 'block';
+        nombreDeJourInput.value = '';
       } else {
-        errorMessage.style.display = 'none';
         const timeDifference = dateFin - dateDebut;
         const dayDifference = timeDifference / (1000 * 3600 * 24);
         nombreDeJourInput.value = dayDifference + 1;
+        if (
+          oldNombreJourValue <
+          nombreJourTropPercuValue + parseInt(nombreDeJourInput.value)
+        ) {
+          errorMessage.textContent =
+            'Le nombre de jour est trop grande, veuillez le changer.';
+          errorMessage.style.display = 'block';
+        } else {
+          errorMessage.textContent = '';
+          errorMessage.style.display = 'none';
 
-        updateTotalIndemnity();
+          updateTotalIndemnity();
 
-        //ajout d'une nouvelle evenement qui sera utiliser en bas
-        const event = new Event('valueAdded');
-        nombreDeJourInput.dispatchEvent(event);
+          //ajout d'une nouvelle evenement qui sera utiliser en bas
+          const event = new Event('valueAdded');
+          nombreDeJourInput.dispatchEvent(event);
+        }
       }
     }
   }
+
+  /** Blocage de Formulaire */
+  const formTropPercu = document.querySelector('form');
+  formTropPercu.addEventListener('submit', function (e) {
+    e.preventDefault();
+  });
 
   /**
    * CALCULE et AFFICHAGE total indemnité de déplacement
@@ -123,32 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const indemniteForfaitaireJournaliereInput = document.querySelector(
     '#dom_trop_percu_form_indemniteForfaitaire'
   );
-  const siteInput = document.querySelector('#dom_trop_percu_form_site');
-  const sousTypeDocInput = document.querySelector('#sousTypeDoc');
-  const categorieInput = document.querySelector('#categorie');
-  const rmqInput = document.querySelector('#rmq');
-
-  if (siteInput) {
-    siteInput?.addEventListener('change', indemnitySite);
-  }
-  console.log(sousTypeDocInput.value);
-
-  function indemnitySite() {
-    const siteValue = siteInput.value;
-    const sousTypeDocValue = sousTypeDocInput.value;
-
-    const catgValue = categorieInput.value;
-    const rmqValue = rmqInput.value;
-    let url = `site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
-    fetchManager
-      .get(url)
-      .then((indemnite) => {
-        console.log(indemnite);
-        indemniteForfaitaireJournaliereInput.value = indemnite.montant;
-        calculTotalForfaitaire();
-      })
-      .catch((error) => console.error('Error:', error));
-  }
 
   /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
   const supplementJournalierInput = document.querySelector(
@@ -301,11 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let montantTotal =
       totalindemniteForfaitaire + totaAutreDepense - totalIdemniteDeplacement;
 
-    if (sousTypeDocInput.value == 11) {
-      montantTotalInput.value = '-' + formatNumberInt(montantTotal);
-    } else {
-      montantTotalInput.value = formatNumberInt(montantTotal);
-    }
+    montantTotalInput.value = '-' + formatNumberInt(montantTotal);
   }
 
   /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
