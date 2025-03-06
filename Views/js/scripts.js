@@ -4,7 +4,7 @@ import { FetchManager } from "./api/FetchManager";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-const loader = document.querySelector(".loader");
+// const loader = document.querySelector(".loader");
 
 // window.addEventListener("load", () => {
 //   loader.classList.add("fondu-out");
@@ -167,11 +167,11 @@ document.addEventListener("DOMContentLoaded", function () {
     .getElementById("modalTypeDemande")
     .addEventListener("click", function (event) {
       event.preventDefault();
-      const overlay = document.getElementById("loading-overlay");
+      const overlay = document.getElementById("loading-overlays");
       overlay.classList.remove("hidden");
       const url = "api/form-type-demande"; // L'URL de votre route Symfony
       fetchManager
-        .get(url)
+        .get(url, "text")
         .then((html) => {
           document.getElementById("modalContent").innerHTML = html;
           new bootstrap.Modal(document.getElementById("formModal")).show();
@@ -201,28 +201,6 @@ document.addEventListener("DOMContentLoaded", function () {
               } else if (jsonData.typeDemande === "2") {
                 window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
               }
-
-              // fetch("/Hffintranet/form-type-demande", {
-              //   method: "POST",
-              //   headers: {
-              //     "Content-Type": "application/json",
-              //     "X-Requested-With": "XMLHttpRequest", // Indiquer à Symfony que c'est une requête AJAX
-              //   },
-              //   body: JSON.stringify(jsonData),
-              // })
-              //   .then((response) => response.json())
-              //   .then((data) => {
-              //     console.log(data);
-
-              //     if (data.redirect_url) {
-              //       window.location.href = data.redirect_url; // Redirection vers l'URL donnée par le backend
-              //     } else {
-              //       alert("Aucune redirection spécifiée.");
-              //     }
-              //   })
-              //   .catch((error) =>
-              //     console.error("Erreur lors de la soumission:", error)
-              //   );
             });
         })
         .catch((error) =>
