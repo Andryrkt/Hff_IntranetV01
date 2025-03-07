@@ -26,9 +26,10 @@
 					</div>
 				</div>
 
-				<input type="hidden" id="sousTypeDoc" value="{{criteria.sousTypeDoc.id}}">
-				<input type="hidden" id="categorie" value="{{criteria.categorie.id}}">
-				<input type="hidden" id="rmq" value="{{criteria.rmq.id}}">
+				<input type="hidden" id="oldDateDebut" value="{{criteria.oldDateDebut}}">
+				<input type="hidden" id="oldDateFin" value="{{criteria.oldDateFin}}">
+				<input type="hidden" id="oldNombreJour" value="{{criteria.oldNombreJour}}">
+				<input type="hidden" id="nombreJourTropPercu" value="{{criteria.nombreJourTropPercu}}">
 
 				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
 
@@ -63,10 +64,10 @@
 						<!-- extern (temporaire) -->
 						<div class="row">
 							<div class="col-4 ">
-								{{ form_row(form.agenceEmetteur)}}
+								{{ form_row(form.agenceEmetteurId)}}
 							</div>
 							<div class="col-4 ">
-								{{ form_row(form.serviceEmetteur)}}
+								{{ form_row(form.serviceEmetteurId)}}
 							</div>
 						</div>
 					</div>
@@ -130,30 +131,30 @@
 						{{ form_row(form.dateDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.dateFin, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.nombreJour, {'attr' : { 'class' : 'text_end'}})}}
-						{{ form_row(form.client, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.client)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.heureDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.heureFin, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.motifDeplacement)}}
 						{{ form_row(form.fiche)}}
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-12">
-						{{ form_row(form.lieuIntervention, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.lieuIntervention)}}
 					</div>
 				</div>
 
 				<div class="row">
 					<div class="col-12 col-md-6">
-						{{ form_row(form.vehiculeSociete, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.idemnityDepl, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.vehiculeSociete)}}
+						{{ form_row(form.idemnityDepl)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.numVehicule)}}
-						{{ form_row(form.totalIndemniteDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.totalIndemniteDeplacement)}}
 					</div>
 				</div>
 				<div class="row">
@@ -161,10 +162,10 @@
 						{{ form_row(form.devis)}}
 					</div>
 					<div class="col-12 col-md">
-						{{ form_row(form.indemniteForfaitaire, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.indemniteForfaitaire)}}
 					</div>
 					<div class="col-12 col-md">
-						{{ form_row(form.supplementJournaliere, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.supplementJournaliere)}}
 					</div>
 
 					<div class="col-12 col-md">
@@ -193,7 +194,7 @@
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-6">
-						{{ form_row(form.modePayement, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.modePayement)}}
 					</div>
 					<div class="col-12 col-md-6">
 						{{ form_row(form.mode)}}
@@ -215,17 +216,17 @@
 						{{ form_row(form.pieceJoint02) }}
 					</div>
 
-		</div>
-		<div class="row">
-			<div class="mt-2 ">
-				<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-					<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
-						<i class="fa fa-print"></i>
-						Envoyer
-					</button>
-				</a>
-			</div>
-		</div>
+				</div>
+				<div class="row">
+					<div class="mt-2 ">
+						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
+							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
+								<i class="fa fa-print"></i>
+								Envoyer
+							</button>
+						</a>
+					</div>
+				</div>
 
 				{{ form_end(form)}}
 
@@ -234,5 +235,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dom/tropPercuForm.js" type="module"></script>
 {% endblock %}

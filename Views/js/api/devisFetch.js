@@ -41,13 +41,14 @@ function valeurDocASoumettre(docDansDw) {
 
   if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDit === "AFFECTEE SECTION" &&
-    docDansDw.statutDevis !== "Validé"
+    (docDansDw.statutDit === "AFFECTEE SECTION" ||
+      docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
+    docDansDw.statutDevis !== "Validé atelie"
   ) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé" &&
+    docDansDw.statutDevis === "Validé atelie" &&
     !docDansDw.numeroOR
   ) {
     docASoumettre = [
