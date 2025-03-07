@@ -31,7 +31,7 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->Line(0, 10, $w_total, 10);
 
         // Logo HFF
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/logoHff.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, 5, 10, 40, 0, 'jpg');
 
         // Grand titre du pdf

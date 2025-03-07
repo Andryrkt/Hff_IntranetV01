@@ -11,7 +11,7 @@ export function handleService() {
     if (agenceDebiteurInput.value !== '') {
       updateDropdown(
         serviceDebiteurInput,
-        `/Hffintranet/agence-fetch/${agenceDebiteurInput.value}`,
+        `agence-fetch/${agenceDebiteurInput.value}`,
         placeholder,
         spinnerElement,
         containerElement
