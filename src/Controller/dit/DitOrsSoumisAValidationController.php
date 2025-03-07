@@ -162,6 +162,8 @@ class DitOrsSoumisAValidationController extends Controller
 
         $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
 
+        $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
+
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -170,7 +172,8 @@ class DitOrsSoumisAValidationController extends Controller
             'invalidePosition'      => in_array($pos[0]['position'], $invalidPositions),
             'idMaterielDifferent'   => $demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule'],
             'sansrefClient'         => empty($refClient),
-            'situationOrSoumis'     => $situationOrSoumis[0]['retour'] === 'bloquer'
+            'situationOrSoumis'     => $situationOrSoumis[0]['retour'] === 'bloquer',
+            'countAgServDeb'        => $countAgServDeb
         ];
     }
 
@@ -202,7 +205,10 @@ class DitOrsSoumisAValidationController extends Controller
         elseif ($conditionBloquage['situationOrSoumis']) {
             $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
+        } elseif ($conditionBloquage['countAgServDeb']) {
+            $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        }
         else {
             return true;
         }
