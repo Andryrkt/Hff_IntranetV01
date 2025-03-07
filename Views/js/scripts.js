@@ -1,4 +1,6 @@
-const loader = document.querySelector(".loader");
+import { baseUrl } from './utils/config';
+
+const loader = document.querySelector('.loader');
 
 // window.addEventListener("load", () => {
 //   loader.classList.add("fondu-out");
@@ -13,7 +15,7 @@ const chronoText = document.getElementById('chrono-text');
 const chronoContainer = document.querySelector('.chrono-container');
 const chronoProgress = document.querySelector('.chrono-progress');
 
-if (location.pathname === '/Hffintranet/') {
+if (location.pathname === `${baseUrl}/`) {
   chronoContainer.classList.add('d-none');
 }
 
@@ -49,7 +51,7 @@ function updateChrono() {
   // Rediriger à la fin
   if (timeRemaining <= 0) {
     clearInterval(timer);
-    window.location.href = '/Hffintranet/logout';
+    window.location.href = `${baseUrl}/logout`;
   }
 }
 
@@ -73,7 +75,7 @@ function resetTimeout() {
 
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
-    window.location.href = '/Hffintranet/logout'; // URL de déconnexion
+    window.location.href = `${baseUrl}/logout`; // URL de déconnexion
   }, 900000); // 15 minutes
 }
 
@@ -101,7 +103,7 @@ function checkSessionExpiration() {
   const now = Date.now();
 
   if (lastActive && now - lastActive > 900000) {
-    window.location.href = '/Hffintranet/logout'; // Rediriger vers la déconnexion
+    window.location.href = `${baseUrl}/logout`; // Rediriger vers la déconnexion
   }
 }
 

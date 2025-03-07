@@ -6,6 +6,7 @@ use App\Entity\dom\Dom;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\mutation\Mutation;
 use App\Entity\admin\dom\Indemnite;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\dom\SousTypeDocumentRepository;
@@ -13,6 +14,7 @@ use App\Repository\admin\dom\SousTypeDocumentRepository;
 /**
  * @ORM\Entity
  * @ORM\Table(name="Sous_type_document")
+ * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\HasLifecycleCallbacks
  */

@@ -10,6 +10,7 @@ use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\mutation\Mutation;
@@ -29,11 +30,12 @@ class DomApi extends Controller
      */
     public function categoriefetch(int $id)
     {
-        $this->SessionStart();
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
         $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($id);
-        if ($CodeServiceofCours[0]['agence_ips'] === '50') {
+
+        if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
         } else {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
@@ -50,7 +52,7 @@ class DomApi extends Controller
 
         header("Content-type:application/json");
 
-        echo json_encode($catg);
+        echo json_encode($catg);;
     }
 
 
@@ -131,27 +133,6 @@ class DomApi extends Controller
     {
         $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
         $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
-        $tab = [
-            'compteBancaire' => $personne->getNumeroCompteBancaire(),
-            'telephone' => $numTel
-        ];
-
-        header("Content-type:application/json");
-
-        echo json_encode($tab);
-    }
-
-    /**
-     * @Route("/personnel-fetch-id/{personnelId}", name="fetch_personnel_id", methods={"GET"})
-     *
-     * @param [type] $personnelId
-     * @return void
-     */
-    public function personnelFetchId($personnelId)
-    {
-        $personne = self::$em->getRepository(Personnel::class)->find($personnelId);
-        $matricule = $personne->getMatricule();
-        $numTel = self::$em->getRepository(Mutation::class)->findLastNumtel((string)$matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
             'telephone' => $numTel

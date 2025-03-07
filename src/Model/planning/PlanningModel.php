@@ -120,13 +120,17 @@ class PlanningModel extends Model
       ];
     }, $dataUtf8);
   }
-  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back)
+  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back, $touslesOrItvSoumis)
   {
     if ($criteria->getOrBackOrder() == true) {
       $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
     } else {
       if (!empty($lesOrValides)) {
-        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        if ($criteria->getOrNonValiderDw() == true) {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
+        } else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        }
       } else {
         $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
       }
@@ -216,16 +220,20 @@ class PlanningModel extends Model
 
 
     $result = $this->connect->executeQuery($statement);
-  // dump($statement);
+    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
-  public function backOrderPlanning($lesOrValides)
+  public function backOrderPlanning($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
   {
 
     if (!empty($lesOrValides)) {
-      $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      if ($criteria->getOrNonValiderDw() == true) {
+        $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
+      } else {
+        $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      }
     } else {
       $vOrvalDw = " AND  slor_numor in ('')";
     }
@@ -249,6 +257,7 @@ class PlanningModel extends Model
                   $vOrvalDw
                   
       ";
+
     $result = $this->connect->executeQuery($statement);
     // dump($statement);
     $data = $this->connect->fetchResults($result);
@@ -833,6 +842,351 @@ class PlanningModel extends Model
   /**
    * liste planning
    */
+  public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
+  {
+    if ($criteria->getOrBackOrder() == true) {
+      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+    } else {
+      if (!empty($lesOrValides)) {
+        if ($criteria->getOrNonValiderDw() == true) {
+          $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+        }else {
+          $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+          } 
+    } else {
+        $vOrvalDw = " AND seor_numor in ('')";
+        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+      }
+    }
+
+
+    $vligneType = $this->typeLigne($criteria);
+
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+    $vplan = $criteria->getPlan();
+
+    $statement = " SELECT 
+                trim(seor_succ) as codeSuc, 
+                trim(asuc_lib) as libSuc, 
+                trim(seor_servcrt) as codeServ, 
+                trim(ser.atab_lib) as libServ, 
+                trim(sitv_comment) as commentaire,
+                 mmat_nummat as idMat,
+                trim(mmat_marqmat) as markMat,
+                trim(mmat_typmat) as typeMat ,
+                trim(mmat_numserie) as numSerie,
+                trim(mmat_recalph) as numParc,
+                trim(mmat_numparc) as casier,
+                $vYearsStatutPlan as annee,
+                $vMonthStatutPlan as mois,
+                seor_numor ||'-'||sitv_interv as orIntv,
+                 ( SELECT SUM( CASE WHEN slor_typlig = 'P' $vligneType  THEN
+                  slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                   ELSE slor_qterea END )
+                  FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QteCdm,
+                (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
+                (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
+                sitv_interv as Itv,
+                seor_numor as numOR,
+
+                CASE  
+                      WHEN  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+                                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                                          ELSE slor_qterea END )
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) 
+		=  
+		(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) THEN
+                      TRIM('TOUT LIVRE') 
+		
+	       WHEN  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > 0 
+AND   (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )
+AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > ( (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) +   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+) THEN
+		TRIM('PARTIELLEMENT LIVRE')
+WHEN   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = 0 
+AND  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) >0  THEN
+TRIM('PARTIELLEMENT DISPO')
+
+WHEN  (  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) =  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
+AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) <   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )  )
+OR(  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) > 0 
+
+AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+
+
+                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+
+
+                                          ELSE slor_qterea END )
+
+
+                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = (  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) +  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )   )) THEN
+TRIM('COMPLET NON LIVRE')
+                      END  AS Status_B,
+                      --ligne
+                        sitv_datepla as datePlanning,
+                        trim(slor_constp) as cst,
+                        trim(slor_refp) as ref,
+                        trim(slor_desi) as desi,
+                        slor_qterel AS QteReliquat,
+                        CASE 
+                          WHEN slor_typlig = 'P' THEN
+                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+		                      ELSE 
+                            slor_qterea 
+                        END AS QteRes_Or,
+                        slor_qterea AS Qteliv,
+                        slor_qteres AS QteAll,
+                        CASE  
+                          WHEN slor_natcm = 'C' THEN 'COMMANDE'
+                          WHEN slor_natcm = 'L' THEN 'RECEPTION'
+                        END AS Statut_ctrmq,
+                        CASE 
+                          WHEN slor_natcm = 'C' THEN 
+                            slor_numcf
+                          WHEN slor_natcm = 'L' THEN 
+                            (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = slor_numcf
+                              AND fllf_ligne = slor_noligncm
+                              AND fllf_refp = slor_refp)
+                        END  AS numeroCmd,
+                        CASE 
+                            WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
+                             trim('A LIVRER')
+                            WHEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) = slor_qteres AND slor_qterel = 0 AND slor_qterea = 0 THEN
+                             trim('DISPO STOCK')
+                            WHEN slor_qterea =  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
+                             trim('LIVRE')
+                            WHEN slor_natcm = 'C' THEN 
+                                ( SELECT libelle_type 
+                                  FROM  gcot_acknow_cat 
+                                  WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
+                                  AND Parts_Number = slor_refp  
+                                  AND Parts_CST = slor_constp 
+                                  AND Line_Number = slor_noligncm 
+		   		                        AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
+                                                             FROM gcot_acknow_cat 
+                                                             WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
+                                                             AND Parts_Number = slor_refp  
+                                                             AND Parts_CST = slor_constp 
+                                                             AND Line_Number = slor_noligncm )
+					                    	 )
+                            WHEN slor_typcf = 'CIS' THEN 
+		                            ( SELECT libelle_type 
+                                  FROM  gcot_acknow_cat 
+                                  WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                  AND Parts_Number = slor_refp  
+                                  AND Parts_CST = slor_constp 
+                                  AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
+	                                AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat)
+                                                             FROM gcot_acknow_cat 
+                                                             WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                                             AND Parts_Number = slor_refp  
+                                                             AND Parts_CST = slor_constp 
+                                                             AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
+				                         )
+	                      END as Statut,
+
+                        CASE 
+                          WHEN slor_qteres = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) AND slor_qterel >0 THEN
+                              TO_CHAR((
+		                                 SELECT spic_datepic
+                                     FROM (
+                                        SELECT spic_datepic,
+                                         ROW_NUMBER() OVER (ORDER BY spic_datepic ASC) AS rn
+                                         FROM sav_pic
+                                         WHERE spic_numor = slor_numor
+                                        AND spic_refp = slor_refp
+                                        AND spic_nolign = slor_nolign
+                                           ) AS ranked_dates
+                                       WHERE rn = 1
+                             ), '%Y-%m-%d')
+	                        WHEN slor_qterea = (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
+                  	          TO_CHAR((
+                                  (SELECT sliv_date 
+                                  FROM sav_liv 
+                                  WHERE sliv_numor = slor_numor 
+                                  AND sliv_nolign = slor_nolign)), '%Y-%m-%d')
+	                        WHEN slor_natcm = 'C' THEN 
+                                TO_CHAR((	
+                                          ( SELECT date_creation
+                                            FROM  gcot_acknow_cat 
+                                            WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
+                                            AND Parts_Number = slor_refp  
+                                            AND Parts_CST = slor_constp 
+                                            AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
+                                            AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                                      FROM gcot_acknow_cat 
+                                                                      WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
+                                                                      AND Parts_Number = slor_refp  
+                                                                      AND Parts_CST = slor_constp 
+                                                                      AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign) )
+                                          )
+                                        ), 
+                                        '%Y-%m-%d')
+                          WHEN slor_typcf = 'CIS' THEN 
+                            TO_CHAR((
+                                    ( SELECT date_creation
+                                      FROM  gcot_acknow_cat 
+                                      WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                      AND Parts_Number = slor_refp  
+                                      AND Parts_CST = slor_constp 
+                                      AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
+                                      AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                                FROM gcot_acknow_cat 
+                                                                WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                                                AND Parts_Number = slor_refp  
+                                                                AND Parts_CST = slor_constp 
+                                                                AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ))
+                                      )
+                                  ), '%Y-%m-%d')
+	                      END AS dateStatut,
+                        CASE  
+                            WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN 
+                                  ( SELECT message FROM  gcot_acknow_cat 
+                                  WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
+                                  AND Parts_Number = slor_refp  
+                                  AND Parts_CST = slor_constp 
+                                  AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign)
+                                  AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                              FROM gcot_acknow_cat 
+                                                              WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10)) 
+                                                              AND Parts_Number = slor_refp  
+                                                              AND Parts_CST = slor_constp 
+                                                              AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign))
+                                ) 
+                            WHEN slor_typcf = 'CIS' THEN 
+                                  ( SELECT message FROM  gcot_acknow_cat 
+                                            WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                            AND Parts_Number = slor_refp  
+                                            AND Parts_CST = slor_constp 
+                                            AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm )
+                                            AND id_gcot_acknow_cat = ( SELECT MAX(id_gcot_acknow_cat) 
+                                                                         FROM gcot_acknow_cat 
+                                                                         WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
+                                                                         AND Parts_Number = slor_refp  
+                                                                         AND Parts_CST = slor_constp 
+                                                                         AND (Line_Number = slor_nolign OR Line_Number = nlig_noligncm ) )
+                                  )
+	                       END as Message ,
+                        slor_numcf as numCis,
+                        CASE  
+                          WHEN nlig_natcm = 'C' THEN 'COMMANDE'
+                          WHEN nlig_natcm = 'L' THEN 'RECEPTION'
+                        END AS Statut_ctrmq_cis,
+                        CASE
+                          WHEN nlig_natcm = 'C' THEN 
+                          nlig_numcf   
+                          WHEN nlig_natcm = 'L'THEN
+                          (SELECT MAX(fllf_numcde) FROM frn_llf WHERE fllf_numliv = nlig_numcf
+                            AND fllf_ligne = nlig_noligncm
+                            AND fllf_refp = nlig_refp)
+                        END as numerocdecis
+
+      FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat,neg_lig, agr_tab ope, outer agr_tab sec
+      WHERE seor_numor = slor_numor
+      AND seor_serv <> 'DEV'
+      AND sitv_numor = slor_numor 
+      AND sitv_interv = slor_nogrp/100 
+      AND (seor_succ = asuc_num)
+      AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+      AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+      AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')     
+      $vStatutFacture     
+      AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+      AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+      AND (seor_nummat = mmat_nummat)
+      --AND slor_constp NOT like '%ZDI%'
+      --ligne
+      AND slor_numcf = nlig_numcde AND slor_refp = nlig_refp
+      $vOrvalDw
+      $vligneType
+      $vConditionNoPlanning 
+      $agence
+      $vStatutInterneExterne
+      $agenceDebite
+      $serviceDebite
+      $vDateDMonthPlan
+      $vDateFMonthPlan
+      $vconditionNumParc
+      $vconditionIdMat
+      $vconditionNumOr
+      $vconditionNumSerie
+      $vconditionCasier
+      $vsection 
+      group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
+      order by 10,14 
+  ";
+    $result = $this->connect->executeQuery($statement);
+    // dump($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
+
   public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
   {
     if ($criteria->getOrBackOrder() == true) {
@@ -1018,7 +1372,7 @@ TRIM('COMPLET NON LIVRE')
 
 
     $result = $this->connect->executeQuery($statement);
-    //  dump($statement);
+    dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
@@ -1213,19 +1567,19 @@ TRIM('COMPLET NON LIVRE')
 
     if (!empty($criteria['typeligne'])) {
       switch ($criteria['typeligne']) {
-        case "TOUTES": 
+        case "TOUTES":
           $vtypeligne = " ";
           break;
-      case "PIECES_MAGASIN":
-          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") AND slor_typlig = 'P' ";
+        case "PIECES_MAGASIN":
+          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' ";
           break;
-      case "ACHAT_LOCAUX":
-          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('achat_locaux').")" ;
+        case "ACHAT_LOCAUX":
+          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
           break;
-      case "LUBRIFIANTS":
-          $vtypeligne = " AND slor_constp in (".GlobalVariablesService::get('lub').")  AND slor_typlig = 'P'";
+        case "LUBRIFIANTS":
+          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")  AND slor_typlig = 'P'";
           break;
-      default:
+        default:
           $vtypeligne = " ";
           break;
       }
@@ -1239,7 +1593,6 @@ TRIM('COMPLET NON LIVRE')
                             slor_numcf as numCis,
                             sitv_interv as Intv,
                             trim(sitv_comment) as commentaire,
-                            --slor_datel as datePlanning,
                             sitv_datepla as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
@@ -1274,7 +1627,7 @@ TRIM('COMPLET NON LIVRE')
                         trim('DISPO STOCK')
                       WHEN slor_qterea =  (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
                          trim('LIVRE')
-                      WHEN slor_natcm = 'C' THEN
+                      WHEN slor_natcm = 'C' THEN 
                                 ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
                                   WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
@@ -1288,7 +1641,7 @@ TRIM('COMPLET NON LIVRE')
                                                              AND Parts_CST = slor_constp 
                                                              AND Line_Number = slor_noligncm )
 					                    	 )
-                      WHEN slor_typcf = 'CIS' THEN
+                      WHEN slor_typcf = 'CIS' THEN 
 		                            ( SELECT libelle_type 
                                   FROM  gcot_acknow_cat 
                                   WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
@@ -1324,7 +1677,7 @@ TRIM('COMPLET NON LIVRE')
 		                        FROM sav_liv 
                             WHERE sliv_numor = slor_numor 
 		                        AND sliv_nolign = slor_nolign)), '%Y-%m-%d')
-	                  WHEN slor_natcm = 'C' THEN
+	                  WHEN slor_natcm = 'C' THEN 
  		                    TO_CHAR((	
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
@@ -1341,7 +1694,7 @@ TRIM('COMPLET NON LIVRE')
 	                        	       )
                                  ), 
                                  '%Y-%m-%d')
-                    WHEN slor_typcf = 'CIS' THEN
+                    WHEN slor_typcf = 'CIS' THEN 
 		                       TO_CHAR((
                                   ( SELECT date_creation
                                     FROM  gcot_acknow_cat 
@@ -1359,7 +1712,7 @@ TRIM('COMPLET NON LIVRE')
                                  ), '%Y-%m-%d')
 	                  END AS dateStatut,
 
-                      CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN
+                      CASE  WHEN slor_qterea <> (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) THEN 
 	                     ( SELECT message FROM  gcot_acknow_cat 
                           WHERE CAST( Numero_PO as varchar(10)) = CAST(slor_numcf  as varchar(10))
                           AND Parts_Number = slor_refp  
@@ -1371,8 +1724,8 @@ TRIM('COMPLET NON LIVRE')
                                                       AND Parts_Number = slor_refp  
                                                       AND Parts_CST = slor_constp 
                                                       AND (Line_Number = slor_noligncm OR Line_Number = slor_nolign))
-					            	)
-                        WHEN slor_typcf = 'CIS' THEN
+					            	) 
+                        WHEN slor_typcf = 'CIS' THEN 
                                   ( SELECT message FROM  gcot_acknow_cat 
                                             WHERE  CAST( Numero_PO as varchar(10)) = CAST(nlig_numcf  as varchar(10))
                                             AND Parts_Number = slor_refp  
@@ -1411,7 +1764,7 @@ TRIM('COMPLET NON LIVRE')
                 AND slor_constp NOT LIKE '%ZDI%'
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
       ";
-      
+
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);

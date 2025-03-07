@@ -282,8 +282,9 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nom du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
+                        'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
                         'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
@@ -295,8 +296,9 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Numéro du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
+                        'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
                         'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
@@ -307,10 +309,12 @@ class demandeInterventionType extends AbstractType
                 'numeroTel',
                 TelType::class,
                 [
+                    
                     'label' => 'N° téléphone (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
-                        'class' => 'numTel noEntrer'
+                        'disabled' => true,
+                        'class' => 'numTel'
                     ]
                 ]
             )
@@ -318,11 +322,26 @@ class demandeInterventionType extends AbstractType
                 'mailClient',
                 EmailType::class,
                 [
+                    
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
-                    'attr' => ['class' => 'clientSousContrat'],
+                    'attr' => [
+                        'class' => 'mailClient',
+                        'disabled' => true,
+                    ],
                 ]
             )
+            ->add('clientSousContrat', ChoiceType::class, [
+                'label' => 'Client sous contrat',
+                'choices' => self::OUI_NON,
+                'placeholder' => false,
+                'required' => false,
+                'data' => 'NON',
+                'attr' => [
+                    'disabled' => true,
+                    'class' => 'clientSousContrat'
+                    ]
+            ])
 
             ->add('datePrevueTravaux', DateType::class, [
                 'widget' => 'single_text',
@@ -434,7 +453,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => " N° Parc",
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'noEntrer autocomplete', 
                         'autocomplete' => 'off',
@@ -447,7 +466,7 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => " N° Serie",
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
                         'class' => 'noEntrer autocomplete', 
                         'autocomplete' => 'off',

@@ -215,4 +215,24 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $montantValide;
     }
+
+    public function findNumOrAll()
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroOR")
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
+    public function findNumOrItvAll()
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT CONCAT(osv.numeroOR, '-', osv.numeroItv) AS numeroORNumeroItv")
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
 }

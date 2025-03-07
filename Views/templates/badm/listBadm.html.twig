@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 {% endblock%}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -124,4 +124,4 @@
 
 <!-- FIN tableau -->{% endblock %}{% block javascript %}
 <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-<script src="/Hffintranet/Views/js/badm/listBadm.js" type="module"></script>{% endblock %}
+<script src="{{ App.base_path }}/Views/js/badm/listBadm.js" type="module"></script>{% endblock %}
