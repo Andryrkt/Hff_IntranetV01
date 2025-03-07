@@ -9,12 +9,10 @@ use App\Entity\admin\dom\Indemnite;
 use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use App\Repository\admin\dom\SousTypeDocumentRepository;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="Sous_type_document")
- * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\HasLifecycleCallbacks
  */

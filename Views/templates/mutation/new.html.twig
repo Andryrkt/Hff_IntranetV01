@@ -4,8 +4,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-	<link href="/Hffintranet/Views/css/mutation/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/mutation/new.css" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -123,5 +123,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/mutation/new.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/mutation/new.js" type="module"></script>
 {% endblock %}
