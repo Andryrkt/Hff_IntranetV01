@@ -59,7 +59,7 @@ class DomTropPercuController extends Controller
             $dom
                 ->setHeureDebut($dom->getHeureDebut()->format('H:i'))
                 ->setHeureFin($dom->getHeureFin()->format('H:i'))
-                ->setModePayement($domForm->getModePayement() . ':' . $mode)
+                ->setModePayement(':' . $mode)
             ;
 
             $domTp = new Domtp;

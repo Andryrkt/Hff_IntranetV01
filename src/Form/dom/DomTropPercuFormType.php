@@ -32,9 +32,7 @@ class DomTropPercuFormType extends AbstractType
         $dom = $options['data'];
         $idSousTypeDocument = $dom->getSousTypeDocument()->getId();
 
-        $payement = explode(':', $dom->getModePayement());
-        $modePayement = $payement[0];
-        $mode = $payement[1];
+        $payement = '';
 
         $builder
             ->add(
@@ -487,7 +485,8 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Mode paiement',
-                    'data' => $modePayement,
+                    'required' => false,
+                    'data' => $payement,
                     'attr' => [
                         'class' => 'disabled',
                     ],
@@ -498,9 +497,9 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
-                    'label' => $modePayement,
-                    'required' => true,
-                    'data' => $mode,
+                    'label' => 'MOBILE MONEY',
+                    'required' => false,
+                    'data' => $payement,
                     'attr' => [
                         'class' => 'disabled',
                     ],

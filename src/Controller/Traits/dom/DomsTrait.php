@@ -534,7 +534,6 @@ trait DomsTrait
             ->setDevis($oldDom->getDevis())
             ->setIdemnityDepl($oldDom->getIdemnityDepl())
             ->setDroitIndemnite($oldDom->getDroitIndemnite())
-            ->setModePayement($oldDom->getModePayement())
             ->setSiteId($oldDom->getSiteId())
             ->setCategoryId($oldDom->getCategoryId())
         ;
