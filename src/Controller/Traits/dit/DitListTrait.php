@@ -595,9 +595,14 @@ trait DitListTrait
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
-            } elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
+            } 
+            // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
+            //     $value->setEstOrASoumi(true);
+            // } 
+            elseif ($value->getIdStatutDemande()->getId() === 57 ) {
                 $value->setEstOrASoumi(true);
-            } else {
+            }
+            else {
                 $value->setEstOrASoumi(false);
             }
         }

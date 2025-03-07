@@ -108,6 +108,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    
     /**
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
@@ -370,4 +371,6 @@ class DitDevisSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    
 }

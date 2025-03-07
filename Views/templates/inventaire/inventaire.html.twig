@@ -49,11 +49,11 @@
                 <td> {{item.qte_comptee}}</td>
                 <td> {{item.statut}}</td>
                 <td> {{item.montant}}</td>
-                <td> {{item.nbre_ref_ecarts_positif}}</td>
-                <td> {{item.nbre_ref_ecarts_negatifs}}</td>
-                <td> {{item.total_nbre_ref_ecarts}}</td>
+                <td> {{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
+                <td> {{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
+                <td> {{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
                 <td> {{item.pourcentage_ref_avec_ecart}}</td>
-                <td> {{item.montant_ecart}}</td>
+                <td> {{item.montant_ecart is same as("0")?"":item.montant_ecart}}</td>
                 <td> {{item.pourcentage_ecart}}</td>
                 </tr>
             {% endfor %}

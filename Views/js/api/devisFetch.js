@@ -55,6 +55,8 @@ function valeurDocASoumettre(docDansDw) {
       { value: "DEVIS", text: "DEVIS" },
       { value: "BC", text: "BC" },
     ];
+  } else if (docDansDw.statutDit === "TERMINEE") {
+    docASoumettre = [{ value: "FACTURE", text: "FACTURE" }];
   } else {
     docASoumettre = [
       { value: "OR", text: "OR" },

@@ -257,4 +257,22 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->retournerResult28($sql);
     }
+
+    public function constructeurPieceMagasin(string $numOr)
+    {
+        $statement = " SELECT
+            slor.slor_constp as constructeur
+            from sav_lor slor
+            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
+            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
+            and slor.slor_typlig = 'P' 
+            and seor.seor_numor = '".$numOr."'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
