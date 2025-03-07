@@ -56,12 +56,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** Mode de paiement et valeur */
   matricule.addEventListener('change', function () {
-    if (this.value && avance.value === 'OUI') {
+    if (this.value) {
       updateModePaiement(this.value);
     }
   });
   modePaiementLabelInput.addEventListener('change', function () {
-    if (matricule.value && avance.value === 'OUI') {
+    if (matricule.value) {
       updateModePaiement(matricule.value);
     }
   });
