@@ -38,7 +38,7 @@ export function fetchDevis(
  */
 function valeurDocASoumettre(docDansDw) {
   let docASoumettre = [];
-
+  // && !docDansDw.numeroOR 
   if (
     docDansDw.client === "EXTERNE" &&
     (docDansDw.statutDit === "AFFECTEE SECTION" ||
@@ -48,7 +48,7 @@ function valeurDocASoumettre(docDansDw) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé atelier" 
+    docDansDw.statutDevis === "Validé atelier"
   ) {
     docASoumettre = [
       { value: "DEVIS", text: "DEVIS" },
