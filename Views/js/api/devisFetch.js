@@ -48,8 +48,7 @@ function valeurDocASoumettre(docDansDw) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé atelier" &&
-    !docDansDw.numeroOR
+    docDansDw.statutDevis === "Validé atelier" 
   ) {
     docASoumettre = [
       { value: "DEVIS", text: "DEVIS" },
@@ -57,6 +56,12 @@ function valeurDocASoumettre(docDansDw) {
     ];
   } else if (docDansDw.statutDit === "TERMINEE") {
     docASoumettre = [{ value: "FACTURE", text: "FACTURE" }];
+  } else if(docDansDw.numeroOR) { // un or existe dans ips
+    docASoumettre = [
+      { value: "OR", text: "OR" },
+      { value: "RI", text: "RI" },
+      { value: "FACTURE", text: "FACTURE" },
+    ];
   } else {
     docASoumettre = [
       { value: "OR", text: "OR" },

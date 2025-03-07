@@ -583,7 +583,10 @@ trait DitListTrait
     private function ajoutEstOrASoumis($paginationData, $em)
     {
         foreach ($paginationData as $value) {
-            // dd($value);
+            // dump($value->getNumeroDemandeIntervention());
+            // dump($value->getInternetExterne());
+            // dump($value->getIdStatutDemande());
+            // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
 
             if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
@@ -606,5 +609,6 @@ trait DitListTrait
                 $value->setEstOrASoumi(false);
             }
         }
+        // die();
     }
 }

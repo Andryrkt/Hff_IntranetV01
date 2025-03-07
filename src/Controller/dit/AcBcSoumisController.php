@@ -91,8 +91,8 @@ class AcBcSoumisController extends Controller
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
-            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $nomFichier, count([$uploadedFilePath]));
-            $fileUploader->fusionFichers($uploadedFiles, $nomFichier);
+            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
+            $fileUploader->fusionFichers($uploadedFiles, $chemin.$nomFichier);
 
             //envoie le pdf dans docuware
             $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
