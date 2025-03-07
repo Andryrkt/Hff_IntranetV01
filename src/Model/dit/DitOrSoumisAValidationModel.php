@@ -275,4 +275,18 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function countAgServDebit($numOr)
+    {
+        $statement = " SELECT count(distinct sitv_servdeb) 
+                    from sav_itv 
+                    where sitv_numor = '{$numOr}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
