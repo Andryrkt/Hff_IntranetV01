@@ -4,13 +4,13 @@ namespace App\Entity\Traits;
 
 trait AgenceServiceEmetteurTrait
 {
-    
+
     private $agenceEmetteur;
 
-   
+
     private $serviceEmetteur;
 
-    
+
 
     public function getAgenceEmetteur(): ?string
     {
