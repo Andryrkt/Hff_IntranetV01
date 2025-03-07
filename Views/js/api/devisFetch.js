@@ -38,16 +38,17 @@ export function fetchDevis(
  */
 function valeurDocASoumettre(docDansDw) {
   let docASoumettre = [];
-
+  // && !docDansDw.numeroOR 
   if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDit === "AFFECTEE SECTION" &&
-    docDansDw.statutDevis !== "Validé"
+    (docDansDw.statutDit === "AFFECTEE SECTION" ||
+      docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
+    docDansDw.statutDevis !== "Validé atelier"
   ) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé" && !docDansDw.numeroOR 
+    docDansDw.statutDevis === "Validé atelier"
   ) {
     docASoumettre = [
       { value: "DEVIS", text: "DEVIS" },
