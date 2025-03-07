@@ -43,6 +43,9 @@ function valeurDocASoumettre(docDansDw) {
     docDansDw.client === "EXTERNE" &&
     (docDansDw.statutDit === "AFFECTEE SECTION" ||
       docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
+    docDansDw.statutDevis !== "Validé atelie"
+    (docDansDw.statutDit === "AFFECTEE SECTION" ||
+      docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
     docDansDw.statutDevis !== "Validé atelier"
   ) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];

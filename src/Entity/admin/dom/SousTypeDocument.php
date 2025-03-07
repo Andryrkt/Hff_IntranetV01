@@ -5,12 +5,14 @@ namespace App\Entity\admin\dom;
 use App\Entity\dom\Dom;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\dom\Indemnite;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="Sous_type_document")
+ * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class SousTypeDocument
