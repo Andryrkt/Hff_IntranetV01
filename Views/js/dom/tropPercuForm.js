@@ -1,74 +1,26 @@
 import { FetchManager } from '../api/FetchManager';
+import { formatDateOrEmpty } from '../planning/utils/date-utils';
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-document.addEventListener('DOMContentLoaded', (event) => {
-  /**
-   * N'AFFICHE PAS LES CHAMPS matricule et cin selon le statut de la salarier
-   */
-  const cinInput = document.querySelector('#dom_form2_cin');
-  const matriculeInput = document.querySelector('#dom_form2_matricule');
-
-  function form1Data() {
-    let url = `form1Data-fetch`;
-    fetchManager
-      .get(url)
-      .then((form1Data) => {
-        console.log(form1Data);
-        if (form1Data.salarier === 'PERMANENT') {
-          cinInput.parentElement.style.display = 'none';
-        } else {
-          matriculeInput.parentElement.style.display = 'none';
-        }
-      })
-      .catch((error) => console.error('Error:', error));
-  }
-  form1Data();
-
-  /**
-   * recuperer l'agence debiteur et changer le service debiteur selon l'agence
-   */
-  const agenceDebiteurInput = document.querySelector('#dom_form2_agence');
-  const serviceDebiteurInput = document.querySelector('#dom_form2_service');
-  agenceDebiteurInput.addEventListener('change', selectAgence);
-
-  function selectAgence() {
-    const agenceDebiteur = agenceDebiteurInput.value;
-    let url = `agence-fetch/${agenceDebiteur}`;
-    fetchManager
-      .get(url)
-      .then((services) => {
-        console.log(services);
-
-        // Supprimer toutes les options existantes
-        while (serviceDebiteurInput.options.length > 0) {
-          serviceDebiteurInput.remove(0);
-        }
-
-        // Ajouter les nouvelles options à partir du tableau services
-        for (var i = 0; i < services.length; i++) {
-          var option = document.createElement('option');
-          option.value = services[i].value;
-          option.text = services[i].text;
-          serviceDebiteurInput.add(option);
-        }
-
-        //Afficher les nouvelles valeurs et textes des options
-        for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
-          var option = serviceDebiteurInput.options[i];
-          console.log('Value: ' + option.value + ', Text: ' + option.text);
-        }
-      })
-      .catch((error) => console.error('Error:', error));
-  }
-
+document.addEventListener('DOMContentLoaded', () => {
   /**
    * CALCULE et AFFICHAGE DU NOMBRE DE JOUR
    */
-  const dateDebutInput = document.querySelector('#dom_form2_dateDebut');
-  const dateFinInput = document.querySelector('#dom_form2_dateFin');
-  const nombreDeJourInput = document.querySelector('#dom_form2_nombreJour');
+  const dateDebutInput = document.querySelector(
+    '#dom_trop_percu_form_dateDebut'
+  );
+  const dateFinInput = document.querySelector('#dom_trop_percu_form_dateFin');
+  const nombreDeJourInput = document.querySelector(
+    '#dom_trop_percu_form_nombreJour'
+  );
+  const oldDateDebutInput = document.querySelector('#oldDateDebut');
+  const oldDateFinInput = document.querySelector('#oldDateFin');
+  const oldNombreJourInput = document.querySelector('#oldNombreJour');
+  const nombreJourTropPercuInput = document.querySelector(
+    '#nombreJourTropPercu'
+  );
 
   const errorMessage = document.createElement('div');
   errorMessage.style.color = 'red';
@@ -83,41 +35,86 @@ document.addEventListener('DOMContentLoaded', (event) => {
     );
   }
 
+  function getDateWithoutTime(date) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  }
+
   function calculateDays() {
+    errorMessage.textContent = '';
+    errorMessage.style.display = 'none';
     const dateDebutValue = dateDebutInput.value;
     const dateFinValue = dateFinInput.value;
+    const oldDateDebutValue = oldDateDebutInput.value;
+    const oldDateFinValue = oldDateFinInput.value;
+    const oldNombreJourValue = parseInt(oldNombreJourInput.value);
+    const nombreJourTropPercuValue = parseInt(nombreJourTropPercuInput.value);
 
     if (dateDebutValue && dateFinValue) {
-      const dateDebut = new Date(dateDebutValue);
-      const dateFin = new Date(dateFinValue);
+      const dateDebut = getDateWithoutTime(new Date(dateDebutValue));
+      const dateFin = getDateWithoutTime(new Date(dateFinValue));
+      const oldDateDebut = getDateWithoutTime(new Date(oldDateDebutValue));
+      const oldDateFin = getDateWithoutTime(new Date(oldDateFinValue));
 
       if (dateDebut > dateFin) {
         errorMessage.textContent =
           'La date de début ne peut pas être supérieure à la date de fin.';
         errorMessage.style.display = 'block';
         nombreDeJourInput.value = '';
+      } else if (dateDebut < oldDateDebut) {
+        errorMessage.textContent = `La date de début ne peut pas être inférieur à la date de début (${formatDateOrEmpty(
+          oldDateDebut
+        )}) de l'ancien DOM.`;
+        errorMessage.style.display = 'block';
+        nombreDeJourInput.value = '';
+      } else if (dateFin > oldDateFin) {
+        errorMessage.textContent = `La date de fin ne peut pas être supérieur à la date de fin (${formatDateOrEmpty(
+          oldDateFin
+        )}) de l'ancien DOM.`;
+        errorMessage.style.display = 'block';
+        nombreDeJourInput.value = '';
       } else {
-        errorMessage.style.display = 'none';
         const timeDifference = dateFin - dateDebut;
         const dayDifference = timeDifference / (1000 * 3600 * 24);
         nombreDeJourInput.value = dayDifference + 1;
+        if (
+          oldNombreJourValue <
+          nombreJourTropPercuValue + parseInt(nombreDeJourInput.value)
+        ) {
+          errorMessage.textContent =
+            'Le nombre de jour est trop grande, veuillez le changer.';
+          errorMessage.style.display = 'block';
+        } else {
+          errorMessage.textContent = '';
+          errorMessage.style.display = 'none';
 
-        updateTotalIndemnity();
+          updateTotalIndemnity();
 
-        //ajout d'une nouvelle evenement qui sera utiliser en bas
-        const event = new Event('valueAdded');
-        nombreDeJourInput.dispatchEvent(event);
+          //ajout d'une nouvelle evenement qui sera utiliser en bas
+          const event = new Event('valueAdded');
+          nombreDeJourInput.dispatchEvent(event);
+        }
       }
     }
   }
+
+  /** Blocage de Formulaire */
+  const formTropPercu = document.querySelector('form');
+  formTropPercu.addEventListener('submit', function (e) {
+    if (errorMessage.textContent !== '') {
+      e.preventDefault();
+      dateFinInput.focus();
+    }
+  });
 
   /**
    * CALCULE et AFFICHAGE total indemnité de déplacement
    */
   const totalIdemniteDeplacementInput = document.querySelector(
-    '#dom_form2_totalIndemniteDeplacement'
+    '#dom_trop_percu_form_totalIndemniteDeplacement'
   );
-  const idemnityDeplInput = document.querySelector('#dom_form2_idemnityDepl');
+  const idemnityDeplInput = document.querySelector(
+    '#dom_trop_percu_form_idemnityDepl'
+  );
 
   function updateTotalIndemnity() {
     const nombreDeJour = parseInt(nombreDeJourInput.value);
@@ -138,7 +135,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   if (idemnityDeplInput) {
-    idemnityDeplInput.addEventListener('input', () => {
+    idemnityDeplInput?.addEventListener('input', () => {
       idemnityDeplInput.value = formatNumberInt(idemnityDeplInput.value);
       updateTotalIndemnity();
     });
@@ -174,41 +171,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
   const indemniteForfaitaireJournaliereInput = document.querySelector(
-    '#dom_form2_indemniteForfaitaire'
+    '#dom_trop_percu_form_indemniteForfaitaire'
   );
-  const siteInput = document.querySelector('#dom_form2_site');
-  const sousTypeDocInput = document.querySelector('#sousTypeDoc');
-  const categorieInput = document.querySelector('#categorie');
-  const rmqInput = document.querySelector('#rmq');
-
-  if (siteInput) {
-    siteInput.addEventListener('change', indemnitySite);
-  }
-  console.log(sousTypeDocInput.value);
-
-  function indemnitySite() {
-    const siteValue = siteInput.value;
-    const sousTypeDocValue = sousTypeDocInput.value;
-
-    const catgValue = categorieInput.value;
-    const rmqValue = rmqInput.value;
-    let url = `site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
-    fetchManager
-      .get(url)
-      .then((indemnite) => {
-        console.log(indemnite);
-        indemniteForfaitaireJournaliereInput.value = indemnite.montant;
-        calculTotalForfaitaire();
-      })
-      .catch((error) => console.error('Error:', error));
-  }
 
   /** CALCULE DU TOTAL INDEMNITE FORFAITAIRE */
   const supplementJournalierInput = document.querySelector(
-    '#dom_form2_supplementJournaliere'
+    '#dom_trop_percu_form_supplementJournaliere'
   );
   const totalindemniteForfaitaireInput = document.querySelector(
-    '#dom_form2_totalIndemniteForfaitaire'
+    '#dom_trop_percu_form_totalIndemniteForfaitaire'
   );
 
   nombreDeJourInput.addEventListener('valueAdded', calculTotalForfaitaire);
@@ -284,16 +255,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   /** CALCUL TOTAL MONTANT AUTRES DEPENSE */
   const autreDepenseInput_1 = document.querySelector(
-    '#dom_form2_autresDepense1'
+    '#dom_trop_percu_form_autresDepense1'
   );
   const autreDepenseInput_2 = document.querySelector(
-    '#dom_form2_autresDepense2'
+    '#dom_trop_percu_form_autresDepense2'
   );
   const autreDepenseInput_3 = document.querySelector(
-    '#dom_form2_autresDepense3'
+    '#dom_trop_percu_form_autresDepense3'
   );
   const totaAutreDepenseInput = document.querySelector(
-    '#dom_form2_totalAutresDepenses'
+    '#dom_trop_percu_form_totalAutresDepenses'
   );
 
   autreDepenseInput_1.addEventListener('input', () => {
@@ -337,7 +308,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   /** CALCUL  MONTANT TOTAL */
   const montantTotalInput = document.querySelector(
-    '#dom_form2_totalGeneralPayer'
+    '#dom_trop_percu_form_totalGeneralPayer'
   );
   totalIdemniteDeplacementInput.addEventListener('valueAdded', calculTotal);
   totalindemniteForfaitaireInput.addEventListener('valueAdded', calculTotal);
@@ -354,18 +325,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     let montantTotal =
       totalindemniteForfaitaire + totaAutreDepense - totalIdemniteDeplacement;
 
-    if (sousTypeDocInput.value == 11) {
-      montantTotalInput.value = '-' + formatNumberInt(montantTotal);
-    } else {
-      montantTotalInput.value = formatNumberInt(montantTotal);
-    }
+    montantTotalInput.value = '-' + formatNumberInt(montantTotal);
   }
 
   /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
-  const modePayementInput = document.querySelector('#dom_form2_modePayement');
-  const modeInput = document.querySelector('#dom_form2_mode');
+  const modePayementInput = document.querySelector(
+    '#dom_trop_percu_form_modePayement'
+  );
+  const modeInput = document.querySelector('#dom_trop_percu_form_mode');
   const labelMode = modeInput.previousElementSibling;
-  const matriculeInput_2 = document.querySelector('#dom_form2_matricule');
+  const matriculeInput_2 = document.querySelector(
+    '#dom_trop_percu_form_matricule'
+  );
   modePayementInput.addEventListener('change', infoPersonnel);
   modeInput.addEventListener('input', () => {
     modeInput.setAttribute('maxlength', 10);
@@ -401,7 +372,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
    */
   //MOTIF DE DEPLACEMNET
   const motifDeplacementInput = document.querySelector(
-    '#dom_form2_motifDeplacement'
+    '#dom_trop_percu_form_motifDeplacement'
   );
   motifDeplacementInput.addEventListener('input', () => {
     motifDeplacementInput.value = motifDeplacementInput.value
@@ -410,14 +381,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   });
 
   //NOM CLIENT
-  const nomClientInput = document.querySelector('#dom_form2_client');
+  const nomClientInput = document.querySelector('#dom_trop_percu_form_client');
   nomClientInput.addEventListener('input', () => {
     nomClientInput.value = nomClientInput.value.toUpperCase().slice(0, 29);
   });
 
   //LIEU D'INTERVENTION
   const lieuInterventionInput = document.querySelector(
-    '#dom_form2_lieuIntervention'
+    '#dom_trop_percu_form_lieuIntervention'
   );
 
   lieuInterventionInput.addEventListener('input', () => {
@@ -429,7 +400,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   //MOTIF AUTRE DEPENSE
   //1
   const motifAutreDepense1Input = document.querySelector(
-    '#dom_form2_motifAutresDepense1'
+    '#dom_trop_percu_form_motifAutresDepense1'
   );
   motifAutreDepense1Input.addEventListener('input', () => {
     motifAutreDepense1Input.value = motifAutreDepense1Input.value
@@ -439,7 +410,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   //2
   const motifAutreDepense2Input = document.querySelector(
-    '#dom_form2_motifAutresDepense2'
+    '#dom_trop_percu_form_motifAutresDepense2'
   );
   motifAutreDepense2Input.addEventListener('input', () => {
     motifAutreDepense2Input.value = motifAutreDepense2Input.value
@@ -449,7 +420,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   //3
   const motifAutreDepense3Input = document.querySelector(
-    '#dom_form2_motifAutresDepense3'
+    '#dom_trop_percu_form_motifAutresDepense3'
   );
   motifAutreDepense3Input.addEventListener('input', () => {
     motifAutreDepense3Input.value = motifAutreDepense3Input.value
