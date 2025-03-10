@@ -15,7 +15,7 @@
 					<div>
         {% if data is not empty %}
 						
-						<a href="{{path('export_pdf_bordereau', { 'numInv': numinvpdf })}}" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+						<a href="{{path('export_pdf_bordereau', { 'numInv': numinvpdf })}}" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3" target="_blank">
 							<i class="fas fa-print"></i>
 							PDF</a>
         {% else %}

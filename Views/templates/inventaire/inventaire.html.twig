@@ -55,8 +55,21 @@
 											<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank">Voir détail</a>
 										</li>
 										<li>
+                    {% if item.statut | trim != "CLOTURE" %}
 											<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}"  target="_blank">Impression feuille de comptage</a>
+                      {% endif %}
 										</li>
+										{% if item.excel is same as(true) %}
+                    <li>
+                        <a href="javascript:void(0);" onclick="window.open('{{ App.base_path_long }}/inventaire/INV{{ item.numero }}.pdf', '_blank')">Voir le fichier</a>
+                    </li>
+                    {% else %}
+                    <li>
+                      <input type="file" accept=".xlsx" id="file{{ item.numero }}" style="display: none;" onchange="uploadFile(this, {{ item.numero }})">
+                      <a onclick="document.getElementById('file{{ item.numero }}').click()">Uploader un fichier</a>
+										</li>
+                    {% endif %}
+                    
 									</ul>
 								</div>
 							</td>
@@ -84,6 +97,27 @@
 
 {% endblock %}
 {% block javascript %}
+<script>
+function uploadFile(input, id) {
+    let file = input.files[0];
+
+    if (!file) {
+        alert("Aucun fichier sélectionné.");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("fichier", file);
+
+    fetch(`/Hffintranet/Upload/fichier/${id}`, {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.text())
+    .then(data => alert(data))
+    .catch(error => console.error("Erreur:", error));
+}
+</script>
   <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
 {% endblock %}

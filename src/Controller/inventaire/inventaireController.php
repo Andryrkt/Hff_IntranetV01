@@ -19,6 +19,7 @@ use App\Service\genererPdf\GeneretePdfInventaire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
+use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 use Symfony\Component\VarDumper\Cloner\Data;
 use TCPDF;
 
@@ -77,7 +78,7 @@ class InventaireController extends Controller
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
-            $data = $this->recupDataList($listInvent);
+            $data = $this->recupDataList($listInvent,true);
             // dump($data);
         }
         self::$twig->display('inventaire/inventaire.html.twig', [
@@ -203,14 +204,14 @@ class InventaireController extends Controller
     }
 
 
-    public function recupDataList($listInvent)
+    public function recupDataList($listInvent, $uploadExcel = false)
     {
         $data = [];
         if (!empty($listInvent)) {
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
-                $data[] = [
+                $data[$i] = [
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -222,10 +223,13 @@ class InventaireController extends Controller
                     'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
                     'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
-                    'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'],
+                    'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
                     'montant_ecart' => $this->formatNumber($invLigne[0]['montant_ecart']),
-                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart']
+                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
+                if ($uploadExcel ) {
+                    $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']) ;
+                }
             }
         }
         return $data;
@@ -252,21 +256,21 @@ class InventaireController extends Controller
                     "desi" => $detailInvent[$j]["desi"],
                     "casier" => $detailInvent[$j]["casier"],
                     "stock_theo" => $detailInvent[$j]["stock_theo"],
-                    "qte_comptee_1" => "0",
-                    "qte_comptee_2" => "0",
-                    "qte_comptee_3" => "0",
+                    "qte_comptee_1" => "",
+                    "qte_comptee_2" => "",
+                    "qte_comptee_3" => "",
                     "ecart" => $detailInvent[$j]["ecart"],
                     "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
-                    "pmp" =>  $this->formatNumber($detailInvent[$j]["pmp"]),
-                    "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
-                    "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
-                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"],
+                    "pmp" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["pmp"])),
+                    "montant_inventaire" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["montant_inventaire"])),
+                    "montant_ajuste" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["montant_ajuste"])),
+                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"] == "0%" ? " " : $detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
                     }
                 }
             }
@@ -315,6 +319,18 @@ class InventaireController extends Controller
         }
         return $data;
     }
+    private function parcourFichier($numInvent)
+    {
+        $downloadDir  =   $_ENV['BASE_PATH_FICHIER'] . '/inventaire/';
+        $searchPattern  = $downloadDir . '*INV' . $numInvent . '*.xlsx';
+        $matchingFiles = glob($searchPattern);
+
+        if (!empty($matchingFiles)) {
+            return true;
+        } else {
+           return false;
+        }
+    }
 
 
     private function exportDonneesExcel($data)
@@ -356,7 +372,6 @@ class InventaireController extends Controller
         $criteria = $this->bordereauSearch;
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
-
         }
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();

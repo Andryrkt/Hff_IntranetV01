@@ -103,8 +103,8 @@ class InventaireModel extends Model
                 statut
                 order by ainvi_numinv_mait desc
         ";
-        $result = $this->connect->executeQuery($statement);
         //  dd($statement);
+        $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -140,14 +140,15 @@ class InventaireModel extends Model
                     ) as pourcentage_ref_avec_ecart,
                     trunc(SUM(ainvp_ecart * ainvp_prix)) as montant_ecart,
                      CONCAT(
+
                         TRUNC(
                         (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
                     ' %') as pourcentage_ecart
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
                     and ainvp_numinv = '" . $numInvMax . "'
                     ";
+                    // dump($statement);
         $result = $this->connect->executeQuery($statement);
-        //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
@@ -168,12 +169,17 @@ class InventaireModel extends Model
                                 WHEN ainvp_stktheo != 0 THEN
                                      ROUND((ainvp_ecart / ainvp_stktheo) * 100 )|| '%' 
                                 ELSE
-                                '0'
+                                '100'
                                 END as pourcentage_nbr_ecart,
                         ainvp_prix as PMP,
                         ainvp_prix * ainvp_stktheo as montant_inventaire,
                         ainvp_prix * ainvp_ecart as montant_ajuste,
-                        ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) || ' %' as pourcentage_ecart
+                        CASE
+                        WHEN (ainvp_prix * ainvp_stktheo) != 0 THEN
+                        ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) || ' %'
+                        ELSE
+                        '100'
+                        END  as pourcentage_ecart
                         FROM art_invp
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
@@ -181,8 +187,8 @@ class InventaireModel extends Model
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         ";
+                        //  dump($statement);
         $result = $this->connect->executeQuery($statement);
-        //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
