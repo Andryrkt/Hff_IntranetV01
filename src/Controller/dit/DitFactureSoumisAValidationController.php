@@ -75,7 +75,7 @@ class DitFactureSoumisAValidationController extends Controller
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
-            if (strpos($originalName, 'FACTURE CESSION') !== 0 || strpos($originalName, 'FACTURE-BON DE LIVRAISION') !== 0) {
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISION') !== 0) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
 
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');

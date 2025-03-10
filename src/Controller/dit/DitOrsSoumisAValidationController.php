@@ -173,7 +173,7 @@ class DitOrsSoumisAValidationController extends Controller
             'idMaterielDifferent'   => $demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule'],
             'sansrefClient'         => empty($refClient),
             'situationOrSoumis'     => $situationOrSoumis[0]['retour'] === 'bloquer',
-            'countAgServDeb'        => $countAgServDeb
+            'countAgServDeb'        => (int)$countAgServDeb > 1
         ];
     }
 
@@ -222,7 +222,7 @@ class DitOrsSoumisAValidationController extends Controller
         // dump($OrSoumisAvantMax);
         $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
         // dd($montantPdf);
-        $quelqueaffichage = $this->quelqueAffichage($this->ditOrsoumisAValidationModel, $ditInsertionOrSoumis->getNumeroOR());
+        $quelqueaffichage = $this->quelqueAffichage($ditInsertionOrSoumis->getNumeroOR());
 
         $genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur']);
     }
