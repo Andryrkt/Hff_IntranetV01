@@ -7,6 +7,7 @@ use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
 use App\Form\demandeInterventionType;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\Common\Collections\Collection;
@@ -67,6 +68,11 @@ class StatutDemande
     private $doms;
 
     /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="statutDemande")
+     */
+    private $mutation;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="idStatutDemande")
      */
     private $supportInfo;
@@ -75,7 +81,7 @@ class StatutDemande
      * @ORM\OneToMany(targetEntity=TkiStatutTicketInformatique::class, mappedBy="idStatutDemande")
      */
     private $statutTik;
-    
+
     public function __construct()
     {
         $this->badms = new ArrayCollection();
@@ -157,12 +163,12 @@ class StatutDemande
 
     public function __toString()
     {
-        return $this->description; 
+        return $this->description;
     }
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDemandeInterventions()
     {
         return $this->demandeInterventions;
@@ -186,7 +192,7 @@ class StatutDemande
                 $demandeIntervention->setIdStatutDemande(null);
             }
         }
-        
+
         return $this;
     }
     public function setDemandeInterventions($demandeInterventions)
@@ -196,9 +202,9 @@ class StatutDemande
         return $this;
     }
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -222,10 +228,10 @@ class StatutDemande
                 $casier->setIdStatutDemande(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
@@ -236,7 +242,7 @@ class StatutDemande
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDoms()
     {
         return $this->doms;
@@ -260,7 +266,7 @@ class StatutDemande
                 $doms->setIdStatutDemande($this);
             }
         }
-        
+
         return $this;
     }
     public function setDoms($doms)
@@ -272,7 +278,7 @@ class StatutDemande
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getSupportInfo()
     {
         return $this->supportInfo;
@@ -296,14 +302,14 @@ class StatutDemande
                 $supportInfo->setIdStatutDemande($this);
             }
         }
-        
+
         return $this;
     }
 
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getStatutTik()
     {
         return $this->statutTik;
@@ -327,7 +333,49 @@ class StatutDemande
                 $statutTik->setIdStatutDemande($this);
             }
         }
-        
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutation
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    public function addMutation(Mutation $mutation): self
+    {
+        if (!$this->mutation->contains($mutation)) {
+            $this->mutation[] = $mutation;
+            $mutation->setStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutation(Mutation $mutation): self
+    {
+        if ($this->mutation->contains($mutation)) {
+            $this->mutation->removeElement($mutation);
+            if ($mutation->getStatutDemande() === $this) {
+                $mutation->setStatutDemande($this);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutation
+     *
+     * @return  self
+     */
+    public function setMutation($mutation)
+    {
+        $this->mutation = $mutation;
+
         return $this;
     }
 }

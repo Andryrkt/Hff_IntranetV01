@@ -24,7 +24,7 @@ trait DitRiSoumisAValidationTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = 'RI_' . $ditri->getNumeroOR() . '_' . $ditri->getNumeroSoumission() . '-01.' . $file->getClientOriginalExtension();
 
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/fichier/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/vri/fichier/';
 
         $file->move($fileDossier, $fileName);
 
@@ -45,10 +45,10 @@ trait DitRiSoumisAValidationTrait
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf');
+        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf';
+        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf';
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {

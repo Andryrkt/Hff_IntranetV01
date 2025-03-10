@@ -1,10 +1,13 @@
-export async function fetchData(url) {
+import { FetchManager } from '../api/FetchManager';
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
+export async function fetchData(endpoint) {
   try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Erreur HTTP: ${response.status}`);
-    return await response.json();
+    return await fetchManager.get(endpoint); // Déjà JSON
   } catch (error) {
-    console.error('Erreur de récupération des données:', error);
-    return [];
+    console.error(`Erreur de récupération des données (${endpoint}):`, error);
+    throw error; // Propager l'erreur au lieu de retourner []
   }
 }

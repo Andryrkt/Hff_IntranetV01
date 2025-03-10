@@ -4,19 +4,20 @@ namespace App\Controller\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\lienGenerique;
+use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
-use App\Service\EmailService;
-use App\Service\fichier\FileUploaderService;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 class DemandeSupportInformatiqueController extends Controller
@@ -152,7 +153,7 @@ class DemandeSupportInformatiqueController extends Controller
         $fileNames = [];
         // Récupérez les fichiers uploadés depuis le formulaire
         $files = $form->get('fileNames')->getData();
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/tik/fichiers';
         $fileUploader = new FileUploaderService($chemin);
         if ($files) {
             foreach ($files as $file) {
@@ -204,7 +205,7 @@ class DemandeSupportInformatiqueController extends Controller
                 'statut'     => "newTik",
                 'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
             ]
         ];
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);

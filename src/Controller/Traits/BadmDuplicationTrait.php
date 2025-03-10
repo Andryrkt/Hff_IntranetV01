@@ -8,6 +8,7 @@ use App\Entity\admin\Service;
 use App\Entity\cas\CasierValider;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
 
 trait BadmDuplicationTrait
 {
@@ -137,7 +138,7 @@ trait BadmDuplicationTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
        
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Upload/bdm/fichiers/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/';
        
         $file->move($fileDossier, $fileName);
 
@@ -271,7 +272,7 @@ trait BadmDuplicationTrait
             $image = '';
             $extension = '';
         } elseif($idTypeMouvement === 5) {
-            $image = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
+            $image =  $_ENV['BASE_PATH_FICHIER'] . '/bdm/fichiers/' . $badm->getNumBadm() . '.' . $form->get("nomImage")->getData()->getClientOriginalExtension();
             $extension = strtoupper($form->get("nomImage")->getData()->getClientOriginalExtension());
         }
 
