@@ -12,11 +12,16 @@ import { calculateDaysAvance } from './handleDate';
 import { formatMontant } from '../utils/formatUtils';
 
 document.addEventListener('DOMContentLoaded', function () {
+  localStorage.setItem('site', 0); // initialiser le site à 0
+
   const avance = document.getElementById('mutation_form_avanceSurIndemnite');
   const site = document.getElementById('mutation_form_site');
   const matricule = document.getElementById('mutation_form_matriculeNomPrenom');
   const modePaiementLabelInput = document.getElementById(
     'mutation_form_modePaiementLabel'
+  );
+  const indemniteForfaitaireInput = document.getElementById(
+    'mutation_form_indemniteForfaitaire'
   );
   const dateDebutInput = document.getElementById('mutation_form_dateDebut');
   const dateFinInput = document.getElementById('mutation_form_dateFin');
@@ -44,11 +49,36 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   /** Calcul de la date de différence entre Date Début et Date Fin */
-  dateDebutInput.addEventListener('change', calculateDaysAvance);
-  dateFinInput.addEventListener('change', calculateDaysAvance);
+  dateDebutInput.addEventListener('change', function () {
+    calculateDaysAvance();
+    let siteId = localStorage.getItem('site');
+    if (
+      site.value &&
+      (siteId !== site.value ||
+        (siteId === site.value && indemniteForfaitaireInput.value === '')) &&
+      this.value &&
+      avance.value === 'OUI'
+    ) {
+      updateIndemnite(site.value);
+    }
+  });
+  dateFinInput.addEventListener('change', function () {
+    calculateDaysAvance();
+    let siteId = localStorage.getItem('site');
+    if (
+      site.value &&
+      (siteId !== site.value ||
+        (siteId === site.value && indemniteForfaitaireInput.value === '')) &&
+      this.value &&
+      avance.value === 'OUI'
+    ) {
+      updateIndemnite(site.value);
+    }
+  });
 
   /** Calcul de l'indemnité forfaitaire journalière */
   site.addEventListener('change', function () {
+    localStorage.setItem('site', this.value);
     if (this.value && avance.value === 'OUI') {
       updateIndemnite(this.value);
     }
@@ -109,6 +139,20 @@ document.addEventListener('DOMContentLoaded', function () {
         'border-danger',
         'border-opacity-75'
       );
+    } else {
     }
   });
 });
+
+window.addEventListener('load', () => {
+  displayOverlay(false);
+});
+
+function displayOverlay(bool) {
+  const overlay = document.getElementById('loading-overlay');
+  if (bool) {
+    overlay.style.display = 'flex';
+  } else {
+    overlay.style.display = 'none';
+  }
+}

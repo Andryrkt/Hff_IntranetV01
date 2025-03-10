@@ -14,8 +14,7 @@ export function handleAvance(avance) {
 }
 
 export function acceptAvance() {
-  dateDebutLabel.textContent =
-    "Date de début d'avance sur indemnité de chantier";
+  dateDebutLabel.textContent = "Date début affectation / Frais d'installation";
   allRequiredField.forEach((fieldId) => toggleField(fieldId));
   allNotRequiredField.forEach((fieldId) => toggleField(fieldId, true, false));
 }
@@ -24,6 +23,7 @@ export function declineAvance() {
   dateDebutLabel.textContent = 'Date de début de mutation';
   allRequiredField.forEach((fieldId) => toggleField(fieldId, false));
   allNotRequiredField.forEach((fieldId) => toggleField(fieldId, false, false));
+  document.getElementById('mutation_form_totalGeneralPayer').value = null;
 }
 
 export function toggleField(fieldId, accept = true, required = true) {
