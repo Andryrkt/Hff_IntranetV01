@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     const catgValue = categorieInput.value;
     const rmqValue = rmqInput.value;
-    let url = `site-idemnite-fetch/${siteValue}/${docValue}/${catgValue}/${rmqValue}`;
+    let url = `site-idemnite-fetch/${siteValue}/${sousTypeDocValue}/${catgValue}/${rmqValue}`;
     fetchManager
       .get(url)
       .then((indemnite) => {
