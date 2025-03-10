@@ -253,6 +253,8 @@ class DitOrSoumisAValidationModel extends Model
             )
             and statut not like ('%Validé%')
             and statut not like ('%Refusé%')
+            and statut <> 'Livré partiellement'
+            and statut = 'Livré'
         ";
 
         return $this->retournerResult28($sql);
