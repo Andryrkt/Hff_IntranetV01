@@ -24,6 +24,7 @@ export function declineAvance() {
   allRequiredField.forEach((fieldId) => toggleField(fieldId, false));
   allNotRequiredField.forEach((fieldId) => toggleField(fieldId, false, false));
   document.getElementById('mutation_form_totalGeneralPayer').value = null;
+  document.querySelectorAll('.error-message')[1].textContent = null;
 }
 
 export function toggleField(fieldId, accept = true, required = true) {

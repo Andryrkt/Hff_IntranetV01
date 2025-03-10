@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let montantTotal = document.getElementById(
       'mutation_form_totalGeneralPayer'
     );
+    let errorMessage = document.querySelectorAll('.error-message');
     if (montantTotal.value > 500000) {
       event.preventDefault();
       alert('Le montant total général ne peut être supérieur à 500.000 Ariary');
@@ -140,6 +141,18 @@ document.addEventListener('DOMContentLoaded', function () {
         'border-opacity-75'
       );
     } else {
+      errorMessage.forEach((element) => {
+        if (element.textContent !== '') {
+          event.preventDefault();
+
+          if (element.classList.contains('date')) {
+            dateFinInput.focus();
+          } else if (element.classList.contains('agence')) {
+            document.querySelector('.serviceDebiteur').focus();
+          }
+          return;
+        }
+      });
     }
   });
 });
