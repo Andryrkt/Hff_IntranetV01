@@ -120,7 +120,6 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-
     /**
  * Méthode pour ajouter un titre au PDF
  * 

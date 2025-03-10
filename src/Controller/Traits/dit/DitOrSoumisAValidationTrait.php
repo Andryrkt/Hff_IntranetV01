@@ -39,7 +39,7 @@ trait DitOrSoumisAValidationTrait
         // Générer un nom de fichier sécurisé et unique
 
         $fileName = sprintf(
-            'orValidation_%s-%s_%02d#%s.%s',
+            'oRValidation_%s-%s_%02d#%s.%s',
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $index,
@@ -81,12 +81,13 @@ trait DitOrSoumisAValidationTrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/vor/orValidation_%s-%s#%s.pdf',
+            '%s/Upload/vor/oRValidation_%s-%s#%s.pdf',
             $_SERVER['DOCUMENT_ROOT'],
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $suffix
         );
+
 
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
