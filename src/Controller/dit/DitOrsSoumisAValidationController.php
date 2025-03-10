@@ -103,13 +103,17 @@ class DitOrsSoumisAValidationController extends Controller
                 //envoie des pièce jointe dans une dossier et la fusionner
                 
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
-                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
+                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             }
+        } else {
+            $message = "Echec lors de la soumission, . . .";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
+            exit;
         }
 
         $this->logUserVisit('dit_insertion_or', [
@@ -182,41 +186,61 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function bloquageOrSoumsi(array $conditionBloquage, string $originalName, $ditInsertionOrSoumis): bool
     {
+        $okey = false;
         if ($conditionBloquage['nomFichier']) {
             $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à un OR";
+            $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            exit;
         } 
         if ($conditionBloquage['numeroOrDifferent']) {
             $message = "Echec lors de la soumission, le fichier soumis semble ne pas correspondre à la DIT";
+            $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
         } elseif ($conditionBloquage['datePlanningExiste']) {
             $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
+            $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
         } elseif ($conditionBloquage['agenceDebiteur']) {
             $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
+            $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
         } 
-        // elseif ($conditionBloquage['invalidePosition']) {
-        //     $message = "Echec de la soumission de l'OR";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } elseif ($conditionBloquage['idMaterielDifferent']) {
-        //     $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } elseif ($conditionBloquage['sansrefClient']) {
-        //     $message = "Echec de la soumission car la référence client est vide.";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        // elseif ($conditionBloquage['situationOrSoumis']) {
-        //     $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        // elseif ($conditionBloquage['countAgServDeb']) {
-        //     $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // }
-        else {
-            return true;
+        elseif ($conditionBloquage['invalidePosition']) {
+            $message = "Echec de la soumission de l'OR";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
+        } elseif ($conditionBloquage['idMaterielDifferent']) {
+            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
+        } elseif ($conditionBloquage['sansrefClient']) {
+            $message = "Echec de la soumission car la référence client est vide.";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
+        } 
+        elseif ($conditionBloquage['situationOrSoumis']) {
+            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
+        } 
+        elseif ($conditionBloquage['countAgServDeb']) {
+            $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+            exit;
         }
+        else {
+            $okey = true;
+        }
+        return $okey;
     }
 
     private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix)

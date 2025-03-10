@@ -43,10 +43,10 @@ class GeneratePdf
         }
     }
 
-    public function copyToDw($numeroVersion, $numeroOR)
+    public function copyToDw($numeroVersion, $numeroOR, $suffix)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
