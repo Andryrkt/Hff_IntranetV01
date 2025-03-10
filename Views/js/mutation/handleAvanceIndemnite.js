@@ -15,7 +15,7 @@ export function handleAvance(avance) {
 
 export function acceptAvance() {
   dateDebutLabel.textContent =
-    "Date de début d'avance sur indemnité de chantier";
+    "Date début affectation / Frais d'installation";
   allRequiredField.forEach((fieldId) => toggleField(fieldId));
   allNotRequiredField.forEach((fieldId) => toggleField(fieldId, true, false));
 }

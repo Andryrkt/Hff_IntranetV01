@@ -278,7 +278,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function countAgServDebit($numOr)
     {
-        $statement = " SELECT count(distinct sitv_servdeb) 
+        $statement = " SELECT count(distinct sitv_servdeb) as retour
                     from sav_itv 
                     where sitv_numor = '{$numOr}'
         ";
