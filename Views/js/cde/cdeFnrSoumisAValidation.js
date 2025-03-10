@@ -1,38 +1,38 @@
-import { FetchManager } from "../api/FetchManager.js";
-import { TableauComponent } from "../Component/TableauComponent.js";
-import { formaterNombre } from "../utils/formatNumberUtils.js";
-import { limitInputLength, allowOnlyNumbers } from "../utils/inputUtils.js";
+import { FetchManager } from '../api/FetchManager.js';
+import { TableauComponent } from '../Component/TableauComponent.js';
+import { formaterNombre } from '../utils/formatNumberUtils.js';
+import { limitInputLength, allowOnlyNumbers } from '../utils/inputUtils.js';
 import {
   initializeFileHandlers,
   disableDropzone,
   enableDropzone,
-} from "../utils/file_upload_Utils.js";
-import { AutoComplete } from "../utils/Autocomplete.js";
-import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+} from '../utils/file_upload_Utils.js';
+import { AutoComplete } from '../utils/AutoComplete.js';
+import { setupConfirmationButtons } from '../utils/ui/boutonConfirmUtils.js';
 
-document.addEventListener("DOMContentLoaded", function () {
-  const fetchManager = new FetchManager("/Hffintranet");
+document.addEventListener('DOMContentLoaded', function () {
+  const fetchManager = new FetchManager();
 
   disableDropzone(1); //griser l'envoie du fichier
 
   const numFrnInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_codeFournisseur"
+    '#cde_fnr_soumis_a_validation_codeFournisseur'
   );
   const nomFrnInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_libelleFournisseur"
+    '#cde_fnr_soumis_a_validation_libelleFournisseur'
   );
   const suggestionContainerNum = document.querySelector(
-    "#suggestion-num-fournisseur"
+    '#suggestion-num-fournisseur'
   );
   const suggestionContainerNom = document.querySelector(
-    "#suggestion-nom-fournisseur"
+    '#suggestion-nom-fournisseur'
   );
   const numCdeInput = document.querySelector(
-    "#cde_fnr_soumis_a_validation_numCdeFournisseur"
+    '#cde_fnr_soumis_a_validation_numCdeFournisseur'
   );
-  const overlay = document.getElementById("loading-overlay-petite");
+  const overlay = document.getElementById('loading-overlay-petite');
 
-  const boutonInput = document.querySelector("#bouton-cde-fnr");
+  const boutonInput = document.querySelector('#bouton-cde-fnr');
 
   /** Mettre les champs numero fournisseur à n'accepter que les chiffres*/
   allowOnlyNumbers(numFrnInput);
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
    *=================================================*/
 
   async function fetchFournisseurs() {
-    return await fetchManager.get("api/liste-fournisseur");
+    return await fetchManager.get('api/liste-fournisseur');
   }
 
   function displayFournisseur(item) {
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
   new AutoComplete({
     inputElement: numFrnInput,
     suggestionContainer: suggestionContainerNum,
-    loaderElement: document.querySelector("#loader-num-fournisseur"), // Ajout du loader
+    loaderElement: document.querySelector('#loader-num-fournisseur'), // Ajout du loader
     debounceDelay: 300, // Délai en ms
     fetchDataCallback: fetchFournisseurs,
     displayItemCallback: displayFournisseur,
@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
   new AutoComplete({
     inputElement: nomFrnInput,
     suggestionContainer: suggestionContainerNom,
-    loaderElement: document.querySelector("#loader-nom-fournisseur"), // Ajout du loader
+    loaderElement: document.querySelector('#loader-nom-fournisseur'), // Ajout du loader
     debounceDelay: 300, // Délai en ms
     fetchDataCallback: fetchFournisseurs,
     displayItemCallback: displayFournisseur,
@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * AUTOCOMPLET NUMERO COMMANDE FOURNISSEUR
    *===========================================*/
 
-  const erreurCdeInput = document.querySelector("#erreur-num-cde");
+  const erreurCdeInput = document.querySelector('#erreur-num-cde');
   let prelodDataCde = [];
 
   async function fetchCommandesFrn() {
@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function onSelectCommandes(item) {
-    console.log("Sélection effectuée : ", item);
+    console.log('Sélection effectuée : ', item);
 
     numCdeInput.value = item.num_cde;
 
@@ -132,8 +132,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // if (!autoCompleteCde) {
     new AutoComplete({
       inputElement: numCdeInput,
-      suggestionContainer: document.querySelector("#suggestion-num-cde"),
-      loaderElement: document.querySelector("#loader-num-cde"),
+      suggestionContainer: document.querySelector('#suggestion-num-cde'),
+      loaderElement: document.querySelector('#loader-num-cde'),
       debounceDelay: 300,
       fetchDataCallback: () => {
         return dataCde(numFournisseur);
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", function () {
    * @returns
    */
   function dataCde(numFournisseur) {
-    erreurCdeInput.innerHTML = "";
+    erreurCdeInput.innerHTML = '';
 
     const cdeFiltred = filtreNumCdeFrn(prelodDataCde, numFournisseur);
 
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!cdeFiltred.length) {
       numCdeInput.disabled = true;
       erreurCdeInput.innerHTML =
-        "pas de commande à soumettre pour ce numéro fournissseur";
+        'pas de commande à soumettre pour ce numéro fournissseur';
     } else {
       numCdeInput.disabled = false;
     }
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function siChangeNumcde(cdeFiltred) {
-    numCdeInput.addEventListener("input", () => {
+    numCdeInput.addEventListener('input', () => {
       console.log(numCdeInput.value);
       const exists = cdeFiltred
         .map((item) => item.num_cde)
@@ -188,35 +188,35 @@ document.addEventListener("DOMContentLoaded", function () {
    * Affichage du liste commande fournisseur
    *=========================================*/
   const columns = [
-    { label: "N° cde", key: "num_cde" },
+    { label: 'N° cde', key: 'num_cde' },
     {
-      label: "Date",
-      key: "date_cde",
-      format: (value) => new Date(value).toLocaleDateString("fr-FR"),
+      label: 'Date',
+      key: 'date_cde',
+      format: (value) => new Date(value).toLocaleDateString('fr-FR'),
     },
-    { label: "Libelle", key: "libelle_cde" },
+    { label: 'Libelle', key: 'libelle_cde' },
     {
-      label: "Prix TTC",
-      key: "prix_cde_ttc",
-      align: "right",
+      label: 'Prix TTC',
+      key: 'prix_cde_ttc',
+      align: 'right',
       format: (value) => formaterNombre(value),
     },
     {
-      label: "Constructeur",
-      key: "constructeur",
-      align: "center",
+      label: 'Constructeur',
+      key: 'constructeur',
+      align: 'center',
     },
     {
-      label: "ref pièce",
-      key: "ref_piece",
+      label: 'ref pièce',
+      key: 'ref_piece',
     },
     {
-      label: "Nbre pièces",
-      key: "nbr_piece",
-      align: "center",
+      label: 'Nbre pièces',
+      key: 'nbr_piece',
+      align: 'center',
     },
-    { label: "Devise", key: "devise_cde", align: "center" },
-    { label: "Type", key: "type_cde", align: "center" },
+    { label: 'Devise', key: 'devise_cde', align: 'center' },
+    { label: 'Type', key: 'type_cde', align: 'center' },
   ];
 
   async function fetchListeCdeFournisseur() {
@@ -224,7 +224,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const commandes = await fetchManager.get(`api/cde-fnr-non-receptionner`);
       return commandes;
     } catch (error) {
-      console.error("Erreur lors du chargement des commandes :", error);
+      console.error('Erreur lors du chargement des commandes :', error);
       return [];
     }
   }
@@ -232,7 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
   async function initTableau(numCde) {
     try {
       effaceTab();
-      overlay.style.display = "flex";
+      overlay.style.display = 'flex';
       const infoCde = await fetchListeCdeFournisseur();
 
       const data = filtreListCdeFrn(infoCde, numCde);
@@ -240,15 +240,15 @@ document.addEventListener("DOMContentLoaded", function () {
       const tableauComponent = new TableauComponent({
         columns: columns,
         data: data,
-        theadClass: "table-dark",
+        theadClass: 'table-dark',
       });
-      tableauComponent.mount("tableau_cde_frn");
+      tableauComponent.mount('tableau_cde_frn');
       boutonInput.disabled = false;
       enableDropzone(1);
     } catch (error) {
       console.error("Erreur lors de l'afichage du tableau cde :", error);
     } finally {
-      overlay.style.display = "none";
+      overlay.style.display = 'none';
     }
   }
 
@@ -257,12 +257,12 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function effaceTab() {
-    const parent = document.querySelector("#tableau_cde_frn");
+    const parent = document.querySelector('#tableau_cde_frn');
     const secondChild = parent.children[1];
 
     if (secondChild) {
       secondChild.remove(); // Plus besoin d'appeler removeChild sur le parent
-      console.log("Deuxième enfant supprimé !");
+      console.log('Deuxième enfant supprimé !');
       disableDropzone(1);
       boutonInput.disabled = true;
     } else {
@@ -277,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
     `#cde_fnr_soumis_a_validation_pieceJoint01`
   );
 
-  initializeFileHandlers("1", fileInput);
+  initializeFileHandlers('1', fileInput);
 
   /** ====================================================
    * bouton Enregistrer

@@ -6,8 +6,14 @@ use TCPDF;
 
 class GeneratePdf
 {
-    const  BASE_CHEMIN_DU_FICHIER = 'C:/wamp64/www/Upload/';
-    const  BASE_CHEMIN_DOCUWARE = 'C:/DOCUWARE/';
+    private $baseCheminDuFichier;
+    private $baseCheminDocuware;
+
+    public function __construct()
+    {
+        $this->baseCheminDuFichier = $_ENV['BASE_PATH_FICHIER'] . '/';
+        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'].'/';
+    }
 
     private function copyFile(string $sourcePath, string $destinationPath): void
     {
@@ -28,8 +34,8 @@ class GeneratePdf
      */
     public function copyInterneToDOCUWARE($NumDom, $codeAg_serv)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $NumDom . '_' . $codeAg_serv . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . strtolower(substr($NumDom, 0, 3)) . '/' . $NumDom . '_'  . $codeAg_serv . '.pdf';
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -39,29 +45,29 @@ class GeneratePdf
 
     public function copyToDw($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vfac/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
         for ($i=1; $i <= count($pathFichiers); $i++) { 
-            $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+            $cheminFichierDistant = $this->baseCheminDocuware . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             copy($cheminDestinationLocal, $cheminFichierDistant);
         }
@@ -70,15 +76,15 @@ class GeneratePdf
 
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
+        $cheminFichierDistant = $this->baseCheminDocuware . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'cde/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde/' . $fileName;
         if (copy($cheminDestinationLocal, $cheminFichierDistant)) {
             echo "okey";
         } else {
@@ -88,22 +94,29 @@ class GeneratePdf
 
     public function copyToDWDevisSoumis($fileName)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWFichierDevisSoumis($fileName)
     {   
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/dev/fichiers/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWAcSoumis($fileName)
     {
-        $cheminFichierDistant = self::BASE_CHEMIN_DOCUWARE . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = self::BASE_CHEMIN_DU_FICHIER . 'dit/ac_bc/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/ac_bc/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+    
+    public function copyToDWCdeFnrSoumis($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde_fournisseur/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

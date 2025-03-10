@@ -41,6 +41,7 @@ class DomSecondController extends Controller
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->sessionService->get('form1Data', []);
+
         $this->initialisationSecondForm($form1Data, self::$em, $dom);
         $criteria = $this->criteria($form1Data, self::$em);
 
@@ -58,10 +59,9 @@ class DomSecondController extends Controller
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
 
-            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT') {
+            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' && $form1Data['sousTypeDocument']->getCodeSousType() !== 'TROP PERCU') {
                 if ($verificationDateExistant) {
                     $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
-
                     $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
