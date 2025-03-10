@@ -53,7 +53,7 @@ class EmailTikService
     public function prepareEmail(string $statut, array $tab, ?string $emailUserConnected = null): array
     {
         $subject = "{$tab['numTik']} - Ticket {$statut}";
-        $actionUrl = $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}");
+        $actionUrl = $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/tik-detail/{$tab['id']}");
 
         $to = $tab['emailUserDemandeur'];
         $cc = [];
