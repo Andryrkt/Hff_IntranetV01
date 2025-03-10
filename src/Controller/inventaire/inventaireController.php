@@ -12,10 +12,13 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Form\inventaire\InventaireDetailSearchType;
+use App\Entity\Bordereau\BordereauSearch;
+use App\Form\bordereau\BordereauSearchType;
 use App\Form\inventaire\InventaireSearchType;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\genererPdf\GeneretePdfBordereau;
 use Symfony\Component\VarDumper\Cloner\Data;
 use TCPDF;
 
@@ -25,9 +28,10 @@ class InventaireController extends Controller
     use Transformation;
     private InventaireModel $inventaireModel;
     private InventaireSearch $inventaireSearch;
+    private BordereauSearch $bordereauSearch;
     private InventaireDetailSearch $inventaireDetailSearch;
     private GeneretePdfInventaire $generetePdfInventaire;
-
+    private GeneretePdfBordereau $generetePdfBordereau;
     public function __construct()
     {
         parent::__construct();
@@ -35,6 +39,8 @@ class InventaireController extends Controller
         $this->inventaireSearch = new InventaireSearch();
         $this->inventaireDetailSearch = new InventaireDetailSearch();
         $this->generetePdfInventaire = new GeneretePdfInventaire();
+        $this->bordereauSearch = new BordereauSearch;
+        $this->generetePdfBordereau = new GeneretePdfBordereau;
     }
 
     /**
@@ -175,7 +181,7 @@ class InventaireController extends Controller
             'montant_inventaire' => 'Mont. Inventaire',
             'montant_ajuste' => 'Mont. Ajusté',
             'pourcentage_ecart' => '% mont. écart',
-            'dateInv'=> 'Date invetaire'
+            'dateInv' => 'Date invetaire'
         ];
 
         array_unshift($data, $header);
@@ -254,7 +260,7 @@ class InventaireController extends Controller
                     "pmp" =>  $this->formatNumber($detailInvent[$j]["pmp"]),
                     "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
                     "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
-                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
+                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {
@@ -296,7 +302,7 @@ class InventaireController extends Controller
                     "pmp" => $detailInvent[$j]["pmp"],
                     "montant_inventaire" => $detailInvent[$j]["montant_inventaire"],
                     "montant_ajuste" => $detailInvent[$j]["montant_ajuste"],
-                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
+                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {
@@ -329,5 +335,73 @@ class InventaireController extends Controller
         header('Content-Disposition: attachment; filename="export.xlsx"');
         $writer->save('php://output');
         exit();
+    }
+    /**
+     * @Route("/bordereu_de_comptage/{numInv}", name = "bordereu_comptage")
+     */
+    public function bordereau_comptage($numInv, Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        $this->bordereauSearch->setNumInv($numInv);
+        $form = self::$validator->createBuilder(
+            BordereauSearchType::class,
+            $this->bordereauSearch,
+            [
+                'method' => 'GET'
+            ]
+        )->getForm();
+        $form->handleRequest($request);
+        //initialisation criteria
+        $criteria = $this->bordereauSearch;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria =  $form->getdata();
+
+        }
+        //transformer l'objet zn tableau
+        $criteriaTab = $criteria->toArray();
+        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $data = $this->recupDataBordereau($numInv, $criteriaTab);
+        self::$twig->display('bordereau/bordereau.html.twig', [
+            'form' => $form->createView(),
+            'data' => $data,
+            'numinvpdf' => $numInv,
+        ]);
+    }
+
+    /**
+     * @Route("/export_pdf_bordereau/{numInv}", name = "export_pdf_bordereau")
+     */
+    public function pdfExport($numInv)
+    {
+        // Vérification si l'utilisateur est connecté
+        $this->verifierSessionUtilisateur();
+        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $data = $this->recupDataBordereau($numInv, $criteriaTab);
+        $this->generetePdfBordereau->genererPDF($data);
+    }
+
+    public function recupDataBordereau($numInv, $criteria)
+    {
+        $data = [];
+        $listBordereau = $this->inventaireModel->bordereauListe($numInv, $criteria);
+        if (!empty($listBordereau)) {
+            for ($i = 0; $i < count($listBordereau); $i++) {
+                $data[] = [
+                    'numinv' => $listBordereau[$i]['numinv'],
+                    'numBordereau' => $listBordereau[$i]['numbordereau'],
+                    'ligne' => $listBordereau[$i]['ligne'],
+                    'casier' => $listBordereau[$i]['casier'],
+                    'cst' => $listBordereau[$i]['cst'],
+                    'refp' => $listBordereau[$i]['refp'],
+                    'descrip' => $listBordereau[$i]['descrip'],
+                    'qte_theo' => $listBordereau[$i]['qte_theo'],
+                    'qte_alloue' => $listBordereau[$i]['qte_alloue'],
+                    'dateinv' => (new DateTime($listBordereau[$i]['dateinv']))->format('d/m/Y')
+                ];
+            }
+        }
+
+        return $data;
     }
 }

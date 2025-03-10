@@ -12,7 +12,7 @@ class GeneretePdfBordereau extends GeneratePdf{
 
         $pdf->SetCreator(PDF_CREATOR);
         $pdf->SetAuthor('Votre Nom');
-        $pdf->SetTitle('Écart sur inventaire');
+        $pdf->SetTitle('Bordereua de comptage');
         $pdf->SetAutoPageBreak(TRUE, 10);
         $pdf->AddPage();
 
@@ -23,7 +23,7 @@ class GeneretePdfBordereau extends GeneratePdf{
 
         // Titre principal
         $pdf->SetFont('dejavusans', 'B', 14);
-        $pdf->Cell(0, 10, 'Écart sur inventaire', 0, 1, 'C');
+        $pdf->Cell(0, 10, 'Bordereua de comptage', 0, 1, 'C');
         $pdf->Ln(2);
 
         // Date en haut à droite

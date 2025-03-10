@@ -3,10 +3,41 @@
 namespace App\Entity\Bordereau;
 
 class BordereauSearch {
+    private $choix;
     private $numInv;
+    /**
+     * Get the value of choix
+     */ 
+    public function getChoix()
+    {
+        return $this->choix;
+    }
     
-
-    
+    /**
+     * Set the value of choix
+     *
+     * @return  self
+     */ 
+    public function setChoix($choix)
+    {
+        $this->choix = $choix;
+        
+        return $this;
+    }
+    public function toArray(): array
+    {
+        return [
+            'choix' => $this->choix,
+            'numInv'=>$this->numInv
+        ];
+    }
+    public function arrayToObjet(array $criteriaTab)
+    {
+        $this
+            ->setChoix($criteriaTab['choix'])
+            ->setNumInv($criteriaTab['numInv'])
+        ;
+    }
 
     /**
      * Get the value of numInv
@@ -27,17 +58,4 @@ class BordereauSearch {
 
         return $this;
     }
-    public function toArray(): array
-    {
-        return [
-            'numInv' => $this->numInv,
-        ];
-    }
-    public function arrayToObjet(array $criteriaTab)
-    {
-        $this
-            ->setNumInv($criteriaTab['numInv'])
-        ;
-    }
-
 }

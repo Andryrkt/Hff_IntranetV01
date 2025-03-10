@@ -22,6 +22,9 @@
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
              <tr>
+             <th>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</th>
              <th> Numéro</th>
              <th> Description</th>
              <th> Ouvert le </th>
@@ -41,7 +44,24 @@
          <tbody id="tableBody">
             {% for item in data %}
                 <tr>
-                <td> <a href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank">  {{item.numero}}</a></td>
+                {# Début Action #}
+							<td class="align-middle" style="padding: 0px">
+								<div class="dropdown">
+									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="fas fa-ellipsis-vertical"></i>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank">Voir détail</a>
+										</li>
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path('bordereu_comptage',{numInv : item.numero})}}"  target="_blank">Impression feuille de comptage</a>
+										</li>
+									</ul>
+								</div>
+							</td>
+							{# Fin Actions #}
+                <td>   {{item.numero}}</td>
                 <td> {{item.description}}</td>
                 <td> {{item.ouvert}}</td>
                 <td> {{item.nbr_casier}}</td>
@@ -52,9 +72,9 @@
                 <td> {{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
                 <td> {{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
                 <td> {{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
-                <td> {{item.pourcentage_ref_avec_ecart}}</td>
+                <td> {{item.pourcentage_ref_avec_ecart is same as("0 %") ?"" : item.pourcentage_ref_avec_ecart}}</td>
                 <td> {{item.montant_ecart is same as("0")?"":item.montant_ecart}}</td>
-                <td> {{item.pourcentage_ecart}}</td>
+                <td> {{item.pourcentage_ecart  is same as("0 %") ?"" : item.pourcentage_ecart }}</td>
                 </tr>
             {% endfor %}
          </tbody>

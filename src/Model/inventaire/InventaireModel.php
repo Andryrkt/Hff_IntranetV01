@@ -90,6 +90,7 @@ class InventaireModel extends Model
                 WHERE ainvi_soc ='HF'    
                 AND ainvi_sequence = 1
                 AND (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
+                AND ainvi_comment not like 'KPI STOCK%'
                 $agence
                 $dateD
                 $dateF
@@ -215,6 +216,49 @@ class InventaireModel extends Model
         ";
         $result = $this->connect->executeQuery($statement);
         //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+    public function bordereauListe($numInv,$criteria)
+    {
+        if ($criteria['choix'] == 'ECART') {
+           $ecart = "AND AINVP_ECART <> 0";
+        }else{
+            $ecart = "";
+        }
+        $statement = " SELECT   ainvp_numinv as numInv,
+                                ainvp_nbordereau as numBordereau ,
+                               ainvp_nligne as ligne,
+                                (select astp_casier 
+                                from art_stp
+                                 WHERE astp_soc = ainvp_soc 
+                                 AND astp_succ = ainvp_succ 
+                                 AND astp_constp = ainvp_constp 
+                                 AND astp_refp = ainvp_refp) as casier ,
+	                            ainvp_constp as cst, 
+                                TRIM(ainvp_refp) as refp,
+                                TRIM((select abse_desi 
+                                from art_bse 
+                                WHERE abse_constp = ainvp_constp 
+                                AND abse_refp = ainvp_refp)) as descrip,
+                                ROUND(ainvp_stktheo) as qte_theo,
+	                            ROUND((select astp_reserv 
+                                from art_stp 
+                                WHERE astp_soc = ainvp_soc 
+                                AND astp_succ = ainvp_succ 
+                                AND astp_constp = ainvp_constp
+                                AND astp_refp = ainvp_refp)) as qte_alloue,
+	                            ainvp_date as dateinv
+                        from art_invp
+	                    WHERE ainvp_soc = 'HF'  
+	                    AND ainvp_numinv = ( select  max(ainvi_numinv) from art_invi  where ainvi_numinv_mait = '" . $numInv . "')
+	                    AND ainvp_nbordereau > 0
+                        $ecart
+                    	order by 2,3
+                    ";
+                    //  dd($statement);
+        $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
