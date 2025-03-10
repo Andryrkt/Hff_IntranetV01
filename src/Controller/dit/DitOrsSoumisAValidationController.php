@@ -109,12 +109,12 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
+            } else {
+                $message = "Echec lors de la soumission, . . .";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
+                exit;
             }
-        } else {
-            $message = "Echec lors de la soumission, . . .";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
-            exit;
-        }
+        } 
 
         $this->logUserVisit('dit_insertion_or', [
             'numDit' => $numDit,
