@@ -10,7 +10,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 {
     use FormatageTrait;
 
-    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email)
+    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
     {
         $pdf = new HeaderPdf($email);
         $generator = new PdfTableGenerator();
@@ -111,9 +111,13 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         // $pdf->Cell(35, 6, $email, 0, 0, 'L');
         //=====================================================================================================================
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-        $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
-        $pdf->Output($filePath, 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
+
+        
+            $filePath = $nomFichierCtrl;
+       
+        $pdf->Output($Dossier .$filePath, 'F');
+
     }
 
 
@@ -127,7 +131,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
      * @param string $email
      * @return void
      */
-    function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email)
+    function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl)
     {
         // $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
@@ -331,8 +335,12 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         // $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-        $filePath = $Dossier . 'devis_ctrl_' . $devisSoumis->getNumeroDevis() . '_' . $devisSoumis->getNumeroVersion() . '.pdf';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
+        
+            $filePath = $Dossier . $nomFichierCtrl;
+        
         $pdf->Output($filePath, 'F');
+
+    
     }
 }

@@ -8,17 +8,20 @@ use App\Controller\Controller;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
+use App\Model\dom\DomModel;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension implements GlobalsInterface
 {
     private $session;
     private $requestStack;
     private $tokenStorage;
+    private $domModel;
     private $authorizationChecker;
 
 
@@ -29,6 +32,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
         $this->authorizationChecker = $authorizationChecker;
+        $this->domModel = new DomModel;
     }
 
     public function getGlobals(): array
@@ -42,12 +46,12 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         if ($this->session->get('user_id') !== null) {
             $user = Controller::getEntity()->getRepository(User::class)->find($this->session->get('user_id'));
-            $nbrTikResolu = Controller::getEntity()->getRepository(DemandeSupportInformatique::class)->countByStatutDemande('62', $this->session->get('user_id'));
         }
 
         return [
             'App' => [
                 'user'         => $user,
+                'base_path'    => $_ENV['BASE_PATH_COURT'],
                 'ticketing'    => [
                     'nbrTicketResolu' => $nbrTikResolu ?? '',
                 ],
@@ -56,5 +60,17 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                 'notification' => $notification,
             ],
         ];
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction('trop_percu', [$this, 'tropPercu']),
+        ];
+    }
+
+    public function tropPercu(string $numeroDom)
+    {
+        return $this->domModel->verifierSiTropPercu($numeroDom);
     }
 }

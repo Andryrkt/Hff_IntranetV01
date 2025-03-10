@@ -66,7 +66,12 @@ export class TableauComponent {
         this.props.columns.forEach((column) => {
           const td = document.createElement('td');
           // Utiliser defaultValue si la donnée est vide ou inexistante
-          td.textContent = row[column.key] || this.props.defaultValue || '-';
+          if (column.format && typeof column.format === 'function') {
+            td.textContent =
+              column.format(row[column.key]) || this.props.defaultValue || '-';
+          } else {
+            td.textContent = row[column.key] || this.props.defaultValue || '-';
+          }
 
           // Appliquer une classe spécifique
           if (column.className) {

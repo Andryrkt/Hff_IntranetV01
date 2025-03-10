@@ -1,0 +1,123 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+{% endblock  %}
+
+{% block nav %}{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+
+{% block content %}
+<div class="container my-5">
+	<div class="card">
+		<div class="card-body">
+			<div class="container">
+				<div class="row">
+					<div class="col-12 col-md-11">
+						<h3 class="perso-titre">Détail Demande de mutation</h3>
+					</div>
+
+					<div class=" col-12 col-md-1">
+						<a href="{{path("mutation_liste")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-4">
+						{{ macroForm.sousTitre('Information sur le salarié', {'class':'mb-1'} )}}
+						{{ macroForm.affichage('Nom', mutation.nom)}}
+						<div class="row">
+							<div class="col-10">
+								{{ macroForm.affichage('Prénoms', mutation.prenom)}}
+							</div>
+							<div class="col-2">
+								{{ macroForm.affichage('Matricule', mutation.matricule)}}
+							</div>
+						</div>
+						{{ macroForm.affichage('Catégorie professionnelle', mutation.categorie)}}
+					</div>
+					<div class="col-8">
+						{{ macroForm.sousTitre('Agence et Service', {'class':'mb-1'} )}}
+						<div class="row">
+							<div class="col-6">
+								{{ macroForm.affichage('Agence Emetteur / Origine', mutation.agenceEmetteur)}}
+								{{ macroForm.affichage('Service Emetteur / Origine', mutation.serviceEmetteur)}}
+							</div>
+							<div class="col-6">
+								{{ macroForm.affichage('Agence Debiteur / Destination', mutation.agenceDebiteur)}}
+								{{ macroForm.affichage('Service Débiteur / Destination', mutation.serviceDebiteur)}}
+							</div>
+						</div>
+					</div>
+				</div>
+				{{ macroForm.sousTitre('Information sur l\'affectation', {'class':'mb-1'} )}}
+
+				<div class="row">
+					<div class="col-4">
+						{{ macroForm.affichage(mutation.dateDebutLabel, mutation.dateDebut)}}
+						{{ macroForm.affichage('Date de fin d\'avance sur indemnité de chantier', mutation.dateFin)}}
+			</div>
+			<div class="col-4">
+				{{ macroForm.affichage('Site d\'affectation', mutation.site)}}
+						{{ macroForm.affichage('Lieu d\'affectation', mutation.lieuMutation)}}
+			</div>
+			<div class="col-4">
+				{{ macroForm.affichage('Nom du client', mutation.client)}}
+				{{ macroForm.affichage('Motif de la mutation', mutation.motifMutation)}}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-4">
+				{{ macroForm.sousTitre('Indemnité', {'class':'mb-1'} )}}
+				<div class="row">
+					<div class="col-6">
+						{{ macroForm.affichage('Avance sur indemnité', mutation.avanceSurIndemnite)}}
+					</div>
+					<div class="col-6">
+						{{ macroForm.affichage('Nombre de Jour', mutation.nombreJourAvance)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						{{ macroForm.affichage('Indemnité forfaitaire / jour', mutation.indemniteForfaitaire)}}
+					</div>
+					<div class="col-6">
+						{{ macroForm.affichage('Supplément journalier', mutation.supplementJournaliere)}}
+					</div>
+				</div>
+				{{ macroForm.affichage('Total de l\'indemnité forfaitaire', mutation.totalIndemniteForfaitaire)}}
+				</div>
+				<div class="col-8">
+					{{ macroForm.sousTitre('Autres dépenses', {'class':'mb-1'} )}}
+					<div class="row">
+						<div class="col-6">
+							{{ macroForm.affichage('Montant (Autre Dépense 1)', mutation.autresDepense1)}}
+							{{ macroForm.affichage('Montant (Autre Dépense 2)', mutation.autresDepense2)}}
+							{{ macroForm.affichage('Total Montant Autre Dépense', mutation.totalAutresDepenses)}}
+						</div>
+						<div class="col-6">
+							{{ macroForm.affichage('Motif Autre dépense 1', mutation.motifAutresDepense1)}}
+							{{ macroForm.affichage('Motif Autre dépense 2', mutation.motifAutresDepense2)}}
+							{{ macroForm.affichage('Montant Total', mutation.totalGeneralPayer)}}
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-4">
+					{{ macroForm.sousTitre('Mode de paiement', {'class':'mb-1'} )}}
+					{{ macroForm.affichage('Mode paiement', mutation.modePaiement)}}
+					{{ macroForm.affichage(mutation.modePaiementLabel, mutation.modePaiementValue)}}
+				</div>
+				<div class="col-8">
+					{{ macroForm.sousTitre('Pièce(s) jointe(s)', {'class':'mb-1'} )}}
+					{{ macroForm.affichageFile('Pièce jointe 01', mutation.pieceJoint01, "/Upload/mut/fichier")}}
+					{{ macroForm.affichageFile('Pièce jointe 02', mutation.pieceJoint02, "/Upload/mut/fichier")}}
+				</div>
+			</div>
+		</div>
+	</div>
+</div></div>{% endblock content %}{% block javascript %}{% endblock %}

@@ -2,22 +2,24 @@
 
 namespace App\Controller\tik;
 
+use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Entity\tik\TkiPlanning;
+use App\Entity\admin\utilisateur\User;
+use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\tik\EnvoiFichier;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiCommentaires;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Entity\tik\TkiPlanning;
 use App\Form\admin\tik\TkiCommentairesType;
 use App\Form\tik\DetailTikType;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Service\tik\EmailTikService;
 use App\Service\tik\HandleRequestService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 class DetailTikController extends Controller
 {

@@ -85,6 +85,8 @@ trait DitFactureSoumisAValidationtrait
             return "Livré";
         } elseif ((int)$quantiter[0]['quantitelivree'] < (int)$quantiter[0]['quantitedemander']) {
             return "Livré partiellement";
+        } else {
+            return "";
         }
     }
 
@@ -296,7 +298,7 @@ trait DitFactureSoumisAValidationtrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_SERVER['DOCUMENT_ROOT'] . 'Upload/vfac/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'].'/vfac/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {

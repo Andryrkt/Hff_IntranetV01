@@ -117,8 +117,13 @@ document.addEventListener('DOMContentLoaded', function () {
         modalBodyContent.textContent = message;
         reouvertureModal.show();
       } else {
-        // Si pas de message, on redirige immédiatement
-        window.location.href = event.target.getAttribute('href');
+        updateMessage(
+          confirmationModal,
+          `api/modification-ticket-fetch/${numTik}`,
+          modalBodyContent,
+          modalConfirmationSpinner,
+          modalConfirmationContainer
+        );
       }
     });
   });

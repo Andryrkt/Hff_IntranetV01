@@ -38,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'fr',
     initialView: 'dayGridMonth',
+    locale: 'fr',
+    initialView: 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
@@ -83,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     select: function (info) {
       document.getElementById('calendar_dateDebutPlanning').value =
-        info.startStr;
+        document.getElementById('calendar_dateDebutPlanning').value =
+          info.startStr;
       document.getElementById('calendar_dateFinPlanning').value = info.endStr;
       // Afficher le modal
       eventModal.show();

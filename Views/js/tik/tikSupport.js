@@ -1,3 +1,5 @@
+import { FetchManager } from '../api/FetchManager';
+
 /**
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  */
@@ -9,14 +11,17 @@ const serviceDebiteurInput = document.querySelector(
 );
 agenceDebiteurInput.addEventListener('change', selectAgence);
 
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
   console.log(agenceDebiteur);
 
   if (agenceDebiteur) {
-    let url = `/Hffintranet/agence-fetch/${agenceDebiteur}`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `agence-fetch/${agenceDebiteur}`;
+    fetchManager
+      .get(url)
       .then((services) => {
         console.log(services);
 

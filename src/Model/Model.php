@@ -145,12 +145,33 @@ class Model
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
 
-    public function returnResultat($statement)
+    public function retournerResult28($sql)
     {
-        $result = $this->connect->executeQuery($statement);
+        $statement = $this->connexion->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+        $data[] = $tabType;
+        }
+        return $data;
+    }
 
-        $data = $this->connect->fetchResults($result);
+    public function retournerResultGcot04($sql)
+    {
+        $statement = $this->connexion04Gcot->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+        $data[] = $tabType;
+        }
+        return $data;
+    }
 
-        return $this->convertirEnUtf8($data);
+    public function retournerResult04($sql)
+    {
+        $statement = $this->connexion04->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+        $data[] = $tabType;
+        }
+        return $data;
     }
 }

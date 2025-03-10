@@ -2,6 +2,8 @@
  * LIST DETAIL MODAL
  *  =======================*/
 
+import { baseUrl } from '../utils/config';
+
 document.addEventListener('DOMContentLoaded', (event) => {
   let abortController; // AbortController pour annuler les requêtes fetch précédentes
 
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     dossierDitLink.onclick = (event) => {
       event.preventDefault();
       window.open(
-        `/Hffintranet/dw-intervention-atelier-avec-dit/${numDit}`,
+        `${baseUrl}/dw-intervention-atelier-avec-dit/${numDit}`,
         '_blank'
       );
     };
@@ -67,7 +69,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function fetchTechnicienInterv(numOr, numItv, signal) {
-    fetch(`/Hffintranet/api/technicien-intervenant/${numOr}/${numItv}`, {
+    fetch(`${baseUrl}/api/technicien-intervenant/${numOr}/${numItv}`, {
       signal,
     })
       .then((response) => {
@@ -111,7 +113,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function fetchDetailModal(id, signal) {
     // Fetch request to get the data
-    fetch(`/Hffintranet/detail-modal/${id}`, { signal })
+    fetch(`${baseUrl}/detail-modal/${id}`, { signal })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');

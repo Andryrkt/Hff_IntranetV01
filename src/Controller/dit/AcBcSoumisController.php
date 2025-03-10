@@ -5,18 +5,19 @@ namespace App\Controller\dit;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\dit\AcSoumisType;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
-use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Entity\admin\utilisateur\ContactAgenceAte;
+use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
-use App\Service\TableauEnStringService;
 
 class AcBcSoumisController extends Controller
 {
@@ -27,6 +28,7 @@ class AcBcSoumisController extends Controller
     private $historiqueOperation;
     private $contactAgenceAteRepository;
     private $ditRepository;
+    private $ditDevisSoumisAValidationModel;
 
     public function __construct()
     {
@@ -39,6 +41,7 @@ class AcBcSoumisController extends Controller
         $this->historiqueOperation = new HistoriqueOperationBCService;
         $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
     }
 
     /**
@@ -53,10 +56,10 @@ class AcBcSoumisController extends Controller
         $devis = $this->filtredataDevis($numDit);
 
 
-        if (empty($devis)) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        }
+        // if (empty($devis)) {
+        //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+        //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        // }
 
         $acSoumis = $this->initialisation($devis, $numDit);
 
@@ -66,21 +69,36 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
+            $numDevis = $acSoumis->getNumeroDevis();
+            $numClient = $this->ditRepository->findNumClient($numDit);
             $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $numClientBcDevis = $this->ditRepository->findNumClient($numDit) . '_' . $numBc . '_' . $acSoumis->getNumeroDevis();
+            $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit);
-            $fileName = $this->enregistrementEtFusionFichier($form, $numClientBcDevis, $bcSoumis->getNumVersion());
-            $this->genererPdfAc->copyToDWAcSoumis($fileName); // copier le fichier dans docuware
+            $suffix = $this->pieceGererMagasinConstructeur($numDevis);
+            $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
+            //crée le pdf
+            $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
+
+            //fusionne le pdf
+            $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+            $fileUploader = new FileUploaderService($chemin);
+            $file = $form->get('pieceJoint01')->getData();
+            $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
+            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
+            $fileUploader->fusionFichers($uploadedFiles, $chemin . $nomFichier);
+
+            //envoie le pdf dans docuware
+            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
-            $bcSoumis->setNomFichier($fileName);
+            $bcSoumis->setNomFichier($nomFichier);
             $this->envoieBcDansBd($bcSoumis);
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
@@ -92,18 +110,42 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
+    private function pieceGererMagasinConstructeur($numDevis)
+    {
+        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+
+        if (isset($constructeur[0])) {
+            $containsCAT = in_array("CAT", $constructeur[0]);
+            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+
+            if ($containsOther === 0) {
+                $suffix = 'C';
+            } else if (!$containsCAT) {
+                $suffix = 'P';
+            } else if ($containsOther > 0) {
+                $suffix = 'CP';
+            } else {
+                $suffix = 'N';
+            }
+        } else {
+            $suffix = 'N';
+        }
+
+        return $suffix;
+    }
+
     private function filtredataDevis($numDit)
     {
         $devi = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
 
         return array_filter($devi, function ($item) {
-            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) > 0.00;
+            return $item->getNatureOperation() === 'VTE' && ($item->getMontantItv() - $item->getMontantForfait()) >= 0.00;
         });
     }
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
         $options = [

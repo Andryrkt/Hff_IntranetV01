@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dit/liste.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -219,8 +219,8 @@
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/dit/listDit.js" type="module"></script>
-	<script src="/Hffintranet/Views/js/dit/listDitModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
 {% endblock %}
  
 					</tr>

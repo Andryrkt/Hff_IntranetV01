@@ -3,7 +3,7 @@ import { updateServiceOptions } from "../utils/ui/uiAgenceServiceUtils.js";
 import { toggleSpinner } from "../utils/ui/uiSpinnerUtils.js";
 
 // Instanciation de FetchManager avec la base URL
-const fetchManager = new FetchManager("/Hffintranet");
+const fetchManager = new FetchManager();
 
 /**
  * Fonction pour mettre à jour les donner dans le select de docSoumis à validation DW
@@ -41,17 +41,26 @@ function valeurDocASoumettre(docDansDw) {
 
   if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDit === "AFFECTEE SECTION" &&
-    docDansDw.statutDevis !== "Validé"
+    (docDansDw.statutDit === "AFFECTEE SECTION" ||
+      docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
+    docDansDw.statutDevis !== "Validé atelier"
   ) {
     docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
   } else if (
     docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé" && !docDansDw.numeroOR 
+    docDansDw.statutDevis === "Validé atelier" 
   ) {
     docASoumettre = [
       { value: "DEVIS", text: "DEVIS" },
       { value: "BC", text: "BC" },
+    ];
+  } else if (docDansDw.statutDit === "TERMINEE") {
+    docASoumettre = [{ value: "FACTURE", text: "FACTURE" }];
+  } else if(docDansDw.numeroOR) { // un or existe dans ips
+    docASoumettre = [
+      { value: "OR", text: "OR" },
+      { value: "RI", text: "RI" },
+      { value: "FACTURE", text: "FACTURE" },
     ];
   } else {
     docASoumettre = [

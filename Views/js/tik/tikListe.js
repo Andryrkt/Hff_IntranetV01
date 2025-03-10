@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-service-emetteur',
       container: '#service-emetteur-container',
-      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      fetchUrl: (value) => `agence-fetch/${value}`,
       placeholder: ' -- Choisir un service -- ',
     },
     {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-service-debiteur',
       container: '#service-debiteur-container',
-      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      fetchUrl: (value) => `agence-fetch/${value}`,
       placeholder: ' -- Choisir un service -- ',
     },
     {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '.autres-categories',
       spinner: '#spinner-sous-categorie',
       container: '#sous-categorie-container',
-      fetchUrl: (value) => `/Hffintranet/api/sous-categorie-fetch/${value}`,
+      fetchUrl: (value) => `api/sous-categorie-fetch/${value}`,
       placeholder: ' -- Choisir une sous-catégorie -- ',
     },
     {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-autres-categories',
       container: '#autres-categories-container',
-      fetchUrl: (value) => `/Hffintranet/api/autres-categorie-fetch/${value}`,
+      fetchUrl: (value) => `api/autres-categorie-fetch/${value}`,
       placeholder: ' -- Choisir une autre catégorie -- ',
     },
   ];

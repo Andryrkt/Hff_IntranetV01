@@ -90,6 +90,25 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function constructeurPieceMagasin(string $numDevis)
+    {
+        $statement = " SELECT
+            slor.slor_constp as constructeur
+            from sav_lor slor
+            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
+            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
+            and slor.slor_typlig = 'P' 
+            and seor.seor_numor = '".$numDevis."'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    
     /**
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
@@ -352,4 +371,6 @@ class DitDevisSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    
 }

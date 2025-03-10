@@ -77,10 +77,25 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis);
-                $fileNames = $this->enregistrementEtFusionFichier($form, $numDevis, $devisSoumisValidataion[0]->getNumeroVersion());
-                $this->generePdfDevis->copyToDWDevisSoumis($fileNames['fileName']); // copier le fichier de controlle dans docuware
-                $this->generePdfDevis->copyToDWFichierDevisSoumis($fileNames['nomFichierUploder']); // copier le fichier de devis dans docuware
+                $suffix = $this->pieceGererMagasinConstructeur($numDevis);
+                $nomFichierCtrl = 'devis_ctrl_' . $numDevis . '-' . $devisSoumisValidataion[0]->getNumeroVersion() . '#' . $suffix . '.pdf';
+                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
+
+
+                $chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/dev/';
+                $fileUploader = new FileUploaderService($chemin);
+                $file =  $form->get('pieceJoint01')->getData();
+                //generer le nom du fichier
+                $nomFichierGenerer = 'devis_' . $numDevis . '-' . $devisSoumisValidataion[0]->getNumeroVersion() . '#' . $suffix . '.pdf';
+                // telecharger le fichier en copiant sur son repertoire
+                $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+
+
+
+                // dd($files);
+                //envoie des fichiers dans docuware
+                $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
+                $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
 
 
                 $message = 'Le devis a été soumis avec succès';
@@ -256,7 +271,7 @@ class DitDevisSoumisAValidationController extends Controller
      * @param GenererPdfDevisSoumisAValidation $generePdfDevis
      * @return void
      */
-    private function creationPdf(array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis)
+    private function creationPdf(array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, string $nomFichierCtrl)
     {
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
@@ -272,9 +287,9 @@ class DitDevisSoumisAValidationController extends Controller
 
         // dd($montantPdf, $quelqueaffichage);
         if ($this->estCeVenteOuForfait($numDevis)) { // vente
-            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur);
+            $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         } else { // sinom forfait
-            $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur);
+            $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         }
     }
 
@@ -573,38 +588,53 @@ class DitDevisSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-    /**
-     * Methode pour la création et la fusion du fichier
-     *
-     * @param FormInterface $form
-     * @param string $numDevis
-     * @param string $numeroVersion
-     * @return void
-     */
-    private function enregistrementEtFusionFichier(FormInterface $form, string $numDevis, string $numeroVersion)
+    private function nomFichierUploder(string $numDevis, string $numeroVersion, string $suffix)
     {
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/dev/';
-        $fileUploader = new FileUploaderService($chemin);
-        $options = [
-            'prefix' => 'devis_ctrl',
-            'prefixFichier' => 'devis',
-            'numeroDoc' => $numDevis,
-            'mergeFiles' => false,
-            'numeroVersion' => $numeroVersion,
-            'isIndex' => false
-        ];
-        $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
-
+        //generer le nom de fichier uploder
         $preparNom = [
             'prefix' => 'devis',
             'numeroDoc' => $numDevis,
-            'numeroVersion' => $numeroVersion
+            'numeroVersion' => $numeroVersion,
+            'suffixe' => $suffix
         ];
-        $nomFichierUploder = GenererNonFichierService::genererNonFichier($preparNom);
+        $nomFichierGenerer = GenererNonFichierService::generationNomFichier($preparNom);
 
-        return [
-            'fileName' => $fileName,
-            'nomFichierUploder' => $nomFichierUploder
+
+
+        return  $nomFichierGenerer;
+    }
+
+    public function nomFichierCtrl(string $numDevis, string $numeroVersion, string $suffix)
+    {
+        //generer le nom de fichier generer
+        $preparNomFichier = [
+            'prefix' => 'devis_ctrl',
+            'numeroDoc' => $numDevis,
+            'numeroVersion' => $numeroVersion,
+            'suffixe' => $suffix
         ];
+        $fileName = GenererNonFichierService::generationNomFichier($preparNomFichier);
+
+        return  $fileName;
+    }
+
+    public function pieceGererMagasinConstructeur($numDevis)
+    {
+        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+
+        if (isset($constructeur[0])) {
+            if ($constructeur[0]['constructeur'] === 'CAT') {
+                $suffix = 'C';
+            } else if ($constructeur[0]['constructeur'] <> 'CAT') {
+                $suffix = 'P';
+            } else {
+                $suffix = 'N';
+            }
+        } else {
+            $suffix = 'N';
+        }
+
+
+        return $suffix;
     }
 }

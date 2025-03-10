@@ -98,7 +98,6 @@ trait DitListTrait
     {
 
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-
         if ($criteria !== null) {
             // if ($autoriser) {
             $agenceIpsEmetteur = null;
@@ -157,6 +156,7 @@ trait DitListTrait
             ->setSectionSupport1($criteria['sectionSupport1'] ?? null)
             ->setSectionSupport2($criteria['sectionSupport2'] ?? null)
             ->setSectionSupport3($criteria['sectionSupport3'] ?? null)
+            ->setEtatFacture($criteria['etatFacture'] ?? null)
         ;
     }
 
@@ -482,6 +482,7 @@ trait DitListTrait
             ->setSectionSupport1($criteria["sectionSupport1"])
             ->setSectionSupport2($criteria["sectionSupport2"])
             ->setSectionSupport3($criteria["sectionSupport3"])
+            ->setEtatFacture(($criteria['etatFacture']))
         ;
 
         return $ditSearch;
@@ -584,20 +585,30 @@ trait DitListTrait
     private function ajoutEstOrASoumis($paginationData, $em)
     {
         foreach ($paginationData as $value) {
-            // dd($value);
+            // dump($value->getNumeroDemandeIntervention());
+            // dump($value->getInternetExterne());
+            // dump($value->getIdStatutDemande());
+            // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
 
             if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
+            } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
+                $value->setEstOrASoumi(true);
             } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
-            } elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
+            }
+            // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
+            //     $value->setEstOrASoumi(true);
+            // } 
+            elseif ($value->getIdStatutDemande()->getId() === 57) {
                 $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);
             }
         }
+        // die();
     }
 }

@@ -58,7 +58,6 @@ class DitController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
@@ -67,9 +66,11 @@ class DitController extends Controller
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
-            //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
-
+            if(!in_array($pdfDemandeInterventions->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,7675,7677,9863])) {
+                //récupération des historique de materiel (informix)
+                $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            }
+            
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
@@ -103,6 +104,7 @@ class DitController extends Controller
         self::$em->persist($application);
         self::$em->flush();
     }
+
     private function autorisationApp($user): bool
     {
         //id pour DIT est 4
