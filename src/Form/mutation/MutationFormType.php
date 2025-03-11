@@ -317,9 +317,11 @@ class MutationFormType extends AbstractType
                 'modePaiementLabel',
                 ChoiceType::class,
                 [
-                    'mapped' => false,
-                    'label'   => 'Mode paiement',
-                    'choices' => self::MODE_PAYEMENT
+                    'mapped'      => false,
+                    'label'       => 'Mode paiement',
+                    'choices'     => self::MODE_PAYEMENT,
+                    'placeholder' => '-- Choisir une mode de paiement --',
+                    'data'        => 'MOBILE MONEY',
                 ]
             )
             ->add(

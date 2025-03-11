@@ -1,6 +1,7 @@
 import { fetchData } from '../utils/fetchUtils';
 import { toggleSpinner } from '../utils/spinnerUtils';
 import { formatMontant, parseMontant } from '../utils/formatUtils';
+import { addRequiredToField } from './handleField';
 
 const indemniteInput = document.getElementById(
   'mutation_form_indemniteForfaitaire'
@@ -76,6 +77,7 @@ export async function updateModePaiement(personnelId) {
       modePaiementValueInput.value = personne.telephone;
       modePaiementValueInput.required = true;
     }
+    addRequiredToField(modePaiementValueInput);
   } catch (error) {
     console.error('Erreur lors de la mise à jour du mode de paiement:', error);
   } finally {
