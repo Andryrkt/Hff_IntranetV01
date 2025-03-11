@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Service\fichier\GenererNonFichierService;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Service\historiqueOperation\HistoriqueOperationService;
@@ -96,7 +97,8 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoieDonnerDansBd($orSoumisValidataion);
                 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->pieceGererMagasinConstructeur($numOr);
+                $constructeur = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr);
+                $suffix= GenererNonFichierService::pieceGererMagasinConstructeur($constructeur);
                 
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
@@ -118,30 +120,6 @@ class DitOrsSoumisAValidationController extends Controller
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
         ]);
-    }
-
-    private function pieceGererMagasinConstructeur($numOr)
-    {
-        $constructeur = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr);
-
-        if(isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
-
-            if($containsOther === 0) {
-                $suffix = 'C';
-            } else if(!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0 ) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
-        }
-
-        return $suffix;
     }
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array 
