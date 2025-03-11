@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     //MISE EN PLACE DU CASIER DESTINATAIRE
     let urlCasier = `casier-fetch/${agenceDebiteur}`;
     fetchManager
-      .get(url)
+      .get(urlCasier)
       .then((casiers) => {
         console.log(casiers);
 
