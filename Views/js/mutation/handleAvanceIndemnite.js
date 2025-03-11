@@ -9,6 +9,8 @@ const allRequiredField = [
   'mutation_form_nombreJourAvance',
   'mutation_form_totalIndemniteForfaitaire',
   'mutation_form_site',
+  'mutation_form_modePaiementLabel',
+  'mutation_form_modePaiementValue',
 ];
 const allNotRequiredField = ['mutation_form_supplementJournaliere'];
 
