@@ -16,6 +16,7 @@ $(document).ready(function () {
   });
 });
 
-alert("Bonjour");
+// alert("Bonjour");
+console.log("Bonjour");
 
 import logo from "../images/logoHFF.jpg";

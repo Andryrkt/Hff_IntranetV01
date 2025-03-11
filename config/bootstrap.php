@@ -167,7 +167,7 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
-$publicPath = $_ENV['BASE_PATH_COURT'].'/public';
+$publicPath = $_ENV['BASE_PATH_COURT'].'/public/build';
 $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
 
 // Ajouter l'extension Asset à Twig
