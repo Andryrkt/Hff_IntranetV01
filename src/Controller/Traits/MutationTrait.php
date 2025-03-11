@@ -225,7 +225,7 @@ trait MutationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/mut/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER']. '/mut/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {

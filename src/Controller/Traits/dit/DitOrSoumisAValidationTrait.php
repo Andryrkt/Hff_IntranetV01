@@ -81,8 +81,8 @@ trait DitOrSoumisAValidationTrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/vor/oRValidation_%s-%s#%s.pdf',
-            $_SERVER['DOCUMENT_ROOT'],
+            '%s/vor/oRValidation_%s-%s#%s.pdf',
+            $_ENV['BASE_PATH_FICHIER'],
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $suffix
