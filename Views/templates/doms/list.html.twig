@@ -79,6 +79,11 @@
 									<li>
 										<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
 									</li>
+									{% if trop_percu(item.numeroOrdreMission) %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ path("dom_trop_percu_form", {id:item.id}) }}">Trop perçu</a>
+										</li>
+									{% endif %}
 								</ul>
 							</div>
 						</td>

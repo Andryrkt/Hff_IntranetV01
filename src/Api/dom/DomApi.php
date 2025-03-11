@@ -13,12 +13,13 @@ use App\Entity\admin\dom\Indemnite;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\mutation\Mutation;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DomApi extends Controller
 {
     use FormatageTrait;
-    
+
     /**
      * @Route("/categorie-fetch/{id}", name="fetch_categorie", methods={"GET"})
      * 
@@ -28,24 +29,24 @@ class DomApi extends Controller
      * @return void
      */
     public function categoriefetch(int $id)
-    {  
+    {
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
-    
+
         $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($id);
 
-        if($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
+        if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
         } else {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
         }
-    
+
         $criteria = [
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq
         ];
 
-        
+
         $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
 
 
@@ -74,14 +75,14 @@ class DomApi extends Controller
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
-    public function agence($id) 
+    public function agence($id)
     {
         $agence = self::$em->getRepository(Agence::class)->find($id);
-    
+
         $service = $agence->getServices();
 
         //   $services = $service->getValues();
-            $services = [];
+        $services = [];
         foreach ($service as $key => $value) {
             $services[] = [
                 'value' => $value->getId(),
@@ -116,7 +117,7 @@ class DomApi extends Controller
         $montant = self::$em->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
 
         $montant = $this->formatNumber($montant);
- 
+
         header("Content-type:application/json");
 
         echo json_encode(['montant' => $montant]);
