@@ -623,17 +623,21 @@ class DitDevisSoumisAValidationController extends Controller
         $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
         if(isset($constructeur[0])) {
-            if($constructeur[0]['constructeur'] === 'CAT') {
+            $containsCAT = in_array("CAT", $constructeur[0]);
+            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+
+            if($containsOther === 0) {
                 $suffix = 'C';
-            } else if($constructeur[0]['constructeur'] <> 'CAT') {
+            } else if(!$containsCAT) {
                 $suffix = 'P';
+            } else if ($containsOther > 0 ) {
+                $suffix = 'CP';
             } else {
                 $suffix = 'N';
             }
         } else {
             $suffix = 'N';
         }
-       
 
         return $suffix;
     }
