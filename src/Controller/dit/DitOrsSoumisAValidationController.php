@@ -101,9 +101,8 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
                 //envoie des pièce jointe dans une dossier et la fusionner
-                
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
-                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR());
+                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
@@ -196,24 +195,24 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } 
-        // elseif ($conditionBloquage['invalidePosition']) {
-        //     $message = "Echec de la soumission de l'OR";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } elseif ($conditionBloquage['idMaterielDifferent']) {
-        //     $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } elseif ($conditionBloquage['sansrefClient']) {
-        //     $message = "Echec de la soumission car la référence client est vide.";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        // elseif ($conditionBloquage['situationOrSoumis']) {
-        //     $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        // elseif ($conditionBloquage['countAgServDeb']) {
-        //     $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // }
+        elseif ($conditionBloquage['invalidePosition']) {
+            $message = "Echec de la soumission de l'OR";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['idMaterielDifferent']) {
+            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['sansrefClient']) {
+            $message = "Echec de la soumission car la référence client est vide.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } 
+        elseif ($conditionBloquage['situationOrSoumis']) {
+            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } 
+        elseif ($conditionBloquage['countAgServDeb']) {
+            $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        }
         else {
             return true;
         }
