@@ -25,6 +25,7 @@
 				{% set hasDAP = false %}
 				{% set hasCFR = false %}
 				{% set hasINV = false %}
+				{% set hasMUT = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -45,6 +46,8 @@
 						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'INV' %}
 						{% set hasINV = true %}
+						{% elseif item.codeApp == 'MUT' %}
+						{% set hasMUT = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -118,6 +121,8 @@
 								<li>
 									<hr class="dropdown-divider">
 								</li>
+								{% if hasMUT %}
+								
 								<li class="dropdown-header">
 									Mutation</li>
 								<li>
@@ -129,6 +134,7 @@
 								<li>
 									<hr class="dropdown-divider">
 								</li>
+								{% endif %}
 							{% endif %}
 
 							<!-- Bordereau d’acquisition et de Mouvement Matériel -->
@@ -260,9 +266,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-							</li>
+							{# <li> #}
+								{# <a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a> #}
+							{# </li> #}
 						</ul>
 					</li>
 				{% endif %}
