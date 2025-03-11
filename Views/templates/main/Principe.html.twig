@@ -3,7 +3,7 @@
 	<div
 		class="container">
 		{# <a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ App.base_path }}/Views/assets/logoHFF.jpg" id="LogoHFF" alt="" width="150px"></a> #}
-		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset("images/logoHFF.jpg")}}" id="LogoHFF" alt="logo" width="150px"></a>
+		<a class="navbar-brand" href="{{ path("profil_acceuil")}}"><img src="{{ asset(webpack_asset("images/logoHFF.jpg"))}}" id="LogoHFF" alt="logo" width="150px"></a>
 		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -46,7 +46,7 @@
 						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'INV' %}
 						{% set hasINV = true %}
-						{% elseif item.codeApp == 'MUT' %}
+					{% elseif item.codeApp == 'MUT' %}
 						{% set hasMUT = true %}
 					{% endif %}
 				{% endfor %}
@@ -122,18 +122,18 @@
 									<hr class="dropdown-divider">
 								</li>
 								{% if hasMUT %}
-								
-								<li class="dropdown-header">
-									Mutation</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
-								</li>
-								<li>
-									<hr class="dropdown-divider">
-								</li>
+
+									<li class="dropdown-header">
+										Mutation</li>
+									<li>
+										<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
+									</li>
+									<li>
+										<hr class="dropdown-divider">
+									</li>
 								{% endif %}
 							{% endif %}
 

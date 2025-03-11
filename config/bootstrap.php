@@ -17,8 +17,9 @@ use Symfony\Component\Form\Forms;
 use Twig\Loader\FilesystemLoader;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
-use Illuminate\Pagination\Paginator;
+use App\Twig\WebpackAssetExtension;
 
+use Illuminate\Pagination\Paginator;
 use Symfony\Component\Asset\Packages;
 use App\Service\GlobalVariablesService;
 use Symfony\Component\Asset\PathPackage;
@@ -26,8 +27,8 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
-use Symfony\Component\Validator\Validation;
 
+use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
@@ -165,6 +166,7 @@ $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
+$twig->addExtension(new WebpackAssetExtension());
 
 // Configurer le package pour le dossier 'public'
 $publicPath = $_ENV['BASE_PATH_COURT'].'/public/build';

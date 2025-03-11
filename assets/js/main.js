@@ -9,16 +9,10 @@ import "select2/dist/css/select2.min.css"; // Styles de base
 import "select2-bootstrap-theme/dist/select2-bootstrap.min.css"; // Thème Bootstrap
 import "select2"; // Bibliothèque Select2
 
-// Initialisation de Select2 sur un élément spécifique (exemple)
-$(document).ready(function () {
-  $(".select2").select2({
-    theme: "bootstrap",
-  });
-});
+
 
 // alert("Bonjour");
 console.log("Bonjour");
 
 import logo from "../images/logoHFF.jpg";
-
-
+import favicon2 from "../images/favicon-2.png";
