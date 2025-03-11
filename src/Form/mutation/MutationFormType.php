@@ -142,7 +142,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date fin / Frais d\'installation',
+                    'label'  => 'Date fin de frais d\'installation',
                 ]
             )
             ->add(
@@ -306,7 +306,7 @@ class MutationFormType extends AbstractType
                 'totalGeneralPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant Total',
+                    'label' => 'Montant Total (Autres dépenses + Indemnité)',
                     'attr'  => [
                         'readonly' => true,
                         'class'    => 'readonly',
