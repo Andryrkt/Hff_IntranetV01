@@ -244,14 +244,14 @@ class InventaireController extends Controller
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
                     'nbr_casier' => $listInvent[$i]['nbre_casier'],
                     'nbr_ref' => $listInvent[$i]['nbre_ref'],
-                    'qte_comptee' => $this->formatNumber($listInvent[$i]['qte_comptee']),
+                    'qte_comptee' => str_replace("."," ",$this->formatNumber($listInvent[$i]['qte_comptee']) ),
                     'statut' => $listInvent[$i]['statut'],
-                    'montant' => $this->formatNumber($listInvent[$i]['montant']),
+                    'montant' => str_replace("."," ",$this->formatNumber($listInvent[$i]['montant']) ),
                     'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
                     'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
-                    'montant_ecart' => $this->formatNumber($invLigne[0]['montant_ecart']),
+                    'montant_ecart' => str_replace("."," ",$this->formatNumber($invLigne[0]['montant_ecart']) ),
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 if ($uploadExcel) {
