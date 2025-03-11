@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const modePaiementLabelInput = document.getElementById(
     'mutation_form_modePaiementLabel'
   );
+  const modePaiementValueInput = document.getElementById(
+    'mutation_form_modePaiementValue'
+  );
   const indemniteForfaitaireInput = document.getElementById(
     'mutation_form_indemniteForfaitaire'
   );
@@ -98,6 +101,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if (matricule.value) {
       updateModePaiement(matricule.value);
     }
+  });
+  modePaiementValueInput.addEventListener('input', function () {
+    this.value = this.value.replace(/[^\d]/g, '').slice(0, 10);
   });
 
   /** Calculer Montant total Autre dépense et montant total général */
