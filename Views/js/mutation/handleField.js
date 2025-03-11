@@ -12,10 +12,23 @@ const requiredFieldsId = [
   'mutation_form_avanceSurIndemnite',
 ];
 
-export function handleAllField() {
+const requiredForIndemnity = [
+  'mutation_form_site',
+  'mutation_form_dateFin',
+  'mutation_form_modePaiementLabel',
+  'mutation_form_modePaiementValue',
+];
+
+export function handleAllField(fraisInstallation) {
   requiredFieldsId.forEach((requiredFieldId) => {
     const field = document.querySelector(`#${requiredFieldId}`);
     addRequiredToField(field);
+  });
+  requiredForIndemnity.forEach((fieldId) => {
+    const field = document.querySelector(`#${fieldId}`);
+    fraisInstallation === 'OUI'
+      ? addRequiredToField(field)
+      : removeRequiredToField(field);
   });
 }
 

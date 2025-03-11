@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 
   /** Gérer les champs requis ou non */
-  handleAllField();
+  handleAllField(avance.value);
 
   /** Agence et service */
   handleService();

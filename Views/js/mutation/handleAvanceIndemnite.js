@@ -1,4 +1,4 @@
-import { addRequiredToField } from './handleField';
+import { handleAllField } from './handleField';
 
 const dateDebutLabel = document.querySelector(
   "label[for='mutation_form_dateDebut']"
@@ -14,7 +14,7 @@ const allNotRequiredField = ['mutation_form_supplementJournaliere'];
 
 export function handleAvance(avance) {
   avance === 'OUI' ? acceptAvance() : declineAvance();
-  addRequiredToField(document.querySelector('#mutation_form_dateDebut'));
+  handleAllField(avance);
 }
 
 export function acceptAvance() {
@@ -37,7 +37,7 @@ export function toggleField(fieldId, accept = true, required = true) {
     field.classList.remove('disabled');
     field.required = required;
   } else {
-    field.value = null;
+    field.value = '';
     field.classList.add('disabled');
     field.required = false;
   }
