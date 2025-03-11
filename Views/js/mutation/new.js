@@ -10,6 +10,7 @@ import {
 } from './depense';
 import { calculateDaysAvance } from './handleDate';
 import { formatMontant } from '../utils/formatUtils';
+import { handleAllField } from './handleField';
 
 document.addEventListener('DOMContentLoaded', function () {
   localStorage.setItem('site', 0); // initialiser le site à 0
@@ -39,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const totaAutreDepenseInput = document.getElementById(
     'mutation_form_totalAutresDepenses'
   );
+
+  /** Gérer les champs requis ou non */
+  handleAllField();
 
   /** Agence et service */
   handleService();
@@ -98,11 +102,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** Calculer Montant total Autre dépense et montant total général */
   autreDepense1.addEventListener('input', function () {
-    this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')) || 0);
+    this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')));
     calculTotalAutreDepense();
   });
   autreDepense2.addEventListener('input', function () {
-    this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')) || 0);
+    this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')));
     calculTotalAutreDepense();
   });
 
@@ -112,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Calcul de l'indemnité total forfaitaire */
   supplementJournalier.addEventListener('input', function () {
     supplementJournalier.value = formatMontant(
-      parseInt(this.value.replace(/[^\d]/g, '')) || 0
+      parseInt(this.value.replace(/[^\d]/g, ''))
     );
     calculTotalIndemnite();
   });

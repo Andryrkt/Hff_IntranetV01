@@ -27,7 +27,7 @@ export function addRequiredToField(field) {
     asterisk.textContent = ' (*)';
     label.appendChild(asterisk);
   }
-  field.classList.add('border-2', 'border-required');
+  field.classList.add('border-required');
 }
 
 export function removeRequiredToField(field) {
@@ -36,5 +36,5 @@ export function removeRequiredToField(field) {
   if (asterisk) {
     label.removeChild(asterisk);
   }
-  field.classList.remove('border-2', 'border-required');
+  field.classList.remove('border-required');
 }

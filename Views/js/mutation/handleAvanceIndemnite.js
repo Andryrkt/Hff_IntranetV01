@@ -1,3 +1,5 @@
+import { addRequiredToField } from './handleField';
+
 const dateDebutLabel = document.querySelector(
   "label[for='mutation_form_dateDebut']"
 );
@@ -6,11 +8,13 @@ const allRequiredField = [
   'mutation_form_indemniteForfaitaire',
   'mutation_form_nombreJourAvance',
   'mutation_form_totalIndemniteForfaitaire',
+  'mutation_form_site',
 ];
 const allNotRequiredField = ['mutation_form_supplementJournaliere'];
 
 export function handleAvance(avance) {
   avance === 'OUI' ? acceptAvance() : declineAvance();
+  addRequiredToField(document.querySelector('#mutation_form_dateDebut'));
 }
 
 export function acceptAvance() {
