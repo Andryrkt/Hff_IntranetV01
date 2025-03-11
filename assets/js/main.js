@@ -20,3 +20,5 @@ $(document).ready(function () {
 console.log("Bonjour");
 
 import logo from "../images/logoHFF.jpg";
+
+

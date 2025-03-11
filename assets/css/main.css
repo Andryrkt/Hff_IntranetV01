@@ -1,3 +1,38 @@
-body {
-    background-color: brown;
+
+
+.navbar {
+	background-color: #343a40 !important; /* Couleur de fond */
+}
+
+.navbar-nav .nav-link {
+	color: #fbbb01 !important; /* Couleur du texte */
+}
+
+.navbar-nav .nav-link:hover {
+	color: #ffcc00 !important; /* Couleur au survol */
+}
+
+.navbar-dark .navbar-toggler-icon {
+	background-color: #fbbb01 !important;
+}
+
+
+.dropdown-menu {
+	background-color: #222 !important; /* Fond du menu déroulant */
+}
+
+.dropdown-menu .dropdown-item {
+	color: white !important;
+}
+
+.dropdown-menu .dropdown-item .dropdown-divider {
+	color: white !important;
+}
+
+.dropdown-menu .dropdown-item:hover {
+	background-color: #444 !important; /* Couleur au survol */
+}
+
+.dropdown-divider {
+    border-top: 1px solid #fbbb01 !important; /* Change la couleur et l'épaisseur */
 }
