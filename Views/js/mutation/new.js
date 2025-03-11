@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Avance sur indemnité de chantier */
   avance.addEventListener('change', function () {
     handleAvance(this.value);
+
+    // ajout d'une nouvelle evenement qui sera utiliser plus tard
+    const event = new Event('valueAdded');
+    this.dispatchEvent(event);
   });
 
   /** Calcul de la date de différence entre Date Début et Date Fin */
@@ -131,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function () {
   nombreJourAvance.addEventListener('valueAdded', calculTotalIndemnite);
 
   /** Ajout de l'évènement personnalisé pour calculer le total général */
+  avance.addEventListener('valueAdded', calculTotal);
   totalIndemniteInput.addEventListener('valueAdded', calculTotal);
   totaAutreDepenseInput.addEventListener('valueAdded', calculTotal);
 

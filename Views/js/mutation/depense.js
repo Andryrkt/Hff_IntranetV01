@@ -1,7 +1,8 @@
 import { fetchData } from '../utils/fetchUtils';
 import { toggleSpinner } from '../utils/spinnerUtils';
 import { formatMontant, parseMontant } from '../utils/formatUtils';
-import { addRequiredToField } from './handleField';
+import { addRequiredToField, removeRequiredToField } from './handleField';
+import { toggleField } from './handleAvanceIndemnite';
 
 const indemniteInput = document.getElementById(
   'mutation_form_indemniteForfaitaire'
@@ -117,12 +118,27 @@ export function calculTotalAutreDepense() {
 }
 
 export function calculTotal() {
+  let allRequiredFieldId = [
+    'mutation_form_modePaiementLabel',
+    'mutation_form_modePaiementValue',
+  ];
   let totaAutreDepense =
     parseInt(totaAutreDepenseInput.value.replace(/[^\d]/g, '')) || 0;
   let totalindemnite =
     parseInt(totalIndemniteInput.value.replace(/[^\d]/g, '')) || 0;
 
   let montantTotal = totalindemnite + totaAutreDepense;
+
+  allRequiredFieldId.forEach((fieldId) => {
+    let field = document.getElementById(fieldId);
+    if (montantTotal > 0) {
+      toggleField(fieldId);
+      addRequiredToField(field);
+    } else {
+      toggleField(fieldId, false);
+      removeRequiredToField(field);
+    }
+  });
 
   montantTotalInput.value = formatMontant(montantTotal);
 

@@ -29,7 +29,6 @@ export function declineAvance() {
   dateDebutLabel.textContent = 'Date de début de mutation';
   allRequiredField.forEach((fieldId) => toggleField(fieldId, false));
   allNotRequiredField.forEach((fieldId) => toggleField(fieldId, false, false));
-  document.getElementById('mutation_form_totalGeneralPayer').value = null;
   document.querySelectorAll('.error-message')[1].textContent = null;
 }
 
