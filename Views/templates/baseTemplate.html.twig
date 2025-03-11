@@ -14,7 +14,7 @@
 			<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet">
 
 			<link rel="stylesheet" href="{{ App.base_path }}/Views/css/style.css">
-			<link rel="shortcut icon" href="{{ App.base_path }}/Views/assets/favicon-2.png	" type="image/x-icon">
+			<link rel="shortcut icon" href="{{ App.base_path }}/Views/assets/favicon-2.png " type="image/x-icon">
 			{# <link rel="stylesheet" href="{{asset("build/global.css")}}"> #}
 			{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css"> #}{% block stylesheets %}
 			{% endblock %}
@@ -27,6 +27,9 @@
 	{% endblock %}
 	</head>
 		<body>
+		<pre>
+			{{ dump(App.base_path) }}
+		</pre>
 			<div id="loading-overlays" style="display: none;"> <div class="spinner-overlay"></div>
 			<div class="text-overlay text-white">Veuillez patienter s'il vous plaît!</div>
 		</div>

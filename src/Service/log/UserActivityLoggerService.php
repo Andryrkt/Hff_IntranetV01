@@ -22,6 +22,9 @@ class UserActivityLoggerService
     public function logUserVisit(string $nomRoute, ?array $params = null): void
     {
         $idUtilisateur = $this->session->get('user_id');
+        if (!$idUtilisateur) {
+            throw new \Exception("Utilisateur non trouvé en session.");
+        }
         $utilisateur = ($idUtilisateur !== '-') ? $this->em->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : '-';
         $page = $this->em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);

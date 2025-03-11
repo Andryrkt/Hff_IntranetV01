@@ -42,7 +42,7 @@ class SecurityController extends AbstractController
     {
         $notification = $this->session->get('notification');
         $this->session->remove('notification');
-        $this->getUserLogger()->logUserVisit('security_login');
+        // $this->getUserLogger()->logUserVisit('security_login');
 
         return new Response($this->render('security/login.html.twig', [
             'notification' => $notification,
