@@ -55,6 +55,27 @@
               <th>Cpt 2</th>
               <th>Cpt 3</th>
             </tr>
+           
+         {% for row in sumData %}
+                <tr >
+                      <th scope="row"> TOTAL</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.stock_theo}}</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.ecart}}</th>
+                      <th>{{row.pourcentage_nbr_ecart}}</th>
+                      <th>{{row.pmp}}</th>
+                      <th>{{row.montant_inventaire}}</th>
+                      <th>{{row.montant_ecart}}</th>
+                      <th>{{row.pourcentage_ecart}}</th>
+                </tr>
+         {% endfor %}
+      
          </thead>
          <tbody id="tableBody">
           {% if data is empty %}
@@ -84,27 +105,7 @@
           {% endif %}
          </tbody>
          
-         <tfoot id="tableFoot"  class="table-dark">
-         {% for row in sumData %}
-                <tr>
-                      <td scope="row"> TOTAL</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td>{{row.stock_theo}}</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td>{{row.ecart}}</td>
-                      <td>{{row.pourcentage_nbr_ecart}}</td>
-                      <td>{{row.pmp}}</td>
-                      <td>{{row.montant_inventaire}}</td>
-                      <td>{{row.montant_ecart}}</td>
-                      <td>{{row.pourcentage_ecart}}</td>
-                </tr>
-         {% endfor %}
-         </tfoot>
+         
       </table> 
     </div>
   </div>
