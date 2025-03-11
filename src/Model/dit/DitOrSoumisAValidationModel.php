@@ -253,6 +253,8 @@ class DitOrSoumisAValidationModel extends Model
             )
             and statut not like ('%Validé%')
             and statut not like ('%Refusé%')
+            and statut <> 'Livré partiellement'
+            and statut = 'Livré'
         ";
 
         return $this->retournerResult28($sql);
@@ -278,7 +280,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function countAgServDebit($numOr)
     {
-        $statement = " SELECT count(distinct sitv_servdeb) 
+        $statement = " SELECT count(distinct sitv_servdeb) as retour
                     from sav_itv 
                     where sitv_numor = '{$numOr}'
         ";

@@ -331,8 +331,8 @@ trait DitFactureSoumisAValidationtrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/vfac/factureValidation_%s_%s.pdf',
-            $_SERVER['DOCUMENT_ROOT'],
+            '%s/vfac/factureValidation_%s_%s.pdf',
+            $_ENV['BASE_PATH_FICHIER'],
             $ditfacture->getNumeroFact(),
             $ditfacture->getNumeroSoumission()
         );
