@@ -147,7 +147,7 @@ class InventaireModel extends Model
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
                     and ainvp_numinv = '" . $numInvMax . "'
                     ";
-                    // dump($statement);
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -187,14 +187,47 @@ class InventaireModel extends Model
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         ";
-                        //  dump($statement);
+        //  dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
 
+    public function sumInventaireDetail($numInv)
+    {
+        $statement = "SELECT  
+                            SUM( round(ainvp_stktheo) ) as stock_theo,
+                            SUM(round(ainvp_ecart) ) as ecart,
+                            CASE
+                            WHEN SUM(ainvp_stktheo) != 0 THEN
+                                  SUM( ROUND((ainvp_ecart / ainvp_stktheo) * 100 ) )|| '%' 
+                              ELSE
+                                  '100'
+                            END as pourcentage_nbr_ecart,
+                            SUM(ainvp_prix) as PMP,
+                            SUM(ainvp_prix * ainvp_stktheo) as montant_inventaire,
+                            SUM(ainvp_prix * ainvp_ecart )as montant_ecart,
+                            CASE
+                             WHEN SUM( (ainvp_prix * ainvp_stktheo) ) != 0 THEN
+                                 SUM(  ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) )|| ' %'
+                              ELSE
+                                '100'
+                            END  as pourcentage_ecart   
+                            FROM art_invp
+                            INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
+                            INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
+                            WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '".$numInv."')
+                            AND  ainvp_ecart <> 0 AND astp_casier NOT IN ('NP','@@@@','CASIER C')
 
+                     
+        ";
+        //  dump($statement);
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
     public function countSequenceInvent($numInv)
     {
         $statement = " SELECT DISTINCT(ainvi_sequence) as nb_sequence
@@ -226,11 +259,11 @@ class InventaireModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
-    public function bordereauListe($numInv,$criteria)
+    public function bordereauListe($numInv, $criteria)
     {
         if ($criteria['choix'] == 'ECART') {
-           $ecart = "AND AINVP_ECART <> 0";
-        }else{
+            $ecart = "AND AINVP_ECART <> 0";
+        } else {
             $ecart = "";
         }
         $statement = " SELECT   ainvp_numinv as numInv,
@@ -263,7 +296,7 @@ class InventaireModel extends Model
                         $ecart
                     	order by 2,3
                     ";
-                    //  dd($statement);
+        //  dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);

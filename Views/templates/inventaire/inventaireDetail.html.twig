@@ -83,6 +83,28 @@
             {% endfor %}
           {% endif %}
          </tbody>
+         
+         <tfoot id="tableFoot"  class="table-dark">
+         {% for row in sumData %}
+                <tr>
+                      <td scope="row"> TOTAL</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>{{row.stock_theo}}</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td>{{row.ecart}}</td>
+                      <td>{{row.pourcentage_nbr_ecart}}</td>
+                      <td>{{row.pmp}}</td>
+                      <td>{{row.montant_inventaire}}</td>
+                      <td>{{row.montant_ecart}}</td>
+                      <td>{{row.pourcentage_ecart}}</td>
+                </tr>
+         {% endfor %}
+         </tfoot>
       </table> 
     </div>
   </div>

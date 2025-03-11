@@ -115,10 +115,12 @@ class InventaireController extends Controller
 
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
-        // dump($dataDetail);
+        $sumData = $this->dataSumInventaireDetail($numinv); 
+      
         self::$twig->display('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
-            'data' => $dataDetail
+            'data' => $dataDetail,
+            'sumData' => $sumData
         ]);
     }
 
@@ -212,11 +214,11 @@ class InventaireController extends Controller
         if (!file_exists($filePath)) {
             die("⚠️ Le fichier n'existe pas : " . $filePath);
         }
-        
+
         if (!is_readable($filePath)) {
             die("⚠️ Le serveur n'a pas la permission de lire le fichier !");
         }
-        
+
         // Forcer le téléchargement du fichier Excel
         header("Content-Description: File Transfer");
         header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -225,10 +227,9 @@ class InventaireController extends Controller
         header("Cache-Control: must-revalidate");
         header("Pragma: public");
         header("Content-Length: " . filesize($filePath));
-        
+
         readfile($filePath);
         exit;
-        
     }
 
     public function recupDataList($listInvent, $uploadExcel = false)
@@ -244,14 +245,14 @@ class InventaireController extends Controller
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
                     'nbr_casier' => $listInvent[$i]['nbre_casier'],
                     'nbr_ref' => $listInvent[$i]['nbre_ref'],
-                    'qte_comptee' => str_replace("."," ",$this->formatNumber($listInvent[$i]['qte_comptee']) ),
+                    'qte_comptee' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['qte_comptee'])),
                     'statut' => $listInvent[$i]['statut'],
-                    'montant' => str_replace("."," ",$this->formatNumber($listInvent[$i]['montant']) ),
+                    'montant' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['montant'])),
                     'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
                     'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
-                    'montant_ecart' => str_replace("."," ",$this->formatNumber($invLigne[0]['montant_ecart']) ),
+                    'montant_ecart' => str_replace(".", " ", $this->formatNumber($invLigne[0]['montant_ecart'])),
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 if ($uploadExcel) {
@@ -342,6 +343,31 @@ class InventaireController extends Controller
                         $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
                     }
                 }
+            }
+        }
+        return $data;
+    }
+    public function dataSumInventaireDetail($numinv)
+    {
+        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
+
+        if ($numinv !== $numinvCriteria) {
+            $this->redirectToRoute('detail_inventaire', ['numinv' => $numinvCriteria]);
+        }
+        $data = [];
+        $sumInventaireDetail = $this->inventaireModel->sumInventaireDetail($numinv);
+        if (!empty($sumInventaireDetail)) {
+            for ($i = 0; $i < count($sumInventaireDetail); $i++) {
+                $data[] = [
+                    "stock_theo" => $sumInventaireDetail[$i]["stock_theo"],
+                    "ecart" => $sumInventaireDetail[$i]["ecart"],
+                    "pourcentage_nbr_ecart" => $sumInventaireDetail[$i]["pourcentage_nbr_ecart"],
+                    "pmp" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["pmp"])),
+                    "montant_inventaire" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["montant_inventaire"])),
+                    "montant_ecart" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["montant_ecart"])),
+                    "pourcentage_ecart" => $sumInventaireDetail[$i]["pourcentage_ecart"] == "0%" ? " " : $sumInventaireDetail[$i]["pourcentage_ecart"],
+                ];
             }
         }
         return $data;
