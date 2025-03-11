@@ -61,12 +61,12 @@
 										</li>
 										{% if item.excel is same as(true) %}
                     <li>
-                        <a href="javascript:void(0);" onclick="window.open('{{ App.base_path_long }}/inventaire/INV{{ item.numero }}.pdf', '_blank')">Voir le fichier</a>
+                      <a class="dropdown-item fw-bold" href="{{path('download_file',{'filename':'INV'~item.numero~'.xlsx'}) }}" target="_blank">Voir le fichier</a>
                     </li>
                     {% else %}
                     <li>
                       <input type="file" accept=".xlsx" id="file{{ item.numero }}" style="display: none;" onchange="uploadFile(this, {{ item.numero }})">
-                      <a onclick="document.getElementById('file{{ item.numero }}').click()">Uploader un fichier</a>
+                      <a class="dropdown-item fw-bold" onclick="document.getElementById('file{{ item.numero }}').click()">Uploader un fichier</a>
 										</li>
                     {% endif %}
                     
