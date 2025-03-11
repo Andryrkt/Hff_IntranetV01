@@ -2,26 +2,27 @@
 
 namespace App\Controller\inventaire;
 
+use TCPDF;
 use DateTime;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
+use App\Entity\Bordereau\BordereauSearch;
 use App\Model\inventaire\InventaireModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
-use App\Entity\inventaire\InventaireDetailSearch;
-use App\Form\inventaire\InventaireDetailSearchType;
-use App\Entity\Bordereau\BordereauSearch;
 use App\Form\bordereau\BordereauSearchType;
+use Symfony\Component\VarDumper\Cloner\Data;
 use App\Form\inventaire\InventaireSearchType;
-use App\Service\genererPdf\GeneretePdfInventaire;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
+use App\Entity\inventaire\InventaireDetailSearch;
+use App\Service\genererPdf\GeneretePdfInventaire;
+use App\Form\inventaire\InventaireDetailSearchType;
 use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
-use Symfony\Component\VarDumper\Cloner\Data;
-use TCPDF;
 
 class InventaireController extends Controller
 {
@@ -78,7 +79,7 @@ class InventaireController extends Controller
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
-            $data = $this->recupDataList($listInvent,true);
+            $data = $this->recupDataList($listInvent, true);
             // dump($data);
         }
         self::$twig->display('inventaire/inventaire.html.twig', [
@@ -202,7 +203,33 @@ class InventaireController extends Controller
         // Génération du PDF
         $this->generetePdfInventaire->genererPDF($data);
     }
-
+    /**
+     * @Route("/downloadfile/{filename}", name = "download_file")
+     */
+    public function downFile($filename)
+    {
+        $filePath  =   $_ENV['BASE_PATH_FICHIER'] . '/inventaire/' . $filename;
+        if (!file_exists($filePath)) {
+            die("⚠️ Le fichier n'existe pas : " . $filePath);
+        }
+        
+        if (!is_readable($filePath)) {
+            die("⚠️ Le serveur n'a pas la permission de lire le fichier !");
+        }
+        
+        // Forcer le téléchargement du fichier Excel
+        header("Content-Description: File Transfer");
+        header("Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        header("Content-Disposition: attachment; filename=\"" . basename($filePath) . "\"");
+        header("Expires: 0");
+        header("Cache-Control: must-revalidate");
+        header("Pragma: public");
+        header("Content-Length: " . filesize($filePath));
+        
+        readfile($filePath);
+        exit;
+        
+    }
 
     public function recupDataList($listInvent, $uploadExcel = false)
     {
@@ -227,8 +254,8 @@ class InventaireController extends Controller
                     'montant_ecart' => $this->formatNumber($invLigne[0]['montant_ecart']),
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
-                if ($uploadExcel ) {
-                    $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']) ;
+                if ($uploadExcel) {
+                    $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']);
                 }
             }
         }
@@ -319,6 +346,8 @@ class InventaireController extends Controller
         }
         return $data;
     }
+
+
     private function parcourFichier($numInvent)
     {
         $downloadDir  =   $_ENV['BASE_PATH_FICHIER'] . '/inventaire/';
@@ -328,9 +357,10 @@ class InventaireController extends Controller
         if (!empty($matchingFiles)) {
             return true;
         } else {
-           return false;
+            return false;
         }
     }
+
 
 
     private function exportDonneesExcel($data)
