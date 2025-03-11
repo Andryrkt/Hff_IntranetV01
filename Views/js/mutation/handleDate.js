@@ -4,7 +4,7 @@ export function calculateDaysAvance() {
   const nombreJourAvance = document.getElementById(
     'mutation_form_nombreJourAvance'
   );
-  const errorMessage = document.querySelector('.error-message');
+  const errorMessage = document.querySelectorAll('.error-message')[1];
 
   if (dateDebutInput.value && dateFinInput.value) {
     const dateDebut = new Date(dateDebutInput.value);

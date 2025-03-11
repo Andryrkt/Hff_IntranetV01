@@ -9,6 +9,7 @@ use App\Entity\mutation\Mutation;
 use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
 use App\Form\mutation\MutationSearchType;
+use App\Model\mutation\MutationModel;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -37,12 +38,24 @@ class MutationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
-            $generatePdf = new GeneratePdfMutation;
-            $generatePdf->genererPDF($this->donneePourPdf($form, $user));
-            $this->envoyerPieceJointes($form, $this->fusionPdf);
-            $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
-            $this->redirectToRoute("mutation_liste");
+            $mutationModel = new MutationModel;
+            /** 
+             * @var Mutation $data
+             */
+            $data = $form->getData();
+            $dateDebut = $data->getDateDebut()->format('d/m/Y');
+            $dateFin = $data->getDateFin() ? $data->getDateFin()->format('d/m/Y') : '';
+            $matricule = $data->getMatricule();
+            if ((int) $mutationModel->getNombreOM($dateDebut, $dateFin, $matricule) > 0) {
+            } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
+            } else {
+                $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
+                $generatePdf = new GeneratePdfMutation;
+                $generatePdf->genererPDF($this->donneePourPdf($form, $user));
+                $this->envoyerPieceJointes($form, $this->fusionPdf);
+                $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
+                $this->redirectToRoute("mutation_liste");
+            }
         }
 
         self::$twig->display('mutation/new.html.twig', [
