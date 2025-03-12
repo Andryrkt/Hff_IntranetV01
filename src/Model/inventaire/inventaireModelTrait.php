@@ -2,7 +2,6 @@
 namespace App\Model\inventaire;
 
 use App\Model\Traits\ConditionModelTrait;
-use App\Service\GlobalVariablesService;
 
 trait InventaireModelTrait
 {

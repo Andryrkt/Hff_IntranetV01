@@ -9,7 +9,6 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
 use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
