@@ -93,14 +93,10 @@ class DitDevisSoumisAValidationController extends Controller
                 // telecharger le fichier en copiant sur son repertoire
                 $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
                 
-                
-                
-                // dd($files);
                 //envoie des fichiers dans docuware
                 $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);// copier le fichier de controlle dans docuware
                 $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
                 
-
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
             }
@@ -203,17 +199,7 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    // /**
-    //  * Methode qui récupère les données du devis dans la base de donnée informix pour seulement devis forfait
-    //  *
-    //  * @param string $numDevis
-    //  * @return array
-    //  */
-    // public function InformationDevisInformixForfait(string $numDevis)
-    // {
-    //     $devisSoumisAValidationInformixForfait = $this->ditDevisSoumisAValidationModel->recupDevisSoumisValidationForfait($numDevis);
-    //     return empty($devisSoumisAValidationInformixForfait) ? [] : $devisSoumisAValidationInformixForfait;
-    // }
+    
 
     /**
      * Methode qui permet de savoir si la soumission
@@ -322,14 +308,6 @@ class DitDevisSoumisAValidationController extends Controller
                 }
             }
 
-            // foreach ($devisSoumisAvantVtes as $key => $value) { // Utilisez $key pour garder une référence à l'index
-            //     if ($value->getMontantITV() === 0.00 && $value->getMontantForfait() !== null) {
-            //         unset($devisSoumisAvantVtes[$key]); // Supprimez l'élément du tableau
-            //     }
-            // }
-
-            // // Réindexer le tableau après suppression
-            // $devisSoumisAvantVtes = array_values($devisSoumisAvantVtes);
         }
         return $devisSoumisAvantVtes;
     }
@@ -338,13 +316,6 @@ class DitDevisSoumisAValidationController extends Controller
     private function rectifierVenteAvantMaxAvecForfait(string $numDevis) {
         $devisSoumisAvantMaxVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'VTE');
 
-            // if($devisSoumisAvantMaxVtes !== null){
-            //     foreach ($devisSoumisAvantMaxVtes as $value) {
-            //         if($value->getMontantForfait() !== null) {
-            //             $value->setMontantItv($value->getMontantITV() - $value->getMontantForfait());
-            //         }
-            //     }
-            // }
         return $devisSoumisAvantMaxVtes;
     }
 
@@ -508,43 +479,6 @@ class DitDevisSoumisAValidationController extends Controller
         return $devisSoumisValidataion;
     }
 
-
-    // private function devisSoumisValidataionForfait($devisSoumisAValidationInformixForfait, $numeroVersionMax, $numDevis, $numDit): array
-    // {
-    //     $devisSoumisValidataionForfait = []; // Tableau pour stocker les objets
-    //     $infoDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-
-    //     foreach ($devisSoumisAValidationInformixForfait as $devisSoumis) {
-    //         // Instancier une nouvelle entité pour chaque entrée du tableau
-    //         $ditInsertionDevis = new DitDevisSoumisAValidation();
-
-    //         $ditInsertionDevis
-    //             ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-    //             ->setDateHeureSoumission(new \DateTime())
-    //             ->setNumeroDevis($numDevis)
-    //             ->setNumeroDit($numDit)
-    //             ->setNumeroItv($devisSoumis['numero_itv'])
-    //             ->setNombreLigneItv($devisSoumis['nombre_ligne'])
-    //             ->setMontantItv($devisSoumis['montant_itv'])
-    //             ->setMontantPiece($devisSoumis['montant_piece'])
-    //             ->setMontantMo($devisSoumis['montant_mo'])
-    //             ->setMontantAchatLocaux($devisSoumis['montant_achats_locaux'])
-    //             ->setMontantFraisDivers($devisSoumis['montant_divers'])
-    //             ->setMontantLubrifiants($devisSoumis['montant_lubrifiants'])
-    //             ->setLibellelItv($devisSoumis['libelle_itv'])
-    //             ->setStatut('Soumis à validation')
-    //             ->setNatureOperation($devisSoumis['nature_operation'])
-    //             ->setMontantForfait($devisSoumis['montant_forfait'])
-    //             ->setNomClient($infoDit->getNomClient())
-    //             ->setNumeroClient($infoDit->getNumeroClient())
-    //             ->setObjetDit($infoDit->getObjetDemande())
-    //         ;
-
-    //         $devisSoumisValidataionForfait[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
-    //     }
-
-    //     return $devisSoumisValidataionForfait;
-    // }
 
     private function autoIncrement($num)
     {

@@ -10,6 +10,9 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 {
     use FormatageTrait;
 
+    /**
+     * GENERATION PDF POUR DEVIS VENTE
+     */
     function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
     {
         $pdf = new HeaderPdf($email);
@@ -21,6 +24,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->Cell(0, 6, 'Validation DEVIS VENTE', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+        //L'ENTETE
         $detailsBloc = [
             'Date soumission' => $devisSoumis->getDateHeureSoumission()->format('d/m/Y'),
             'Numéro du client' => $devisSoumis->getNumeroClient() . ' - ' . $devisSoumis->getNomClient(),
@@ -143,6 +147,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->Cell(0, 6, 'Validation DEVIS FORFAIT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
         $pdf->Ln(10, true);
 
+        //L'ENTETE
         $detailsBloc = [
             'Date soumission' => $devisSoumis->getDateHeureSoumission()->format('d/m/Y'),
             'Numéro du client' => $devisSoumis->getNumeroClient() . ' - ' . $devisSoumis->getNomClient(),
@@ -154,13 +159,13 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         ];
 
         $this->addDetailsBlock($pdf, $detailsBloc, 'helvetica', 45, 50, 6, 2, 5);
-
         $this->generateSeparateLine($pdf);
 
         // ================================================================================================
         //FORFAIT CLIENT
         $this->addTitle($pdf, 'FORFAIT client');
         $pdf->setFont('helvetica', '', 12);
+        //FORFAIT CLIENT (tableau)
         $headerConfig1 = [
             ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
             ['key' => 'libelleItv', 'label' => 'Libellé ITV', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
@@ -175,20 +180,21 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=====================================================================================================
+        //FORFAIT CLIENT (controle à faire)
         $this->addTitle($pdf, 'Contrôle à faire (par rapport à la dernière version du FORFAIT) :');
 
         $details1 = [
-            'Nouvelle intervention' => $montantPdf['nombreStatutNouvEtSuppForfait']['nbrNouv'],
-            'Intervention supprimée' => $montantPdf['nombreStatutNouvEtSuppForfait']['nbrSupp'],
             'Nombre ligne modifiée' => $montantPdf['nombreStatutNouvEtSuppForfait']['nbrModif'],
         ];
 
         $this->addSummaryDetails($pdf, $details1);
 
-        $this->addTitle($pdf, 'VENTE client');
-        $pdf->setFont('helvetica', '', 12);
+        
         // ================================================================================================
-        //VENTE
+        //DETAIL VENTE par rapport au REVIENT
+        $this->addTitle($pdf, 'DETAIL VENTE par rapport au REVIENT');
+        $pdf->setFont('helvetica', '', 12);
+        //DETAIL VENTE par rapport au REVIENT (tableau)
         $headerConfig2 = [
             ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
             ['key' => 'libelleItv', 'label' => 'Libellé ITV', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
@@ -202,6 +208,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $html2 = $generator->generateTable($headerConfig2, $montantPdf['avantApresVte'], $montantPdf['totalAvantApresVte']);
         $pdf->writeHTML($html2, true, false, true, false, '');
         //==============================================================================================================
+        //DETAIL VENTE par rapport au REVIENT (controle à faire)
         $this->addTitle($pdf, 'Contrôle à faire (par rapport à la dernière version du FORFAIT) :');
 
         $details2 = [

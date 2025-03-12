@@ -215,53 +215,9 @@ class DitDevisSoumisAValidationModel extends Model
     }
 
 
-    // /**
-    //  * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
-    //  *
-    //  * @param string $numDevis
-    //  * @param boolean $estCeForfait
-    //  * @return void
-    //  */
-    // public function recupDevisSoumisValidationForfait(string $numDevis)
-    // {
-    //     $condition = [
-    //         'numDevis' => $numDevis
-    //     ];
-        
-    //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
-
-    //     $result = $this->connect->executeQuery($statement);
-
-    //     $data = $this->connect->fetchResults($result);
-
-    //     return $this->convertirEnUtf8($data);
-    // }
 
 
-    // /**
-    //  * Methode qui recupère seulement le donnée devis forfait pour utiliser dans le pdf devis forfait
-    //  *
-    //  * @param string $numDevis
-    //  * @param boolean $estCeForfait
-    //  * @return void
-    //  */
-    // public function recupDevisSoumisValidationVte(string $numDevis)
-    // {
-    //     $condition = [
-    //         'numDevis' => $numDevis
-    //     ];
-        
-    //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
-
-    //     $result = $this->connect->executeQuery($statement);
-
-    //     $data = $this->connect->fetchResults($result);
-
-    //     return $this->convertirEnUtf8($data);
-    // }
-
-
-    public function recupNbrItvTypeVte($numDevis)
+    public function recupNbrItvTypeVte(string $numDevis): array
     {
         $statement = " SELECT COUNT(sitv_interv) as nb_vte
                     FROM sav_itv 
@@ -276,7 +232,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbrItvTypeCes($numDevis)
+    public function recupNbrItvTypeCes(string $numDevis): array
     {
         $statement = " SELECT COUNT(sitv_interv) as nb_ces
                     FROM sav_itv 
