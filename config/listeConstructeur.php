@@ -26,7 +26,7 @@ try {
     GlobalVariablesService::set('achat_locaux', TableauEnStringService::orEnString($achatsLocaux));
     GlobalVariablesService::set('lub', TableauEnStringService::orEnString($lub));
     GlobalVariablesService::set('tous', TableauEnStringService::orEnString($tous));
-    GlobalVariablesService::set('pieceMagasinSansCat', $pieceMagasinSansCat);
+    GlobalVariablesService::set('pieceMagasinSansCat', TableauEnStringService::orEnString($pieceMagasinSansCat));
 
 } catch (Exception $e) {
     echo "Erreur : " . $e->getMessage();
