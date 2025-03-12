@@ -21,11 +21,13 @@ use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class DitDevisSoumisAValidationController extends Controller
 {
-    private $ditDevisSoumisAValidation;
-    private $ditDevisSoumisAValidationModel;
-    private $montantPdfService;
-    private $generePdfDevis;
-    private $historiqueOperation;
+    public const AFFECTER_SECTION = 51;
+
+    private DitDevisSoumisAValidation $ditDevisSoumisAValidation;
+    private DitDevisSoumisAValidationModel $ditDevisSoumisAValidationModel;
+    private MontantPdfService $montantPdfService;
+    private GenererPdfDevisSoumisAValidation $generePdfDevis;
+    private HistoriqueOperationDEVService $historiqueOperation;
 
     public function __construct()
     {
@@ -141,7 +143,7 @@ class DitDevisSoumisAValidationController extends Controller
             'numDevisNomFichier' => $numDevisNomFichier, // le n° devis contient sur le nom de fichier?
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
-            'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
+            'conditionStatutDit' => $idStatutDit <> self::AFFECTER_SECTION, // le statut DIT est-il différent de AFFECTER SECTION
             'conditionStatutDevis' => $statutDevis === 'Soumis à validation', // le statut de la dernière version de devis est-il Soumis à validation 
             'conditionNomCommence' => $nomFichierCommence // le nom de fichier telechager commence-t-il par "DEVIS"
         ];
