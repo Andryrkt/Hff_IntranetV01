@@ -80,6 +80,7 @@ class DitDevisSoumisAValidationController extends Controller
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $suffix= $this->pieceGererMagasinConstructeur($numDevis);
+                //nomage de page de garde
                 $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
@@ -87,7 +88,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
                 $fileUploader = new FileUploaderService($chemin);
                 $file =  $form->get('pieceJoint01')->getData();
-                //generer le nom du fichier
+                //nomage de fichier uploder
                 $nomFichierGenerer = 'devis_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion().'#'.$suffix.'.pdf';
                 // telecharger le fichier en copiant sur son repertoire
                 $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
