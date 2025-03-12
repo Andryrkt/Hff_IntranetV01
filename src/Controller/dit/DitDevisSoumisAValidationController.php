@@ -77,8 +77,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
-
+                $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
                 $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
