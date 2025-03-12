@@ -11,12 +11,20 @@ use App\Form\mutation\MutationFormType;
 use App\Form\mutation\MutationSearchType;
 use App\Model\mutation\MutationModel;
 use App\Service\genererPdf\GeneratePdfMutation;
+use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class MutationController extends Controller
 {
     use MutationTrait;
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationMUTService;
+    }
 
     /**
      * @Route("/mutation/new", name="mutation_nouvelle_demande")
@@ -47,14 +55,16 @@ class MutationController extends Controller
             $dateFin = $data->getDateFin() ? $data->getDateFin()->format('Y-m-d') : '';
             $matricule = $data->getMatricule();
             if ((int) $mutationModel->getNombreOM($dateDebut, $dateFin, $matricule) > 0) {
+                $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande d'ordre de mission entre les plages de dates.", '-', 'mutation_liste', false);
             } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
+                $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
                 $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
                 $generatePdf = new GeneratePdfMutation;
                 $generatePdf->genererPDF($this->donneePourPdf($form, $user));
                 $this->envoyerPieceJointes($form, $this->fusionPdf);
                 $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());
-                $this->redirectToRoute("mutation_liste");
+                $this->historiqueOperation->sendNotificationCreation('La demande de mutation a été enregistrée avec succès', $mutation->getNumeroMutation(), 'mutation_liste', true);
             }
         }
 
