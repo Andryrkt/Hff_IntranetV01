@@ -195,7 +195,7 @@ export function calculTotal() {
       'border-danger',
       'border-opacity-75'
     );
-  } else {
+  } else if (montantTotal > 0) {
     montantTotalInput.classList.remove(
       'border',
       'border-2',
@@ -205,6 +205,14 @@ export function calculTotal() {
     montantTotalInput.classList.add(
       'border',
       'border-2',
+      'border-success',
+      'border-opacity-75'
+    );
+  } else {
+    montantTotalInput.classList.remove(
+      'border',
+      'border-2',
+      'border-danger',
       'border-success',
       'border-opacity-75'
     );
