@@ -250,9 +250,6 @@ class DomTropPercuFormType extends AbstractType
                 [
                     'label' => 'Motif',
                     'required' => false,
-                    'attr' => [
-                        'class' => 'disabled',
-                    ],
                     'data'  => $dom->getMotifDeplacement(),
                 ]
             )
