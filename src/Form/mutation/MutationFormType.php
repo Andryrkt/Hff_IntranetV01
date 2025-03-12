@@ -111,6 +111,7 @@ class MutationFormType extends AbstractType
                 EntityType::class,
                 [
                     'label'         => 'Catégorie professionnelle',
+                    'placeholder'   => '-- Choisir une catégorie professionnelle --',
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
