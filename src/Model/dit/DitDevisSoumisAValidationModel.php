@@ -230,12 +230,14 @@ class DitDevisSoumisAValidationModel extends Model
 
 
 
-    public function recupNbrItvTypeVte(string $numDevis): array
+    public function recupConstRefPremDev(string $numDevis): array
     {
-        $statement = " SELECT COUNT(sitv_interv) as nb_vte
-                    FROM sav_itv 
-                    where sitv_natop = 'VTE' 
-                    and sitv_numor = '".$numDevis."'
+        $statement = " SELECT   slor_constp||'-'|| slor_refp as contructeur
+                        FROM sav_lor
+                        WHERE  slor_numor = '{$numDevis}' 
+                        AND slor_nogrp = 100 
+                        ORDER BY slor_nolign ASC
+                        LIMIT 1
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -245,12 +247,12 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupNbrItvTypeCes(string $numDevis): array
+    public function recupNbrItvDev(string $numDevis): array
     {
-        $statement = " SELECT COUNT(sitv_interv) as nb_ces
-                    FROM sav_itv 
-                    where sitv_natop = 'CES' 
-                    and sitv_numor = '".$numDevis."'
+        $statement = " SELECT DISTINCT COUNT( slor_nogrp) as itv
+                        FROM sav_lor 
+                        WHERE slor_numor= '{$numDevis}' 
+                        AND slor_nogrp != 100 
         ";
 
         $result = $this->connect->executeQuery($statement);

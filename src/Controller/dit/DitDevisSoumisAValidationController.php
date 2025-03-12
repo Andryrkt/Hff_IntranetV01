@@ -7,7 +7,6 @@ use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\autres\MontantPdfService;
-use Symfony\Component\Form\FormInterface;
 use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +70,7 @@ class DitDevisSoumisAValidationController extends Controller
 
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
                 //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
-                $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
+                $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis));
                 
                 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
@@ -208,12 +207,12 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return boolean
      */
-    public function estCeVenteOuForfait(string $numDevis): bool
+    public function estCeVente(string $numDevis): bool
     {
-        $nbrItvTypeVte = $this->ditDevisSoumisAValidationModel->recupNbrItvTypeVte($numDevis);
-        $nbrItvTypeCes = $this->ditDevisSoumisAValidationModel->recupNbrItvTypeCes($numDevis);
+        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis);
+        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
 
-        if((int)$nbrItvTypeVte[0]['nb_vte'] > 0 && (int)$nbrItvTypeCes[0]['nb_ces'] > 0 ) {
+        if($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0 ) {
             return false; //Devis forfait
         } else {
             return true; //Devis vente
@@ -276,7 +275,7 @@ class DitDevisSoumisAValidationController extends Controller
         $mailUtilisateur = $this->nomUtilisateur(self::$em)['mailUtilisateur'];
 
         // dd($montantPdf, $quelqueaffichage);
-        if($this->estCeVenteOuForfait($numDevis)) { // vente
+        if($this->estCeVente($numDevis)) { // vente
             $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         } else { // sinom forfait
             $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
