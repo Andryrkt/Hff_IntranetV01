@@ -272,6 +272,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Motif Autre dépense 2',
+                    'attr'        => ['class' => 'disabled'],
                     'required'    => false,
                     'constraints' => [
                         new Length([
@@ -289,6 +290,7 @@ class MutationFormType extends AbstractType
                 [
                     'label'    => 'Montant (Autre Dépense 2)',
                     'required' => false,
+                    'attr'        => ['class' => 'disabled'],
                 ]
             )
             ->add(
