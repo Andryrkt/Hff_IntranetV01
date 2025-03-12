@@ -432,7 +432,7 @@ class DitModel extends Model
               AND seor_soc = 'HF'
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
-          AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+          --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
           AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'

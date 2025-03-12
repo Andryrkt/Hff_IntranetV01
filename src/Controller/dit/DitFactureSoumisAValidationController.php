@@ -75,11 +75,10 @@ class DitFactureSoumisAValidationController extends Controller
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
-            if (strpos($originalName, 'FACTURE CESSION') !== 0) {
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISION') !== 0) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            }
+            } 
 
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
             
@@ -89,15 +88,12 @@ class DitFactureSoumisAValidationController extends Controller
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } elseif ($nbFactSqlServer > 0) {
                 $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } else {
                 $dataForm = $form->getData();

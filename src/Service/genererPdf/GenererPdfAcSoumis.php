@@ -103,9 +103,12 @@ class GenererPdfAcSoumis extends GeneratePdf
         </p>
         <p>
             Madame, Monsieur,<br><br>
-            Nous accusons réception de votre bon de commande, portant sur ' . $acSoumis->getDescriptionBc() . '.<br><br>
-            Cette commande fait suite à notre devis n° ' . $acSoumis->getNumeroDevis() . ' (' . $acSoumis->getNumeroDit() . ') en date du ' . $acSoumis->getDateDevis()->format('d/m/Y') . ' dont la date d\'expiration est ' . $acSoumis->getDateExpirationDevis()->format('d/m/Y') . ', d\'un montant HT de ' . $this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.', 2) . ' ' . $acSoumis->getDevise() . '. Nous confirmons que votre commande a été enregistrée.<br><br>
-            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à ' . $acSoumis->getEmailContactHff() . ' ou par téléphone au ' . $acSoumis->getTelephoneContactHff() . '.<br><br>
+            Nous accusons réception de votre bon de commande, portant sur <br>'. $acSoumis->getDescriptionBc() .'.<br><br>
+            Cette commande fait suite à : <br>
+            Devis : ' . $acSoumis->getNumeroDevis() . ' (' . $acSoumis->getNumeroDit() . ') du ' . $acSoumis->getDateDevis()->format('d/m/Y') . '<br>
+            Montant HT : ' . $this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.', 2) . ' ' . $acSoumis->getDevise() . '. <br>
+            Nous confirmons que votre commande a été enregistrée.<br><br>
+            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email  ' . $acSoumis->getEmailContactHff() . ' ou par téléphone  ' . $acSoumis->getTelephoneContactHff() . '.<br><br>
             Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br><br>
             Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br>
         </p>
