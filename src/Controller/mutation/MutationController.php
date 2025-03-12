@@ -43,8 +43,8 @@ class MutationController extends Controller
              * @var Mutation $data
              */
             $data = $form->getData();
-            $dateDebut = $data->getDateDebut()->format('d/m/Y');
-            $dateFin = $data->getDateFin() ? $data->getDateFin()->format('d/m/Y') : '';
+            $dateDebut = $data->getDateDebut()->format('Y-m-d');
+            $dateFin = $data->getDateFin() ? $data->getDateFin()->format('Y-m-d') : '';
             $matricule = $data->getMatricule();
             if ((int) $mutationModel->getNombreOM($dateDebut, $dateFin, $matricule) > 0) {
             } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
