@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Service\fichier\GenererNonFichierService;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
@@ -82,7 +83,8 @@ class AcBcSoumisController extends Controller
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $suffix = $this->pieceGererMagasinConstructeur($numDevis);
+            $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+                $suffix= GenererNonFichierService::pieceGererMagasinConstructeur($constructeur);
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
@@ -116,29 +118,29 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
-    private function pieceGererMagasinConstructeur($numDevis)
-    {
-        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+    // private function pieceGererMagasinConstructeur($numDevis)
+    // {
+    //     $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
-        if(isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+    //     if(isset($constructeur[0])) {
+    //         $containsCAT = in_array("CAT", $constructeur[0]);
+    //         $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
 
-            if($containsOther === 0) {
-                $suffix = 'C';
-            } else if(!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0 ) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
-        }
+    //         if($containsOther === 0) {
+    //             $suffix = 'C';
+    //         } else if(!$containsCAT) {
+    //             $suffix = 'P';
+    //         } else if ($containsOther > 0 ) {
+    //             $suffix = 'CP';
+    //         } else {
+    //             $suffix = 'N';
+    //         }
+    //     } else {
+    //         $suffix = 'N';
+    //     }
 
-        return $suffix;
-    }
+    //     return $suffix;
+    // }
 
     private function filtredataDevis($numDit)
     {
