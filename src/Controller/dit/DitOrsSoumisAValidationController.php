@@ -97,9 +97,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoieDonnerDansBd($orSoumisValidataion);
                 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $constructeur = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr);
-                $suffix= GenererNonFichierService::pieceGererMagasinConstructeur($constructeur);
-                
+                $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
                 //envoie des pièce jointe dans une dossier et la fusionner
