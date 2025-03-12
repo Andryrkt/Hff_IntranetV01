@@ -22,6 +22,12 @@ const nombreJourAvance = document.getElementById(
 const totalIndemniteInput = document.getElementById(
   'mutation_form_totalIndemniteForfaitaire'
 );
+const motifDepenseInput1 = document.getElementById(
+  'mutation_form_motifAutresDepense1'
+);
+const motifDepenseInput2 = document.getElementById(
+  'mutation_form_motifAutresDepense2'
+);
 const autreDepenseInput1 = document.getElementById(
   'mutation_form_autresDepense1'
 );
@@ -34,6 +40,40 @@ const totaAutreDepenseInput = document.getElementById(
 const montantTotalInput = document.getElementById(
   'mutation_form_totalGeneralPayer'
 );
+
+export function handleAutresDepenses() {
+  [
+    [motifDepenseInput1, autreDepenseInput1],
+    [motifDepenseInput2, autreDepenseInput2],
+  ].forEach(([motif, depense]) => {
+    motif.addEventListener('input', function () {
+      conditionDisableField();
+      if (motif.value.trim() !== '') {
+        addRequiredToField(depense);
+        toggleField(depense.id);
+      } else {
+        removeRequiredToField(depense);
+        toggleField(depense.id, true, false);
+        depense.value = '';
+        calculTotalAutreDepense();
+      }
+    });
+  });
+}
+
+export function conditionDisableField() {
+  if (
+    motifDepenseInput1.value.trim() !== '' &&
+    autreDepenseInput1.value !== ''
+  ) {
+    toggleField(motifDepenseInput2.id, true, false);
+    toggleField(autreDepenseInput2.id, true, false);
+  } else {
+    removeRequiredToField(autreDepenseInput2);
+    toggleField(motifDepenseInput2.id, false, false);
+    toggleField(autreDepenseInput2.id, false, false);
+  }
+}
 
 export async function updateIndemnite(siteId) {
   const spinnerElement = document.getElementById(

@@ -5,11 +5,13 @@ import {
   calculTotal,
   calculTotalAutreDepense,
   calculTotalIndemnite,
+  conditionDisableField,
+  handleAutresDepenses,
   updateIndemnite,
   updateModePaiement,
 } from './depense';
 import { calculateDaysAvance } from './handleDate';
-import { formatMontant } from '../utils/formatUtils';
+import { formatMontant, parseMontant } from '../utils/formatUtils';
 import { handleAllField } from './handleField';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -49,6 +51,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /** Agence et service */
   handleService();
+
+  /** Gérer les requis ou non sur les autres dépenses */
+  handleAutresDepenses();
 
   /** Avance sur indemnité de chantier */
   avance.addEventListener('change', function () {
@@ -113,6 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /** Calculer Montant total Autre dépense et montant total général */
   autreDepense1.addEventListener('input', function () {
     this.value = formatMontant(parseInt(this.value.replace(/[^\d]/g, '')));
+    conditionDisableField();
     calculTotalAutreDepense();
   });
   autreDepense2.addEventListener('input', function () {
@@ -146,15 +152,21 @@ document.addEventListener('DOMContentLoaded', function () {
       'mutation_form_totalGeneralPayer'
     );
     let errorMessage = document.querySelectorAll('.error-message');
-    if (montantTotal.value > 500000) {
-      event.preventDefault();
-      alert('Le montant total général ne peut être supérieur à 500.000 Ariary');
-      montantTotal.classList.add(
-        'border',
-        'border-2',
-        'border-danger',
-        'border-opacity-75'
-      );
+
+    if (parseMontant(montantTotal.value) > 500000) {
+      if (modePaiementLabelInput.value !== 'VIREMENT BANCAIRE') {
+        event.preventDefault();
+        alert(
+          "Le montant total général ne peut être supérieur à 500.000 Ariary si c'est pour le mode paiement MOBILE MONEY.\n Veuillez changer le mode paiement en VIREMENT BANCAIRE ou bien diminuer le montant total général."
+        );
+        montantTotal.classList.add(
+          'border',
+          'border-2',
+          'border-danger',
+          'border-opacity-75'
+        );
+        montantTotal.focus();
+      }
     } else {
       errorMessage.forEach((element) => {
         if (element.textContent !== '') {
