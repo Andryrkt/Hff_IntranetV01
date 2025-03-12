@@ -5,8 +5,8 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/historisation/consultation-page/index.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/index.css">
 {% endblock %}
 
 {% block content %}
@@ -57,5 +57,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/admin/historisation/consultation-page/index.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/index.js" type="module"></script>
 {% endblock %}

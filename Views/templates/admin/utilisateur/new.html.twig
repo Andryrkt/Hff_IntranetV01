@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/admin/utilisateur/new.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/utilisateur/new.css">
 {% endblock %}
 
 {% block content %}
@@ -61,5 +61,5 @@
 	{% endblock %}
 
 	{% block javascript %}
-		<script src="/Hffintranet/Views/js/admin/utilisateur/user.js"></script>
+		<script src="{{ App.base_path }}/Views/js/admin/utilisateur/user.js"></script>
 	{% endblock %}

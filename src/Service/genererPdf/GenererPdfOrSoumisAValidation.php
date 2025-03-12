@@ -14,7 +14,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
      * generer pdf changement de Casier
      */
 
-    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $quelqueaffichage, $email)
+    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $quelqueaffichage, $email, string $suffix)
     {
         $pdf = new TCPDF();
 
@@ -285,8 +285,9 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/vor/';
-        $pdf->Output($Dossier.'oRValidation_' .$ditInsertionOr->getNumeroOR().'_'.$ditInsertionOr->getNumeroVersion(). '.pdf', 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/vor/';
+        $nomFichier = 'oRValidation_' .$ditInsertionOr->getNumeroOR().'-'.$ditInsertionOr->getNumeroVersion().'#'.$suffix. '.pdf';
+        $pdf->Output($Dossier.$nomFichier, 'F');
     }
 
 }

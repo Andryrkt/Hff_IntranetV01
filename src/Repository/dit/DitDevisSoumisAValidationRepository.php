@@ -215,10 +215,12 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
                 ->andWhere('dsv.natureOperation = :natureOperation')
+                ->andWhere('dsv.statut = :statut')
                 ->setParameters([
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
-                    'natureOperation' => 'VTE'
+                    'natureOperation' => 'VTE',
+                    'statut' => 'Validé atelier'
                 ])
                 ->getQuery()
                 ->getResult();

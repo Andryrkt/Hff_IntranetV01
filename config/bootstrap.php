@@ -5,29 +5,30 @@ use Twig\Environment;
 use App\Model\ProfilModel;
 
 use App\Twig\AppExtension;
+use App\Twig\CarbonExtension;
 use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
-use core\SimpleManagerRegistry;
 
+use core\SimpleManagerRegistry;
 use Doctrine\ORM\EntityManager;
 use App\Twig\DeleteWordExtension;
 use Symfony\Component\Form\Forms;
-use Twig\Loader\FilesystemLoader;
 
+use Twig\Loader\FilesystemLoader;
 use PHPMailer\PHPMailer\PHPMailer;
 use Twig\Extension\DebugExtension;
 use Illuminate\Pagination\Paginator;
-use Symfony\Component\Asset\Packages;
 
+use Symfony\Component\Asset\Packages;
+use App\Service\GlobalVariablesService;
 use Symfony\Component\Asset\PathPackage;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
-use App\Twig\CarbonExtension;
 use Symfony\Component\Validator\Validation;
-use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Security\Core\Security;
@@ -82,8 +83,6 @@ define('VENDOR_VALIDATOR_DIR', VENDOR_DIR . '/symfony/validator');
 define('VENDOR_TWIG_BRIDGE_DIR', VENDOR_DIR . '/symfony/twig-bridge');
 define('VIEWS_DIR', realpath(__DIR__ . '/../views/templates'));
 
-define('CHEMIN_DE_BASE', 'C:/wamp64/www/Hffintranet');
-
 
 
 $request = Request::createFromGlobals();
@@ -118,7 +117,7 @@ $argumentResolver = new ArgumentResolver();
 
 /** TWIG */
 // URL Generator for use in Twig
-$generator = new UrlGenerator($collection, new RequestContext('/Hffintranet'));
+$generator = new UrlGenerator($collection, new RequestContext($_ENV['BASE_PATH_COURT']));
 
 //secuiter csrf
 $csrfTokenManager = new CsrfTokenManager();
@@ -160,8 +159,6 @@ $request = Request::createFromGlobals();
 $requestStack->push($request);
 
 $twig->addExtension(new TranslationExtension($translator));
-//$loader = new FilesystemLoader('C:\wamp64\www\Hffintranet\Views\templates');
-//$twig = new Environment($loader, ['debug' => true]);
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
@@ -170,7 +167,7 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 
 // Configurer le package pour le dossier 'public'
-$publicPath = '/Hffintranet/public';
+$publicPath = $_ENV['BASE_PATH_COURT'].'/public';
 $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
 
 // Ajouter l'extension Asset à Twig
