@@ -143,7 +143,7 @@ protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica
     $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
 
     // Ajouter un espace après le titre
-    $pdf->Ln($lineBreak);
+    $pdf->Ln($lineBreak, true);
 }
 
     /** 

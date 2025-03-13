@@ -4,35 +4,42 @@ namespace App\Service\autres;
 
 use App\Entity\dit\DitDevisSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Traits\CalculeTrait;
 
 class MontantPdfService
 {
+    use CalculeTrait;
+
     public function montantpdf($devisSoumisAvant)
     {
-        $recapAvantApresVte =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
+
+        $recapAvantApresVte =$this->recuperationAvantApresVente($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
+        $recapAvantApresVteRevient =$this->recuperationAvantApresVenteRevient($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
         $recapAvantApresForfait =$this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxForfait'], $devisSoumisAvant['devisSoumisAvantForfait']);
-        $recapAvantApresCes =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxCes'], $devisSoumisAvant['devisSoumisAvantCes']);
         
         return [
+            //Forfait
             'avantApresForfait' => $this->affectationStatut($recapAvantApresForfait)['recapAvantApres'],
             'totalAvantApresForfait' => $this->calculeSommeAvantApres($recapAvantApresForfait),
             'nombreStatutNouvEtSuppForfait' => $this->affectationStatut($recapAvantApresForfait)['nombreStatutNouvEtSupp'],
+            //vente
             'avantApresVte' => $this->affectationStatut($recapAvantApresVte)['recapAvantApres'],
             'totalAvantApresVte' => $this->calculeSommeAvantApres($recapAvantApresVte),
             'nombreStatutNouvEtSuppVte' => $this->affectationStatut($recapAvantApresVte)['nombreStatutNouvEtSupp'],
-            'avantApresCes' => $this->affectationStatut($recapAvantApresCes)['recapAvantApres'],
-            'totalAvantApresCes' => $this->calculeSommeAvantApres($recapAvantApresCes),
-            'nombreStatutNouvEtSuppCes' => $this->affectationStatut($recapAvantApresCes)['nombreStatutNouvEtSupp'],
-            'recapVte' => $this->recapitulationOr($devisSoumisAvant['vteData']),
-            'totalRecapVte' => $this->calculeSommeMontant($devisSoumisAvant['vteData']),
-            'recapCes' => $this->recapitulationOr($devisSoumisAvant['cesData']),
-            'totalRecapCes' => $this->calculeSommeMontant($devisSoumisAvant['cesData']),
+            'recapVte' => $this->recapitulationVente($devisSoumisAvant['devisSoumisAvantVte']),
+            'totalRecapVte' => $this->calculeRecapSommeMontantVente($devisSoumisAvant['devisSoumisAvantVte']),
+            //vente et revient
+            'avantApresVteRevient' => $this->affectationStatutVenteRevient($recapAvantApresVteRevient)['recapAvantApres'],
+            'totalAvantApresVteRevient' => $this->calculeSommeAvantApresVenteRevient($recapAvantApresVteRevient),
+            'variation' => $this->calculeVariationVenteRevient($this->calculeSommeAvantApresVenteRevient($recapAvantApresVteRevient)),
+            'nombreStatutNouvEtSuppVteRevient' => $this->affectationStatutVenteRevient($recapAvantApresVteRevient)['nombreStatutNouvEtSupp'],
+            'recapVteRevient' => $this->recapitulationVenteRevient($devisSoumisAvant['devisSoumisAvantVte']),
+            'totalRecapVteRevient' => $this->calculeRecapSommeMontantVenteRevient($devisSoumisAvant['devisSoumisAvantVte']),
         ];
     }
 
-    
 
-    private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
+    private function recuperationAvantApresVente($OrSoumisAvantMax, $OrSoumisAvant)
     {
     
         if(!empty($OrSoumisAvantMax)){
@@ -53,19 +60,10 @@ class MontantPdfService
         $recapAvantApres = [];
 
         for ($i = 0; $i < count($OrSoumisAvant); $i++) {
-            // dump($OrSoumisAvantMax[$i]);
-            if(null !== $OrSoumisAvant[$i]->getNatureOperation() ){
-                if($OrSoumisAvant[$i]->getNatureOperation() === 'VTE' && $OrSoumisAvant[$i]->getDevisVenteOuForfait() === 'DEVIS FORFAIT'){
-                    $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantVente() : 0.00;
-                    $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantVente() : 0.00;
-                } else {
-                    $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
-                $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0.00;
-                }
-            } else {
-                $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
-                $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0.00;
-            }
+            
+            $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantVente() : 0.00;
+            $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantVente() : 0.00;
+
             $itv = $OrSoumisAvant[$i]->getNumeroItv();
             $libelleItv = $OrSoumisAvant[$i]->getLibellelItv();
             $nbLigAp = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getNombreLigneItv() : 0;
@@ -82,7 +80,7 @@ class MontantPdfService
                 'mttTotalAp' => $mttTotalAp,
             ];
         }
-// dump($recapAvantApres);
+
         return $recapAvantApres;
     }
 
@@ -131,7 +129,61 @@ class MontantPdfService
         return $recapAvantApres;
     }
 
-   
+    private function recuperationAvantApresVenteRevient($venteRevientSoumisAvantMax, $venteRevientSoumisAvant)
+    {
+    
+        if(!empty($venteRevientSoumisAvantMax)){
+            // Trouver les objets manquants par numero d'intervention dans chaque tableau
+            $manquantDansVenteRevientSoumisAvantMax = $this->objetsManquantsParNumero($venteRevientSoumisAvantMax, $venteRevientSoumisAvant);
+            $manquantDansVenteRevientSoumisAvant = $this->objetsManquantsParNumero($venteRevientSoumisAvant, $venteRevientSoumisAvantMax);
+
+            // Ajouter les objets manquants dans chaque tableau
+            $venteRevientSoumisAvantMax = array_merge($venteRevientSoumisAvantMax, $manquantDansVenteRevientSoumisAvantMax);
+            $venteRevientSoumisAvant = array_merge($venteRevientSoumisAvant, $manquantDansVenteRevientSoumisAvant);
+
+            // Trier les tableaux par numero d'intervention
+            $this->trierTableauParNumero($venteRevientSoumisAvantMax);
+            $this->trierTableauParNumero($venteRevientSoumisAvant);
+        }
+        
+
+        $recapAvantApresVenteRevient = [];
+
+        for ($i = 0; $i < count($venteRevientSoumisAvant); $i++) {
+            
+            $montantAvantVente = isset($venteRevientSoumisAvantMax[$i])? $venteRevientSoumisAvantMax[$i]->getMontantVente() : 0.00;
+            $montantApresVente = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMontantVente() : 0.00;
+            $montantAvantRevient = isset($venteRevientSoumisAvantMax[$i])? $venteRevientSoumisAvantMax[$i]->getMontantRevient() : 0.00;
+            $montantApresRevient = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMontantRevient() : 0.00;
+
+            $itv = $venteRevientSoumisAvant[$i]->getNumeroItv();
+            $libelleItv = $venteRevientSoumisAvant[$i]->getLibellelItv();
+            $nbLigAp = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getNombreLigneItv() : 0;
+            $mttTotalApVente = $montantApresVente;
+            $mttTotalApRevient = $montantApresRevient;
+            $nbLigAv = isset($veneteRevientSoumisAvantMax[$i]) ? $venteRevientSoumisAvantMax[$i]->getNombreLigneItv() : 0;
+            $mttTotalAvVente = $montantAvantVente;
+            $mttTotalAvRevient = $montantAvantRevient;
+            $nbMargeAvRevient = isset($venteRevientSoumisAvantMax[$i]) ? $venteRevientSoumisAvantMax[$i]->getMargeRevient() : 0;
+            $nbMargeApRevient = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMargeRevient() : 0;
+
+            $recapAvantApresVenteRevient[] = [
+                'itv' => $itv,
+                'libelleItv' => $libelleItv,
+                'nbLigAv' => $nbLigAv,
+                'nbLigAp' => $nbLigAp,
+                'mttTotalAvVente' => $mttTotalAvVente,
+                'mttTotalAvRevient' => $mttTotalAvRevient,
+                'mttTotalApVente' => $mttTotalApVente,
+                'mttTotalAprevient' => $mttTotalApRevient,
+                'nbMargeAvRevient' => $nbMargeAvRevient,
+                'nbMargeApRevient' => $nbMargeApRevient,
+            ];
+        }
+
+        return $recapAvantApresVenteRevient;
+    }
+    
     // Fonction pour trouver les numéros d'intervention manquants
     private function objetsManquantsParNumero($tableauA, $tableauB) {
     $manquants = [];
@@ -198,6 +250,45 @@ class MontantPdfService
         ];
     }
 
+    private function affectationStatutVenteRevient($recapAvantApres)
+    {
+        $nombreStatutNouvEtSupp = [
+            'nbrNouv' => 0,
+            'nbrSupp' => 0,
+            'nbrModif' => 0,
+            'mttModif' => 0.00,
+        ];
+
+
+        foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
+            $condition1 = $value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAvVente'] === $value['mttTotalApVente'] && $value['mttTotalAvRevient'] === $value['mttTotalApRevient'];
+            $conditionSuppression = $value['nbLigAv'] !== 0 && $value['mttTotalAvVente'] !== 0.00 && $value['mttTotalAvRevient'] !== 0.00 && $value['nbLigAp'] === 0 && $value['mttTotalApVente'] === 0.00 && $value['mttTotalApRevient'] === 0.00;
+            $conditionNouveau = ($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && ($value['mttTotalAvVente'] === 0.00 || $value['mttTotalAvVente'] === 0.00) && ($value['mttTotalAvRevient'] === 0.00 || $value['mttTotalAvRevient'] === 0.00);
+            $conditionModification = ($value['nbLigAv'] !== $value['nbLigAp'] || round($value['mttTotalAvVente'], 2) !== round($value['mttTotalApVente'], 2) || round($value['mttTotalAvRevient'], 2) !== round($value['mttTotalApRevient'], 2)) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0);
+
+            if ($condition1) {
+                $value['statut'] = '';
+            } elseif ($conditionSuppression) {
+               //dump($value);
+                $value['statut'] = 'Supp';
+                $nombreStatutNouvEtSupp['nbrSupp']++;
+            } elseif ($conditionNouveau) {
+                $value['statut'] = 'Nouv';
+                $nombreStatutNouvEtSupp['nbrNouv']++;
+            } elseif ($conditionModification) {
+                //dump($value);
+                $value['statut'] = 'Modif';
+                $nombreStatutNouvEtSupp['nbrModif']++;
+                $nombreStatutNouvEtSupp['mttModif'] = $nombreStatutNouvEtSupp['mttModif'] + ($value['mttTotalAp'] - $value['mttTotalAv']);
+            }
+        }
+
+        return [
+            'recapAvantApres' => $recapAvantApres,
+            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp
+        ];
+    }
+
     /**
      * Methode qui permet de calculer le total de chaque colonne 
      * ceci se mettre sur le footer du tableau
@@ -226,25 +317,68 @@ class MontantPdfService
         return $totalRecepAvantApres;
     }
 
+     /**
+     * Methode qui permet de calculer le total de chaque colonne 
+     * ceci se mettre sur le footer du tableau
+     *
+     * @param array $recapAvantApres
+     * @return array
+     */
+    private function calculeSommeAvantApresVenteRevient(array $recapAvantApresVenteRevient): array
+    {
+        $totalRecepAvantApresVenteRevient = [
+            'itv' => '', //pour le premier ligne
+            'libelleItv' => 'TOTAL', // affichage du 'TOTAL' sur le footrer
+            'nbLigAv' => 0,
+            'nbLigAp' => 0,
+            'mttTotalAvVente' => 0.00,
+            'mttTotalAvRevient' => 0.00,
+            'mttTotalApVente' => 0.00,
+            'mttTotalApRevient' => 0.00,
+            'statut' => ''
+        ];
+        foreach ($recapAvantApresVenteRevient as  $value) {
+            $totalRecepAvantApresVenteRevient['nbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
+            $totalRecepAvantApresVenteRevient['nbLigAp'] += $value['nbLigAp'];
+            $totalRecepAvantApresVenteRevient['mttTotalAvVente'] += $value['mttTotalAvVente'] === '' ? 0.00 : $value['mttTotalAvVente'];
+            $totalRecepAvantApresVenteRevient['mttTotalAvRevient'] += $value['mttTotalAvRevient'] === '' ? 0.00 : $value['mttTotalAvRevient'];
+            $totalRecepAvantApresVenteRevient['mttTotalApVente'] += $value['mttTotalApVente'];
+            $totalRecepAvantApresVenteRevient['mttTotalApRevient'] += $value['mttTotalApRevient'];
+        }
 
-    private function recapitulationOr($orSoumisValidataion)
+        return $totalRecepAvantApresVenteRevient;
+    }
+
+     /**
+     * Methode qui permet de calculer le total de chaque colonne 
+     * ceci se mettre sur le footer du tableau
+     *
+     * @param array $recapAvantApres
+     * @return array
+     */
+    private function calculeVariationVenteRevient(array $sommeTotalAvApVenteRevient): array
+    {
+        $variationVenteRevient = [
+            'mttVariationVente' => 0.00,
+            'mttVariationRevient' => 0.00,
+            'mttVariationMarge' => 0.00,
+            'nbrVariationMarge' => 0
+        ];
+        
+        $variationVenteRevient['mttVariationVente'] = $sommeTotalAvApVenteRevient['mttTotalApVente'] - $sommeTotalAvApVenteRevient['mttTotalAvVente'];
+        $variationVenteRevient['mttVariationRevient'] = $sommeTotalAvApVenteRevient['mttTotalApRevient'] - $sommeTotalAvApVenteRevient['mttTotalAvRevient'];
+        $variationVenteRevient['mttVariationMarge'] = $variationVenteRevient['mttVariationVente'] - $variationVenteRevient['mttVariationRevient'];
+        $variationVenteRevient['nbrVariationMarge'] = $this->calculeMarge($variationVenteRevient['mttVariationVente'] , $variationVenteRevient['mttVariationRevient']);
+
+
+        return $variationVenteRevient;
+    }
+
+    private function recapitulationVente($orSoumisValidataion)
     {
         $recapOr = [];
 
-        
         foreach ($orSoumisValidataion as $orSoumis) {
-            if ($orSoumis->getNatureOperation() !== null) {
-               if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
-                $recapOr[] = [
-                    'itv' => $orSoumis->getNumeroItv(),
-                    'mttTotal' => $orSoumis->getMontantVente(),
-                    'mttPieces' => $orSoumis->getMontantPiece(),
-                    'mttMo' => $orSoumis->getMontantMo(),
-                    'mttSt' => $orSoumis->getMontantAchatLocaux(),
-                    'mttLub' => $orSoumis->getMontantLubrifiants(),
-                    'mttAutres' => $orSoumis->getMontantFraisDivers(),
-                ];
-               } else {
                 $recapOr[] = [
                     'itv' => $orSoumis->getNumeroItv(),
                     'mttTotal' => $orSoumis->getMontantItv(),
@@ -254,18 +388,6 @@ class MontantPdfService
                     'mttLub' => $orSoumis->getMontantLubrifiants(),
                     'mttAutres' => $orSoumis->getMontantFraisDivers(),
                 ];
-               }
-            } else {
-            $recapOr[] = [
-                'itv' => $orSoumis->getNumeroItv(),
-                'mttTotal' => $orSoumis->getMontantItv(),
-                'mttPieces' => $orSoumis->getMontantPiece(),
-                'mttMo' => $orSoumis->getMontantMo(),
-                'mttSt' => $orSoumis->getMontantAchatLocaux(),
-                'mttLub' => $orSoumis->getMontantLubrifiants(),
-                'mttAutres' => $orSoumis->getMontantFraisDivers(),
-            ];
-        }
         }
         return $recapOr;
     }
@@ -277,7 +399,7 @@ class MontantPdfService
      * @param array $orSoumisValidataion
      * @return arrary
      */
-    private function calculeSommeMontant(array $orSoumisValidataion): array
+    private function calculeRecapSommeMontantVente(array $orSoumisValidataion): array
     {
         $totalRecapOr = [
             'itv' => 'TOTAL', // c'est pour le footer
@@ -290,30 +412,65 @@ class MontantPdfService
         ];
         foreach ($orSoumisValidataion as $orSoumis) {
             // Faire la somme des montants et les stocker dans le tableau
-            if ($orSoumis->getNatureOperation() !== null) {
-                if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
-                    $totalRecapOr['mttTotal'] += $orSoumis->getMontantVente();
-                    $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
-                    $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();
-                    $totalRecapOr['mttSt'] += $orSoumis->getMontantAchatLocaux();
-                    $totalRecapOr['mttLub'] += $orSoumis->getMontantLubrifiants();
-                    $totalRecapOr['mttAutres'] += $orSoumis->getMontantFraisDivers();
-                } else {
-                    $totalRecapOr['mttTotal'] += $orSoumis->getMontantItv();
-                    $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
-                    $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();
-                    $totalRecapOr['mttSt'] += $orSoumis->getMontantAchatLocaux();
-                    $totalRecapOr['mttLub'] += $orSoumis->getMontantLubrifiants();
-                    $totalRecapOr['mttAutres'] += $orSoumis->getMontantFraisDivers();
-                }
-            } else {
                 $totalRecapOr['mttTotal'] += $orSoumis->getMontantItv();
                 $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
                 $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();
                 $totalRecapOr['mttSt'] += $orSoumis->getMontantAchatLocaux();
                 $totalRecapOr['mttLub'] += $orSoumis->getMontantLubrifiants();
                 $totalRecapOr['mttAutres'] += $orSoumis->getMontantFraisDivers();
-            }
+        }
+
+        return $totalRecapOr;
+    }
+
+
+    private function recapitulationVenteRevient($orSoumisValidataion)
+    {
+        $recapOr = [];
+
+        foreach ($orSoumisValidataion as $orSoumis) {
+                $recapOr[] = [
+                    'itv' => $orSoumis->getNumeroItv(),
+                    'mttTotal' => $orSoumis->getMontantItv(),
+                    'mttForfait' => $orSoumis->getMontantForfait(),
+                    'mttPieces' => $orSoumis->getMontantPiece(),
+                    'mttMo' => $orSoumis->getMontantMo(),
+                    'mttSt' => $orSoumis->getMontantAchatLocaux(),
+                    'mttLub' => $orSoumis->getMontantLubrifiants(),
+                    'mttAutres' => $orSoumis->getMontantFraisDivers(),
+                ];
+        }
+        return $recapOr;
+    }
+
+    /**
+     * La methode calcule la somme de chaque colonne de tableau pour la recapitulation de l'or
+     * ceci se met sur le footer du tableau 
+     *
+     * @param array $orSoumisValidataion
+     * @return arrary
+     */
+    private function calculeRecapSommeMontantVenteRevient(array $orSoumisValidataion): array
+    {
+        $totalRecapOr = [
+            'itv' => 'TOTAL', // c'est pour le footer
+            'mttTotal' => 0.00, // montant_itv
+            'mttForfait' => 0.00,
+            'mttPieces' => 0.00,
+            'mttMo' => 0.00,
+            'mttSt' => 0.00,
+            'mttLub' => 0.00,
+            'mttAutres' => 0.00,
+        ];
+        foreach ($orSoumisValidataion as $orSoumis) {
+            // Faire la somme des montants et les stocker dans le tableau
+                $totalRecapOr['mttTotal'] += $orSoumis->getMontantItv();
+                $totalRecapOr['mttForfait'] = $orSoumis->getMontantForfait();
+                $totalRecapOr['mttPieces'] += $orSoumis->getMontantPiece();
+                $totalRecapOr['mttMo'] += $orSoumis->getMontantMo();
+                $totalRecapOr['mttSt'] += $orSoumis->getMontantAchatLocaux();
+                $totalRecapOr['mttLub'] += $orSoumis->getMontantLubrifiants();
+                $totalRecapOr['mttAutres'] += $orSoumis->getMontantFraisDivers();
         }
 
         return $totalRecapOr;

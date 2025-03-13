@@ -17,9 +17,12 @@ use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use App\Traits\CalculeTrait;
 
 class DitDevisSoumisAValidationController extends Controller
 {
+    use CalculeTrait;
+    
     public const AFFECTER_SECTION = 51;
 
     private DitDevisSoumisAValidation $ditDevisSoumisAValidation;
@@ -54,7 +57,6 @@ class DitDevisSoumisAValidationController extends Controller
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
         
-       
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
@@ -77,9 +79,8 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
-                /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
-
+                /** CREATION , ENVOIE DW du PDF */
+                $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
                 $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
@@ -264,7 +265,7 @@ class DitDevisSoumisAValidationController extends Controller
     {   
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
-        $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis, $devisSoumisValidataion);
+        $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis);
 
         $montantPdf = $this->montantPdfService->montantpdf($devisSoumisAvant);
 
@@ -282,85 +283,19 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-    private function donnerDevisSoumisAvant(string $numDevis, array $devisSoumisValidataion): array 
+    private function donnerDevisSoumisAvant(string $numDevis): array 
     {
-        //dd($this->rectifierVenteAvantAvecForfait($numDevis), $this->rectifierVenteAvantMaxAvecForfait($numDevis));
         return [
             'devisSoumisAvantForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
             'devisSoumisAvantMaxForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
-            'devisSoumisAvantVte' => $this->rectifierVenteAvantAvecForfait($numDevis),
-            'devisSoumisAvantMaxVte' => $this->rectifierVenteAvantMaxAvecForfait($numDevis),
-            'devisSoumisAvantCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'CES'),
-            'devisSoumisAvantMaxCes' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'CES'),
-            'vteData' => $this->filtreLesDonnerVte($devisSoumisValidataion),
-            'cesData' => $this->filtreLesDonnerCes($devisSoumisValidataion),
+            'devisSoumisAvantVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis),
+            'devisSoumisAvantMaxVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis),
         ];
     }
 
-    private function rectifierVenteAvantAvecForfait(string $numDevis) {
-        $devisSoumisAvantVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'VTE');
+
+
     
-        if (!empty($devisSoumisAvantVtes)) {
-            foreach ($devisSoumisAvantVtes as $value) { // Utilisez $key pour garder une référence à l'index
-                if ($value->getMontantForfait() !== null) {
-                    $value->setMontantVente($value->getMontantITV() - $value->getMontantForfait());
-                }
-            }
-
-        }
-        return $devisSoumisAvantVtes;
-    }
-    
-
-    private function rectifierVenteAvantMaxAvecForfait(string $numDevis) {
-        $devisSoumisAvantMaxVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis, 'VTE');
-
-        return $devisSoumisAvantMaxVtes;
-    }
-
-    /**
-     * Methode pour filtrer les données de VTE (recupère seulement les donnée de vente)
-     *
-     * @param array $devisSoumisValidataion
-     * @return array
-     */
-    private function filtreLesDonnerVte(array $devisSoumisValidataion): array
-    {
-        // Filtrer les éléments avec la nature d'opération égale à 'VTE'
-        $resultatFiltre = array_filter($devisSoumisValidataion, function ($item) {
-            return $item->getNatureOperation() === 'VTE';
-        });
-
-        // Vérifier si tous les montants des éléments filtrés sont à zéro
-        $tousMontantsZero = array_reduce($resultatFiltre, function ($acc, $item) {
-            $sommeMontants = 
-                $item->getMontantPiece() + 
-                $item->getMontantMo() + 
-                $item->getMontantAchatLocaux() + 
-                $item->getMontantFraisDivers() + 
-                $item->getMontantLubrifiants()+
-                $item->getMontantVente();
-
-            return $acc && ($sommeMontants == 0);
-        }, true);
-
-        // Si tous les montants sont à zéro, retourner un tableau vide
-        return $tousMontantsZero ? [] : $resultatFiltre;
-    }
-
-
-    /**
-     * Methode pour filtrer les données de CES (recupère seulement les donnée de CES)
-     *
-     * @param array $devisSoumisValidataion
-     * @return array
-     */
-    private function filtreLesDonnerCes(array $devisSoumisValidataion): array
-    {
-        return array_filter($devisSoumisValidataion, function ($item) {
-            return $item->getNatureOperation() === 'CES';
-        });
-    }
 
 
     private function quelqueAffichage(string $numDevis): array
@@ -415,6 +350,7 @@ class DitDevisSoumisAValidationController extends Controller
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
+            $devisSoumisValidataion[0]->setStatut('Soumis à validation');
             self::$em->persist($devisSoumisValidataion[0]);
         }
 
@@ -470,6 +406,9 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setObjetDit($infoDit->getObjetDemande())
                 ->setDevisVenteOuForfait($venteOuForfait)
                 ->setDevise($devisSoumis['devise'])
+                ->setMontantVente($devisSoumis['montant_vente'])
+                ->setMontantRevient($devisSoumis['montant_revient'])
+                ->setMargeRevient($this->calculeMarge($devisSoumis['montant_vente'], $devisSoumis['montant_revient']) )
             ;
 
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau
@@ -478,6 +417,7 @@ class DitDevisSoumisAValidationController extends Controller
         return $devisSoumisValidataion;
     }
 
+   
 
     private function autoIncrement($num)
     {

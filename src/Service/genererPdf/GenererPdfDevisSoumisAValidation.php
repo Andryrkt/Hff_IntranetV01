@@ -195,30 +195,39 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $this->addTitle($pdf, 'DETAIL VENTE par rapport au REVIENT');
         $pdf->setFont('helvetica', '', 12);
         //DETAIL VENTE par rapport au REVIENT (tableau)
-        $headerConfig2 = [
+        $headerVenteRevient = [
             ['key' => 'itv', 'label' => 'ITV', 'width' => 40, 'style' => 'font-weight: bold;'],
             ['key' => 'libelleItv', 'label' => 'Libellé ITV', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'nbLigAv', 'label' => 'Nb Lig av', 'width' => 50, 'style' => 'font-weight: bold;'],
-            ['key' => 'nbLigAp', 'label' => 'Nb Lig ap', 'width' => 50, 'style' => 'font-weight: bold;'],
-            ['key' => 'mttTotalAv', 'label' => 'Mtt Total av', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
-            ['key' => 'mttTotalAp', 'label' => 'Mtt Total ap', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'nbLigAv', 'label' => 'Lig av', 'width' => 50, 'style' => 'font-weight: bold;'],
+            ['key' => 'nbLigAp', 'label' => 'Lig ap', 'width' => 50, 'style' => 'font-weight: bold;'],
+            ['key' => 'mttTotalAvVente', 'label' => 'Mtt Vente av', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttTotalAvRevient', 'label' => 'Mtt Revient av', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttTotalApVente', 'label' => 'Mtt Vente ap', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttTotalApRevient', 'label' => 'Mtt Revient ap', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'statut', 'label' => 'Statut', 'width' => 40, 'style' => 'font-weight: bold; text-align: center;'],
         ];
 
-        $html2 = $generator->generateTable($headerConfig2, $montantPdf['avantApresVte'], $montantPdf['totalAvantApresVte']);
+        $html2 = $generator->generateTable($headerVenteRevient, $montantPdf['avantApresVteRevient'], $montantPdf['totalAvantApresVteRevient']);
         $pdf->writeHTML($html2, true, false, true, false, '');
         //==============================================================================================================
         //DETAIL VENTE par rapport au REVIENT (controle à faire)
-        $this->addTitle($pdf, 'Contrôle à faire (par rapport à la dernière version du FORFAIT) :');
+        $this->addTitle($pdf, 'Contrôle à faire (par rapport à la dernière version du DETAIL FORFAIT) :');
 
-        $details2 = [
-            'Nouvelle intervention' => $montantPdf['nombreStatutNouvEtSuppVte']['nbrNouv'],
-            'Intervention supprimée' => $montantPdf['nombreStatutNouvEtSuppVte']['nbrSupp'],
-            'Nombre ligne modifiée' => $montantPdf['nombreStatutNouvEtSuppVte']['nbrModif'],
-            'Montant total modifié' => $this->formatNumber($montantPdf['nombreStatutNouvEtSuppVte']['mttModif']),
+        $marge = $montantPdf['variation']['nbrVariationMarge'] > 0 ? '+'. $montantPdf['variation']['nbrVariationMarge'] : $montantPdf['variation']['nbrVariationMarge'];
+        $variationVente = $this->formatNumber($montantPdf['variation']['mttVariationVente']) > 0 ? '+'.$this->formatNumber($montantPdf['variation']['mttVariationVente']) : $this->formatNumber($montantPdf['variation']['mttVariationVente']);
+        $variationRevient = $this->formatNumber($montantPdf['variation']['mttVariationRevient']) > 0 ? '+'.$this->formatNumber($montantPdf['variation']['mttVariationRevient']) : $this->formatNumber($montantPdf['variation']['mttVariationRevient']);
+        $variationMarge = $this->formatNumber($montantPdf['variation']['mttVariationMarge']) > 0 ? '+'.$this->formatNumber($montantPdf['variation']['mttVariationMarge']) : $this->formatNumber($montantPdf['variation']['mttVariationMarge']);
+
+        $detailsVenteRevient = [
+            'Nouvelle intervention' => $montantPdf['nombreStatutNouvEtSuppVteRevient']['nbrNouv'],
+            'Nombre ligne modifiée' => $montantPdf['nombreStatutNouvEtSuppVteRevient']['nbrModif'],
+            'Intervention supprimée' => $montantPdf['nombreStatutNouvEtSuppVteRevient']['nbrSupp'],
+            'Variation vente' => $variationVente,
+            'Variation revient' => $variationRevient,
+            'Variation marge' => $variationMarge ."({$marge}%)"
         ];
 
-        $this->addSummaryDetails($pdf, $details2);
+        $this->addSummaryDetails($pdf, $detailsVenteRevient);
 
         //===============================================================================================================
         /**
