@@ -3,7 +3,6 @@
 namespace App\Model;
 
 use App\Controller\Controller;
-use App\Service\GlobalVariablesService;
 
 class Connexion
 {

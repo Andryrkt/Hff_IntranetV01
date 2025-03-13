@@ -4,7 +4,6 @@ namespace App\Service\genererPdf;
 
 use IntlDateFormatter;
 use App\Entity\dit\AcSoumis;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfAcSoumis extends GeneratePdf

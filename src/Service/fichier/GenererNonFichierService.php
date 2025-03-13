@@ -2,6 +2,8 @@
 
 namespace App\Service\fichier;
 
+use App\Service\GlobalVariablesService;
+
 class GenererNonFichierService
 {
     /**
@@ -92,6 +94,27 @@ public static function generationNomFichier(
     return $filename . $extension;
 }
 
+public static function pieceGererMagasinConstructeur($constructeur)
+    {
+        if(isset($constructeur[0])) {
+            $containsCAT = count(array_unique($constructeur[0])) === "CAT";
+            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+            $containsNonCAT = !empty(array_intersect(GlobalVariablesService::get('pieceMagasinSansCat'), $constructeur[0]));
 
+            if($containsCAT) {
+                $suffix = 'C';
+            } else if($containsNonCAT) {
+                $suffix = 'P';
+            } else if ($containsOther > 0 ) {
+                $suffix = 'CP';
+            } else {
+                $suffix = 'N';
+            }
+        } else {
+            $suffix = 'N';
+        }
+
+        return $suffix;
+    }
 
 }

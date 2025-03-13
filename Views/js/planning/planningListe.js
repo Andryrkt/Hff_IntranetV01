@@ -1,6 +1,7 @@
 
 
 const tableBody = document.querySelector("#tableBody");
+const overlay = document.getElementById("loading-overlays");
 const rows = document.querySelectorAll("#tableBody tr");
 
 let previousOrNumber = null;
@@ -180,3 +181,11 @@ if (firstRowInGroup) {
       row.style.display = hasMatchingCell ? "" : "none";
     });
   }
+
+  document.getElementById('btn_search').addEventListener('click', function () {
+    overlay.style.display = 'flex';
+  });
+
+  window.addEventListener('load', function () {
+    overlay.style.display = 'none';
+  });

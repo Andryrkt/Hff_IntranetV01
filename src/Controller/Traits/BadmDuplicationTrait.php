@@ -8,7 +8,6 @@ use App\Entity\admin\Service;
 use App\Entity\cas\CasierValider;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
 
 trait BadmDuplicationTrait
 {

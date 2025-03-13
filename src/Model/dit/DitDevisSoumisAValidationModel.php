@@ -93,12 +93,25 @@ class DitDevisSoumisAValidationModel extends Model
     public function constructeurPieceMagasin(string $numDevis)
     {
         $statement = " SELECT
-            slor.slor_constp as constructeur
-            from sav_lor slor
-            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
-            and slor.slor_typlig = 'P' 
-            and seor.seor_numor = '".$numDevis."'
+            CASE
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('CP')
+            
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('C')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('N')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('P')
+            END AS retour
+        FROM sav_lor
+        WHERE slor_numor = '".$numDevis."'
             ";
 
         $result = $this->connect->executeQuery($statement);
