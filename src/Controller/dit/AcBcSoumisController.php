@@ -83,8 +83,7 @@ class AcBcSoumisController extends Controller
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
-                $suffix= GenererNonFichierService::pieceGererMagasinConstructeur($constructeur);
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
