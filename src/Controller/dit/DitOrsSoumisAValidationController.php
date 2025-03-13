@@ -101,7 +101,6 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
                 //envoie des pièce jointe dans une dossier et la fusionner
-                
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
                 $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
@@ -228,6 +227,20 @@ class DitOrsSoumisAValidationController extends Controller
         elseif ($conditionBloquage['situationOrSoumis']) {
             $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
             $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } 
+        elseif ($conditionBloquage['invalidePosition']) {
+            $message = "Echec de la soumission de l'OR";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['idMaterielDifferent']) {
+            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['sansrefClient']) {
+            $message = "Echec de la soumission car la référence client est vide.";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } 
+        elseif ($conditionBloquage['situationOrSoumis']) {
+            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } 
         elseif ($conditionBloquage['invalidePosition']) {
