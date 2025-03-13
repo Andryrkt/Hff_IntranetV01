@@ -1,0 +1,11 @@
+.choix {
+  width: 300px;
+  background: #fbbb01;
+  margin: 15px auto;
+  padding: 15px;
+}
+
+.choix a {
+  text-decoration: none;
+  color: #000;
+}
