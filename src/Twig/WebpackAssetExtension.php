@@ -18,6 +18,7 @@ class WebpackAssetExtension extends AbstractExtension
         } else {
             $this->manifest = [];
         }
+        
     }
 
     public function getFunctions(): array

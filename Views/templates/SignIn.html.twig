@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig"%}
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/signin.css" rel="stylesheet"/>
+	<link href="{{webpack_asset("signin.css")}}" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -11,13 +11,14 @@
 				<div class="row justify-content-center">
 					<div class="col-xl-5 col-md-8">
 						<form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="">
-							<img src="Views/assets/logoHFF.jpg" class="img-rounded" id="Logo"/>
+
+							<img src="{{webpack_asset("images/logoHFF.jpg")}}" class="img-rounded" id="Logo"/>
 							{% if error_msg %}
 								<div class="alert alert-danger">
 									{{ error_msg }}
 								</div>
 							{% endif %}
-							
+
 							<div class="form-outline mb-4" data-mdb-input-init>
 								<label class="form-label" for="username">Utilisateur</label>
 								<div class="input-group">
@@ -54,5 +55,5 @@
 
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/signin.js"></script>
+	<script src="{{ webpack_asset("signin.js")}}"></script>
 {% endblock %}

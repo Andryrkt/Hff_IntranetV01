@@ -2,12 +2,17 @@ const path = require("path");
 const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const { PurgeCSSPlugin } = require("purgecss-webpack-plugin");
+const glob = require("glob-all");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
   // Le point d'entrée de votre application front-end
   entry: {
     main: "./assets/js/main.js",
     accueil: "./assets/js/accueil.js",
+    signin: "./assets/js/signin.js",
   },
 
   // La sortie du bundle généré par Webpack
@@ -44,9 +49,26 @@ module.exports = {
     }),
     new WebpackManifestPlugin({
       fileName: "manifest.json",
-      publicPath: "/build/",
+      publicPath: "/Hffintranet/public/build/",
     }),
     new MiniCssExtractPlugin({ filename: "css/[name].[contenthash].css" }), // Crée un fichier CSS séparé
+    new ImageMinimizerPlugin({
+      minimizer: {
+        implementation: ImageMinimizerPlugin.imageminMinify,
+        options: {
+          plugins: [
+            ["mozjpeg", { quality: 75 }], // Compression JPEG
+            ["pngquant", { quality: [0.65, 0.8] }], // Compression PNG
+          ],
+        },
+      },
+    }),
+    new PurgeCSSPlugin({
+      paths: glob.sync(["./Views/templates/**/*.twig", "./assets/js/**/*.js"], {
+        nodir: true,
+      }),
+    }),
+    new CleanWebpackPlugin(),
   ],
 
   // Mode de build : 'development' ou 'production'

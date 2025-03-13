@@ -120,12 +120,6 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    public function copyToDWCdeFnrSoumis($fileName)
-    {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde_fournisseur/' . $fileName;
-        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
-    }
 
 
     /**

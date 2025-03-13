@@ -10,8 +10,8 @@
 
 			{# <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/> #}
 			{# <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-theme@0.1.0-beta.10/dist/select2-bootstrap.min.css" rel="stylesheet"> #}
-			<link rel="stylesheet" href="{{ asset(webpack_asset("css/main.css"))}}"> <link rel="stylesheet" href="{{ App.base_path }}/Views/css/style.css">
-			<link rel="shortcut icon" href="{{ asset(webpack_asset("images/favicon-2.png"))}} " type="image/x-icon">
+			<link rel="stylesheet" href="{{ webpack_asset("main.css")}}"> <link rel="stylesheet" href="{{ App.base_path }}/Views/css/style.css">
+			<link rel="shortcut icon" href="{{ webpack_asset("images/favicon-2.png")}} " type="image/x-icon">
 			{# <link rel="stylesheet" href="{{asset("build/global.css")}}"> #}
 			{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css"> #}{% block stylesheets %}
 
@@ -43,7 +43,8 @@
 		{% endblock %}
 
 		{% include "/shared/_modalConfirmation.html.twig" %}
-		<script src="{{ asset(webpack_asset("js/main.bundle.js"))}}"></script>
+
+		<script src="{{ webpack_asset("main.js")}}"></script>
 
 		<!-- numeral js pour manipuler les nombre en js -->
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
