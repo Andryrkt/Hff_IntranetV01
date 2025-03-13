@@ -116,7 +116,6 @@ class InventaireController extends Controller
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
         $sumData = $this->dataSumInventaireDetail($numinv); 
-      
         self::$twig->display('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
@@ -239,10 +238,16 @@ class InventaireController extends Controller
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+                if ($listInvent[$i]['date_clo'] == null)  {
+                    $dateCLo = "";
+                }else{
+                    $dateCLo = (new DateTime($listInvent[$i]['date_clo']))->format('d/m/Y');
+                }
                 $data[$i] = [
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
+                    'dateClo' => $dateCLo,
                     'nbr_casier' => $listInvent[$i]['nbre_casier'],
                     'nbr_ref' => $listInvent[$i]['nbre_ref'],
                     'qte_comptee' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['qte_comptee'])),
@@ -271,7 +276,6 @@ class InventaireController extends Controller
         if ($numinv !== $numinvCriteria) {
             $this->redirectToRoute('detail_inventaire', ['numinv' => $numinvCriteria]);
         }
-
         $data = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
         if (!empty($detailInvent)) {

@@ -47,6 +47,12 @@ class InventaireModel extends Model
         $statement = "SELECT  
                 ainvi_numinv_mait as numero_inv, 
                 ainvi_date as ouvert_le, 
+                (SELECT MAX(DATE (ladm_date)) FROM log_art_invi A 
+                JOIN log_adm b ON A.ladm_id = b.ladm_id
+                WHERE A.ainvi_soc = ainvi.ainvi_soc
+                AND A.ainvi_numinv = (SELECT  MAX(ainvi_numinv) FROM art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait )
+                AND A.ainvi_cloture = 'O'
+                ) AS date_clo,
                 TRIM(ainvi_comment) as description,
                  (
                     select
@@ -82,15 +88,21 @@ class InventaireModel extends Model
                             ) = 0 THEN 
                             'SOLDE'
                     ELSE 
-                    decode (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS')
+                    (SELECT DECODE (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS') 
+                    FROM  art_invi WHERE ainvi_numinv = ( SELECT MAX(ainvi_numinv) FROM  art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait)        
+                     )
                 END as statut,
                 trunc(sum(ainvp_prix * ainvp_stktheo)) as Montant
-                FROM  art_invi 
-                INNER  JOIN art_invp ON ainvp_numinv = ainvi_numinv_mait
-                WHERE ainvi_soc ='HF'    
-                AND ainvi_sequence = 1
-                AND (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
-                AND ainvi_comment not like 'KPI STOCK%'
+                FROM
+                art_invi ainvi
+                INNER JOIN art_invp s ON s.ainvp_numinv = ainvi.ainvi_numinv_mait
+                  WHERE ainvi.ainvi_soc = 'HF'
+                AND ainvi.ainvi_sequence = 1
+                AND (
+                    s.ainvp_stktheo <> 0
+                    OR s.ainvp_ecart <> 0
+                )
+             AND ainvi.ainvi_comment NOT LIKE 'KPI STOCK%'
                 $agence
                 $dateD
                 $dateF
@@ -100,10 +112,11 @@ class InventaireModel extends Model
                 ainvi_comment,
                 ainvi_cloture,
                 nbre_casier,
+                date_clo,
                 statut
                 order by ainvi_numinv_mait desc
         ";
-        //  dd($statement);
+        // dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -187,7 +200,7 @@ class InventaireModel extends Model
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         ";
-        //  dump($statement);
+        //   dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -201,23 +214,23 @@ class InventaireModel extends Model
                             SUM(round(ainvp_ecart) ) as ecart,
                             CASE
                             WHEN SUM(ainvp_stktheo) != 0 THEN
-                                  SUM( ROUND((ainvp_ecart / ainvp_stktheo) * 100 ) )|| '%' 
-                              ELSE
-                                  '100'
-                            END as pourcentage_nbr_ecart,
+                                ROUND((SUM(ainvp_ecart) / SUM(ainvp_stktheo)) * 100) || '%'
+                            ELSE
+                                '100'
+                            END AS pourcentage_nbr_ecart,
                             SUM(ainvp_prix) as PMP,
                             SUM(ainvp_prix * ainvp_stktheo) as montant_inventaire,
                             SUM(ainvp_prix * ainvp_ecart )as montant_ecart,
                             CASE
-                             WHEN SUM( (ainvp_prix * ainvp_stktheo) ) != 0 THEN
-                                 SUM(  ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) )|| ' %'
-                              ELSE
+                            WHEN SUM(ainvp_prix * ainvp_stktheo) != 0 THEN
+                                ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100, 2) || ' %'
+                            ELSE
                                 '100'
-                            END  as pourcentage_ecart   
+                            END AS pourcentage_ecart   
                             FROM art_invp
                             INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                             INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
-                            WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '".$numInv."')
+                            WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '" . $numInv . "')
                             AND  ainvp_ecart <> 0 AND astp_casier NOT IN ('NP','@@@@','CASIER C')
 
                      
