@@ -66,7 +66,7 @@ class DitDevisSoumisAValidationController extends Controller
             $devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
             $blockages = $this->ConditionDeBlockage($numDevis, $numDit, $devisRepository, $originalName);
             if ($this->blockageSoumission($blockages, $numDevis)) {
-                
+
                 $devisSoumisAValidationInformix = $this->InformationDevisInformix($numDevis);
 
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
@@ -79,7 +79,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix= $this->pieceGererMagasinConstructeur($numDevis);
+                $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
                 $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
@@ -620,29 +620,7 @@ class DitDevisSoumisAValidationController extends Controller
         return  $fileName;
     }
 
-    public function pieceGererMagasinConstructeur($numDevis)
-    {
-        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
-
-        if(isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
-
-            if($containsOther === 0) {
-                $suffix = 'C';
-            } else if(!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0 ) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
-        }
-
-        return $suffix;
-    }
+    
 
     
 }

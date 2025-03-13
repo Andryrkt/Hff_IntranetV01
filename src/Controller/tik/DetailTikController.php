@@ -8,7 +8,6 @@ use App\Entity\tik\TkiPlanning;
 use App\Form\tik\DetailTikType;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\tik\TkiCommentaires;
 use App\Form\admin\tik\TkiCommentairesType;
