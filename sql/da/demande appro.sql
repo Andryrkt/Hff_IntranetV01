@@ -16,4 +16,5 @@ CREATE TABLE Demande_Appro(
     date_heure_creation	datetime not null,
     date_heure_fin_souhaitee datetime null,
     statut_dal	varchar(100) null,
+    CONSTRAINT PK_Demande_Appro PRIMARY KEY (id)
 )

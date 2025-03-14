@@ -1,5 +1,5 @@
 
-CREATE TABLE Demande_Appro(
+CREATE TABLE Demande_Appro_L(
     id int IDENTITY(1,1) NOT NULL,
     numero_demande_appro varchar(11) not null,
     num_ligne int(11) not null,
@@ -16,6 +16,7 @@ CREATE TABLE Demande_Appro(
     commentaire	varchar(1000),
     statut_dal	varchar(50),
     catalogue BIT,
+    CONSTRAINT PK_Demande_Appro_L PRIMARY KEY (id)
 )
 
 
