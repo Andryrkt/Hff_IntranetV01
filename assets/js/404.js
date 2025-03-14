@@ -1,3 +1,5 @@
+import $ from "jquery";
+import "../css/404.css";
 (function ($) {
   "use strict"; // Start of use strict
 

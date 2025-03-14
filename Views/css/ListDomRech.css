@@ -23,9 +23,7 @@ th {
 .table-plein-ecran td,
 .table-plein-ecran th {
     width: auto;
-
     white-space: nowrap;
-
 }
 
 .dateCreationMessage {

@@ -13,6 +13,7 @@ module.exports = {
     main: "./assets/js/main.js",
     accueil: "./assets/js/accueil.js",
     signin: "./assets/js/signin/signin.js",
+    404: "./assets/js/404.js",
   },
 
   // La sortie du bundle généré par Webpack
