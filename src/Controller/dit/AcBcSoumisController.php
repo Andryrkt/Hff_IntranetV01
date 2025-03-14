@@ -19,6 +19,7 @@ use App\Service\fichier\GenererNonFichierService;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AcBcSoumisController extends Controller
 {
@@ -88,15 +89,20 @@ class AcBcSoumisController extends Controller
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
             
             //fusionne le pdf
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+            $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
+
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
-            $fileUploader->fusionFichers($uploadedFiles, $chemin.$nomFichier);
+
+
+            $fileUploader->fusionFichers($uploadedFiles,  $chemin.$nomFichier);
+
+
 
             //envoie le pdf dans docuware
-            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);

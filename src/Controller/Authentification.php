@@ -101,6 +101,8 @@ class Authentification extends Controller
     
         fclose($handle);
     }
+    
+    
 
     /**
      * @Route("/logout", name="auth_deconnexion")

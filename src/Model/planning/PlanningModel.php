@@ -196,7 +196,7 @@ class PlanningModel extends Model
                     AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
-                    AND slor_constp NOT like '%ZDI%'
+                   -- AND slor_constp NOT like '%ZDI%'
                     
                     $vOrvalDw
                     $vligneType
@@ -219,8 +219,8 @@ class PlanningModel extends Model
 		                order by 10  ";
 
 
+//  dump($statement);
     $result = $this->connect->executeQuery($statement);
-    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
@@ -713,6 +713,7 @@ class PlanningModel extends Model
                   $nivUrg
             ORDER  BY  numero_or
                   ";
+
     $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
@@ -906,88 +907,103 @@ class PlanningModel extends Model
                 (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
                 sitv_interv as Itv,
                 seor_numor as numOR,
+CASE 
+    WHEN (
+        SELECT SUM(
+            CASE  
+                WHEN A.slor_typlig = 'P' 
+                THEN A.slor_qterel + A.slor_qterea + A.slor_qteres + A.slor_qtewait - A.slor_qrec 
+                ELSE A.slor_qterea  
+            END
+        )
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) = (
+        SELECT SUM(A.slor_qterea)
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) 
+    THEN TRIM('TOUT LIVRE')
 
-                CASE  
-                      WHEN  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-                                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                                          ELSE slor_qterea END )
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) 
-		=  
-		(  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) THEN
-                      TRIM('TOUT LIVRE') 
-		
-	       WHEN  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > 0 
-AND   (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
+    WHEN (
+        SELECT SUM(A.slor_qterea)
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) > 0 
+    AND (
+        SELECT SUM(A.slor_qterea)
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) != (
+        SELECT SUM(
+            CASE  
+                WHEN A.slor_typlig = 'P' 
+                THEN A.slor_qterel + A.slor_qterea + A.slor_qteres + A.slor_qtewait - A.slor_qrec 
+                ELSE A.slor_qterea 
+            END
+        )
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) 
+    THEN TRIM('PARTIELLEMENT LIVRE')
 
+    WHEN (
+        SELECT SUM(
+            CASE  
+                WHEN A.slor_typlig = 'P' 
+                THEN A.slor_qterel + A.slor_qterea + A.slor_qteres + A.slor_qtewait - A.slor_qrec 
+                ELSE A.slor_qterea 
+            END
+        )
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor
+    ) = (
+        SELECT SUM(A.slor_qteres)
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) 
+    THEN TRIM('PARTIELLEMENT DISPO')
 
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+    WHEN (
+        SELECT SUM(
+            CASE  
+                WHEN A.slor_typlig = 'P' 
+                THEN A.slor_qterel + A.slor_qterea + A.slor_qteres + A.slor_qtewait - A.slor_qrec 
+                ELSE A.slor_qterea 
+            END
+        )
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) = (
+        SELECT SUM(A.slor_qteres)
+        FROM sav_lor AS A
+        INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
+                               AND B.sitv_interv = A.slor_nogrp / 100 
+        WHERE A.slor_numor = C.slor_numor AND B.sitv_interv = D.sitv_interv
+    ) 
+    THEN TRIM('COMPLET NON LIVRE')
 
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )
-AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-
-
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) > ( (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) +   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
-) THEN
-		TRIM('PARTIELLEMENT LIVRE')
-WHEN   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-
-
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) !=   (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
-AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = 0 
-AND  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) >0  THEN
-TRIM('PARTIELLEMENT DISPO')
-
-WHEN  (  (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-
-
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) =  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) 
-AND  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) <   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-
-
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )  )
-OR(  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) > 0 
-
-AND   (  SELECT SUM( CASE WHEN slor_typlig = 'P'    THEN
-
-
-                                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-
-
-                                          ELSE slor_qterea END )
-
-
-                        FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    ) = (  (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv     ) +  (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv    )   )) THEN
-TRIM('COMPLET NON LIVRE')
-                      END  AS Status_B,
+    ELSE ''
+END AS Status_B
+,
                       --ligne
+                     
                         sitv_datepla as datePlanning,
                         trim(slor_constp) as cst,
                         trim(slor_refp) as ref,
@@ -1146,7 +1162,7 @@ TRIM('COMPLET NON LIVRE')
                             AND fllf_refp = nlig_refp)
                         END as numerocdecis
 
-      FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat,neg_lig, agr_tab ope, outer agr_tab sec
+      FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec, outer neg_lig
       WHERE seor_numor = slor_numor
       AND seor_serv <> 'DEV'
       AND sitv_numor = slor_numor 
@@ -1180,8 +1196,8 @@ TRIM('COMPLET NON LIVRE')
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
       order by 10,14 
   ";
+    //  dd($statement);
     $result = $this->connect->executeQuery($statement);
-    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
@@ -1372,7 +1388,7 @@ TRIM('COMPLET NON LIVRE')
 
 
     $result = $this->connect->executeQuery($statement);
-    dump($statement);
+    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
