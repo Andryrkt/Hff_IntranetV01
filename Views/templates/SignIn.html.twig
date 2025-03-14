@@ -10,8 +10,7 @@
 			<div class="container">
 				<div class="row justify-content-center">
 					<div class="col-xl-5 col-md-8">
-						<form class="bg-white rounded shadow-5-strong p-5" style="opacity: 85%" method="POST" action="">
-
+						<form class="bg-white rounded shadow-5-strong p-5 w-150" style="opacity: 85%" method="POST" action="">
 							<img src="{{webpack_asset("images/logoHFF.jpg")}}" class="img-rounded" id="Logo"/>
 							{% if error_msg %}
 								<div class="alert alert-danger">
@@ -52,6 +51,8 @@
 		</div>
 	</div>
 {% endblock %}
+
+{% block footer %}{% endblock %}
 
 
 {% block javascript %}
