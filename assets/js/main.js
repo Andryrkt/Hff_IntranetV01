@@ -1,5 +1,6 @@
 import "../css/main.css";
 
+//BOOTSRAP
 import "bootstrap/dist/css/bootstrap.min.css"; // Importer le CSS de Bootstrap
 import "bootstrap"; // Importer les scripts JavaScript de Bootstrap
 
@@ -14,6 +15,7 @@ import "select2"; // Bibliothèque Select2
 import "@fortawesome/fontawesome-free/css/all.min.css"; // Pour les styles
 import "@fortawesome/fontawesome-free/js/all.min.js"; // Pour les icônes dynamiques (optionnel)
 
+import "./scripts";
 // alert("Bonjour");
 console.log("Bonjour");
 

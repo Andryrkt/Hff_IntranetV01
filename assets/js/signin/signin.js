@@ -1,5 +1,5 @@
-import "../images/Hff.png";
-import "../css/signin.css";
+import "../../images/Hff.png";
+import "../../css/signin.css";
 
 const toggleContainer = document.getElementById("toggleIconContainer");
 

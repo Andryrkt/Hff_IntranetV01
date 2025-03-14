@@ -12,7 +12,7 @@ module.exports = {
   entry: {
     main: "./assets/js/main.js",
     accueil: "./assets/js/accueil.js",
-    signin: "./assets/js/signin.js",
+    signin: "./assets/js/signin/signin.js",
   },
 
   // La sortie du bundle généré par Webpack
@@ -37,6 +37,13 @@ module.exports = {
         type: "asset/resource", // Copie le fichier dans le dossier de sortie et renvoie l'URL
         generator: {
           filename: "images/[name].[contenthash][ext]", // Place les images dans le dossier "images" avec un nom unique
+        },
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/,
+        type: "asset/resource",
+        generator: {
+          filename: "fonts/[name][ext]",
         },
       },
     ],
