@@ -28,9 +28,9 @@ class DemandeApproController extends Controller
     }
 
     /**
-     * @Route("/new", name="da_new")
+     * @Route("/new/{id}", name="da_new")
      */
-    public function new()
+    public function new($id)
     {
         self::$twig->display();
     }
