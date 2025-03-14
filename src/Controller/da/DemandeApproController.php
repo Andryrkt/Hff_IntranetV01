@@ -3,6 +3,7 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,6 +33,13 @@ class DemandeApproController extends Controller
      */
     public function new($id)
     {
-        self::$twig->display();
+        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+
+        // $form = ;
+
+        self::$twig->display('da/first-form.html.twig', [
+            'dit'  => $dit,
+            // 'form' => $form,
+        ]);
     }
 }
