@@ -45,7 +45,7 @@ class FileUploaderService
     }
 
 
-  /**
+    /**
      * Génère un nom de fichier 
      *
      * @param UploadedFile $file

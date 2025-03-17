@@ -79,26 +79,39 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
+
                 $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
-                $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
-                $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
-                
-                
-                $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
-                $fileUploader = new FileUploaderService($chemin);
-                $file =  $form->get('pieceJoint01')->getData();
-                //generer le nom du fichier
-                $nomFichierGenerer = 'devis_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion().'#'.$suffix.'.pdf';
-                // telecharger le fichier en copiant sur son repertoire
-                $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
-                
-                
-                
-                // dd($files);
-                //envoie des fichiers dans docuware
-                $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);// copier le fichier de controlle dans docuware
-                $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
-                
+                $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+
+                if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
+                    $nomFichierCtrl = 'verification_prix_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
+                    //generer le nom du fichier
+                    $nomFichierGenerer = 'verification_prix_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion().'#'.$suffix.'.pdf';
+                } else {
+                    $nomFichierCtrl = 'validation_ate' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
+                    //generer le nom du fichier
+                    $nomFichierGenerer = 'validation_ate' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion().'#'.$suffix.'.pdf';
+                }
+
+                if($this->estCeVenteOuForfait($numDevis)) { // si vrai c'est une vente
+
+                } else {
+                    $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
+                    
+                    /** FICHIER */
+                    $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
+                    $fileUploader = new FileUploaderService($chemin);
+                    //recuperation du fichier ajouter par l'utilisateur
+                    $file =  $form->get('pieceJoint01')->getData();
+                    
+                    // telecharger le fichier en copiant sur son repertoire
+                    $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
+                    
+                    
+                    /**envoie des fichiers dans docuware*/
+                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);// copier le fichier de controlle dans docuware
+                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
+                }
 
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index', true);
