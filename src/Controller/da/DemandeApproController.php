@@ -306,6 +306,13 @@ class DemandeApproController extends Controller
      */
     public function new($id)
     {
-        self::$twig->display();
+        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+
+        // $form = ;
+
+        self::$twig->display('da/first-form.html.twig', [
+            'dit'  => $dit,
+            // 'form' => $form,
+        ]);
     }
 }
