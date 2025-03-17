@@ -170,10 +170,12 @@ class DitDevisSoumisAValidationController extends Controller
         } elseif ($blockages['conditionServDebiteurvide']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le service débiteur n'est pas vide";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } elseif ($blockages['conditionStatutDit']) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
-            $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } elseif ($blockages['conditionStatutDevis']) {
+        } 
+        // elseif ($blockages['conditionStatutDit']) {
+        //     $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
+        //     $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+        // }
+         elseif ($blockages['conditionStatutDevis']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } elseif ($blockages['conditionNomCommence']) {
