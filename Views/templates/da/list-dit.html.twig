@@ -1,0 +1,160 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+
+{% set role_ids = App.user.roleIds %}
+{% set user_connecter = App.user.nom_utilisateur %}
+
+<div class="container">
+	<h3 class="perso-titre">
+		Liste des DIT à séléctionner
+	</h3>
+	{% include "/partials/_notification.html.twig" %}
+
+	{% include "/dit/shared/_formulaireRecherche.html.twig" %}
+	<div class="row">
+		<div class=" col-12 col-md-5 my-3">
+			<i class="fa-solid fa-circle text-info"></i>
+			<small class="text-info">Partiellement dispo |</small>
+			<i class="fa-solid fa-circle text-primary"></i>
+			<small class="text-primary">Complet non livré |</small>
+			<i class="fa-solid fa-circle text-warning"></i>
+			<small class="text-warning">Partiellement livré |</small>
+			<i class="fa-solid fa-circle text-success"></i>
+			<small class="text-success">Tout livré
+			</small>
+		</div>
+	</div>
+</div>
+
+<div
+	class="container-fluid">
+	<!-- DEBUT tableau -->
+	<div class="container">
+		{% include "/dit/shared/_pagination.html.twig" %}
+	</div>
+
+	<table class="table rounded table-plein-ecran">
+		<thead class="table-dark">
+			<tr>
+				<th>
+					<i class="fas fa-ellipsis-vertical"></i>
+				</th>
+				<th>Statut</th>
+				<th>N° DIT</th>
+				<th>Type document</th>
+				<th>Niveau urgence</th>
+				<th>Catégorie</th>
+				<th>N° Série</th>
+				<th>N° Parc</th>
+				<th>Date Demande</th>
+				<th>Int / Ext</th>
+				<th>Emetteur</th>
+				<th>Débiteur</th>
+				<th>Objet</th>
+				<th>Section affectée</th>
+			</tr>
+		</thead>
+		<tbody>
+			{# DEBUT LOGIQUE #}
+			{% for item in data %}
+				{% set classeStatutDit = '' %}
+				{% set styleStatutDit = '' %}
+
+				{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
+					{% set classeStatutDit ='aAffecter' %}
+				{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+					{% set classeStatutDit ='affecterSection' %}
+				{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
+					{% set classeStatutDit ='cloturerValider' %}
+				{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
+					{% set classeStatutDit ='cloturerAnnuler' %}
+				{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+					{% set classeStatutDit ='cloturerHorsDelai' %}
+				{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
+					{% set classeStatutDit ='terminer' %}
+				{% else %}
+					{% set classeStatutDit = '' %}
+				{% endif %}
+
+				{% set classeQuatreStatutOr = '' %}
+				{% if item.quatrestatutor == 'Tout livré' %}
+					{# total livré #}
+					{% set classeQuatreStatutOr = 'bg-success text-white' %}
+				{% elseif item.quatrestatutor == 'Partiellement livré' %}
+					{# partiellement livré #}
+					{% set classeQuatreStatutOr = 'bg-warning text-white' %}
+				{% elseif item.quatrestatutor == 'Partiellement dispo' %}
+					{% set classeQuatreStatutOr = 'bg-info text-white' %}
+					{# partiellement dispo #}
+				{%  elseif item.quatrestatutor == 'Complet non livré' %}
+					{% set classeQuatreStatutOr = 'bg-primary text-white' %}
+					{# complet non livré #}
+				{% else %}
+					{% set classeQuatreStatutOr = '' %}
+				{% endif %}
+				{# FIN LOGIQUE #}
+				<tr>
+					{# Début Action #}
+					<td class="align-middle" style="padding: 0px">
+						<i class="fas fa-ellipsis-vertical"></i>
+					</td>
+					{# Fin Actions #}
+
+					{# DEBUT Statut #}
+
+					<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
+
+					{# FIN Statut #}
+
+					<td>
+						<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+					</td>
+					<td>{{ item.typeDocument.description}}</td>
+					<td class="text-center">
+						{{ item.idNiveauUrgence.description}}
+					</td>
+					<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+					<td>{{ item.numSerie}}</td>
+					<td>{{ item.numParc}}</td>
+					<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+					<td>{{ item.internetExterne}}</td>
+					<td>{{ item.agenceServiceEmetteur }}</td>
+					<td>{{ item.agenceServiceDebiteur}}</td>
+					<td>
+						{{ item.objetDemande}}</td>
+					{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
+                    <td>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
+                            {{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+                        </a>
+                    </td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
+{% endblock %}
+
+
+ 
+				</tr>
+ 
+				</tr>
+ 
+				</tr>
