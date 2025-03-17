@@ -14,6 +14,7 @@ use App\Entity\admin\StatutDemande;
 use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproRepository;
@@ -108,6 +109,8 @@ class DemandeAppro
      * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
      */
     private  $serviceDebiteur;
+
+    private ?DemandeIntervention $dit = null;
 
     /**
      * Get the value of id
@@ -409,6 +412,26 @@ class DemandeAppro
     public function setServiceDebiteur($serviceDebiteur): self
     {
         $this->serviceDebiteur = $serviceDebiteur;
+        return $this;
+    }
+
+    /**
+     * Get the value of dit
+     */
+    public function getDit()
+    {
+        return $this->dit;
+    }
+
+    /**
+     * Set the value of dit
+     *
+     * @return  self
+     */
+    public function setDit($dit)
+    {
+        $this->dit = $dit;
+
         return $this;
     }
 }

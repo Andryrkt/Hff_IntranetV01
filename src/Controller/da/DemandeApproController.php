@@ -3,6 +3,7 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -34,6 +35,8 @@ class DemandeApproController extends Controller
     public function new($id)
     {
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+
+        $demandeAppro = new DemandeAppro;
 
         // $form = ;
 
