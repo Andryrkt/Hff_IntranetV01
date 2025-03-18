@@ -90,4 +90,23 @@
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/dit/ditDevisSoumisAValidation.js"></script>
+
+	<script>
+		{% if App.session.get('devis_version_valide') == 'OK' %}
+Swal.fire({
+title: "Attention !",
+text: "{{ App.session.get('message') }}", // Correcte en Twig
+icon: "warning",
+showCancelButton: true,
+confirmButtonText: "Continuer",
+cancelButtonText: "Quitter"
+}).then((result) => {
+if (result.isConfirmed) { // L'utilisateur veut continuer
+
+window.location.href = window.location.href + "?continueDevis=1";
+} else { // L'utilisateur annule, redirection vers l'accueil
+window.location.href = "{{ path('dit_index') }}";
+}
+});{% endif %}
+	</script>
 {% endblock %}

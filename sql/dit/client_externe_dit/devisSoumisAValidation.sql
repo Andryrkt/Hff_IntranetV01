@@ -41,3 +41,7 @@ ADD montantVente DECIMAL(18, 2)
 
 ALTER TABLE devis_soumis_a_validation
 ADD num_migr INT
+
+--17/03/2025
+ALTER TABLE devis_soumis_a_validation
+ADD type VARCHAR(5)
