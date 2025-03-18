@@ -33,13 +33,15 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->setX($pdf->GetX() + 35);
                 $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 0, 'C');
                 $pdf->SetFont('pdfatimesbi', '', 12);
-                $pdf->Cell(0, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
+                // $pdf->Cell(0, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
+                $pdf->Cell(0, 10, 'Le: ' . '13/03/2025', 0, 1, 'R');
                 $pdf->SetTextColor(...$couleurTitre);
                 $pdf->setX($pdf->GetX() + 35);
                 $pdf->Cell(0, 10, 'Agence/Service débiteur : ' . $tab['codeServiceDebitteur'] . '-' . $tab['serviceDebitteur'], 0, 0, 'C');
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->setX($w50 + 10);
-                $pdf->Cell(0, 10, $tab['NumDom'], 0, 1, 'R');
+                // $pdf->Cell(0, 10, $tab['NumDom'], 0, 1, 'R');
+                $pdf->Cell(0, 10, 'DOM25030226', 0, 1, 'R');
 
                 $pdf->setTextColor(...$couleurTitre);
                 $pdf->Cell(12, 10, 'Type : ', 0, 0);
