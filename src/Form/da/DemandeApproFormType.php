@@ -165,7 +165,8 @@ class DemandeApproFormType extends AbstractType
                     'data' => $dit->getObjetDemande()
                 ]
             )
-            ->add('demandeApproL', CollectionType::class, [
+            ->add('DAL', CollectionType::class, [
+                'label' => false,
                 'entry_type' => DemandeApproLFormType::class,
                 'allow_add' => true,
                 'allow_delete' => true,

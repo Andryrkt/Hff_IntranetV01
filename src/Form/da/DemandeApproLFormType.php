@@ -15,18 +15,28 @@ class DemandeApproLFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('artFams1', TextType::class)
-            ->add('artFams2', TextType::class)
-            ->add('artDesi', TextType::class)
+            ->add('artFams1', TextType::class, [
+                'label' => false
+            ])
+            ->add('artFams2', TextType::class, [
+                'label' => false
+            ])
+            ->add('artDesi', TextType::class, [
+                'label' => false
+            ])
             ->add('dateFinSouhaite', DateType::class, [
+                'label' => false,
                 'widget' => 'single_text',
-                'label' => 'Date fin souhaitée *',
                 'constraints' => [
                     new NotBlank(['message' => 'la date ne doit pas être vide'])
                 ]
             ])
-            ->add('qteDem', TextType::class)
-            ->add('commentaire', TextType::class)
+            ->add('qteDem', TextType::class,  [
+                'label' => false
+            ])
+            ->add('commentaire', TextType::class, [
+                'label' => false
+            ])
         ;
     }
 
