@@ -15,6 +15,8 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Form\da\DemandeApproFormType;
+use App\Form\dit\demandeInterventionType;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -310,12 +312,23 @@ class DemandeApproController extends Controller
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
         $demandeAppro = new DemandeAppro;
+        $this->initialisationDemandeAppro($demandeAppro, $dit);
 
-        // $form = ;
+        $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
         self::$twig->display('da/new.html.twig', [
-            'dit'  => $dit,
-            // 'form' => $form,
+            'form' => $form->createView(),
         ]);
+    }
+
+    private function initialisationDemandeAppro(DemandeAppro $demandeAppro, DemandeIntervention $dit)
+    {
+        $demandeAppro
+            ->setDit($dit)
+            ->setAgenceDebiteur($dit->getAgenceDebiteurId())
+            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
+            ->setServiceDebiteur($dit->getServiceDebiteurId())
+            ->setServiceEmetteur($dit->getServiceEmetteurId())
+        ;
     }
 }
