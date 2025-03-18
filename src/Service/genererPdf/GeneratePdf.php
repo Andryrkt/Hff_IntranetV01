@@ -122,7 +122,6 @@ class GeneratePdf
 
 
 
-
     /**
  * Méthode pour ajouter un titre au PDF
  * 

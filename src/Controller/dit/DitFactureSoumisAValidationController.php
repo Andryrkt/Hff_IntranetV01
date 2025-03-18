@@ -116,7 +116,7 @@ class DitFactureSoumisAValidationController extends Controller
                     /** CREATION PDF */
                     $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
                     $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
-
+                
                     if($interneExterne === 'INTERNE') {
                         $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
                         $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
@@ -126,7 +126,6 @@ class DitFactureSoumisAValidationController extends Controller
                         $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers);
                     }
                     
-
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
                     $this->ajoutDataFactureAValidation($factureSoumisAValidation);
