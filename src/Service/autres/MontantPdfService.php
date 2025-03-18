@@ -40,7 +40,7 @@ class MontantPdfService
 
     
 
-    private function recuperationAvantApresVente($OrSoumisAvantMax, $OrSoumisAvant)
+    public function recuperationAvantApresVente($OrSoumisAvantMax, $OrSoumisAvant)
     {
     
         if(!empty($OrSoumisAvantMax)){

@@ -66,7 +66,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         $numeroVersionMax = $this->devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
         //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
-        $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis), $type);
+        $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis), $type);
 
         // Vérification si une version du devis est déjà validée
         if($this->verificationTypeDevis($numDevis, $type, $devisSoumisValidataion)) {
@@ -99,7 +99,7 @@ class DitDevisSoumisAValidationController extends Controller
         $devisStatut = $this->devisRepository->findStatut($numDevis);
 
         $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis, $devisSoumisValidataion);
-        $recapAvantApresVte = $this->montantPdfService->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
+        $recapAvantApresVte = $this->montantPdfService->recuperationAvantApresVente($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
         $totalAvAp = $this->montantPdfService->calculeSommeAvantApres($recapAvantApresVte);
 
         if($type === 'VP') {
@@ -152,7 +152,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
                 //envoye des fichier dans le DW
-                if($this->estCeVenteOuForfait($numDevis)) { // si vrai c'est une vente
+                if($this->estCeVente($numDevis)) { // si vrai c'est une vente
                     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
                 } else {
                     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
@@ -171,7 +171,7 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
                 
                 // envoyer les fichiers dans DW
-                if($this->estCeVenteOuForfait($numDevis)) { // si vrai c'est une vente
+                if($this->estCeVente($numDevis)) { // si vrai c'est une vente
                     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
                     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
                 } else {
