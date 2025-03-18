@@ -4,6 +4,7 @@ CREATE TABLE Demande_Appro_L(
     numero_demande_appro varchar(11) not null,
     num_ligne int(11) not null,
     art_rempl BIT,
+    qte_dem int(11),
     qte_dispo int(11),
     art_constp varchar(3),
     art_refp varchar(50),

@@ -48,6 +48,11 @@ class DemandeApproL
     private $artRempl = false;
 
     /**
+     * @ORM\Column(type="integer", name="qte_dem")
+     */
+    private $qteDem;
+
+    /**
      * @ORM\Column(type="integer", name="qte_dispo")
      */
     private $qteDispo;
@@ -451,6 +456,26 @@ class DemandeApproL
     public function setDemandeAppro(?DemandeAppro $demandeAppro)
     {
         $this->demandeAppro = $demandeAppro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteDem
+     */
+    public function getQteDem()
+    {
+        return $this->qteDem;
+    }
+
+    /**
+     * Set the value of qteDem
+     *
+     * @return  self
+     */
+    public function setQteDem($qteDem)
+    {
+        $this->qteDem = $qteDem;
 
         return $this;
     }

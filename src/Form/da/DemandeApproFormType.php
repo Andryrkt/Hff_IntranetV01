@@ -31,6 +31,7 @@ use App\Repository\admin\PersonnelRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\GreaterThan;
@@ -164,6 +165,13 @@ class DemandeApproFormType extends AbstractType
                     'data' => $dit->getObjetDemande()
                 ]
             )
+            ->add('demandeApproL', CollectionType::class, [
+                'entry_type' => DemandeApproLFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false,
+                'prototype' => true,
+            ])
         ;
     }
 
