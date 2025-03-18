@@ -48,8 +48,15 @@ trait DitFactureSoumisAValidationtrait
                 // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
                 
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
-                
+
                 $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
+                if(is_array($montantValide)) {
+                    if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
+                        $message = $montantValide['message'];
+                        $this->historiqueOperation->sendNotificationSoumission($message, $dataForm->getNumeroOR(), 'dit_index');
+                    }
+                }
+                
                 
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
                 $factureSoumis
@@ -78,6 +85,10 @@ trait DitFactureSoumisAValidationtrait
     private function statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $numeroOr, $numeroItv): string
     {
         $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
+        if(empty($quantiter)){
+            $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
+        } 
 
         if ((int)$quantiter[0]['quantitelivree'] == 0) {
             return "Validé";
