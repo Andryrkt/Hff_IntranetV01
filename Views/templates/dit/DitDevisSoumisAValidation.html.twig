@@ -7,12 +7,13 @@
 
 
 {% block content %}
-	{% SET message = '' %}
+	{% set message = '' %}
 	{% if type == 'VP' %}
-		{% SET message = 'vérification de prix au magasin' %}
+		{% set message = 'vérification de prix au magasin' %}
 	{% else %}
-		{% SET message = 'validation atelier' %}
+		{% set message = 'validation atelier' %}
 	{% endif %}
+
 	<div class=" container">
 		<div class="card">
 			<div class="card-body">

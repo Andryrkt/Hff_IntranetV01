@@ -175,7 +175,15 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        // Vérifier si un numeroVersion a été trouvé
+        if ($numeroVersionMax === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucune version trouvée pour le numeroOR {$numOr}."
+            ];
+        }
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le montant valide
         $montantValide = $this->createQueryBuilder('osv')
             ->select('osv.montantItv')
             ->where('osv.numeroVersion = :numeroVersionMax')
@@ -187,10 +195,19 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'numItv' => $numItv,
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult();
+
+        // Vérifier si un montant a été trouvé
+        if ($montantValide === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucun montant valide trouvé pour le numeroOR {$numOr} et le numeroItv {$numItv}."
+            ];
+        }
 
         return $montantValide;
     }
+
 
     public function findOrSoumisValid($numOr)
     {
