@@ -10,21 +10,10 @@
 			<div class="accordion-body">
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{form_label(form.agence)}}
-						<div class="form-check-all">
-							<input type="checkbox" id="inventaire_search_agence_all" class="form-check-input-all">
-        					<label class="form-check-label" for="inventaire_search_agence_all">Tout séléctionner</label>
-						</div>
-						{{form_widget(form.agence)}}
+						{{form_row(form.choix)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{form_row(form.dateDebut)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.dateFin)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.stock)}}
+						{{form_row(form.numInv)}}
 					</div>
 				</div>
 			</div>

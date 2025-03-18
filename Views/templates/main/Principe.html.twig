@@ -225,17 +225,11 @@
 							{# <li> #}
 							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
 							{# </li> #}
-								{% if hasINV %}
-									<li>
-								<hr class="dropdown-divider"> </li>
-								<li class="dropdown-header">
-									INVENTAIRE
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}">
-										Liste inventaire</a>
-								</li>
-							{% endif %}
+							<li class="dropdown-header">
+								INVENTAIRE
+							</li>
+							<li><a class= "dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}"> Liste inventaire</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
@@ -266,9 +260,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-							</li>
+							{# <li> #}
+								{# <a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a> #}
+							{# </li> #}
 						</ul>
 					</li>
 				{% endif %}

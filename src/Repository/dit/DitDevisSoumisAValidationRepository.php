@@ -226,4 +226,60 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             return ''; // Retourner une chaîne vide si aucun statut n'est trouvé
         }
     }
+
+    public function findDevisVpValide($numDevis) {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+            ->select('MAX(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->setParameter('numDevis', $numDevis)
+            ->getQuery()
+            ->getSingleScalarResult();
+    
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+    
+        // Compter le nombre de devis validés pour la version maximale
+        return $this->createQueryBuilder('dsv')
+            ->select('COUNT(dsv.id)') // Assurez-vous que 'id' est une clé unique dans votre entité
+            ->Where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->andWhere('dsv.statut Like :statut')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'statut' => '%Validé%',
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function findStatut($numDevis) {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+        ->select('MAX(dsv.numeroVersion)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis)
+        ->getQuery()
+        ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder('dsv')
+            ->select('dsv.statut')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
+        ;
+    }
 }

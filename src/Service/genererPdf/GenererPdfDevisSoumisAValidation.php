@@ -117,11 +117,9 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
 
-        
-            $filePath = $nomFichierCtrl;
-       
-        $pdf->Output($Dossier .$filePath, 'F');
+        $filePath = $nomFichierCtrl;
 
+        $pdf->Output($Dossier .$filePath, 'F');
     }
 
 

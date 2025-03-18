@@ -38,6 +38,7 @@ class MontantPdfService
         ];
     }
 
+    
 
     private function recuperationAvantApresVente($OrSoumisAvantMax, $OrSoumisAvant)
     {
@@ -296,7 +297,7 @@ class MontantPdfService
      * @param array $recapAvantApres
      * @return array
      */
-    private function calculeSommeAvantApres(array $recapAvantApres): array
+    public function calculeSommeAvantApres(array $recapAvantApres): array
     {
         $totalRecepAvantApres = [
             'itv' => '', //pour le premier ligne
