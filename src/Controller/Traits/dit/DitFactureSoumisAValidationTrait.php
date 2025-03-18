@@ -90,7 +90,7 @@ trait DitFactureSoumisAValidationtrait
         }
     }
 
-    private function affectationStatutFac($em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation)
+    private function affectationStatutFac($em, $numDit, $dataForm, $ditFactureSoumiAValidationModel, $ditFactureSoumiAValidation, $interneExterne)
     {
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
@@ -103,15 +103,21 @@ trait DitFactureSoumisAValidationtrait
         ];
         foreach ($infoFacture as $value) {
 
+            if(!empty($agServDebDit) ) {
+                $agServFac = ($value['agencedebiteur'] . '-' . $value['servicedebiteur']);
+            } else {
+                $agServFac = '';
+            }
+
             $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
             $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv']);
             if(empty($statutOrsSoumisValidation)|| $statutOrsSoumisValidation === null || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
                 $statutFac[] = 'Itv non validée';
                 $nombreStatutControle['nbrNonValideFacture']++;
-            } elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') && $agServDebDit <> ($value['agencedebiteur'] . '-' . $value['servicedebiteur'])) {
-                $statutFac[] = 'Serv deb DIT # Serv deb FAC';
-                $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
+            } elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') && $agServDebDit <> $agServFac) {
+                    $statutFac[] = 'Serv deb DIT # Serv deb FAC';
+                    $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
             } elseif ($montantValide <> $value['montantfactureitv']) {
                 if ($migration == 1) {
                     $statutFac[] = 'DIT migrée';
@@ -141,7 +147,7 @@ trait DitFactureSoumisAValidationtrait
                 'statutItv' => $value->getStatutItv(),
                 'mttItv' => (float)$value->getMttItv(),
                 'mttFac' => $value->getMontantFactureitv(),
-                'AgServDebDit' => $value->getAgServDebDit(),
+                'AgServDebDit' => empty($value->getAgServDebDit()) ? '-' : $value->getAgServDebDit(),
                 'AgServDebFac' => $value->getAgenceDebiteur() . '-' . $value->getServiceDebiteur(),
                 'controleAFaire' => $value->getStatut()
             ];

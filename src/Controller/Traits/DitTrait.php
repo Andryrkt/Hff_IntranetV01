@@ -223,14 +223,12 @@ trait DitTrait
     /**
      * INFO AJOUTER MANUELEMENT des entités DANS LA CLASSE DEMANDE D'INTERVENTION
      *
-     * @param [type] $form
+     * @param [type] $dits
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
-    {
-        $dits = $form->getData();
-        
+    private function infoEntrerManuel($dits, $em, $user) : DemandeIntervention
+    {        
             $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
