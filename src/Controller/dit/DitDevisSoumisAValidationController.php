@@ -101,10 +101,14 @@ class DitDevisSoumisAValidationController extends Controller
         $totalAvAp = $this->montantPdfService->calculeSommeAvantApres($recapAvantApresVte);
 
         if($type === 'VP') {
-            if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0" && $totalAvAp['nbLigAv'] === $totalAvAp['nbLigAp']) {// il n'y a pas de pièce magasin
+            if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $totalAvAp['nbLigAv'] === $totalAvAp['nbLigAp']) {// il n'y a pas de pièce magasin
                 $message = " Pas de vérification à faire par le magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } else if((int)$devisValide === 0) {
+            } else if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {// il n'y a pas de pièce magasin
+                $message = " Pas de vérification à faire par le magasin ";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
+            }
+            else if((int)$devisValide !== 0) {
                 $message = " Une version de la devis est déjà validé ";
                 $this->historiqueOperation->sendNotificationSoumissionSansRedirection($message, $numDevis, 'dit_index');
                 $this->sessionService->set('devis_version_valide', 'OK');
