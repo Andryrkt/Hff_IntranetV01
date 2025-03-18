@@ -101,10 +101,13 @@ class DitDevisSoumisAValidationController extends Controller
         $totalAvAp = $this->montantPdfService->calculeSommeAvantApres($recapAvantApresVte);
 
         if($type === 'VP') {
-            if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0" && $totalAvAp['nbLigAv'] === $totalAvAp['nbLigAp']) {// il n'y a pas de pièce magasin
+            if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $totalAvAp['nbLigAv'] === $totalAvAp['nbLigAp'] && $totalAvAp['nbLigAp'] !== 0) {// il n'y a pas de pièce magasin
                 $message = " Pas de vérification à faire par le magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } else if((int)$devisValide === 0) {
+            } else if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") {// il n'y a pas de pièce magasin
+                $message = " Pas de vérification à faire par le magasin ";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
+            } else if((int)$devisValide !== 0) {
                 $message = " Une version de la devis est déjà validé ";
                 $this->historiqueOperation->sendNotificationSoumissionSansRedirection($message, $numDevis, 'dit_index');
                 $this->sessionService->set('devis_version_valide', 'OK');
@@ -134,18 +137,18 @@ class DitDevisSoumisAValidationController extends Controller
         if (true) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            $this->envoieDonnerDansBd($devisSoumisValidataion);
-            $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
+            $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
+            $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
+            //recuperation du fichier ajouter par l'utilisateur
+            $file =  $form->get('pieceJoint01')->getData();
 
             if ($type == 'VP') {
                 //generer le nom du fichier
                 $nomFichierGenerer = 'verificationprix_' .$numDevis.'-'.$numeroVersion.'#'.$suffix.'.pdf';
-                
-                 //recuperation du fichier ajouter par l'utilisateur
-                $file =  $form->get('pieceJoint01')->getData();
+
                 // telecharger le fichier en copiant sur son repertoire
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
@@ -160,8 +163,6 @@ class DitDevisSoumisAValidationController extends Controller
                 //generer le nom du fichier
                 $nomFichierGenerer = 'devisatelier_' .$numDevis.'-'.$numeroVersion.'#'.$suffix.'.pdf';
                 
-                 //recuperation du fichier ajouter par l'utilisateur
-                $file =  $form->get('pieceJoint01')->getData();
                 // telecharger le fichier en copiant sur son repertoire
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
@@ -510,15 +511,27 @@ class DitDevisSoumisAValidationController extends Controller
         ];
     }
 
-    private function envoieDonnerDansBd(array $devisSoumisValidataion)
+    private function statutSelonType(string $type) {
+        if($type == 'VP') {
+            $statut = 'Prix à confirmer';
+        } else {
+            $statut = 'a valider atelier';
+        }
+        return $statut;
+    }
+
+    private function envoieDonnerDansBd(array $devisSoumisValidataion, string $type)
     {
+        $statut = $this->statutSelonType($type);
+
         // Persist les entités liées
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
-                $entity->setStatut('Soumis à validation');
+                $entity->setStatut($statut);
                 self::$em->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
+            $devisSoumisValidataion[0]->setStatut($statut);
             self::$em->persist($devisSoumisValidataion[0]);
         }
 
@@ -621,11 +634,13 @@ class DitDevisSoumisAValidationController extends Controller
      * @param string $numDevis
      * @return void
      */
-    private function editDevisRattacherDit(string $numDit, string $numDevis)
+    private function editDevisRattacherDit(string $numDit, string $numDevis, string $type)
     {
+        $statut = $this->statutSelonType($type);
+
         $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroDevisRattache($numDevis);
-        $dit->setStatutDevis('Soumis à validation');
+        $dit->setStatutDevis($statut);
         self::$em->flush();
     }
 
