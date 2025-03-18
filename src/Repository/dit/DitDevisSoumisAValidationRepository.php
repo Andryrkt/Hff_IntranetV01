@@ -248,12 +248,10 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         // Compter le nombre de devis validés pour la version maximale
         return $this->createQueryBuilder('dsv')
             ->select('COUNT(dsv.id)') // Assurez-vous que 'id' est une clé unique dans votre entité
-            ->where('dsv.type = :type')
+            ->Where('dsv.numeroDevis = :numDevis')
             ->andWhere('dsv.numeroVersion = :numVersion')
             ->andWhere('dsv.statut Like :statut')
-            ->andWhere('dsv.numeroDevis = :numDevis')
             ->setParameters([
-                'type' => 'VP',
                 'numVersion' => $numeroVersionMax,
                 'statut' => '%Validé%',
                 'numDevis' => $numDevis
@@ -262,4 +260,30 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->getSingleScalarResult();
     }
     
+    public function findStatut($numDevis) {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+        ->select('MAX(dsv.numeroVersion)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis)
+        ->getQuery()
+        ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder('dsv')
+            ->select('dsv.statut')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
+        ;
+    }
 }
