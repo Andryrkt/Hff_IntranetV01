@@ -18,6 +18,8 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -110,7 +112,17 @@ class DemandeAppro
      */
     private  $serviceDebiteur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeApproL::class, mappedBy="demandeAppro")
+     */
+    private Collection $DAL;
+
     private ?DemandeIntervention $dit = null;
+
+    public function __construct()
+    {
+        $this->DAL = new ArrayCollection();
+    }
 
     /**
      * Get the value of id
@@ -433,5 +445,30 @@ class DemandeAppro
         $this->dit = $dit;
 
         return $this;
+    }
+
+    /**
+     * Get the value of DAL
+     */
+    public function getDAL(): Collection
+    {
+        return $this->DAL;
+    }
+
+    public function addChild(DemandeApproL $DAL): void
+    {
+        if (!$this->DAL->contains($DAL)) {
+            $this->DAL[] = $DAL;
+            $DAL->setDemandeAppro($this);
+        }
+    }
+
+    public function removeChild(DemandeApproL $DAL): void
+    {
+        if ($this->DAL->removeElement($DAL)) {
+            if ($DAL->getDemandeAppro() === $this) {
+                $DAL->setDemandeAppro(null);
+            }
+        }
     }
 }

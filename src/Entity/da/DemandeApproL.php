@@ -108,6 +108,11 @@ class DemandeApproL
     private $catalogue = false;
 
     /**
+     * @ORM\ManyToOne(targetEntity=DemandeAppro::class, inversedBy="DAL")
+     */
+    private ?DemandeAppro $demandeAppro = null;
+
+    /**
      * Get the value of numeroDemandeAppro
      *
      * @return string
@@ -426,6 +431,26 @@ class DemandeApproL
     public function setCatalogue($catalogue)
     {
         $this->catalogue = $catalogue;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeAppro
+     */
+    public function getDemandeAppro(): ?DemandeAppro
+    {
+        return $this->demandeAppro;
+    }
+
+    /**
+     * Set the value of demandeAppro
+     *
+     * @return  self
+     */
+    public function setDemandeAppro(?DemandeAppro $demandeAppro)
+    {
+        $this->demandeAppro = $demandeAppro;
 
         return $this;
     }
