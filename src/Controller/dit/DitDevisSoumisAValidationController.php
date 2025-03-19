@@ -107,6 +107,8 @@ class DitDevisSoumisAValidationController extends Controller
             'conditionStatutDevisVa' => $statutDevis === 'A valider atelier' // le statut de la dernière version de devis est-il Soumis à validation 
         ];
 
+        $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis);
+
         if($type === 'VP') {
             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
@@ -135,7 +137,11 @@ class DitDevisSoumisAValidationController extends Controller
             if((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } elseif ($condition['conditionStatutDevisVp']) {
+            } else if($nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0" && $estCepremierSoumission) {
+                $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
+            } 
+            elseif ($condition['conditionStatutDevisVp']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } 
