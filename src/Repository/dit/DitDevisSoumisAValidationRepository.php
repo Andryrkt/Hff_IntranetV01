@@ -28,7 +28,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     return $dernierStatut ? $dernierStatut['statut'] : null;
 }
 
-    public function findDevisSoumiAvant($numDevis, $natureOperation)
+    public function findDevisSoumiAvant($numDevis)
     {
             $qb = $this->createQueryBuilder('dev');
 
@@ -39,9 +39,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
 
         $orSoumisAvant = $qb
             ->where('dev.numeroDevis = :numDevis')
-            ->andWhere('dev.natureOperation = :natureOperation')
             ->andWhere('dev.montantItv <> :mttItv')
-            ->setParameter('natureOperation', $natureOperation)
             ->setParameter('numDevis', $numDevis)
             ->setParameter('mttItv', 0.00)
             ->andWhere($qb->expr()->eq('dev.numeroVersion', '(' . $subquery . ')'))
@@ -52,7 +50,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
 
-    public function findDevisSoumiAvantMax($numDevis, $natureOperation)
+    public function findDevisSoumiAvantMax($numDevis)
     {
         // Étape 1: Récupérer la version maximale pour le numeroOR donné
         $qbMax = $this->createQueryBuilder('dev2')
@@ -70,11 +68,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         // Étape 2: Récupérer la ligne qui a la version juste avant la version max
         $qb = $this->createQueryBuilder('dev')
             ->where('dev.numeroDevis = :numDevis')
-            ->andWhere('dev.natureOperation = :natureOperation')
             ->andWhere('dev.montantItv <> :mttItv')
             ->andWhere('dev.numeroVersion = :previousVersion')
             ->setParameter('mttItv', 0.00)
-            ->setParameter('natureOperation', $natureOperation)
             ->setParameter('numDevis', $numDevis)
             ->setParameter('previousVersion', $maxVersion - 1)  // Juste avant la version max
             ->getQuery()
@@ -229,5 +225,61 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         } catch (\Doctrine\ORM\NoResultException $e) {
             return ''; // Retourner une chaîne vide si aucun statut n'est trouvé
         }
+    }
+
+    public function findDevisVpValide($numDevis) {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+            ->select('MAX(dsv.numeroVersion)')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->setParameter('numDevis', $numDevis)
+            ->getQuery()
+            ->getSingleScalarResult();
+    
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+    
+        // Compter le nombre de devis validés pour la version maximale
+        return $this->createQueryBuilder('dsv')
+            ->select('COUNT(dsv.id)') // Assurez-vous que 'id' est une clé unique dans votre entité
+            ->Where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->andWhere('dsv.statut Like :statut')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'statut' => '%Validé%',
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+    
+    public function findStatut($numDevis) {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+        ->select('MAX(dsv.numeroVersion)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis)
+        ->getQuery()
+        ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder('dsv')
+            ->select('dsv.statut')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleColumnResult();
+        ;
     }
 }

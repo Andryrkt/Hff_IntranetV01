@@ -1166,6 +1166,7 @@ END AS Status_B
       WHERE seor_numor = slor_numor
       AND seor_soc = 'HF'
       AND seor_serv <> 'DEV'
+      AND seor_soc = 'HF'
       AND sitv_numor = slor_numor 
       AND sitv_interv = slor_nogrp/100 
       AND (seor_succ = asuc_num)

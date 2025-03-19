@@ -58,7 +58,14 @@ class DitController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $dits = $this->infoEntrerManuel($form, self::$em, $user);
+            $dit = $form->getData();
+
+            if(empty($dit->getIdMateriel())) {
+                $message='Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            }
+
+            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $this->modificationDernierIdApp($dits);
