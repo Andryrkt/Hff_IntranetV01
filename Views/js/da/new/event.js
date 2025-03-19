@@ -1,3 +1,4 @@
+import { resetDropdown } from '../../utils/dropdownUtils';
 import { updateDropdown } from '../../utils/selectionHandler';
 
 export function eventOnFamille() {
@@ -10,14 +11,9 @@ export function eventOnFamille() {
     let sousFamille = document.getElementById(sousFamilleId);
     let spinnerElement = document.getElementById(spinnerId);
     let containerElement = document.getElementById(containerId);
-    console.log(famille);
 
     famille.addEventListener('change', function () {
-      console.log(famille);
-
       if (famille.value !== '') {
-        console.log(famille.value);
-
         updateDropdown(
           sousFamille,
           `api/demande-appro/sous-famille/${famille.value}`,
@@ -25,6 +21,8 @@ export function eventOnFamille() {
           spinnerElement,
           containerElement
         );
+      } else {
+        resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
     });
   });

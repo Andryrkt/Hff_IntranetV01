@@ -9,8 +9,6 @@ export function resetDropdown(dropdown, defaultText) {
 }
 
 export function populateDropdown(dropdown, options) {
-  console.log(options);
-
   options.forEach((opt) => {
     const option = document.createElement('option');
     option.value = opt.value;
