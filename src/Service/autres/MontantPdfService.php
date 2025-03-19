@@ -14,7 +14,6 @@ class MontantPdfService
     {
 
         $recapAvantApresVte =$this->recuperationAvantApresVente($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
-        $recapAvantApresVteRevient =$this->recuperationAvantApresVenteRevient($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
         $recapAvantApresForfait =$this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxForfait'], $devisSoumisAvant['devisSoumisAvantForfait']);
         
         return [
@@ -29,12 +28,8 @@ class MontantPdfService
             'recapVte' => $this->recapitulationVente($devisSoumisAvant['devisSoumisAvantVte']),
             'totalRecapVte' => $this->calculeRecapSommeMontantVente($devisSoumisAvant['devisSoumisAvantVte']),
             //vente et revient
-            'avantApresVteRevient' => $this->affectationStatutVenteRevient($recapAvantApresVteRevient)['recapAvantApres'],
-            'totalAvantApresVteRevient' => $this->calculeSommeAvantApresVenteRevient($recapAvantApresVteRevient),
-            'variation' => $this->calculeVariationVenteRevient($this->calculeSommeAvantApresVenteRevient($recapAvantApresVteRevient)),
-            'nombreStatutNouvEtSuppVteRevient' => $this->affectationStatutVenteRevient($recapAvantApresVteRevient)['nombreStatutNouvEtSupp'],
-            'recapVteRevient' => $this->recapitulationVenteRevient($devisSoumisAvant['devisSoumisAvantVte']),
-            'totalRecapVteRevient' => $this->calculeRecapSommeMontantVenteRevient($devisSoumisAvant['devisSoumisAvantVte']),
+            'totalAvantApresVteForfait' => $this->calculeSommeAvantApresVenteVariation($recapAvantApresVte),
+            'variationVenteForfait' => $this->calculeVariationVenteForfait($this->calculeSommeAvantApresVenteVariation($recapAvantApresVte), $this->calculeSommeAvantApres($recapAvantApresForfait)),
         ];
     }
 
@@ -130,60 +125,7 @@ class MontantPdfService
         return $recapAvantApres;
     }
 
-    private function recuperationAvantApresVenteRevient($venteRevientSoumisAvantMax, $venteRevientSoumisAvant)
-    {
     
-        if(!empty($venteRevientSoumisAvantMax)){
-            // Trouver les objets manquants par numero d'intervention dans chaque tableau
-            $manquantDansVenteRevientSoumisAvantMax = $this->objetsManquantsParNumero($venteRevientSoumisAvantMax, $venteRevientSoumisAvant);
-            $manquantDansVenteRevientSoumisAvant = $this->objetsManquantsParNumero($venteRevientSoumisAvant, $venteRevientSoumisAvantMax);
-
-            // Ajouter les objets manquants dans chaque tableau
-            $venteRevientSoumisAvantMax = array_merge($venteRevientSoumisAvantMax, $manquantDansVenteRevientSoumisAvantMax);
-            $venteRevientSoumisAvant = array_merge($venteRevientSoumisAvant, $manquantDansVenteRevientSoumisAvant);
-
-            // Trier les tableaux par numero d'intervention
-            $this->trierTableauParNumero($venteRevientSoumisAvantMax);
-            $this->trierTableauParNumero($venteRevientSoumisAvant);
-        }
-        
-
-        $recapAvantApresVenteRevient = [];
-
-        for ($i = 0; $i < count($venteRevientSoumisAvant); $i++) {
-            
-            $montantAvantVente = isset($venteRevientSoumisAvantMax[$i])? $venteRevientSoumisAvantMax[$i]->getMontantVente() : 0.00;
-            $montantApresVente = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMontantVente() : 0.00;
-            $montantAvantRevient = isset($venteRevientSoumisAvantMax[$i])? $venteRevientSoumisAvantMax[$i]->getMontantRevient() : 0.00;
-            $montantApresRevient = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMontantRevient() : 0.00;
-
-            $itv = $venteRevientSoumisAvant[$i]->getNumeroItv();
-            $libelleItv = $venteRevientSoumisAvant[$i]->getLibellelItv();
-            $nbLigAp = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getNombreLigneItv() : 0;
-            $mttTotalApVente = $montantApresVente;
-            $mttTotalApRevient = $montantApresRevient;
-            $nbLigAv = isset($veneteRevientSoumisAvantMax[$i]) ? $venteRevientSoumisAvantMax[$i]->getNombreLigneItv() : 0;
-            $mttTotalAvVente = $montantAvantVente;
-            $mttTotalAvRevient = $montantAvantRevient;
-            $nbMargeAvRevient = isset($venteRevientSoumisAvantMax[$i]) ? $venteRevientSoumisAvantMax[$i]->getMargeRevient() : 0;
-            $nbMargeApRevient = isset($venteRevientSoumisAvant[$i]) ? $venteRevientSoumisAvant[$i]->getMargeRevient() : 0;
-
-            $recapAvantApresVenteRevient[] = [
-                'itv' => $itv,
-                'libelleItv' => $libelleItv,
-                'nbLigAv' => $nbLigAv,
-                'nbLigAp' => $nbLigAp,
-                'mttTotalAvVente' => $mttTotalAvVente,
-                'mttTotalAvRevient' => $mttTotalAvRevient,
-                'mttTotalApVente' => $mttTotalApVente,
-                'mttTotalAprevient' => $mttTotalApRevient,
-                'nbMargeAvRevient' => $nbMargeAvRevient,
-                'nbMargeApRevient' => $nbMargeApRevient,
-            ];
-        }
-
-        return $recapAvantApresVenteRevient;
-    }
     
     // Fonction pour trouver les numéros d'intervention manquants
     private function objetsManquantsParNumero($tableauA, $tableauB) {
@@ -325,29 +267,17 @@ class MontantPdfService
      * @param array $recapAvantApres
      * @return array
      */
-    private function calculeSommeAvantApresVenteRevient(array $recapAvantApresVenteRevient): array
+    private function calculeSommeAvantApresVenteVariation(array $recapAvantApresVenteVariation): array
     {
-        $totalRecepAvantApresVenteRevient = [
-            'itv' => '', //pour le premier ligne
-            'libelleItv' => 'TOTAL', // affichage du 'TOTAL' sur le footrer
-            'nbLigAv' => 0,
-            'nbLigAp' => 0,
+        $totalRecepAvantApresVenteVariation = [
             'mttTotalAvVente' => 0.00,
-            'mttTotalAvRevient' => 0.00,
             'mttTotalApVente' => 0.00,
-            'mttTotalApRevient' => 0.00,
-            'statut' => ''
         ];
-        foreach ($recapAvantApresVenteRevient as  $value) {
-            $totalRecepAvantApresVenteRevient['nbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
-            $totalRecepAvantApresVenteRevient['nbLigAp'] += $value['nbLigAp'];
-            $totalRecepAvantApresVenteRevient['mttTotalAvVente'] += $value['mttTotalAvVente'] === '' ? 0.00 : $value['mttTotalAvVente'];
-            $totalRecepAvantApresVenteRevient['mttTotalAvRevient'] += $value['mttTotalAvRevient'] === '' ? 0.00 : $value['mttTotalAvRevient'];
-            $totalRecepAvantApresVenteRevient['mttTotalApVente'] += $value['mttTotalApVente'];
-            $totalRecepAvantApresVenteRevient['mttTotalApRevient'] += $value['mttTotalApRevient'];
+        foreach ($recapAvantApresVenteVariation as  $value) {
+            $totalRecepAvantApresVenteVariation['mttTotalAvVente'] += $value['mttTotalAv'] === '' ? 0.00 : $value['mttTotalAv'];
+            $totalRecepAvantApresVenteVariation['mttTotalApVente'] += $value['mttTotalAp'];
         }
-
-        return $totalRecepAvantApresVenteRevient;
+        return $totalRecepAvantApresVenteVariation;
     }
 
      /**
@@ -357,23 +287,42 @@ class MontantPdfService
      * @param array $recapAvantApres
      * @return array
      */
-    private function calculeVariationVenteRevient(array $sommeTotalAvApVenteRevient): array
+    private function calculeVariationVenteForfait(array $sommeTotalAvApVente, array $sommeTotalAvApForfait): array
     {
-        $variationVenteRevient = [
-            'mttVariationVente' => 0.00,
-            'mttVariationRevient' => 0.00,
-            'mttVariationMarge' => 0.00,
-            'nbrVariationMarge' => 0
+        $margeVente =$this->calculeMarge($sommeTotalAvApVente['mttTotalApVente'] ,$sommeTotalAvApVente['mttTotalAvVente']);
+        $amrgeForfait = $this->calculeMarge($sommeTotalAvApForfait['mttTotalAp'], $sommeTotalAvApForfait['mttTotalAv']);
+        $variationVenteForfait = [
+            [
+                'description' => 'Montant vente magasin',
+                'mttTotalAv' => $sommeTotalAvApVente['mttTotalAvVente'],
+                'mttTotalAp' => $sommeTotalAvApVente['mttTotalApVente'],
+                'mttEcart' => $sommeTotalAvApVente['mttTotalApVente'] - $sommeTotalAvApVente['mttTotalAvVente'],
+                'nbecart' => $margeVente
+            ],
+            [
+                'description' => 'Montant forfait',
+                'mttTotalAv' =>$sommeTotalAvApForfait['mttTotalAv'] ,
+                'mttTotalAp' =>$sommeTotalAvApForfait['mttTotalAp'],
+                'mttEcart' =>$sommeTotalAvApForfait['mttTotalAp'] - $sommeTotalAvApForfait['mttTotalAv'],
+                'nbecart' => $amrgeForfait
+            ],
+            [
+                'description' => 'Variation (forfait – vente magasin)',
+                'mttTotalAv' => $sommeTotalAvApForfait['mttTotalAv'] - $sommeTotalAvApVente['mttTotalAvVente'],
+                'mttTotalAp' => $sommeTotalAvApForfait['mttTotalAp'] - $sommeTotalAvApVente['mttTotalApVente'],
+                'mttEcart' => ($sommeTotalAvApForfait['mttTotalAp'] - $sommeTotalAvApForfait['mttTotalAv']) - ($sommeTotalAvApVente['mttTotalApVente'] - $sommeTotalAvApVente['mttTotalAvVente']),
+                'nbecart' => $this->calculeMarge(($sommeTotalAvApForfait['mttTotalAp'] - $sommeTotalAvApForfait['mttTotalAv']), ($sommeTotalAvApVente['mttTotalApVente'] - $sommeTotalAvApVente['mttTotalAvVente']))
+            ]
         ];
-        
-        $variationVenteRevient['mttVariationVente'] = $sommeTotalAvApVenteRevient['mttTotalApVente'] - $sommeTotalAvApVenteRevient['mttTotalAvVente'];
-        $variationVenteRevient['mttVariationRevient'] = $sommeTotalAvApVenteRevient['mttTotalApRevient'] - $sommeTotalAvApVenteRevient['mttTotalAvRevient'];
-        $variationVenteRevient['mttVariationMarge'] = $variationVenteRevient['mttVariationVente'] - $variationVenteRevient['mttVariationRevient'];
-        $variationVenteRevient['nbrVariationMarge'] = $this->calculeMarge($variationVenteRevient['mttVariationVente'] , $variationVenteRevient['mttVariationRevient']);
 
 
-        return $variationVenteRevient;
+        return $variationVenteForfait;
     }
+
+    private function calculeMarge($apres, $avant) {
+
+    }
+
 
     private function recapitulationVente($orSoumisValidataion)
     {

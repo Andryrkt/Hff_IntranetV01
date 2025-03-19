@@ -375,10 +375,6 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
 
-
-    
-
-
     private function quelqueAffichage(string $numDevis): array
     {
         return [
@@ -426,7 +422,7 @@ class DitDevisSoumisAValidationController extends Controller
         if($type == 'VP') {
             $statut = 'Prix à confirmer';
         } else {
-            $statut = 'a valider atelier';
+            $statut = 'Soumis à validation';
         }
         return $statut;
     }
@@ -500,8 +496,6 @@ class DitDevisSoumisAValidationController extends Controller
                 ->setDevise($devisSoumis['devise'])
                 ->settype($type)
                 ->setMontantVente($devisSoumis['montant_vente'])
-                ->setMontantRevient($devisSoumis['montant_revient'])
-                ->setMargeRevient($this->calculeMarge($devisSoumis['montant_vente'], $devisSoumis['montant_revient']) )
             ;
 
             $devisSoumisValidataion[] = $ditInsertionDevis; // Ajouter l'objet dans le tableau

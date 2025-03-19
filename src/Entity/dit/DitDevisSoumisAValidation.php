@@ -140,15 +140,6 @@ class DitDevisSoumisAValidation
      */
     private ?float $montantVente=0.00;
 
-    /**
-     * @ORM\Column(type="float", scale="2")
-     */
-    private ?float $montantRevient=0.00;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private ?int $margeRevient = 0;
 
     /** ========================================================================================== 
      * GETTERS & SETTERS
@@ -727,46 +718,5 @@ class DitDevisSoumisAValidation
     {
         return $this->numeroItv === $autre->numeroItv;
     }
-
-    /**
-     * Get the value of montantRevient
-     */ 
-    public function getMontantRevient()
-    {
-        return $this->montantRevient;
-    }
-
-    /**
-     * Set the value of montantRevient
-     *
-     * @return  self
-     */ 
-    public function setMontantRevient($montantRevient)
-    {
-        $this->montantRevient = $montantRevient;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of margeRevient
-     */ 
-    public function getMargeRevient()
-    {
-        return $this->margeRevient;
-    }
-
-    /**
-     * Set the value of margeRevient
-     *
-     * @return  self
-     */ 
-    public function setMargeRevient($margeRevient)
-    {
-        $this->margeRevient = $margeRevient;
-
-        return $this;
-    }
-
     
 }
