@@ -256,7 +256,7 @@ class DitDevisSoumisAValidationModel extends Model
 
     public function recupConstRefPremDev(string $numDevis): array
     {
-        $statement = " SELECT   slor_constp||'-'|| slor_refp as contructeur
+        $statement = " SELECT   TRIM(slor_constp||'-'|| slor_refp) as contructeur
                         FROM sav_lor
                         WHERE  slor_numor = '{$numDevis}' 
                         AND slor_nogrp = 100 

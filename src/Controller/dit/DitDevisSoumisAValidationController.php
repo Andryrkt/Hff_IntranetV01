@@ -81,7 +81,7 @@ class DitDevisSoumisAValidationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion);
+            $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion, $request);
         }
 
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
@@ -129,7 +129,7 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
       /** ✅ Traite la soumission du devis */
-      private function traiterSoumissionDevis($form, string $numDevis, string $numDit, string $type, array $devisSoumisValidataion)
+      private function traiterSoumissionDevis($form, string $numDevis, string $numDit, string $type, array $devisSoumisValidataion, $request)
       {
         $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
         $numeroVersion = $devisSoumisValidataion[0]->getNumeroVersion();
@@ -141,6 +141,13 @@ class DitDevisSoumisAValidationController extends Controller
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
             $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
+
+            // Vérification si une version du devis est déjà validée
+            if($this->verificationTypeDevis($numDevis, $type, $devisSoumisValidataion)) {
+                if ($request->query->get('continueDevis') == 1) {
+                    $this->sessionService->set('devis_version_valide', 'KO');
+                }
+            }
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
@@ -251,7 +258,7 @@ class DitDevisSoumisAValidationController extends Controller
         //     $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le statut de la DIT différent de AFFECTER SECTION";
         //     $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         // }
-         elseif ($blockages['conditionStatutDevis']) {
+        elseif ($blockages['conditionStatutDevis']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
         } elseif ($blockages['conditionNomCommence']) {
@@ -422,7 +429,7 @@ class DitDevisSoumisAValidationController extends Controller
         if($type == 'VP') {
             $statut = 'Prix à confirmer';
         } else {
-            $statut = 'Soumis à validation';
+            $statut = 'A valider atelier';
         }
         return $statut;
     }

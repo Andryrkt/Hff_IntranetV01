@@ -260,7 +260,7 @@ class MontantPdfService
         return $totalRecepAvantApres;
     }
 
-     /**
+    /**
      * Methode qui permet de calculer le total de chaque colonne 
      * ceci se mettre sur le footer du tableau
      *
@@ -280,7 +280,7 @@ class MontantPdfService
         return $totalRecepAvantApresVenteVariation;
     }
 
-     /**
+    /**
      * Methode qui permet de calculer le total de chaque colonne 
      * ceci se mettre sur le footer du tableau
      *
@@ -317,10 +317,6 @@ class MontantPdfService
 
 
         return $variationVenteForfait;
-    }
-
-    private function calculeMarge($apres, $avant) {
-
     }
 
 
