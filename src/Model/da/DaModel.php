@@ -12,7 +12,7 @@ class DaModel extends Model
             trim(atab_code) as code, 
             trim(atab_lib) as libelle
             FROM agr_tab
-            INNER JOIN art_bse on abse_fams1 = atab_code
+            INNER JOIN art_bse ON abse_fams1 = atab_code
             WHERE abse_constp = 'ZST' and atab_nom = 'STA'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
@@ -26,7 +26,7 @@ class DaModel extends Model
             trim(abse_fams2) as code, 
             trim(atab_lib) as libelle
             FROM art_bse
-            INNER JOIN agr_tab AND atab_nom = 'S/S'
+            INNER JOIN agr_tab ON atab_nom = 'S/S'
             WHERE abse_constp = 'ZST' AND abse_fams1 = '$codeFamille'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
