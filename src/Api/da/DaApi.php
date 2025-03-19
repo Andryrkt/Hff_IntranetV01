@@ -43,4 +43,19 @@ class DaApi extends Controller
 
         echo json_encode($result);
     }
+
+    /**
+     * @Route("/demande-appro/autocomplete/all-designation", name="autocomplete_all_designation")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignation()
+    {
+        $daModel = new DaModel;
+        $data = $daModel->getAllDesignation();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data);
+    }
 }

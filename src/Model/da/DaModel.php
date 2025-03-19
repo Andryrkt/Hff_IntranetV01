@@ -33,4 +33,23 @@ class DaModel extends Model
 
         return $data;
     }
+
+    public function getAllDesignation()
+    {
+        $statement = "SELECT 
+            trim(abse_desi) as designation,
+            abse_pxstd as prix,
+            trim(fbse_nomfou) as fournisseur
+            FROM art_frn
+            INNER JOIN art_bse 
+                ON abse_refp = afrn_refp 
+                AND afrn_constp = abse_constp
+            INNER JOIN frn_bse 
+                ON fbse_numfou = afrn_numf
+            WHERE abse_constp = 'ZST'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
 }

@@ -1,5 +1,7 @@
+import { autocompleteTheFields } from './autocomplete';
 import { eventOnFamille } from './event';
 import {
+  createDesiAndAppendTo,
   createFams2AndAppendTo,
   createFieldAndAppendTo,
   formatAllField,
@@ -39,10 +41,12 @@ export function ajouterUneLigne() {
   ];
 
   fields.forEach(function ([classe, fieldName]) {
-    if (fieldName !== 'artFams2') {
-      createFieldAndAppendTo(classe, prototype, fieldName, row);
-    } else {
+    if (fieldName === 'artFams2') {
       createFams2AndAppendTo(classe, prototype, row);
+    } else if (fieldName === 'artDesi') {
+      createDesiAndAppendTo(classe, prototype, row);
+    } else {
+      createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
 
@@ -56,6 +60,7 @@ export function ajouterUneLigne() {
 
   eventOnFamille();
   formatAllField();
+  autocompleteTheFields();
 }
 
 function replaceNameToNewIndex(element, newIndex) {
