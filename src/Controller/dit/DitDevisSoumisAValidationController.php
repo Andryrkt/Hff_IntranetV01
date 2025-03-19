@@ -101,6 +101,12 @@ class DitDevisSoumisAValidationController extends Controller
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
         $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
 
+        $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
+        $condition = [
+            'conditionStatutDevisVp' => $statutDevis === 'Prix à confirmer', // le statut de la dernière version de devis est-il Soumis à validation 
+            'conditionStatutDevisVa' => $statutDevis === 'A valider atelier' // le statut de la dernière version de devis est-il Soumis à validation 
+        ];
+
         if($type === 'VP') {
             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
@@ -118,13 +124,24 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->sessionService->set('devis_version_valide', 'OK');
                 $this->sessionService->set('message', $message);
                 return true;
-            } else {
+            } elseif ($condition['conditionStatutDevisVp']) {
+                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+            } 
+            else {
                 return false;
             }
         } else {
             if((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
+            } elseif ($condition['conditionStatutDevisVp']) {
+                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+            } 
+            elseif ($condition['conditionStatutDevisVa']) {
+                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } 
             else {
                 return false;
@@ -224,7 +241,7 @@ class DitDevisSoumisAValidationController extends Controller
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> self::AFFECTER_SECTION, // le statut DIT est-il différent de AFFECTER SECTION
-            'conditionStatutDevisVp' => $statutDevis === 'Prix à confirmer' , // le statut de la dernière version de devis est-il Soumis à validation 
+            'conditionStatutDevisVp' => $statutDevis === 'Prix à confirmer', // le statut de la dernière version de devis est-il Soumis à validation 
             'conditionStatutDevisVa' => $statutDevis === 'A valider atelier' // le statut de la dernière version de devis est-il Soumis à validation 
         ];
     }
