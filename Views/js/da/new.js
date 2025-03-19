@@ -6,7 +6,4 @@ document.addEventListener('DOMContentLoaded', function () {
   document
     .getElementById('add-child')
     .addEventListener('click', ajouterUneLigne);
-  document.querySelectorAll('[id*="artFams1"]').forEach((famille) => {
-    famille.addEventListener('click', function () {});
-  });
 });

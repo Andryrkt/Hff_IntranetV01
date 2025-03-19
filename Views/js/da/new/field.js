@@ -27,7 +27,7 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   let spinnerContainer = document.createElement('div');
   spinnerContainer.classList.add('spinner-container');
   spinnerContainer.innerHTML = `
-        <div class="spinner" id="${spinnerId}" style="display: none;">
+        <div class="spinner-load m-auto" id="${spinnerId}" style="display: none;">
             ${'<div></div>'.repeat(12)} 
         </div>
     `;

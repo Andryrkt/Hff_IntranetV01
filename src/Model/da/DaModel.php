@@ -31,6 +31,6 @@ class DaModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
+        return $data;
     }
 }

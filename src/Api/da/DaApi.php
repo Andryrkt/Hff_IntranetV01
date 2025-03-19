@@ -31,8 +31,16 @@ class DaApi extends Controller
         $daModel = new DaModel;
         $data = $daModel->getTheSousFamille($code);
 
+        $result = [];
+        foreach ($data as $sfm) {
+            $result[] = [
+                'value' => $sfm['libelle'],
+                'text' => $sfm['libelle'],
+            ];
+        }
+
         header("Content-type:application/json");
 
-        echo json_encode($data);
+        echo json_encode($result);
     }
 }
