@@ -1165,6 +1165,7 @@ END AS Status_B
       FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec, outer neg_lig
       WHERE seor_numor = slor_numor
       AND seor_serv <> 'DEV'
+      AND seor_soc = 'HF'
       AND sitv_numor = slor_numor 
       AND sitv_interv = slor_nogrp/100 
       AND (seor_succ = asuc_num)

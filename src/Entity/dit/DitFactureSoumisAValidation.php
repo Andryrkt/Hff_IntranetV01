@@ -66,14 +66,14 @@ class DitFactureSoumisAValidation
      *
      * @var string
      */
-    private string $agenceDebiteur;
+    private ?string $agenceDebiteur;
 
     /**
      * @ORM\Column(type="string", length=50, name="service_debiteur")
      *
      * @var string
      */
-    private string $serviceDebiteur;
+    private ?string $serviceDebiteur;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut")
@@ -293,7 +293,7 @@ class DitFactureSoumisAValidation
      *
      * @return  self
      */ 
-    public function setAgenceDebiteur(string $agenceDebiteur)
+    public function setAgenceDebiteur($agenceDebiteur)
     {
         $this->agenceDebiteur = $agenceDebiteur;
 
@@ -317,7 +317,7 @@ class DitFactureSoumisAValidation
      *
      * @return  self
      */ 
-    public function setServiceDebiteur(string $serviceDebiteur)
+    public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;
 

@@ -36,9 +36,9 @@
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
              <tr>
-             <th rowspan="2" class="align-middle">Numero</th>
+             <th rowspan="2" class="align-middle">Numero en entête</th>
               <th  rowspan="2" class="align-middle">CST</th>
-              <th  rowspan="2" class="align-middle">Reférence</th>
+              <th  rowspan="2" class="align-middle">Reférence en entête</th>
               <th  rowspan="2" class="align-middle">Description</th>
               <th  rowspan="2" class="align-middle">Casier</th>
               <th  rowspan="2" class="align-middle">Qté théorique</th>
@@ -47,7 +47,7 @@
               <th rowspan="2" class="align-middle">% nbr écart</th>
               <th rowspan="2" class="align-middle">P.M.P</th>
               <th rowspan="2" class="align-middle">Mont. Inventaire</th>
-              <th rowspan="2" class="align-middle">Mont. Ajusté</th>
+              <th rowspan="2" class="align-middle">Mont. Ecart</th>
               <th rowspan="2" class="align-middle">% Mont. Ecart</th>
             </tr>
              <tr>
@@ -55,6 +55,27 @@
               <th>Cpt 2</th>
               <th>Cpt 3</th>
             </tr>
+           
+         {% for row in sumData %}
+                <tr class = "total">
+                      <th scope="row"> TOTAL</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.stock_theo}}</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.ecart}}</th>
+                      <th>{{row.pourcentage_nbr_ecart}}</th>
+                      <th>{{row.pmp}}</th>
+                      <th>{{row.montant_inventaire}}</th>
+                      <th>{{row.montant_ecart}}</th>
+                      <th>{{row.pourcentage_ecart}}</th>
+                </tr>
+         {% endfor %}
+      
          </thead>
          <tbody id="tableBody">
           {% if data is empty %}
@@ -83,6 +104,8 @@
             {% endfor %}
           {% endif %}
          </tbody>
+         
+         
       </table> 
     </div>
   </div>

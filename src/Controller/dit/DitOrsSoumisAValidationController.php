@@ -94,15 +94,16 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationStatutOr($numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                $this->envoieDonnerDansBd($orSoumisValidataion);
+                // $this->envoieDonnerDansBd($orSoumisValidataion);
                 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
+                    
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
-                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
+                // $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);

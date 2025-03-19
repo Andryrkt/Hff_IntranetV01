@@ -96,7 +96,8 @@ class DitDuplicationController extends Controller
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $dits = $this->infoEntrerManuel($form, self::$em, $user);
+            $dit = $form->getData();
+            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
 
             //envoie des pièce jointe dans une dossier
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);

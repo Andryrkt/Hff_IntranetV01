@@ -1,3 +1,5 @@
+import { baseUrl } from "../utils/config";
+
 document.addEventListener('DOMContentLoaded', function () {
     const checkAll = document.getElementById('inventaire_search_agence_all');
     const allInputCheckbox = document.querySelectorAll('.form-check-input');

@@ -8,4 +8,9 @@ class HistoriqueOperationDEVService extends HistoriqueOperationService
     {
         parent::__construct(11);
     }
+
+    public function sendNotificationSoumissionSansRedirection(string $message, string $numeroDocument, bool $success = false)
+    {
+        $this->sendNotificationCore($message, $numeroDocument, 1, $success);
+    }
 }

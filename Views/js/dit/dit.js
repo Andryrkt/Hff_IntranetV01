@@ -1,36 +1,26 @@
-import { AutoComplete } from '../utils/AutoComplete.js';
-import { FetchManager } from '../api/FetchManager.js';
-import { setupConfirmationButtons } from '../utils/ui/boutonConfirmUtils.js';
+import { AutoComplete } from "../utils/AutoComplete.js";
+import { FetchManager } from "../api/FetchManager.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+import { allowOnlyNumbers } from "../utils/inputUtils.js";
 
 const idMaterielInput = document.querySelector(
-  '#demande_intervention_idMateriel'
+  "#demande_intervention_idMateriel"
 );
-const numParcInput = document.querySelector('#demande_intervention_numParc');
-
-const numSerieInput = document.querySelector('#demande_intervention_numSerie');
+const numParcInput = document.querySelector("#demande_intervention_numParc");
+const numSerieInput = document.querySelector("#demande_intervention_numSerie");
 const numClientInput = document.querySelector(
-  '#demande_intervention_numeroClient'
+  "#demande_intervention_numeroClient"
 );
 const nomClientInput = document.querySelector(
-  '#demande_intervention_nomClient'
+  "#demande_intervention_nomClient"
 );
-const constructeurInput = document.querySelector('#constructeur');
-const designationInput = document.querySelector('#designation');
-const modelInput = document.querySelector('#model');
-const casierInput = document.querySelector('#casier');
-const kmInput = document.querySelector('#km');
-const heuresInput = document.querySelector('#heures');
-const coutAcquisitionInput = document.querySelector('#coutAcquisition');
-const amortissementInput = document.querySelector('#amortissement');
-const vncInput = document.querySelector('#vnc');
-const caInput = document.querySelector('#ca');
-const chargeLocativeInput = document.querySelector('#chargeLocative');
-const chargeEntretienInput = document.querySelector('#chargeEntretien');
-const resultatExploitationInput = document.querySelector(
-  '#resultatExploitation'
-);
-const erreur = document.querySelector('#erreur');
-const containerInfoMateriel = document.querySelector('#containerInfoMateriel');
+
+const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
+
+/**
+ * obliger d'ecrire des chiffre dans le champ id materiel
+ */
+allowOnlyNumbers(idMaterielInput);
 
 /** ===================================================================
  * recupère l'idMateriel et afficher les information du matériel
@@ -39,7 +29,7 @@ const containerInfoMateriel = document.querySelector('#containerInfoMateriel');
 const fetchManager = new FetchManager();
 
 async function fetchMateriels() {
-  return await fetchManager.get('api/fetch-materiel');
+  return await fetchManager.get("api/fetch-materiel");
 }
 
 function displayMateriel(item) {
@@ -57,8 +47,8 @@ function onSelectMateriels(item) {
 //Activation sur le champ Id Matériel
 new AutoComplete({
   inputElement: idMaterielInput,
-  suggestionContainer: document.querySelector('#suggestion-idMateriel'),
-  loaderElement: document.querySelector('#loader-idMateriel'), // Ajout du loader
+  suggestionContainer: document.querySelector("#suggestion-idMateriel"),
+  loaderElement: document.querySelector("#loader-idMateriel"), // Ajout du loader
   debounceDelay: 300, // Délai en ms
   fetchDataCallback: fetchMateriels,
   displayItemCallback: displayMateriel,
@@ -70,8 +60,8 @@ new AutoComplete({
 //Activation sur le champ numSerie
 new AutoComplete({
   inputElement: numSerieInput,
-  suggestionContainer: document.querySelector('#suggestion-numSerie'),
-  loaderElement: document.querySelector('#loader-numSerie'), // Ajout du loader
+  suggestionContainer: document.querySelector("#suggestion-numSerie"),
+  loaderElement: document.querySelector("#loader-numSerie"), // Ajout du loader
   debounceDelay: 300, // Délai en ms
   fetchDataCallback: fetchMateriels,
   displayItemCallback: displayMateriel,
@@ -83,8 +73,8 @@ new AutoComplete({
 //Activation sur le champ numParc
 new AutoComplete({
   inputElement: numParcInput,
-  suggestionContainer: document.querySelector('#suggestion-numParc'),
-  loaderElement: document.querySelector('#loader-numParc'), // Ajout du loader
+  suggestionContainer: document.querySelector("#suggestion-numParc"),
+  loaderElement: document.querySelector("#loader-numParc"), // Ajout du loader
   debounceDelay: 300, // Délai en ms
   fetchDataCallback: fetchMateriels,
   displayItemCallback: displayMateriel,
@@ -100,16 +90,16 @@ function createMaterielInfoDisplay(container, data) {
   }
 
   const fields = [
-    { label: 'Constructeur', key: 'constructeur' },
-    { label: 'Désignation', key: 'designation' },
-    { label: 'KM', key: 'km' },
-    { label: 'N° Parc', key: 'num_parc' },
+    { label: "Constructeur", key: "constructeur" },
+    { label: "Désignation", key: "designation" },
+    { label: "KM", key: "km" },
+    { label: "N° Parc", key: "num_parc" },
 
-    { label: 'Modèle', key: 'modele' },
-    { label: 'Casier', key: 'casier_emetteur' },
-    { label: 'Heures', key: 'heure' },
-    { label: 'N° Serie', key: 'num_serie' },
-    { label: 'Id Materiel', key: 'num_matricule' },
+    { label: "Modèle", key: "modele" },
+    { label: "Casier", key: "casier_emetteur" },
+    { label: "Heures", key: "heure" },
+    { label: "N° Serie", key: "num_serie" },
+    { label: "Id Materiel", key: "num_matricule" },
   ];
 
   const createFieldHtml = (label, value) => `
@@ -128,13 +118,13 @@ function createMaterielInfoDisplay(container, data) {
           ${fields
             .slice(0, 4)
             .map((field) => createFieldHtml(field.label, data[field.key]))
-            .join('')}
+            .join("")}
         </div>
         <div class="col-12 col-md-6">
           ${fields
             .slice(4)
             .map((field) => createFieldHtml(field.label, data[field.key]))
-            .join('')}
+            .join("")}
         </div>
       </div>
     </ul>
@@ -146,7 +136,7 @@ function createMaterielInfoDisplay(container, data) {
  *===========================================*/
 
 async function fetchClients() {
-  const url = numClientInput.getAttribute('data-autocomplete-url');
+  const url = numClientInput.getAttribute("data-autocomplete-url");
   const result = await fetchManager.get(url);
   return result;
 }
@@ -163,8 +153,8 @@ function onSelectClients(item) {
 //Activation sur le champ numero client
 new AutoComplete({
   inputElement: numClientInput,
-  suggestionContainer: document.querySelector('#suggestion-numClient'),
-  loaderElement: document.querySelector('#loader-numClient'),
+  suggestionContainer: document.querySelector("#suggestion-numClient"),
+  loaderElement: document.querySelector("#loader-numClient"),
   debounceDelay: 300,
   fetchDataCallback: fetchClients,
   displayItemCallback: displayClients,
@@ -175,8 +165,8 @@ new AutoComplete({
 //Activation sur le champ nom client
 new AutoComplete({
   inputElement: nomClientInput,
-  suggestionContainer: document.querySelector('#suggestion-nomClient'),
-  loaderElement: document.querySelector('#loader-nomClient'),
+  suggestionContainer: document.querySelector("#suggestion-nomClient"),
+  loaderElement: document.querySelector("#loader-nomClient"),
   debounceDelay: 300,
   fetchDataCallback: fetchClients,
   displayItemCallback: displayClients,
@@ -187,13 +177,13 @@ new AutoComplete({
 /** ==========================================================================
  * EMPECHE LA SOUMISSION DU FORMULAIRE lorsqu'on appuis sur la touche entrer
  *=============================================================================*/
-const inputNoEntrers = document.querySelectorAll('.noEntrer');
+const inputNoEntrers = document.querySelectorAll(".noEntrer");
 inputNoEntrers.forEach((inputNoEntrer) => {
-  inputNoEntrer.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+  inputNoEntrer.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
       event.preventDefault(); // Empêche le rechargement de la page
       console.log(
-        'La touche Entrée a été pressée dans le champ :',
+        "La touche Entrée a été pressée dans le champ :",
         inputNoEntrer.placeholder
       );
     }
@@ -203,11 +193,11 @@ inputNoEntrers.forEach((inputNoEntrer) => {
 /** =========================================================================
  * recuperer l'agence debiteur et changer le service debiteur selon l'agence
  *==========================================================================*/
-const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
-const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
-const spinnerService = document.getElementById('spinner-service');
-const serviceContainer = document.getElementById('service-container');
-agenceDebiteurInput.addEventListener('change', selectAgence);
+const agenceDebiteurInput = document.querySelector(".agenceDebiteur");
+const serviceDebiteurInput = document.querySelector(".serviceDebiteur");
+const spinnerService = document.getElementById("spinner-service");
+const serviceContainer = document.getElementById("service-container");
+agenceDebiteurInput.addEventListener("change", selectAgence);
 
 function selectAgence() {
   const agenceDebiteur = agenceDebiteurInput.value;
@@ -219,13 +209,13 @@ function selectAgence() {
       console.log(services);
       updateServiceOptions(services);
     })
-    .catch((error) => console.error('Error:', error))
+    .catch((error) => console.error("Error:", error))
     .finally(() => toggleSpinner(false));
 }
 
 function toggleSpinner(show) {
-  spinnerService.style.display = show ? 'inline-block' : 'none';
-  serviceContainer.style.display = show ? 'none' : 'block';
+  spinnerService.style.display = show ? "inline-block" : "none";
+  serviceContainer.style.display = show ? "none" : "block";
 }
 
 function updateServiceOptions(services) {
@@ -236,7 +226,7 @@ function updateServiceOptions(services) {
 
   // Ajouter les nouvelles options à partir du tableau services
   for (var i = 0; i < services.length; i++) {
-    var option = document.createElement('option');
+    var option = document.createElement("option");
     option.value = services[i].value;
     option.text = services[i].text;
     serviceDebiteurInput.add(option);
@@ -245,15 +235,15 @@ function updateServiceOptions(services) {
   //Afficher les nouvelles valeurs et textes des options
   for (var i = 0; i < serviceDebiteurInput.options.length; i++) {
     var option = serviceDebiteurInput.options[i];
-    console.log('Value: ' + option.value + ', Text: ' + option.text);
+    console.log("Value: " + option.value + ", Text: " + option.text);
   }
 }
 
-/**
+/** ===============================
  * CHAMP CLIENT MISE EN MAJUSCULE
- */
+ =================================*/
 
-nomClientInput.addEventListener('input', MiseMajuscule);
+nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
@@ -261,61 +251,61 @@ function MiseMajuscule() {
 /**
  * INTERNE - EXTERNE (champ )
  */
-const interneExterneInput = document.querySelector('.interneExterne');
-const numTelInput = document.querySelector('.numTel');
-const clientSousContratInput = document.querySelector('.clientSousContrat');
-const mailClientInput = document.querySelector('.mailClient');
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
+const mailClientInput = document.querySelector(".mailClient");
 const demandeDevisInput = document.querySelector(
-  '#demande_intervention_demandeDevis'
+  "#demande_intervention_demandeDevis"
 );
-const erreurClient = document.querySelector('#erreurClient');
+const erreurClient = document.querySelector("#erreurClient");
 
-if (interneExterneInput.value === 'INTERNE') {
-  nomClientInput.setAttribute('disabled', true);
-  numClientInput.setAttribute('disabled', true);
-  numTelInput.setAttribute('disabled', true);
-  clientSousContratInput.setAttribute('disabled', true);
-  mailClientInput.setAttribute('disabled', true);
+if (interneExterneInput.value === "INTERNE") {
+  nomClientInput.setAttribute("disabled", true);
+  numClientInput.setAttribute("disabled", true);
+  numTelInput.setAttribute("disabled", true);
+  clientSousContratInput.setAttribute("disabled", true);
+  mailClientInput.setAttribute("disabled", true);
 }
 
-interneExterneInput.addEventListener('change', interneExterne);
+interneExterneInput.addEventListener("change", interneExterne);
 
 function interneExterne() {
   console.log(interneExterneInput.value);
   const dataInformations = interneExterneInput.dataset.informations;
   const parsedData = JSON.parse(dataInformations);
 
-  if (interneExterneInput.value === 'EXTERNE') {
-    nomClientInput.removeAttribute('disabled');
-    nomClientInput.setAttribute('required', true);
-    numClientInput.removeAttribute('disabled');
-    numClientInput.setAttribute('required', true);
-    numTelInput.removeAttribute('disabled');
-    numTelInput.setAttribute('required', true);
-    clientSousContratInput.removeAttribute('disabled');
-    clientSousContratInput.setAttribute('required', true);
-    mailClientInput.removeAttribute('disabled');
-    mailClientInput.setAttribute('required', true);
-    demandeDevisInput.removeAttribute('disabled');
-    demandeDevisInput.value = 'OUI';
-    agenceDebiteurInput.setAttribute('disabled', true);
-    serviceDebiteurInput.setAttribute('disabled', true);
-    agenceDebiteurInput.value = '';
-    serviceDebiteurInput.value = '';
+  if (interneExterneInput.value === "EXTERNE") {
+    nomClientInput.removeAttribute("disabled");
+    nomClientInput.setAttribute("required", true);
+    numClientInput.removeAttribute("disabled");
+    numClientInput.setAttribute("required", true);
+    numTelInput.removeAttribute("disabled");
+    numTelInput.setAttribute("required", true);
+    clientSousContratInput.removeAttribute("disabled");
+    clientSousContratInput.setAttribute("required", true);
+    mailClientInput.removeAttribute("disabled");
+    mailClientInput.setAttribute("required", true);
+    demandeDevisInput.removeAttribute("disabled");
+    demandeDevisInput.value = "OUI";
+    agenceDebiteurInput.setAttribute("disabled", true);
+    serviceDebiteurInput.setAttribute("disabled", true);
+    agenceDebiteurInput.value = "";
+    serviceDebiteurInput.value = "";
   } else {
-    nomClientInput.setAttribute('disabled', true);
-    nomClientInput.removeAttribute('required');
-    numClientInput.setAttribute('disabled', true);
-    numClientInput.removeAttribute('required');
-    numTelInput.setAttribute('disabled', true);
-    numTelInput.removeAttribute('required');
-    demandeDevisInput.setAttribute('disabled', true);
-    demandeDevisInput.value = 'NON';
-    clientSousContratInput.setAttribute('disabled', true);
-    mailClientInput.setAttribute('disabled', true);
-    mailClientInput.removeAttribute('required');
-    agenceDebiteurInput.removeAttribute('disabled');
-    serviceDebiteurInput.removeAttribute('disabled');
+    nomClientInput.setAttribute("disabled", true);
+    nomClientInput.removeAttribute("required");
+    numClientInput.setAttribute("disabled", true);
+    numClientInput.removeAttribute("required");
+    numTelInput.setAttribute("disabled", true);
+    numTelInput.removeAttribute("required");
+    demandeDevisInput.setAttribute("disabled", true);
+    demandeDevisInput.value = "NON";
+    clientSousContratInput.setAttribute("disabled", true);
+    mailClientInput.setAttribute("disabled", true);
+    mailClientInput.removeAttribute("required");
+    agenceDebiteurInput.removeAttribute("disabled");
+    serviceDebiteurInput.removeAttribute("disabled");
     agenceDebiteurInput.value = parsedData.agenceId;
     serviceDebiteurInput.value = parsedData.serviceId;
   }
@@ -323,7 +313,7 @@ function interneExterne() {
 
 /** LIMITATION DE CARACTERE DU TELEPHONE */
 function limitInputCharacters(inputElement, maxLength) {
-  inputElement.addEventListener('input', () => {
+  inputElement.addEventListener("input", () => {
     if (inputElement.value.length > maxLength) {
       inputElement.value = inputElement.value.substring(0, maxLength);
     }
@@ -332,20 +322,15 @@ function limitInputCharacters(inputElement, maxLength) {
 limitInputCharacters(numTelInput, 10);
 
 /** LES CARACTES CHIFFRE SEULEMENT */
-function allowOnlyNumbers(inputElement) {
-  inputElement.addEventListener('input', () => {
-    inputElement.value = inputElement.value.replace(/[^0-9]/g, '');
-  });
-}
 allowOnlyNumbers(numTelInput);
 
 /** FORM */
-const myForm = document.querySelector('#myForm');
+const myForm = document.querySelector("#myForm");
 
-myForm.addEventListener('submit', intExtEnvoier);
+myForm.addEventListener("submit", intExtEnvoier);
 function intExtEnvoier() {
-  agenceDebiteurInput.removeAttribute('disabled');
-  serviceDebiteurInput.removeAttribute('disabled');
+  agenceDebiteurInput.removeAttribute("disabled");
+  serviceDebiteurInput.removeAttribute("disabled");
 }
 
 /**
@@ -355,12 +340,12 @@ function formatNumber(input) {
   let number = parseFloat(input);
   if (!isNaN(number)) {
     // Formater le nombre en utilisant la locale fr-FR
-    let formatted = number.toLocaleString('fr-FR', {
+    let formatted = number.toLocaleString("fr-FR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     });
     // Remplacer les espaces par des points pour les séparateurs de milliers
-    formatted = formatted.replace(/\s/g, '.');
+    formatted = formatted.replace(/\s/g, ".");
     return formatted;
   }
 }
@@ -368,16 +353,16 @@ function formatNumber(input) {
 /**
  * VALIDATION DE OBJET DEMANDE (ne peut pas contenir plus de 86 caractère)
  */
-const objetDemande = document.querySelector('.noEntrer');
+const objetDemande = document.querySelector(".noEntrer");
 
-objetDemande.addEventListener('input', function () {
+objetDemande.addEventListener("input", function () {
   objetDemande.value = objetDemande.value.substring(0, 86);
 });
 
 /**===================
  * BOUTON ENREGISTRER
  *====================*/
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
   setupConfirmationButtons();
 });
 /**
@@ -403,15 +388,15 @@ document.addEventListener('DOMContentLoaded', function () {
 //   }
 // });
 
-const textarea = document.querySelector('.detailDemande');
-const charCount = document.getElementById('charCount');
+const textarea = document.querySelector(".detailDemande");
+const charCount = document.getElementById("charCount");
 const MAX_CHARACTERS = 1800;
 
 // Afficher le message initial
 charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
-charCount.style.color = 'black'; // Couleur initiale
+charCount.style.color = "black"; // Couleur initiale
 
-textarea.addEventListener('input', function () {
+textarea.addEventListener("input", function () {
   // Compter chaque retour à la ligne comme 131 caractères
   let adjustedLength =
     textarea.value.length + (textarea.value.match(/\n/g) || []).length * 130;
@@ -425,12 +410,12 @@ textarea.addEventListener('input', function () {
   // Mettre à jour le compteur de caractères
   if (textarea.value.length === 0) {
     charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
-    charCount.style.color = 'black';
+    charCount.style.color = "black";
   } else {
     charCount.textContent = `Il vous reste ${
       remainingCharacters >= 0 ? remainingCharacters : 0
     } caractères.`;
-    charCount.style.color = '#000';
+    charCount.style.color = "#000";
   }
 });
 
