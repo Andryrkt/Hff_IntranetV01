@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /**
- * POUR LE TOOLTIP
+ * modal pour la déconnexion
  */
 document.addEventListener("DOMContentLoaded", function () {
   var tooltipTriggerList = [].slice.call(

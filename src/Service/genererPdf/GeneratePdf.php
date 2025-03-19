@@ -43,10 +43,10 @@ class GeneratePdf
         }
     }
 
-    public function copyToDw($numeroVersion, $numeroOR)
+    public function copyToDw($numeroVersion, $numeroOR, $suffix)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#'.$suffix.'.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -66,8 +66,8 @@ class GeneratePdf
 
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
-        for ($i=1; $i <= count($pathFichiers); $i++) { 
-            $cheminFichierDistant = $this->baseCheminDocuware . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+        for ($i=0; $i < count($pathFichiers); $i++) { 
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             copy($cheminDestinationLocal, $cheminFichierDistant);
         }
@@ -112,6 +112,15 @@ class GeneratePdf
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/ac_bc/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
+    
+    public function copyToDWCdeFnrSoumis($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde_fournisseur/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+
 
     public function copyToDWCdeFnrSoumis($fileName)
     {
@@ -141,7 +150,7 @@ protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica
     $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
 
     // Ajouter un espace après le titre
-    $pdf->Ln($lineBreak);
+    $pdf->Ln($lineBreak, true);
 }
 
     /** 

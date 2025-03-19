@@ -239,4 +239,69 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function recupBlockageStatut($numOr)
+    {
+        $sql = " SELECT
+                case when count(statut) > 0 then 'bloquer' else 'ne pas bloquer' end as retour
+            FROM ors_soumis_a_validation
+            WHERE numeroOR = '{$numOr}'
+            AND numeroVersion = (
+                SELECT MAX(numeroVersion)
+                FROM ors_soumis_a_validation
+                WHERE numeroOR = '{$numOr}'
+            )
+            and statut not like ('%Validé%')
+            and statut not like ('%Refusé%')
+            and statut <> 'Livré partiellement'
+            and statut = 'Livré'
+        ";
+
+        return $this->retournerResult28($sql);
+    }
+
+    public function constructeurPieceMagasin(string $numOr)
+    {
+        $statement = " SELECT
+            CASE
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('CP')
+            
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('C')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('N')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('P')
+            END AS retour
+        FROM sav_lor
+        WHERE slor_numor = '".$numOr."'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function countAgServDebit($numOr)
+    {
+        $statement = " SELECT count(distinct sitv_servdeb) as retour
+                    from sav_itv 
+                    where sitv_numor = '{$numOr}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

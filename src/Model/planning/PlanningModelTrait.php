@@ -232,7 +232,7 @@ trait PlanningModelTrait
         if(!empty($criteria->getAgenceDebite())){
             $agenceDebite = " AND sitv_succdeb = '".$criteria->getAgenceDebite(). "' ";
           }else{
-            $agenceDebite = "";
+            $agenceDebite = " AND sitv_succdeb in ('01','02','90','92','40','60','50','40','30','20')";
           }
           return $agenceDebite;
     }

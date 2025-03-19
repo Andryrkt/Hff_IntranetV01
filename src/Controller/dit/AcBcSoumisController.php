@@ -15,9 +15,11 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Service\fichier\GenererNonFichierService;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AcBcSoumisController extends Controller
 {
@@ -81,21 +83,26 @@ class AcBcSoumisController extends Controller
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $suffix = $this->pieceGererMagasinConstructeur($numDevis);
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
             
             //fusionne le pdf
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+            $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
+
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
-            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $nomFichier, count([$uploadedFilePath]));
-            $fileUploader->fusionFichers($uploadedFiles, $nomFichier);
+            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
+
+
+            $fileUploader->fusionFichers($uploadedFiles,  $chemin.$nomFichier);
+
+
 
             //envoie le pdf dans docuware
-            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
@@ -110,29 +117,29 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
-    private function pieceGererMagasinConstructeur($numDevis)
-    {
-        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+    // private function pieceGererMagasinConstructeur($numDevis)
+    // {
+    //     $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
-        if(isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+    //     if(isset($constructeur[0])) {
+    //         $containsCAT = in_array("CAT", $constructeur[0]);
+    //         $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
 
-            if($containsOther === 0) {
-                $suffix = 'C';
-            } else if(!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0 ) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
-        }
+    //         if($containsOther === 0) {
+    //             $suffix = 'C';
+    //         } else if(!$containsCAT) {
+    //             $suffix = 'P';
+    //         } else if ($containsOther > 0 ) {
+    //             $suffix = 'CP';
+    //         } else {
+    //             $suffix = 'N';
+    //         }
+    //     } else {
+    //         $suffix = 'N';
+    //     }
 
-        return $suffix;
-    }
+    //     return $suffix;
+    // }
 
     private function filtredataDevis($numDit)
     {

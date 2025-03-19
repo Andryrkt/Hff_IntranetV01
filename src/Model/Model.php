@@ -144,6 +144,15 @@ class Model
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
 
+    public function retournerResult28($sql)
+    {
+        $statement = $this->connexion->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+        $data[] = $tabType;
+        }
+        return $data;
+    }
 
     public function retournerResultGcot04($sql)
     {

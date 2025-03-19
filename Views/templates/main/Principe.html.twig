@@ -26,6 +26,7 @@
 				{% set hasDDP = false %}
 				{% set hasCFR = false %}
 				{% set hasINV = false %}
+				{% set hasMUT = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -48,6 +49,8 @@
 						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'INV' %}
 						{% set hasINV = true %}
+						{% elseif item.codeApp == 'MUT' %}
+						{% set hasMUT = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -121,6 +124,20 @@
 								<li>
 									<hr class="dropdown-divider">
 								</li>
+								{% if hasMUT %}
+								
+								<li class="dropdown-header">
+									Mutation</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
+								</li>
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								{% endif %}
 							{% endif %}
 
 							<!-- Bordereau d’acquisition et de Mouvement Matériel -->
@@ -133,6 +150,9 @@
 								</li>
 								<li>
 									<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">Consultation</a>
+								</li>
+								<li>
+									<hr class="dropdown-divider">
 								</li>
 								<li class="dropdown-header">
 									Casier
@@ -224,17 +244,11 @@
 							{# <li> #}
 							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
 							{# </li> #}
-								{% if hasINV %}
-									<li>
-								<hr class="dropdown-divider"> </li>
-								<li class="dropdown-header">
-									INVENTAIRE
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}">
-										Liste inventaire</a>
-								</li>
-							{% endif %}
+							<li class="dropdown-header">
+								INVENTAIRE
+							</li>
+							<li><a class= "dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}"> Liste inventaire</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
@@ -265,9 +279,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li>
-									<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-							</li>
+							{# <li> #}
+								{# <a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a> #}
+							{# </li> #}
 						</ul>
 					</li>
 				{% endif %}
