@@ -182,10 +182,10 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 12);
         //DETAIL VENTE par rapport au REVIENT (tableau)
         $headerVenteRevient = [
-            ['key' => 'description', 'label' => 'Description', 'width' => 200, 'style' => 'font-weight: bold;text-align: left;'],
-            ['key' => 'mttTotalAv', 'label' => 'Mtt av', 'width' => 50, 'style' => 'font-weight: bold; text-align: right; '],
-            ['key' => 'mttTotalAp', 'label' => 'Mtt ap', 'width' => 50, 'style' => 'font-weight: bold; text-align: right;'],
-            ['key' => 'mttEcart', 'label' => 'Mtt écart', 'width' => 50, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'description', 'label' => 'Description', 'width' => 150, 'style' => 'font-weight: bold;text-align: left;'],
+            ['key' => 'mttTotalAv', 'label' => 'Mtt av', 'width' => 60, 'style' => 'font-weight: bold; text-align: right; '],
+            ['key' => 'mttTotalAp', 'label' => 'Mtt ap', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'mttEcart', 'label' => 'Mtt écart', 'width' => 60, 'style' => 'font-weight: bold; text-align: right;'],
             ['key' => 'nbecart', 'label' => '% écart', 'width' => 50, 'style' => 'font-weight: bold; text-align: center;'],
             
         ];
