@@ -29,7 +29,8 @@ class DaModel extends Model
             INNER JOIN agr_tab AND atab_nom = 'S/S'
             WHERE abse_constp = 'ZST' AND abse_fams1 = '$codeFamille'";
         $result = $this->connect->executeQuery($statement);
-        $data = $this->connect->fetchResults($result);
-        return $this->convertirEnUtf8($data);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
     }
 }
