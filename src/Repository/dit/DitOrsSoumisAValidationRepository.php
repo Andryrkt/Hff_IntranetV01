@@ -167,8 +167,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
     public function findMontantValide($numOr, $numItv)
     {
-        // Étape 1 : Récupérer le numeroVersion maximum
-        $numeroVersionMax = $this->createQueryBuilder('osv')
+         // Étape 1 : Récupérer le numeroVersion maximum
+            $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
             ->setParameter('numOr', $numOr)
@@ -204,8 +204,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 "message" => "Aucun montant valide trouvé pour le numeroOR {$numOr} et le numeroItv {$numItv}."
             ];
         }
-
-        return $montantValide;
     }
 
 
