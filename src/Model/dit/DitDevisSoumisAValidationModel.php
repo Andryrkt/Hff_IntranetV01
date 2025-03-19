@@ -367,5 +367,18 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    
+    public function recupNbrPieceMagasin($numDevis)
+    {
+        $statement = "SELECT count(slor_nolign)  as nbLigne
+                        from sav_lor 
+                        where slor_numor='{$numDevis}' 
+                        and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);           
+    }
 }

@@ -282,4 +282,32 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->getSingleColumnResult();
         ;
     }
+
+    public function findNbrPieceMagasin($numDevis)
+    {
+        // Récupérer le numéro de version maximal pour le devis donné
+        $numeroVersionMax = $this->createQueryBuilder('dsv')
+        ->select('MAX(dsv.numeroVersion)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis)
+        ->getQuery()
+        ->getSingleScalarResult();
+
+        // Si aucun numéro de version trouvé, retourner 0
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
+
+        return $this->createQueryBuilder('dsv')
+            ->select('DISTINCT dsv.nombreLignePiece')
+            ->where('dsv.numeroDevis = :numDevis')
+            ->andWhere('dsv.numeroVersion = :numVersion')
+            ->setParameters([
+                'numVersion' => $numeroVersionMax,
+                'numDevis' => $numDevis
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+        ;
+    }
 }
