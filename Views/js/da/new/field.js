@@ -43,3 +43,18 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   // Ajout du conteneur principal au parent
   parentField.appendChild(field);
 }
+
+export function formatAllField() {
+  let designations = document.querySelectorAll(`[id*="artDesi"]`);
+  let quantites = document.querySelectorAll(`[id*="qteDem"]`);
+  designations.forEach((designation) => {
+    designation.addEventListener('input', function () {
+      designation.value = designation.value.toUpperCase();
+    });
+  });
+  quantites.forEach((quantite) => {
+    quantite.addEventListener('input', function () {
+      quantite.value = quantite.value.replace(/[^\d]/g, '');
+    });
+  });
+}

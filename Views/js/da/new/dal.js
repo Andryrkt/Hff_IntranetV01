@@ -1,5 +1,9 @@
 import { eventOnFamille } from './event';
-import { createFams2AndAppendTo, createFieldAndAppendTo } from './field';
+import {
+  createFams2AndAppendTo,
+  createFieldAndAppendTo,
+  formatAllField,
+} from './field';
 
 let container = document.getElementById('children-container');
 
@@ -51,6 +55,7 @@ export function ajouterUneLigne() {
   container.appendChild(div);
 
   eventOnFamille();
+  formatAllField();
 }
 
 function replaceNameToNewIndex(element, newIndex) {
