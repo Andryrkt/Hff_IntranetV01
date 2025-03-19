@@ -29,7 +29,12 @@
 					</div>
 					<div role="button" tabindex="0" id="complet-non-livre">
 						<i class="fa-solid fa-circle text-primary"></i>
-						<small class="text-primary">Complet non livré
+						<small class="text-primary">Complet non livré | 
+						</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order
 						</small>
 					</div>
 				</div>
@@ -62,7 +67,7 @@
 
 			<tr>
 
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Agence-service</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white; width: 194px;" class="align-middle">Agence-service</th>
 				<th style="text-align:center;border: 2px solid white;" colspan="12">Matériel</th>
 				<th style="text-align:center;border: 2px solid white;" colspan="8">OR
 				</th>
@@ -146,6 +151,8 @@
 					{% set statut = ' partiellement-dispo bg-info text-white'%}
 				{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
 					{% set statut = ' complet-non-livre bg-primary text-white'%}
+				{% elseif  item.backorder is same as "back"%}
+					{% set statut = ' back-order border-end border-start border-danger border-3'%}
 				{% else %}
 					{% set statut = ""%}
 				{% endif %}

@@ -258,6 +258,49 @@ class PlanningModel extends Model
                   
       ";
 
+// dump($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+
+    return array_map(function ($item) {
+      return $item['intervention'];
+    }, $resultat);
+  }
+
+  public function backOrderPlanningnoItv($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
+  {
+
+    if (!empty($lesOrValides)) {
+      if ($criteria->getOrNonValiderDw() == true) {
+        $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
+      } else {
+        $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      }
+    } else {
+      $vOrvalDw = " AND  slor_numor in ('')";
+    }
+
+
+    $statement = "SELECT distinct 
+                   sav.slor_numor  AS intervention
+                  FROM sav_lor AS sav
+                  INNER JOIN gcot_acknow_cat AS cat
+                  ON sav.slor_numcf = cat.numero_po
+                  AND (sav.slor_nolign = cat.line_number OR  sav.slor_noligncm = cat.line_number)
+                  AND sav.slor_refp = cat.parts_number
+                  WHERE cat.libelle_type = 'Back Order'
+                  AND cat.id_gcot_acknow_cat  = (
+                                              SELECT MAX(sub.id_gcot_acknow_cat )
+                                              FROM gcot_acknow_cat AS sub
+                                              WHERE sub.parts_number = cat.parts_number
+                                                AND sub.numero_po = cat.numero_po
+                                                AND sub.line_number = cat.line_number
+                                          ) 
+                  $vOrvalDw
+                  
+      ";
+
     $result = $this->connect->executeQuery($statement);
     // dump($statement);
     $data = $this->connect->fetchResults($result);
@@ -846,19 +889,20 @@ class PlanningModel extends Model
   public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
   { 
     if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+      // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
     } else {
       if (!empty($lesOrValides)) {
         if ($criteria->getOrNonValiderDw() == true) {
-          $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
         }else {
-          $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+          // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
           } 
     } else {
-        $vOrvalDw = " AND seor_numor in ('')";
-        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+        // $vOrvalDw = " AND seor_numor in ('')";
+        $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
       }
     }
 

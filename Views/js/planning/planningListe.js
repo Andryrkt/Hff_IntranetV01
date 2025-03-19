@@ -1,5 +1,7 @@
-
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM");
+  document.getElementById("loading-overlays").style.display = "flex";
+fusion();
   /** ====================================================
    * FILTRE STATUT
    ** ========================================================*/
@@ -11,44 +13,29 @@ document.addEventListener('DOMContentLoaded', function () {
     "back-order": "back-order",
     "tout-afficher": null, // Tout afficher n'a pas de classe spécifique
   };
-  
+  document.getElementById("loading-overlays").style.display = "flex";
   // Ajoute un gestionnaire d'événement pour chaque bouton
+
   for (const [buttonId, filterClass] of Object.entries(buttons)) {
     const button = document.getElementById(buttonId);
     if (button) {
-      console.log(filterClass);
-      
+      // console.log(filterClass);
+
       button.addEventListener("click", () => filterRowsByColumn(filterClass));
     }
   }
-  try {
-        document.getElementById("loading-overlays").style.display = "flex";
-        console.log("letie eh");
-        
-        fusion();
-  } catch (error) {
-    console.error(error);
 
-  } finally {
-    document.getElementById("loading-overlays").style.display = "none";
-    console.log("tsss");
-    
-  }
+  document.getElementById("loading-overlays").style.display = "none";
 });
 
-
 function fusion() {
-
-  
   const tableBody = document.querySelector("#tableBody");
-  const rows = document.querySelectorAll("#tableBody tr");
-
+  const rows = document.querySelectorAll("#tableBody tr"); 
   let previousOrNumber = null;
   let rowSpanCount = 0;
   let firstRowInGroup = null;
-
+  document.getElementById("loading-overlays").style.display = "flex";
   for (var i = 0; i < rows.length; i++) {
-    
     let currentRow = rows[i];
     let orNumberCell = currentRow.getElementsByTagName("td")[8]; // Modifier l'indice selon la position du numéro OR
     let currentOrNumber = orNumberCell ? orNumberCell.textContent.trim() : null;
@@ -163,10 +150,12 @@ function fusion() {
     cellToRowspanSdatepla.classList.add("rowspan-cell");
   }
 
-
+  // document.getElementById("loading-overlays").style.display = "none";
 }
 
 function filterRowsByColumn(filterClass) {
+  console.log("btn filter");
+
   const rows = document.querySelectorAll("table tbody tr");
   document.getElementById("loading-overlays").style.display = "flex";
 
@@ -210,6 +199,6 @@ document.getElementById("btn_search").addEventListener("click", function () {
   document.getElementById("loading-overlays").style.display = "flex";
 });
 
-window.addEventListener("load", function () {
-  document.getElementById("loading-overlays").style.display = "none";
-});
+// window.addEventListener("load", function () {
+//   document.getElementById("loading-overlays").style.display = "none";
+// });
