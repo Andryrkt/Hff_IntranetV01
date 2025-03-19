@@ -33,6 +33,7 @@ h3 {
 label {
   font-weight: bold;
   margin-top: 5px;
+  font-size: 0.6975rem !important;
   /* font-style: italic; */
 }
 

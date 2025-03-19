@@ -1,3 +1,4 @@
+import "../../css/badm/formCompleBadm.css";
 import { FetchManager } from "../api/FetchManager";
 
 // Instanciation de FetchManager avec la base URL

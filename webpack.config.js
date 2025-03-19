@@ -14,6 +14,9 @@ module.exports = {
     accueil: "./assets/js/accueil.js",
     signin: "./assets/js/signin/signin.js",
     404: "./assets/js/404.js",
+    secondFormBadm: "./assets/js/badm/secondFormBadm.js",
+    listBadm: "./assets/js/badm/listBadm.js",
+    firstFormDom: "./assets/js/dom/firstFormDom.js",
   },
 
   // La sortie du bundle généré par Webpack
@@ -75,6 +78,17 @@ module.exports = {
       paths: glob.sync(["./Views/templates/**/*.twig", "./assets/js/**/*.js"], {
         nodir: true,
       }),
+      safelist: {
+        standard: [
+          "select2-container", 
+          "select2-selection--single", 
+          "select2-dropdown", 
+          "select2-results__option",
+          "select2-results__option--highlighted",
+          "select2-selection__arrow",
+          "select2-selection__placeholder"
+        ],
+      },
     }),
     new CleanWebpackPlugin(),
   ],

@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-{% endblock%}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{webpack_asset("list.css")}}">
+{% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
 
@@ -120,7 +120,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js" type="module"></script>
-
+	<script type="module" src="{{webpack_asset("listBadm.js")}}"></script>
 {% endblock %}

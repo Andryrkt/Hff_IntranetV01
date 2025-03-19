@@ -4,7 +4,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/dom/firstForm.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{webpack_asset("firstFormDom.css")}}">
 {% endblock %}
 
 {% block content %}
@@ -73,4 +73,4 @@
 	</div>
 </div>
 {{ form_end(form)}}{% endblock %}{% block javascript %}
-<script src="{{ App.base_path }}/Views/js/dom/firstForm.js" type="module"></script>{% endblock %}
+<script type="module" src="{{webpack_asset("firstFormDom.js")}}"></script>{% endblock %}

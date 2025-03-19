@@ -1,0 +1,40 @@
+.select2-container{box-sizing:border-box;display:inline-block;margin:0;position:relative;vertical-align:middle}.select2-container .select2-selection--single{box-sizing:border-box;cursor:pointer;display:block;height:28px;user-select:none;-webkit-user-select:none}.select2-dropdown{background-color:white;border:1px solid #aaa;border-radius:4px;box-sizing:border-box;display:block;position:absolute;left:-100000px;width:100%;z-index:1051}.select2-results__option{padding:6px;user-select:none;-webkit-user-select:none}
+
+/* Changer la couleur de fond et la bordure du conteneur Select2 */
+.select2-container .select2-selection--single {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    height: 38px; /* Ajuster la hauteur */
+    padding: 8px 12px; /* Ajuster le padding */
+}
+
+/* Changer la couleur de la police et la taille */
+
+/* Changer l'apparence du dropdown */
+.select2-container .select2-dropdown {
+    background-color: #fff;
+    border: 1px solid #ccc;
+}
+
+/* Changer l'apparence des options dans le dropdown */
+.select2-container .select2-results__option {
+    padding: 8px 12px;
+}
+
+/* Modifier l'option survolée */
+.select2-container .select2-results__option--highlighted {
+    background-color: #dcdcdc;
+    color: #333;
+}
+
+/* Ajouter une icône personnalisée à l'intérieur du Select2 */
+.select2-container .select2-selection--single .select2-selection__arrow {
+    height: 36px; /* Ajuster la hauteur */
+    right: 10px;
+}
+
+.select2-container .select2-selection--single .select2-selection__placeholder {
+    font-size: 16px;
+    color: #999; /* Couleur du placeholder */
+    font-style: italic; /* Style de police */
+}

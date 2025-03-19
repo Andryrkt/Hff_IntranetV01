@@ -1,5 +1,5 @@
 import { FetchManager } from '../api/FetchManager';
-import { formatDateOrEmpty } from '../planning/utils/date-utils';
+import { formatDateOrEmpty } from '../../../Views/js/planning/utils/date-utils';
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
