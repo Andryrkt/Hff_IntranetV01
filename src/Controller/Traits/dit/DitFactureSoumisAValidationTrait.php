@@ -58,6 +58,13 @@ trait DitFactureSoumisAValidationtrait
                 }
                 
                 
+                if(is_array($montantValide)) {
+                    if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
+                        $message = $montantValide['message'];
+                        $this->historiqueOperation->sendNotificationSoumission($message, $dataForm->getNumeroOR(), 'dit_index');
+                    }
+                }
+                
                 //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
                 $factureSoumis
                         ->setNumeroDit($numDit)
@@ -90,6 +97,11 @@ trait DitFactureSoumisAValidationtrait
             $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
         } 
 
+        if(empty($quantiter)){
+            $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
+        } 
+        
         if ((int)$quantiter[0]['quantitelivree'] == 0) {
             return "Validé";
         } elseif ((int)$quantiter[0]['quantitelivree'] == (int)$quantiter[0]['quantitedemander']) {

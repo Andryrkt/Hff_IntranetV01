@@ -239,9 +239,9 @@ function updateServiceOptions(services) {
   }
 }
 
-/**
+/** ===============================
  * CHAMP CLIENT MISE EN MAJUSCULE
- */
+ =================================*/
 
 nomClientInput.addEventListener("input", MiseMajuscule);
 function MiseMajuscule() {

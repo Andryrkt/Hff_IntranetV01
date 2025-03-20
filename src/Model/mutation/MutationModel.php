@@ -12,7 +12,7 @@ class MutationModel extends Model
         where ('$dateDebut' between Date_Debut and Date_Fin and Matricule = '$matricule' and ID_Statut_Demande  not in (9,33,34,35,44)) ";
 
         if ($dateFin !== '') {
-            $sql += "OR('$dateFin' between Date_Debut and Date_Fin and Matricule = '$matricule' and ID_Statut_Demande  not in (9,33,34,35,44))";
+            $sql .= "OR('$dateFin' between Date_Debut and Date_Fin and Matricule = '$matricule' and ID_Statut_Demande  not in (9,33,34,35,44))";
         }
 
         $result = odbc_fetch_array($this->connexion->query($sql));
@@ -26,7 +26,7 @@ class MutationModel extends Model
 where ('$dateDebut' between Date_Debut and Date_Fin and Matricule = '$matricule' and statut_demande_id  not in (71,72,73,74,75)) ";
 
         if ($dateFin !== '') {
-            $sql += "OR ('$dateFin' between Date_Debut and Date_Fin and Matricule = '$matricule' and statut_demande_id  not in (71,72,73,74,75))";
+            $sql .= "OR ('$dateFin' between Date_Debut and Date_Fin and Matricule = '$matricule' and statut_demande_id  not in (71,72,73,74,75))";
         }
 
         $result = odbc_fetch_array($this->connexion->query($sql));
