@@ -23,11 +23,11 @@ class DaModel extends Model
     public function getTheSousFamille($codeFamille)
     {
         $statement = "SELECT DISTINCT 
-            trim(abse_fams2) as code, 
-            trim(atab_lib) as libelle
-            FROM art_bse
-            INNER JOIN agr_tab ON atab_nom = 'S/S'
-            WHERE abse_constp = 'ZST' AND abse_fams1 = '$codeFamille'";
+                    trim(abse_fams2) as code, 
+                    trim(atab_lib) as libelle
+                    FROM art_bse
+                    INNER JOIN agr_tab ON atab_nom = 'S/S' AND atab_code = abse_fams2
+                    WHERE abse_constp = 'ZST' AND abse_fams1 = '$codeFamille'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
