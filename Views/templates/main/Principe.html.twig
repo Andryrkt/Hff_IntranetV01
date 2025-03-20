@@ -46,7 +46,7 @@
 						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'INV' %}
 						{% set hasINV = true %}
-						{% elseif item.codeApp == 'MUT' %}
+					{% elseif item.codeApp == 'MUT' %}
 						{% set hasMUT = true %}
 					{% endif %}
 				{% endfor %}
@@ -122,18 +122,18 @@
 									<hr class="dropdown-divider">
 								</li>
 								{% if hasMUT %}
-								
-								<li class="dropdown-header">
-									Mutation</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
-								</li>
-								<li>
-									<hr class="dropdown-divider">
-								</li>
+
+									<li class="dropdown-header">
+										Mutation</li>
+									<li>
+										<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
+									</li>
+									<li>
+										<hr class="dropdown-divider">
+									</li>
 								{% endif %}
 							{% endif %}
 
