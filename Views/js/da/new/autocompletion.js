@@ -50,10 +50,10 @@ function displayDesignation(item) {
 async function handleValueOfTheFields(item, designation, famille, sousFamille) {
   console.log(item);
 
-  if (famille.value === '') {
+  if (famille.value !== item.codefamille) {
     famille.value = item.codefamille;
     await changeSousFamille(famille, sousFamille);
-  } else if (sousFamille.value === '') {
+  } else if (sousFamille.value !== item.codesousfamille) {
     await changeSousFamille(famille, sousFamille);
   }
   sousFamille.value = item.codesousfamille;
