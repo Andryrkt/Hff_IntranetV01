@@ -185,9 +185,9 @@ class DitDevisSoumisAValidationController extends Controller
 
                 //envoye des fichier dans le DW
                 if($this->estCeVente($numDevis)) { // si vrai c'est une vente
-                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
+                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer);// copier le fichier de devis dans docuware
                 } else {
-                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
+                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer);// copier le fichier de devis dans docuware
                 }
             } else {
                 $nomFichierCtrl = 'devisctrl_' .$numDevis.'-'.$numeroVersion . '#'. $suffix.'.pdf';
