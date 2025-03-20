@@ -37,6 +37,8 @@ class DaModel extends Model
     public function getAllDesignation()
     {
         $statement = "SELECT 
+            trim(abse_fams1) as codefamille,
+            trim(abse_fams2) as codesousfamille,
             trim(abse_desi) as designation,
             abse_pxstd as prix,
             trim(fbse_nomfou) as fournisseur
