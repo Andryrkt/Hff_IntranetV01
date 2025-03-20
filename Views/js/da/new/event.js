@@ -1,8 +1,13 @@
 import { resetDropdown } from '../../utils/dropdownUtils';
 import { updateDropdown } from '../../utils/selectionHandler';
+import { autocompleteTheFields } from './autocompletion';
 
 export function eventOnFamille() {
-  document.querySelectorAll('[id*="artFams1"]').forEach((famille) => {
+  let familles = document.querySelectorAll(
+    '[id*="artFams1"][id*="form_DAL"]:not([id*="__name__"])'
+  ); // éléments avec id contenant "artFams1" et "form_DAL" mais ne contenant pas "__name__"
+
+  familles.forEach((famille) => {
     let familleId = famille.id;
     let sousFamilleId = familleId.replace('artFams1', 'artFams2');
     let baseId = sousFamilleId.replace('demande_appro_form_DAL', '');
@@ -24,6 +29,8 @@ export function eventOnFamille() {
       } else {
         resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
+      autocompleteTheFields();
     });
+    sousFamille.addEventListener('change', autocompleteTheFields);
   });
 }
