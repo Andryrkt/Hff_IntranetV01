@@ -34,6 +34,8 @@ function fusion() {
   let previousOrNumber = null;
   let rowSpanCount = 0;
   let firstRowInGroup = null;
+  console.log(document.getElementById("loading-overlays"));
+  
   document.getElementById("loading-overlays").style.display = "flex";
   for (var i = 0; i < rows.length; i++) {
     let currentRow = rows[i];
@@ -192,7 +194,9 @@ function filterRowsByColumn(filterClass) {
     // Masque ou affiche la ligne entière
     row.style.display = hasMatchingCell ? "" : "none";
   });
-  document.getElementById("loading-overlays").style.display = "none";
+  
+  console.log(document.getElementById("loading-overlays"));
+  // document.getElementById("loading-overlays").style.display = "none";
 }
 
 document.getElementById("btn_search").addEventListener("click", function () {

@@ -240,20 +240,22 @@ class PlanningModel extends Model
 
 
     $statement = "SELECT distinct 
-                   sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) AS intervention
+                   CAST(sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) as varchar(50))AS intervention
                   FROM sav_lor AS sav
                   INNER JOIN gcot_acknow_cat AS cat
-                  ON sav.slor_numcf = cat.numero_po
+                  ON CAST(sav.slor_numcf  as varchar(50))= CAST(cat.numero_po as varchar(50))
                   AND (sav.slor_nolign = cat.line_number OR  sav.slor_noligncm = cat.line_number)
                   AND sav.slor_refp = cat.parts_number
-                  WHERE cat.libelle_type = 'Back Order'
-                  AND cat.id_gcot_acknow_cat  = (
+                  WHERE (  CAST(cat.libelle_type as varchar(10))= 'Error'  or CAST(cat.libelle_type as varchar(10))= 'Back Order'  ) 
+                  AND cat.id_gcot_acknow_cat = (
                                               SELECT MAX(sub.id_gcot_acknow_cat )
                                               FROM gcot_acknow_cat AS sub
                                               WHERE sub.parts_number = cat.parts_number
                                                 AND sub.numero_po = cat.numero_po
                                                 AND sub.line_number = cat.line_number
-                                          ) 
+                                          )
+
+
                   $vOrvalDw
                   
       ";
