@@ -34,7 +34,7 @@ class DaApi extends Controller
         $result = [];
         foreach ($data as $sfm) {
             $result[] = [
-                'value' => $sfm['libelle'],
+                'value' => $sfm['code'],
                 'text' => $sfm['libelle'],
             ];
         }

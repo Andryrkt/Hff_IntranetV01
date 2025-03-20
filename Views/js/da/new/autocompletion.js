@@ -5,7 +5,6 @@ export function autocompleteTheFields() {
   let designations = document.querySelectorAll(
     `[id*="artDesi"][id*="form_DAL"]:not([id*="__name__"])`
   ); // éléments avec id contenant "artDesi" et "form_DAL" mais ne contenant pas "__name__"
-  console.log(designations);
 
   designations.forEach((designation) => {
     let baseId = designation.id.replace('demande_appro_form_DAL', '');
@@ -38,7 +37,6 @@ async function fetchDesignations(famille, sousFamille) {
   const fetchManager = new FetchManager();
   let codeFamille = famille.value !== '' ? famille.value : '-';
   let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
-  console.log(codeFamille, codeSousFamille);
 
   return await fetchManager.get(
     `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
