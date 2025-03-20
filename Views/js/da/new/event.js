@@ -29,11 +29,15 @@ export function eventOnFamille() {
       } else {
         resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
-      document.querySelector(
-        `#${familleId.replace('artFams1', 'artDesi')}`
-      ).value = '';
-      autocompleteTheFields();
+      sousFamille.value = '';
+      handleDesignation(familleId);
     });
-    sousFamille.addEventListener('change', autocompleteTheFields);
+    sousFamille.addEventListener('change', () => handleDesignation(familleId));
   });
+}
+
+function handleDesignation(familleId) {
+  document.querySelector(`#${familleId.replace('artFams1', 'artDesi')}`).value =
+    '';
+  autocompleteTheFields();
 }
