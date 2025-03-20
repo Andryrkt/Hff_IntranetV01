@@ -1,6 +1,7 @@
+import { displayOverlay } from "../utils/spinnerUtils";
+
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOM");
-  document.getElementById("loading-overlays").style.display = "flex";
 fusion();
   /** ====================================================
    * FILTRE STATUT
@@ -13,7 +14,6 @@ fusion();
     "back-order": "back-order",
     "tout-afficher": null, // Tout afficher n'a pas de classe spécifique
   };
-  document.getElementById("loading-overlays").style.display = "flex";
   // Ajoute un gestionnaire d'événement pour chaque bouton
 
   for (const [buttonId, filterClass] of Object.entries(buttons)) {
@@ -24,8 +24,6 @@ fusion();
       button.addEventListener("click", () => filterRowsByColumn(filterClass));
     }
   }
-
-  document.getElementById("loading-overlays").style.display = "none";
 });
 
 function fusion() {
@@ -34,9 +32,7 @@ function fusion() {
   let previousOrNumber = null;
   let rowSpanCount = 0;
   let firstRowInGroup = null;
-  console.log(document.getElementById("loading-overlays"));
-  
-  document.getElementById("loading-overlays").style.display = "flex";
+
   for (var i = 0; i < rows.length; i++) {
     let currentRow = rows[i];
     let orNumberCell = currentRow.getElementsByTagName("td")[8]; // Modifier l'indice selon la position du numéro OR
@@ -151,15 +147,12 @@ function fusion() {
     cellToRowspanORitv.classList.add("rowspan-cell");
     cellToRowspanSdatepla.classList.add("rowspan-cell");
   }
-
-  // document.getElementById("loading-overlays").style.display = "none";
 }
 
 function filterRowsByColumn(filterClass) {
   console.log("btn filter");
 
   const rows = document.querySelectorAll("table tbody tr");
-  document.getElementById("loading-overlays").style.display = "flex";
 
   rows.forEach((row) => {
     let hasMatchingCell = false;
@@ -194,15 +187,12 @@ function filterRowsByColumn(filterClass) {
     // Masque ou affiche la ligne entière
     row.style.display = hasMatchingCell ? "" : "none";
   });
-  
-  console.log(document.getElementById("loading-overlays"));
-  // document.getElementById("loading-overlays").style.display = "none";
 }
 
 document.getElementById("btn_search").addEventListener("click", function () {
-  document.getElementById("loading-overlays").style.display = "flex";
+  displayOverlay(true);
 });
 
-// window.addEventListener("load", function () {
-//   document.getElementById("loading-overlays").style.display = "none";
-// });
+window.addEventListener("load", function () {
+  displayOverlay(false);
+});
