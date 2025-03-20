@@ -8,6 +8,10 @@
   pointer-events: none;
 }
 
+.border-required {
+  border-color: #fbbb01;
+}
+
 /*
 * pour le spiner
 */
