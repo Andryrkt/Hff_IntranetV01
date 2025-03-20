@@ -1,3 +1,4 @@
+import { displayOverlay } from '../utils/spinnerUtils';
 import { ajouterUneLigne } from './new/dal';
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -6,4 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document
     .getElementById('add-child')
     .addEventListener('click', ajouterUneLigne);
+});
+
+window.addEventListener('load', () => {
+  displayOverlay(false);
 });

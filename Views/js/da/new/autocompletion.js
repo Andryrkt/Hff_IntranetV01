@@ -38,6 +38,8 @@ async function fetchDesignations(famille, sousFamille) {
   let codeFamille = famille.value !== '' ? famille.value : '-';
   let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
 
+  console.log(codeFamille, codeSousFamille);
+
   return await fetchManager.get(
     `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
   );

@@ -29,6 +29,9 @@ export function eventOnFamille() {
       } else {
         resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
+      document.querySelector(
+        `#${familleId.replace('artFams1', 'artDesi')}`
+      ).value = '';
       autocompleteTheFields();
     });
     sousFamille.addEventListener('change', autocompleteTheFields);

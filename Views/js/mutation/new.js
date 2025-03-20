@@ -10,6 +10,7 @@ import {
 } from './depense';
 import { calculateDaysAvance } from './handleDate';
 import { formatMontant } from '../utils/formatUtils';
+import { displayOverlay } from '../utils/spinnerUtils';
 
 document.addEventListener('DOMContentLoaded', function () {
   localStorage.setItem('site', 0); // initialiser le site à 0
@@ -160,12 +161,3 @@ document.addEventListener('DOMContentLoaded', function () {
 window.addEventListener('load', () => {
   displayOverlay(false);
 });
-
-function displayOverlay(bool) {
-  const overlay = document.getElementById('loading-overlay');
-  if (bool) {
-    overlay.style.display = 'flex';
-  } else {
-    overlay.style.display = 'none';
-  }
-}
