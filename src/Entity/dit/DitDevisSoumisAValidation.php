@@ -140,7 +140,12 @@ class DitDevisSoumisAValidation
      */
     private ?float $montantVente=0.00;
 
-
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @var integer
+     */
+    private int $nombreLignePiece;
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -719,4 +724,28 @@ class DitDevisSoumisAValidation
         return $this->numeroItv === $autre->numeroItv;
     }
     
+
+    /**
+     * Get the value of nombreLignePiece
+     *
+     * @return  integer
+     */ 
+    public function getNombreLignePiece()
+    {
+        return $this->nombreLignePiece;
+    }
+
+    /**
+     * Set the value of nombreLignePiece
+     *
+     * @param  integer  $nombreLignePiece
+     *
+     * @return  self
+     */ 
+    public function setNombreLignePiece($nombreLignePiece)
+    {
+        $this->nombreLignePiece = $nombreLignePiece;
+
+        return $this;
+    }
 }

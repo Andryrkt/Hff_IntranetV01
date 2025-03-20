@@ -53,3 +53,7 @@ ADD margeRevient INT
 --17/03/2025
 ALTER TABLE devis_soumis_a_validation
 ADD type VARCHAR(5)
+
+--19/03/2025
+ALTER TABLE devis_soumis_a_validation
+ADD nombreLignePiece INT
