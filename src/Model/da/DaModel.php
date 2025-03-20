@@ -34,7 +34,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllDesignation()
+    public function getAllDesignation($codeFamille, $codeSousFamille)
     {
         $statement = "SELECT 
             trim(abse_fams1) as codefamille,
@@ -43,12 +43,15 @@ class DaModel extends Model
             abse_pxstd as prix,
             trim(fbse_nomfou) as fournisseur
             FROM art_frn
-            INNER JOIN art_bse 
-                ON abse_refp = afrn_refp 
-                AND afrn_constp = abse_constp
-            INNER JOIN frn_bse 
-                ON fbse_numfou = afrn_numf
+            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
+            INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'";
+        if ($codeFamille !== '-') {
+            $statement .= " AND abse_fams1 = '$codeFamille'";
+            if ($codeSousFamille !== '-') {
+                $statement .= " AND abse_fams2 = '$codeSousFamille'";
+            }
+        }
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

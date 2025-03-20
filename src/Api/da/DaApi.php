@@ -45,14 +45,14 @@ class DaApi extends Controller
     }
 
     /**
-     * @Route("/demande-appro/autocomplete/all-designation", name="autocomplete_all_designation")
+     * @Route("/demande-appro/autocomplete/all-designation/{famille}/{sousfamille}", name="autocomplete_all_designation")
      *
      * @return void
      */
-    public function autocompleteAllDesignation()
+    public function autocompleteAllDesignation($famille, $sousfamille)
     {
         $daModel = new DaModel;
-        $data = $daModel->getAllDesignation();
+        $data = $daModel->getAllDesignation($famille, $sousfamille);
 
         header("Content-type:application/json");
 
