@@ -365,68 +365,49 @@ objetDemande.addEventListener("input", function () {
 document.addEventListener("DOMContentLoaded", function () {
   setupConfirmationButtons();
 });
+
 /**
- * VALIDATION DU DETAIL DEMANDE (ne peut pas plus de 3 ligne et plus de 86 caractère par ligne)
+ * champt detail
  */
-// const textarea = document.querySelector(".detailDemande");
-
-// textarea.addEventListener("input", function () {
-//   var lines = textarea.value.split("\n");
-
-//   // Limiter chaque ligne à 86 caractères
-//   for (var i = 0; i < lines.length; i++) {
-//     if (lines[i].length > 86) {
-//       lines[i] = lines[i].substring(0, 86);
-//     }
-//   }
-
-//   // Limiter le nombre de lignes à 3
-//   if (lines.length > 3) {
-//     textarea.value = lines.slice(0, 3).join("\n");
-//   } else {
-//     textarea.value = lines.join("\n");
-//   }
-// });
-
 const textarea = document.querySelector(".detailDemande");
 const charCount = document.getElementById("charCount");
 const MAX_CHARACTERS = 1800;
 
-// Afficher le message initial
+// Initialisation du compteur
 charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
-charCount.style.color = "black"; // Couleur initiale
+charCount.style.color = "black";
 
-textarea.addEventListener("input", function () {
-  // Compter chaque retour à la ligne comme 131 caractères
-  let adjustedLength =
-    textarea.value.length + (textarea.value.match(/\n/g) || []).length * 130;
+textarea.addEventListener("input", function (event) {
+  let text = textarea.value;
+  let lineBreaks = (text.match(/\n/g) || []).length;
+  let adjustedLength = text.length + lineBreaks * 130;
+
+  // Bloquer l'ajout de texte si la limite est atteinte
+  if (adjustedLength > MAX_CHARACTERS) {
+    let excessCharacters = adjustedLength - MAX_CHARACTERS;
+
+    while (excessCharacters > 0 && text.length > 0) {
+      let lastChar = text[text.length - 1];
+
+      // Si c'est un saut de ligne, retirer 130 caractères
+      if (lastChar === "\n") {
+        excessCharacters -= 130;
+      } else {
+        excessCharacters -= 1;
+      }
+
+      text = text.substring(0, text.length - 1);
+    }
+
+    textarea.value = text; // Mettre à jour la valeur bloquée
+    adjustedLength = MAX_CHARACTERS; // Fixer la longueur max
+  }
 
   let remainingCharacters = MAX_CHARACTERS - adjustedLength;
 
-  if (remainingCharacters < 0) {
-    textarea.value = textarea.value.substring(0, MAX_CHARACTERS);
-  }
-
-  // Mettre à jour le compteur de caractères
-  if (textarea.value.length === 0) {
-    charCount.textContent = `Vous avez ${MAX_CHARACTERS} caractères.`;
-    charCount.style.color = "black";
-  } else {
-    charCount.textContent = `Il vous reste ${
-      remainingCharacters >= 0 ? remainingCharacters : 0
-    } caractères.`;
-    charCount.style.color = "#000";
-  }
+  // Mettre à jour l'affichage du compteur
+  charCount.textContent = `Il vous reste ${
+    remainingCharacters >= 0 ? remainingCharacters : 0
+  } caractères.`;
+  charCount.style.color = remainingCharacters <= 0 ? "red" : "black";
 });
-
-/**
- * GRISER LE BOUTTON APRES UNE CLICK
- */
-// setupConfirmationButtons();
-// const boutonInput = document.querySelector("#formDit");
-
-// boutonInput.addEventListener("click", griserBoutton);
-
-// function griserBoutton() {
-//   boutonInput.style.display = "none";
-// }
