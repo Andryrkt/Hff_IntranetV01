@@ -374,7 +374,7 @@ class ListeController extends Controller
                     'casier' => $result[$i]['casier'],
                     'commentaire' => $result[$i]['commentaire'],
                     'numor_itv' => $result[$i]['numor'] . '-' . $result[$i]['itv'],
-                    'dateplanning' => $result[$i]['dateplanning'],
+                    'dateplanning' =>  (new DateTime($result[$i]['dateplanning']))->format('d/m/Y'),
                     'cst' => $result[$i]['cst'],
                     'ref' => $result[$i]['ref'],
                     'desi' => $result[$i]['desi'],
