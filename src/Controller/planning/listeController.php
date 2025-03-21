@@ -317,7 +317,6 @@ class ListeController extends Controller
                     $result[$i]['qterlqlig'] = "";
                     $result[$i]['qtelivlig'] = "";
                 }
-
                 if ($result[$i]['qtelivlig'] > 0 &&  $result[$i]['qtealllig']  == 0 && $result[$i]['qterlqlig'] == 0) {
                     $result[$i]['StatutCIS'] = "LIVRE";
                     $result[$i]['DateStatutCIS'] = $result[$i]['dateLivLIg'];
@@ -379,19 +378,19 @@ class ListeController extends Controller
                     'cst' => $result[$i]['cst'],
                     'ref' => $result[$i]['ref'],
                     'desi' => $result[$i]['desi'],
-                    'qteres_or' => $result[$i]['qteres_or'],
-                    'qteall_or' => $result[$i]['qteall'],
-                    'qtereliquat' => $result[$i]['qtereliquat'],
-                    'qteliv_or' => $result[$i]['qteliv'],
+                    'qteres_or' => $result[$i]['qteres_or'] == 0 ? '':$result[$i]['qteres_or'] ,
+                    'qteall_or' => $result[$i]['qteall'] == 0 ? '':$result[$i]['qteall'] ,
+                    'qtereliquat' => $result[$i]['qtereliquat'] == 0 ? '':$result[$i]['qtereliquat'],
+                    'qteliv_or' => $result[$i]['qteliv'] == 0 ? '':$result[$i]['qteliv'] ,
                     'statutOR' => $statutDetail,
                     'datestatutOR' => $datestatutDetail,
-                    'numcis' => $result[$i]['numcde_cis'],
+                    'numcis' => $result[$i]['numcde_cis'] == 0 ? '' :$result[$i]['numcde_cis']  ,
                     'numerocmd' => $result[$i]['numerocdecis'],
                     'statut_ctrmq' => $result[$i]['statut_ctrmq'] . $result[$i]['statut_ctrmq_cis'],
-                    'qteORlig_cis' => $result[$i]['qteORlig'],
-                    'qtealllig_cis' => $result[$i]['qtealllig'],
-                    'qterlqlig_cis' => $result[$i]['qterlqlig'],
-                    'qtelivlig_cis' => $result[$i]['qtelivlig'],
+                    'qteORlig_cis' => $result[$i]['qteORlig']== 0 ? '':$result[$i]['qteORlig']  ,
+                    'qtealllig_cis' => $result[$i]['qtealllig'] == 0 ? '':$result[$i]['qtealllig'],
+                    'qterlqlig_cis' => $result[$i]['qterlqlig'] == 0 ? '':$result[$i]['qterlqlig'] ,
+                    'qtelivlig_cis' => $result[$i]['qtelivlig'] == 0 ? '':$result[$i]['qtelivlig'],
                     'statutCis' => $statutCisDetail,
                     'datestatutCis' => $datestatutCisDetail,
                     'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '' : $dateEtaIvato,

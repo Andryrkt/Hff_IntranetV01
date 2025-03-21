@@ -946,11 +946,11 @@ class PlanningModel extends Model
                 $vMonthStatutPlan as mois,
                 seor_numor ||'-'||sitv_interv as orIntv,
                  ( SELECT SUM( CASE WHEN slor_typlig = 'P' $vligneType  THEN
-                  slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                   ELSE slor_qterea END )
+                  ROUND(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                   ELSE ROUND(slor_qterea) END )
                   FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QteCdm,
-                (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
-                (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
+                (  SELECT SUM(ROUND(slor_qterea) ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
+                (  SELECT SUM(ROUND(slor_qteres ))FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
                 sitv_interv as Itv,
                 seor_numor as numOR,
 CASE 
@@ -1054,15 +1054,15 @@ END AS Status_B
                         trim(slor_constp) as cst,
                         trim(slor_refp) as ref,
                         trim(slor_desi) as desi,
-                        slor_qterel AS QteReliquat,
+                        ROUND(slor_qterel) AS QteReliquat,
                         CASE 
                           WHEN slor_typlig = 'P' THEN
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                            ROUND( (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) )
 		                      ELSE 
-                            slor_qterea 
+                           ROUND( slor_qterea )
                         END AS QteRes_Or,
-                        slor_qterea AS Qteliv,
-                        slor_qteres AS QteAll,
+                        ROUND(slor_qterea) AS Qteliv,
+                        ROUND(slor_qteres) AS QteAll,
                         CASE  
                           WHEN slor_natcm = 'C' THEN 'COMMANDE'
                           WHEN slor_natcm = 'L' THEN 'RECEPTION'
