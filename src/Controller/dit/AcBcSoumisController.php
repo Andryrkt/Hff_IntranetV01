@@ -93,7 +93,7 @@ class AcBcSoumisController extends Controller
 
 
             //envoie le pdf dans docuware
-            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);

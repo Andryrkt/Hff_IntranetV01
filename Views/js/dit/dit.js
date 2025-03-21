@@ -17,6 +17,15 @@ const nomClientInput = document.querySelector(
 
 const containerInfoMateriel = document.querySelector("#containerInfoMateriel");
 
+const interneExterneInput = document.querySelector(".interneExterne");
+const numTelInput = document.querySelector(".numTel");
+const clientSousContratInput = document.querySelector(".clientSousContrat");
+const mailClientInput = document.querySelector(".mailClient");
+const demandeDevisInput = document.querySelector(
+  "#demande_intervention_demandeDevis"
+);
+const erreurClient = document.querySelector("#erreurClient");
+
 /**
  * obliger d'ecrire des chiffre dans le champ id materiel
  */
@@ -29,7 +38,7 @@ allowOnlyNumbers(idMaterielInput);
 const fetchManager = new FetchManager();
 
 async function fetchMateriels() {
-  return await fetchManager.get("api/fetch-materiel");
+  return await fetchManager.get(`api/fetch-materiel`);
 }
 
 function displayMateriel(item) {
@@ -248,17 +257,9 @@ function MiseMajuscule() {
   nomClientInput.value = nomClientInput.value.toUpperCase();
 }
 
-/**
+/**================================
  * INTERNE - EXTERNE (champ )
- */
-const interneExterneInput = document.querySelector(".interneExterne");
-const numTelInput = document.querySelector(".numTel");
-const clientSousContratInput = document.querySelector(".clientSousContrat");
-const mailClientInput = document.querySelector(".mailClient");
-const demandeDevisInput = document.querySelector(
-  "#demande_intervention_demandeDevis"
-);
-const erreurClient = document.querySelector("#erreurClient");
+ ================================*/
 
 if (interneExterneInput.value === "INTERNE") {
   nomClientInput.setAttribute("disabled", true);
@@ -311,7 +312,9 @@ function interneExterne() {
   }
 }
 
-/** LIMITATION DE CARACTERE DU TELEPHONE */
+/** ===========================================
+ * LIMITATION DE CARACTERE DU TELEPHONE 
+ *==========================================*/
 function limitInputCharacters(inputElement, maxLength) {
   inputElement.addEventListener("input", () => {
     if (inputElement.value.length > maxLength) {
@@ -333,9 +336,9 @@ function intExtEnvoier() {
   serviceDebiteurInput.removeAttribute("disabled");
 }
 
-/**
+/**=========================================================================================================
  * permet de formater le nombre en limitant 2 chiffre après la virgule et séparer les millier par un point
- */
+ ============================================================================================================*/
 function formatNumber(input) {
   let number = parseFloat(input);
   if (!isNaN(number)) {
@@ -350,9 +353,9 @@ function formatNumber(input) {
   }
 }
 
-/**
+/**=========================================================================
  * VALIDATION DE OBJET DEMANDE (ne peut pas contenir plus de 86 caractère)
- */
+ =========================================================================*/
 const objetDemande = document.querySelector(".noEntrer");
 
 objetDemande.addEventListener("input", function () {
@@ -366,9 +369,9 @@ document.addEventListener("DOMContentLoaded", function () {
   setupConfirmationButtons();
 });
 
-/**
+/**==============
  * champt detail
- */
+ ===============*/
 const textarea = document.querySelector(".detailDemande");
 const charCount = document.getElementById("charCount");
 const MAX_CHARACTERS = 1800;
