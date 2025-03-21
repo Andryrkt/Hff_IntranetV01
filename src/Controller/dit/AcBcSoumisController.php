@@ -15,11 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
-use App\Service\fichier\GenererNonFichierService;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
-use App\Service\historiqueOperation\HistoriqueOperationDEVService;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class AcBcSoumisController extends Controller
 {
@@ -54,7 +51,7 @@ class AcBcSoumisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+
         $devis = $this->filtredataDevis($numDit);
 
 
@@ -71,7 +68,6 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-           
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numDevis = $acSoumis->getNumeroDevis();
@@ -156,8 +152,8 @@ class AcBcSoumisController extends Controller
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
         $options =[
-            'prefix' => $prefix,
-            'numeroDoc' => $numClientBcDevis,
+            'prefix'        => $prefix,
+            'numeroDoc'     => $numClientBcDevis,
             'numeroVersion' => $numeroVersion,
             'mainFirstPage' => true
         ];
