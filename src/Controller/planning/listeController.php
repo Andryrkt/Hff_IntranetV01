@@ -76,7 +76,8 @@ class ListeController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 50; // Nombre d'éléments par page
 
-        $data = [];
+        $data = ['data'=>[]];
+        $count = [];
         if ($request->query->get('action') !== 'oui') {
 
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
@@ -91,15 +92,15 @@ class ListeController extends Controller
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $data = $this->recupData($result, $criteriaTAb, $back);
-            $this->sessionService->set('data_planning_detail_excel', $data);
+            $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
+            $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
+            // dump($data['data'], $data['data_excel']);
         }
         self::$twig->display('planning/listePlanning.html.twig', [
             'form' => $form->createView(),
-            'currentPage' => $page,
-            'totalPages' => $pagesCount,
-            'resultat' => $resultat,
             'criteria' => $criteriaTAb,
-            'data' => $data,
+            'data' => $data['data'],
+            'count' => $count
         ]);
     }
     private function allOrsItv()
@@ -119,19 +120,7 @@ class ListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteriaTAb = $this->sessionService->get('planning_search_criteria');
-        $criteria = $this->creationObjetCriteria($criteriaTAb);
-        $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-        $tousLesOrSoumis = $this->allOrs();
-        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
-        if (is_array($back)) {
-            $backString = TableauEnStringService::orEnString($back);
-        } else {
-            $backString = '';
-        }
-        
-        $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
-        $data = $this->recupData($result, $criteriaTAb, $back,true,true);
+        $data = $this->sessionService->get('data_planning_detail_excel');
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
             'Marque' => 'Marque',
@@ -231,6 +220,7 @@ class ListeController extends Controller
     public function recupData($result, $criteriaTAb, $back, $sendCmd = false, $excelBack = false)
     { 
         $data = [];
+        $data_excel = [];
         if (!empty($result)) {
             $qteCis = [];
             $dateLivLigCIS = [];
@@ -375,7 +365,7 @@ class ListeController extends Controller
                 } else {
                     $dateEtaMag = (new DateTime($result[$i]['Eta_magasin']))->format('d/m/Y');
                 }
-                $data[] = [
+                $row = [
                     'agenceServiceTravaux' => $result[$i]['libsuc'] . ' - ' . $result[$i]['libserv'],
                     'Marque' => $result[$i]['markmat'],
                     'Modele' => $result[$i]['typemat'],
@@ -407,14 +397,21 @@ class ListeController extends Controller
                     'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '' : $dateEtaIvato,
                     'Eta_magasin' => $dateEtaMag == '01/01/1900' ? '' : $dateEtaMag,
                     'message' => $result[$i]['message'],
-                    'ord' => $result[$i]['Ord'],
+                    'ord' => $result[$i]['Ord'], //*****
                     'status_b' => $result[$i]['status_b'],
                     'Qte_Solde' => $result[$i]['qteSlode'],
                     'qte' => $result[$i]['qte'],
-                    'backorder' =>$result[$i]['backOrder']
+                    'backorder' =>$result[$i]['backOrder'] 
                 ];
+
+                $row_excel = $row;
+                $row_excel['backorder'] = ''; // Supprimer la partie visuelle Excel
+                $row_excel['ord'] = $row_excel['ord'] !== '' ? 'oui' : ''; // Excel
+
+                $data[] = $row;
+                $data_excel[] = $row_excel;
             }
         }
-        return $data;
+        return ['data' => $data, 'data_excel' => $data_excel];
     }
 }

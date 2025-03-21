@@ -1250,6 +1250,94 @@ END AS Status_B
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
+  public function recupMatListeTousCount($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
+  { 
+    if ($criteria->getOrBackOrder() == true) {
+      // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+    } else {
+      if (!empty($lesOrValides)) {
+        if ($criteria->getOrNonValiderDw() == true) {
+          // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
+        }else {
+          // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+          } 
+    } else {
+        // $vOrvalDw = " AND seor_numor in ('')";
+        $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+      }
+    }
+
+
+    $vligneType = $this->typeLigne($criteria);
+
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+    $vplan = $criteria->getPlan();
+
+    $statement = " SELECT 
+                COUNT( distinct seor_numor ||'-'||sitv_interv )  as nb_numOR,
+                COUNT( sitv_interv ) as nb_itv,
+                COUNT ( slor_constp) as nb_ligne
+
+      FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec, outer neg_lig
+      WHERE seor_numor = slor_numor
+      AND seor_soc = 'HF'
+      AND seor_serv <> 'DEV'
+      AND seor_soc = 'HF'
+      AND sitv_numor = slor_numor 
+      AND sitv_interv = slor_nogrp/100 
+      AND (seor_succ = asuc_num)
+      AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+      AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+      AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')     
+      $vStatutFacture     
+      AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+      AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+      AND (seor_nummat = mmat_nummat)
+      --AND slor_constp NOT like '%ZDI%'
+      --ligne
+      AND slor_numcf = nlig_numcde AND slor_refp = nlig_refp
+      $vOrvalDw
+      $vligneType
+      $vConditionNoPlanning 
+      $agence
+      $vStatutInterneExterne
+      $agenceDebite
+      $serviceDebite
+      $vDateDMonthPlan
+      $vDateFMonthPlan
+      $vconditionNumParc
+      $vconditionIdMat
+      $vconditionNumOr
+      $vconditionNumSerie
+      $vconditionCasier
+      $vsection 
+     
+  ";
+    //  dd($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
 
   public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
   {
@@ -1435,8 +1523,8 @@ TRIM('COMPLET NON LIVRE')
 		                order by 10,14  ";
 
 
+// dd($statement);
     $result = $this->connect->executeQuery($statement);
-    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
