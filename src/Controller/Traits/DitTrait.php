@@ -54,7 +54,7 @@ trait DitTrait
                 }
                 
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                    $message = 'ce matériel n\'est pas enregistré dans IPS';
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
@@ -127,7 +127,7 @@ trait DitTrait
 
 
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                $message = 'ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel
