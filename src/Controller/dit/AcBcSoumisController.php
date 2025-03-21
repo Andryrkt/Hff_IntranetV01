@@ -58,10 +58,10 @@ class AcBcSoumisController extends Controller
         $devis = $this->filtredataDevis($numDit);
 
 
-        // if (empty($devis)) {
-        //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
-        //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        // }
+        if (empty($devis)) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        }
         
         $acSoumis = $this->initialisation($devis, $numDit);
 
@@ -102,7 +102,7 @@ class AcBcSoumisController extends Controller
 
 
             //envoie le pdf dans docuware
-            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
