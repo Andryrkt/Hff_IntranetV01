@@ -141,9 +141,10 @@ class ListeController extends Controller
             'qteliv_or' => 'Qte Livrée OR',
             'statutOR' => 'Statut OR',
             'datestatutOR' => 'Date statut OR',
-            'numcis' => 'Num CIS',
+            'ctr_marque' => 'Ctr Marque ',
             'numerocmd' => 'Numéro CMD',
             'statut_ctrmq' => 'Statut CTRMQ',
+            'numcis' => 'Numéro CIS',
             'qteORlig_cis' => 'Qte OR CIS',
             'qtealllig_cis' => 'Qte All CIS',
             'qterlqlig_cis' => 'Qte Reliquat CIS',
@@ -156,7 +157,6 @@ class ListeController extends Controller
             'ord' => 'Commande Envoyé',
             'status_b' => 'Statut'
         ];
-
         array_unshift($data, $header);
         $this->exporterDonneesExcel($data);
     }
@@ -329,8 +329,10 @@ class ListeController extends Controller
                 }
                 if ($result[$i]['numcis'] === $result[$i]['numerocmd']) {
                     $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                    $result[$i]['numcisOR'] = '';
                 } else {
                     $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                    $result[$i]['numcisOR'] = $result[$i]['numcis'];
                 }
 
 
@@ -384,9 +386,10 @@ class ListeController extends Controller
                     'qteliv_or' => $result[$i]['qteliv'] == 0 ? '':$result[$i]['qteliv'] ,
                     'statutOR' => $statutDetail,
                     'datestatutOR' => $datestatutDetail,
-                    'numcis' => $result[$i]['numcde_cis'] == 0 ? '' :$result[$i]['numcde_cis']  ,
+                    'ctr_marque' => $result[$i]['numcde_cis'] == 0 ? '' :$result[$i]['numcde_cis']  ,
                     'numerocmd' => $result[$i]['numerocdecis'],
                     'statut_ctrmq' => $result[$i]['statut_ctrmq'] . $result[$i]['statut_ctrmq_cis'],
+                    'numcis' => $result[$i]['numcisOR'] == 0 ? '' :$result[$i]['numcisOR']  ,
                     'qteORlig_cis' => $result[$i]['qteORlig']== 0 ? '':$result[$i]['qteORlig']  ,
                     'qtealllig_cis' => $result[$i]['qtealllig'] == 0 ? '':$result[$i]['qtealllig'],
                     'qterlqlig_cis' => $result[$i]['qterlqlig'] == 0 ? '':$result[$i]['qterlqlig'] ,

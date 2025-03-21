@@ -87,9 +87,9 @@
 
 				<th rowspan="2" style="text-align:center;border: 2px solid white; width: 194px;" class="align-middle">Agence-service</th>
 				<th style="text-align:center;border: 2px solid white;" colspan="12">Matériel</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="8">OR
+				<th style="text-align:center;border: 2px solid white;" colspan="9">ORDRE DE REPARATION
 				</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="7">CIS</th>
+				<th style="text-align:center;border: 2px solid white;" colspan="7">CESSION INTER STOCK</th>
 				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato
 				</th>
 				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin
@@ -121,8 +121,9 @@
 				{#  (num CIS) #}
 				<th>Ctr Marque</th>
 				<th>Cde frn</th>
-				{#  (recp/cmd=>CIS OR)#}
 				<th>Statut ctrmrq</th>
+				{#  (recp/cmd=>CIS OR)#}
+				<th>numCIS</th>
 				<th>Qté Cde</th>
 				<th>Qté all</th>
 				<th>Qté rel</th>
@@ -170,68 +171,101 @@
 				{% endif %}
 				<tr>
 					<td>
-						{{item.agenceServiceTravaux}}</td>
+						{{item.agenceServiceTravaux}}
+					</td>
 					<td>
-						{{item.Marque}}</td>
+						{{item.Marque}}
+					</td>
 					<td>
-						{{item.Modele}}</td>
+						{{item.Modele}}
+					</td>
 					<td>
-						{{item.Id}}</td>
+						{{item.Id}}
+					</td>
 					<td>
-						{{item.N_Serie}}</td>
+						{{item.N_Serie}}
+					</td>
 					<td>
-						{{item.parc}}</td>
+						{{item.parc}}
+					</td>
 					<td>
-						{{item.casier}}</td>
+						{{item.casier}}
+					</td>
 					<td>
-						{{item.commentaire}}</td>
+						{{item.commentaire}}
+					</td>
 					<td class="{{statut}}">
 						<span class="numOr-itv">{{item.numor_itv}}</span>
 					</td>
 					<td>
-						{{item.dateplanning }}</td>
+						{{item.dateplanning }}
+					</td>
 					<td>
-						{{item.cst}}</td>
+						{{item.cst}}
+					</td>
 					<td>
-						{{item.ref}}</td>
+						{{item.ref}}
+					</td>
 					<td>
-						{{item.desi}}</td>
+						{{item.desi}}
+					</td>
 					<td>
-						{{item.qteres_or }}</td>
+						{{item.qteres_or }}
+					</td>
 					<td>
-						{{item.qteall_or }}</td>
+						{{item.qteall_or }}
+					</td>
 					<td>
-						{{item.qtereliquat }}</td>
+						{{item.qtereliquat }}
+					</td>
 					<td>
-						{{item.qteliv_or }}</td>
+						{{item.qteliv_or }}
+					</td>
 					<td style="{{styl}}">
-						{{item.statutOR}}</td>
+						{{item.statutOR}}
+					</td>
 					<td>
-						{{item.datestatutOR}}</td>
+						{{item.datestatutOR}}
+					</td>
 					<td>
-						{{item.numcis}}</td>
+						{{item.ctr_marque}}
+					</td>
 					<td>
-						{{item.numerocmd}}</td>
+						{{item.numerocmd}}
+					</td>
 					<td style="{{classe}}">
-						{{item.statut_ctrmq}}</td>
+						{{item.statut_ctrmq}}
+					</td>
 					<td>
-						{{item.qteORlig_cis }}</td>
+					{{item.numcis}}
+					</td>
 					<td>
-						{{item.qtealllig_cis }}</td>
+						{{item.qteORlig_cis }}
+					</td>
 					<td>
-						{{item.qterlqlig_cis }}</td>
+						{{item.qtealllig_cis }}
+					</td>
 					<td>
-						{{item.qtelivlig_cis }}</td>
+						{{item.qterlqlig_cis }}
+					</td>
 					<td>
-						{{item.statutCis}}</td>
+						{{item.qtelivlig_cis }}
+					</td>
 					<td>
-						{{item.datestatutCis }}</td>
+						{{item.statutCis}}
+					</td>
 					<td>
-						{{item.Eta_ivato }}</td>
+						{{item.datestatutCis }}
+					</td>
 					<td>
-						{{item.Eta_magasin }}</td>
+						{{item.Eta_ivato }}
+					</td>
 					<td>
-						{{item.message}}</td>
+						{{item.Eta_magasin }}
+					</td>
+					<td>
+						{{item.message}}
+					</td>
 				</tr>
 			{% endfor %}
 		</tbody>
