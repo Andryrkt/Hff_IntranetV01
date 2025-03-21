@@ -18,7 +18,7 @@
 	</h3>
 	{% include "/partials/_notification.html.twig" %}
 
-	{% include "/dit/shared/_formulaireRecherche.html.twig" %}
+	{% include "/da/shared/_formulaireRecherche.html.twig" %}
 	<div class="row">
 		<div class=" col-12 col-md-5 my-3">
 			<i class="fa-solid fa-circle text-info"></i>
@@ -38,7 +38,7 @@
 	class="container-fluid">
 	<!-- DEBUT tableau -->
 	<div class="container">
-		{% include "/dit/shared/_pagination.html.twig" %}
+		{% include "/da/shared/_pagination.html.twig" %}
 	</div>
 
 	<table class="table rounded table-plein-ecran">
@@ -138,7 +138,6 @@
                     </td>
 				</tr>
 			{% endfor %}
-			
 		</tbody>
 	</table>
 </div>
@@ -149,4 +148,4 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
-{% endblock %}
+{% endblock %}  

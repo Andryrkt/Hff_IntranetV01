@@ -309,6 +309,10 @@ class DemandeApproController extends Controller
      */
     public function new($id)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        // obtenir le dit correspondant à l'id {id} du DIT
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
         $demandeAppro = new DemandeAppro;
