@@ -84,6 +84,8 @@ class PdfTableGenerator
                 $value = $this->formatValue($key, $value);
             }
 
+
+
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
         }
         $html .= '</tr></tfoot>';

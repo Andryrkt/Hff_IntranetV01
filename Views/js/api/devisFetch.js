@@ -38,7 +38,7 @@ export function fetchDevis(
  */
 function valeurDocASoumettre(docDansDw) {
   let docASoumettre = [];
-  // && !docDansDw.numeroOR 
+  // && !docDansDw.numeroOR
   // if (
   //   docDansDw.client === "EXTERNE" &&
   //   (docDansDw.statutDit === "AFFECTEE SECTION" ||
@@ -63,7 +63,8 @@ function valeurDocASoumettre(docDansDw) {
   // }
 
   docASoumettre = [
-    { value: "DEVIS", text: "DEVIS" },
+    { value: "DEVIS-VP", text: "DEVIS - Vérification de prix" },
+    { value: "DEVIS-VA", text: "DEVIS - Validation atelier" },
     { value: "BC", text: "BC" },
     { value: "OR", text: "OR" },
     { value: "RI", text: "RI" },
