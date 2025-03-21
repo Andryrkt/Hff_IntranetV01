@@ -84,8 +84,6 @@ class ListeController extends Controller
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
             $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
-            // dd($back);
-           
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
@@ -93,9 +91,7 @@ class ListeController extends Controller
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $data = $this->recupData($result, $criteriaTAb, $back);
-        //    dd($data);
-        //    die();
-          
+            $this->sessionService->set('data_planning_detail_excel', $data);
         }
         self::$twig->display('planning/listePlanning.html.twig', [
             'form' => $form->createView(),
@@ -123,22 +119,19 @@ class ListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
         $criteriaTAb = $this->sessionService->get('planning_search_criteria');
-
         $criteria = $this->creationObjetCriteria($criteriaTAb);
         $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
         $tousLesOrSoumis = $this->allOrs();
         $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
-
         if (is_array($back)) {
             $backString = TableauEnStringService::orEnString($back);
         } else {
             $backString = '';
         }
-
-        $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orSansItv'], $backString, $tousLesOrSoumis);
-        $data = $this->recupData($result, $criteriaTAb, true);
+        
+        $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
+        $data = $this->recupData($result, $criteriaTAb, $back,true,true);
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
             'Marque' => 'Marque',
@@ -176,7 +169,6 @@ class ListeController extends Controller
         ];
 
         array_unshift($data, $header);
-
         $this->exporterDonneesExcel($data);
     }
 
@@ -236,7 +228,7 @@ class ListeController extends Controller
 
 
 
-    public function recupData($result, $criteriaTAb, $back, $sendCmd = false)
+    public function recupData($result, $criteriaTAb, $back, $sendCmd = false, $excelBack = false)
     { 
         $data = [];
         if (!empty($result)) {
@@ -244,11 +236,11 @@ class ListeController extends Controller
             $dateLivLigCIS = [];
             $dateAllLigCIS = [];
             for ($i = 0; $i < count($result); $i++) {
-             $orItv = $result[$i]['numor'] . '-' . $result[$i]['itv'];
+                $orItv = $result[$i]['orintv'];
                 if (in_array($orItv, $back) ) {
-                    $result[$i]['backOrder'] = 'back';
+                    $result[$i]['backOrder'] = $excelBack === false ? 'back' : '';
                 }else{
-                    $result[$i]['backOrder'] = 'not';
+                    $result[$i]['backOrder'] = $excelBack === false ? 'not' : '';
                 }
                 if (substr($result[$i]['numor'], 0, 1) == '5') {
                     if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
