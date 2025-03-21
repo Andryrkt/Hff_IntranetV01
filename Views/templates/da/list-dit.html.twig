@@ -14,24 +14,11 @@
 
 <div class="container">
 	<h3 class="perso-titre">
-		Liste des DIT à séléctionner
+		Veuillez sélectionner un DIT parmi la liste
 	</h3>
 	{% include "/partials/_notification.html.twig" %}
 
 	{% include "/da/shared/_formulaireRecherche.html.twig" %}
-	<div class="row">
-		<div class=" col-12 col-md-5 my-3">
-			<i class="fa-solid fa-circle text-info"></i>
-			<small class="text-info">Partiellement dispo |</small>
-			<i class="fa-solid fa-circle text-primary"></i>
-			<small class="text-primary">Complet non livré |</small>
-			<i class="fa-solid fa-circle text-warning"></i>
-			<small class="text-warning">Partiellement livré |</small>
-			<i class="fa-solid fa-circle text-success"></i>
-			<small class="text-success">Tout livré
-			</small>
-		</div>
-	</div>
 </div>
 
 <div
@@ -44,9 +31,7 @@
 	<table class="table rounded table-plein-ecran">
 		<thead class="table-dark">
 			<tr>
-				<th>
-					<i class="fas fa-ellipsis-vertical"></i>
-				</th>
+				<th style="width: 2%;"></th>
 				<th>Statut</th>
 				<th>N° DIT</th>
 				<th>Type document</th>
@@ -83,28 +68,11 @@
 				{% else %}
 					{% set classeStatutDit = '' %}
 				{% endif %}
-
-				{% set classeQuatreStatutOr = '' %}
-				{% if item.quatrestatutor == 'Tout livré' %}
-					{# total livré #}
-					{% set classeQuatreStatutOr = 'bg-success text-white' %}
-				{% elseif item.quatrestatutor == 'Partiellement livré' %}
-					{# partiellement livré #}
-					{% set classeQuatreStatutOr = 'bg-warning text-white' %}
-				{% elseif item.quatrestatutor == 'Partiellement dispo' %}
-					{% set classeQuatreStatutOr = 'bg-info text-white' %}
-					{# partiellement dispo #}
-				{%  elseif item.quatrestatutor == 'Complet non livré' %}
-					{% set classeQuatreStatutOr = 'bg-primary text-white' %}
-					{# complet non livré #}
-				{% else %}
-					{% set classeQuatreStatutOr = '' %}
-				{% endif %}
 				{# FIN LOGIQUE #}
 				<tr>
 					{# Début Action #}
-					<td class="align-middle" style="padding: 0px">
-						<i class="fas fa-ellipsis-vertical"></i>
+					<td class="text-center" style="width: 2%;">
+						<input type="checkbox" name="option" class="checkbox" value="{{item.id}}">
 					</td>
 					{# Fin Actions #}
 
@@ -147,5 +115,5 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
 {% endblock %}  
