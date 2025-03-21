@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
 use App\Entity\mutation\Mutation;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -120,6 +121,16 @@ class Agence
      */
     private $tkiAgenceDebiteur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="agenceEmetteur")
+     */
+    private $daAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="agenceDebiteur")
+     */
+    private $daAgenceDebiteur;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -133,6 +144,8 @@ class Agence
         $this->domAgenceDebiteur = new ArrayCollection();
         $this->tkiAgenceEmetteur = new ArrayCollection();
         $this->tkiAgenceDebiteur = new ArrayCollection();
+        $this->daAgenceEmetteur = new ArrayCollection();
+        $this->daAgenceDebiteur = new ArrayCollection();
         $this->mutationAgenceEmetteur = new ArrayCollection();
         $this->mutationAgenceDebiteur = new ArrayCollection();
     }
@@ -634,6 +647,40 @@ class Agence
     {
         $this->mutationAgenceDebiteur = $mutationAgenceDebiteur;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of daAgenceEmetteur
+     */
+    public function getDaAgenceEmetteur()
+    {
+        return $this->daAgenceEmetteur;
+    }
+
+    /**
+     * Set the value of daAgenceEmetteur
+     */
+    public function setDaAgenceEmetteur($daAgenceEmetteur): self
+    {
+        $this->daAgenceEmetteur = $daAgenceEmetteur;
+        return $this;
+    }
+
+    /**
+     * Get the value of daAgenceDebiteur
+     */
+    public function getDaAgenceDebiteur()
+    {
+        return $this->daAgenceDebiteur;
+    }
+
+    /**
+     * Set the value of daAgenceDebiteur
+     */
+    public function setDaAgenceDebiteur($daAgenceDebiteur): self
+    {
+        $this->daAgenceDebiteur = $daAgenceDebiteur;
         return $this;
     }
 }
