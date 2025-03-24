@@ -9,41 +9,47 @@ export function autocompleteTheFields() {
 
   designations.forEach((designation) => {
     let baseId = designation.id.replace('demande_appro_form_DAL', '');
+
     let famille = document.getElementById(
       designation.id.replace('artDesi', 'fams1')
     );
     let sousFamille = document.getElementById(
       designation.id.replace('artDesi', 'fams2')
     );
-    let spinnerId = `spinner${baseId}`;
-    let suggestionId = `suggestion${baseId}`;
+    let familleLibelle = document.getElementById(
+      designation.id.replace('artDesi', 'artFams1')
+    );
+    let sousFamilleLibelle = document.getElementById(
+      designation.id.replace('artDesi', 'artFams2')
+    );
 
-    designation.addEventListener('input', function () {
+    let suggestionContainer = document.getElementById(`suggestion${baseId}`);
+    let loaderElement = document.getElementById(`spinner${baseId}`);
+
+    function initAutoComplete() {
       new AutoComplete({
         inputElement: designation,
-        suggestionContainer: document.getElementById(suggestionId),
-        loaderElement: document.getElementById(spinnerId),
+        suggestionContainer,
+        loaderElement,
         debounceDelay: 150,
         fetchDataCallback: () => fetchDesignations(famille, sousFamille),
         displayItemCallback: displayDesignation,
         onSelectCallback: (item) =>
-          handleValueOfTheFields(item, designation, famille, sousFamille),
+          handleValueOfTheFields(
+            item,
+            designation,
+            famille,
+            sousFamille,
+            familleLibelle,
+            sousFamilleLibelle
+          ),
         itemToStringCallback: (item) =>
           `${item.fournisseur} - ${item.designation}`,
       });
-    });
-    new AutoComplete({
-      inputElement: designation,
-      suggestionContainer: document.getElementById(suggestionId),
-      loaderElement: document.getElementById(spinnerId),
-      debounceDelay: 150,
-      fetchDataCallback: () => fetchDesignations(famille, sousFamille),
-      displayItemCallback: displayDesignation,
-      onSelectCallback: (item) =>
-        handleValueOfTheFields(item, designation, famille, sousFamille),
-      itemToStringCallback: (item) =>
-        `${item.fournisseur} - ${item.designation}`,
-    });
+    }
+
+    designation.addEventListener('input', initAutoComplete);
+    initAutoComplete();
   });
 }
 
@@ -61,16 +67,26 @@ function displayDesignation(item) {
   return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
 }
 
-async function handleValueOfTheFields(item, designation, famille, sousFamille) {
+async function handleValueOfTheFields(
+  item,
+  designation,
+  famille,
+  sousFamille,
+  familleLibelle,
+  sousFamilleLibelle
+) {
   console.log(item);
 
   if (famille.value !== item.codefamille) {
     famille.value = item.codefamille;
+    familleLibelle.value = famille.options[famille.selectedIndex].text;
     await changeSousFamille(famille, sousFamille);
   } else if (sousFamille.value !== item.codesousfamille) {
     await changeSousFamille(famille, sousFamille);
   }
   sousFamille.value = item.codesousfamille;
+  sousFamilleLibelle.value =
+    sousFamille.options[sousFamille.selectedIndex].text;
   designation.value = item.designation;
 }
 

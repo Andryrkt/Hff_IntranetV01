@@ -40,6 +40,11 @@ export function ajouterUneLigne() {
     ['w-5', 'qteDem'],
     ['w-23', 'commentaire'],
     ['d-none', 'artConstp'],
+    ['d-none', 'artRefp'],
+    ['d-none', 'artFams1'],
+    ['d-none', 'artFams2'],
+    ['d-none', 'numeroFournisseur'],
+    ['d-none', 'nomFournisseur'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {

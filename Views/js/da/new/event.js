@@ -10,9 +10,13 @@ export function eventOnFamille() {
   familles.forEach((famille) => {
     let familleId = famille.id;
     let sousFamilleId = familleId.replace('fams1', 'fams2');
+    let familleLibelleId = familleId.replace('fams1', 'artFams1');
+    let sousFamilleLibelleId = familleId.replace('fams1', 'artFams2');
     let baseId = sousFamilleId.replace('demande_appro_form_DAL', '');
     let spinnerId = `spinner${baseId}`;
     let containerId = `container${baseId}`;
+    let familleLibelle = document.getElementById(familleLibelleId);
+    let sousFamilleLibelle = document.getElementById(sousFamilleLibelleId);
     let sousFamille = document.getElementById(sousFamilleId);
     let spinnerElement = document.getElementById(spinnerId);
     let containerElement = document.getElementById(containerId);
@@ -30,9 +34,13 @@ export function eventOnFamille() {
         resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
       sousFamille.value = '';
+      familleLibelle.value = this.options[this.selectedIndex].text;
       handleDesignation(familleId);
     });
-    sousFamille.addEventListener('change', () => handleDesignation(familleId));
+    sousFamille.addEventListener('change', function () {
+      sousFamilleLibelle.value = this.options[this.selectedIndex].text;
+      handleDesignation(familleId);
+    });
   });
 }
 
