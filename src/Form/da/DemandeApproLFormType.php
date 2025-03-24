@@ -43,7 +43,8 @@ class DemandeApproLFormType extends AbstractType
                 'label' => false
             ])
             ->add('commentaire', TextType::class, [
-                'label' => false
+                'label' => false,
+                'required' => false
             ])
         ;
     }
