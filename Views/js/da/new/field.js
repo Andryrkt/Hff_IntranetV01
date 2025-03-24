@@ -48,7 +48,7 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   field.classList.add(className);
 
   // Sélection de l'élément cible
-  let fams2Field = prototype.querySelector(`[id*="artFams2"]`);
+  let fams2Field = prototype.querySelector(`[id*="fams2"]`);
 
   // Effacer tous les options
   resetDropdown(fams2Field, '-- Choisir une sous-famille --');

@@ -33,16 +33,17 @@ export function ajouterUneLigne() {
   row.classList.add('row', 'g-3');
 
   let fields = [
-    ['w-15', 'artFams1'],
-    ['w-20', 'artFams2'],
+    ['w-15', 'fams1'],
+    ['w-20', 'fams2'],
     ['w-25', 'artDesi'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
     ['w-23', 'commentaire'],
+    ['d-none', 'artConstp'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
-    if (fieldName === 'artFams2') {
+    if (fieldName === 'fams2') {
       createFams2AndAppendTo(classe, prototype, row);
     } else if (fieldName === 'artDesi') {
       createDesiAndAppendTo(classe, prototype, row);

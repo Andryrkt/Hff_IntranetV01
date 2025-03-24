@@ -10,10 +10,10 @@ export function autocompleteTheFields() {
   designations.forEach((designation) => {
     let baseId = designation.id.replace('demande_appro_form_DAL', '');
     let famille = document.getElementById(
-      designation.id.replace('artDesi', 'artFams1')
+      designation.id.replace('artDesi', 'fams1')
     );
     let sousFamille = document.getElementById(
-      designation.id.replace('artDesi', 'artFams2')
+      designation.id.replace('artDesi', 'fams2')
     );
     let spinnerId = `spinner${baseId}`;
     let suggestionId = `suggestion${baseId}`;
