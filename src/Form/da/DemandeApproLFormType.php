@@ -19,13 +19,15 @@ class DemandeApproLFormType extends AbstractType
         $daModel = new DaModel;
 
         $builder
-            ->add('artFams1', ChoiceType::class, [
+            ->add('fams1', ChoiceType::class, [
+                'mapped' => false,
                 'label' => false,
                 'required' => false,
                 'placeholder' => '-- Choisir une famille --',
                 'choices' => $daModel->getAllFamille(),
             ])
-            ->add('artFams2', ChoiceType::class, [
+            ->add('fams2', ChoiceType::class, [
+                'mapped' => false,
                 'label' => false,
                 'required' => false,
                 'placeholder' => '-- Choisir une sous-famille --',
@@ -50,6 +52,31 @@ class DemandeApproLFormType extends AbstractType
             ->add('commentaire', TextType::class, [
                 'label' => false,
                 'required' => false
+            ])
+            ->add('artConstp', TextType::class, [
+                'label' => false,
+                'required' => false,
+                'data' => 'ZST',
+            ])
+            ->add('artRefp', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artFams1', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artFams2', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('numeroFournisseur', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('nomFournisseur', TextType::class, [
+                'label' => false,
+                'required' => false,
             ])
         ;
     }
