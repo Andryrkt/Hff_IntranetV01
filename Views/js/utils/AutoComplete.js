@@ -31,14 +31,14 @@ export class AutoComplete {
     try {
       this.data = await this.fetchDataCallback();
     } catch (error) {
-      console.error("Erreur lors du chargement des données :", error);
+      console.error('Erreur lors du chargement des données :', error);
     }
     this.toggleLoader(false);
 
-    this.inputElement.addEventListener("input", () => this.onInput());
-    this.inputElement.addEventListener("keydown", (e) => this.onKeyDown(e));
+    this.inputElement.addEventListener('input', () => this.onInput());
+    this.inputElement.addEventListener('keydown', (e) => this.onKeyDown(e));
 
-    document.addEventListener("click", (e) => {
+    document.addEventListener('click', (e) => {
       if (
         !this.suggestionContainer.contains(e.target) &&
         e.target !== this.inputElement
@@ -56,33 +56,33 @@ export class AutoComplete {
   }
 
   onKeyDown(event) {
-    const suggestions = this.suggestionContainer.querySelectorAll("div");
+    const suggestions = this.suggestionContainer.querySelectorAll('div');
 
     switch (event.key) {
-      case "ArrowDown":
+      case 'ArrowDown':
         this.activeIndex = (this.activeIndex + 1) % suggestions.length;
         this.updateActiveSuggestion(suggestions);
         break;
-      case "ArrowUp":
+      case 'ArrowUp':
         this.activeIndex =
           (this.activeIndex - 1 + suggestions.length) % suggestions.length;
         this.updateActiveSuggestion(suggestions);
         break;
-      case "Enter":
+      case 'Enter':
         event.preventDefault();
         if (suggestions.length > 0) {
           const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
           suggestions[indexToSelect].click();
         }
         break;
-      case "Tab":
+      case 'Tab':
         if (suggestions.length > 0) {
           event.preventDefault();
           const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
           suggestions[indexToSelect].click();
         }
         break;
-      case "Escape":
+      case 'Escape':
         this.clearSuggestions();
         break;
     }
@@ -91,16 +91,16 @@ export class AutoComplete {
   updateActiveSuggestion(suggestions) {
     suggestions.forEach((s, index) => {
       if (index === this.activeIndex) {
-        s.classList.add("active-suggestion");
-        s.scrollIntoView({ block: "nearest" });
+        s.classList.add('active-suggestion');
+        s.scrollIntoView({ block: 'nearest' });
       } else {
-        s.classList.remove("active-suggestion");
+        s.classList.remove('active-suggestion');
       }
     });
   }
 
   filterData(searchValue) {
-    if (searchValue === "") {
+    if (searchValue === '') {
       this.clearSuggestions();
       return;
     }
@@ -127,12 +127,12 @@ export class AutoComplete {
     }
 
     suggestions.forEach((item, index) => {
-      const suggestionElement = document.createElement("div");
-      suggestionElement.classList.add("suggestion-item");
+      const suggestionElement = document.createElement('div');
+      suggestionElement.classList.add('suggestion-item');
       suggestionElement.innerHTML = this.displayItemCallback(item);
       suggestionElement.dataset.index = index;
 
-      suggestionElement.addEventListener("click", () => {
+      suggestionElement.addEventListener('click', () => {
         this.onSelectCallback(item);
         this.clearSuggestions();
       });
@@ -144,13 +144,13 @@ export class AutoComplete {
   }
 
   clearSuggestions() {
-    this.suggestionContainer.innerHTML = "";
+    this.suggestionContainer.innerHTML = '';
     this.activeIndex = -1;
   }
 
   toggleLoader(show) {
     if (this.loaderElement) {
-      this.loaderElement.style.display = show ? "block" : "none";
+      this.loaderElement.style.display = show ? 'block' : 'none';
     }
   }
 }

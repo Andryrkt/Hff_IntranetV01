@@ -193,7 +193,7 @@ class PlanningModel extends Model
                     AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
-                    AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+                   -- AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
                     AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
                     AND (seor_nummat = mmat_nummat)
                    -- AND slor_constp NOT like '%ZDI%'

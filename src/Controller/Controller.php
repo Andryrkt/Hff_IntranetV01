@@ -512,4 +512,11 @@ class Controller
             $this->redirectToRoute("security_signin");
         }
     }
+
+    protected function getUser(): User
+    {
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+        return $user;
+    }
 }
