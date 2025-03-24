@@ -49,14 +49,7 @@ trait DitFactureSoumisAValidationtrait
                 
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
 
-                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
-                if(is_array($montantValide)) {
-                    if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
-                        $message = $montantValide['message'];
-                        $this->historiqueOperation->sendNotificationSoumission($message, $dataForm->getNumeroOR(), 'dit_index');
-                    }
-                }
-                
+                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv'])['montantItv'];
                 
                 if(is_array($montantValide)) {
                     if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
@@ -96,11 +89,6 @@ trait DitFactureSoumisAValidationtrait
             $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
             $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
         } 
-
-        if(empty($quantiter)){
-            $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
-        } 
         
         if ((int)$quantiter[0]['quantitelivree'] == 0) {
             return "Validé";
@@ -134,14 +122,14 @@ trait DitFactureSoumisAValidationtrait
 
             $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-            $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv']);
+            $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv'])['montantItv'];
             if(empty($statutOrsSoumisValidation)|| $statutOrsSoumisValidation === null || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
                 $statutFac[] = 'Itv non validée';
                 $nombreStatutControle['nbrNonValideFacture']++;
             } elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') && $agServDebDit <> $agServFac) {
                     $statutFac[] = 'Serv deb DIT # Serv deb FAC';
                     $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
-            } elseif ($montantValide <> $value['montantfactureitv']) {
+            } elseif ($montantValide <> (int)$value['montantfactureitv']) {
                 if ($migration == 1) {
                     $statutFac[] = 'DIT migrée';
                 } else {
@@ -198,6 +186,7 @@ trait DitFactureSoumisAValidationtrait
             'controleAFaire' => ''
         ];
         foreach ($factureSoumisAValidation as  $value) {
+
             $totalItvFacture['totalMttItv'] += $value->getMttItv();
             $totalItvFacture['totalMttFac'] += $value->getMontantFactureitv();
         }

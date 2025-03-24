@@ -204,6 +204,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 "message" => "Aucun montant valide trouvé pour le numeroOR {$numOr} et le numeroItv {$numItv}."
             ];
         }
+
+        return $montantValide;
     }
 
 
