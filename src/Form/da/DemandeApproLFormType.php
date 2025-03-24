@@ -21,26 +21,31 @@ class DemandeApproLFormType extends AbstractType
         $builder
             ->add('artFams1', ChoiceType::class, [
                 'label' => false,
+                'required' => false,
                 'placeholder' => '-- Choisir une famille --',
                 'choices' => $daModel->getAllFamille(),
             ])
             ->add('artFams2', ChoiceType::class, [
                 'label' => false,
+                'required' => false,
                 'placeholder' => '-- Choisir une sous-famille --',
                 'choices' => [],
             ])
             ->add('artDesi', TextType::class, [
-                'label' => false
+                'label' => false,
+                'required' => false,
             ])
             ->add('dateFinSouhaite', DateType::class, [
                 'label' => false,
+                'required' => false,
                 'widget' => 'single_text',
                 'constraints' => [
                     new NotBlank(['message' => 'la date ne doit pas être vide'])
                 ]
             ])
             ->add('qteDem', TextType::class,  [
-                'label' => false
+                'label' => false,
+                'required' => false,
             ])
             ->add('commentaire', TextType::class, [
                 'label' => false,

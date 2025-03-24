@@ -4,10 +4,17 @@ export function createFieldAndAppendTo(
   fieldName,
   parentField
 ) {
-  let field = document.createElement('div');
-  field.classList.add(classe);
-  field.appendChild(prototype.querySelector(`[id*="${fieldName}"]`));
-  parentField.appendChild(field);
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add(classe);
+  
+  // Champ à mettre dans le conteneur
+  let field = prototype.querySelector(`[id*="${fieldName}"]`);
+  field.required = fieldName === 'commentaire' ? false : true;
+
+  // Append the field
+  fieldContainer.appendChild(field);
+  parentField.appendChild(fieldContainer);
 }
 
 export function createFams2AndAppendTo(className, prototype, parentField) {
