@@ -81,7 +81,7 @@ class DemandePaiementModel extends Model
         $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO
             from GCOT_Gestion_Document
             where Numero_PO='{$numeroDossier}'
-            and (Nom_Fichier like '%PDV%' or Nom_Fichier like '%BOL%' or Nom_Fichier like '%HAWB%')
+            and (Nom_Fichier like '%/PDV%' or Nom_Fichier like '%/BOL%' or Nom_Fichier like '%/HAWB%')
         ";
 
         return $this->retournerResultGcot04($sql);
