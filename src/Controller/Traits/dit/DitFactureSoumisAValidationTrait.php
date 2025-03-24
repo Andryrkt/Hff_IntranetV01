@@ -37,6 +37,7 @@ trait DitFactureSoumisAValidationtrait
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em, $ditFactureSoumiAValidation): array
     {   
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
+        
     
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
         
@@ -50,6 +51,7 @@ trait DitFactureSoumisAValidationtrait
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
 
                 $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
+                
                 if(is_array($montantValide)) {
                     if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
                         $message = $montantValide['message'];
@@ -205,7 +207,7 @@ trait DitFactureSoumisAValidationtrait
         return $totalItvFacture;
     }
 
-    private function montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact)
+    private function montantpdf($factureSoumisAValidation, $statut, $orSoumisFact)
     {
 
         return [
