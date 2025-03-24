@@ -1,4 +1,4 @@
-import { resetDropdown } from "../../utils/dropdownUtils";
+import { resetDropdown } from '../../utils/dropdownUtils';
 
 export function createFieldAndAppendTo(
   classe,
@@ -9,10 +9,14 @@ export function createFieldAndAppendTo(
   // Création du conteneur principal
   let fieldContainer = document.createElement('div');
   fieldContainer.classList.add(classe);
-  
+
   // Champ à mettre dans le conteneur
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
+  let dateFinSouhaitee = document.getElementById(
+    'demande_appro_form_dateFinSouhaite'
+  ).value;
   field.required = fieldName === 'commentaire' ? false : true;
+  field.value = fieldName === 'dateFinSouhaite' ? dateFinSouhaitee : '';
 
   // Append the field
   fieldContainer.appendChild(field);
@@ -23,7 +27,7 @@ export function createRemoveButtonAndAppendTo(prototype, parentField) {
   // Création du conteneur principal
   let fieldContainer = document.createElement('div');
   fieldContainer.classList.add('w-2');
-  
+
   // Bouton supprimer
   let removeButton = document.createElement('span');
   removeButton.title = 'Supprimer la ligne de DA';
@@ -32,7 +36,7 @@ export function createRemoveButtonAndAppendTo(prototype, parentField) {
   removeButton.addEventListener('click', function () {
     document.getElementById(prototype.id).remove();
   });
-  
+
   // Append the field
   fieldContainer.appendChild(removeButton);
   parentField.appendChild(fieldContainer);

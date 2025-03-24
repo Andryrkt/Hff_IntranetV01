@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Form\dit\DitSearchType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\StatutDemande;
@@ -324,7 +325,16 @@ class DemandeApproController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            dd($data);
+            $demandeAppro->setNumeroDemandeAppro($this->autoDecrement('DAP'));
+            dd($demandeAppro, $data);
+
+            $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
+            $application->setDerniereId($demandeAppro->getNumeroDemandeAppro());
+
+            $em->persist($application);
+            $em->persist($demandeAppro);
+
+            $em->flush();
         }
 
         self::$twig->display('da/new.html.twig', [
@@ -336,10 +346,14 @@ class DemandeApproController extends Controller
     {
         $demandeAppro
             ->setDit($dit)
+            ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
             ->setAgenceDebiteur($dit->getAgenceDebiteurId())
-            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
             ->setServiceDebiteur($dit->getServiceDebiteurId())
+            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
             ->setServiceEmetteur($dit->getServiceEmetteurId())
+            ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
+            ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
+            ->setStatutDal('Ouvert')
         ;
     }
 }
