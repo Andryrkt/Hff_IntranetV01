@@ -307,7 +307,7 @@ class DemandeApproController extends Controller
     /**
      * @Route("/new/{id}", name="da_new")
      */
-    public function new($id)
+    public function new($id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -319,6 +319,13 @@ class DemandeApproController extends Controller
         $this->initialisationDemandeAppro($demandeAppro, $dit);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            dd($data);
+        }
 
         self::$twig->display('da/new.html.twig', [
             'form' => $form->createView(),

@@ -9,9 +9,12 @@ document.addEventListener('DOMContentLoaded', function () {
     .addEventListener('click', ajouterUneLigne);
   
   document.getElementById('myForm').addEventListener('submit', function (e) {
+    e.preventDefault();
     if (!document.getElementById('children-container').hasChildNodes()) {
-      e.preventDefault();
       alert('Vous devez au moins ajouter une ligne de DA!');
+    } else {
+      document.getElementById('child-prototype').remove();
+      document.getElementById('myForm').submit();
     }
   });
 });

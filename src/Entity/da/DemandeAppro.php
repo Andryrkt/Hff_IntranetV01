@@ -455,7 +455,7 @@ class DemandeAppro
         return $this->DAL;
     }
 
-    public function addChild(DemandeApproL $DAL): void
+    public function addDAL(DemandeApproL $DAL): void
     {
         if (!$this->DAL->contains($DAL)) {
             $this->DAL[] = $DAL;
@@ -463,7 +463,7 @@ class DemandeAppro
         }
     }
 
-    public function removeChild(DemandeApproL $DAL): void
+    public function removeDAL(DemandeApproL $DAL): void
     {
         if ($this->DAL->removeElement($DAL)) {
             if ($DAL->getDemandeAppro() === $this) {
