@@ -20,6 +20,31 @@ class DaModel extends Model
         return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
     }
 
+    public function getAllSousFamille()
+    {
+        $statement = "SELECT DISTINCT 
+                        TRIM(a.abse_fams2) AS code, 
+                        TRIM(t.atab_lib) AS libelle
+                    FROM art_bse a
+                    INNER JOIN agr_tab t 
+                        ON t.atab_nom = 'S/S' 
+                        AND t.atab_code = a.abse_fams2
+                    WHERE a.abse_constp = 'ZST' 
+                    AND a.abse_fams1 IN (
+                        SELECT DISTINCT TRIM(t2.atab_code) AS code
+                        FROM agr_tab t2
+                        INNER JOIN art_bse a2 
+                            ON a2.abse_fams1 = t2.atab_code
+                        WHERE a2.abse_constp = 'ZST' 
+                        AND t2.atab_nom = 'STA'
+                    )";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
+    }
+
     public function getTheSousFamille($codeFamille)
     {
         $statement = "SELECT DISTINCT 

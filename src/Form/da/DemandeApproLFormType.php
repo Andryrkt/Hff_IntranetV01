@@ -29,7 +29,7 @@ class DemandeApproLFormType extends AbstractType
                 'label' => false,
                 'required' => false,
                 'placeholder' => '-- Choisir une sous-famille --',
-                'choices' => [],
+                'choices' => $daModel->getAllSousFamille()
             ])
             ->add('artDesi', TextType::class, [
                 'label' => false,

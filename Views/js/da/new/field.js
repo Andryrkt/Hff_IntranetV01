@@ -1,3 +1,5 @@
+import { resetDropdown } from "../../utils/dropdownUtils";
+
 export function createFieldAndAppendTo(
   classe,
   prototype,
@@ -43,6 +45,9 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
 
   // Sélection de l'élément cible
   let fams2Field = prototype.querySelector(`[id*="artFams2"]`);
+
+  // Effacer tous les options
+  resetDropdown(fams2Field, '-- Choisir une sous-famille --');
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = fams2Field.id.replace('demande_appro_form_DAL', '');
