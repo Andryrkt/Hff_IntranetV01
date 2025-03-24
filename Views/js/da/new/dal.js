@@ -4,6 +4,7 @@ import {
   createDesiAndAppendTo,
   createFams2AndAppendTo,
   createFieldAndAppendTo,
+  createRemoveButtonAndAppendTo,
   formatAllField,
 } from './field';
 
@@ -37,7 +38,7 @@ export function ajouterUneLigne() {
     ['w-25', 'artDesi'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
-    ['w-25', 'commentaire'],
+    ['w-23', 'commentaire'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
@@ -49,14 +50,15 @@ export function ajouterUneLigne() {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
+  createRemoveButtonAndAppendTo(prototype, row);
 
   let div = document.createElement('div');
   div.classList.add('mt-3');
 
   // Ajouter la row complète dans le container
   prototype.appendChild(row);
+  prototype.appendChild(div);
   container.appendChild(prototype);
-  container.appendChild(div);
 
   eventOnFamille();
   formatAllField();

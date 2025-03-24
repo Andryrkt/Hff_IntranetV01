@@ -17,6 +17,25 @@ export function createFieldAndAppendTo(
   parentField.appendChild(fieldContainer);
 }
 
+export function createRemoveButtonAndAppendTo(prototype, parentField) {
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add('w-2');
+  
+  // Bouton supprimer
+  let removeButton = document.createElement('span');
+  removeButton.title = 'Supprimer la ligne de DA';
+  removeButton.style.cursor = 'pointer';
+  removeButton.innerHTML = '<i class="fas fa-times fs-4"></i>';
+  removeButton.addEventListener('click', function () {
+    document.getElementById(prototype.id).remove();
+  });
+  
+  // Append the field
+  fieldContainer.appendChild(removeButton);
+  parentField.appendChild(fieldContainer);
+}
+
 export function createFams2AndAppendTo(className, prototype, parentField) {
   // Création du conteneur principal
   let field = document.createElement('div');
