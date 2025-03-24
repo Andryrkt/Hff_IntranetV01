@@ -16,6 +16,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Form\dit\demandeInterventionType;
 use App\Repository\admin\AgenceRepository;
@@ -324,8 +325,18 @@ class DemandeApproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            dd($demandeAppro);
             $data = $form->getData();
             $demandeAppro->setNumeroDemandeAppro($this->autoDecrement('DAP'));
+
+            foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
+                $DAL
+                    ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                    ->setNumeroLigne($ligne + 1)
+                    ->setStatutDal('Ouvert')
+                ;
+                self::$em->persist($DAL);
+            }
 
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
             $application->setDerniereId($demandeAppro->getNumeroDemandeAppro());

@@ -64,8 +64,10 @@ class DaModel extends Model
         $statement = "SELECT 
             trim(abse_fams1) as codefamille,
             trim(abse_fams2) as codesousfamille,
+            trim(abse_refp) as referencepiece,
             trim(abse_desi) as designation,
             abse_pxstd as prix,
+            fbse_numfou as numerofournisseur,
             trim(fbse_nomfou) as fournisseur
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
