@@ -326,15 +326,14 @@ class DemandeApproController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $demandeAppro->setNumeroDemandeAppro($this->autoDecrement('DAP'));
-            dd($demandeAppro, $data);
 
-            $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
             $application->setDerniereId($demandeAppro->getNumeroDemandeAppro());
 
-            $em->persist($application);
-            $em->persist($demandeAppro);
+            self::$em->persist($application);
+            self::$em->persist($demandeAppro);
 
-            $em->flush();
+            self::$em->flush();
         }
 
         self::$twig->display('da/new.html.twig', [

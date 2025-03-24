@@ -32,6 +32,18 @@ export function autocompleteTheFields() {
           `${item.fournisseur} - ${item.designation}`,
       });
     });
+    new AutoComplete({
+      inputElement: designation,
+      suggestionContainer: document.getElementById(suggestionId),
+      loaderElement: document.getElementById(spinnerId),
+      debounceDelay: 150,
+      fetchDataCallback: () => fetchDesignations(famille, sousFamille),
+      displayItemCallback: displayDesignation,
+      onSelectCallback: (item) =>
+        handleValueOfTheFields(item, designation, famille, sousFamille),
+      itemToStringCallback: (item) =>
+        `${item.fournisseur} - ${item.designation}`,
+    });
   });
 }
 
