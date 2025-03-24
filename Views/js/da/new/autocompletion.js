@@ -18,17 +18,19 @@ export function autocompleteTheFields() {
     let spinnerId = `spinner${baseId}`;
     let suggestionId = `suggestion${baseId}`;
 
-    new AutoComplete({
-      inputElement: designation,
-      suggestionContainer: document.getElementById(suggestionId),
-      loaderElement: document.getElementById(spinnerId),
-      debounceDelay: 150,
-      fetchDataCallback: () => fetchDesignations(famille, sousFamille),
-      displayItemCallback: displayDesignation,
-      onSelectCallback: (item) =>
-        handleValueOfTheFields(item, designation, famille, sousFamille),
-      itemToStringCallback: (item) =>
-        `${item.fournisseur} - ${item.designation}`,
+    designation.addEventListener('input', function () {
+      new AutoComplete({
+        inputElement: designation,
+        suggestionContainer: document.getElementById(suggestionId),
+        loaderElement: document.getElementById(spinnerId),
+        debounceDelay: 150,
+        fetchDataCallback: () => fetchDesignations(famille, sousFamille),
+        displayItemCallback: displayDesignation,
+        onSelectCallback: (item) =>
+          handleValueOfTheFields(item, designation, famille, sousFamille),
+        itemToStringCallback: (item) =>
+          `${item.fournisseur} - ${item.designation}`,
+      });
     });
   });
 }
