@@ -13,6 +13,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -29,6 +30,7 @@ class DemandePaiementType extends AbstractType
     
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+
         $builder
             ->add('numeroFournisseur', TextType::class,
                 [
@@ -38,14 +40,45 @@ class DemandePaiementType extends AbstractType
                         'autocomplete' => 'off',
                     ]
                 ])
-            ->add('numeroCommande', TextType::class,
+            ->add('numeroCommande', 
+            ChoiceType::class,
             [
-                'label' => 'N° Commande *'
+                'label'     => 'N° Commande *',
+                'choices'   => [],
+                'multiple'  => true,
+                'expanded'  => false,
             ])
-            ->add('numeroFacture',TextType::class,
+            ->add('numeroFacture',ChoiceType::class,
                 [
-                    'label' => 'N° Facture *'
+                    'label' => 'N° Facture *',
+                    'choices'   => [],
+                    'multiple'  => true,
+                    'expanded'  => false,
+                    'attr'      => [
+                        'disabled' => $options['id_type'] == 1,
+                        'data-typeId' => $options['id_type'] 
+                    ]
                 ])
+                ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                    $form = $event->getForm();
+                    $data = $event->getData();
+
+                    $form->add('numeroCommande', 
+                    ChoiceType::class,
+                    [
+                        'label'     => 'N° Commande *',
+                        'choices'   => $data['numeroCommande'],
+                        'multiple'  => true,
+                        'expanded'  => false,
+                    ]);
+                    $form->add('numeroFacture',ChoiceType::class,
+                        [
+                            'label' => 'N° Facture *',
+                            'choices'   => $data['numeroFacture'],
+                            'multiple'  => true,
+                            'expanded'  => false
+                        ]);
+                })
             ->add('beneficiaire', TextType::class,
                 [
                     'label' => 'Bénéficiaire *',
@@ -60,15 +93,17 @@ class DemandePaiementType extends AbstractType
                     'required' => false
                 ])
                 
-            ->add('ribFournisseur', TextType::class,
-            [
-                'label' => 'RIB *'
-            ])
-            ->add('contact', TextType::class,
-            [
-                'label' => 'Contact',
-                'required' => false
-            ])
+            ->add('ribFournisseur', 
+                TextType::class,
+                [
+                    'label' => 'RIB *'
+                ])
+            ->add('contact', 
+                TextType::class,
+                [
+                    'label' => 'Contact',
+                    'required' => false
+                ])
             ->add('modePaiement', TextType::class,
             [
                 'label' => 'Mode de paiement *'
@@ -188,5 +223,8 @@ class DemandePaiementType extends AbstractType
         $resolver->setDefaults([
             'data_class' => DemandePaiement::class,
         ]);
+
+        // Ajoutez l'option 'id_type' pour éviter l'erreur
+        $resolver->setDefined('id_type');
     }
 }

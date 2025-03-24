@@ -58,12 +58,13 @@ class InfoFournisseurApi extends Controller
         
         if ($nbrLigne <= 0) {
             $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
+            $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             
             $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
 
             $data = [
-                'numCdes' => $numCdes,
+                'numCdes' => $numCde,
                 'listeGcot' => $listeGcot
             ];
             header("Content-type:application/json");

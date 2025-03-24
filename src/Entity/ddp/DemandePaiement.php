@@ -35,7 +35,7 @@ class DemandePaiement
 
     /**
      * @ORM\ManyToOne(targetEntity=TypeDemande::class, inversedBy="demandePaiement")
-     * @ORM\JoinColumn(name="type_demande", referencedColumnName="id")
+     * @ORM\JoinColumn(name="type_demande_id", referencedColumnName="id")
      */
     private $typeDemandeId;
 
@@ -124,6 +124,8 @@ class DemandePaiement
     private $titreDeTransportFichier;
     
     private $modePaiement;
+
+    private ?string $emailUserConnect;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -616,6 +618,26 @@ class DemandePaiement
     public function setModePaiement($modePaiement)
     {
         $this->modePaiement = $modePaiement;
+
+        return $this;
+    }
+
+       /**
+     * Get the value of emailUserConnect
+     */ 
+    public function getEmailUserConnect()
+    {
+        return $this->emailUserConnect;
+    }
+
+    /**
+     * Set the value of emailUserConnect
+     *
+     * @return  self
+     */ 
+    public function setEmailUserConnect($emailUserConnect)
+    {
+        $this->emailUserConnect = $emailUserConnect;
 
         return $this;
     }

@@ -1,7 +1,10 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
-import { AutoComplete } from "../utils/Autocomplete.js";
+import {
+  AutoComplete,
+  MultiSelectAutoComplete,
+} from "../utils/AutoComplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 import { allowOnlyNumbers, limitInputLength } from "../utils/inputUtils.js";
@@ -27,6 +30,16 @@ document.addEventListener("DOMContentLoaded", function () {
   const ribFrnInput = document.querySelector(
     "#demande_paiement_ribFournisseur"
   );
+  const numCommandeInput = document.getElementById(
+    "demande_paiement_numeroCommande"
+  );
+  const numFactureInput = document.querySelector(
+    "#demande_paiement_numeroFacture"
+  );
+  const typeId = numFactureInput.dataset.typeid;
+
+  let isUpdatingCommande = false;
+  let isUpdatingFacture = false;
   /**====================================
    * AUTOCOMPLETE numero Fournisseur
    *====================================*/
@@ -50,8 +63,24 @@ document.addEventListener("DOMContentLoaded", function () {
         ? item.rib
         : "-";
 
-    // Exemple : Récupérer les commandes du fournisseur après la sélection
-    updateCommandesFournisseur(item.num_fournisseur);
+    // Récupérer les facture
+    if (typeId == 2) {
+      listeFacture(item.num_fournisseur);
+      listeCommande2(item.num_fournisseur);
+      //  pour affichage de tableau de facture
+      updateCommandesFournisseur(item.num_fournisseur);
+
+      $("#demande_paiement_numeroFacture").on("change", () => {
+        changeCommandeSelonFacture(item.num_fournisseur);
+      });
+
+      $("#demande_paiement_numeroCommande").on("change", () => {
+        changeFactureSelonCommande(item.num_fournisseur);
+      });
+    } else {
+      //  Récupérer les commandes du fournisseur après la sélection
+      listeCommande(item.num_fournisseur);
+    }
   }
 
   // Activation sur le champ "Numéro Fournisseur"
@@ -74,6 +103,160 @@ document.addEventListener("DOMContentLoaded", function () {
     onSelectCallback: onSelectFournisseur,
   });
 
+  /** =========================
+   * numero commande
+   *==========================*/
+
+  async function listeCommande(numFournisseur) {
+    try {
+      const commandes = await fetchManager.get(
+        `api/num-cde-frn/${numFournisseur}`
+      );
+
+      ajoutDesOptions(numCommandeInput, commandes.numCdes);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des commandes :", error);
+    }
+  }
+
+  /** permet du choix multiple */
+  $("#demande_paiement_numeroCommande").select2({
+    placeholder: "-- Choisir les commandes --",
+    allowClear: true,
+    theme: "bootstrap",
+    width: "100%",
+  });
+
+  async function listeCommande2(numFournisseur) {
+    try {
+      const commandes = await fetchManager.get(
+        `api/num-cde-frn/${numFournisseur}`
+      );
+
+      const listeCommande = transformTab(commandes.listeGcot, "Numero_PO");
+
+      ajoutDesOptions(numCommandeInput, listeCommande);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des commandes :", error);
+    }
+  }
+
+  function transformTab(data, index = "") {
+    return [
+      ...new Map(
+        data.map((el) => [
+          el[index],
+          {
+            label: el[index],
+            value: el[index],
+          },
+        ])
+      ).values(),
+    ];
+  }
+
+  function ajoutDesOptions(inputElement, data) {
+    // Supprime les anciennes options
+    inputElement.innerHTML = "";
+
+    // Ajoute les nouvelles options
+    data.forEach((item) => {
+      let option = new Option(item.label, item.value);
+      inputElement.appendChild(option);
+    });
+  }
+
+  /**================
+   * numéro facture
+   ==================*/
+  async function listeFacture(numFournisseur) {
+    try {
+      const commandes = await fetchManager.get(
+        `api/num-cde-frn/${numFournisseur}`
+      );
+
+      const listeFacture = transformTab(commandes.listeGcot, "Numero_Facture");
+
+      ajoutDesOptions(numFactureInput, listeFacture);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des commandes :", error);
+    }
+  }
+
+  /** permet du choix multiple */
+  $("#demande_paiement_numeroFacture").select2({
+    placeholder: "-- Choisir les factures --",
+    allowClear: true,
+    theme: "bootstrap",
+    width: "100%",
+  });
+
+  async function changeCommandeSelonFacture(numFournisseur) {
+    if (isUpdatingFacture) return; // évite le rebouclage
+    isUpdatingCommande = true;
+
+    const numFacs = $("#demande_paiement_numeroFacture").val(); // tableau de factures sélectionnées
+    console.log("Factures sélectionnées :", numFacs);
+
+    try {
+      const commandes = await fetchManager.get(
+        `api/num-cde-frn/${numFournisseur}`
+      );
+
+      // Filtrer les factures correspondant à au moins une facture sélectionnée
+      const facturesCorrespondantes = commandes.listeGcot.filter((f) =>
+        numFacs.includes(f.Numero_Facture)
+      );
+
+      // Extraire les Numero_PO uniques
+      const numerosPO = [
+        ...new Set(facturesCorrespondantes.map((f) => f.Numero_PO)),
+      ];
+
+      console.log("Numero_PO à sélectionner :", numerosPO);
+
+      // Définir les valeurs sélectionnées directement
+      $(numCommandeInput).val(numerosPO).trigger("change");
+    } catch (error) {
+      console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      isUpdatingCommande = false;
+    }
+  }
+
+  async function changeFactureSelonCommande(numFournisseur) {
+    if (isUpdatingCommande) return;
+    isUpdatingFacture = true;
+
+    const numCdes = $("#demande_paiement_numeroCommande").val(); // tableau de factures sélectionnées
+    console.log("Commande sélectionnées :", numCdes);
+
+    try {
+      const commandes = await fetchManager.get(
+        `api/num-cde-frn/${numFournisseur}`
+      );
+
+      // Filtrer les factures correspondant à au moins une facture sélectionnée
+      const commandeCorrespondantes = commandes.listeGcot.filter((f) =>
+        numCdes.includes(f.Numero_PO)
+      );
+
+      // Extraire les Numero_PO uniques
+      const numerosFac = [
+        ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
+      ];
+
+      console.log("Numero_facture à sélectionner :", numerosFac);
+
+      // Définir les valeurs sélectionnées directement
+      $(numFactureInput).val(numerosFac).trigger("change");
+    } catch (error) {
+      console.error("Erreur lors de la récupération des commandes :", error);
+    } finally {
+      isUpdatingFacture = false;
+    }
+  }
+
   /**============================================
    * AFFICHAGE LISTE TABLEAU FACTURE
    *============================================*/
@@ -85,11 +268,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const commandes = await fetchManager.get(
       `api/num-cde-frn/${numFournisseur}`
     );
+
     const $tableauContainer = document.querySelector("#tableau_facture");
     $tableauContainer.innerHTML = "";
 
     const columns = [
-      { label: "Sélectionner", key: "checkbox" },
       { label: "N° Facture", key: "Numero_Facture" },
       { label: "N° fournisseur", key: "Code_Fournisseur" },
       { label: "Nom fournisseur", key: "Libelle_Fournisseur" },
@@ -103,116 +286,113 @@ document.addEventListener("DOMContentLoaded", function () {
       columns: columns,
       data: commandes.listeGcot,
       theadClass: "table-dark",
-      rowClassName: "clickable-row clickable",
-      customRenderRow: (row, index, data) =>
-        customRenderRow(row, index, data, columns),
-      onRowClick: (row) => chargerDocuments(row.Numero_Dossier_Douane),
     });
 
     tableauComponent.mount("tableau_facture");
   }
 
-  function customRenderRow(row, index, data, columns) {
-    const tr = document.createElement("tr");
-    const columnsToMerge = [
-      "Numero_Facture",
-      "Code_Fournisseur",
-      "Libelle_Fournisseur",
-      "Numero_Dossier_Douane",
-      "Numero_LTA",
-      "Numero_HAWB",
-    ];
+  //fonction qui permet de fuisionner
+  // function customRenderRow(row, index, data, columns) {
+  //   const tr = document.createElement("tr");
+  //   const columnsToMerge = [
+  //     "Numero_Facture",
+  //     "Code_Fournisseur",
+  //     "Libelle_Fournisseur",
+  //     "Numero_Dossier_Douane",
+  //     "Numero_LTA",
+  //     "Numero_HAWB",
+  //   ];
 
-    const previousRow = data[index - 1] || {};
-    const nextRow = data[index + 1] || {};
+  //   const previousRow = data[index - 1] || {};
+  //   const nextRow = data[index + 1] || {};
 
-    const isLastOfGroup =
-      index === data.length - 1 ||
-      columnsToMerge.some((key) => row[key] !== nextRow[key]);
+  //   const isLastOfGroup =
+  //     index === data.length - 1 ||
+  //     columnsToMerge.some((key) => row[key] !== nextRow[key]);
 
-    if (isLastOfGroup) {
-      tr.style.borderBottom = "3px solid black";
-    }
+  //   if (isLastOfGroup) {
+  //     tr.style.borderBottom = "3px solid black";
+  //   }
 
-    const isFirstOfGroup =
-      index === 0 ||
-      columnsToMerge.some((key) => row[key] !== previousRow[key]);
+  //   const isFirstOfGroup =
+  //     index === 0 ||
+  //     columnsToMerge.some((key) => row[key] !== previousRow[key]);
 
-    let rowspan = 1;
-    if (isFirstOfGroup) {
-      for (let i = index + 1; i < data.length; i++) {
-        const nextRow = data[i];
-        const isSameGroup = columnsToMerge.every(
-          (key) => row[key] === nextRow[key]
-        );
+  //   let rowspan = 1;
+  //   if (isFirstOfGroup) {
+  //     for (let i = index + 1; i < data.length; i++) {
+  //       const nextRow = data[i];
+  //       const isSameGroup = columnsToMerge.every(
+  //         (key) => row[key] === nextRow[key]
+  //       );
 
-        if (isSameGroup) {
-          rowspan++;
-        } else {
-          break;
-        }
-      }
-    }
+  //       if (isSameGroup) {
+  //         rowspan++;
+  //       } else {
+  //         break;
+  //       }
+  //     }
+  //   }
 
-    columns.forEach((column) => {
-      const td = document.createElement("td");
+  //   columns.forEach((column) => {
+  //     const td = document.createElement("td");
 
-      if (column.key === "checkbox") {
-        if (isFirstOfGroup) {
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.dataset.numFacture = row.Numero_Facture;
-          checkbox.addEventListener("change", (e) =>
-            toggleSelection(e, row.Numero_Facture, data)
-          );
-          td.appendChild(checkbox);
+  //     if (column.key === "checkbox") {
+  //       if (isFirstOfGroup) {
+  //         const checkbox = document.createElement("input");
+  //         checkbox.type = "checkbox";
+  //         checkbox.dataset.numFacture = row.Numero_Facture;
+  //         checkbox.addEventListener("change", (e) =>
+  //           toggleSelection(e, row.Numero_Facture, data)
+  //         );
+  //         td.appendChild(checkbox);
 
-          if (rowspan > 1) {
-            td.setAttribute("rowspan", rowspan);
-            td.style.verticalAlign = "middle";
-          }
-        } else {
-          return;
-        }
-      } else if (columnsToMerge.includes(column.key)) {
-        if (!isFirstOfGroup) return;
-        td.textContent = row[column.key] || "-";
-        if (rowspan > 1) {
-          td.setAttribute("rowspan", rowspan);
-          td.style.verticalAlign = "middle";
-        }
-      } else {
-        td.textContent = row[column.key] || "-";
-      }
+  //         if (rowspan > 1) {
+  //           td.setAttribute("rowspan", rowspan);
+  //           td.style.verticalAlign = "middle";
+  //         }
+  //       } else {
+  //         return;
+  //       }
+  //     } else if (columnsToMerge.includes(column.key)) {
+  //       if (!isFirstOfGroup) return;
+  //       td.textContent = row[column.key] || "-";
+  //       if (rowspan > 1) {
+  //         td.setAttribute("rowspan", rowspan);
+  //         td.style.verticalAlign = "middle";
+  //       }
+  //     } else {
+  //       td.textContent = row[column.key] || "-";
+  //     }
 
-      tr.appendChild(td);
-    });
+  //     tr.appendChild(td);
+  //   });
 
-    tr.classList.add("clickable-row", "clickable");
+  //   tr.classList.add("clickable-row", "clickable");
 
-    tr.addEventListener("click", () =>
-      chargerDocuments(row.Numero_Dossier_Douane)
-    );
+  //   tr.addEventListener("click", () =>
+  //     chargerDocuments(row.Numero_Dossier_Douane)
+  //   );
 
-    return tr;
-  }
+  //   return tr;
+  // }
 
-  function toggleSelection(event, numeroFacture, data) {
-    const isChecked = event.target.checked;
-    data.forEach((row) => {
-      if (row.Numero_Facture === numeroFacture) {
-        row.selected = isChecked;
-      }
-    });
-    console.log(
-      "Données sélectionnées :",
-      data.filter((row) => row.selected)
-    );
-  }
+  // function toggleSelection(event, numeroFacture, data) {
+  //   const isChecked = event.target.checked;
+  //   data.forEach((row) => {
+  //     if (row.Numero_Facture === numeroFacture) {
+  //       row.selected = isChecked;
+  //     }
+  //   });
+  //   console.log(
+  //     "Données sélectionnées :",
+  //     data.filter((row) => row.selected)
+  //   );
+  // }
 
-  function getSelectedFactures(data) {
-    return data.filter((row) => row.selected).map((row) => row.Numero_Facture);
-  }
+  // function getSelectedFactures(data) {
+  //   return data.filter((row) => row.selected).map((row) => row.Numero_Facture);
+  // }
 
   /**==============================================
    * AFFICHAGE DU TABLEAU DE DOCUMENT
@@ -350,6 +530,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const constactInput = document.querySelector("#demande_paiement_contact");
   allowOnlyNumbers(constactInput);
   limitInputLength(constactInput, 10);
+
   /**==========================================
    * blockage  d'ecriture du champ MONTANT
    *=============================================*/
