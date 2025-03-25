@@ -51,59 +51,71 @@ export function autocompleteTheFields() {
     designation.addEventListener('input', initAutoComplete);
     initAutoComplete();
   });
-}
 
-async function fetchDesignations(famille, sousFamille) {
-  const fetchManager = new FetchManager();
-  let codeFamille = famille.value !== '' ? famille.value : '-';
-  let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
+  async function fetchDesignations(famille, sousFamille) {
+    const fetchManager = new FetchManager();
+    let codeFamille = famille.value !== '' ? famille.value : '-';
+    let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
 
-  return await fetchManager.get(
-    `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
-  );
-}
-
-function displayDesignation(item) {
-  return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
-}
-
-async function handleValueOfTheFields(
-  item,
-  designation,
-  famille,
-  sousFamille,
-  familleLibelle,
-  sousFamilleLibelle
-) {
-  console.log(item);
-
-  if (famille.value !== item.codefamille) {
-    famille.value = item.codefamille;
-    familleLibelle.value = famille.options[famille.selectedIndex].text;
-    await changeSousFamille(famille, sousFamille);
-  } else if (sousFamille.value !== item.codesousfamille) {
-    await changeSousFamille(famille, sousFamille);
-  }
-  sousFamille.value = item.codesousfamille;
-  sousFamilleLibelle.value =
-    sousFamille.options[sousFamille.selectedIndex].text;
-  designation.value = item.designation;
-}
-
-async function changeSousFamille(famille, sousFamille) {
-  let baseId = sousFamille.id.replace('demande_appro_form_DAL', '');
-
-  try {
-    await updateDropdown(
-      sousFamille,
-      `api/demande-appro/sous-famille/${famille.value}`,
-      '-- Choisir une sous-famille --',
-      document.getElementById(`spinner${baseId}`),
-      document.getElementById(`container${baseId}`)
+    return await fetchManager.get(
+      `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
     );
-  } catch (error) {
-    console.error('Erreur dans changeSousFamille:', error);
-  } finally {
-    console.log('Fin de changeSousFamille');
+  }
+
+  function displayDesignation(item) {
+    return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
+  }
+
+  async function handleValueOfTheFields(
+    item,
+    designation,
+    famille,
+    sousFamille,
+    familleLibelle,
+    sousFamilleLibelle
+  ) {
+    let referencePiece = document.getElementById(
+      designation.id.replace('artDesi', 'artRefp')
+    );
+    let numeroFournisseur = document.getElementById(
+      designation.id.replace('artDesi', 'numeroFournisseur')
+    );
+    let nomFournisseur = document.getElementById(
+      designation.id.replace('artDesi', 'nomFournisseur')
+    );
+    console.log(item);
+
+    if (famille.value !== item.codefamille) {
+      famille.value = item.codefamille;
+      familleLibelle.value = famille.options[famille.selectedIndex].text;
+      await changeSousFamille(famille, sousFamille);
+    } else if (sousFamille.value !== item.codesousfamille) {
+      await changeSousFamille(famille, sousFamille);
+    }
+    sousFamille.value = item.codesousfamille;
+    sousFamilleLibelle.value =
+      sousFamille.options[sousFamille.selectedIndex].text;
+    designation.value = item.designation;
+    referencePiece.value = item.referencepiece;
+    numeroFournisseur.value = item.numerofournisseur;
+    nomFournisseur.value = item.fournisseur;
+  }
+
+  async function changeSousFamille(famille, sousFamille) {
+    let baseId = sousFamille.id.replace('demande_appro_form_DAL', '');
+
+    try {
+      await updateDropdown(
+        sousFamille,
+        `api/demande-appro/sous-famille/${famille.value}`,
+        '-- Choisir une sous-famille --',
+        document.getElementById(`spinner${baseId}`),
+        document.getElementById(`container${baseId}`)
+      );
+    } catch (error) {
+      console.error('Erreur dans changeSousFamille:', error);
+    } finally {
+      console.log('Fin de changeSousFamille');
+    }
   }
 }
