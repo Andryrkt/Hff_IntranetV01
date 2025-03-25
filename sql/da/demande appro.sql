@@ -15,6 +15,7 @@ CREATE TABLE Demande_Appro(
     service_debiteur_id int not null,
     agence_service_debiteur varchar(6) not null,
     date_creation DATETIME2(0) not null,
+    date_modification DATETIME2(0) not null,
     date_heure_fin_souhaitee DATETIME2(0) null,
     statut_dal varchar(100) null,
     CONSTRAINT PK_Demande_Appro PRIMARY KEY (id)
