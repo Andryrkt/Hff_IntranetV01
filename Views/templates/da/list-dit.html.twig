@@ -19,14 +19,14 @@
 	</h3>
 	{% include "/partials/_notification.html.twig" %}
 
-	{% include "/da/shared/_formulaireRecherche.html.twig" %}
+	{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
 </div>
 
 <div
 	class="container-fluid">
 	<!-- DEBUT tableau -->
 	<div class="container">
-		{% include "/da/shared/_pagination.html.twig" %}
+		{% include "/da/shared/listeDIT/_pagination.html.twig" %}
 	</div>
 
 	<table class="table rounded table-plein-ecran">
@@ -118,3 +118,5 @@
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
 {% endblock %}  
+ 
+				</tr>
