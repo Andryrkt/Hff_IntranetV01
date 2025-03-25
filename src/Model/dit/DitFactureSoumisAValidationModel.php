@@ -311,7 +311,7 @@ class DitFactureSoumisAValidationModel extends Model
                 WHERE 
                     slor_soc = 'HF'
                     AND seor_serv = 'SAV'
-                    AND slor_constp IN (".GlobalVariablesService::get('tous').")
+                    --AND slor_constp IN (".GlobalVariablesService::get('tous').")
                     AND slor_numor = '".$numOr."'
                     AND TRUNC(slor_nogrp / 100) IN (".$numItv.")
                 GROUP BY 
@@ -323,5 +323,23 @@ class DitFactureSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function orStatutEstValide($numOr, $numItv)
+    {
+        $sql = " SELECT 
+                case when statut = 'Validé' then 'Validé'else 'Non validé' end as Statut
+                from ors_soumis_a_validation
+                where numeroOR = '$numOr' 
+                and numeroItv = '$numItv' 
+                and numeroVersion = (select max(numeroversion) from ors_soumis_a_validation where numeroOR = '$numOr' and numeroItv = '$numItv')
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return array_column($tab, 'Statut');
     }
 }
