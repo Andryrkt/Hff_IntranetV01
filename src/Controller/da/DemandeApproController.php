@@ -17,6 +17,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
@@ -181,11 +182,23 @@ class DemandeApproController extends Controller
 
         $data = self::$em->getRepository(DemandeAppro::class)->findAll();
 
-        self::$twig->display(
-            'da/list.html.twig',
-            [
-                'data' => $data
-            ]
-        );
+        self::$twig->display('da/list.html.twig', [
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * @Route("/proposition/{id}", name="da_proposition")
+     */
+    public function propositionDeReference($id, Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $DAL = self::$em->getRepository(DemandeApproL::class)->find($id);
+
+        self::$twig->display('da/proposition.html.twig', [
+            'DAL' => $DAL
+        ]);
     }
 }
