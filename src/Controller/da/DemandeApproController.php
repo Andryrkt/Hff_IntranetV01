@@ -325,8 +325,6 @@ class DemandeApproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($demandeAppro);
-            $data = $form->getData();
             $demandeAppro->setNumeroDemandeAppro($this->autoDecrement('DAP'));
 
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
