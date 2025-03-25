@@ -90,13 +90,13 @@ class DemandeAppro
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="daAgenceEmetteur")
-     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="agence_emmetteur_id", referencedColumnName="id")
      */
     private  $agenceEmetteur;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="daServiceEmetteur")
-     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="service_emmetteur_id", referencedColumnName="id")
      */
     private  $serviceEmetteur;
 

@@ -140,7 +140,10 @@ class DemandeApproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $demandeAppro->setNumeroDemandeAppro($this->autoDecrement('DAP'));
+            $demandeAppro
+                ->setDemandeur($this->getUser()->getNomUtilisateur())
+                ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+            ;
 
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
@@ -176,10 +179,10 @@ class DemandeApproController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = ;
+        $data = self::$em->getRepository(DemandeAppro::class)->findAll();
 
         self::$twig->display(
-            'mutation/list.html.twig',
+            'da/list.html.twig',
             [
                 'data' => $data
             ]
