@@ -1,3 +1,5 @@
+import { displayOverlay } from '../../utils/spinnerUtils';
+
 document.addEventListener('DOMContentLoaded', function () {
   const checkboxes = document.querySelectorAll('.checkbox');
   const suivant = document.getElementById('suivant');
@@ -11,12 +13,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
   suivant.addEventListener('click', function () {
-    let checkedValue = [...checkboxes].find(cb => cb.checked)?.value || '';
+    let checkedValue = [...checkboxes].find((cb) => cb.checked)?.value || '';
     if (checkedValue === '') {
       alert('Veuillez sélectionner un DIT');
     } else {
-      let url = suivant.getAttribute('data-uri').replace('__id__', checkedValue);
+      let url = suivant
+        .getAttribute('data-uri')
+        .replace('__id__', checkedValue);
       window.location.href = url;
     }
   });
+});
+
+window.addEventListener('load', () => {
+  displayOverlay(false);
 });

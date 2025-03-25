@@ -8,6 +8,10 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
 {% block content %}
 
 {% set role_ids = App.user.roleIds %}
