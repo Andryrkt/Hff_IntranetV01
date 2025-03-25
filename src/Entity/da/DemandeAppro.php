@@ -113,6 +113,11 @@ class DemandeAppro
     private  $serviceDebiteur;
 
     /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private string $demandeur;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeApproL::class, mappedBy="demandeAppro")
      */
     private Collection $DAL;
@@ -470,5 +475,25 @@ class DemandeAppro
                 $DAL->setDemandeAppro(null);
             }
         }
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     *
+     * @return  self
+     */
+    public function setDemandeur($demandeur)
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
     }
 }

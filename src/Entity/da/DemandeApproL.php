@@ -114,6 +114,7 @@ class DemandeApproL
 
     /**
      * @ORM\ManyToOne(targetEntity=DemandeAppro::class, inversedBy="DAL")
+     * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id")
      */
     private ?DemandeAppro $demandeAppro = null;
 
