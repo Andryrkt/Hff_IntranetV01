@@ -8,7 +8,7 @@ CREATE TABLE Demande_Appro(
     numero_demande_dit varchar(11) not null,
     objet_dal varchar(100) not null,
     detail_dal varchar(1000) null,
-    agence_emmeteur_id int Not null,
+    agence_emmetteur_id int Not null,
     Service_emmetteur_id int Not null,
     agence_service_emmeteur varchar(6) not null,
     agence_debiteur_id int not null,
