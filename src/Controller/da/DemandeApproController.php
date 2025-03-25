@@ -171,5 +171,18 @@ class DemandeApproController extends Controller
     /**
      * @Route("/list", name="da_list")
      */
-    public function listeDA(Request $request) {}
+    public function listeDA(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $data = ;
+
+        self::$twig->display(
+            'mutation/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
+    }
 }
