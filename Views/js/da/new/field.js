@@ -16,7 +16,12 @@ export function createFieldAndAppendTo(
     'demande_appro_form_dateFinSouhaite'
   ).value;
   field.required = fieldName === 'commentaire' ? false : true;
-  field.value = fieldName === 'dateFinSouhaite' ? dateFinSouhaitee : '';
+  field.value =
+    fieldName === 'dateFinSouhaite'
+      ? dateFinSouhaitee
+      : fieldName === 'artConstp'
+      ? 'ZST'
+      : field.value;
 
   // Append the field
   fieldContainer.appendChild(field);

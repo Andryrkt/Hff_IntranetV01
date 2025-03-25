@@ -56,7 +56,6 @@ class DemandeApproLFormType extends AbstractType
             ->add('artConstp', TextType::class, [
                 'label' => false,
                 'required' => false,
-                'data' => 'ZST',
             ])
             ->add('artRefp', TextType::class, [
                 'label' => false,
