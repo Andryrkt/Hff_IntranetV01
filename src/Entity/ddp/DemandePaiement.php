@@ -102,18 +102,43 @@ class DemandePaiement
      */
     private ?string $demandeur;
 
-    
-    private $numeroCommande;
-    
-    private $numeroFacture;
+    /**
+     * @ORM\Column(type="string", length=50, name="mode_paiement")
+     *
+     * @var string|null
+     */
+    private ?string $modePaiement;
 
+    /**
+     * @ORM\Column(type="float", scale="2", name="montant_a_payer")
+     */
+    private ?float $montantAPayers = 0.00;
+
+
+    /**
+     * @ORM\Column(type="string", length=50, name="contact")
+     *
+     * @var [type]
+     */
     private $contact;
+
+
+    /**
+     * @ORM\Column(type="json", name="numero_commande")
+     */
+    private $numeroCommande = [];
     
-    private $devise;
+    /**
+     * @ORM\Column(type="json", name="numero_facture")
+     */
+    private $numeroFacture = [];
+
+
+    private string $montantAPayer;
+
+    private ?string $devise;
     
-    private $montantAPayer;
-    
-    private $pieceJoint01; // proforma facture fournisseur
+    private $pieceJoint01; // proforma facture fournisseur ou controle livraison
     
     private $commandeFichier;
     
@@ -123,9 +148,9 @@ class DemandePaiement
     
     private $titreDeTransportFichier;
     
-    private $modePaiement;
+    private $lesFichiers;
 
-    private ?string $emailUserConnect;
+
 
     /**===========================================================================
      * GETTER & SETTER
@@ -622,22 +647,43 @@ class DemandePaiement
         return $this;
     }
 
-       /**
-     * Get the value of emailUserConnect
+
+    /**
+     * Get the value of montantAPayers
      */ 
-    public function getEmailUserConnect()
+    public function getMontantAPayers()
     {
-        return $this->emailUserConnect;
+        return $this->montantAPayers;
     }
 
     /**
-     * Set the value of emailUserConnect
+     * Set the value of montantAPayers
      *
      * @return  self
      */ 
-    public function setEmailUserConnect($emailUserConnect)
+    public function setMontantAPayers($montantAPayers)
     {
-        $this->emailUserConnect = $emailUserConnect;
+        $this->montantAPayers = $montantAPayers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of lesFichiers
+     */ 
+    public function getLesFichiers()
+    {
+        return $this->lesFichiers;
+    }
+
+    /**
+     * Set the value of lesFichiers
+     *
+     * @return  self
+     */ 
+    public function setLesFichiers($lesFichiers)
+    {
+        $this->lesFichiers = $lesFichiers;
 
         return $this;
     }

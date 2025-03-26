@@ -27,7 +27,7 @@ class GeneratePdfDdp extends GeneratePdf
         // tête de page 
         $pdf->setY(5);
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 8, 'Emetteur : '.$data->getEmailUserConnect(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
+        $pdf->Cell(0, 8, 'Emetteur : '.$data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
         $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
 
@@ -60,54 +60,54 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Ln(2);
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, implode(';', $data->getNumeroCommande()), 1, 0);
+        $pdf->Cell(50, 10, 'N° commande ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "N° commande" (remplacer '' par sa valeur)
+        $pdf->MultiCell($usable_width - 50, 10, implode(';', $data->getNumeroCommande()), 1, 1); // TO DO: valeur de "N° commande" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, implode(';', $data->getNumeroFacture()), 1, 0);
+        $pdf->Cell(50, 10, 'N° facture ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "N° facture" (remplacer '' par sa valeur)
+        $pdf->MultiCell($usable_width - 50, 10, implode(';', $data->getNumeroFacture()), 1, 1); // TO DO: valeur de "N° facture" (remplacer '' par sa valeur)
 
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getBeneficiaire(), 1, 0);
+        $pdf->Cell(50, 10, 'Bénéficiaire', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "Bénéficiaire" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $data->getBeneficiaire(), 1, 1); // TO DO: valeur de "Bénéficiaire" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getMotif(), 1, 0);
+        $pdf->Cell(50, 10, 'Motif ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "Motif" (remplacer '' par sa valeur)
+        $pdf->MultiCell($usable_width - 50, 10, $data->getMotif(), 1, 1); // TO DO: valeur de "Motif" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getAgenceDebiter(), 1, 0);
+        $pdf->Cell(50, 10, 'Agence à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $data->getAgenceDebiter(), 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getServiceDebiter(), 1, 0);
+        $pdf->Cell(50, 10, 'Service à débiter ' , 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $data->getServiceDebiter(), 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getRibFournisseur(), 1, 0);
+        $pdf->Cell(50, 10, 'RIB ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "RIB" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $data->getRibFournisseur(), 1, 1); // TO DO: valeur de "RIB" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, $data->getContact(), 1, 0);
+        $pdf->Cell(50, 10, 'Contact ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 50, 10, '', 1, 1); // TO DO: valeur de "Contact" (remplacer '' par sa valeur)
+        $pdf->Cell($usable_width - 50, 10, $data->getContact(), 1, 1); // TO DO: valeur de "Contact" (remplacer '' par sa valeur)
 
         $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1);
 
@@ -137,10 +137,10 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 10, 'PJ1, PJ2, ...', 0, 1); // TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+        $pdf->MultiCell(0, 10, implode(";", $data->getLesFichiers()), 0, 'L', 0, 1);// TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
 
         // génération de fichier: à changer plus tard
-        // $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dom/';
-        // $pdf->Output($Dossier . 'demande_de_paiement.pdf', 'F');
+        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/ddp/';
+        $pdf->Output($Dossier . $data->getNumeroDdp().'.pdf', 'F');
     }
 }

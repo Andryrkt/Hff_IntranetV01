@@ -178,6 +178,9 @@ document.addEventListener("DOMContentLoaded", function () {
       const listeFacture = transformTab(commandes.listeGcot, "Numero_Facture");
 
       ajoutDesOptions(numFactureInput, listeFacture);
+
+      //afficher la liste des fichiers
+      console.log(commandes.listeGcot);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
     }
@@ -213,6 +216,8 @@ document.addEventListener("DOMContentLoaded", function () {
         ...new Set(facturesCorrespondantes.map((f) => f.Numero_PO)),
       ];
 
+      recupFichier(facturesCorrespondantes);
+
       console.log("Numero_PO à sélectionner :", numerosPO);
 
       // Définir les valeurs sélectionnées directement
@@ -246,6 +251,7 @@ document.addEventListener("DOMContentLoaded", function () {
         ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
       ];
 
+      recupFichier(commandeCorrespondantes);
       console.log("Numero_facture à sélectionner :", numerosFac);
 
       // Définir les valeurs sélectionnées directement
@@ -255,6 +261,130 @@ document.addEventListener("DOMContentLoaded", function () {
     } finally {
       isUpdatingFacture = false;
     }
+  }
+
+  async function recupFichier(cdeFacCorrespondantes) {
+    const numerosDossier = [
+      ...new Set(cdeFacCorrespondantes.map((f) => f.Numero_Dossier_Douane)),
+    ];
+
+    console.log("Numero_Dossier_Douane :", numerosDossier);
+
+    let dossiers = [];
+
+    // Utiliser une boucle for...of pour pouvoir await
+    for (const numero of numerosDossier) {
+      try {
+        const docs = await fetchManager.get(`api/liste-doc/${numero}`);
+        dossiers.push(...docs); // Ajoute les fichiers au tableau
+      } catch (error) {
+        console.error(
+          `Erreur lors de la récupération des fichiers pour le dossier ${numero} :`,
+          error
+        );
+      }
+    }
+
+    // Afficher dans une liste UL
+    const liste = document.getElementById("liste_fichiers");
+    liste.innerHTML = ""; // Vider avant d'ajouter
+
+    dossiers.forEach((fichier) => {
+      const nom = nomFichier(fichier.Nom_Fichier);
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+
+      // Construction CORRECTE de l'URL
+      const baseUrl = window.location.origin; // Récupère http://172.20.11.32
+      const encodedPath = encodeURIComponent(fichier.Nom_Fichier);
+      a.href = `${baseUrl}/Hffintranet/api/recuperer-fichier?path=${encodedPath}`;
+
+      console.log("URL générée:", a.href); // Pour vérification
+
+      a.textContent = `Ouvrir ${nom}`;
+      a.target = "_blank";
+
+      // Gestion des erreurs
+      a.onclick = async (e) => {
+        e.preventDefault();
+
+        // Créer un nouvel onglet immédiatement
+        const newWindow = window.open("", "_blank");
+        newWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Chargement...</title>
+                <style>
+                    .loader {
+                        border: 5px solid #f3f3f3;
+                        border-top: 5px solid #3498db;
+                        border-radius: 50%;
+                        width: 50px;
+                        height: 50px;
+                        animation: spin 2s linear infinite;
+                        margin: 20% auto;
+                    }
+                    @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="loader"></div>
+                <p style="text-align: center">Chargement du document...</p>
+            </body>
+            </html>
+        `);
+
+        try {
+          const response = await fetch(a.href);
+
+          if (!response.ok) {
+            throw new Error(await response.text());
+          }
+
+          const contentType = response.headers.get("content-type");
+          const blob = await response.blob();
+          const blobUrl = URL.createObjectURL(blob);
+
+          // Solution robuste pour l'affichage PDF
+          if (contentType.includes("pdf")) {
+            newWindow.location.href = blobUrl;
+          }
+          // Solution pour les images
+          else if (contentType.startsWith("image/")) {
+            newWindow.document.body.innerHTML = `
+                    <img src="${blobUrl}" style="max-width: 100%; max-height: 100vh">
+                `;
+          }
+          // Solution générique
+          else {
+            const iframe = document.createElement("iframe");
+            iframe.src = blobUrl;
+            iframe.style = "width:100%; height:100vh; border:none";
+            newWindow.document.body.innerHTML = "";
+            newWindow.document.body.appendChild(iframe);
+          }
+
+          // Nettoyage lorsque la fenêtre se ferme
+          newWindow.onunload = () => {
+            URL.revokeObjectURL(blobUrl);
+          };
+        } catch (error) {
+          console.error("Erreur:", error);
+          newWindow.document.body.innerHTML = `
+                <h1 style="color: red">Erreur</h1>
+                <p>${error.message}</p>
+                <button onclick="window.close()">Fermer</button>
+            `;
+        }
+      };
+
+      li.appendChild(a);
+      liste.appendChild(li);
+    });
   }
 
   /**============================================
@@ -286,113 +416,117 @@ document.addEventListener("DOMContentLoaded", function () {
       columns: columns,
       data: commandes.listeGcot,
       theadClass: "table-dark",
+      rowClassName: "clickable-row clickable",
+      customRenderRow: (row, index, data) =>
+        customRenderRow(row, index, data, columns),
+      onRowClick: (row) => chargerDocuments(row.Numero_Dossier_Douane),
     });
 
     tableauComponent.mount("tableau_facture");
   }
 
   //fonction qui permet de fuisionner
-  // function customRenderRow(row, index, data, columns) {
-  //   const tr = document.createElement("tr");
-  //   const columnsToMerge = [
-  //     "Numero_Facture",
-  //     "Code_Fournisseur",
-  //     "Libelle_Fournisseur",
-  //     "Numero_Dossier_Douane",
-  //     "Numero_LTA",
-  //     "Numero_HAWB",
-  //   ];
+  function customRenderRow(row, index, data, columns) {
+    const tr = document.createElement("tr");
+    const columnsToMerge = [
+      "Numero_Facture",
+      "Code_Fournisseur",
+      "Libelle_Fournisseur",
+      "Numero_Dossier_Douane",
+      "Numero_LTA",
+      "Numero_HAWB",
+    ];
 
-  //   const previousRow = data[index - 1] || {};
-  //   const nextRow = data[index + 1] || {};
+    const previousRow = data[index - 1] || {};
+    const nextRow = data[index + 1] || {};
 
-  //   const isLastOfGroup =
-  //     index === data.length - 1 ||
-  //     columnsToMerge.some((key) => row[key] !== nextRow[key]);
+    const isLastOfGroup =
+      index === data.length - 1 ||
+      columnsToMerge.some((key) => row[key] !== nextRow[key]);
 
-  //   if (isLastOfGroup) {
-  //     tr.style.borderBottom = "3px solid black";
-  //   }
+    if (isLastOfGroup) {
+      tr.style.borderBottom = "3px solid black";
+    }
 
-  //   const isFirstOfGroup =
-  //     index === 0 ||
-  //     columnsToMerge.some((key) => row[key] !== previousRow[key]);
+    const isFirstOfGroup =
+      index === 0 ||
+      columnsToMerge.some((key) => row[key] !== previousRow[key]);
 
-  //   let rowspan = 1;
-  //   if (isFirstOfGroup) {
-  //     for (let i = index + 1; i < data.length; i++) {
-  //       const nextRow = data[i];
-  //       const isSameGroup = columnsToMerge.every(
-  //         (key) => row[key] === nextRow[key]
-  //       );
+    let rowspan = 1;
+    if (isFirstOfGroup) {
+      for (let i = index + 1; i < data.length; i++) {
+        const nextRow = data[i];
+        const isSameGroup = columnsToMerge.every(
+          (key) => row[key] === nextRow[key]
+        );
 
-  //       if (isSameGroup) {
-  //         rowspan++;
-  //       } else {
-  //         break;
-  //       }
-  //     }
-  //   }
+        if (isSameGroup) {
+          rowspan++;
+        } else {
+          break;
+        }
+      }
+    }
 
-  //   columns.forEach((column) => {
-  //     const td = document.createElement("td");
+    columns.forEach((column) => {
+      const td = document.createElement("td");
 
-  //     if (column.key === "checkbox") {
-  //       if (isFirstOfGroup) {
-  //         const checkbox = document.createElement("input");
-  //         checkbox.type = "checkbox";
-  //         checkbox.dataset.numFacture = row.Numero_Facture;
-  //         checkbox.addEventListener("change", (e) =>
-  //           toggleSelection(e, row.Numero_Facture, data)
-  //         );
-  //         td.appendChild(checkbox);
+      if (column.key === "checkbox") {
+        if (isFirstOfGroup) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.dataset.numFacture = row.Numero_Facture;
+          checkbox.addEventListener("change", (e) =>
+            toggleSelection(e, row.Numero_Facture, data)
+          );
+          td.appendChild(checkbox);
 
-  //         if (rowspan > 1) {
-  //           td.setAttribute("rowspan", rowspan);
-  //           td.style.verticalAlign = "middle";
-  //         }
-  //       } else {
-  //         return;
-  //       }
-  //     } else if (columnsToMerge.includes(column.key)) {
-  //       if (!isFirstOfGroup) return;
-  //       td.textContent = row[column.key] || "-";
-  //       if (rowspan > 1) {
-  //         td.setAttribute("rowspan", rowspan);
-  //         td.style.verticalAlign = "middle";
-  //       }
-  //     } else {
-  //       td.textContent = row[column.key] || "-";
-  //     }
+          if (rowspan > 1) {
+            td.setAttribute("rowspan", rowspan);
+            td.style.verticalAlign = "middle";
+          }
+        } else {
+          return;
+        }
+      } else if (columnsToMerge.includes(column.key)) {
+        if (!isFirstOfGroup) return;
+        td.textContent = row[column.key] || "-";
+        if (rowspan > 1) {
+          td.setAttribute("rowspan", rowspan);
+          td.style.verticalAlign = "middle";
+        }
+      } else {
+        td.textContent = row[column.key] || "-";
+      }
 
-  //     tr.appendChild(td);
-  //   });
+      tr.appendChild(td);
+    });
 
-  //   tr.classList.add("clickable-row", "clickable");
+    tr.classList.add("clickable-row", "clickable");
 
-  //   tr.addEventListener("click", () =>
-  //     chargerDocuments(row.Numero_Dossier_Douane)
-  //   );
+    tr.addEventListener("click", () =>
+      chargerDocuments(row.Numero_Dossier_Douane)
+    );
 
-  //   return tr;
-  // }
+    return tr;
+  }
 
-  // function toggleSelection(event, numeroFacture, data) {
-  //   const isChecked = event.target.checked;
-  //   data.forEach((row) => {
-  //     if (row.Numero_Facture === numeroFacture) {
-  //       row.selected = isChecked;
-  //     }
-  //   });
-  //   console.log(
-  //     "Données sélectionnées :",
-  //     data.filter((row) => row.selected)
-  //   );
-  // }
+  function toggleSelection(event, numeroFacture, data) {
+    const isChecked = event.target.checked;
+    data.forEach((row) => {
+      if (row.Numero_Facture === numeroFacture) {
+        row.selected = isChecked;
+      }
+    });
+    console.log(
+      "Données sélectionnées :",
+      data.filter((row) => row.selected)
+    );
+  }
 
-  // function getSelectedFactures(data) {
-  //   return data.filter((row) => row.selected).map((row) => row.Numero_Facture);
-  // }
+  function getSelectedFactures(data) {
+    return data.filter((row) => row.selected).map((row) => row.Numero_Facture);
+  }
 
   /**==============================================
    * AFFICHAGE DU TABLEAU DE DOCUMENT
@@ -403,6 +537,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // const spinner = document.getElementById("spinner");
 
     // spinner.style.display = "block";
+    console.log(numeroDossier);
 
     try {
       const dossier = await fetchManager.get(`api/liste-doc/${numeroDossier}`);
@@ -456,9 +591,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function afficherFichier(nomFichie) {
     try {
-      const fileName = nomFichier(nomFichie);
-      const url = `${baseUrl}/api/recuperer-fichier/${fileName}`;
-      window.open(url, "_blank");
+      // const fileName = nomFichier(nomFichie);
+      // const url = `${baseUrl}/api/recuperer-fichier/${fileName}`;
+      // console.log(url);
+
+      window.open(
+        "file://192.168.0.15/GCOT_DATA/TRANSIT/DD1297A24/PDV_23575724.PDF",
+        "_blank"
+      );
     } catch (error) {
       console.error("Erreur lors de l'ouverture du fichier : ", error);
     }

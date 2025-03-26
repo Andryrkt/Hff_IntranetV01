@@ -1,3 +1,13 @@
+.clickables {
+    cursor: pointer;
+    color: blue;
+    text-decoration: underline;
+  }
+  .clickables:hover {
+    color: darkblue;
+  }
+  
+
 /**===================================
 * Container du choix de l'autaucomplet
 *======================================*/

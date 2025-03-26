@@ -1,0 +1,93 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddp/liste.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+	{% set role_ids = App.user.roleIds %}
+	{% set user_connecter = App.user.nom_utilisateur %}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste des demandes de paiement
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+
+	</div>
+
+	<div
+		class="container-fluid">
+		<!-- DEBUT tableau -->
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>N° demande</th>
+					<th>Type</th>
+					<th>Date</th>
+					<th>Motif</th>
+					<th>N° Commande</th>
+					<th>N° facture</th>
+					<th>Bénéficiaire</th>
+					<th>Agence débité</th>
+					<th>Service débité</th>
+					<th>Contact</th>
+					<th>Mode de paiement</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					<tr>
+						{# Début Action #}
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+							</div>
+						</td>
+						{# Fin Actions #}
+
+						<td>{{ item.numeroDdp }}</td>
+						<td>{{ item.typeDemandeId.libelle}}</td>
+						<td>
+							{{ item.dateCreation|date('d/m/Y')}}
+						</td>
+						<td>{{item.motif}}</td>
+						<td>
+							<ul>
+								{% for numCde in item.numeroCommande %}
+									<li>{{numCde}}</li>
+								{% endfor %}
+							</ul>
+						</td>
+						<td>
+							<ul>
+								{% for numFac in item.numeroFacture %}
+									<li>{{numFac}}</li>
+								{% endfor %}
+							</ul>
+						</td>
+						<td>{{ item.beneficiaire}}</td>
+						<td>{{ item.agencedebiter}}</td>
+						<td>{{ item.servicedebiter}}</td>
+						<td>{{ item.contact}}</td>
+						<td>{{ item.modePaiement}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/ddp/listDdp.js" type="module"></script>
+{% endblock %}

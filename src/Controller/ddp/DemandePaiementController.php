@@ -15,13 +15,16 @@ use App\Entity\ddp\DemandePaiementLigne;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Repository\ddp\DemandePaiementRepository;
+use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DemandePaiementController extends Controller
 {
+
     private TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
@@ -29,6 +32,9 @@ class DemandePaiementController extends Controller
     private DemandePaiementLigne $demandePaiementLigne;
     private HistoriqueOperationDDPService $historiqueOperation;
     private GeneratePdfDdp $generatePdfDdp;
+    private DocDemandePaiement $docDemandePaiement;
+    private TraitementDeFichier $traitementDeFichier;
+    private string $cheminDeBase;
     
     public function __construct()
     {
@@ -41,6 +47,9 @@ class DemandePaiementController extends Controller
         $this->demandePaiementLigne = new DemandePaiementLigne();
         $this->historiqueOperation = new HistoriqueOperationDDPService();
         $this->generatePdfDdp = new GeneratePdfDdp();
+        $this->docDemandePaiement = new DocDemandePaiement();
+        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] .'/ddp';
     }
 
     /**
@@ -60,26 +69,37 @@ class DemandePaiementController extends Controller
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
 
             $data = $form->getData();//recupération des donnnées
-            
-            $data->setNumeroDdp($numDdp);// ajout du numero DDP dans l'entity DDP
-            $data = $this->ajoutTypeDemande($data, $id);
-            $data->setAgenceDebiter($data->getAgence()->getCodeAgence());
-            $data->setServiceDebiter($data->getService()->getCodeService());
-            $data->setEmailUserConnect($this->getEmail());
+
+            /** 
+             * @var UploadedFile|null $file 
+            * recupération et copie dans le dossier de destination
+             */
+            $file = $form->get('pieceJoint01')->getData();
+            $nomDeFichier = $file->getClientOriginalName();
+            $this->traitementDeFichier->upload($file, $this->cheminDeBase, $nomDeFichier);
             
 
-            // $docDdp = new DocDemandePaiement();
-            // $docDdp->setNumeroDdp($numDdp);
-
-            /** ENREGISTREMENT DAN BD */
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDeFichier);
+            
+            /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data);// enregistrement des données dans la table demande_paiement_ligne
-            
+            $this->enregisterDdpF($data);
+
+
+            if(copy('//192.168.0.15/GCOT_DATA/TRANSIT/DD0070A25/PDV_10236125.PDF','C:\wamp64\www\Upload\ddpanarana.pdf')) {
+
+                dd("Le fichier a été copié avec succès.");
+} else {
+    dd("Erreur lors de la copie du fichier.");
+}
+            /** COPIER LES FICHIERS */
+            // $this->copierFichierDistant($data);
 
             /** GENERATION DE PDF */
             $this->generatePdfDdp->genererPDF($data);
 
-            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'profil_acceuil', true);
+            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
 
         self::$twig->display('ddp/demandePaiementNew.html.twig', [
@@ -87,6 +107,139 @@ class DemandePaiementController extends Controller
             'form' => $form->createView()
         ]);
     }
+
+    
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, string $nomDeFichier)
+    {
+        $data = $this->ajoutTypeDemande($data, $id);
+        $lesFichiers = $this->ajoutDesFichiers($data, $nomDeFichier);
+
+        $data
+            ->setNumeroDdp($numDdp)// ajout du numero DDP dans l'entity DDP
+            ->setAgenceDebiter($data->getAgence()->getCodeAgence())
+            ->setServiceDebiter($data->getService()->getCodeService())
+            ->setAdresseMailDemandeur($this->getEmail())
+            ->setDemandeur($this->getUser()->getNomUtilisateur())
+            ->setStatut('OUVERT')
+            ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
+            ->setLesFichiers($lesFichiers)
+        ;
+    }
+
+    /**
+     * TODO: ARECITIFER
+     *
+     * @param DemandePaiement $data
+     * @return void
+     */
+    private function copierFichierDistant(DemandePaiement $data)
+    {
+        $cheminDeFichiers = $this->recupCheminFichierDistant($data);
+        $cheminDestination = $_ENV['BASE_PATH_FICHIER'] . '/ddp/fichiers';
+
+        foreach ($cheminDeFichiers as $cheminDeFichier) {
+            $nomFichier = $this->nomFichier($cheminDeFichier);
+            $destinationFinal = $cheminDestination.'/'.$nomFichier;
+            copy($cheminDeFichier, $destinationFinal);
+        }
+    }
+
+    private function enregisterDdpF(DemandePaiement $data) : void
+    {
+        $donners = $this->recuperationDonnerDdpF($data);
+        foreach ($donners as $value) {
+            self::$em->persist($value);
+        }
+
+        self::$em->flush();
+    }
+
+    private function ajoutDesFichiers(DemandePaiement $data, string $fichierTelechargerName): array
+    {
+        $lesCheminsFichiers = $this-> recupCheminFichierDistant($data);
+
+        $lesFichiers = [];
+        foreach ($lesCheminsFichiers as $value) {
+            $lesFichiers[] = $this->nomFichier($value);
+        }
+
+        $lesFichiers[] = $fichierTelechargerName;
+
+        return $lesFichiers;
+        
+    }
+
+    private function recupCheminFichierDistant(DemandePaiement $data): array
+    {
+        $numFrs = $data->getNumeroFournisseur();
+        $numCde = $data->getNumeroCommande();
+
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
+        
+        $listeGcot = $this->demandePaiementModel->findListeGcot($numFrs, $numCdesString);
+
+        $cheminDeFichiers = [];
+        foreach ($listeGcot as $value) {
+            $numDocDouane = $value['Numero_Dossier_Douane'];
+
+            $dossiers = $this->demandePaiementModel->findListeDoc($numDocDouane);
+            foreach ($dossiers as  $dossier) {
+                $cheminDeFichiers[] = $dossier['Nom_Fichier'];
+            }
+        }
+
+        return $cheminDeFichiers;
+    }
+
+    private function recuperationDonnerDdpF(DemandePaiement $data): array
+    {
+        $numDdp = $data->getNumeroDdp();
+        $cheminDeFichiers =$this->recupCheminFichierDistant($data);
+
+        $donners = [];
+        foreach ($cheminDeFichiers as $cheminDeFichier) {
+            $nomFichier = $this->nomFichier($cheminDeFichier);
+            $docDemandePaiement = new DocDemandePaiement();
+            $donners[] = $docDemandePaiement
+                ->setNumeroDdp($numDdp)
+                ->setTypeDocumentId($data->getTypeDemandeId())
+                ->setNomFichier($nomFichier)
+            ;
+        }
+
+        return $donners;
+    }
+
+    private function nomFichier(string $cheminFichier): string 
+    {
+        $motExacteASupprimer = [
+            '\\\\192.168.0.15',
+            '\\GCOT_DATA',
+            '\\TRANSIT',
+        ];
+    
+        $motCommenceASupprimer = ['\\DD'];
+    
+        return $this->enleverPartiesTexte($cheminFichier, $motExacteASupprimer, $motCommenceASupprimer);
+    }
+    
+    private function enleverPartiesTexte(string $texte, array $motsExacts, array $motsCommencent): string 
+    {
+        // Supprimer les correspondances exactes
+        foreach ($motsExacts as $mot) {
+            $texte = str_replace($mot, '', $texte);
+        }
+    
+        // Supprimer les parties qui commencent par un mot donné
+        foreach ($motsCommencent as $motDebut) {
+            $pattern = '/' . preg_quote($motDebut, '/') . '[^\\\\]*/';
+            $texte = preg_replace($pattern, '', $texte);
+        }
+    
+        // Supprimer les éventuels slashes de début
+        return ltrim($texte, '\\/');
+    }
+    
 
     private function transformChaineEnNombre(string $nombre): float
     {
@@ -97,7 +250,7 @@ class DemandePaiementController extends Controller
         return  $nombre_formaté; // Affiche : 11124522.46
     }
     
-    private function EnregistrementBdDdpl($data)
+    private function EnregistrementBdDdpl($data): void
     {
         $demandePaiementLigne = $this->recuperationDonnerDdpl($data);
 
@@ -120,10 +273,11 @@ class DemandePaiementController extends Controller
      */
     private function recuperationDonnerDdpl(DemandePaiement $data): array
     {
-        $demandePaiementLigne = [];
+        $demandePaiementLignes = [];
         
         for ($i=0; $i < count($data->getNumeroCommande()); $i++) { 
-            $demandePaiementLigne[] = $this->demandePaiementLigne
+            $demandePaiementLigne = new DemandePaiementLigne();
+            $demandePaiementLignes[] = $demandePaiementLigne
                 ->setNumeroDdp($data->getNumeroDdp())
                 ->setNumeroLigne($i)
                 ->setNumeroCommande($data->getNumeroCommande()[$i])
@@ -132,7 +286,7 @@ class DemandePaiementController extends Controller
             ;
         }
 
-        return $demandePaiementLigne;
+        return $demandePaiementLignes;
     }
 
 
@@ -140,7 +294,7 @@ class DemandePaiementController extends Controller
     /**
      * methode qui permet d'enregestrer les données dans la table demande_paiement
      */
-    private function EnregistrementBdDdp(DemandePaiement $data)
+    private function EnregistrementBdDdp(DemandePaiement $data): void
     {
         self::$em->persist($data);
         self::$em->flush();
@@ -152,7 +306,7 @@ class DemandePaiementController extends Controller
      * @param string $numDdp
      * @return void
      */
-    private function modificationDernierIdApp(string $numDdp)
+    private function modificationDernierIdApp(string $numDdp): void
     {
         $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
         $application->setDerniereId($numDdp);

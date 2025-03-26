@@ -76,3 +76,18 @@ CREATE TABLE demande_paiement_ligne
     date_modification DATETIME2 (3),
     CONSTRAINT PK_demande_paiement_ligne PRIMARY KEY (id)
 );
+
+ALTER TABLE demande_paiement
+ADD mode_paiement VARCHAR(50)
+
+ALTER TABLE demande_paiement
+ADD montant_a_payer DECIMAL(18, 2)
+
+ALTER TABLE demande_paiement
+ADD contact VARCHAR(50)
+
+ALTER TABLE demande_paiement
+ADD numero_commande VARCHAR(max)
+
+ALTER TABLE demande_paiement
+ADD numero_facture VARCHAR(max)

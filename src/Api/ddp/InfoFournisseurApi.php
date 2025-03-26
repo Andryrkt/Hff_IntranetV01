@@ -7,8 +7,12 @@ use App\Entity\ddp\DemandePaiement;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\cde\CdefnrSoumisAValidation;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InfoFournisseurApi extends Controller
@@ -56,7 +60,7 @@ class InfoFournisseurApi extends Controller
         
         $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
-        if ($nbrLigne <= 0) {
+        // if ($nbrLigne <= 0) {
             $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
             $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
@@ -69,15 +73,15 @@ class InfoFournisseurApi extends Controller
             ];
             header("Content-type:application/json");
             echo json_encode($data);
-        } else {
-            header("Content-type:application/json");
-            echo json_encode(
-                [
-                    'succes' => false,
-                    'message' => 'une demande de paiement a été déjà envoyer pour validation pour ce numero fournisseur'
-                ]
-            );
-        }
+        // } else {
+        //     header("Content-type:application/json");
+        //     echo json_encode(
+        //         [
+        //             'succes' => false,
+        //             'message' => 'une demande de paiement a été déjà envoyer pour validation pour ce numero fournisseur'
+        //         ]
+        //     );
+        // }
     }
 
     /**
@@ -93,32 +97,51 @@ class InfoFournisseurApi extends Controller
         $response = new JsonResponse($dossiers);
         $response->send();
     }
+/**
+ * @Route("/api/recuperer-fichier", name="api_recuperer_fichier")
+ */
+public function recupererFichier(Request $request): Response
+{
+    try {
+        $requestedPath = $request->query->get('path');
+        $requestedPath = urldecode($requestedPath);
+        $requestedPath = str_replace(['%5C', '/'], '\\', $requestedPath);
 
-    /**
-     * @Route("/api/recuperer-fichier/{nomFichier}", name="api_recuper_fichier_nom_fichier")
-     */
-    public function recupererFichier($nomFichier)
-    {
-        $nomFichier = basename($nomFichier);
-        $cheminFichier = '\\\\192.168.0.15\\GCOT_DATA\\TRANSIT\\DD1297A24\\' . $nomFichier;
-        dd(file_exists($cheminFichier));
-        if (!file_exists($cheminFichier)) {
-            http_response_code(404);
-            echo "Fichier introuvable.";
-            exit;
+
+
+        // Détection type MIME alternative
+        $extension = strtolower(pathinfo($requestedPath, PATHINFO_EXTENSION));
+        $mimeTypes = [
+            'pdf' => 'application/pdf',
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            // Ajouter d'autres extensions au besoin
+        ];
+
+        if (!isset($mimeTypes[$extension])) {
+            throw new \RuntimeException('Type de fichier non supporté');
         }
 
-        // Détermine le type MIME pour l'envoi du fichier
-        $mimeType = mime_content_type($cheminFichier);
-        header('Content-Description: File Transfer');
-        header('Content-Type: ' . $mimeType);
-        header('Content-Disposition: inline; filename="' . basename($cheminFichier) . '"');
-        header('Content-Length: ' . filesize($cheminFichier));
+        // Utilisation de BinaryFileResponse avec gestion de cache
+        $response = new BinaryFileResponse($requestedPath);
+        $response->headers->set('Content-Type', $mimeTypes[$extension]);
+        $response->setContentDisposition(
+            ResponseHeaderBag::DISPOSITION_INLINE,
+            basename($requestedPath)
+        );
 
-        // Lire le fichier et l'envoyer
-        readfile($cheminFichier);
-        exit;
-        
+        // Headers pour éviter la mise en cache problématique
+        $response->headers->addCacheControlDirective('no-cache');
+        $response->headers->addCacheControlDirective('must-revalidate');
+
+        return $response;
+
+    } catch (\Exception $e) {
+        return new JsonResponse(
+            ['error' => $e->getMessage()],
+            Response::HTTP_INTERNAL_SERVER_ERROR
+        );
     }
+}
 
 }
