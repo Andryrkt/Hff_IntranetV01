@@ -23,69 +23,18 @@
 					</div>
 
 					{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
-					<div class="row">
-						<div class="col-12 col-md-6">
-							<div class="row">
-								<div class="col-6">
-									{{ macroForm.affichage2('N° Fournisseur', DAL.numeroFournisseur) }}
-									{{ macroForm.affichage2('Famille', DAL.artFams1) }}
-								</div>
-								<div class="col-6">
-									{{ macroForm.affichage2('Nom Fournisseur', DAL.nomFournisseur) }}
-									{{ macroForm.affichage2('Sous-famille', DAL.artFams2) }}
-								</div>
-							</div>
-						</div>
-						<div class="col-12 col-md-6">
-							{{ macroForm.affichage2('Commentaire sur l’article', DAL.commentaire, 'h-80') }}
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-3 col-md-3">
-							{{ macroForm.affichage2('Référence', DAL.artRefp) }}
-						</div>
-						<div class="col-3 col-md-7">
-							{{ macroForm.affichage2('Désignation', DAL.artDesi) }}
-						</div>
-						<div class="col-3 col-md-2">
-							{{ macroForm.affichage2('Qté demandée', DAL.qteDem) }}
-						</div>
-					</div>
 
-					{{ macroForm.sousTitre('Proposition d’une référence') }}
-					<div class="row">
-						<div class="col-3 col-md-3">
-							{{ macroForm.affichage2('Référence', DAL.artRefp) }}
-							{{ macroForm.affichage2('Référence', DAL.artRefp) }}
-						</div>
-						<div class="col-9 col-md-9">
-							<div class="row">
-								<div class="col-4 col-md-4">
-									{{ macroForm.affichage2('Nom du fournisseur', DAL.artRefp) }}
-								</div>
-								<div class="col-8 col-md-8">
-									{{ macroForm.affichage2('Référence', DAL.artRefp) }}
-								</div>
-							</div>
-							{{ macroForm.affichage2('Référence', DAL.artRefp) }}
-						</div>
-					</div>
-					<div class="d-flex justify-content-end mt-3">
-						<button type="button" id="add-child" class="btn bouton mt-2">
-							<i class="fas fa-plus"></i>
-							Ajouter une ligne
-						</button>
-					</div>
-
-
-					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton mt-2">
-							<i class="fas fa-save"></i>
-							Enregistrer
-						</button>
-					</div>
+					{% for DAL in data %}
+						{{ include('da/shared/proposition/_article.html.twig', { article: DAL }) }}
+					{% endfor %}
 				</div>
 			</div>
+		</div>
+		<div class="d-flex justify-content-end mt-2">
+			<button type="submit" class="btn bouton mt-2 me-4">
+				<i class="fas fa-save"></i>
+				Enregistrer
+			</button>
 		</div>
 	</div>
 {% endblock %}
