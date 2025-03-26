@@ -1,4 +1,5 @@
 import { displayOverlay } from '../../utils/spinnerUtils';
+import { mergeCellsTable } from './tableHandler';
 
 document.addEventListener('DOMContentLoaded', function () {
   const designations = document.querySelectorAll('.designation-btn');
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.setItem('currentTab', numeroLigne);
     });
   });
+  mergeCellsTable(0);
 });
 
 window.addEventListener('load', () => {
