@@ -49,14 +49,7 @@ trait DitFactureSoumisAValidationtrait
                 
                 $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
 
-                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
-                if(is_array($montantValide)) {
-                    if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
-                        $message = $montantValide['message'];
-                        $this->historiqueOperation->sendNotificationSoumission($message, $dataForm->getNumeroOR(), 'dit_index');
-                    }
-                }
-                
+                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv'])['montantItv'];
                 
                 if(is_array($montantValide)) {
                     if( isset($montantValide['statut']) && $montantValide['statut'] == 'echec') {
@@ -93,12 +86,7 @@ trait DitFactureSoumisAValidationtrait
     {
         $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
         if(empty($quantiter)){
-            $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
-        } 
-
-        if(empty($quantiter)){
-            $message = "Le fournisseur rattacher à l'OR n'est pas encore renseigner dans le csv";
+            $message = "un des constructeurs rattacher à l'OR n'est pas encore renseigner dans le json";
             $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
         } 
         
@@ -124,35 +112,43 @@ trait DitFactureSoumisAValidationtrait
             'nbrServDebDitDiffServDebFac' => 0,
             'nbrMttValideDiffMttFac' => 0,
         ];
+        
         foreach ($infoFacture as $value) {
-
-            if(!empty($agServDebDit) ) {
-                $agServFac = ($value['agencedebiteur'] . '-' . $value['servicedebiteur']);
-            } else {
-                $agServFac = '';
-            }
-
+    
+            $agServFac = (!empty($agServDebDit)) ? ($value['agencedebiteur'] . '-' . $value['servicedebiteur']) : '';
+    
             $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-            $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv']);
-            if(empty($statutOrsSoumisValidation)|| $statutOrsSoumisValidation === null || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
+            $montantValide = (float) ($em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv'])['montantItv']);
+            $montantFacture = (float) $value['montantfactureitv'];
+    
+    
+            if (empty($statutOrsSoumisValidation) || $nombreItv === 0 ||
+                ($statutOrsSoumisValidation !== 'Livré' && $statutOrsSoumisValidation !== 'Validé' && $statutOrsSoumisValidation !== 'Livré partiellement') ||
+                $statutOrsSoumisValidation === 'Refusée') 
+            {
                 $statutFac[] = 'Itv non validée';
                 $nombreStatutControle['nbrNonValideFacture']++;
-            } elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') && $agServDebDit <> $agServFac) {
-                    $statutFac[] = 'Serv deb DIT # Serv deb FAC';
-                    $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
-            } elseif ($montantValide <> $value['montantfactureitv']) {
+            } 
+            elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') &&
+                $agServDebDit !== $agServFac) 
+            {
+                $statutFac[] = 'Serv deb DIT # Serv deb FAC';
+                $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
+            } 
+            elseif (abs($montantValide - $montantFacture) > 0.01) { // Comparaison avec tolérance
                 if ($migration == 1) {
                     $statutFac[] = 'DIT migrée';
                 } else {
                     $statutFac[] = 'Mtt validé # Mtt facturé';
                 }
-
                 $nombreStatutControle['nbrMttValideDiffMttFac']++;
-            } else {
+            } 
+            else {
                 $statutFac[] = 'OK';
             }
         }
+    
         return [
             'statutFac' => $statutFac,
             'nombreStatutControle' => $nombreStatutControle
