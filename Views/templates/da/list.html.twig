@@ -53,7 +53,7 @@
 							<td>{{ dal.artFams2 }}</td>
 							<td>{{ dal.artRefp }}</td>
 							<td>
-								<a href="{{ path('da_proposition', { id : dal.id }) }}" target="_blank">
+								<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
 									{{ dal.artDesi }}
 								</a>
 							</td>
