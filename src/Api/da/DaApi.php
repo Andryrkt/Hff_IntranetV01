@@ -58,4 +58,19 @@ class DaApi extends Controller
 
         echo json_encode($data);
     }
+
+    /**
+     * @Route("/demande-appro/autocomplete/all-designation-sans", name="autocomplete_all_designation_sans")
+     *
+     * @return void
+     */
+    public function autocompleteAllDesignationSans()
+    {
+        $daModel = new DaModel;
+        $data = $daModel->getAllDesignationSans();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data);
+    }
 }
