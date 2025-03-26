@@ -24,9 +24,11 @@
 
 					{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
 
-					{% for DAL in data %}
-						{{ include('da/shared/proposition/_article.html.twig', { article: DAL }) }}
-					{% endfor %}
+					<div class="tab-content">
+						{% for DAL in data %}
+							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data|length }) }}
+						{% endfor %}
+					</div>
 				</div>
 			</div>
 		</div>

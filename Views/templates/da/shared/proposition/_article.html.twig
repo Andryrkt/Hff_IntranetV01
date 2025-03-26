@@ -1,98 +1,114 @@
 {% import "macroForm.html.twig" as macroForm %}
 
-<div class="row">
-	<div class="col-12 col-md-6">
-		<div class="row">
-			<div class="col-6">
-				{{ macroForm.affichage2('N° Fournisseur', article.numeroFournisseur, 'mb-2') }}
-				{{ macroForm.affichage2('Famille', article.artFams1, 'mb-2') }}
-			</div>
-			<div class="col-6">
-				{{ macroForm.affichage2('Nom Fournisseur', article.nomFournisseur, 'mb-2') }}
-				{{ macroForm.affichage2('Sous-famille', article.artFams2, 'mb-2') }}
-			</div>
-		</div>
-	</div>
-	<div class="col-12 col-md-6">
-		{{ macroForm.affichage2('Commentaire sur l’article', article.commentaire, 'h-90 mb-2') }}
-	</div>
-</div>
-<div class="row">
-	<div class="col-3 col-md-3">
-		{{ macroForm.affichage2('Référence', article.artRefp, 'mb-2') }}
-	</div>
-	<div class="col-3 col-md-7">
-		{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
-	</div>
-	<div class="col-3 col-md-2">
-		{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
-	</div>
-</div>
+{% set currentPage = article.numeroLigne %}
 
-{{ macroForm.sousTitre('Proposition d’une référence') }}
-<div class="row">
-	<div class="col-3 col-md-3">
-		<div class="mb-2">
-			<label for="demande_appro_proposition_reference" class="form-label mb-0">Référence</label>
-			<input type="text" id="demande_appro_proposition_reference" class="form-control">
-		</div>
-		<div class="mb-2">
-			<label for="demande_appro_proposition_qte_dispo" class="form-label mb-0">Qté Dispo</label>
-			<input type="text" id="demande_appro_proposition_qte_dispo" class="form-control">
-		</div>
-	</div>
-	<div class="col-9 col-md-9">
-		<div class="row">
-			<div class="col-4 col-md-4">
-				<div class="mb-2">
-					<label for="demande_appro_proposition_fournisseur" class="form-label mb-0">Nom du fournisseur</label>
-					<input type="text" id="demande_appro_proposition_fournisseur" class="form-control">
+<div class="tab-pane fade" id="tab{{ currentPage }}" role="tabpanel">
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<div class="row">
+				<div class="col-6">
+					{{ macroForm.affichage2('N° Fournisseur', article.numeroFournisseur, 'mb-2') }}
+					{{ macroForm.affichage2('Famille', article.artFams1, 'mb-2') }}
 				</div>
-			</div>
-			<div class="col-8 col-md-8">
-				<div class="mb-2">
-					<label for="demande_appro_proposition_designation" class="form-label mb-0">Désignation</label>
-					<input type="text" id="demande_appro_proposition_designation" class="form-control">
+				<div class="col-6">
+					{{ macroForm.affichage2('Nom Fournisseur', article.nomFournisseur, 'mb-2') }}
+					{{ macroForm.affichage2('Sous-famille', article.artFams2, 'mb-2') }}
 				</div>
 			</div>
 		</div>
-		<div class="mb-2">
-			<label for="demande_appro_proposition_motif" class="form-label mb-0">Commentaire / motif</label>
-			<input type="text" id="demande_appro_proposition_motif" class="form-control">
+		<div class="col-12 col-md-6">
+			{{ macroForm.affichage2('Commentaire sur l’article', article.commentaire, 'h-90 mb-2') }}
 		</div>
 	</div>
-</div>
+	<div class="row">
+		<div class="col-3 col-md-3">
+			{{ macroForm.affichage2('Référence', article.artRefp, 'mb-2') }}
+		</div>
+		<div class="col-3 col-md-7">
+			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+		</div>
+		<div class="col-3 col-md-2">
+			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
+		</div>
+	</div>
 
-<div class="d-flex justify-content-end">
-	<button type="button" id="add-line" class="btn bouton mt-2">
-		<i class="fas fa-plus"></i>
-		Ajouter la référence
-	</button>
-</div>
+	{{ macroForm.sousTitre('Proposition d’une référence') }}
+	<div class="row">
+		<div class="col-3 col-md-3">
+			<div class="mb-2">
+				<label for="demande_appro_proposition_reference" class="form-label mb-0">Référence</label>
+				<input type="text" id="demande_appro_proposition_reference" class="form-control">
+			</div>
+			<div class="mb-2">
+				<label for="demande_appro_proposition_qte_dispo" class="form-label mb-0">Qté Dispo</label>
+				<input type="text" id="demande_appro_proposition_qte_dispo" class="form-control">
+			</div>
+		</div>
+		<div class="col-9 col-md-9">
+			<div class="row">
+				<div class="col-4 col-md-4">
+					<div class="mb-2">
+						<label for="demande_appro_proposition_fournisseur" class="form-label mb-0">Nom du fournisseur</label>
+						<input type="text" id="demande_appro_proposition_fournisseur" class="form-control">
+					</div>
+				</div>
+				<div class="col-8 col-md-8">
+					<div class="mb-2">
+						<label for="demande_appro_proposition_designation" class="form-label mb-0">Désignation</label>
+						<input type="text" id="demande_appro_proposition_designation" class="form-control">
+					</div>
+				</div>
+			</div>
+			<div class="mb-2">
+				<label for="demande_appro_proposition_motif" class="form-label mb-0">Commentaire / motif</label>
+				<input type="text" id="demande_appro_proposition_motif" class="form-control">
+			</div>
+		</div>
+	</div>
 
-<table class="table rounded table-plein-ecran mt-4">
-	<thead class="table-dark text-center">
-		<tr>
-			<th>Fournisseur</th>
-			<th>Référence</th>
-			<th>Désignation</th>
-			<th>PU</th>
-			<th>Montant Total</th>
-			<th>Conditionnement</th>
-			<th>Qté Dispo</th>
-			<th>Commentaire / motif</th>
-		</tr>
-	</thead>
-	<tbody></tbody>
-</table>
+	<div class="d-flex justify-content-end">
+		<button type="button" id="add-line" class="btn bouton mt-2">
+			<i class="fas fa-plus"></i>
+			Ajouter la référence
+		</button>
+	</div>
 
-<div class="d-flex justify-content-start">
-	<button type="button" class="btn bouton mt-2 me-3">
-		<i class="fas fa-arrow-left"></i>
-		Précédent
-	</button>
-	<button type="button" class="btn bouton mt-2">
-		Suivant
-		<i class="fas fa-arrow-right"></i>
-	</button>
+	<table class="table rounded table-plein-ecran mt-4">
+		<thead class="table-dark text-center">
+			<tr>
+				<th>Fournisseur</th>
+				<th>Référence</th>
+				<th>Désignation</th>
+				<th>PU</th>
+				<th>Montant Total</th>
+				<th>Conditionnement</th>
+				<th>Qté Dispo</th>
+				<th>Commentaire / motif</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+
+	<div class="d-flex justify-content-between">
+		<div class="">
+			{% if totalPage > 1 %}
+				{% if currentPage > 1 %}
+					<button type="button" class="btn bouton mt-2 me-3">
+						<i class="fas fa-arrow-left"></i>
+						Précédent
+					</button>
+				{% endif %}
+
+				{% if currentPage < totalPage %}
+					<button type="button" class="btn bouton mt-2">
+						Suivant
+						<i class="fas fa-arrow-right"></i>
+					</button>
+				{% endif %}
+			{% endif %}
+		</div>
+		<div class="align-self-end">
+			<span class="fs-6">{{ currentPage }}/{{ totalPage }}</span>
+		</div>
+	</div>
 </div>
