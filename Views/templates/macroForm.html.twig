@@ -116,7 +116,7 @@
 
 {% macro affichage2(label, value = "", class = "", id = "") %}
 	<label for="" class="mt-2">{{label}}</label>
-	<div class="d-flex align-items-center {{ class }} border border-secondary border-1 rounded bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">
+	<div class="d-flex align-items-center {{ class }} div-disabled fw-bold" id="{{id}}">
 		{{value}}
 	</div>
 {% endmacro %}
