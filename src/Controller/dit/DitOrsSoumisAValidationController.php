@@ -94,16 +94,15 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationStatutOr($numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                // $this->envoieDonnerDansBd($orSoumisValidataion);
+                $this->envoieDonnerDansBd($orSoumisValidataion);
                 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
-                    
+                $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];   
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
                 //envoie des pièce jointe dans une dossier et la fusionner
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
-                // $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
+                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
@@ -205,35 +204,7 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
-        elseif ($conditionBloquage['invalidePosition']) {
-            $message = "Echec de la soumission de l'OR";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['idMaterielDifferent']) {
-            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['sansrefClient']) {
-            $message = "Echec de la soumission car la référence client est vide.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
-        elseif ($conditionBloquage['situationOrSoumis']) {
-            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
-        elseif ($conditionBloquage['invalidePosition']) {
-            $message = "Echec de la soumission de l'OR";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['idMaterielDifferent']) {
-            $message = "Echec de la soumission car le materiel de l'OR ne correspond pas au materiel de la DIT";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['sansrefClient']) {
-            $message = "Echec de la soumission car la référence client est vide.";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
-        elseif ($conditionBloquage['situationOrSoumis']) {
-            $message = "Echec de la soumission de l'OR . . . un OR est déjà en cours de validation ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
+        }  
         elseif ($conditionBloquage['countAgServDeb']) {
             $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
