@@ -51,6 +51,7 @@ class DemandePaiementType extends AbstractType
             ->add('numeroFacture',ChoiceType::class,
                 [
                     'label' => 'N° Facture *',
+                    'required' => false,
                     'choices'   => [],
                     'multiple'  => true,
                     'expanded'  => false,
@@ -74,9 +75,10 @@ class DemandePaiementType extends AbstractType
                     $form->add('numeroFacture',ChoiceType::class,
                         [
                             'label' => 'N° Facture *',
-                            'choices'   => $data['numeroFacture'],
+                            'choices'   => $data['numeroFacture']??[],
                             'multiple'  => true,
-                            'expanded'  => false
+                            'expanded'  => false,
+                            'required' => false
                         ]);
                 })
             ->add('beneficiaire', TextType::class,
@@ -120,6 +122,44 @@ class DemandePaiementType extends AbstractType
             FileType::class,
             [
                 'label' => 'Pièce Jointe 01 (PDF)',
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                            // 'image/jpeg',
+                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+
+            ->add('pieceJoint02',
+            FileType::class,
+            [
+                'label' => 'Pièce Jointe 02 (PDF)',
+                'required' => $options['id_type'] == 2,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf',
+                            // 'image/jpeg',
+                            // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                    ])
+                ],
+            ])
+
+            ->add('pieceJoint03',
+            FileType::class,
+            [
+                'label' => 'Pièce Jointe 03 (PDF)',
                 'required' => false,
                 'constraints' => [
                     new File([

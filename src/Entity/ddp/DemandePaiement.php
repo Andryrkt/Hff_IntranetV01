@@ -138,13 +138,16 @@ class DemandePaiement
 
     private ?string $devise;
     
-    private $pieceJoint01; // proforma facture fournisseur ou controle livraison
+    private $pieceJoint01; // proforma facture fournisseur
+
+    private $pieceJoint02; //Contrôle livraison
+
+    private $pieceJoint03; //rib fournisseur
     
     private $commandeFichier;
     
     private $factureFournisseurFichier;
     
-    private $controleLivraisonFichier;
     
     private $titreDeTransportFichier;
     
@@ -587,25 +590,6 @@ class DemandePaiement
         return $this;
     }
 
-    /**
-     * Get the value of controleLivraisonFichier
-     */ 
-    public function getControleLivraisonFichier()
-    {
-        return $this->controleLivraisonFichier;
-    }
-
-    /**
-     * Set the value of controleLivraisonFichier
-     *
-     * @return  self
-     */ 
-    public function setControleLivraisonFichier($controleLivraisonFichier)
-    {
-        $this->controleLivraisonFichier = $controleLivraisonFichier;
-
-        return $this;
-    }
 
     /**
      * Get the value of titreDeTransportFichier
@@ -684,6 +668,46 @@ class DemandePaiement
     public function setLesFichiers($lesFichiers)
     {
         $this->lesFichiers = $lesFichiers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint02
+     */ 
+    public function getPieceJoint02()
+    {
+        return $this->pieceJoint02;
+    }
+
+    /**
+     * Set the value of pieceJoint02
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint02($pieceJoint02)
+    {
+        $this->pieceJoint02 = $pieceJoint02;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint03
+     */ 
+    public function getPieceJoint03()
+    {
+        return $this->pieceJoint03;
+    }
+
+    /**
+     * Set the value of pieceJoint03
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint03($pieceJoint03)
+    {
+        $this->pieceJoint03 = $pieceJoint03;
 
         return $this;
     }

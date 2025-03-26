@@ -607,8 +607,14 @@ document.addEventListener("DOMContentLoaded", function () {
   /** ============================
    * FICHIER
    * =============================*/
-  const fileInput = document.querySelector("#demande_paiement_pieceJoint01");
-  initializeFileHandlers("1", fileInput);
+  const fileInput1 = document.querySelector("#demande_paiement_pieceJoint01");
+  initializeFileHandlers("1", fileInput1);
+
+  const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
+  initializeFileHandlers("2", fileInput2);
+
+  const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
+  initializeFileHandlers("3", fileInput3);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer

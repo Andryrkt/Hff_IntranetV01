@@ -3,14 +3,17 @@
 namespace App\Service\genererPdf;
 
 use App\Entity\ddp\DemandePaiement;
+use App\Traits\ChaineCaractereTrait;
 use TCPDF;
 
 class GeneratePdfDdp extends GeneratePdf
 {
+    use ChaineCaractereTrait;
+
     /**
      * Genere le PDF DEMANDE DE PAIEMENT (DDP)
      */
-    public function genererPDF(DemandePaiement $data)
+    public function genererPDF(DemandePaiement $data, string $cheminDeFichier)
     {
         $pdf = new TCPDF();
 
@@ -137,10 +140,9 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 10, implode(";", $data->getLesFichiers()), 0, 'L', 0, 1);// TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($data->getLesFichiers())), 0, 'L', 0, 1);// TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
 
         // génération de fichier: à changer plus tard
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/ddp/';
-        $pdf->Output($Dossier . $data->getNumeroDdp().'.pdf', 'F');
+        $pdf->Output($cheminDeFichier, 'F');
     }
 }

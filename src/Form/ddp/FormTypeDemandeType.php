@@ -18,7 +18,7 @@ class FormTypeDemandeType extends AbstractType
                 'label' => 'Type de demande',
                 'placeholder' => ' -- choisir le type de demande --',
                 'class' => TypeDemande::class,
-                'choice_label' => 'code',
+                'choice_label' => 'libelle',
             ])
         ;
     }
