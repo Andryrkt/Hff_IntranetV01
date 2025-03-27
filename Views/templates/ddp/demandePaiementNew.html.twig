@@ -89,10 +89,18 @@
 						{% endif %}
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-						<div class="col-12 col-md-4"	
+						<div class="col-12 col-md-4"
+						{% if id_type == 1 %}
+						<p>Veuillez insérer
+									<strong>la commande *</strong>
+								</p>
+						{% else %}
+
+
 							<p>Veuillez insérer
 									<strong>le contrôle livraison *</strong>
 								</p>
+							{% endif %}
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
 						</div>
 						<div class="col-12 col-md-4"
@@ -116,6 +124,8 @@
 										</button>
 					</div>
 				{{ form_end(form) }}
+
+				<button id="tester">Ouvrir le fichier</button>
 			</div>
 			
 

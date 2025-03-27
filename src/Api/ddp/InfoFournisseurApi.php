@@ -2,6 +2,11 @@
 
 namespace App\Api\ddp;
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 use App\Controller\Controller;
 use App\Entity\ddp\DemandePaiement;
 use App\Model\ddp\DemandePaiementModel;
@@ -97,51 +102,54 @@ class InfoFournisseurApi extends Controller
         $response = new JsonResponse($dossiers);
         $response->send();
     }
+
+
 /**
  * @Route("/api/recuperer-fichier", name="api_recuperer_fichier")
  */
-public function recupererFichier(Request $request): Response
+public function recupererFichier(Request $request)
 {
-    try {
-        $requestedPath = $request->query->get('path');
-        $requestedPath = urldecode($requestedPath);
-        $requestedPath = str_replace(['%5C', '/'], '\\', $requestedPath);
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
 
+    $path = urldecode($request->query->get('path'));
+    $basePath = '\\\\192.168.0.15\\GCOT_DATA\\TRANSIT';
+    $chemin = $basePath . DIRECTORY_SEPARATOR . $path;
 
+    header('Content-Type: application/json');
 
-        // Détection type MIME alternative
-        $extension = strtolower(pathinfo($requestedPath, PATHINFO_EXTENSION));
-        $mimeTypes = [
-            'pdf' => 'application/pdf',
-            'jpg' => 'image/jpeg',
-            'png' => 'image/png',
-            // Ajouter d'autres extensions au besoin
-        ];
-
-        if (!isset($mimeTypes[$extension])) {
-            throw new \RuntimeException('Type de fichier non supporté');
-        }
-
-        // Utilisation de BinaryFileResponse avec gestion de cache
-        $response = new BinaryFileResponse($requestedPath);
-        $response->headers->set('Content-Type', $mimeTypes[$extension]);
-        $response->setContentDisposition(
-            ResponseHeaderBag::DISPOSITION_INLINE,
-            basename($requestedPath)
-        );
-
-        // Headers pour éviter la mise en cache problématique
-        $response->headers->addCacheControlDirective('no-cache');
-        $response->headers->addCacheControlDirective('must-revalidate');
-
-        return $response;
-
-    } catch (\Exception $e) {
-        return new JsonResponse(
-            ['error' => $e->getMessage()],
-            Response::HTTP_INTERNAL_SERVER_ERROR
-        );
+    if (!file_exists($chemin)) {
+        echo json_encode([
+            'success' => false,
+            'message' => "❌ Fichier introuvable : $chemin"
+        ]);
+        exit;
     }
+
+    if (!is_readable($chemin)) {
+        echo json_encode([
+            'success' => false,
+            'message' => "🚫 Fichier non lisible : $chemin"
+        ]);
+        exit;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => "✅ Fichier accessible",
+        'chemin' => $chemin
+    ]);
+    exit;
 }
+
+
+
+
+// Pour éviter les injections de chemin
+private function sanitize(string $filename): string
+{
+    return basename($filename); // Supprime les ../ ou chemins absolus
+}
+
 
 }
