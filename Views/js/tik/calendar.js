@@ -1,3 +1,4 @@
+import { displayOverlay } from '../utils/spinnerUtils';
 import {
   acceptReplanification,
   declineReplanification,
@@ -34,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function () {
   );
 
   var calendarEl = document.getElementById('calendar');
-  var spinner = document.getElementById('loading-spinner-overlay');
   var calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'fr',
     initialView: 'dayGridMonth',
@@ -78,9 +78,9 @@ document.addEventListener('DOMContentLoaded', function () {
     selectable: true,
     loading: function (isLoading) {
       if (isLoading) {
-        spinner.classList.remove('d-none'); // Affiche le spinner
+        displayOverlay(true); // Affiche l'overlay
       } else {
-        spinner.classList.add('d-none'); // Cache le spinner
+        displayOverlay(false); // Cache l'overlay
       }
     },
     select: function (info) {
@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
         replanificationModal.hide();
         acceptReplanification(
-          spinner,
           `/Hffintranet/api/tik/data/calendar/${info.event.id}`,
           {
             dateDebut: info.event.startStr,
