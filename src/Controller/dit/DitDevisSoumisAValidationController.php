@@ -143,7 +143,7 @@ class DitDevisSoumisAValidationController extends Controller
                 return false;
             }
         } else {
-            if($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
+            if ($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
                 $message = " Merci de passer le devis à validation au magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
