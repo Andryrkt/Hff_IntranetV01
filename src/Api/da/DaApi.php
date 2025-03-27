@@ -73,4 +73,19 @@ class DaApi extends Controller
 
         echo json_encode($data);
     }
+
+    /**
+     * @Route("/demande-appro/autocomplete/all-fournisseur", name="autocomplete_all_fournisseur")
+     *
+     * @return void
+     */
+    public function autocompleteAllFournisseur()
+    {
+        $daModel = new DaModel;
+        $data = $daModel->getAllFournisseur();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data);
+    }
 }
