@@ -311,7 +311,7 @@ class DitFactureSoumisAValidationModel extends Model
                 WHERE 
                     slor_soc = 'HF'
                     AND seor_serv = 'SAV'
-                    AND slor_constp IN (".GlobalVariablesService::get('tous').")
+                    --AND slor_constp IN (".GlobalVariablesService::get('tous').")
                     AND slor_numor = '".$numOr."'
                     AND TRUNC(slor_nogrp / 100) IN (".$numItv.")
                 GROUP BY 

@@ -1,24 +1,26 @@
 // FetchManager.js
-import { baseUrl } from '../utils/config';
+import { baseUrl } from "../utils/config";
 
 export class FetchManager {
   constructor() {
     this.baseUrl = baseUrl;
   }
 
-  async get(endpoint) {
+  async get(endpoint, responseType = "json") {
     const response = await fetch(`${this.baseUrl}/${endpoint}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch data from ${this.baseUrl}/${endpoint}`);
     }
-    return await response.json();
+    return responseType === "json"
+      ? await response.json()
+      : await response.text();
   }
 
   async post(endpoint, data) {
     const response = await fetch(`${this.baseUrl}/${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -30,9 +32,9 @@ export class FetchManager {
 
   async put(endpoint, data) {
     const response = await fetch(`${this.baseUrl}/${endpoint}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -44,7 +46,7 @@ export class FetchManager {
 
   async delete(endpoint) {
     const response = await fetch(`${this.baseUrl}/${endpoint}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
     if (!response.ok) {
       throw new Error(`Failed to delete data from ${this.baseUrl}/${endpoint}`);

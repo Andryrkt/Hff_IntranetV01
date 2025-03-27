@@ -545,10 +545,21 @@ class Controller
         }
     }
 
+    protected function getUserId(): int
+    {
+        return $this->sessionService->get('user_id');
+    }
+
     protected function getUser(): User
     {
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-        return $user;
+        //recuperation de l'utilisateur connecter
+        $userId = $this->getUserId();
+        return  self::$em->getRepository(User::class)->find($userId);
+    }
+
+    protected function getEmail(): string
+    {
+        $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 }

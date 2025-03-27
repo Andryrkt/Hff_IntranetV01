@@ -1,0 +1,68 @@
+
+/**===================================
+* Container du choix de l'autaucomplet
+*======================================*/
+/* Conteneur de la liste des suggestions */
+.suggestions {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.8); /* Fond noir transparent */
+    border-radius: 5px;
+    max-height: 200px; /* Limite la hauteur des suggestions */
+    overflow-y: auto; /* Active le défilement si nécessaire */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+    z-index: 1000;
+    width: 30%; /* Pour occuper la largeur du champ */
+    margin-top: 5px;
+    box-sizing: border-box; /* Assure que la largeur inclut padding et bordures */
+  }
+  
+  /* Style des éléments de suggestion */
+  .suggestions .suggestion-item {
+    padding: 10px;
+    font-size: 14px;
+    color: #ffc107;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Effet hover sur une suggestion */
+  .suggestions .suggestion-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  /* Style pour l'élément actif lors de la navigation avec ArrowDown/ArrowUp */
+  .suggestions .suggestion-item.active-suggestion {
+    background-color: #ffc107;
+    color: #000;
+  }
+  
+  /* Style pour aucune suggestion trouvée */
+  .suggestions .no_results {
+    color: #888;
+    text-align: center;
+    font-style: italic;
+    padding: 10px;
+  }
+  
+  /**======================================
+* Apparence du champ
+*=======================================*/
+  
+  /* Améliore l'apparence générale des champs */
+  input.autocomplete {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      padding: 6px;
+      font-size: 14px;
+      width: 100%;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  /* Effet focus sur le champ d'entrée */
+  input.autocomplete:focus {
+      border-color: #ffd900; /* Bordure bleue */
+      box-shadow: 0 0 5px rgba(255, 208, 0, 0.5); /* Lueur bleue */
+      outline: none;
+  }
