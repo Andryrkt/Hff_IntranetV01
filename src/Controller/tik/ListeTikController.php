@@ -76,20 +76,27 @@ class ListeTikController extends Controller
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
 
         $ticketsWithEditPermission = [];
+        $ticketsWithCloturePermission = [];
+        $ticketsWithReouverturePermission = [];
         foreach ($paginationData['data'] as $ticket) {
             $ticketsWithEditPermission[$ticket->getId()] = $this->canEdit($ticket->getNumeroTicket()); // Appel à la méthode canEdit
+            $ticketsWithCloturePermission[$ticket->getId()] = $this->conditionCloturerTicket($ticket); // Appel à la méthode conditionCloturerTicket
+            $ticketsWithReouverturePermission[$ticket->getId()] = $this->conditionReouvrirTicket($ticket); // Appel à la méthode conditionReouvrirTicket
         }
 
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
-            'data'        => $paginationData['data'],
-            'tickets'     => $ticketsWithEditPermission,
-            'currentPage' => $paginationData['currentPage'],
-            'totalPages'  => $paginationData['lastPage'],
-            'resultat'    => $paginationData['totalItems'],
-            'form'        => $form->createView(),
-            'criteria'    => $criteria,
+            'autorisation'    => $autorisation,
+            'data'            => $paginationData['data'],
+            'ticketsEdit'     => $ticketsWithEditPermission,
+            'ticketsCloture'  => $ticketsWithCloturePermission,
+            'ticketsReouvrir' => $ticketsWithReouverturePermission,
+            'currentPage'     => $paginationData['currentPage'],
+            'totalPages'      => $paginationData['lastPage'],
+            'resultat'        => $paginationData['totalItems'],
+            'form'            => $form->createView(),
+            'criteria'        => $criteria,
         ]);
     }
 
@@ -183,8 +190,14 @@ class ListeTikController extends Controller
     /** 
      * Fonction pour vérifier si l'utilisateur peut éditer le ticket
      */
-    private function canEdit(string $numTik): bool
+    private function canEdit(string $numTik): array
     {
+        $ticket = self::$em->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
+        $result = [
+            'monTicket' => 0,
+            'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
+        ];
+
         $this->verifierSessionUtilisateur();
 
         $idUtilisateur  = $this->sessionService->get('user_id');
@@ -199,13 +212,70 @@ class ListeTikController extends Controller
         $allTik = $utilisateur->getSupportInfoUser();
 
         foreach ($allTik as $tik) {
-            // si le numéro du ticket appartient à l'utilisateur connecté et le statut du ticket est ouvert ou en attente
-            if ($numTik === $tik->getNumeroTicket() && ($tik->getIdStatutDemande()->getId() === 58 || $tik->getIdStatutDemande()->getId() === 65)) {
-                return true;
+            // si le numéro du ticket appartient à l'utilisateur connecté et 
+            if ($numTik === $tik->getNumeroTicket()) {
+                $result['monTicket'] = 1;
                 break;
             }
         }
 
-        return false;
+        return $result;
+    }
+
+    /** 
+     * Méthode pour les conditions de cloture d'un ticket
+     * 
+     * @param DemandeSupportInformatique $ticket le ticket à cloturer
+     * 
+     * @return array
+     */
+    private function conditionCloturerTicket(DemandeSupportInformatique $ticket): array
+    {
+        $result = [];
+
+        $idUtilisateur  = $this->sessionService->get('user_id');
+
+        /** 
+         * @var User $utilisateur l'utilisateur connecté
+         */
+        $utilisateur    = self::$em->getRepository(User::class)->find($idUtilisateur);
+
+        if (in_array("VALIDATEUR", $utilisateur->getRoleNames())) {
+            $result['profil'] = 2;
+        } else if ($ticket->getUserId()->getId() === $utilisateur->getId()) {
+            $result['profil'] = 1;
+        } else if (in_array("INTERVENANT", $utilisateur->getRoleNames())) {
+            $result['profil'] = 0;
+        } else {
+            $result['profil'] = -1;
+        }
+
+        $result['statut'] = $ticket->getIdStatutDemande()->getId();
+
+        return $result;
+    }
+
+    /** 
+     * Méthode pour les conditions de réouverture d'un ticket
+     * 
+     * @param DemandeSupportInformatique $ticket le ticket à cloturer
+     * 
+     * @return array
+     */
+    private function conditionReouvrirTicket(DemandeSupportInformatique $ticket): array
+    {
+        $result = [];
+
+        $idUtilisateur  = $this->sessionService->get('user_id');
+
+        /** 
+         * @var User $utilisateur l'utilisateur connecté
+         */
+        $utilisateur    = self::$em->getRepository(User::class)->find($idUtilisateur);
+
+        $result['profil'] = ($ticket->getUserId()->getId() === $utilisateur->getId()) ? 1 : 0;
+        $result['statut'] = $ticket->getIdStatutDemande()->getId();
+
+        return $result;
     }
 }

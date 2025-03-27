@@ -636,4 +636,15 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->getSingleScalarResult()
         ;
     }
+
+    public function findNumeroOrDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 }

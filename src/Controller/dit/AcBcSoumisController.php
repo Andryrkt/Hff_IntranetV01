@@ -59,7 +59,7 @@ class AcBcSoumisController extends Controller
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
             $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         }
-        
+
         $acSoumis = $this->initialisation($devis, $numDit);
 
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
@@ -80,20 +80,20 @@ class AcBcSoumisController extends Controller
             $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
-            $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
+            $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
-            
+
             //fusionne le pdf
             $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
 
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
-            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
+            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
 
 
-            $fileUploader->fusionFichers($uploadedFiles,  $chemin.$nomFichier);
+            $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
 
 
 
@@ -148,10 +148,10 @@ class AcBcSoumisController extends Controller
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
-        $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/ac_bc/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
-        $options =[
+        $options = [
             'prefix'        => $prefix,
             'numeroDoc'     => $numClientBcDevis,
             'numeroVersion' => $numeroVersion,
