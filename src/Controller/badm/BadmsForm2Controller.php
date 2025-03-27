@@ -72,11 +72,13 @@ class BadmsForm2Controller extends Controller
                 $message = 'compléter tous les champs obligatoires';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-            } elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
+            } 
+            elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
                 $message = 'ce matériel est déjà en PARC';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-            } elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
+            } 
+            elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                 $message = 'le choix du type devrait être Changement de Casier';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
