@@ -11,6 +11,7 @@ configuration_lanto_hasina.txt
 configuration_prod.txt
 /var/log/app_errors.log
 src/Controller/pdf/
+src/Controller/authentification.csv
 Dossiers ORs
 react-app
 .vscode

@@ -47,9 +47,14 @@ trait DitTrait
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
             if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                if($dits->getInternetExterne() == 'INTERNE') {
+                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                } else {
+                    $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                }
+                
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                    $message = 'ce matériel n\'est pas enregistré dans IPS';
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
@@ -114,10 +119,15 @@ trait DitTrait
         $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+            if($dits->getInternetExterne() == 'INTERNE') {
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            } else {
+                $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            }
 
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                $message = 'ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel
@@ -223,14 +233,12 @@ trait DitTrait
     /**
      * INFO AJOUTER MANUELEMENT des entités DANS LA CLASSE DEMANDE D'INTERVENTION
      *
-     * @param [type] $form
+     * @param [type] $dits
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
-    {
-        $dits = $form->getData();
-        
+    private function infoEntrerManuel($dits, $em, $user) : DemandeIntervention
+    {        
             $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));

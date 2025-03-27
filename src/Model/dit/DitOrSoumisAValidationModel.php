@@ -253,6 +253,8 @@ class DitOrSoumisAValidationModel extends Model
             )
             and statut not like ('%Validé%')
             and statut not like ('%Refusé%')
+            and statut <> 'Livré partiellement'
+            and statut = 'Livré'
         ";
 
         return $this->retournerResult28($sql);
@@ -261,12 +263,25 @@ class DitOrSoumisAValidationModel extends Model
     public function constructeurPieceMagasin(string $numOr)
     {
         $statement = " SELECT
-            slor.slor_constp as constructeur
-            from sav_lor slor
-            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
-            and slor.slor_typlig = 'P' 
-            and seor.seor_numor = '".$numOr."'
+            CASE
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('CP')
+            
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('C')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                THEN TRIM('N')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                THEN TRIM('P')
+            END AS retour
+        FROM sav_lor
+        WHERE slor_numor = '".$numOr."'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -278,7 +293,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function countAgServDebit($numOr)
     {
-        $statement = " SELECT count(distinct sitv_servdeb) 
+        $statement = " SELECT count(distinct sitv_servdeb) as retour
                     from sav_itv 
                     where sitv_numor = '{$numOr}'
         ";

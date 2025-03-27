@@ -36,6 +36,8 @@ class DitModel extends Model
       }
       
 
+
+    
         $statement = "SELECT
 
         mmat_marqmat as constructeur,
@@ -57,13 +59,15 @@ class DitModel extends Model
 
       FROM MAT_MAT, mat_bil
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-      --and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
       and mbil_dateclot = '12/31/1899'
       ".$conditionNummat."
       ".$conditionNumParc."
       ".$conditionNumSerie."
       ";
+      
+
+        
 
         $result = $this->connect->executeQuery($statement);
 
@@ -73,6 +77,62 @@ class DitModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function infoMaterielExterne($matricule = '0',  $numParc = '0', $numSerie = '0')
+    {
+
+      if($matricule === '' || $matricule === '0' || $matricule === null){
+        $conditionNummat = "";
+      } else {
+        $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+      }
+
+
+      if($numParc === '' || $numParc === '0' || $numParc === null){
+        $conditionNumParc = "";
+      } else {
+        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+      }
+
+      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
+        $conditionNumSerie = "";
+      } else {
+        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+      }
+
+      $statement=" SELECT FIRST 1
+        mmat_marqmat as constructeur,
+        trim(mmat_desi) as designation,
+        trim(mmat_typmat) as modele,
+        trim(mmat_numparc) as casier_emetteur,
+        mmat_nummat as num_matricule,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc,
+
+        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
+
+        0 as Prix_achat,
+        0 as Amortissement,
+
+        0 as ChiffreAffaires,
+        0 as ChargeLocative,
+        0 as ChargeEntretien
+
+      FROM MAT_MAT, mat_bil
+      WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      and mbil_dateclot = '12/31/1899'
+      ".$conditionNummat."
+      ".$conditionNumParc."
+      ".$conditionNumSerie."
+      ";
+
+    
+      $result = $this->connect->executeQuery($statement);
+
+      $data = $this->connect->fetchResults($result);
+
+      return $this->convertirEnUtf8($data);
+    }
 
     public function historiqueMateriel($idMateriel) {
 
@@ -432,7 +492,7 @@ class DitModel extends Model
               AND seor_soc = 'HF'
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
-          AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+          --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
           AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '".$numOr."'
           --AND SEOR_SUCC = '01'

@@ -50,13 +50,11 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
         return [
             'App' => [
-                'user'         => $user,
-                'base_path'    => $_ENV['BASE_PATH_COURT'],
-                'ticketing'    => [
-                    'nbrTicketResolu' => $nbrTikResolu ?? '',
-                ],
-                'session'      => $this->session,
-                'request'      => $this->requestStack->getCurrentRequest(),
+                'user' => $user,
+                'base_path' => $_ENV['BASE_PATH_COURT'],
+                'base_path_long' => $_ENV['BASE_PATH_FICHIER'],
+                'session' => $this->session,
+                'request' => $this->requestStack->getCurrentRequest(),
                 'notification' => $notification,
             ],
         ];

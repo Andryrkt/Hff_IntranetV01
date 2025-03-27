@@ -105,8 +105,10 @@ class DitListeController extends Controller
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
-                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VP') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VP']);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VA') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VA']);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
                 $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
@@ -195,7 +197,7 @@ class DitListeController extends Controller
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
         $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_ENV['BASE_PATH_FICHIER'].'/dit/csv/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),

@@ -156,7 +156,6 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'required' => true,
-            
             ])
             ->add('serviceAutoriser',
             EntityType::class,

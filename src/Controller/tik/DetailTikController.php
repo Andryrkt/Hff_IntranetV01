@@ -6,7 +6,6 @@ use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\tik\EnvoiFichier;
 use App\Entity\admin\StatutDemande;

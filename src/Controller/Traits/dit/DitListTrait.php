@@ -603,7 +603,7 @@ trait DitListTrait
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
             // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57) {
+            elseif ($value->getIdStatutDemande()->getId() === 57) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
                 $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);

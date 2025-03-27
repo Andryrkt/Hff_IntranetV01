@@ -38,7 +38,7 @@ class DitFactureSoumisAValidationController extends Controller
         $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
-        $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'].'/vfac/');
+        $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'] . '/vfac/');
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
@@ -71,17 +71,18 @@ class DitFactureSoumisAValidationController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             //$demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
-            $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
+
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
 
-            if (strpos($originalName, 'FACTURE CESSION') !== 0 || strpos($originalName, 'FACTURE-BON DE LIVRAISION') !== 0) {
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
 
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
+
+            $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
 
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
 
@@ -89,17 +90,17 @@ class DitFactureSoumisAValidationController extends Controller
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
-
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } elseif ($nbFactSqlServer > 0) {
-                $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
-
-                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } else {
+            }
+            //suite à la demande de diamondra facture 18644681 cas de facture refusé à soumettre validation pour être validé
+            // elseif ($nbFactSqlServer > 0) {
+            //     $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
+            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            // } 
+            else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
@@ -117,12 +118,8 @@ class DitFactureSoumisAValidationController extends Controller
                     $interneExterne = $this->ditRepository->findInterneExterne($numDit);
                     /** CREATION PDF */
                     $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
-                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission());
-                    // dd($pathPageDeGarde, $pathFichiers, $interneExterne);
-                    // dd('Une erreur s\'est produite');
-                    /**
-                     * TODO : facture pour le client externe
-                     */
+                    $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
+
                     if ($interneExterne === 'INTERNE') {
                         $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
                         $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
@@ -131,7 +128,6 @@ class DitFactureSoumisAValidationController extends Controller
                         $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                         $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers);
                     }
-
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
@@ -158,7 +154,7 @@ class DitFactureSoumisAValidationController extends Controller
         $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
         $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
         $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
-        $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
+        $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
         $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
 
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
@@ -167,11 +163,16 @@ class DitFactureSoumisAValidationController extends Controller
         return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur'], $interneExterne);
     }
 
-    public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission): array
+    public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission, $interneExterne): array
     {
+        if ($interneExterne == 'INTERNE') {
+            $prefix = 'factureValidation';
+        } else {
+            $prefix = 'validation_facture_client';
+        }
 
         $options = [
-            'prefixFichier' => 'factureValidation',
+            'prefixFichier' => $prefix,
             'numeroDoc' => $numeroFac,
             'numeroVersion' => $numeroSoumission,
         ];

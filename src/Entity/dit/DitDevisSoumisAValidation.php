@@ -104,6 +104,11 @@ class DitDevisSoumisAValidation
      */
     private $natureOperation;
 
+    /**
+     * @ORM\Column(type="string", length=5)
+     */
+    private $type;
+
     private $pieceJoint01;
 
     private $pieceJoint02;
@@ -135,6 +140,12 @@ class DitDevisSoumisAValidation
      */
     private ?float $montantVente=0.00;
 
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @var integer
+     */
+    private int $nombreLignePiece;
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -686,9 +697,55 @@ class DitDevisSoumisAValidation
         return $this;
     }
 
+
+    /**
+     * Get the value of type
+     */ 
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */ 
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
     // Comparaison des objets par leur numero d'intervention
     public function estEgalParNumero(DitDevisSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
+    }
+    
+
+    /**
+     * Get the value of nombreLignePiece
+     *
+     * @return  integer
+     */ 
+    public function getNombreLignePiece()
+    {
+        return $this->nombreLignePiece;
+    }
+
+    /**
+     * Set the value of nombreLignePiece
+     *
+     * @param  integer  $nombreLignePiece
+     *
+     * @return  self
+     */ 
+    public function setNombreLignePiece($nombreLignePiece)
+    {
+        $this->nombreLignePiece = $nombreLignePiece;
+
+        return $this;
     }
 }

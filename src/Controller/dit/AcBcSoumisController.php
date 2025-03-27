@@ -17,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
-use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class AcBcSoumisController extends Controller
 {
@@ -52,14 +51,14 @@ class AcBcSoumisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+
         $devis = $this->filtredataDevis($numDit);
 
 
-        // if (empty($devis)) {
-        //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
-        //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        // }
+        if (empty($devis)) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        }
 
         $acSoumis = $this->initialisation($devis, $numDit);
 
@@ -68,7 +67,6 @@ class AcBcSoumisController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
 
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
@@ -81,18 +79,23 @@ class AcBcSoumisController extends Controller
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
             $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $suffix = $this->pieceGererMagasinConstructeur($numDevis);
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
             $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
 
             //fusionne le pdf
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+            $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
+
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
-            $fileUploader->fusionFichers($uploadedFiles, $chemin . $nomFichier);
+
+
+            $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
+
+
 
             //envoie le pdf dans docuware
             $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
@@ -110,29 +113,29 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
-    private function pieceGererMagasinConstructeur($numDevis)
-    {
-        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+    // private function pieceGererMagasinConstructeur($numDevis)
+    // {
+    //     $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
-        if (isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+    //     if(isset($constructeur[0])) {
+    //         $containsCAT = in_array("CAT", $constructeur[0]);
+    //         $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
 
-            if ($containsOther === 0) {
-                $suffix = 'C';
-            } else if (!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
-        }
+    //         if($containsOther === 0) {
+    //             $suffix = 'C';
+    //         } else if(!$containsCAT) {
+    //             $suffix = 'P';
+    //         } else if ($containsOther > 0 ) {
+    //             $suffix = 'CP';
+    //         } else {
+    //             $suffix = 'N';
+    //         }
+    //     } else {
+    //         $suffix = 'N';
+    //     }
 
-        return $suffix;
-    }
+    //     return $suffix;
+    // }
 
     private function filtredataDevis($numDit)
     {
@@ -149,8 +152,8 @@ class AcBcSoumisController extends Controller
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
         $options = [
-            'prefix' => $prefix,
-            'numeroDoc' => $numClientBcDevis,
+            'prefix'        => $prefix,
+            'numeroDoc'     => $numClientBcDevis,
             'numeroVersion' => $numeroVersion,
             'mainFirstPage' => true
         ];
