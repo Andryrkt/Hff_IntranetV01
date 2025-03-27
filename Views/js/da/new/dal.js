@@ -56,10 +56,11 @@ export function ajouterUneLigne() {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
+  prototype.querySelectorAll('.mb-3').forEach((el) => el.remove()); // supprimer tous les <div class="mb-3"> à l'intérieur de prototype
   createRemoveButtonAndAppendTo(prototype, row);
 
   let div = document.createElement('div');
-  div.classList.add('mt-3');
+  div.classList.add('mt-3', 'mb-3');
 
   // Ajouter la row complète dans le container
   prototype.appendChild(row);

@@ -88,6 +88,17 @@ export class AutoComplete {
     }
   }
 
+  onBlur() {
+    const inputValue = this.inputElement.value.trim().toLowerCase();
+
+    // Vérifie si la valeur saisie est dans les suggestions filtrées
+    const found = this.filteredData.some(
+      (item) => this.itemToString(item).toLowerCase() === inputValue
+    );
+
+    return found;
+  }
+
   updateActiveSuggestion(suggestions) {
     suggestions.forEach((s, index) => {
       if (index === this.activeIndex) {
