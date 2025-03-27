@@ -110,18 +110,19 @@ class DitDevisSoumisAValidationController extends Controller
         $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis);
 
         if($type === 'VP') {
-            
-            if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il n'y a pas de pièce magasin et pas de nouvelle ligne
-                $message = " Merci de passer le devis à validation au magasin ";
-                $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } else if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
+            /** suite à la demande de mianta devis avec piece magasin mais pas de nouvelle ligne */
+            // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il y a  de pièce magasin et pas de nouvelle ligne
+            //     $message = " Merci de passer le devis à validation à l'atelier ";
+            //     $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
+            // } else
+             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } 
-            else if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") {// il n'y a pas de pièce magasin
+            elseif ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") {// il n'y a pas de pièce magasin
                 $message = " Pas de vérification à faire par le magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } else if((int)$devisValide !== 0) {
+            } elseif((int)$devisValide !== 0) {
                 $message = " Une version du devis est déjà validé ";
                 $this->historiqueOperation->sendNotificationSoumissionSansRedirection($message, $numDevis, 'dit_index');
                 $this->sessionService->set('devis_version_valide', 'OK');
