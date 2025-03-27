@@ -18,6 +18,7 @@ use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -156,11 +157,15 @@ class User implements UserInterface
      */
     private $supportInfoValidateur;
 
-
     /**
      * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
      */
     private $tikPlanningUser;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="user")
+     */
+    private $replanificationUser;
 
     /**
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
@@ -605,7 +610,7 @@ class User implements UserInterface
     {
         if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUserId($this);
+            $tikPlanningUser->setUser($this);
         }
 
         return $this;
@@ -615,8 +620,8 @@ class User implements UserInterface
     {
         if ($this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUserId() === $this) {
-                $tikPlanningUser->setUserId(null);
+            if ($tikPlanningUser->getUser() === $this) {
+                $tikPlanningUser->setUser(null);
             }
         }
 
@@ -724,7 +729,7 @@ class User implements UserInterface
      * Get the value of numTel
      *
      * @return  string
-     */ 
+     */
     public function getNumTel()
     {
         return $this->numTel;
@@ -736,7 +741,7 @@ class User implements UserInterface
      * @param  string  $numTel
      *
      * @return  self
-     */ 
+     */
     public function setNumTel(string $numTel)
     {
         $this->numTel = $numTel;
@@ -748,7 +753,7 @@ class User implements UserInterface
      * Get the value of poste
      *
      * @return  string
-     */ 
+     */
     public function getPoste()
     {
         return $this->poste;
@@ -760,10 +765,30 @@ class User implements UserInterface
      * @param  string  $poste
      *
      * @return  self
-     */ 
+     */
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationUser
+     */
+    public function getReplanificationUser()
+    {
+        return $this->replanificationUser;
+    }
+
+    /**
+     * Set the value of replanificationUser
+     *
+     * @return  self
+     */
+    public function setReplanificationUser($replanificationUser)
+    {
+        $this->replanificationUser = $replanificationUser;
 
         return $this;
     }

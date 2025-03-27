@@ -37,9 +37,8 @@
 							<thead class="table-dark">
 								<tr>
 									<th>Actions</th>
-									<th>Description</th>
-									<th>Sous-catégories</th>
-
+									<th>Catégorie</th>
+									<th>Sous-catégorie(s)</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -93,8 +92,9 @@
 							<thead class="table-dark">
 								<tr>
 									<th>Actions</th>
-									<th>Description de la sous-catégorie</th>
-									<th>Autres Catégories liées</th>
+									<th>Sous-catégorie</th>
+									<th>Catégorie(s) liée(s)</th>
+									<th>Autre(s) Catégorie(s) liée(s)</th>
 
 								</tr>
 							</thead>
@@ -117,6 +117,15 @@
 											</div>
 										</td>
 										<td>{{item.description}}</td>
+										<td>
+											<ul>
+												{% for c in item.categories %}
+													<li>
+														{{c.description}}
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
 										<td>
 											<ul>
 												{% for autreCategorie in item.autresCategories %}
@@ -148,7 +157,7 @@
 							<thead class="table-dark">
 								<tr>
 									<th>Actions</th>
-									<th>Description</th>
+									<th>Autre catégorie</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -177,7 +186,6 @@
 						</table>
 					</div>
 				</div>
-
 			</div>
 		</div>
 	</div>

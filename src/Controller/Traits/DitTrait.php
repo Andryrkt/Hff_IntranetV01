@@ -47,9 +47,14 @@ trait DitTrait
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
             if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                if($dits->getInternetExterne() == 'INTERNE') {
+                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                } else {
+                    $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                }
+                
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                    $message = 'ce matériel n\'est pas enregistré dans IPS';
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
@@ -114,10 +119,15 @@ trait DitTrait
         $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+            if($dits->getInternetExterne() == 'INTERNE') {
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            } else {
+                $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            }
 
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                $message = 'ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel

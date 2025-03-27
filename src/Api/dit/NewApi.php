@@ -61,4 +61,5 @@ class NewApi extends Controller
 
         $this->testJson($jsonData);
     }
+
 }

@@ -17,7 +17,8 @@ numeral.register('locale', 'fr-custom', {
 numeral.locale('fr-custom');
 
 export function formatMontant(montant) {
-  return numeral(montant).format(0, 0);
+  let result = numeral(montant).format(0, 0);
+  return result == 0 ? '' : result;
 }
 
 export function parseMontant(montantStr) {

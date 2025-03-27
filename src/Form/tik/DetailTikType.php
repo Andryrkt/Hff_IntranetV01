@@ -20,9 +20,8 @@ use App\Repository\admin\tik\TkiCategorieRepository;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
-use App\Repository\admin\tik\TkiSousCategorieRepository;
-use App\Repository\admin\tik\TkiAutreCategorieRepository;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class DetailTikType extends AbstractType
@@ -30,7 +29,10 @@ class DetailTikType extends AbstractType
     private User $connectedUser;
     private $sousCategorieRepository;
     private $categoriesRepository;
-
+    const DAY_PART = [
+        'AM (08:00 - 12:00)' => 'AM',
+        'PM (13:30 - 17:30)' => 'PM'
+    ];
 
     public function __construct()
     {
@@ -43,11 +45,6 @@ class DetailTikType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $idStatut      = $options['data']->getIdStatutDemande()->getId();
-        $statutOuvert  = $idStatut == '79';
-        $validateur    = in_array("VALIDATEUR", $this->connectedUser->getRoleNames());
-        $intervenant   = in_array("INTERVENANT", $this->connectedUser->getRoleNames());
-        $disabled      = ($statutOuvert) ? !$validateur : $intervenant;
         $builder
             ->add('categorie', EntityType::class, [
                 'label'        => 'Catégorie',
@@ -61,7 +58,6 @@ class DetailTikType extends AbstractType
                 'data'         => $options['data']->getCategorie(),
                 'attr'         => [
                     'class'    => 'categorie',
-                    'disabled' => $disabled,
                 ],
                 'placeholder'  => '-- Choisir une catégorie --',
                 'multiple'     => false,
@@ -82,31 +78,32 @@ class DetailTikType extends AbstractType
                     $autresCategories = $data->getSousCategorie()->getAutresCategories();
                 }
 
-                $form->add('sousCategorie', EntityType::class, [
-                    'label' => 'Sous Catégorie',
-                    'class' => TkiSousCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie--',
-                    'required' => false,
-                    'choices' => $sousCategorie,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'sous-categorie']
-                ]);
-
-                $form->add('autresCategorie', EntityType::class, [
-                    'label' => 'Autres Catégories',
-                    'class' => TkiAutresCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie--',
-                    'required' => false,
-                    'choices' => $autresCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'autre-categorie']
-                ]);
+                $form
+                    ->add('sousCategorie', EntityType::class, [
+                        'label' => 'Sous Catégorie',
+                        'class' => TkiSousCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une sous categorie --',
+                        'required' => false,
+                        'choices' => $sousCategorie,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'sous-categorie']
+                    ])
+                    ->add('autresCategorie', EntityType::class, [
+                        'label' => 'Autres Catégories',
+                        'class' => TkiAutresCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une autre categorie --',
+                        'required' => false,
+                        'choices' => $autresCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'autre-categorie']
+                    ])
+                ;
             })
 
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -134,38 +131,36 @@ class DetailTikType extends AbstractType
                     }
                 }
 
-                $form->add('sousCategorie', EntityType::class, [
-                    'label' => 'Sous Catégorie',
-                    'class' => TkiSousCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une sous categorie--',
-                    'required' => false,
-                    'choices' => $sousCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'sous-categorie']
-                ]);
-
-                $form->add('autresCategorie', EntityType::class, [
-                    'label' => 'Autres Catégories',
-                    'class' => TkiAutresCategorie::class,
-                    'choice_label' => 'description',
-                    'placeholder' => '-- Choisir une autre categorie--',
-                    'required' => false,
-                    'choices' => $autresCategories,
-                    'query_builder' => function (EntityRepository $tkiCategorie) {
-                        return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
-                    },
-                    'attr' => ['class' => 'autres-categories']
-                ]);
+                $form
+                    ->add('sousCategorie', EntityType::class, [
+                        'label' => 'Sous Catégorie',
+                        'class' => TkiSousCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une sous categorie --',
+                        'required' => false,
+                        'choices' => $sousCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'sous-categorie']
+                    ])
+                    ->add('autresCategorie', EntityType::class, [
+                        'label' => 'Autres Catégories',
+                        'class' => TkiAutresCategorie::class,
+                        'choice_label' => 'description',
+                        'placeholder' => '-- Choisir une autre categorie --',
+                        'required' => false,
+                        'choices' => $autresCategories,
+                        'query_builder' => function (EntityRepository $tkiCategorie) {
+                            return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
+                        },
+                        'attr' => ['class' => 'autres-categories']
+                    ])
+                ;
             })
             ->add('niveauUrgence', EntityType::class, [
                 'label'        => 'Niveau d\'urgence',
                 'choice_label' => 'description',
-                'attr'         => [
-                    'disabled' => $disabled
-                ],
                 'placeholder'  => '-- Choisir le niveau d\'urgence --',
                 'class'        => WorNiveauUrgence::class,
                 'query_builder' => function (WorNiveauUrgenceRepository $WorNiveauUrgenceRepository) {
@@ -192,23 +187,21 @@ class DetailTikType extends AbstractType
                 'multiple'     => false,
                 'expanded'     => false,
             ])
-            ->add('dateDebutPlanning', DateTimeType::class, [
+            ->add('dateDebutPlanning', DateType::class, [
                 'label'      => 'Début planning',
-                'attr'       => [
-                    'disabled' => !$disabled,
-                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
-                ],
                 'widget'     => 'single_text', // Permet de gérer la date et l'heure en un seul champ
                 'required'   => false,
             ])
-            ->add('dateFinPlanning', DateTimeType::class, [
+            ->add('dateFinPlanning', DateType::class, [
                 'label'      => 'Fin planning',
-                'attr'       => [
-                    'disabled' => !$disabled,
-                    'type'     => 'datetime-local' // Utilisation de l'input datetime-local
-                ],
                 'widget'     => 'single_text',
                 'required'   => false,
+            ])
+            ->add('partOfDay', ChoiceType::class, [
+                'label' => 'Période de la journée du planning',
+                'choices' => self::DAY_PART,
+                'placeholder' => '-- Choisir une période de la journée --',
+                'required' => false,
             ])
             ->add('commentaires', TextareaType::class, [
                 'label'    => false,

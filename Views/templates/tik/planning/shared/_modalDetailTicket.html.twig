@@ -1,0 +1,36 @@
+<div class="modal fade" id="modalDetailTicket" tabindex="-1" aria-labelledby="modalDetailTicketLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalDetailTicketLabel">Détail du ticket de premier niveau</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				{{ form_start(form, { 'attr': { 'id': 'eventForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="mb-3">
+					{{ form_row(form.objetDemande)}}
+				</div>
+				<div class="mb-3">
+					{{ form_row(form.detailDemande)}}
+				</div>
+				<div class="mb-3">
+					{{ form_row(form.dateDebutPlanning)}}
+				</div>
+				<div class="mb-3">
+					{{ form_row(form.dateFinPlanning)}}
+				</div>
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+				</div>
+				{{ form_end(form) }}
+			</div>
+			<div class="modal-footer">
+				<a type="button" class="btn bouton" href="{{ path("detail_tik", { id: id }) }}">Détail complet du ticket</a>
+			</div>
+		</div>
+	</div>
+</div>

@@ -2,22 +2,34 @@
 
 {% block title %}planning ticket
 {% endblock %}
+
 {% block stylesheets %}
 	<!-- Flatpickr CSS -->
+	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/calendar.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-	<link href="{{ App.base_path }}/Views/css/tik/calendar.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-
-	<div id="calendar" style="max-width: 900px; margin: auto;"></div>
+	<div class="position-sticky sticky-header">
+		<div class="container">
+			<h3 class="perso-titre">
+				Calendrier du planning
+			</h3>
+			{% include "/tik/planning/shared/_formulaireRecherche.html.twig" %}
+		</div>
+	</div>
+	<div class="container">
+		<div id="calendar"></div>
+	</div>
 
 	{% include "/tik/planning/shared/_modalCalendar.html.twig" %}
 {% endblock %}
+
 {% block javascript %}
 	<!-- Flatpickr JavaScript -->
 	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 	<!-- Fullcalendar JavaScript -->
 	<script src="https://cdn.jsdelivr.net/npm/fullcalendar/index.global.min.js"></script>
-	<script src="{{ App.base_path }}/Views/js/tik/calendar.js" type="module"></script>
+	<script type="module" src="/Hffintranet/Views/js/tik/calendar.js"></script>
 {% endblock %}

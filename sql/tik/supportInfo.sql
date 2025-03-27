@@ -18,6 +18,7 @@ CREATE TABLE Demande_Support_Informatique(
 	Piece_Jointe1 varchar(200) NULL,
 	Piece_Jointe2 varchar(200) NULL,
 	Piece_Jointe3 varchar(200) NULL,
+	part_day_planning varchar(2) NULL,
 	Date_Deb_Planning datetime2(0) NULL,
 	Date_Fin_Planning datetime2(0) NULL,
 	ID_Projet_Informatique int NULL,

@@ -11,34 +11,32 @@
 
 {% block content %}
 	<div class=" container">
-
 		<div class="card">
 			<div class="card-body">
 				<div class="dropzone" id="dropzone">
+					{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
 					<div class="container">
 						<div class="row">
 							<div class="col-12 col-md-11">
-								<h3 class="perso-titre">
+								<h3 class="perso-titre" id="user-email" data="{{ App.user.mail }}">
 									Formulaire Demande de support informatique
 								</h3>
 							</div>
-
 							<div class=" col-12 col-md-1">
 								<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
 							</div>
 						</div>
-						{{ form_start(form, { 'attr': { 'enctype': 'multipart/form-data' } }) }}
-
 						{{ form_errors(form)}}
-
 						<div class="row">
-
 							<div class="col-12 col-md-6">
-
+								{{ macroForm.sousTitre('Demande')}}
 								{{ form_row(form.objetDemande)}}
 								{{ form_row(form.detailDemande)}}
-
 								<div class="row">
+									<div class=" mt-1 sousTitre">
+										<h3>Autres informations</h3>
+										<div></div>
+									</div>
 									<div class="col-12 col-md-6">
 										{{ form_row(form.categorie)}}
 										{{ form_row(form.dateFinSouhaitee)}}
@@ -49,69 +47,60 @@
 									</div>
 								</div>
 							</div>
-
 							<div class="col-12 col-md-6">
-								{{ macroForm.sousTitre('Agence et Service', {class: 'sousTitre'})}}
-								<div class="row">
-									<div class="sousTitre col-12 col-md-6 mt-2">
-										<h3>Débiteur</h3>
-										<div></div>
-									</div>
-									<div class="sousTitre col-12 col-md-6 mt-2">
-										<h3>Emetteur</h3>
-										<div></div>
-									</div>
-								</div>
-
+								{{ macroForm.sousTitre('Agence et Service')}}
 								<div class="row">
 									<div class="col-12 col-md-6">
 										{{ form_row(form.agence)}}
 										{{ form_row(form.service)}}
-
 									</div>
 									<div class="col-12 col-md-6">
 										{{ form_row(form.agenceEmetteur)}}
 										{{ form_row(form.serviceEmetteur)}}
 									</div>
-
 								</div>
-								<div class=" mt-4 sousTitre">
-									<h3>Pièces Jointes<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
+								<div class=" mt-1 sousTitre">
+									<h3>
+										Pièces Jointes
+										<i class="fas fa-paperclip" id="paperclip-icon" data-bs-toggle="tooltip" title="Ajouter des fichiers"></i>
+										<i class="fas fa-info-circle" id="info-icon"></i>
 									</h3>
 									<div></div>
 								</div>
-
-
 								<div class="file-upload-wrapper">
 									<label for="file-input">
-
 										{{ form_widget(form.fileNames, {'attr': {'class': 'file-input', 'id': 'file-input', 'multiple': true, 'style': 'display: none'}}) }}
 									</label>
 									<ul id="file-list" class="file-list"></ul>
 									{{ form_errors(form.fileNames) }}
 								</div>
-
-
 							</div>
-
-
+						</div>
+					</div>
+					<div class="notice" id="notice">
+						<span class="notice-icon">
+							<i class="fas fa-info-circle"></i>
+						</span>
+						<div class="notice-content">
+							Pour joindre vos pièces jointes, vous pouvez glisser-déposer vos pièces jointes dans la zone en pointillés
+							<span class="little-dropzone"></span>
+							, ou bien cliquer sur l'icône de trombone
+							<i class="fas fa-paperclip"></i>.
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton ajout-overlay" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
+						<button type="submit" class="btn bouton ajout-overlay" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
 					</div>
-
 					{{ form_end(form) }}
 				</div>
-
 			</div>
 		</div>
-
 		<div id="materielInfos"></div>
 	</div>
+	{% include "/tik/demandeSupportInformatique/shared/_modalNouveauTicket.html.twig"  %}
 {% endblock %}
 
 {% block javascript %}

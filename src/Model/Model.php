@@ -20,7 +20,6 @@ class Model
 
     public function __construct()
     {
-
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();

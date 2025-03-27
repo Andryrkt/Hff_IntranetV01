@@ -117,7 +117,7 @@ class AcSoumisType extends AbstractType
                 'label' => 'Montant devis',
                 'data' => $this->formatNumber($options['data']->getMontantDevis()),
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => false
                 ]
             ])
             ->add('emailContactHff', TextareaType::class,

@@ -1,32 +1,75 @@
+{% import "macroForm.html.twig" as macroForm %}
+
 <div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
 		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="eventModalLabel">Ajouter un événement</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			<div class="modal-header bg-black text-white">
+				<h5 class="modal-title" id="eventModalLabel">Détail de premier niveau du planning</h5>
+				<span type="button" data-bs-dismiss="modal" aria-label="Close">
+					<i class="fas fa-times" style="font-size: x-large;"></i>
+				</span>
 			</div>
 			<div class="modal-body">
-				{{ form_start(form, { 'attr': { 'id': 'eventForm' } }) }}
-				{{ form_errors(form)}}
-				<div class="mb-3">
-					{{ form_row(form.objetDemande)}}
+				{{ macroForm.sousTitre3('Ticket', { id: '', class: 'sousTitre' })}}
+				<div class="row">
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Numéro du ticket', 'px-2 py-1', '', 'numeroTicket') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Date de création', 'px-2 py-1', '', 'dateCreation') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Date de fin souhaitée', 'px-2 py-1', '', 'dateFinSouhaite') }}
+					</div>
 				</div>
-				<div class="mb-3">
-					{{ form_row(form.detailDemande)}}
+				<div class="row">
+					<div class="col-md-6">
+						{{ macroForm.sousTitre3('Demande', { id: '', class: 'mt-4 sousTitre' })}}
+						{{ macroForm.affichage3('Nom du demandeur', 'px-2 py-1', '', 'demandeur') }}
+						{{ macroForm.affichage3('Objet de la demande', 'px-2 py-1', '', 'objetDemande') }}
+						{{ macroForm.affichageHTML2('Détail de la demande', 'px-2 py-1', '', 'detailDemande') }}
+					</div>
+					<div class="col-md-6">
+						{{ macroForm.sousTitre3('Intervention', { id: '', class: 'mt-4 sousTitre' })}}
+						{{ macroForm.affichage3('Catégorie', 'px-2 py-1', '', 'categorie')}}
+						{{ macroForm.affichage3('Intervenant', 'px-2 py-1', '', 'intervenant')}}
+					</div>
 				</div>
-				<div class="mb-3">
-					{{ form_row(form.dateDebutPlanning)}}
+				{{ macroForm.sousTitre3('Planification', { id: '', class: 'mt-4 sousTitre' })}}
+				<div class="row">
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Date de planification', 'px-2 py-1', '', 'datePlanification') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Début planning', 'px-2 py-1', '', 'debutPlanning') }}
+					</div>
+					<div class="col-md-4">
+						{{ macroForm.affichage3('Fin planning', 'px-2 py-1', '', 'finPlanning') }}
+					</div>
 				</div>
-				<div class="mb-3">
-					{{ form_row(form.dateFinPlanning)}}
-				</div>
-				<div class="d-flex justify-content-end">
-					<button type="submit" class="btn bouton" id="formDit" onclick="return confirm('Veuillez vérifier attentivement avant d\'envoyer.')">
-						<i class="fas fa-save"></i>
-						Enregistrer
-					</button>
-				</div>
-				{{ form_end(form) }}
+			</div>
+			<div class="modal-footer">
+				<a type="button" id="linkDetail" class="btn bouton" href="{{ path("detail_tik", { id: 0}) }}">Détail complet</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="replanificationModal" tabindex="-1" aria-labelledby="replanificationModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="replanificationModalLabel">Replanification de ticket</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body fs-6">
+				Êtes-vous certain(e) de vouloir reprogrammer ce ticket pour le
+				<span id="date-replanification-content" class="fs-6"></span>
+				?
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" id="refuseReplanification" data-bs-dismiss="modal">Non</button>
+				<a type="button" class="btn bouton" id="confirmReplanification">Oui</a>
 			</div>
 		</div>
 	</div>

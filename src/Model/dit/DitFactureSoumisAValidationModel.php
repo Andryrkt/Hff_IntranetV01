@@ -179,7 +179,7 @@ class DitFactureSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        AND sitv_servcrt IN ('ATE','FOR','MAN','GAR','CSP','MAS', 'LR6', 'LST')
+        --AND sitv_servcrt IN ('ATE','FOR','MAN','GAR','CSP','MAS', 'LR6', 'LST')
         AND seor_numor = '".$numOr."'
         AND slor_numfac = '".$numFact."'
         --AND SEOR_SUCC = '01'
@@ -311,7 +311,7 @@ class DitFactureSoumisAValidationModel extends Model
                 WHERE 
                     slor_soc = 'HF'
                     AND seor_serv = 'SAV'
-                    AND slor_constp IN (".GlobalVariablesService::get('tous').")
+                    --AND slor_constp IN (".GlobalVariablesService::get('tous').")
                     AND slor_numor = '".$numOr."'
                     AND TRUNC(slor_nogrp / 100) IN (".$numItv.")
                 GROUP BY 

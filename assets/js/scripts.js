@@ -16,6 +16,9 @@ let timeRemaining = totalTime;
 const chronoText = document.getElementById("chrono-text");
 const chronoContainer = document.querySelector(".chrono-container");
 const chronoProgress = document.querySelector(".chrono-progress");
+const chronoText = document.getElementById("chrono-text");
+const chronoContainer = document.querySelector(".chrono-container");
+const chronoProgress = document.querySelector(".chrono-progress");
 
 if (location.pathname === `${baseUrl}/` && chronoContainer != null) {
   chronoContainer.classList.add("d-none");
@@ -33,9 +36,12 @@ function updateChrono() {
     // Logique des couleurs
     if (progressPercentage > 50) {
       chronoProgress.style.backgroundColor = "#4caf50"; // Vert
+      chronoProgress.style.backgroundColor = "#4caf50"; // Vert
     } else if (progressPercentage > 20) {
       chronoProgress.style.backgroundColor = "#ff9800"; // Orange
+      chronoProgress.style.backgroundColor = "#ff9800"; // Orange
     } else {
+      chronoProgress.style.backgroundColor = "#f44336"; // Rouge
       chronoProgress.style.backgroundColor = "#f44336"; // Rouge
     }
   }
@@ -46,7 +52,9 @@ function updateChrono() {
   const seconds = timeRemaining % 60;
   if (chronoText?.textContent) {
     chronoText.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
+    chronoText.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
       .toString()
+      .padStart(2, "0")}`;
       .padStart(2, "0")}`;
   }
 
@@ -71,6 +79,7 @@ function resetTimeout() {
 
   // Mettre à jour l'état dans localStorage
   localStorage.setItem("session-active", Date.now());
+  localStorage.setItem("session-active", Date.now());
 
   // Redémarrer le timer du chrono
   timer = setInterval(updateChrono, 1000);
@@ -89,10 +98,18 @@ const events = [
   "touchstart",
   "click",
   "scroll",
+  "load",
+  "mousemove",
+  "keypress",
+  "touchstart",
+  "click",
+  "scroll",
 ];
 events.forEach((event) => window.addEventListener(event, resetTimeout));
 
 // Surveiller les changements dans localStorage pour synchroniser les onglets
+window.addEventListener("storage", function (event) {
+  if (event.key === "session-active") {
 window.addEventListener("storage", function (event) {
   if (event.key === "session-active") {
     resetTimeout();
@@ -101,6 +118,7 @@ window.addEventListener("storage", function (event) {
 
 // Vérification régulière de l'expiration de la session
 function checkSessionExpiration() {
+  const lastActive = localStorage.getItem("session-active");
   const lastActive = localStorage.getItem("session-active");
   const now = Date.now();
 
@@ -161,12 +179,67 @@ document.addEventListener("DOMContentLoaded", function () {
  * modal pour la déconnexion
  */
 document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
   var tooltipTriggerList = [].slice.call(
     document.querySelectorAll('[data-bs-toggle="tooltip"]')
   );
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
+});
+
+/**
+ * MODAL TYPE DE DEMANDE Paiement
+ */
+
+document.addEventListener("DOMContentLoaded", function () {
+  document
+    .getElementById("modalTypeDemande")
+    .addEventListener("click", function (event) {
+      event.preventDefault();
+      const overlay = document.getElementById("loading-overlays");
+      overlay.classList.remove("hidden");
+      const url = "api/form-type-demande"; // L'URL de votre route Symfony
+      fetchManager
+        .get(url, "text")
+        .then((html) => {
+          document.getElementById("modalContent").innerHTML = html;
+          new bootstrap.Modal(document.getElementById("formModal")).show();
+
+          // Ajouter un écouteur sur la soumission du formulaire
+          document
+            .getElementById("typeDemandeForm")
+            .addEventListener("submit", function (event) {
+              event.preventDefault();
+
+              const formData = new FormData(this);
+
+              let jsonData = {};
+              formData.forEach((value, key) => {
+                // Supprimer le préfixe `form_type_demande[...]`
+                let cleanKey = key.replace(
+                  /^form_type_demande\[(.*?)\]$/,
+                  "$1"
+                );
+                jsonData[cleanKey] = value;
+
+                console.log(jsonData.typeDemande === "1");
+              });
+
+              if (jsonData.typeDemande === "1") {
+                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
+              } else if (jsonData.typeDemande === "2") {
+                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
+              }
+            });
+        })
+        .catch((error) =>
+          console.error("Erreur lors du chargement du formulaire:", error)
+        )
+        .finally(() => {
+          overlay.classList.add("hidden");
+        });
+    });
 });
 
 /** OVERLAY */
@@ -187,6 +260,7 @@ window.addEventListener('beforeunload', function () {
 
 // Afficher l'overlay
 const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
+const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
 
 // allButtonAfficher.forEach((button) => {
 //   button.addEventListener('click', () => {
@@ -200,7 +274,10 @@ const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
 // Masquer l'overlay après le chargement de la page
 window.addEventListener("load", () => {
   const overlay = document.getElementById("loading-overlay");
+window.addEventListener("load", () => {
+  const overlay = document.getElementById("loading-overlay");
   if (overlay) {
+    overlay.classList.add("hidden"); // Masquer l'overlay après le chargement
     overlay.classList.add("hidden"); // Masquer l'overlay après le chargement
   }
 });

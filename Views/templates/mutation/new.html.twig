@@ -11,18 +11,7 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block overlay %}
-	<div id="loading-overlay" style="position: fixed;
-									top: 0;
-									left: 0;
-									width: 100%;
-									height: 100%;
-									background-color: rgba(0, 0, 0, 0.7);
-									display: flex;
-									flex-direction: column;
-									row-gap: 20px;
-									align-items: center;
-									justify-content: center;
-									z-index: 9999;">
+	<div id="loading-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; flex-direction: column; row-gap: 20px; align-items: center; justify-content: center; z-index: 9999;">
 		<div class="spinner-overlay"></div>
 		<div class="text-overlay text-white">Veuillez patienter s'il vous plaît!</div>
 	</div>
@@ -33,11 +22,11 @@
 	<div class="card">
 		<div class="card-body">
 			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
-
 				<div class="row">
 					<h3 class="perso-titre">Demande de mutation</h3>
 				</div>
+
+				{% include "/partials/_notification.html.twig" %}
 
 				{{ form_start(form, { 'attr': { 'id': 'form-mutation' } } )}}
 				<div class="row">
@@ -61,32 +50,44 @@
 						</div>
 					</div>
 				</div>
-				{{ macroForm.sousTitre('Information sur l\'affectation', {'class':'mb-1'} )}}
 				<div class="row">
-					<div class="col-4">
-						{{ form_row(form.dateDebut)}}
-						{{ form_row(form.dateFin)}}
-						<div class="error-message date text-danger d-none"></div>
+					<div class="col-8">
+						{{ macroForm.sousTitre('Information sur l\'affectation', {'class':'mb-1'} )}}
+						<div class="row">
+							<div class="col-6">
+								{{ form_row(form.dateDebut)}}
+								{{ form_row(form.lieuMutation)}}
+							</div>
+							<div class="col-6">
+								{{ form_row(form.client)}}
+								{{ form_row(form.motifMutation)}}
+							</div>
+						</div>
+						{{ macroForm.sousTitre('Autres dépenses', {'class':'mb-1'} )}}
+						<div class="row">
+							<div class="col-6">
+								{{form_row(form.motifAutresDepense1)}}
+								{{ form_row(form.motifAutresDepense2)}}
+							</div>
+							<div class="col-6">
+								{{form_row(form.autresDepense1)}}
+								{{ form_row(form.autresDepense2)}}
+								{{form_row(form.totalAutresDepenses)}}
+							</div>
+						</div>
 					</div>
-					<div class="col-4">
-						{{ form_row(form.site)}}
-						{{ form_row(form.lieuMutation)}}
-					</div>
-					<div class="col-4">
-						{{ form_row(form.client)}}
-						{{ form_row(form.motifMutation)}}
-					</div>
-				</div>
-				<div class="row">
 					<div class="col-4">
 						{{ macroForm.sousTitre('Indemnité', {'class':'mb-1'} )}}
+						{{ form_row(form.site)}}
+						{{ form_row(form.dateFin)}}
+						<div class="error-message date text-danger d-none"></div>
 						<div class="row">
 							<div class="col-6">
 								{{ form_row(form.avanceSurIndemnite)}}
-							</div> 
+							</div>
 							<div class="col-6">
 								{{ form_row(form.nombreJourAvance)}}
-							</div>    
+							</div>
 						</div>
 						<div class="row">
 							<div class="col-6">
@@ -97,50 +98,34 @@
 							</div>
 						</div>
 						{{ form_row(form.totalIndemniteForfaitaire)}}
-					</div>
-					<div class="col-8">
-						{{ macroForm.sousTitre('Autres dépenses', {'class':'mb-1'} )}}
-						<div class="row">
-							<div class="col-6">
-								{{form_row(form.autresDepense1)}}
-								{{ form_row(form.autresDepense2)}}
-								{{form_row(form.totalAutresDepenses)}}
-							</div>
-							<div class="col-6">
-								{{form_row(form.motifAutresDepense1)}}
-								{{ form_row(form.motifAutresDepense2)}}
-								{{ form_row(form.totalGeneralPayer)}}
-							</div>
+						<div class="sousTitre mb-1">
+							<div></div>
 						</div>
+						{{ form_row(form.totalGeneralPayer)}}
 					</div>
-				</div>
-				<div class="row">
-					<div class="col-4">
-						{{ macroForm.sousTitre('Mode de paiement', {'class':'mb-1'} )}}
-						{{ form_row(form.modePaiementLabel)}}
-						{{ macroForm.spinner_load('spinner-mode-value', 'mode-value-container', form.modePaiementValue) }}
-					</div>
-					<div class="col-8">
-						{{ macroForm.sousTitre('Pièce(s) jointe(s)', {'class':'mb-1'} )}}
-						{{ form_row(form.pieceJoint01)}}
-						{{ form_row(form.pieceJoint02)}}
-					</div>
-				</div>
-				<div class="row">
-					<div class="mt-2">
-						<button type="submit" class="btn bouton fw-bold">
-							<i class="fas fa-save"></i>
-							Envoyer
-						</button>
-					</div>
-				</div>
-				{{ form_end(form)}}
+					
 			</div>
+			<div class="row">
+				<div class="col-4">
+					{{ macroForm.sousTitre('Mode de paiement', {'class':'mb-1'} )}}
+					{{ form_row(form.modePaiementLabel)}}
+					{{ macroForm.spinner_load('spinner-mode-value', 'mode-value-container', form.modePaiementValue) }}
+				</div>
+				<div class="col-8">
+					{{ macroForm.sousTitre('Pièce(s) jointe(s)', {'class':'mb-1'} )}}
+					{{ form_row(form.pieceJoint01)}}
+					{{ form_row(form.pieceJoint02)}}
+				</div>
+			</div>
+			<div class="row">
+				<div class="mt-2">
+					<button type="submit" class="btn bouton fw-bold">
+						<i class="fas fa-save"></i>
+						Envoyer
+					</button>
+				</div>
+			</div>
+			{{ form_end(form)}}
 		</div>
 	</div>
-</div>
-{% endblock %}
-
-{% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/mutation/new.js" type="module"></script>
-{% endblock %}
+</div></div>{% endblock %}{% block javascript %}<script src="{{ App.base_path }}/Views/js/mutation/new.js" type="module"></script>{% endblock %}
