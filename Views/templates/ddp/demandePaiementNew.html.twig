@@ -61,14 +61,15 @@
 						<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
 					</div>
 					<div class="row">
+					<div class="col-12 col-md-4">
+							{{ form_row(form.numeroFacture)}}
+						</div>
 						<div class="col-12 col-md-4">
 							{{ form_row(form.numeroCommande)}}
 							<div id="suggestion-num-commande" class="suggestions-container"></div>
 							<div id="loader" style="display: none;">Chargement...</div>
 						</div>
-						<div class="col-12 col-md-4">
-							{{ form_row(form.numeroFacture)}}
-						</div>
+						
 						<div class="col-12 col-md-4">
 						<p><b>Listes des fichiers</b></p>
 							<ul id="liste_fichiers"></ul> 
@@ -77,9 +78,15 @@
 					</div>
 					<div class="row">
 						<div class="col-12 col-md-4">
+						{% if id_type == 1 %}
 								<p>Veuillez insérer
 									<strong>le proforma facture fournisseur *</strong>
 								</p>
+								{% else %}
+									<p>Veuillez insérer
+									<strong>la commande *</strong>
+								</p>
+						{% endif %}
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
 						<div class="col-12 col-md-4"	

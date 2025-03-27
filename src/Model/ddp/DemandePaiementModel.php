@@ -45,7 +45,6 @@ class DemandePaiementModel extends Model
 
         $result = $this->connect->executeQuery($statement);
 
-
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);

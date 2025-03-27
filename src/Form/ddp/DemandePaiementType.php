@@ -22,10 +22,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 class DemandePaiementType extends AbstractType
 {
     private $agenceRepository;
+    private $serviceRepository;
 
     public function __construct()
     {
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
     }
     
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -98,7 +100,10 @@ class DemandePaiementType extends AbstractType
             ->add('ribFournisseur', 
                 TextType::class,
                 [
-                    'label' => 'RIB *'
+                    'label' => 'RIB *',
+                    'attr' => [
+                        'readOnly' => true
+                    ]
                 ])
             ->add('contact', 
                 TextType::class,
@@ -108,11 +113,17 @@ class DemandePaiementType extends AbstractType
                 ])
             ->add('modePaiement', TextType::class,
             [
-                'label' => 'Mode de paiement *'
+                'label' => 'Mode de paiement *',
+                'attr' => [
+                        'readOnly' => true
+                    ]
             ])
             ->add('devise', TextType::class,
             [
-                'label' => 'Devise *'
+                'label' => 'Devise *',
+                'attr' => [
+                        'readOnly' => true
+                    ]
             ])
             ->add('montantAPayer', TextType::class,
             [
@@ -202,40 +213,43 @@ class DemandePaiementType extends AbstractType
                         'query_builder' => function (ServiceRepository $serviceRepository) {
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
-                        //'data' => $options['data']->getService(),
-                        'attr' => ['class' => 'serviceDebiteur']
+                        'data' => $this->serviceRepository->find(1),
+                        'attr' => [
+                            'class' => 'serviceDebiteur',
+                            'disabled' => true
+                            ]
                     ]
                 );
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
+            // ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            //     $form = $event->getForm();
+            //     $data = $event->getData();
 
 
-                $agenceId = $data['agence'];
+            //     $agenceId = $data['agence'];
 
-                $agence = $this->agenceRepository->find($agenceId);
-                if($agence === null){
-                    $services = [];
-                } else {
-                    $services = $agence->getServices();
-                }
+            //     $agence = $this->agenceRepository->find($agenceId);
+            //     if($agence === null){
+            //         $services = [];
+            //     } else {
+            //         $services = $agence->getServices();
+            //     }
                 
 
-                $form->add('service', EntityType::class, [
-                    'label' => 'Service Débiteur *',
-                    'class' => Service::class,
-                    'choice_label' => function (Service $service): string {
-                        return $service->getCodeService() . ' ' . $service->getLibelleService();
-                    },
-                    'choices' => $services,
-                    'required' => false,
-                    'attr' => [
-                        'class' => 'serviceDebiteur',
-                        'disabled' => false,
-                    ]
-                ]);
-            })
+            //     $form->add('service', EntityType::class, [
+            //         'label' => 'Service Débiteur *',
+            //         'class' => Service::class,
+            //         'choice_label' => function (Service $service): string {
+            //             return $service->getCodeService() . ' ' . $service->getLibelleService();
+            //         },
+            //         'choices' => $services,
+            //         'required' => false,
+            //         'attr' => [
+            //             'class' => 'serviceDebiteur',
+            //             'disabled' => true,
+            //         ]
+            //     ]);
+            // })
             ->add(
                 'agence',
                 EntityType::class,
@@ -248,13 +262,18 @@ class DemandePaiementType extends AbstractType
                         return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                     },
                     'required' => false,
-                    //'data' => $options["data"]->getAgence() ?? null,
+                    'data' => $this->agenceRepository->find(1),
                     'query_builder' => function (AgenceRepository $agenceRepository) {
                         return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                     },
-                    'attr' => ['class' => 'agenceDebiteur']
+                    
+                    'attr' => [
+                        'class' => 'agenceDebiteur',
+                        'disabled' => true
+                        ]
                 ]
             )
+
         ;
     }
 

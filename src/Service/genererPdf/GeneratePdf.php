@@ -137,6 +137,13 @@ class GeneratePdf
     }
 
 
+    /** DEMANDE DE PAIEMENT */
+    public function copyToDwDdp(string $fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
 
 /**
  * Méthode pour ajouter un titre au PDF

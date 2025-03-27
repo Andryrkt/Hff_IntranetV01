@@ -3,6 +3,8 @@
 namespace App\Controller\ddp;
 
 use Exception;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
@@ -36,6 +38,8 @@ class DemandePaiementController extends Controller
     private DocDemandePaiement $docDemandePaiement;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
+    private $agenceRepository;
+    private $serviceRepository;
     
     public function __construct()
     {
@@ -51,6 +55,8 @@ class DemandePaiementController extends Controller
         $this->docDemandePaiement = new DocDemandePaiement();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] .'/ddp';
+        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
     }
 
     /**
@@ -79,9 +85,9 @@ class DemandePaiementController extends Controller
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers);
             
              /** ENREGISTREMENT DANS BD */
-             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
-             $this->EnregistrementBdDdpl($data);// enregistrement des données dans la table demande_paiement_ligne
-             $this->enregisterDdpF($data);
+            $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
+            $this->EnregistrementBdDdpl($data);// enregistrement des données dans la table demande_paiement_ligne
+            $this->enregisterDdpF($data);
 
             /** COPIER LES FICHIERS */
             $this->copierFichierDistant($data);
@@ -95,10 +101,12 @@ class DemandePaiementController extends Controller
             $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/fichiers/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
-            
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
 
+            /** ENVOYER DAN DW */
+            // $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde);
 
+            /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
 
@@ -264,8 +272,10 @@ class DemandePaiementController extends Controller
 
         $data
             ->setNumeroDdp($numDdp)// ajout du numero DDP dans l'entity DDP
-            ->setAgenceDebiter($data->getAgence()->getCodeAgence())
-            ->setServiceDebiter($data->getService()->getCodeService())
+            // ->setAgenceDebiter($data->getAgence()->getCodeAgence())
+            // ->setServiceDebiter($data->getService()->getCodeService())
+            ->setAgenceDebiter($this->agenceRepository->find(1)->getCodeAgence())
+            ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setStatut('OUVERT')
@@ -426,7 +436,7 @@ class DemandePaiementController extends Controller
             $demandePaiementLigne = new DemandePaiementLigne();
             $demandePaiementLignes[] = $demandePaiementLigne
                 ->setNumeroDdp($data->getNumeroDdp())
-                ->setNumeroLigne($i)
+                ->setNumeroLigne($i+1)
                 ->setNumeroCommande($data->getNumeroCommande()[$i])
                 ->setNumeroFacture(
                     is_array($data->getNumeroFacture()) && array_key_exists($i, $data->getNumeroFacture()) 

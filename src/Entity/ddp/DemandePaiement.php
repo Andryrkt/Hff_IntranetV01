@@ -65,7 +65,7 @@ class DemandePaiement
      *
      * @var string|null
      */
-    private ?string $motif;
+    private ?string $motif ='';
 
     /**
      * @ORM\Column(type="string", length=2, name="agence_a_debiter")
