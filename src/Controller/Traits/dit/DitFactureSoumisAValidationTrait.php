@@ -86,7 +86,7 @@ trait DitFactureSoumisAValidationtrait
     {
         $quantiter = $ditFactureSoumiAValidationModel->recuperationStatutItv($numeroOr, $numeroItv);
         if(empty($quantiter)){
-            $message = "La constructeur rattacher à l'OR n'est pas encore renseigner dans le json";
+            $message = "un des constructeurs rattacher à l'OR n'est pas encore renseigner dans le json";
             $this->historiqueOperation->sendNotificationSoumission($message, $numeroItv, 'dit_index');
         } 
         
