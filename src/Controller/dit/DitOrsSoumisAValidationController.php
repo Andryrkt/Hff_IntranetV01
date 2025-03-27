@@ -17,6 +17,7 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Service\fichier\GenererNonFichierService;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
@@ -29,6 +30,7 @@ class DitOrsSoumisAValidationController extends Controller
     private HistoriqueOperationService $historiqueOperation;
     private DitOrSoumisAValidationModel $ditOrsoumisAValidationModel;
     private GenererPdfOrSoumisAValidation $genererPdfDit;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -37,6 +39,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->historiqueOperation      = new HistoriqueOperationORService();
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -49,11 +52,15 @@ class DitOrsSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        
+        $numOrDansSqlServer = $this->ditRepository->findNumeroOrDit($numDit);
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         $numOr = $numOrBaseDonner[0]['numor'];
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($numOr <> $numOrDansSqlServer) {
+            $message = " Le numéro OR de la DIT ne correspond pas au numéro OR de l'IPS";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
@@ -128,6 +135,8 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $ditInsertionOrSoumis->setNumeroOR($numOr);
         
+        $numOrNomFIchier = explode('_', $originalName)[1];
+
         $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
         $idMateriel = $this->ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
@@ -155,7 +164,8 @@ class DitOrsSoumisAValidationController extends Controller
             'idMaterielDifferent'   => $demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule'],
             'sansrefClient'         => empty($refClient),
             'situationOrSoumis'     => $situationOrSoumis[0]['retour'] === 'bloquer',
-            'countAgServDeb'        => (int)$countAgServDeb > 1
+            'countAgServDeb'        => (int)$countAgServDeb > 1,
+            'numOrFichier'          => $numOrNomFIchier <> $numOr
         ];
     }
 
@@ -207,6 +217,12 @@ class DitOrsSoumisAValidationController extends Controller
         }  
         elseif ($conditionBloquage['countAgServDeb']) {
             $message = "Echec de la soumission de l'OR . . . un OR a plusieurs service débiteur ";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        }
+        elseif ($conditionBloquage['numOrFichier']) {
+            $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
+            $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         }
         else {
