@@ -83,9 +83,9 @@ class DitFactureSoumisAValidationController extends Controller
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
 
             $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
-
+            
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
-
+            
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
             
@@ -157,7 +157,7 @@ class DitFactureSoumisAValidationController extends Controller
         $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
         $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
         $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
-        $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
+        $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
 
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
         $this->modificationEtatFacturDit($etatOr, $numDit);
