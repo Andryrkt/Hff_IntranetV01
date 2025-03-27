@@ -72,7 +72,7 @@ class GeneratePdf
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
         for ($i=0; $i < count($pathFichiers); $i++) { 
-            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             copy($cheminDestinationLocal, $cheminFichierDistant);
         }
