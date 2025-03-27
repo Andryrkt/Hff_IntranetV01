@@ -18,7 +18,14 @@ export function autocompleteTheField(field, fieldName) {
     debounceDelay: 300,
     fetchDataCallback: () => fetchAllData(fieldName),
     displayItemCallback: (item) => displayValues(item, fieldName),
-    onSelectCallback: (item) => handleValuesOfFields(item),
+    onSelectCallback: (item) =>
+      handleValuesOfFields(
+        item,
+        fieldName,
+        fournisseur,
+        reference,
+        designation
+      ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
   });
 }
@@ -28,13 +35,10 @@ function getField(id, fieldName, fieldNameReplace) {
 }
 
 async function fetchAllData(fieldName) {
-  console.log(fieldName);
-
   const fetchManager = new FetchManager();
   let url = `demande-appro/autocomplete/all-${
     fieldName === 'fournisseur' ? fieldName : 'designation-sans'
   }`;
-  console.log(url);
   return await fetchManager.get(url);
 }
 
@@ -56,7 +60,18 @@ function stringsToSearch(item, fieldName) {
   }
 }
 
-function handleValuesOfFields(item) {
-  console.log(item);
-  console.log(reference, fournisseur, designation);
+function handleValuesOfFields(
+  item,
+  fieldName,
+  fournisseur,
+  reference,
+  designation
+) {
+  if (fieldName === 'fournisseur') {
+    fournisseur.value = item.nomfournisseur;
+  } else {
+    reference.value = item.referencepiece;
+    fournisseur.value = item.nomfournisseur;
+    designation.value = item.designation;
+  }
 }

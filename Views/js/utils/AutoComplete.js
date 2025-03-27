@@ -40,7 +40,7 @@ export class AutoComplete {
 
     document.addEventListener('click', (e) => {
       if (
-        !this.suggestionContainer.contains(e.target) &&
+        !this.suggestionContainer?.contains(e.target) &&
         e.target !== this.inputElement
       ) {
         this.clearSuggestions();
@@ -155,7 +155,10 @@ export class AutoComplete {
   }
 
   clearSuggestions() {
-    this.suggestionContainer.innerHTML = '';
+    if (this.suggestionContainer) {
+      this.suggestionContainer.innerHTML = '';
+    }
+
     this.activeIndex = -1;
   }
 
@@ -194,7 +197,7 @@ export class MultiSelectAutoComplete extends AutoComplete {
       this.itemToString(item)
     );
     // Par exemple, séparer les valeurs par une virgule et un espace
-    this.inputElement.value = selectedValues.join(", ");
+    this.inputElement.value = selectedValues.join(', ');
   }
 
   // Permet de supprimer un élément de la sélection et met à jour l'input
@@ -207,7 +210,7 @@ export class MultiSelectAutoComplete extends AutoComplete {
 
   // Surcharge de filterData pour exclure les éléments déjà sélectionnés
   filterData(searchValue) {
-    if (searchValue === "") {
+    if (searchValue === '') {
       this.clearSuggestions();
       return;
     }
@@ -230,12 +233,12 @@ export class MultiSelectAutoComplete extends AutoComplete {
     }
 
     suggestions.forEach((item, index) => {
-      const suggestionElement = document.createElement("div");
-      suggestionElement.classList.add("suggestion-item");
+      const suggestionElement = document.createElement('div');
+      suggestionElement.classList.add('suggestion-item');
       suggestionElement.innerHTML = this.displayItemCallback(item);
       suggestionElement.dataset.index = index;
 
-      suggestionElement.addEventListener("click", () => {
+      suggestionElement.addEventListener('click', () => {
         this.addSelectedItem(item);
       });
 
