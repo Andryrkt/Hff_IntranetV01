@@ -38,6 +38,8 @@
 			<div class="mb-2">
 				<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence</label>
 				<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control">
+				<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
+				<div id="loader_reference_{{ currentPage }}" class="spinner" style="display: none;"></div>
 			</div>
 			<div class="mb-2">
 				<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
@@ -50,12 +52,16 @@
 					<div class="mb-2">
 						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur</label>
 						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
+						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
+						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
 					</div>
 				</div>
 				<div class="col-8 col-md-8">
 					<div class="mb-2">
 						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation</label>
 						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
+						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
+						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
 					</div>
 				</div>
 			</div>
