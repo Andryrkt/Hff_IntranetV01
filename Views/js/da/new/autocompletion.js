@@ -37,8 +37,8 @@ export function autocompleteTheFields() {
     if (famille && sousFamille) {
       new AutoComplete({
         inputElement: designation,
-        suggestionContainer,
-        loaderElement,
+        suggestionContainer: suggestionContainer,
+        loaderElement: loaderElement,
         debounceDelay: 150,
         fetchDataCallback: () => fetchDesignations(famille, sousFamille),
         displayItemCallback: displayDesignation,
