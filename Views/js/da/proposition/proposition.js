@@ -21,12 +21,21 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
   references.forEach((reference) => {
+    reference.addEventListener('input', function () {
+      reference.value = reference.value.toUpperCase();
+    });
     autocompleteTheField(reference, 'reference');
   });
   fournisseurs.forEach((fournisseur) => {
+    fournisseur.addEventListener('input', function () {
+      fournisseur.value = fournisseur.value.toUpperCase();
+    });
     autocompleteTheField(fournisseur, 'fournisseur');
   });
   designations.forEach((designation) => {
+    designation.addEventListener('input', function () {
+      designation.value = designation.value.toUpperCase();
+    });
     autocompleteTheField(designation, 'designation');
   });
 
