@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
+use App\Repository\dit\DitRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 use App\Traits\CalculeTrait;
@@ -33,6 +34,7 @@ class DitDevisSoumisAValidationController extends Controller
     private DitDevisSoumisAValidationRepository $devisRepository;
     private string $chemin;
     private FileUploaderService $fileUploader;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -48,6 +50,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
         $this->chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
         $this->fileUploader = new FileUploaderService($this->chemin);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -69,7 +72,7 @@ class DitDevisSoumisAValidationController extends Controller
         $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis), $type);
 
         // Vérification si une version du devis est déjà validée
-        if($this->verificationTypeDevis($numDevis, $type)) {
+        if($this->verificationTypeDevis($numDevis, $type, $numDit)) {
             if ($request->query->get('continueDevis') == 1) {
                 $this->sessionService->set('devis_version_valide', 'KO');
             }
@@ -92,7 +95,7 @@ class DitDevisSoumisAValidationController extends Controller
         ]);
     }
 
-    private function verificationTypeDevis(string $numDevis, string $type)
+    private function verificationTypeDevis(string $numDevis, string $type, string $numDit)
     {
         $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
         $devisValide = $this->devisRepository->findDevisVpValide($numDevis);
@@ -109,10 +112,17 @@ class DitDevisSoumisAValidationController extends Controller
 
         $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis);
 
+        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
+
+        if($ditInterneouExterne === 'INTERNE') {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le DIT est interne";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+        }
+
         if($type === 'VP') {
             
             if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il n'y a pas de pièce magasin et pas de nouvelle ligne
-                $message = " Merci de passer le devis à validation au magasin ";
+                $message = " Merci de passer le devis à validation à l'atelier ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } else if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
