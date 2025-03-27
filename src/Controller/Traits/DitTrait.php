@@ -54,8 +54,8 @@ trait DitTrait
                 }
                 
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistré dans IPS';
-                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
+                    $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
+                    $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel().'-'.$dits->getNumParc().'-'.$dits->getNumSerie(), 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
                 }
@@ -127,8 +127,8 @@ trait DitTrait
 
 
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistré dans IPS';
-                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
+                $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
+                $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel().'-'.$dits->getNumParc().'-'.$dits->getNumSerie(), 'dit_new');
             } else {
                 //Caractéristiques du matériel
                 $demandeIntervention->setNumParc($data[0]['num_parc']);
