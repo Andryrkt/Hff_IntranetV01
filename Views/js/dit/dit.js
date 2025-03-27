@@ -37,6 +37,8 @@ allowOnlyNumbers(idMaterielInput);
 
 const fetchManager = new FetchManager();
 
+let lastSelectedItem = null;
+
 async function fetchMateriels() {
   return await fetchManager.get(`api/fetch-materiel`);
 }
@@ -45,13 +47,40 @@ function displayMateriel(item) {
   return `Id: ${item.num_matricule} - Parc: ${item.num_parc} - S/N: ${item.num_serie}`;
 }
 
+// Met à jour les champs et la fiche
 function onSelectMateriels(item) {
+  lastSelectedItem = item;
+
   idMaterielInput.value = item.num_matricule;
   numParcInput.value = item.num_parc;
   numSerieInput.value = item.num_serie;
 
   createMaterielInfoDisplay(containerInfoMateriel, item);
 }
+
+// Vérifie si la valeur tapée correspond à un item connu
+async function validateInput(input, keyToCompare) {
+  const data = await fetchMateriels();
+  const match = data.find((item) => item[keyToCompare] === input.value);
+
+  if (!match) {
+    containerInfoMateriel.innerHTML = `
+      <div class="text-danger fw-bold">Aucun matériel trouvé pour "${input.value}". Veuillez choisir un élément dans la liste.</div>
+    `;
+    lastSelectedItem = null;
+  }
+}
+
+// Écouteurs de perte de focus pour chaque champ
+idMaterielInput.addEventListener("blur", () =>
+  validateInput(idMaterielInput, "num_matricule")
+);
+numParcInput.addEventListener("blur", () =>
+  validateInput(numParcInput, "num_parc")
+);
+numSerieInput.addEventListener("blur", () =>
+  validateInput(numSerieInput, "num_serie")
+);
 
 //Activation sur le champ Id Matériel
 new AutoComplete({
@@ -94,46 +123,73 @@ new AutoComplete({
 
 function createMaterielInfoDisplay(container, data) {
   if (!container) {
-    console.error(`Container not found.`);
+    console.error("Container not found.");
     return;
   }
 
-  const fields = [
+  if (!hasValidData(data)) {
+    showNoDataMessage(container);
+    return;
+  }
+
+  const fields = getMaterielFields();
+  container.innerHTML = buildMaterielHtml(fields, data);
+}
+
+// Vérifie si les données sont valides
+function hasValidData(data) {
+  return data && Object.keys(data).length > 0;
+}
+
+// Affiche un message d'absence de données
+function showNoDataMessage(container) {
+  container.innerHTML = `<div class="text-danger fw-bold">Aucune information disponible pour ce matériel.</div>`;
+}
+
+// Retourne la liste des champs à afficher
+function getMaterielFields() {
+  return [
     { label: "Constructeur", key: "constructeur" },
     { label: "Désignation", key: "designation" },
     { label: "KM", key: "km" },
     { label: "N° Parc", key: "num_parc" },
-
     { label: "Modèle", key: "modele" },
     { label: "Casier", key: "casier_emetteur" },
     { label: "Heures", key: "heure" },
     { label: "N° Serie", key: "num_serie" },
     { label: "Id Materiel", key: "num_matricule" },
   ];
+}
 
+// Construit le HTML complet à injecter dans le container
+function buildMaterielHtml(fields, data) {
   const createFieldHtml = (label, value) => `
-  <li class="fw-bold">
-    ${label} :
-    <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
-      ${value || "<span class='text-danger'>Non disponible</span>"}
-    </div>
-  </li>
-`;
+    <li class="fw-bold">
+      ${label} :
+      <div class="border border-secondary border-3 rounded px-4 bg-secondary-subtle">
+        ${value || "<span class='text-danger'>Non disponible</span>"}
+      </div>
+    </li>
+  `;
 
-  container.innerHTML = `
+  const leftColumn = fields
+    .slice(0, 4)
+    .map((field) => createFieldHtml(field.label, data[field.key]))
+    .join("");
+
+  const rightColumn = fields
+    .slice(4)
+    .map((field) => createFieldHtml(field.label, data[field.key]))
+    .join("");
+
+  return `
     <ul class="list-unstyled">
       <div class="row">
         <div class="col-12 col-md-6">
-          ${fields
-            .slice(0, 4)
-            .map((field) => createFieldHtml(field.label, data[field.key]))
-            .join("")}
+          ${leftColumn}
         </div>
         <div class="col-12 col-md-6">
-          ${fields
-            .slice(4)
-            .map((field) => createFieldHtml(field.label, data[field.key]))
-            .join("")}
+          ${rightColumn}
         </div>
       </div>
     </ul>
@@ -313,7 +369,7 @@ function interneExterne() {
 }
 
 /** ===========================================
- * LIMITATION DE CARACTERE DU TELEPHONE 
+ * LIMITATION DE CARACTERE DU TELEPHONE
  *==========================================*/
 function limitInputCharacters(inputElement, maxLength) {
   inputElement.addEventListener("input", () => {

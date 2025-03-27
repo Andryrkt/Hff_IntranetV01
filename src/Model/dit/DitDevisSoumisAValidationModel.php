@@ -75,12 +75,12 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupNbPieceMagasin(string $numDevis)
     {
         $statement = " SELECT
-            count(slor.slor_constp) as nbr_sortie_magasin 
-            from sav_lor slor
-            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
-            and slor.slor_typlig = 'P' 
-            and seor.seor_numor = '".$numDevis."'
+                    SUM(slor.slor_constp) AS nbr_sortie_magasin
+                FROM sav_lor slor
+                INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
+                WHERE slor.slor_constp IN (".GlobalVariablesService::get('pieces_magasin').")
+                AND slor.slor_typlig = 'P'
+                AND seor.seor_numor = '$numDevis'
             ";
 
         $result = $this->connect->executeQuery($statement);

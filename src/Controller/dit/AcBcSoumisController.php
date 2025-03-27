@@ -54,10 +54,15 @@ class AcBcSoumisController extends Controller
 
         $devis = $this->filtredataDevis($numDit);
 
+        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
+        if($ditInterneouExterne === 'INTERNE') {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . le DIT est interne";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+        }
 
         if (empty($devis)) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
         $acSoumis = $this->initialisation($devis, $numDit);
