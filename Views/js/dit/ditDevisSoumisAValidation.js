@@ -10,7 +10,7 @@ const fileInput = document.querySelector(
 initializeFileHandlers(1, fileInput);
 
 /**==================================================
- * sweetalert pour le bouton cloturer dit
+ * sweetalert pour le bouton Enregistrer
  *==================================================*/
 
 setupConfirmationButtons();

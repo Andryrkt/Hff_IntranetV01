@@ -23,6 +23,7 @@
 				{% set hasREP = false %}
 				{% set hasTIK = false %}
 				{% set hasDAP = false %}
+				{% set hasDDP = false %}
 				{% set hasCFR = false %}
 				{% set hasINV = false %}
 				{% set hasMUT = false %}
@@ -42,6 +43,8 @@
 						{% set hasTIK = true %}
 					{% elseif item.codeApp == 'DAP' %}
 						{% set hasDAP = true %}
+					{% elseif item.codeApp == 'DDP' %}
+						{% set hasDDP = true %}
 					{% elseif item.codeApp == 'CFR' %}
 						{% set hasCFR = true %}
 					{% elseif item.codeApp == 'INV' %}
@@ -160,8 +163,10 @@
 								<li>
 									<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">Consultation Casier</a>
 								</li>
-
 							{% endif %}
+							<!-- Fin Bordereau d’acquisition et de Mouvement Matériel -->
+
+
 						</ul>
 					</li>
 				{% endif %}
@@ -219,18 +224,37 @@
 									<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">Soumission commande fournisseur</a>
 								</li>
 							{% endif %}
+							<!-- Demande de paiement DDP -->
+							{% if hasDDP %}
+								<li>
+									<hr class="dropdown-divider">
+								</li>
+								<li class="dropdown-header">
+									Demande de paiement
+								</li>
+								<li>
+									<a class="dropdown-item" href="#" id="modalTypeDemande">Nouvelle Demande</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("ddp_liste")}}">Consultation des demandes</a>
+								</li>
+							{% endif %}
 							{# <li class="dropdown-header"> #}
 							{# CDE #}
 							{# </li> #}
 							{# <li> #}
 							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
 							{# </li> #}
-							{% if hasINV %}
+
+								{% if hasINV %}
+									<li>
+								<hr class="dropdown-divider"> </li>
 								<li class="dropdown-header">
 									INVENTAIRE
 								</li>
 								<li>
-									<a class= "dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}"> Liste inventaire</a>
+									<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}">
+										Liste inventaire</a>
 								</li>
 							{% endif %}
 						</ul>
@@ -243,7 +267,7 @@
 							Support Info</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
-								<a class="dropdown-item" href="{{ path("demande_support_informatique")}}">Nouvelle Demande</a>
+								<a class="dropdown-item" href="{{ path("demande_support_informatique")}}" id="creationNouveauTicket" data-tik-resolu="{{ App.ticketing.nbrTicketResolu }}">Nouvelle Demande</a>
 							</li>
 							<li>
 								<a class="dropdown-item" href="{{ path("liste_tik_index")}}">Consultation
