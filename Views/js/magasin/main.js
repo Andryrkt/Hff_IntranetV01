@@ -55,7 +55,7 @@ if (!currentConfig) {
       currentConfig.agenceEmetteurInput
     );
     const serviceEmetteurInput = document.querySelector(
-      currentConfig.serviceemetteurInput
+      currentConfig.serviceEmetteurInput
     );
     const spinnerServiceEmetteur = document.querySelector(
       currentConfig.spinnerServiceEmetteur

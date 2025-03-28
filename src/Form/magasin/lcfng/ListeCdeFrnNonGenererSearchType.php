@@ -38,10 +38,6 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
     }
 
-    private function agenceUser(){
-        return array_combine($this->magasinModel->agenceUser(), $this->magasinModel->agenceUser());
-    }
-
     public function buildForm(\Symfony\Component\Form\FormBuilderInterface $builder, array $options)
     {
             $builder
@@ -108,7 +104,7 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 
                 $service = [];
                 if($data['agence'] !== ""){
-                    $services = $this->magasinModel->service($data['agence']);
+                    $services = $this->magasinModel->service(explode('-',$data['agence'])[0]);
                     
                     foreach ($services as $value) {
                         $service[$value['text']] = $value['text'];
@@ -117,7 +113,6 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                     $service = [];
                 }
         
-                
                 $form->add('service',
                 ChoiceType::class,
                 [
@@ -162,7 +157,7 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 
                 $service = [];
                 if($data['agence'] !== ""){
-                    $services = $this->magasinModel->service($data['agence']);
+                    $services = $this->magasinModel->service(explode('-',$data['agence'])[0]);
                     
                     foreach ($services as $value) {
                         $service[$value['text']] = $value['text'];

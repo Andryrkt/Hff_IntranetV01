@@ -47,6 +47,17 @@ trait ConditionModelTrait
         return $condition;
     }
 
+    private function conditionIn(string $colonneBase, string $indexCriteria, $criteria)
+    {
+        if(!empty($criteria[$indexCriteria])) {
+            $condition = " AND {$colonneBase} IN (".$criteria[$indexCriteria].")";
+        } else {
+            $condition = "";
+        }
+
+        return $condition;
+    }
+
     private function conditionPiece(string $indexCriteria, array $criteria): ?string
     {   
         if (!empty($criteria[$indexCriteria])) {
@@ -142,4 +153,5 @@ trait ConditionModelTrait
         return $orValide;
     }
 
+    
 }

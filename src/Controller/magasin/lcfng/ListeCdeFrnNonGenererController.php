@@ -31,13 +31,13 @@ class ListeCdeFrnNonGenererController extends Controller
             'method' => 'GET'
         ])->getForm();
 
-        // $form->handleRequest($request);
-        // $criteria = [];
-        // if ($form->isSubmitted() && $form->isValid()) {
-        //     $criteria = $form->getData();
-        // }
+        $form->handleRequest($request);
+        $criteria = [];
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        }
 
-        $data = $this->listeCdeFrnNonGenererModel->getListeCdeFrnNonGenerer();
+        $data = $this->listeCdeFrnNonGenererModel->getListeCdeFrnNonGenerer($criteria);
 
         self::$twig->display('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
             'data' => $data,

@@ -4,13 +4,62 @@ namespace App\Model\magasin\lcfng;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
+use App\Model\Traits\ConditionModelTrait;
 
 class ListeCdeFrnNonGenererModel extends Model
 {
     use ConversionModel;
+    use ConditionModelTrait;
 
-    public function getListeCdeFrnNonGenerer()
+    public function getListeCdeFrnNonGenerer(array $criteria = [])
     {
+        //condition de recherche
+        $designation1 = $this->conditionLike('slor_desi', 'designation',$criteria);
+        $designation2 = $this->conditionLike('nlig_desi', 'designation',$criteria);
+        $referencePiece1 = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
+        $referencePiece2 = $this->conditionLike('nlig_refp', 'referencePiece',$criteria);
+        $constructeur1 = $this->conditionLike('slor_constp', 'constructeur',$criteria);
+        $constructeur2 = $this->conditionLike('nlig_constp', 'constructeur',$criteria);
+        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $numDoc = $this->conditionSigne('seor_numor', 'numDoc', '=', $criteria);
+        $numDoc = $this->conditionSigne('nlig_numcde', 'numDoc', '=', $criteria);
+        $dateDebutDoc1 = $this->conditionDateSigne( 'slor_datec', 'dateDebutDoc', $criteria, '>=');
+        $dateDebutDoc2 = $this->conditionDateSigne( 'nlig_datecde', 'dateDebutDoc', $criteria, '>=');
+        $dateFinDoc1 = $this->conditionDateSigne( 'slor_datec', 'dateFinDoc', $criteria, '<=');
+        $dateFinDoc2 = $this->conditionDateSigne( 'nlig_datecde', 'dateFinDoc', $criteria, '<=');
+        $piece = $this->conditionPiece('pieces', $criteria);
+        $numCli = $this->conditionSigne('nlig_numcli', 'numCli', '=', $criteria);
+        $agence = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_succdeb)
+                        WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
+                    END)", 'agence',$criteria);
+
+        $service = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_servdeb)
+                        WHEN 'VTE' THEN 
+                            (SELECT cbse_nomcli 
+                            FROM cli_bse, cli_soc 
+                            WHERE csoc_soc = slor_soc 
+                            AND cbse_numcli = slor_numcli 
+                            AND cbse_numcli = csoc_numcli)
+                    END)", 'service',$criteria);
+
+        $agenceEmetteur = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_succdeb)
+                        WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
+                    END)", 'agenceEmetteur',$criteria);
+
+        $serviceEmetteur = $this->conditionAgenceService("(CASE slor_natop 
+                        WHEN 'CES' THEN TRIM(slor_servdeb)
+                        WHEN 'VTE' THEN 
+                            (SELECT cbse_nomcli 
+                            FROM cli_bse, cli_soc 
+                            WHERE csoc_soc = slor_soc 
+                            AND cbse_numcli = slor_numcli 
+                            AND cbse_numcli = csoc_numcli)
+                    END)", 'serviceEmetteur',$criteria);
+
+
         $statement = " SELECT
                 trim(seor_refdem) as NumDit,
                 seor_numor as NumDocument,
@@ -72,6 +121,19 @@ class ListeCdeFrnNonGenererModel extends Model
                 and nlig_constp not in ('Nmc','ZDI','ZAR')
                 and nent_numcde = nlig_numcde and nent_natop not in ('DEV')
                 and nent_soc = nlig_soc and nent_numcde = nlig_numcde
+                    $piece
+                    $designation2
+                    $referencePiece2 
+                    $constructeur2 
+                    $dateDebutDoc2
+                    $dateFinDoc2
+                    $numDit
+                    $numDoc
+                    $numCli
+                    $agence
+                    $service
+                    $agenceEmetteur
+                    $serviceEmetteur
                 order by 8 desc, 2, 7
         ";
 
