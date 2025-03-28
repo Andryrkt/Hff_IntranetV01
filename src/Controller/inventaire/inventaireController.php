@@ -115,7 +115,7 @@ class InventaireController extends Controller
 
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
-        $sumData = $this->dataSumInventaireDetail($numinv); 
+        $sumData = $this->dataSumInventaireDetail($numinv);
         self::$twig->display('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
@@ -153,9 +153,9 @@ class InventaireController extends Controller
 
         ];
 
-        array_unshift($data, $header);
+        array_unshift($data['dataExcel'], $header);
 
-        $this->exportDonneesExcel($data);
+        $this->exportDonneesExcel($data['dataExcel']);
     }
 
     /**
@@ -166,8 +166,7 @@ class InventaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
-        $data = $this->dataDetailExcel($countSequence, $numinv);
-        // dd($data);
+        $dataExcel = $this->dataDetailExcel($countSequence, $numinv);
         $header = [
             'numinv' => 'Numéro',
             'cst' => 'CST',
@@ -187,9 +186,9 @@ class InventaireController extends Controller
             'dateInv' => 'Date invetaire'
         ];
 
-        array_unshift($data, $header);
+        array_unshift($dataExcel, $header);
 
-        $this->exportDonneesExcel($data);
+        $this->exportDonneesExcel($dataExcel);
     }
     /**
      * @Route("/export_pdf_liste_inventaire_detail/{numinv}", name = "export_pdf_liste_inventaire_detail")
@@ -234,6 +233,7 @@ class InventaireController extends Controller
     public function recupDataList($listInvent, $uploadExcel = false)
     {
         $data = [];
+        $dataExcel = [];
         if (!empty($listInvent)) {
             $sumNbrCasier = 0;
             $sumNbrRef = 0;
@@ -242,15 +242,15 @@ class InventaireController extends Controller
             $sumNbrPositif = 0;
             $sumNbrNegatif = 0;
             $sumNbrRefsansEcart = 0;
-            $sumNbrRefavecEcart= 0;
+            $sumNbrRefavecEcart = 0;
             $sumNbrEcart = 0;
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
-                if ($listInvent[$i]['date_clo'] == null)  {
+                if ($listInvent[$i]['date_clo'] == null) {
                     $dateCLo = "";
-                }else{
+                } else {
                     $dateCLo = (new DateTime($listInvent[$i]['date_clo']))->format('d/m/Y');
                 }
                 $data[$i] = [
@@ -270,6 +270,24 @@ class InventaireController extends Controller
                     'montant_ecart' =>  $invLigne[0]['montant_ecart'],
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
+                $dataExcel[$i] = [
+                    'numero' => $listInvent[$i]['numero_inv'],
+                    'description' => $listInvent[$i]['description'],
+                    'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
+                    'dateClo' => $dateCLo,
+                    'nbr_casier' => $listInvent[$i]['nbre_casier'],
+                    'nbr_ref' => $listInvent[$i]['nbre_ref'],
+                    'qte_comptee' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['qte_comptee'])),
+                    'statut' => $listInvent[$i]['statut'],
+                    'montant' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['montant'])),
+                    'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
+                    'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
+                    'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
+                    'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
+                    'montant_ecart' => str_replace(".", " ", $this->formatNumber($invLigne[0]['montant_ecart'])),
+                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
+                ];
+
                 $sumNbrCasier += $data[$i]['nbr_casier'];
                 $sumNbrRef += $data[$i]['nbr_ref'];
                 $sumNbrCompte += $data[$i]['qte_comptee'];
@@ -284,27 +302,28 @@ class InventaireController extends Controller
                     $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']);
                 }
             }
-                $sum = [
-                    'numero' => '',
-                    'description' => '',
-                    'ouvert' => '',
-                    'dateClo' =>'' ,
-                    'nbr_casier' => $sumNbrCasier,
-                    'nbr_ref' =>$sumNbrRef ,
-                    'qte_comptee' => $sumNbrCompte,
-                    'statut' =>'' ,
-                    'montant' =>$sumNbrMontant,
-                    'nbre_ref_ecarts_positif' =>$sumNbrPositif ,
-                    'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
-                    'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                    'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
-                    'montant_ecart' =>$sumNbrEcart ,
-                    'pourcentage_ecart' => $sumNbrPourcentEcart,
-                ];
+            $sum = [
+                'numero' => '',
+                'description' => '',
+                'ouvert' => '',
+                'dateClo' => '',
+                'nbr_casier' => $sumNbrCasier,
+                'nbr_ref' => $sumNbrRef,
+                'qte_comptee' => $sumNbrCompte,
+                'statut' => '',
+                'montant' => $sumNbrMontant,
+                'nbre_ref_ecarts_positif' => $sumNbrPositif,
+                'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
+                'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
+                'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
+                'montant_ecart' => $sumNbrEcart,
+                'pourcentage_ecart' => $sumNbrPourcentEcart,
+            ];
         }
         return [
-                'data' => $data,
-                'sum' => $sum
+            'data' => $data,
+            'sum' => $sum,
+            'dataExcel' => $dataExcel
         ];
     }
 
@@ -358,12 +377,12 @@ class InventaireController extends Controller
             $this->redirectToRoute('detail_inventaire', ['numinv' => $numinvCriteria]);
         }
 
-        $data = [];
+        $dataExcel = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
         if (!empty($detailInvent)) {
             // dump($detailInvent);
             for ($j = 0; $j < count($detailInvent); $j++) {
-                $data[] = [
+                $dataExcel[] = [
                     "numinv" => $numinv,
                     "cst" => $detailInvent[$j]["cst"],
                     "refp" => $detailInvent[$j]["refp"],
@@ -384,12 +403,12 @@ class InventaireController extends Controller
                 if (!empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                        $dataExcel[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
                     }
                 }
             }
         }
-        return $data;
+        return $dataExcel;
     }
     public function dataSumInventaireDetail($numinv)
     {
