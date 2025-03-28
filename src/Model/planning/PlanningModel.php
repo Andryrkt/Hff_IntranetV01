@@ -240,7 +240,52 @@ class PlanningModel extends Model
 
 
     $statement = "SELECT distinct 
-                   sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) AS intervention
+                   CAST(sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) as varchar(50))AS intervention
+                  FROM sav_lor AS sav
+                  INNER JOIN gcot_acknow_cat AS cat
+                  ON CAST(sav.slor_numcf  as varchar(50))= CAST(cat.numero_po as varchar(50))
+                  AND (sav.slor_nolign = cat.line_number OR  sav.slor_noligncm = cat.line_number)
+                  AND sav.slor_refp = cat.parts_number
+                  WHERE (  CAST(cat.libelle_type as varchar(10))= 'Error'  or CAST(cat.libelle_type as varchar(10))= 'Back Order'  ) 
+                  AND cat.id_gcot_acknow_cat = (
+                                              SELECT MAX(sub.id_gcot_acknow_cat )
+                                              FROM gcot_acknow_cat AS sub
+                                              WHERE sub.parts_number = cat.parts_number
+                                                AND sub.numero_po = cat.numero_po
+                                                AND sub.line_number = cat.line_number
+                                          )
+
+
+                  $vOrvalDw
+                  
+      ";
+
+// dump($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+
+    return array_map(function ($item) {
+      return $item['intervention'];
+    }, $resultat);
+  }
+
+  public function backOrderPlanningnoItv($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
+  {
+
+    if (!empty($lesOrValides)) {
+      if ($criteria->getOrNonValiderDw() == true) {
+        $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
+      } else {
+        $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+      }
+    } else {
+      $vOrvalDw = " AND  slor_numor in ('')";
+    }
+
+
+    $statement = "SELECT distinct 
+                   sav.slor_numor  AS intervention
                   FROM sav_lor AS sav
                   INNER JOIN gcot_acknow_cat AS cat
                   ON sav.slor_numcf = cat.numero_po
@@ -844,21 +889,22 @@ class PlanningModel extends Model
    * liste planning
    */
   public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
-  {
+  { 
     if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+      // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
     } else {
       if (!empty($lesOrValides)) {
         if ($criteria->getOrNonValiderDw() == true) {
-          $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
         }else {
-          $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+          // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
           } 
     } else {
-        $vOrvalDw = " AND seor_numor in ('')";
-        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+        // $vOrvalDw = " AND seor_numor in ('')";
+        $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
       }
     }
 
@@ -900,11 +946,11 @@ class PlanningModel extends Model
                 $vMonthStatutPlan as mois,
                 seor_numor ||'-'||sitv_interv as orIntv,
                  ( SELECT SUM( CASE WHEN slor_typlig = 'P' $vligneType  THEN
-                  slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                   ELSE slor_qterea END )
+                  ROUND(slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                   ELSE ROUND(slor_qterea) END )
                   FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QteCdm,
-                (  SELECT SUM(slor_qterea ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
-                (  SELECT SUM(slor_qteres )FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
+                (  SELECT SUM(ROUND(slor_qterea) ) FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv  $vligneType ) as QtLiv,
+                (  SELECT SUM(ROUND(slor_qteres ))FROM sav_lor as A  , sav_itv  AS B WHERE  A.slor_numor = B.sitv_numor AND  B.sitv_interv = A.slor_nogrp/100 AND A.slor_numor = C.slor_numor and B.sitv_interv  = D.sitv_interv   $vligneType ) as QteALL,
                 sitv_interv as Itv,
                 seor_numor as numOR,
 CASE 
@@ -1008,15 +1054,15 @@ END AS Status_B
                         trim(slor_constp) as cst,
                         trim(slor_refp) as ref,
                         trim(slor_desi) as desi,
-                        slor_qterel AS QteReliquat,
+                        ROUND(slor_qterel) AS QteReliquat,
                         CASE 
                           WHEN slor_typlig = 'P' THEN
-                            (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                            ROUND( (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) )
 		                      ELSE 
-                            slor_qterea 
+                           ROUND( slor_qterea )
                         END AS QteRes_Or,
-                        slor_qterea AS Qteliv,
-                        slor_qteres AS QteAll,
+                        ROUND(slor_qterea) AS Qteliv,
+                        ROUND(slor_qteres) AS QteAll,
                         CASE  
                           WHEN slor_natcm = 'C' THEN 'COMMANDE'
                           WHEN slor_natcm = 'L' THEN 'RECEPTION'
@@ -1164,6 +1210,7 @@ END AS Status_B
 
       FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec, outer neg_lig
       WHERE seor_numor = slor_numor
+      AND seor_soc = 'HF'
       AND seor_serv <> 'DEV'
       AND seor_soc = 'HF'
       AND sitv_numor = slor_numor 
@@ -1196,6 +1243,94 @@ END AS Status_B
       $vsection 
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
       order by 10,14 
+  ";
+    //  dd($statement);
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+    $resultat = $this->convertirEnUtf8($data);
+    return $resultat;
+  }
+  public function recupMatListeTousCount($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
+  { 
+    if ($criteria->getOrBackOrder() == true) {
+      // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+    } else {
+      if (!empty($lesOrValides)) {
+        if ($criteria->getOrNonValiderDw() == true) {
+          // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
+        }else {
+          // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+          } 
+    } else {
+        // $vOrvalDw = " AND seor_numor in ('')";
+        $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+      }
+    }
+
+
+    $vligneType = $this->typeLigne($criteria);
+
+    $vYearsStatutPlan =  $this->planAnnee($criteria);
+    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+    $vMonthStatutPlan = $this->planMonth($criteria);
+    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+    $vStatutFacture = $this->facture($criteria);
+    $annee =  $this->criterAnnee($criteria);
+    $agence = $this->agence($criteria);
+    $vStatutInterneExterne = $this->interneExterne($criteria);
+    $agenceDebite = $this->agenceDebite($criteria);
+    $serviceDebite = $this->serviceDebite($criteria);
+    $vconditionNumParc = $this->numParc($criteria);
+    $vconditionIdMat = $this->idMat($criteria);
+    $vconditionNumOr = $this->numOr($criteria);
+    $vconditionNumSerie = $this->numSerie($criteria);
+    $vconditionCasier = $this->casier($criteria);
+    $vsection = $this->section($criteria);
+    $vplan = $criteria->getPlan();
+
+    $statement = " SELECT 
+                COUNT( distinct seor_numor ||'-'||sitv_interv )  as nb_numOR,
+                COUNT( sitv_interv ) as nb_itv,
+                COUNT ( slor_constp) as nb_ligne
+
+      FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec, outer neg_lig
+      WHERE seor_numor = slor_numor
+      AND seor_soc = 'HF'
+      AND seor_serv <> 'DEV'
+      AND seor_soc = 'HF'
+      AND sitv_numor = slor_numor 
+      AND sitv_interv = slor_nogrp/100 
+      AND (seor_succ = asuc_num)
+      AND (seor_servcrt = ser.atab_code AND ser.atab_nom = 'SER')
+      AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
+      AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')     
+      $vStatutFacture     
+      AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
+      AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+      AND (seor_nummat = mmat_nummat)
+      --AND slor_constp NOT like '%ZDI%'
+      --ligne
+      AND slor_numcf = nlig_numcde AND slor_refp = nlig_refp
+      $vOrvalDw
+      $vligneType
+      $vConditionNoPlanning 
+      $agence
+      $vStatutInterneExterne
+      $agenceDebite
+      $serviceDebite
+      $vDateDMonthPlan
+      $vDateFMonthPlan
+      $vconditionNumParc
+      $vconditionIdMat
+      $vconditionNumOr
+      $vconditionNumSerie
+      $vconditionCasier
+      $vsection 
+     
   ";
     //  dd($statement);
     $result = $this->connect->executeQuery($statement);
@@ -1388,8 +1523,8 @@ TRIM('COMPLET NON LIVRE')
 		                order by 10,14  ";
 
 
+// dd($statement);
     $result = $this->connect->executeQuery($statement);
-    // dump($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;

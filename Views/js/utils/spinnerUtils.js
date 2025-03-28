@@ -4,7 +4,6 @@ export function toggleSpinner(spinnerElement, containerElement, show) {
     containerElement.style.display = show ? 'none' : 'block';
   }
 }
-
 export function displayOverlay(bool) {
   const overlay = document.getElementById('loading-overlay');
   if (bool) {
