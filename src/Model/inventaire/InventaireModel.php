@@ -219,7 +219,7 @@ class InventaireModel extends Model
                             SUM(ainvp_prix * ainvp_ecart )as montant_ecart,
                             CASE
                             WHEN SUM(ainvp_prix * ainvp_stktheo) != 0 THEN
-                                ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100, 2) || ' %'
+                                ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100) || ' %'
                             ELSE
                                 '100'
                             END AS pourcentage_ecart   

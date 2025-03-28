@@ -201,7 +201,7 @@ class InventaireController extends Controller
         $data = $this->dataDetail($countSequence, $numinv);
         // dd($data);
         // Génération du PDF
-        $this->generetePdfInventaire->genererPDF($data);
+        $this->generetePdfInventaire->genererPDF($data['data']);
     }
     /**
      * @Route("/downloadfile/{filename}", name = "download_file")
@@ -338,9 +338,12 @@ class InventaireController extends Controller
         $data = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
         if (!empty($detailInvent)) {
+            $countQtee1 = 0;
+            $countQtee2 = 0;
+            $countQtee3 = 0;
             // dump($detailInvent);
             for ($j = 0; $j < count($detailInvent); $j++) {
-                $data[] = [
+                $data['data'][] = [
                     "numinv" => $numinv,
                     "cst" => $detailInvent[$j]["cst"],
                     "refp" => $detailInvent[$j]["refp"],
@@ -352,19 +355,28 @@ class InventaireController extends Controller
                     "qte_comptee_3" => "",
                     "ecart" => $detailInvent[$j]["ecart"],
                     "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
-                    "pmp" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["pmp"])),
-                    "montant_inventaire" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["montant_inventaire"])),
-                    "montant_ajuste" => str_replace(".", " ", $this->formatNumber($detailInvent[$j]["montant_ajuste"])),
+                    "pmp" => $detailInvent[$j]["pmp"],
+                    "montant_inventaire" => $detailInvent[$j]["montant_inventaire"],
+                    "montant_ajuste" => $detailInvent[$j]["montant_ajuste"],
                     "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"] == "0%" ? " " : $detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
                 if (!empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                        $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
+                        $data['data'][$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
+                        
                     }
+                    $countQtee1 += (int) $data['data'][$j]["qte_comptee_1"];
+                    $countQtee2 += (int) $data['data'][$j]["qte_comptee_2"];
+                    $countQtee3 += (int) $data['data'][$j]["qte_comptee_3"];
                 }
             }
+            $data['sum'] = [
+                'cpt1' => $countQtee1,
+                'cpt2' => $countQtee2,
+                'cpt3' => $countQtee3,
+            ];
         }
         return $data;
     }
@@ -426,9 +438,9 @@ class InventaireController extends Controller
                     "stock_theo" => $sumInventaireDetail[$i]["stock_theo"],
                     "ecart" => $sumInventaireDetail[$i]["ecart"],
                     "pourcentage_nbr_ecart" => $sumInventaireDetail[$i]["pourcentage_nbr_ecart"],
-                    "pmp" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["pmp"])),
-                    "montant_inventaire" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["montant_inventaire"])),
-                    "montant_ecart" => str_replace(".", " ", $this->formatNumber($sumInventaireDetail[$i]["montant_ecart"])),
+                    "pmp" => $sumInventaireDetail[$i]["pmp"],
+                    "montant_inventaire" => $sumInventaireDetail[$i]["montant_inventaire"],
+                    "montant_ecart" => $sumInventaireDetail[$i]["montant_ecart"],
                     "pourcentage_ecart" => $sumInventaireDetail[$i]["pourcentage_ecart"] == "0%" ? " " : $sumInventaireDetail[$i]["pourcentage_ecart"],
                 ];
             }
