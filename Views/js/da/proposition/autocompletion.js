@@ -7,6 +7,7 @@ export function autocompleteTheField(field, fieldName) {
   let reference = getField(field.id, fieldName, 'reference');
   let fournisseur = getField(field.id, fieldName, 'fournisseur');
   let designation = getField(field.id, fieldName, 'designation');
+  let PU = getField(field.id, fieldName, 'PU');
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`loader${baseId}`);
@@ -24,7 +25,8 @@ export function autocompleteTheField(field, fieldName) {
         fieldName,
         fournisseur,
         reference,
-        designation
+        designation,
+        PU
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
   });
@@ -65,7 +67,8 @@ function handleValuesOfFields(
   fieldName,
   fournisseur,
   reference,
-  designation
+  designation,
+  PU
 ) {
   if (fieldName === 'fournisseur') {
     fournisseur.value = item.nomfournisseur;
@@ -73,5 +76,6 @@ function handleValuesOfFields(
     reference.value = item.referencepiece;
     fournisseur.value = item.nomfournisseur;
     designation.value = item.designation;
+    PU.value = item.prix;
   }
 }

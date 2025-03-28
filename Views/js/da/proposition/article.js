@@ -1,16 +1,23 @@
 export function ajouterReference(id) {
   const line = id.replace('add_line_', '');
-  const fields = [
-    document.getElementById(`demande_appro_proposition_reference_${line}`),
-    document.getElementById(`demande_appro_proposition_fournisseur_${line}`),
-    document.getElementById(`demande_appro_proposition_designation_${line}`),
-    document.getElementById(`demande_appro_proposition_qte_dispo_${line}`),
-    document.getElementById(`demande_appro_proposition_motif_${line}`),
-  ];
-  const nePasAjouter = fields.some(handleFieldValue);
+  const fields = {
+    reference: getField('reference', line),
+    fournisseur: getField('fournisseur', line),
+    designation: getField('designation', line),
+    qteDispo: getField('qte_dispo', line),
+    motif: getField('motif', line),
+    prixUnitaire: getField('PU', line),
+  };
+  const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
   }
+}
+
+function getField(fieldName, line) {
+  return document.getElementById(
+    `demande_appro_proposition_${fieldName}_${line}`
+  );
 }
 
 function handleFieldValue(field) {
