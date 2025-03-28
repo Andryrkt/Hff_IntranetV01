@@ -17,7 +17,9 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproFormType;
+use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -193,11 +195,18 @@ class DemandeApproController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
         $data = self::$em->getRepository(DemandeAppro::class)->find($id)->getDAL();
 
+        $DapLRCollection = new DemandeApproLRCollection();
+        $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+        }
+
         self::$twig->display('da/proposition.html.twig', [
-            'data' => $data
+            'data' => $data,
+            'form' => $form->createView()
         ]);
     }
 }
