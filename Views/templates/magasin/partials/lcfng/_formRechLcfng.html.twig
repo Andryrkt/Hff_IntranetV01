@@ -11,33 +11,29 @@
 				{{ form_start(form)}}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{form_row(form.agenceUser)}}
-						{{form_row(form.dateDebutOr)}}
-						{{form_row(form.dateFinOr)}}
+						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-						{# {{form_row(form.agence)}} #}
-						{# {{form_row(form.service)}} #}
-					{{ form_row(form.orValide)}}
-					</div>
-						<div class="col-12 col-md-2"> {{form_row(form.numCis)}}
-						{{form_row(form.constructeur)}}
+						{{form_row(form.numClient)}}
 					</div>
 					<div class="col-12 col-md-2">
+						{{form_row(form.typeDoc)}}
+						{{form_row(form.numDoc)}}
 						{{form_row(form.numDit)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.dateDebutDoc)}}
+						{{form_row(form.dateFinDoc)}}
+
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.typeLigne)}}
+						{{form_row(form.constructeur)}}
 						{{form_row(form.referencePiece)}}
-					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.numOr)}}
 						{{form_row(form.designation)}}
-						<ul id="suggestions" class="list-group position-absolute"></ul>
 					</div>
-					<div class="col-12 col-md-2">
-						{{form_row(form.pieces)}}
-						{{form_row(form.dateDebutCis)}}
-						{{form_row(form.dateFinCis)}}
-					</div>
+					<div class="col-12 col-md-2"></div>
 				</div>
 				<class class="row">
 					<div class="col-12 ">

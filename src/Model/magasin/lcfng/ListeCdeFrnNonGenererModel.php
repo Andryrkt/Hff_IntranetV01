@@ -54,7 +54,7 @@ class ListeCdeFrnNonGenererModel extends Model
                 nlig_nolign as numeroLigne,
                 nlig_datecde AS DateDocument,
                 to_char(nlig_numcli) AS agenceServiceDebiteur,
-                TRIM(nlig_succ) || ' - ' || trim(nent_servcrt) AS agenceServiceCrediteur,
+                TRIM(nlig_succ) || '-' || trim(nent_servcrt) AS agenceServiceCrediteur,
                 TRUNC(nlig_qtecde) AS quantiteDemander,
                 TRUNC(nlig_qtecde - nlig_qteliv) AS quantiteReliquat,
                 CASE

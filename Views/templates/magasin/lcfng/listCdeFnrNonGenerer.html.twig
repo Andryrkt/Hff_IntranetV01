@@ -1,20 +1,20 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link
-	rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-{# <link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css"> #}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css">
 {% endblock %}
 
+{% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div id="conteneur" data-page-type="cis_a_traiter">
+	<div id="conteneur" data-page-type="liste_cde_fnr_non_genere">
 		<div class="container">
 			<h3 class="perso-titre">
 				Liste des commande fournisseurs non générée
 			</h3>
 
-			{# {% include "/magasin/partials/cis/_formRechATraiter.html.twig" %} #}
+			{% include "/magasin/partials/lcfng/_formRechLcfng.html.twig" %}
 			{# {% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "export_excel_a_traiter_cis" } %} #}
 		</div>
 
@@ -52,7 +52,7 @@
 								<td class="text-center">{{item.type_document}}</td>
 								<td class="text-center">{{item.numdit == null ? '-' : item.numdit}}</td>
 								<td class="text-center">{{item.agenceservicecrediteur}}</td>
-								<td class="text-center">{{item.agenceservicedebiteur}}</td>
+								<td class="text-center">{{item.agenceservicedebiteur == null ? '-' : item.agenceservicedebiteur}}</td>
 								<td class="text-center">{{item.numinterv}}</td>
 								<td class="text-center">{{item.numeroligne}}</td>
 								<td class="text-center">{{item.constructeur}}</td>
@@ -70,5 +70,5 @@
 {% endblock %}
 
 {% block javascript %}
-	{#<script src="{{ App.base_path }}/Views/js/magasin/main.js" type="module"></script>#}
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js" type="module"></script>
 {% endblock %}
