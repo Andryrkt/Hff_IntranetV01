@@ -19,10 +19,10 @@ export function autocompleteTheFields() {
     let baseId = designation.id.replace('demande_appro_form_DAL', '');
 
     let famille = document.getElementById(
-      generateId(designation.id, 'artDesi', 'fams1')
+      generateId(designation.id, 'artDesi', 'codeFams1')
     );
     let sousFamille = document.getElementById(
-      generateId(designation.id, 'artDesi', 'fams2')
+      generateId(designation.id, 'artDesi', 'codeFams2')
     );
     let familleLibelle = document.getElementById(
       generateId(designation.id, 'artDesi', 'artFams1')

@@ -19,15 +19,13 @@ class DemandeApproLFormType extends AbstractType
         $daModel = new DaModel;
 
         $builder
-            ->add('fams1', ChoiceType::class, [
-                'mapped' => false,
+            ->add('codeFams1', ChoiceType::class, [
                 'label' => false,
                 'required' => false,
                 'placeholder' => '-- Choisir une famille --',
                 'choices' => $daModel->getAllFamille(),
             ])
-            ->add('fams2', ChoiceType::class, [
-                'mapped' => false,
+            ->add('codeFams2', ChoiceType::class, [
                 'label' => false,
                 'required' => false,
                 'placeholder' => '-- Choisir une sous-famille --',

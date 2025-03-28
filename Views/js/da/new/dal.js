@@ -33,8 +33,8 @@ export function ajouterUneLigne() {
   row.classList.add('row', 'g-3');
 
   let fields = [
-    ['w-15', 'fams1'],
-    ['w-20', 'fams2'],
+    ['w-15', 'codeFams1'],
+    ['w-20', 'codeFams2'],
     ['w-25', 'artDesi'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
@@ -48,7 +48,7 @@ export function ajouterUneLigne() {
   ];
 
   fields.forEach(function ([classe, fieldName]) {
-    if (fieldName === 'fams2') {
+    if (fieldName === 'codeFams2') {
       createFams2AndAppendTo(classe, prototype, row);
     } else if (fieldName === 'artDesi') {
       createDesiAndAppendTo(classe, prototype, row);
@@ -67,7 +67,7 @@ export function ajouterUneLigne() {
   prototype.appendChild(div);
   container.appendChild(prototype);
 
-  eventOnFamille();
+  eventOnFamille(); // gestion d'évènement sur les familles et sous-familles
   formatAllField();
   autocompleteTheFields();
 }

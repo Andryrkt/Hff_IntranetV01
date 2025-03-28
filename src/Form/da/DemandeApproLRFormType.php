@@ -17,35 +17,7 @@ class DemandeApproLRFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('artDesi', TextType::class, [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('numeroDemandeAppro', TextType::class,  [
-                'label' => false,
-                'required' => false,
-            ])
             ->add('numeroLigneDem', TextType::class,  [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('qteDem', TextType::class,  [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('artConstp', TextType::class, [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('artRefp', TextType::class, [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('artFams1', TextType::class, [
-                'label' => false,
-                'required' => false,
-            ])
-            ->add('artFams2', TextType::class, [
                 'label' => false,
                 'required' => false,
             ])
@@ -54,6 +26,18 @@ class DemandeApproLRFormType extends AbstractType
                 'required' => false,
             ])
             ->add('nomFournisseur', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artRefp', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artDesi', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('qteDispo', TextType::class, [
                 'label' => false,
                 'required' => false,
             ])

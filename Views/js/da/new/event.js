@@ -4,14 +4,14 @@ import { autocompleteTheFields } from './autocompletion';
 
 export function eventOnFamille() {
   let familles = document.querySelectorAll(
-    '[id*="fams1"][id*="form_DAL"]:not([id*="__name__"])'
+    '[id*="codeFams1"][id*="form_DAL"]:not([id*="__name__"])'
   ); // éléments avec id contenant "fams1" et "form_DAL" mais ne contenant pas "__name__"
 
   familles.forEach((famille) => {
     let familleId = famille.id;
-    let sousFamilleId = familleId.replace('fams1', 'fams2');
-    let familleLibelleId = familleId.replace('fams1', 'artFams1');
-    let sousFamilleLibelleId = familleId.replace('fams1', 'artFams2');
+    let sousFamilleId = familleId.replace('codeFams1', 'codeFams2');
+    let familleLibelleId = familleId.replace('codeFams1', 'artFams1');
+    let sousFamilleLibelleId = familleId.replace('codeFams1', 'artFams2');
     let baseId = sousFamilleId.replace('demande_appro_form_DAL', '');
     let spinnerId = `spinner${baseId}`;
     let containerId = `container${baseId}`;
@@ -45,7 +45,8 @@ export function eventOnFamille() {
 }
 
 function handleDesignation(familleId) {
-  document.querySelector(`#${familleId.replace('fams1', 'artDesi')}`).value =
-    '';
+  document.querySelector(
+    `#${familleId.replace('codeFams1', 'artDesi')}`
+  ).value = '';
   autocompleteTheFields();
 }
