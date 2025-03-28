@@ -92,6 +92,7 @@ class ListeController extends Controller
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $data = $this->recupData($result, $criteriaTAb, $back);
+            // dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
             // dump($data['data'], $data['data_excel']);
@@ -221,7 +222,9 @@ class ListeController extends Controller
     { 
         $data = [];
         $data_excel = [];
+    
         if (!empty($result)) {
+            // dump($result);
             $qteCis = [];
             $dateLivLigCIS = [];
             $dateAllLigCIS = [];
@@ -327,7 +330,8 @@ class ListeController extends Controller
                     $result[$i]['StatutCIS'] = "";
                     $result[$i]['DateStatutCIS'] = "";
                 }
-                if ($result[$i]['numcis'] === $result[$i]['numerocmd']) {
+                // dump($i, $result[$i]['numcis'] , $result[$i]['numerocmd'] );
+                if (substr($result[$i]['numcis'], 0, 1) !== '1') {
                     $result[$i]['numcde_cis'] = $result[$i]['numcis'];
                     $result[$i]['numcisOR'] = '';
                 } else {
