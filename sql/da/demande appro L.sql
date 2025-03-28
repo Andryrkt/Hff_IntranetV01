@@ -9,7 +9,9 @@ CREATE TABLE Demande_Appro_L(
     art_constp varchar(3),
     art_refp varchar(50),
     art_desi varchar(100) not null,
+    code_fams1 varchar(10),
     art_fams1 varchar(50),
+    code_fams2 varchar(10),
     art_fams2 varchar(50),
     numero_fournisseur varchar(7) not null,
     nom_fournisseur	varchar(50) not null,
@@ -20,5 +22,3 @@ CREATE TABLE Demande_Appro_L(
     demande_appro_id int not null,
     CONSTRAINT PK_Demande_Appro_L PRIMARY KEY (id)
 )
-
-

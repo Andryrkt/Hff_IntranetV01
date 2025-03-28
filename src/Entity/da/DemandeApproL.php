@@ -84,6 +84,16 @@ class DemandeApproL
     private string $artFams2;
 
     /**
+     * @ORM\Column(type="string", length=10, name="code_fams1")
+     */
+    private string $codeFams1;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="code_fams2")
+     */
+    private string $codeFams2;
+
+    /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
      */
     private string $numeroFournisseur;
@@ -532,6 +542,52 @@ class DemandeApproL
     {
         $this->demandeApproLR = $demandeApproLR;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams1
+     *
+     * @return string
+     */
+    public function getCodeFams1(): string
+    {
+        return $this->codeFams1;
+    }
+
+    /**
+     * Set the value of codeFams1
+     *
+     * @param string $codeFams1
+     *
+     * @return self
+     */
+    public function setCodeFams1(string $codeFams1): self
+    {
+        $this->codeFams1 = $codeFams1;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams2
+     *
+     * @return string
+     */
+    public function getCodeFams2(): string
+    {
+        return $this->codeFams2;
+    }
+
+    /**
+     * Set the value of codeFams2
+     *
+     * @param string $codeFams2
+     *
+     * @return self
+     */
+    public function setCodeFams2(string $codeFams2): self
+    {
+        $this->codeFams2 = $codeFams2;
         return $this;
     }
 }
