@@ -94,10 +94,13 @@ class DitFactureSoumisAValidationController extends Controller
             } elseif ($nbFact === 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } elseif ($nbFactSqlServer > 0) {
-                $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
-                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } else {
+            } 
+            //suite à la demande de diamondra facture 18644681 cas de facture refusé à soumettre validation pour être validé
+            // elseif ($nbFactSqlServer > 0) {
+            //     $message = "La facture n° :{$numFac} a été déjà soumise à validation ";
+            //     $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            // } 
+            else {
                 $dataForm = $form->getData();
                 $numeroSoumission = $this->ditFactureSoumiAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
 
