@@ -122,12 +122,12 @@ class DemandeApproL
     /**
      * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
      */
-    private $demandeApproLRId;
+    private $demandeApproLR;
 
     //=============================================================================================
     public function __construct()
     {
-        $this->demandeApproLRId = new ArrayCollection();
+        $this->demandeApproLR = new ArrayCollection();
     }
 
     /**
@@ -494,27 +494,27 @@ class DemandeApproL
     }
 
     /**
-     * Get the value of demandeApproLRId
+     * Get the value of demandeApproLR
      */
-    public function getDemandeApproLRId()
+    public function getDemandeApproLR()
     {
-        return $this->demandeApproLRId;
+        return $this->demandeApproLR;
     }
 
-    public function addDemandeApproLRId(DemandeApproLR $demandeApproLR): self
+    public function addDemandeApproLR(DemandeApproLR $demandeApproLR): self
     {
-        if (!$this->demandeApproLRId->contains($demandeApproLR)) {
-            $this->demandeApproLRId[] = $demandeApproLR;
+        if (!$this->demandeApproLR->contains($demandeApproLR)) {
+            $this->demandeApproLR[] = $demandeApproLR;
             $demandeApproLR->setDemandeApproL($this);
         }
 
         return $this;
     }
 
-    public function removeDemandeApproLRId(DemandeApproLR $demandeApproLR): self
+    public function removeDemandeApproLR(DemandeApproLR $demandeApproLR): self
     {
-        if ($this->demandeApproLRId->contains($demandeApproLR)) {
-            $this->demandeApproLRId->removeElement($demandeApproLR);
+        if ($this->demandeApproLR->contains($demandeApproLR)) {
+            $this->demandeApproLR->removeElement($demandeApproLR);
             if ($demandeApproLR->getDemandeApproL() === $this) {
                 $demandeApproLR->setDemandeApproL(null);
             }
@@ -524,13 +524,13 @@ class DemandeApproL
     }
 
     /**
-     * Set the value of demandeApproLRId
+     * Set the value of demandeApproLR
      *
      * @return  self
      */
-    public function setDemandeApproLRId($demandeApproLRId)
+    public function setDemandeApproLR($demandeApproLR)
     {
-        $this->demandeApproLRId = $demandeApproLRId;
+        $this->demandeApproLR = $demandeApproLR;
 
         return $this;
     }

@@ -89,7 +89,7 @@ class DemandeApproLR
     private string $nomFournisseur;
 
     /**
-     * @ORM\ManyToOne(targetEntity=DemandeApproL::class, inversedBy="demandeApproLRId")
+     * @ORM\ManyToOne(targetEntity=DemandeApproL::class, inversedBy="demandeApproLR")
      * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id")
      */
     private ?DemandeApproL $demandeApproL = null;
