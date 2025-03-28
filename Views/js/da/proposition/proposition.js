@@ -7,10 +7,16 @@ document.addEventListener('DOMContentLoaded', function () {
   const prevBtns = document.querySelectorAll('.prevBtn'); // Tous les boutons "Précédent"
   const nextBtns = document.querySelectorAll('.nextBtn'); // Tous les boutons "Suivant"
   const addLines = document.querySelectorAll('[id*="add_line_"]'); // Tous les boutons "Ajouter la référence"
-  const references = document.querySelectorAll('[id*="reference_"]'); // Tous les champs "Référence"
-  const fournisseurs = document.querySelectorAll('[id*="fournisseur_"]'); // Tous les champs "Fournisseur"
-  const designations = document.querySelectorAll('[id*="designation_"]'); // Tous les champs "Désignation"
-  const qtedispos = document.querySelectorAll('[id*="qte_dispo_"]'); // Tous les champs "Qté Dispo"
+  const references = document.querySelectorAll(
+    '[id*="proposition_reference_"]'
+  ); // Tous les champs "Référence"
+  const fournisseurs = document.querySelectorAll(
+    '[id*="proposition_fournisseur_"]'
+  ); // Tous les champs "Fournisseur"
+  const designations = document.querySelectorAll(
+    '[id*="proposition_designation_"]'
+  ); // Tous les champs "Désignation"
+  const qtedispos = document.querySelectorAll('[id*="proposition_qte_dispo_"]'); // Tous les champs "Qté Dispo"
 
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
 

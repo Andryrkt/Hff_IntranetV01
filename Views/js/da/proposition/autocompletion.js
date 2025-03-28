@@ -8,6 +8,10 @@ export function autocompleteTheField(field, fieldName) {
   let fournisseur = getField(field.id, fieldName, 'fournisseur');
   let designation = getField(field.id, fieldName, 'designation');
   let PU = getField(field.id, fieldName, 'PU');
+  let line = baseId.replace(`_${fieldName}_`, '');
+
+  let codeFams1 = getValueCodeFams('codeFams1', line);
+  let codeFams2 = getValueCodeFams('codeFams2', line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`loader${baseId}`);
@@ -17,7 +21,7 @@ export function autocompleteTheField(field, fieldName) {
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 300,
-    fetchDataCallback: () => fetchAllData(fieldName),
+    fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2),
     displayItemCallback: (item) => displayValues(item, fieldName),
     onSelectCallback: (item) =>
       handleValuesOfFields(
@@ -32,15 +36,22 @@ export function autocompleteTheField(field, fieldName) {
   });
 }
 
+function getValueCodeFams(fams, line) {
+  return document.getElementById(`${fams}_${line}`).value;
+}
+
 function getField(id, fieldName, fieldNameReplace) {
   return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
 
-async function fetchAllData(fieldName) {
+async function fetchAllData(fieldName, codeFams1, codeFams2) {
   const fetchManager = new FetchManager();
   let url = `demande-appro/autocomplete/all-${
-    fieldName === 'fournisseur' ? fieldName : 'designation-sans'
+    fieldName === 'fournisseur'
+      ? fieldName
+      : `designation/${codeFams1}/${codeFams2}`
   }`;
+  console.log(url);
   return await fetchManager.get(url);
 }
 
@@ -48,7 +59,7 @@ function displayValues(item, fieldName) {
   if (fieldName === 'fournisseur') {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
-    return `Référence: ${item.referencepiece} - Fournisseur: ${item.nomfournisseur} - Désignation: ${item.designation}`;
+    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Désignation: ${item.designation}`;
   }
 }
 
@@ -74,7 +85,7 @@ function handleValuesOfFields(
     fournisseur.value = item.nomfournisseur;
   } else {
     reference.value = item.referencepiece;
-    fournisseur.value = item.nomfournisseur;
+    fournisseur.value = item.fournisseur;
     designation.value = item.designation;
     PU.value = item.prix;
   }
