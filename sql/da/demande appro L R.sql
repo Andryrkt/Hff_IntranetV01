@@ -12,5 +12,6 @@ CREATE TABLE Demande_Appro_L_R(
     art_fams2 varchar(50) not null,
     numero_fournisseur varchar(7) not null,
     nom_fournisseur varchar(50) not null,
+    demande_appro_l_id int not null,
     CONSTRAINT PK_Demande_Appro_L_R PRIMARY KEY (id)
 )
