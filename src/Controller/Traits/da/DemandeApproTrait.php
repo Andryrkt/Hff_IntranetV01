@@ -26,7 +26,7 @@ trait DemandeApproTrait
         $limit = 20;
 
         //recupération des données filtrée
-        $paginationData = $this->ditRepository->findPaginatedAndFiltered($page, $limit, $this->ditSearch, $option);
+        $paginationData = $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $this->ditSearch, $option);
 
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
