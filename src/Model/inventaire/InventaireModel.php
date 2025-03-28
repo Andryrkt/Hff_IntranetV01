@@ -143,20 +143,16 @@ class InventaireModel extends Model
                     SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) AS nbre_ref_ecarts_positif,
                     SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END) AS nbre_ref_ecarts_negatifs,
                     SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) + SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END) AS total_nbre_ref_ecarts,
-                    CONCAT(
                         ROUND(
                             (SUM(CASE WHEN ainvp_ecart > 0 THEN 1 ELSE 0 END) +
                             SUM(CASE WHEN ainvp_ecart < 0 THEN 1 ELSE 0 END)) 
                             / COUNT(DISTINCT ainvp_refp) * 100
-                            ), 
-                        '%'
-                    ) as pourcentage_ref_avec_ecart,
+                            ) as pourcentage_ref_avec_ecart,
                     trunc(SUM(ainvp_ecart * ainvp_prix)) as montant_ecart,
-                     CONCAT(
-
-                        TRUNC(
-                        (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)) * 100), 
-                    ' %') as pourcentage_ecart
+                    TRUNC(
+                        (SUM(ainvp_ecart * ainvp_prix) / SUM(ainvp_stktheo * ainvp_prix)
+                        ) * 100
+                        ) as pourcentage_ecart
                     FROM art_invp WHERE  (ainvp_stktheo <> 0 or ( ainvp_ecart <> 0 ))
                     and ainvp_numinv = '" . $numInvMax . "'
                     ";

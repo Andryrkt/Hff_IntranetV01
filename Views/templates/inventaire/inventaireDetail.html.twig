@@ -35,6 +35,26 @@
 			</div>
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
+          {% for row in sumData %}
+                <tr class = "total">
+                      <th scope="row"> TOTAL</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.stock_theo}}</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th>{{row.ecart}}</th>
+                      <th>{{row.pourcentage_nbr_ecart}}</th>
+                      <th>{{row.pmp}}</th>
+                      <th>{{row.montant_inventaire}}</th>
+                      <th>{{row.montant_ecart}}</th>
+                      <th>{{row.pourcentage_ecart}}</th>
+                </tr>
+         {% endfor %}
+
              <tr>
              <th rowspan="2" class="align-middle">Numero en entête</th>
               <th  rowspan="2" class="align-middle">CST</th>
@@ -55,27 +75,6 @@
               <th>Cpt 2</th>
               <th>Cpt 3</th>
             </tr>
-           
-         {% for row in sumData %}
-                <tr class = "total">
-                      <th scope="row"> TOTAL</th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th>{{row.stock_theo}}</th>
-                      <th></th>
-                      <th></th>
-                      <th></th>
-                      <th>{{row.ecart}}</th>
-                      <th>{{row.pourcentage_nbr_ecart}}</th>
-                      <th>{{row.pmp}}</th>
-                      <th>{{row.montant_inventaire}}</th>
-                      <th>{{row.montant_ecart}}</th>
-                      <th>{{row.pourcentage_ecart}}</th>
-                </tr>
-         {% endfor %}
-      
          </thead>
          <tbody id="tableBody">
           {% if data is empty %}

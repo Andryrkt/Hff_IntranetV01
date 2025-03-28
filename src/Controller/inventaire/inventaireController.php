@@ -235,6 +235,16 @@ class InventaireController extends Controller
     {
         $data = [];
         if (!empty($listInvent)) {
+            $sumNbrCasier = 0;
+            $sumNbrRef = 0;
+            $sumNbrCompte = 0;
+            $sumNbrMontant  = 0;
+            $sumNbrPositif = 0;
+            $sumNbrNegatif = 0;
+            $sumNbrRefsansEcart = 0;
+            $sumNbrRefavecEcart= 0;
+            $sumNbrEcart = 0;
+            $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
@@ -250,22 +260,52 @@ class InventaireController extends Controller
                     'dateClo' => $dateCLo,
                     'nbr_casier' => $listInvent[$i]['nbre_casier'],
                     'nbr_ref' => $listInvent[$i]['nbre_ref'],
-                    'qte_comptee' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['qte_comptee'])),
+                    'qte_comptee' =>  $listInvent[$i]['qte_comptee'],
                     'statut' => $listInvent[$i]['statut'],
-                    'montant' => str_replace(".", " ", $this->formatNumber($listInvent[$i]['montant'])),
+                    'montant' =>  $listInvent[$i]['montant'],
                     'nbre_ref_ecarts_positif' => $invLigne[0]['nbre_ref_ecarts_positif'],
                     'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
-                    'montant_ecart' => str_replace(".", " ", $this->formatNumber($invLigne[0]['montant_ecart'])),
+                    'montant_ecart' =>  $invLigne[0]['montant_ecart'],
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
+                $sumNbrCasier += $data[$i]['nbr_casier'];
+                $sumNbrRef += $data[$i]['nbr_ref'];
+                $sumNbrCompte += $data[$i]['qte_comptee'];
+                $sumNbrMontant += $data[$i]['montant'];
+                $sumNbrPositif += $data[$i]['nbre_ref_ecarts_positif'];
+                $sumNbrNegatif += $data[$i]['nbre_ref_ecarts_negatifs'];
+                $sumNbrRefsansEcart += $data[$i]['total_nbre_ref_ecarts'];
+                $sumNbrRefavecEcart += $data[$i]['pourcentage_ref_avec_ecart'];
+                $sumNbrEcart += $data[$i]['montant_ecart'];
+                $sumNbrPourcentEcart += $data[$i]['pourcentage_ecart'];
                 if ($uploadExcel) {
                     $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']);
                 }
             }
+                $sum = [
+                    'numero' => '',
+                    'description' => '',
+                    'ouvert' => '',
+                    'dateClo' =>'' ,
+                    'nbr_casier' => $sumNbrCasier,
+                    'nbr_ref' =>$sumNbrRef ,
+                    'qte_comptee' => $sumNbrCompte,
+                    'statut' =>'' ,
+                    'montant' =>$sumNbrMontant,
+                    'nbre_ref_ecarts_positif' =>$sumNbrPositif ,
+                    'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
+                    'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
+                    'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
+                    'montant_ecart' =>$sumNbrEcart ,
+                    'pourcentage_ecart' => $sumNbrPourcentEcart,
+                ];
         }
-        return $data;
+        return [
+                'data' => $data,
+                'sum' => $sum
+        ];
     }
 
     public function dataDetail($countSequence, $numinv)
