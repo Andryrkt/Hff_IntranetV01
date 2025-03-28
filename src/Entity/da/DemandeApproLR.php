@@ -89,6 +89,12 @@ class DemandeApproLR
     private string $nomFournisseur;
 
     /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproL::class, inversedBy="demandeApproLRId")
+     * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id")
+     */
+    private ?DemandeApproL $demandeApproL = null;
+
+    /**
      * Get the value of id
      */
     public function getId()
@@ -343,6 +349,26 @@ class DemandeApproLR
     public function setNomFournisseur(string $nomFournisseur): self
     {
         $this->nomFournisseur = $nomFournisseur;
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproL
+     */
+    public function getDemandeApproL()
+    {
+        return $this->demandeApproL;
+    }
+
+    /**
+     * Set the value of demandeApproL
+     *
+     * @return  self
+     */
+    public function setDemandeApproL($demandeApproL)
+    {
+        $this->demandeApproL = $demandeApproL;
+
         return $this;
     }
 }

@@ -16,6 +16,7 @@ use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\da\DemandeApproLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -117,6 +118,17 @@ class DemandeApproL
      * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id")
      */
     private ?DemandeAppro $demandeAppro = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
+     */
+    private $demandeApproLRId;
+
+    //=============================================================================================
+    public function __construct()
+    {
+        $this->demandeApproLRId = new ArrayCollection();
+    }
 
     /**
      * Get the value of numeroDemandeAppro
@@ -477,6 +489,48 @@ class DemandeApproL
     public function setQteDem($qteDem)
     {
         $this->qteDem = $qteDem;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproLRId
+     */
+    public function getDemandeApproLRId()
+    {
+        return $this->demandeApproLRId;
+    }
+
+    public function addDemandeApproLRId(DemandeApproLR $demandeApproLR): self
+    {
+        if (!$this->demandeApproLRId->contains($demandeApproLR)) {
+            $this->demandeApproLRId[] = $demandeApproLR;
+            $demandeApproLR->setDemandeApproL($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeApproLRId(DemandeApproLR $demandeApproLR): self
+    {
+        if ($this->demandeApproLRId->contains($demandeApproLR)) {
+            $this->demandeApproLRId->removeElement($demandeApproLR);
+            if ($demandeApproLR->getDemandeApproL() === $this) {
+                $demandeApproLR->setDemandeApproL(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of demandeApproLRId
+     *
+     * @return  self
+     */
+    public function setDemandeApproLRId($demandeApproLRId)
+    {
+        $this->demandeApproLRId = $demandeApproLRId;
 
         return $this;
     }
