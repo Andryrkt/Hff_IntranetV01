@@ -9,6 +9,7 @@ use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
 use App\Model\dom\DomModel;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
