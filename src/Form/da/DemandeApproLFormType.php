@@ -49,7 +49,8 @@ class DemandeApproLFormType extends AbstractType
             ])
             ->add('commentaire', TextType::class, [
                 'label' => false,
-                'required' => false
+                'required' => false,
+                'empty_data' => ''
             ])
             ->add('artConstp', TextType::class, [
                 'label' => false,
