@@ -134,16 +134,23 @@ class DitDevisSoumisAValidationController extends Controller
                 return false;
             }
         } else {
+            // si avec pièce magasin ET premier soumission
             if($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
                 $message = " Merci de passer le devis à validation au magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
+            } 
+            // SI (devis est prix refusé ou prix a confirmer)     ET    nouvelle reference ajoutée
+            else if((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } elseif ($condition['conditionStatutDevisVp']) {
-                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
+            }  
+            // SI le devis est statué "PRix à confirmer"
+            elseif ($condition['conditionStatutDevisVp']) {
+                $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le devis est encore en cours de vérification";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } elseif ($condition['conditionStatutDevisVa']) {
+            } 
+            // SI le devis est statué "à valider atelier"
+            elseif ($condition['conditionStatutDevisVa']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } else {
