@@ -41,6 +41,22 @@ class DemandeApproLRFormType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
+            ->add('prixUnitaire', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('total', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('conditionnement', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('motif', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
         ;
     }
 

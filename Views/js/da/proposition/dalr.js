@@ -12,12 +12,12 @@ export function ajouterUneLigne(line, fields) {
   insertCellData(row, fields.designation.value);
   insertCellData(row, fields.prixUnitaire.value);
   insertCellData(row, total);
-  insertCellData(row, '1'); // conditionnement
+  insertCellData(row, '1'); // conditionnement TO DO
   insertCellData(row, fields.qteDispo.value);
   insertCellData(row, fields.motif.value);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
-  ajouterLigneDansForm(line, fields);
+  ajouterLigneDansForm(line, fields, total);
 
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
@@ -30,7 +30,7 @@ function insertCellData(row, $data) {
   cell.innerHTML = $data;
 }
 
-function ajouterLigneDansForm(line, fields) {
+function ajouterLigneDansForm(line, fields, total) {
   let newIndex = Date.now();
   let prototype = document
     .getElementById('child-prototype')
@@ -48,14 +48,20 @@ function ajouterLigneDansForm(line, fields) {
       : element.name;
   });
 
-  prototype.querySelector('[id*="numeroLigneDem"]').value = line;
-  prototype.querySelector('[id*="numeroFournisseur"]').value =
-    fields.numeroFournisseur.value;
-  prototype.querySelector('[id*="nomFournisseur"]').value =
-    fields.fournisseur.value;
-  prototype.querySelector('[id*="artRefp"]').value = fields.reference.value;
-  prototype.querySelector('[id*="artDesi"]').value = fields.designation.value;
-  prototype.querySelector('[id*="qteDispo"]').value = fields.qteDispo.value;
+  ajouterValeur(prototype, 'numeroLigneDem', line);
+  ajouterValeur(prototype, 'numeroFournisseur', fields.numeroFournisseur.value);
+  ajouterValeur(prototype, 'nomFournisseur', fields.fournisseur.value);
+  ajouterValeur(prototype, 'artRefp', fields.reference.value);
+  ajouterValeur(prototype, 'artDesi', fields.designation.value);
+  ajouterValeur(prototype, 'qteDispo', fields.qteDispo.value);
+  ajouterValeur(prototype, 'prixUnitaire', fields.prixUnitaire.value);
+  ajouterValeur(prototype, 'total', total);
+  ajouterValeur(prototype, 'conditionnement', '1'); // conditionnement TO DO
+  ajouterValeur(prototype, 'motif', fields.motif.value);
 
   container.append(prototype);
+}
+
+function ajouterValeur(prototype, fieldId, value) {
+  prototype.querySelector(`[id*="${fieldId}"]`).value = value;
 }

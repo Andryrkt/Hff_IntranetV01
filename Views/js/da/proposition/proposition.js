@@ -58,6 +58,10 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
     addLine.addEventListener('click', () => ajouterReference(addLine.id));
   });
+
+  document.getElementById('myForm').addEventListener('submit', function (e) {
+    document.getElementById('child-prototype').remove();
+  });
 });
 
 window.addEventListener('load', () => {
