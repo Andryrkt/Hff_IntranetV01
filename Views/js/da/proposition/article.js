@@ -4,6 +4,7 @@ export function ajouterReference(addLineId) {
   const line = addLineId.replace('add_line_', '');
   const fields = {
     fournisseur: getField('fournisseur', line),
+    numeroFournisseur: getField('numeroFournisseur', line),
     reference: getField('reference', line),
     designation: getField('designation', line),
     prixUnitaire: getField('PU', line),

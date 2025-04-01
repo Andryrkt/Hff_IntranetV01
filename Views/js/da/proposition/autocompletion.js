@@ -6,6 +6,7 @@ export function autocompleteTheField(field, fieldName) {
 
   let reference = getField(field.id, fieldName, 'reference');
   let fournisseur = getField(field.id, fieldName, 'fournisseur');
+  let numeroFournisseur = getField(field.id, fieldName, 'numeroFournisseur');
   let designation = getField(field.id, fieldName, 'designation');
   let PU = getField(field.id, fieldName, 'PU');
   let line = baseId.replace(`_${fieldName}_`, '');
@@ -28,6 +29,7 @@ export function autocompleteTheField(field, fieldName) {
         item,
         fieldName,
         fournisseur,
+        numeroFournisseur,
         reference,
         designation,
         PU
@@ -76,15 +78,18 @@ function handleValuesOfFields(
   item,
   fieldName,
   fournisseur,
+  numeroFournisseur,
   reference,
   designation,
   PU
 ) {
   if (fieldName === 'fournisseur') {
     fournisseur.value = item.nomfournisseur;
+    numeroFournisseur.value = item.numerofournisseur;
   } else {
     reference.value = item.referencepiece;
     fournisseur.value = item.fournisseur;
+    numeroFournisseur.value = item.numerofournisseur;
     designation.value = item.designation;
     PU.value = item.prix;
   }
