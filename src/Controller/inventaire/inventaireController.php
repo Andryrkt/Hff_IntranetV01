@@ -234,6 +234,7 @@ class InventaireController extends Controller
     {
         $data = [];
         $dataExcel = [];
+        $sum = [];
         if (!empty($listInvent)) {
             $sumNbrCasier = 0;
             $sumNbrRef = 0;
