@@ -14,6 +14,9 @@ export function ajouterUneLigne(line, fields) {
   insertCellData(row, fields.qteDispo.value);
   insertCellData(row, fields.motif.value);
 
+  // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
+  ajouterLigneDansForm();
+
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
     field.value = '';
@@ -24,3 +27,5 @@ function insertCellData(row, $data) {
   let cell = row.insertCell();
   cell.innerHTML = $data;
 }
+
+function ajouterLigneDansForm() {}
