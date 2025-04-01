@@ -1,5 +1,5 @@
-import { displayOverlay } from '../utils/spinnerUtils';
-import { ajouterUneLigne } from './new/dal';
+import { displayOverlay } from '../../utils/spinnerUtils';
+import { ajouterUneLigne } from './dal';
 
 document.addEventListener('DOMContentLoaded', function () {
   localStorage.setItem('index', 0);
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document
     .getElementById('add-child')
     .addEventListener('click', ajouterUneLigne);
-  
+
   document.getElementById('myForm').addEventListener('submit', function (e) {
     e.preventDefault();
     if (!document.getElementById('children-container').hasChildNodes()) {

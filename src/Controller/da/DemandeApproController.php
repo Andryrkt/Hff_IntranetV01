@@ -217,6 +217,7 @@ class DemandeApproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            dd($form->getData());
         }
 
         self::$twig->display('da/proposition.html.twig', [

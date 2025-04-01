@@ -72,6 +72,6 @@ export function ajouterUneLigne() {
   autocompleteTheFields();
 }
 
-function replaceNameToNewIndex(element, newIndex) {
+export function replaceNameToNewIndex(element, newIndex) {
   return element.replace('__name__', newIndex);
 }
