@@ -11,56 +11,29 @@ class ListeCdeFrnNonGenererModel extends Model
     use ConversionModel;
     use ConditionModelTrait;
 
-    public function getListeCdeFrnNonGenerer(array $criteria = [])
+    public function getListeCdeFrnNonGenerer(array $criteria = [], string $numOrValide)
     {
         //condition de recherche
-        $designation1 = $this->conditionLike('slor_desi', 'designation',$criteria);
-        $designation2 = $this->conditionLike('nlig_desi', 'designation',$criteria);
-        $referencePiece1 = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
-        $referencePiece2 = $this->conditionLike('nlig_refp', 'referencePiece',$criteria);
-        $constructeur1 = $this->conditionLike('slor_constp', 'constructeur',$criteria);
-        $constructeur2 = $this->conditionLike('nlig_constp', 'constructeur',$criteria);
-        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
-        $numDoc = $this->conditionSigne('seor_numor', 'numDoc', '=', $criteria);
-        $numDoc = $this->conditionSigne('nlig_numcde', 'numDoc', '=', $criteria);
-        $dateDebutDoc1 = $this->conditionDateSigne( 'slor_datec', 'dateDebutDoc', $criteria, '>=');
-        $dateDebutDoc2 = $this->conditionDateSigne( 'nlig_datecde', 'dateDebutDoc', $criteria, '>=');
-        $dateFinDoc1 = $this->conditionDateSigne( 'slor_datec', 'dateFinDoc', $criteria, '<=');
-        $dateFinDoc2 = $this->conditionDateSigne( 'nlig_datecde', 'dateFinDoc', $criteria, '<=');
-        $piece = $this->conditionPiece('pieces', $criteria);
-        $numCli = $this->conditionSigne('nlig_numcli', 'numCli', '=', $criteria);
-        $agence = $this->conditionAgenceService("(CASE slor_natop 
-                        WHEN 'CES' THEN TRIM(slor_succdeb)
-                        WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
-                    END)", 'agence',$criteria);
+        $designation = $this->conditionLike('resultat.Designations', 'designation',$criteria);
+        $referencePiece = $this->conditionLike('resultat.referencePiece', 'referencePiece',$criteria);
+        $constructeur = $this->conditionLike('resultat.constructeur', 'constructeur',$criteria);
+        $numDit = $this->conditionLike('resultat.numDit', 'numDit',$criteria);
+        $numDoc = $this->conditionLike('TO_CHAR(resultat.NumDocument)', 'numDoc', $criteria);
+        $typeDoc = $this->conditionSigne('resultat.type_document', 'typeDoc', '=', $criteria);
+        $dateDebutDoc = $this->conditionDateSigne( 'resultat.DateDocument', 'dateDebutDoc', $criteria, '>=');
+        $dateFinDoc = $this->conditionDateSigne( 'resultat.DateDocument', 'dateFinDoc', $criteria, '<=');
+        
+        $piece = $this->conditionPieceLcfng('resultat.constructeur', 'typeLigne', $criteria); 
 
-        $service = $this->conditionAgenceService("(CASE slor_natop 
-                        WHEN 'CES' THEN TRIM(slor_servdeb)
-                        WHEN 'VTE' THEN 
-                            (SELECT cbse_nomcli 
-                            FROM cli_bse, cli_soc 
-                            WHERE csoc_soc = slor_soc 
-                            AND cbse_numcli = slor_numcli 
-                            AND cbse_numcli = csoc_numcli)
-                    END)", 'service',$criteria);
+        $numCli = $this->conditionLike('resultat.agenceServiceDebiteur', 'numClient', $criteria);
+        $agence = $this->conditionAgenceLcfng("resultat.agenceServiceDebiteur", 'agence',$criteria); 
+        $service = $this->conditionServiceLcfng("resultat.agenceServiceDebiteur", 'service',$criteria); 
 
-        $agenceEmetteur = $this->conditionAgenceService("(CASE slor_natop 
-                        WHEN 'CES' THEN TRIM(slor_succdeb)
-                        WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
-                    END)", 'agenceEmetteur',$criteria);
-
-        $serviceEmetteur = $this->conditionAgenceService("(CASE slor_natop 
-                        WHEN 'CES' THEN TRIM(slor_servdeb)
-                        WHEN 'VTE' THEN 
-                            (SELECT cbse_nomcli 
-                            FROM cli_bse, cli_soc 
-                            WHERE csoc_soc = slor_soc 
-                            AND cbse_numcli = slor_numcli 
-                            AND cbse_numcli = csoc_numcli)
-                    END)", 'serviceEmetteur',$criteria);
+        $agenceEmetteur = $this->conditionAgenceLcfng("resultat.agenceServiceCrediteur", 'agenceEmetteur',$criteria);
+        $serviceEmetteur = $this->conditionServiceLcfng("resultat.agenceServiceCrediteur", 'serviceEmetteur',$criteria);
 
 
-        $statement = " SELECT
+        $statement = " SELECT * from (SELECT
                 trim(seor_refdem) as NumDit,
                 seor_numor as NumDocument,
                 trim(slor_constp) as constructeur,
@@ -89,6 +62,7 @@ class ListeCdeFrnNonGenererModel extends Model
                 AND slor_pos = 'EC'
                 AND seor_serv ='SAV'
                 and slor_qterel > 0 and nvl(slor_numcf,0) <= 0
+                --and slor_numor in ('".$numOrValide."')
 
                 UNION
 
@@ -121,22 +95,25 @@ class ListeCdeFrnNonGenererModel extends Model
                 and nlig_constp not in ('Nmc','ZDI','ZAR')
                 and nent_numcde = nlig_numcde and nent_natop not in ('DEV')
                 and nent_soc = nlig_soc and nent_numcde = nlig_numcde
-                    $piece
-                    $designation2
-                    $referencePiece2 
-                    $constructeur2 
-                    $dateDebutDoc2
-                    $dateFinDoc2
-                    $numDit
-                    $numDoc
-                    $numCli
-                    $agence
-                    $service
-                    $agenceEmetteur
-                    $serviceEmetteur
-                order by 8 desc, 2, 7
-        ";
 
+                order by 8 desc, 2, 7) As resultat
+            WHERE resultat.numeroLigne > 0
+            and resultat.numDocument in ('".$numOrValide."')
+            $designation
+            $referencePiece
+            $constructeur
+            $numDit
+            $numDoc
+            $dateDebutDoc
+            $dateFinDoc
+            $typeDoc
+            $numCli
+            $piece
+            $agence
+            $service
+            $agenceEmetteur
+            $serviceEmetteur
+        ";
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

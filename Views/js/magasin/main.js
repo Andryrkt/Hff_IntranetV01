@@ -23,7 +23,7 @@ if (!currentConfig) {
   const tableBody = document.querySelector(currentConfig.tableBody);
   const rows = document.querySelectorAll(`${currentConfig.tableBody} tr`);
   if (pageType === "liste_cde_fnr_non_genere") {
-    groupRows(rows, tableBody, currentConfig.cellIndices, false);
+    // groupRows(rows, tableBody, currentConfig.cellIndices, false);
   } else {
     groupRows(rows, tableBody, currentConfig.cellIndices);
   }

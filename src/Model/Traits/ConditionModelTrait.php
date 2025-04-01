@@ -9,7 +9,7 @@ trait ConditionModelTrait
     private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
     {
         if(!empty($criteria[$indexCriteria])) {
-            $condition = " AND {$colonneBase} LIKE '%".$criteria[$indexCriteria]."%'";
+            $condition = " AND {$colonneBase} LIKE '%".(string)$criteria[$indexCriteria]."%'";
         } else {
             $condition = "";
         }
@@ -77,6 +77,25 @@ trait ConditionModelTrait
         return $piece;
     }
 
+    private function conditionPieceLcfng(string $colonneBase, string $indexCriteria, array $criteria): ?string
+    {   
+        if (!empty($criteria[$indexCriteria])) {
+            if($criteria[$indexCriteria] === "PIECES MAGASIN"){
+                $piece = " AND {$colonneBase} in (".GlobalVariablesService::get('pieces_magasin').")";
+            } else if($criteria[$indexCriteria] === "LUB") {
+                $piece = " AND {$colonneBase} in (".GlobalVariablesService::get('lub').")";
+            } else if($criteria[$indexCriteria] === "ACHATS LOCAUX") {
+                $piece = " AND {$colonneBase} in (".GlobalVariablesService::get('achat_locaux').") ";
+            }else if($criteria[$indexCriteria] === "TOUTS PIECES") {
+                $piece = null;
+            }
+        } else {
+            $piece = " AND {$colonneBase} in (".GlobalVariablesService::get('pieces_magasin').")";
+        }
+
+        return $piece;
+    }
+
     private function conditionOrCompletOuNonCis(string $indexCriteria, array $criteria): string 
     {
         if(!empty($criteria[$indexCriteria])) {
@@ -134,6 +153,29 @@ trait ConditionModelTrait
     {
         if(!empty($criteria[$indexCriteria])){
             $agenceUser = " AND {$colonneBase} = '".explode('-',$criteria[$indexCriteria])[0]."'";
+        } else {
+            $agenceUser = "";
+        }
+
+        return $agenceUser;
+    }
+
+    private function conditionAgenceLcfng(string $colonneBase, string $indexCriteria,array $criteria): string 
+    {
+        if(!empty($criteria[$indexCriteria])){
+            $agenceUser = " AND {$colonneBase} LIKE '%".explode('-',$criteria[$indexCriteria])[0]."-%'";
+        } else {
+            $agenceUser = "";
+        }
+
+        return $agenceUser;
+    }
+
+    private function conditionServiceLcfng(string $colonneBase, string $indexCriteria,array $criteria): string 
+    {
+
+        if(!empty($criteria[$indexCriteria])){
+            $agenceUser = " AND {$colonneBase} LIKE '%-".explode(' ',$criteria[$indexCriteria])[0]."%'";
         } else {
             $agenceUser = "";
         }
