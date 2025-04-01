@@ -186,20 +186,7 @@ class DemandeApproController extends Controller
         ]);
     }
 
-    /**
-     * @Route("/list", name="da_list")
-     */
-    public function listeDA(Request $request)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $data = self::$em->getRepository(DemandeAppro::class)->findAll();
-
-        self::$twig->display('da/list.html.twig', [
-            'data' => $data
-        ]);
-    }
+    
 
     /**
      * @Route("/proposition/{id}", name="da_proposition")
