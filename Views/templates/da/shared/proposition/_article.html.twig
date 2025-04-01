@@ -2,6 +2,7 @@
 
 {% set currentPage = article.numeroLigne %}
 
+{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
 <div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
 	<div class="row">
 		<div class="col-12 col-md-6">
@@ -32,6 +33,7 @@
 		</div>
 	</div>
 
+	<input type="hidden" name="qteDem_{{ currentPage }}" id="qteDem_{{ currentPage }}" value="{{ article.qteDem }}">
 	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ article.codeFams1 }}">
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ article.codeFams2 }}">
 

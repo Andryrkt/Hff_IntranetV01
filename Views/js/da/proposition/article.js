@@ -1,19 +1,19 @@
 import { ajouterUneLigne } from './dalr';
 
-export function ajouterReference(id) {
-  const line = id.replace('add_line_', '');
+export function ajouterReference(addLineId) {
+  const line = addLineId.replace('add_line_', '');
   const fields = {
-    reference: getField('reference', line),
     fournisseur: getField('fournisseur', line),
+    reference: getField('reference', line),
     designation: getField('designation', line),
+    prixUnitaire: getField('PU', line),
     qteDispo: getField('qte_dispo', line),
     motif: getField('motif', line),
-    prixUnitaire: getField('PU', line),
   };
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
-    ajouterUneLigne(addLineId, fields);
+    ajouterUneLigne(line, fields);
   }
 }
 

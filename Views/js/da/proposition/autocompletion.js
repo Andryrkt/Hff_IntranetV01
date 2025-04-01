@@ -51,7 +51,6 @@ async function fetchAllData(fieldName, codeFams1, codeFams2) {
       ? fieldName
       : `designation/${codeFams1}/${codeFams2}`
   }`;
-  console.log(url);
   return await fetchManager.get(url);
 }
 

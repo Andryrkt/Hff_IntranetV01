@@ -23,8 +23,6 @@
 						</h3>
 					</div>
 
-					{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
-
 					<div class="tab-content">
 						{% for DAL in data %}
 							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data|length }) }}
