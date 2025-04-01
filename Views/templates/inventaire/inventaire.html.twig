@@ -4,21 +4,21 @@
   <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
 {% endblock %}
 {% block content %}
-  <div class="sticky-header-titre">
-    <div class="container">
-      <h3 class="perso-titre">Liste inventaire</h3>
-      {% include '/inventaire/_formulaire.html.twig' %}
+<div class="sticky-header-titre">
+  <div class="container">
+    <h3 class="perso-titre">Liste inventaire</h3>
+    {% include '/inventaire/_formulaire.html.twig' %}
+    <div class="d-flex justify-content-between">
+          <a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+            <i class="fas fa-table"></i>
+            Excel</a>
     </div>
-    <div class="container-fluid">
-        <div class="sticky-header-statut"> <div class="container">
-				<div class="d-flex justify-content-between">
-					<div>
-						<a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div>
-				</div>
-			</div>
+  </div>
+</div> 
+<div class="container-fluid">
+
+  <div class="sticky-header-statut"> 
+  </div>
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
          
@@ -116,8 +116,7 @@
             {% endfor %}
          </tbody>
       </table> 
-    </div>
-  </div>
+</div>
 
 {% endblock %}
 {% block javascript %}
@@ -144,4 +143,5 @@ function uploadFile(input, id) {
 </script>
   <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
 {% endblock %}
