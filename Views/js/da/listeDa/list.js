@@ -1,7 +1,8 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
 import { mergeCellsTable } from "./tableHandler";
-import { fetchServicesForAgence } from "../../utils/serviceApiUtils.js";
-import { config } from "./config.js";
+import { configAgenceService } from "../../dit/config/listDitConfig.js";
+import { handleAgenceChange } from "../../dit/fonctionUtils/fonctionListDit.js";
+import { allowOnlyNumbers } from "../../magasin/utils/inputUtils.js";
 
 document.addEventListener("DOMContentLoaded", function () {
   const designations = document.querySelectorAll(".designation-btn");
@@ -18,44 +19,24 @@ window.addEventListener("load", () => {
   displayOverlay(false);
 });
 
-/** =================================================
- * AFFICHER LES SERVICES SELON L'AGENCE SELECTIONNER
- * ===============================================*/
-// Gestion des services
-const agenceInput = document.querySelector(config.agenceInput);
-const serviceInput = document.querySelector(config.serviceInput);
-const spinnerService = document.querySelector(config.spinnerService);
-const serviceContainer = document.querySelector(config.serviceContainer);
+/**===========================================================================
+ * Configuration des agences et services
+ *===========================================================================*/
 
-agenceInput.addEventListener("change", () => {
-  const agence = agenceInput.value.split(" ")[0];
-  fetchServicesForAgence(
-    agence,
-    serviceInput,
-    spinnerService,
-    serviceContainer
-  );
-});
-
-//pour liste commande fournisseur non généré
-
-const agenceEmetteurInput = document.querySelector(config.agenceEmetteurInput);
-const serviceEmetteurInput = document.querySelector(
-  config.serviceEmetteurInput
-);
-const spinnerServiceEmetteur = document.querySelector(
-  config.spinnerServiceEmetteur
-);
-const serviceContainerEmetteur = document.querySelector(
-  config.serviceContainerEmetteur
+// Attachement des événements pour les agences
+configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("emetteur")
 );
 
-agenceEmetteurInput.addEventListener("change", () => {
-  const agence = agenceEmetteurInput.value.split(" ")[0];
-  fetchServicesForAgence(
-    agence,
-    serviceEmetteurInput,
-    spinnerServiceEmetteur,
-    serviceContainerEmetteur
-  );
-});
+configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+  handleAgenceChange("debiteur")
+);
+
+/**==================================================
+ * valider seulement les chiffres
+ ===================================================*/
+
+const idMaterielInput = document.querySelector("#da_search_idMateriel");
+idMaterielInput.addEventListener("input", () =>
+  allowOnlyNumbers(idMaterielInput)
+);

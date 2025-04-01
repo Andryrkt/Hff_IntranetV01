@@ -1,4 +1,4 @@
-import { toggleSpinner } from "./spinnerUtils.js";
+import { toggleSpinners } from "./spinnerUtils.js";
 import { populateServiceOptions } from "./inputUtils.js";
 import { FetchManager } from "../api/FetchManager.js";
 
@@ -12,7 +12,7 @@ export function fetchServicesForAgence(
   serviceContainer
 ) {
   const url = `service-informix-fetch/${agence}`;
-  toggleSpinner(spinnerService, serviceContainer, true);
+  toggleSpinners(spinnerService, serviceContainer, true);
 
   fetchManager
     .get(url)
@@ -20,5 +20,5 @@ export function fetchServicesForAgence(
       populateServiceOptions(services, serviceInput);
     })
     .catch((error) => console.error("Erreur :", error))
-    .finally(() => toggleSpinner(spinnerService, serviceContainer, false));
+    .finally(() => toggleSpinners(spinnerService, serviceContainer, false));
 }

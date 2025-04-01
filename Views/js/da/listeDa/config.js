@@ -1,10 +1,14 @@
-export const config = {
-  agenceEmetteurInput: "#da_search_agenceEmetteur",
-  serviceEmetteurInput: "#da_search_serviceEmetteur",
-  agenceInput: "#da_search_agenceDebiteur",
-  serviceInput: "#da_search_serviceDebiteur",
-  spinnerServiceEmetteur: "#spinner-service-emetteur",
-  serviceContainerEmetteur: "#service-container-emetteur",
-  spinnerService: "#spinner-service",
-  serviceContainer: "#service-container",
+export const configAgenceService = {
+  emetteur: {
+    agenceInput: document.querySelector(".agenceEmetteur"),
+    serviceInput: document.querySelector(".serviceEmetteur"),
+    spinner: document.getElementById("spinner-service-emetteur"),
+    container: document.getElementById("service-container-emetteur"),
+  },
+  debiteur: {
+    agenceInput: document.querySelector(".agenceDebiteur"),
+    serviceInput: document.querySelector(".serviceDebiteur"),
+    spinner: document.getElementById("spinner-service-debiteur"),
+    container: document.getElementById("service-container-debiteur"),
+  },
 };
