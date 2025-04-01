@@ -48,7 +48,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $nbrItv ? $nbrItv : 0;
     }
 
-    public function findNumItvValide($numOr)
+    public function findNumItvValide($numOr): array
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
