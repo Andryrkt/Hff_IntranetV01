@@ -11,24 +11,24 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 class DitSearch
 {
    
-    private ?WorNiveauUrgence $niveauUrgence;
+    private ?WorNiveauUrgence $niveauUrgence = null;
 
     
-    private ?StatutDemande $statut;
+    private ?StatutDemande $statut = null;
 
     
     private ?int $idMateriel = 0;
 
     
-    private ?WorTypeDocument $typeDocument;
+    private ?WorTypeDocument $typeDocument = null;
 
    
-    private ?string $internetExterne;
+    private ?string $internetExterne = '';
 
 
-    private ?\Datetime $dateDebut;
+    private ?\Datetime $dateDebut = null;
 
-    private ?\DateTime $dateFin;
+    private ?\DateTime $dateFin = null;
 
    
     private ?string $numParc = '';
@@ -63,11 +63,11 @@ class DitSearch
     private ?string $sectionAffectee = null;
 
     
-    private ?string $sectionSupport1;
+    private ?string $sectionSupport1 = '';
 
-    private ?string $sectionSupport2;
+    private ?string $sectionSupport2 = '';
 
-    private ?string $sectionSupport3;
+    private ?string $sectionSupport3 = '';
 
     private ?string $etatFacture = '';
 

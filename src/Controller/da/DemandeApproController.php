@@ -131,7 +131,7 @@ class DemandeApproController extends Controller
     private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
     {
         $form->handleRequest($request);
-        $criteria = null;
+        $criteria = new DitSearch();
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
