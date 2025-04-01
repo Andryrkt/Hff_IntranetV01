@@ -154,10 +154,10 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
             ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                
+
                 $service = [];
-                if($data['agence'] !== ""){
-                    $services = $this->magasinModel->service(explode('-',$data['agence'])[0]);
+                if($data['agenceEmetteur'] !== ""){
+                    $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
                     
                     foreach ($services as $value) {
                         $service[$value['text']] = $value['text'];
@@ -165,8 +165,7 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 } else {
                     $service = [];
                 }
-        
-                
+
                 $form->add('serviceEmetteur',
                 ChoiceType::class,
                 [
