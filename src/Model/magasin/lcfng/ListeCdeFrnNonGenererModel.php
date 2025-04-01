@@ -98,7 +98,7 @@ class ListeCdeFrnNonGenererModel extends Model
 
                 order by 8 desc, 2, 7) As resultat
             WHERE resultat.numeroLigne > 0
-            and resultat.numDocument in ('".$numOrValide."')
+            --and resultat.NumDocument in ('".$numOrValide."')
             $designation
             $referencePiece
             $constructeur
