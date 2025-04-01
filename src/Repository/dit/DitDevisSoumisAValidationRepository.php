@@ -314,17 +314,17 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     public function findVerificationPrimeSoumission($numDevis) {
         // Récupérer le numéro de version maximal pour le devis donné
         $numeroVersionMax = $this->createQueryBuilder('dsv')
-            ->select('MAX(dsv.numeroVersion)')
+            ->select('COUNT(dsv.numeroVersion)')
             ->where('dsv.numeroDevis = :numDevis')
             ->setParameter('numDevis', $numDevis)
             ->getQuery()
             ->getSingleScalarResult();
     
         // Si aucun numéro de version trouvé, retourner 0
-        if ($numeroVersionMax === null) {
-            return false;
-        } else {
+        if ($numeroVersionMax === 0) {
             return true;
+        } else {
+            return false;
         }
     }
 }
