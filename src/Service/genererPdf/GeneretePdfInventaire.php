@@ -28,26 +28,23 @@ class GeneretePdfInventaire extends GeneratePdf
 
         // Ajout du logo
         $logoPath = $_ENV['BASE_PATH_LONG'].'/Views/assets/henriFraise.jpg';
-        $pdf->Image($logoPath, 10, 10, 50);
+        $pdf->Image($logoPath, 10, 10,35);
         $pdf->Ln(15);
 
         // Titre principal
-        $pdf->SetFont('dejavusans', 'B', 14);
+        $pdf->SetFont('dejavusans', 'B', 8);
         $pdf->Cell(0, 10, 'Écart sur inventaire', 0, 1, 'C');
         $pdf->Ln(2);
 
         // Date en haut à droite
-        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetFont('dejavusans', '', 8);
         $pdf->SetXY(250, 10);
         $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R');
 
-        // Numéro de page en dessous
-        $pdf->SetXY(250, 15);
-        $pdf->Cell(0, 5, 'Page                                 ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
-
+        $pdf->Cell(0, 5, 'Page  ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
         $pdf->Ln(15);
         // Sous-titre
-        $pdf->SetFont('dejavusans', '', 10);
+        $pdf->SetFont('dejavusans', '', 8);
         $pdf->Cell(0, 10, 'INVENTAIRE N°:' . $data[0]['numinv'], 0, 1, 'C');
         $pdf->Cell(0, 10, 'du : ' . $data[0]['dateInv'], 0, 1, 'C');
         $pdf->Ln(5);
