@@ -180,6 +180,13 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 'label' => 'N° Client',
                 'required' => false
             ])
+            ->add('orValide', 
+            CheckboxType::class,
+            [
+                'label' => 'OR validé',
+                'required' => false,
+                'data' => true // Définit la case comme cochée par défaut
+            ])
             ;
     }
 }

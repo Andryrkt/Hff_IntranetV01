@@ -13,6 +13,7 @@ class ListeCdeFrnNonGenererModel extends Model
 
     public function getListeCdeFrnNonGenerer(array $criteria = [], string $numOrValide)
     {
+        // dd($criteria);
         //condition de recherche
         $designation = $this->conditionLike('resultat.Designations', 'designation',$criteria);
         $referencePiece = $this->conditionLike('resultat.referencePiece', 'referencePiece',$criteria);
@@ -32,6 +33,11 @@ class ListeCdeFrnNonGenererModel extends Model
         $agenceEmetteur = $this->conditionAgenceLcfng("resultat.agenceServiceCrediteur", 'agenceEmetteur',$criteria);
         $serviceEmetteur = $this->conditionServiceLcfng("resultat.agenceServiceCrediteur", 'serviceEmetteur',$criteria);
 
+        if($criteria['orValide']) {
+            $numOrValide = " AND resultat.NumDocument in ('".$numOrValide."')";
+        } else {
+            $numOrValide = "";
+        }
 
         $statement = " SELECT * from (SELECT
                 trim(seor_refdem) as NumDit,
@@ -62,7 +68,6 @@ class ListeCdeFrnNonGenererModel extends Model
                 AND slor_pos = 'EC'
                 AND seor_serv ='SAV'
                 and slor_qterel > 0 and nvl(slor_numcf,0) <= 0
-                --and slor_numor in ('".$numOrValide."')
 
                 UNION
 
@@ -98,7 +103,7 @@ class ListeCdeFrnNonGenererModel extends Model
 
                 order by 8 desc, 2, 7) As resultat
             WHERE resultat.numeroLigne > 0
-            --and resultat.NumDocument in ('".$numOrValide."')
+            $numOrValide
             $designation
             $referencePiece
             $constructeur

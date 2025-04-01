@@ -37,7 +37,9 @@ class ListeCdeFrnNonGenererController extends Controller
         ])->getForm();
 
         $form->handleRequest($request);
-        $criteria = [];
+        $criteria = [
+            'orValide' => true
+        ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
