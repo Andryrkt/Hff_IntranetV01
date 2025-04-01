@@ -18,7 +18,7 @@ trait DemandeApproTrait
      * @param array $option
      * @return void
      */
-    private function data(Request $request, array $option)
+    private function data(Request $request, array $option, DitSearch $criteria): array
     {
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -26,7 +26,7 @@ trait DemandeApproTrait
         $limit = 20;
 
         //recupération des données filtrée
-        $paginationData = $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $this->ditSearch, $option);
+        $paginationData = $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option);
 
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
@@ -104,12 +104,10 @@ trait DemandeApproTrait
      * @param array $criteria
      * @return void
      */
-    private function ajoutCriteredansSession(array $criteria)
+    private function ajoutCriteredansSession(array $criteriaTab)
     {
-        //transformer l'objet ditSearch en tableau
-        $criteria = $this->ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('dit_search_criteria', $criteria);
+        $this->sessionService->set('dit_search_criteria', $criteriaTab);
     }
 
     /**

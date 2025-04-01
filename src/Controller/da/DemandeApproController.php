@@ -99,9 +99,14 @@ class DemandeApproController extends Controller
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
+        
+        $criteria = $this->recupDataFormulaireRecherhce($form, $request);
 
-        $criteria = [];
-        $this->ajoutCriteredansSession($criteria);
+        //transformer l'objet ditSearch en tableau
+        $criteriaTab = $criteria->toArray();
+
+        $this->ajoutCriteredansSession($criteriaTab);
+        
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
@@ -109,18 +114,28 @@ class DemandeApproController extends Controller
         $this->sessionService->set('dit_search_option', $option);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $option);
+        $paginationData = $this->data($request, $option, $criteria);
 
 
         self::$twig->display('da/list-dit.html.twig', [
             'data'          => $paginationData['data'],
             'currentPage'   => $paginationData['currentPage'],
             'totalPages'    => $paginationData['lastPage'],
-            'criteria'      => $criteria,
+            'criteria'      => $criteriaTab,
             'resultat'      => $paginationData['totalItems'],
             'statusCounts'  => $paginationData['statusCounts'],
             'form'          => $form->createView(),
         ]);
+    }
+
+    private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
+    {
+        $form->handleRequest($request);
+        $criteria = null;
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        }
+        return $criteria;
     }
 
     /**

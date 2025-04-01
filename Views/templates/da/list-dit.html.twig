@@ -122,9 +122,11 @@
 </div>
 
 	<!-- FIN tableau -->
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
 {% endblock %}
+
