@@ -99,14 +99,12 @@ class DemandeApproController extends Controller
             'autorisationRoleEnergie' => $autorisationRoleEnergie
         ])->getForm();
 
-        
         $criteria = $this->recupDataFormulaireRecherhce($form, $request);
 
         //transformer l'objet ditSearch en tableau
         $criteriaTab = $criteria->toArray();
 
         $this->ajoutCriteredansSession($criteriaTab);
-        
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
@@ -128,14 +126,14 @@ class DemandeApproController extends Controller
         ]);
     }
 
+
     private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
     {
         $form->handleRequest($request);
-        $criteria = new DitSearch();
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
+            $this->ditSearch = $form->getData();
         }
-        return $criteria;
+        return $this->ditSearch;
     }
 
     /**
