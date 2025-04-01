@@ -8,28 +8,24 @@
     <div class="container">
       <h3 class="perso-titre">Bordereau de comptage</h3>
        {% include '/bordereau/_formulaire.html.twig' %}
+       <div class="d-flex justify-content-between">
+          {% if data is not empty %}
+              
+              <a href="{{path('export_pdf_bordereau', { 'numInv': numinvpdf })}}" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3" target="_blank">
+                <i class="fas fa-print"></i>
+                PDF</a>
+          {% else %}
+            
+              <a href="#" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
+                <i class="fas fa-print"></i>
+                PDF</a>
+          {% endif %}
+        </div>
     </div>
-    <div class="container-fluid">
-        <div class="sticky-header-statut"> <div class="container">
-				<div class="d-flex justify-content-between">
-					<div>
-        {% if data is not empty %}
-						
-						<a href="{{path('export_pdf_bordereau', { 'numInv': numinvpdf })}}" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3" target="_blank">
-							<i class="fas fa-print"></i>
-							PDF</a>
-        {% else %}
-					
-						<a href="#" id="pdfBordereau" name="pdfinvenatireDetail" class="btn btn bg-info text-white my-3 fw-bold ms-3">
-							<i class="fas fa-print"></i>
-							PDF</a>
-        {% endif %}
-        
-					</div>
-          
-				</div>
-			</div>
-
+  </div>  
+  <div class="container-fluid">
+        <div class="sticky-header-statut"> 
+ 
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
             <tr>
@@ -68,11 +64,12 @@
           {% endif %}
          </tbody>
       </table> 
-    </div>
   </div>
+ 
 
 {% endblock %}
 {% block javascript %}
   <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-  <script src="/Hffintranet/Views/js/inventaire/inventaireAg.js" type="module"></script>
+  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
 {% endblock %}
