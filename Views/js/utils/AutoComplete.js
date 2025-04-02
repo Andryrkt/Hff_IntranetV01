@@ -7,6 +7,7 @@ export class AutoComplete {
     onSelectCallback,
     loaderElement = null,
     itemToStringCallback = null,
+    onBlurCallback = null,
     debounceDelay = 300,
   }) {
     this.inputElement = inputElement;
@@ -16,6 +17,7 @@ export class AutoComplete {
     this.onSelectCallback = onSelectCallback;
     this.loaderElement = loaderElement;
     this.itemToStringCallback = itemToStringCallback;
+    this.onBlurCallback = onBlurCallback;
     this.debounceDelay = debounceDelay;
 
     this.data = [];
@@ -37,6 +39,12 @@ export class AutoComplete {
 
     this.inputElement.addEventListener('input', () => this.onInput());
     this.inputElement.addEventListener('keydown', (e) => this.onKeyDown(e));
+
+    if (this.onBlurCallback) {
+      this.inputElement.addEventListener('blur', () =>
+        this.onBlur(this.onBlurCallback)
+      );
+    }
 
     document.addEventListener('click', (e) => {
       if (
@@ -88,7 +96,7 @@ export class AutoComplete {
     }
   }
 
-  onBlur() {
+  onBlur(onBlurCallback) {
     const inputValue = this.inputElement.value.trim().toLowerCase();
 
     // Vérifie si la valeur saisie est dans les suggestions filtrées
@@ -96,7 +104,7 @@ export class AutoComplete {
       (item) => this.itemToString(item).toLowerCase() === inputValue
     );
 
-    return found;
+    onBlurCallback(found);
   }
 
   updateActiveSuggestion(suggestions) {
