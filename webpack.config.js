@@ -80,13 +80,20 @@ module.exports = {
       }),
       safelist: {
         standard: [
-          "select2-container", 
-          "select2-selection--single", 
-          "select2-dropdown", 
+          /^select2/, // garde toutes les classes qui commencent par select2 (plus simple)
+          "select2-container",
+          "select2-container--default",
+          "select2-container--open",
+          "select2-selection--single",
+          "select2-selection__rendered",
+          "select2-selection__arrow",
+          "select2-dropdown",
+          "select2-results",
+          "select2-results__options",
           "select2-results__option",
           "select2-results__option--highlighted",
-          "select2-selection__arrow",
-          "select2-selection__placeholder"
+          "select2-search__field",
+          "select2-selection__placeholder",
         ],
       },
     }),
