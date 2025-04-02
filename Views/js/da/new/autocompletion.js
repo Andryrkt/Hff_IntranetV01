@@ -14,119 +14,104 @@ export function autocompleteTheFields() {
     );
     initializeAutoCompleteForDesignation(designation); // Initialisation
   });
+}
 
-  function initializeAutoCompleteForDesignation(designation) {
-    let baseId = designation.id.replace('demande_appro_form_DAL', '');
+function initializeAutoCompleteForDesignation(designation) {
+  let baseId = designation.id.replace('demande_appro_form_DAL', '');
 
-    let famille = document.getElementById(
-      generateId(designation.id, 'artDesi', 'codeFams1')
-    );
-    let sousFamille = document.getElementById(
-      generateId(designation.id, 'artDesi', 'codeFams2')
-    );
-    let familleLibelle = document.getElementById(
-      generateId(designation.id, 'artDesi', 'artFams1')
-    );
-    let sousFamilleLibelle = document.getElementById(
-      generateId(designation.id, 'artDesi', 'artFams2')
-    );
+  let fields = {
+    famille: getFieldByGeneratedId(designation.id, 'codeFams1'),
+    sousFamille: getFieldByGeneratedId(designation.id, 'codeFams2'),
+    familleLibelle: getFieldByGeneratedId(designation.id, 'artFams1'),
+    sousFamilleLibelle: getFieldByGeneratedId(designation.id, 'artFams2'),
+  };
 
-    let suggestionContainer = document.getElementById(`suggestion${baseId}`);
-    let loaderElement = document.getElementById(`spinner${baseId}`);
+  let suggestionContainer = document.getElementById(`suggestion${baseId}`);
+  let loaderElement = document.getElementById(`spinner${baseId}`);
 
-    if (famille && sousFamille) {
-      new AutoComplete({
-        inputElement: designation,
-        suggestionContainer: suggestionContainer,
-        loaderElement: loaderElement,
-        debounceDelay: 150,
-        fetchDataCallback: () => fetchDesignations(famille, sousFamille),
-        displayItemCallback: displayDesignation,
-        onSelectCallback: (item) =>
-          handleValueOfTheFields(
-            item,
-            designation,
-            famille,
-            sousFamille,
-            familleLibelle,
-            sousFamilleLibelle
-          ),
-        itemToStringCallback: (item) =>
-          `${item.fournisseur} - ${item.designation}`,
-      });
-    } else {
-      console.error('Certains éléments nécessaires sont manquants.');
-    }
+  if (fields.famille && fields.sousFamille) {
+    new AutoComplete({
+      inputElement: designation,
+      suggestionContainer: suggestionContainer,
+      loaderElement: loaderElement,
+      debounceDelay: 150,
+      fetchDataCallback: () =>
+        fetchDesignations(fields.famille, fields.sousFamille),
+      displayItemCallback: displayDesignation,
+      onSelectCallback: (item) =>
+        handleValueOfTheFields(item, designation, fields),
+      itemToStringCallback: (item) =>
+        `${item.fournisseur} - ${item.designation}`,
+    });
+  } else {
+    console.error('Certains éléments nécessaires sont manquants.');
   }
+}
 
-  async function fetchDesignations(famille, sousFamille) {
-    const fetchManager = new FetchManager();
-    let codeFamille = famille.value !== '' ? famille.value : '-';
-    let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
+async function fetchDesignations(famille, sousFamille) {
+  const fetchManager = new FetchManager();
+  let codeFamille = famille.value !== '' ? famille.value : '-';
+  let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
 
-    return await fetchManager.get(
-      `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
-    );
+  return await fetchManager.get(
+    `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
+  );
+}
+
+function displayDesignation(item) {
+  return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
+}
+
+function getFieldByGeneratedId(baseId, suffix) {
+  return document.getElementById(baseId.replace('artDesi', suffix));
+}
+
+async function handleValueOfTheFields(item, designation, fields) {
+  let referencePiece = document.getElementById(
+    designation.id.replace('artDesi', 'artRefp')
+  );
+  let numeroFournisseur = document.getElementById(
+    designation.id.replace('artDesi', 'numeroFournisseur')
+  );
+  let nomFournisseur = document.getElementById(
+    designation.id.replace('artDesi', 'nomFournisseur')
+  );
+  let famille = fields.famille;
+  let sousFamille = fields.sousFamille;
+  let familleLibelle = fields.familleLibelle;
+  let sousFamilleLibelle = fields.sousFamilleLibelle;
+  console.log(item);
+
+  if (famille.value !== item.codefamille) {
+    famille.value = item.codefamille;
+    familleLibelle.value = famille.options[famille.selectedIndex].text;
+    await changeSousFamille(famille, sousFamille);
+  } else if (sousFamille.value !== item.codesousfamille) {
+    await changeSousFamille(famille, sousFamille);
   }
+  sousFamille.value = item.codesousfamille;
+  sousFamilleLibelle.value =
+    sousFamille.options[sousFamille.selectedIndex].text;
+  designation.value = item.designation;
+  referencePiece.value = item.referencepiece;
+  numeroFournisseur.value = item.numerofournisseur;
+  nomFournisseur.value = item.fournisseur;
+}
 
-  function displayDesignation(item) {
-    return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
-  }
+async function changeSousFamille(famille, sousFamille) {
+  let baseId = sousFamille.id.replace('demande_appro_form_DAL', '');
 
-  function generateId(baseId, prefix, suffix) {
-    return baseId.replace(prefix, suffix);
-  }
-
-  async function handleValueOfTheFields(
-    item,
-    designation,
-    famille,
-    sousFamille,
-    familleLibelle,
-    sousFamilleLibelle
-  ) {
-    let referencePiece = document.getElementById(
-      designation.id.replace('artDesi', 'artRefp')
+  try {
+    await updateDropdown(
+      sousFamille,
+      `api/demande-appro/sous-famille/${famille.value}`,
+      '-- Choisir une sous-famille --',
+      document.getElementById(`spinner${baseId}`),
+      document.getElementById(`container${baseId}`)
     );
-    let numeroFournisseur = document.getElementById(
-      designation.id.replace('artDesi', 'numeroFournisseur')
-    );
-    let nomFournisseur = document.getElementById(
-      designation.id.replace('artDesi', 'nomFournisseur')
-    );
-    console.log(item);
-
-    if (famille.value !== item.codefamille) {
-      famille.value = item.codefamille;
-      familleLibelle.value = famille.options[famille.selectedIndex].text;
-      await changeSousFamille(famille, sousFamille);
-    } else if (sousFamille.value !== item.codesousfamille) {
-      await changeSousFamille(famille, sousFamille);
-    }
-    sousFamille.value = item.codesousfamille;
-    sousFamilleLibelle.value =
-      sousFamille.options[sousFamille.selectedIndex].text;
-    designation.value = item.designation;
-    referencePiece.value = item.referencepiece;
-    numeroFournisseur.value = item.numerofournisseur;
-    nomFournisseur.value = item.fournisseur;
-  }
-
-  async function changeSousFamille(famille, sousFamille) {
-    let baseId = sousFamille.id.replace('demande_appro_form_DAL', '');
-
-    try {
-      await updateDropdown(
-        sousFamille,
-        `api/demande-appro/sous-famille/${famille.value}`,
-        '-- Choisir une sous-famille --',
-        document.getElementById(`spinner${baseId}`),
-        document.getElementById(`container${baseId}`)
-      );
-    } catch (error) {
-      console.error('Erreur dans changeSousFamille:', error);
-    } finally {
-      console.log('Fin de changeSousFamille');
-    }
+  } catch (error) {
+    console.error('Erreur dans changeSousFamille:', error);
+  } finally {
+    console.log('Fin de changeSousFamille');
   }
 }
