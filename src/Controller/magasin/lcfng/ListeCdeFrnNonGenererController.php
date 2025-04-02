@@ -32,7 +32,7 @@ class ListeCdeFrnNonGenererController extends Controller
     public function index(Request $request)
     {
 
-        $form = self::$validator->createBuilder(ListeCdeFrnNonGenererSearchType::class, [], [
+        $form = self::$validator->createBuilder(ListeCdeFrnNonGenererSearchType::class, ['agenceEmetteur' => '01-ANTANANARIVO'], [
             'method' => 'GET'
         ])->getForm();
 

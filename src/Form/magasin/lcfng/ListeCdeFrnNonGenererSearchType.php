@@ -145,17 +145,33 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 'label' => 'Agence Emetteur',
                 'required' => false,
                 'choices' => $this->agence() ?? [],
-                'placeholder' => ' -- choisir agence --'
+                'placeholder' => ' -- choisir agence --',
+                'data' => '01-ANTANANARIVO',
+                'attr' => [
+                    'disabled' => true,
+                ]
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
+                $service = [];
+
+                if($data['agenceEmetteur'] !== ""){
+                    $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
+                    
+                    foreach ($services as $value) {
+                        $service[$value['text']] = $value['text'];
+                    }
+                } else {
+                    $service = [];
+                }
+
                 $form->add('serviceEmetteur',
                 ChoiceType::class,
                 [
                     'label' => 'Service Emetteur',
                     'required' => false,
-                    'choices' => [],
+                    'choices' => $service,
                     'placeholder' => ' -- choisir service --'
                 ]);
             })
