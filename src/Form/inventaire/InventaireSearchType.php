@@ -15,15 +15,18 @@ class InventaireSearchType extends AbstractType
 {
     use Transformation;
     private $InventaireModel;
+    private ?\DateTime $datefin = null;
     private ?\DateTime $dateDebut = null;
     const STOCK = [
         'PRINCIPAL' => 'PRINCIPAL',
-        'SECONDAIRE' => 'SECONDAIRE'
+        'SECONDAIRE' => 'SECONDAIRE',
     ];
     public function __construct()
     {
         $this->InventaireModel = new InventaireModel;
-        $this->dateDebut = new \DateTime();
+        $this->datefin = new \DateTime();
+        $this->dateDebut = clone $this->datefin;
+        $this->dateDebut->modify('first day of this month');
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -35,7 +38,6 @@ class InventaireSearchType extends AbstractType
                 'choices' => $agence,
                 'multiple' => true,
                 'expanded' => true,
-                'placeholder' => ' -- Choisir une agence --',
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
@@ -47,14 +49,14 @@ class InventaireSearchType extends AbstractType
                 'widget' => 'single_text',
                 'label' => 'Date Fin',
                 'required' => false,
+                'data' => $this->datefin
             ])
             ->add('stock', ChoiceType::class, [
                 'label' => 'stock',
-                'required' => false,
+                'required' => true,
                 'choices' => self::STOCK,
-                'attr' => [ 'class' => 'stock'],
-                'data' => 'PRINCIPAL',
-                'placeholder' => ' -- Choisir une stock --',
+                'attr' => ['class' => 'stock'],
+                'data' => 'PRINCIPAL'
             ])
         ;
     }

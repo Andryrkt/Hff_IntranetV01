@@ -4,6 +4,7 @@ import {
   cellIndicesCisATraiter,
   cellIndicesCisALivrer,
   cellIndicesListePlanning,
+  cellIndicesLcfng,
 } from "./cellIndicesConfig.js";
 export const config = {
   or_a_traiter: {
@@ -52,6 +53,21 @@ export const config = {
   },
   liste_planning: {
     tableBody: "#tableBody",
-    cellIndices: cellIndicesListePlanning
-  }
+    cellIndices: cellIndicesListePlanning,
+  },
+  liste_cde_fnr_non_genere: {
+    tableBody: "#tableBody",
+    agenceEmetteurInput: "#liste_cde_frn_non_generer_search_agenceEmetteur",
+    serviceEmetteurInput: "#liste_cde_frn_non_generer_search_serviceEmetteur",
+    agenceInput: "#liste_cde_frn_non_generer_search_agence",
+    serviceInput: "#liste_cde_frn_non_generer_search_service",
+    spinnerServiceEmetteur: "#spinner-service-emetteur",
+    serviceContainerEmetteur: "#service-container-emetteur",
+    spinnerService: "#spinner-service",
+    serviceContainer: "#service-container",
+    numDitInput: "#liste_cde_frn_non_generer_search_numDit",
+    refPieceInput: "#liste_cde_frn_non_generer_search_referencePiece",
+    numDocInput: "#liste_cde_frn_non_generer_search_numDoc",
+    cellIndices: cellIndicesLcfng,
+  },
 };

@@ -36,6 +36,18 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    public function findNumOrValide()
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroOR AS numeroOR")
+            ->where('osv.statut IN (:statut)')
+            ->setParameter('statut', ['Validé', 'Livré', 'Livré partiellement'])
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
     public function findNbrItv($numOr)
     {
         $nbrItv = $this->createQueryBuilder('osv')

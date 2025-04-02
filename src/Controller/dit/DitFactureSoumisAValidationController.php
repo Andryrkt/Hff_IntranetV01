@@ -168,7 +168,7 @@ class DitFactureSoumisAValidationController extends Controller
         if ($interneExterne == 'INTERNE') {
             $prefix = 'factureValidation';
         } else {
-            $prefix = 'validation_facture_client';
+            $prefix = 'facture_client';
         }
 
         $options = [

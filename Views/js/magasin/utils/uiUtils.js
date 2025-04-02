@@ -11,7 +11,8 @@ export function applyRowspanAndClass(
   row,
   rowSpanCount,
   cellIndices,
-  fetchFunction = null
+  fetchFunction = null,
+  addInfo = true
 ) {
   Object.keys(cellIndices).forEach((key) => {
     const cell = row.getElementsByTagName("td")[cellIndices[key]];
@@ -19,15 +20,23 @@ export function applyRowspanAndClass(
       // Appliquer le rowspan et ajouter une classe
       cell.rowSpan = rowSpanCount;
       cell.classList.add("rowspan-cell");
+      console.log("Appliquer rowspan à", row, "avec", rowSpanCount);
 
       // Si la clé est `ditNumber`, ajouter un rectangle
-      if (key === "ditNumber" && fetchFunction) {
+      if (key === "ditNumber" && fetchFunction && addInfo) {
         miseEnPlaceRectangle(cell, row, cellIndices, fetchFunction);
       }
     }
   });
 }
 
+/**
+ * affiche le rectangle contenant l'id materiel , marque et casier
+ * @param {*} cell
+ * @param {*} row
+ * @param {*} cellIndices
+ * @param {*} fetchFunction
+ */
 export function miseEnPlaceRectangle(cell, row, cellIndices, fetchFunction) {
   // Créer un élément rectangle
   const rectangle = document.createElement("div");
