@@ -45,9 +45,9 @@
                       <th  style="text-align: center;">{{data.sum.cpt3 is same as(0) ? "":data.sum.cpt3}}</th>
                       <th  style="text-align: center;">{{row.ecart}}</th>
                       <th style="text-align: center;">{{row.pourcentage_nbr_ecart}}</th>
-                      <th style="text-align: right;">{{row.pmp |number_format(0, '', ' ') }}</th>
-                      <th style="text-align: right;">{{row.montant_inventaire |number_format(0, '', ' ') }}</th>
-                      <th style="text-align: right;">{{row.montant_ecart |number_format(0, '', ' ') }}</th>
+                      <th style="text-align: right;">{{data.sum.countPmp |number_format(0, '', ' ') }}</th>
+                      <th style="text-align: right;">{{ data.sum.countInvent |number_format(0, '', ' ') }}</th>
+                      <th style="text-align: right;">{{ data.sum.countMontEcart |number_format(0, '', ' ') }}</th>
                       <th style="text-align: center;">{{row.pourcentage_ecart}}</th>
                 </tr>
          {% endfor %}

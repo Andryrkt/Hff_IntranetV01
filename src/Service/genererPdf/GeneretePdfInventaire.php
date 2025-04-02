@@ -72,7 +72,7 @@ class GeneretePdfInventaire extends GeneratePdf
         $totalMont_Pmp = 0;
         foreach ($data as $row) {
             $totalMont_ecart += (int)$row['montant_ajuste'];
-            $totalMont_Pmp += (int)$row['pmp'];
+            $totalMont_Pmp += $row['pmp'];
             $pdf->Cell(15, 6, $row['cst'], 1, 0, 'L');
             $pdf->Cell(30, 6, $row['refp'], 1, 0, 'L');
             $pdf->Cell($usable_heigth - 225, 6, $row['desi'], 1, 0, 'L');
@@ -82,8 +82,8 @@ class GeneretePdfInventaire extends GeneratePdf
             $pdf->Cell(15, 6, $row['qte_comptee_2'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['qte_comptee_3'], 1, 0, 'C');
             $pdf->Cell(15, 6, $row['ecart'], 1, 0, 'C');
-            $pdf->Cell(30, 6, str_replace('.', ' ', $this->formatNumber((int)$row['pmp'])), 1, 0, 'R');
-            $pdf->Cell(30, 6, str_replace('.', ' ', $this->formatNumber((int)$row['montant_ajuste'])), 1, 0, 'C');
+            $pdf->Cell(30, 6, str_replace('.', ' ', $this->formatNumber($row['pmp'])), 1, 0, 'R');
+            $pdf->Cell(30, 6, str_replace('.', ' ', $this->formatNumber($row['montant_ajuste'])), 1, 0, 'C');
             $pdf->Cell(25, 6, $row['pourcentage_ecart'], 1, 1, 'R');
         }
 
