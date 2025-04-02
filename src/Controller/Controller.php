@@ -32,7 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-
+use App\Model\da\DaModel;
 
 class Controller
 {
@@ -44,6 +44,7 @@ class Controller
     protected $badm;
     protected $Person;
     protected $DomModel;
+    protected $DaModel;
     protected $detailModel;
     protected $duplicata;
     protected $domList;
@@ -90,6 +91,7 @@ class Controller
         $this->Person           = new PersonnelModel();
 
         $this->DomModel         = new DomModel();
+        $this->DaModel          = new DaModel();
         $this->detailModel      = new DomDetailModel();
         $this->duplicata        = new DomDuplicationModel();
         $this->domList          = new DomListModel();
@@ -374,6 +376,36 @@ class Controller
         //var_dump($Result_Num);
         //dd($Result_Num);
         return $Result_Num;
+    }
+
+    /**
+     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
+     *
+     * @param string $nomDemande
+     * @return string
+     */
+    protected function autoDecrement(string $nomDemande): string
+    {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
+
+        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre mdecremente
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential - 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 9999;
+            }
+        }
+
+        return $nomDemande . $AnneMoisOfcours . $vNumSequential;
     }
 
 

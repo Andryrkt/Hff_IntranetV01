@@ -20,6 +20,31 @@ class DaModel extends Model
         return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
     }
 
+    public function getAllSousFamille()
+    {
+        $statement = "SELECT DISTINCT 
+                        TRIM(a.abse_fams2) AS code, 
+                        TRIM(t.atab_lib) AS libelle
+                    FROM art_bse a
+                    INNER JOIN agr_tab t 
+                        ON t.atab_nom = 'S/S' 
+                        AND t.atab_code = a.abse_fams2
+                    WHERE a.abse_constp = 'ZST' 
+                    AND a.abse_fams1 IN (
+                        SELECT DISTINCT TRIM(t2.atab_code) AS code
+                        FROM agr_tab t2
+                        INNER JOIN art_bse a2 
+                            ON a2.abse_fams1 = t2.atab_code
+                        WHERE a2.abse_constp = 'ZST' 
+                        AND t2.atab_nom = 'STA'
+                    )";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_combine(array_column($data, 'libelle'), array_column($data, 'code'));
+    }
+
     public function getTheSousFamille($codeFamille)
     {
         $statement = "SELECT DISTINCT 
@@ -39,8 +64,10 @@ class DaModel extends Model
         $statement = "SELECT 
             trim(abse_fams1) as codefamille,
             trim(abse_fams2) as codesousfamille,
+            trim(abse_refp) as referencepiece,
             trim(abse_desi) as designation,
             abse_pxstd as prix,
+            fbse_numfou as numerofournisseur,
             trim(fbse_nomfou) as fournisseur
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
@@ -56,5 +83,52 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data;
+    }
+
+    public function getAllFournisseur()
+    {
+        $statement = "SELECT DISTINCT
+            fbse_numfou as numerofournisseur,
+            trim(fbse_nomfou) as nomfournisseur
+            FROM art_frn
+            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
+            INNER JOIN frn_bse ON fbse_numfou = afrn_numf
+            WHERE abse_constp = 'ZST'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getLibelleFamille($codeFamille)
+    {
+        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
+                FROM agr_tab t
+                INNER JOIN art_bse a ON a.abse_fams1 = t.atab_code
+                WHERE t.atab_code = '$codeFamille' 
+                AND t.atab_nom = 'STA'
+                AND a.abse_constp = 'ZST'
+                LIMIT 1";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
+    }
+
+    public function getLibelleSousFamille($codeSousFamille, $codeFamille)
+    {
+        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
+                FROM art_bse a
+                INNER JOIN agr_tab t ON t.atab_nom = 'S/S' AND t.atab_code = a.abse_fams2
+                WHERE a.abse_constp = 'ZST' 
+                AND a.abse_fams1 = '$codeFamille'
+                AND a.abse_fams2 = '$codeSousFamille'
+                LIMIT 1";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 }

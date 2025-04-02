@@ -4,6 +4,7 @@ import {
   createDesiAndAppendTo,
   createFams2AndAppendTo,
   createFieldAndAppendTo,
+  createRemoveButtonAndAppendTo,
   formatAllField,
 } from './field';
 
@@ -32,16 +33,22 @@ export function ajouterUneLigne() {
   row.classList.add('row', 'g-3');
 
   let fields = [
-    ['w-15', 'artFams1'],
-    ['w-20', 'artFams2'],
-    ['w-25', 'artDesi'],
+    ['w-15', 'codeFams1'],
+    ['w-15', 'codeFams2'],
+    ['w-20', 'artDesi'],
+    ['w-10', 'nomFournisseur'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
-    ['w-25', 'commentaire'],
+    ['w-23', 'commentaire'],
+    ['d-none', 'artConstp'],
+    ['d-none', 'artRefp'],
+    ['d-none', 'artFams1'],
+    ['d-none', 'artFams2'],
+    ['d-none', 'numeroFournisseur'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
-    if (fieldName === 'artFams2') {
+    if (fieldName === 'codeFams2') {
       createFams2AndAppendTo(classe, prototype, row);
     } else if (fieldName === 'artDesi') {
       createDesiAndAppendTo(classe, prototype, row);
@@ -49,20 +56,22 @@ export function ajouterUneLigne() {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
+  prototype.querySelectorAll('.mb-3').forEach((el) => el.remove()); // supprimer tous les <div class="mb-3"> à l'intérieur de prototype
+  createRemoveButtonAndAppendTo(prototype, row);
 
   let div = document.createElement('div');
-  div.classList.add('mt-3');
+  div.classList.add('mt-3', 'mb-3');
 
   // Ajouter la row complète dans le container
   prototype.appendChild(row);
+  prototype.appendChild(div);
   container.appendChild(prototype);
-  container.appendChild(div);
 
-  eventOnFamille();
+  eventOnFamille(); // gestion d'évènement sur les familles et sous-familles
   formatAllField();
   autocompleteTheFields();
 }
 
-function replaceNameToNewIndex(element, newIndex) {
+export function replaceNameToNewIndex(element, newIndex) {
   return element.replace('__name__', newIndex);
 }

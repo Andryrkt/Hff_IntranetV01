@@ -1,0 +1,77 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as form %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste des demandes d'achat
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+	</div>
+
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>N° Demande</th>
+					<th>N° DIT</th>
+					<th>Demandeur</th>
+					<th>Date de demande</th>
+					<th>Statut</th>
+					<th>Famille</th>
+					<th>Sous-famille</th>
+					<th>Réference</th>
+					<th>Désignation</th>
+					<th>Qté dem</th>
+					<th>Nbre Frn assigné</th>
+					<th>Date fin souhaitée</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
+					{% for dal in item.DAL %}
+						<tr>
+							<td>{{ item.numeroDemandeAppro }}</td>
+							<td>{{ item.numeroDemandeDit }}</td>
+							<td>{{ item.demandeur }}</td>
+							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
+							<td>{{ dal.statutDal }}</td>
+							<td>{{ dal.artFams1 }}</td>
+							<td>{{ dal.artFams2 }}</td>
+							<td>{{ dal.artRefp }}</td>
+							<td>
+								<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+									{{ dal.artDesi }}
+								</a>
+							</td>
+							<td>{{ dal.qteDem }}</td>
+							<td>0</td>
+							<td>{{ dal.dateFinSouhaite | date('d/m/Y') }}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	{% include "/da/shared/listeDA/_modalAppro.html.twig"  %}
+	<!-- FIN tableau -->
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+{% endblock %}

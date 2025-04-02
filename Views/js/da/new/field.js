@@ -1,13 +1,50 @@
+import { resetDropdown } from '../../utils/dropdownUtils';
+
 export function createFieldAndAppendTo(
   classe,
   prototype,
   fieldName,
   parentField
 ) {
-  let field = document.createElement('div');
-  field.classList.add(classe);
-  field.appendChild(prototype.querySelector(`[id*="${fieldName}"]`));
-  parentField.appendChild(field);
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add(classe);
+
+  // Champ à mettre dans le conteneur
+  let field = prototype.querySelector(`[id*="${fieldName}"]`);
+  let dateFinSouhaitee = document.getElementById(
+    'demande_appro_form_dateFinSouhaite'
+  ).value;
+  field.required = fieldName === 'commentaire' ? false : true;
+  field.value =
+    fieldName === 'dateFinSouhaite'
+      ? dateFinSouhaitee
+      : fieldName === 'artConstp'
+      ? 'ZST'
+      : field.value;
+
+  // Append the field
+  fieldContainer.appendChild(field);
+  parentField.appendChild(fieldContainer);
+}
+
+export function createRemoveButtonAndAppendTo(prototype, parentField) {
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add('w-2');
+
+  // Bouton supprimer
+  let removeButton = document.createElement('span');
+  removeButton.title = 'Supprimer la ligne de DA';
+  removeButton.style.cursor = 'pointer';
+  removeButton.innerHTML = '<i class="fas fa-times fs-4"></i>';
+  removeButton.addEventListener('click', function () {
+    document.getElementById(prototype.id).remove();
+  });
+
+  // Append the field
+  fieldContainer.appendChild(removeButton);
+  parentField.appendChild(fieldContainer);
 }
 
 export function createFams2AndAppendTo(className, prototype, parentField) {
@@ -16,7 +53,10 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   field.classList.add(className);
 
   // Sélection de l'élément cible
-  let fams2Field = prototype.querySelector(`[id*="artFams2"]`);
+  let fams2Field = prototype.querySelector(`[id*="codeFams2"]`);
+
+  // Effacer tous les options
+  resetDropdown(fams2Field, '-- Choisir une sous-famille --');
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = fams2Field.id.replace('demande_appro_form_DAL', '');
