@@ -342,6 +342,9 @@ class InventaireController extends Controller
             $countQtee1 = 0;
             $countQtee2 = 0;
             $countQtee3 = 0;
+            $countPMP = 0;
+            $countivent = 0;
+            $countMontEcart = 0;
             // dump($detailInvent);
             for ($j = 0; $j < count($detailInvent); $j++) {
                 $data['data'][] = [
@@ -372,11 +375,17 @@ class InventaireController extends Controller
                     $countQtee2 += (int) $data['data'][$j]["qte_comptee_2"];
                     $countQtee3 += (int) $data['data'][$j]["qte_comptee_3"];
                 }
+                $countPMP   += (int) $data['data'][$j]["pmp"];
+                $countivent   += (int) $data['data'][$j]["montant_inventaire"];
+                $countMontEcart   += (int) $data['data'][$j]["montant_ajuste"];
             }
             $data['sum'] = [
                 'cpt1' => $countQtee1,
                 'cpt2' => $countQtee2,
                 'cpt3' => $countQtee3,
+                'countPmp' => $countPMP,
+                'countInvent' => $countivent,
+                'countMontEcart' => $countMontEcart,
             ];
         }
         return $data;
