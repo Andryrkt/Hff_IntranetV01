@@ -9,9 +9,6 @@ export function autocompleteTheFields() {
 
   // Appel dans la boucle forEach
   designations.forEach((designation) => {
-    designation.addEventListener('input', () =>
-      initializeAutoCompleteForDesignation(designation)
-    );
     initializeAutoCompleteForDesignation(designation); // Initialisation
   });
 }
@@ -38,10 +35,12 @@ function initializeAutoCompleteForDesignation(designation) {
       fetchDataCallback: () =>
         fetchDesignations(fields.famille, fields.sousFamille),
       displayItemCallback: displayDesignation,
-      onSelectCallback: (item) =>
-        handleValueOfTheFields(item, designation, fields),
       itemToStringCallback: (item) =>
         `${item.fournisseur} - ${item.designation}`,
+      itemToStringForBlur: (item) => `${item.designation}`,
+      onBlurCallback: (found) => onBlurEvent(found, designation, fields),
+      onSelectCallback: (item) =>
+        handleValueOfTheFields(item, designation, fields),
     });
   } else {
     console.error('Certains éléments nécessaires sont manquants.');
@@ -114,4 +113,32 @@ async function changeSousFamille(famille, sousFamille) {
   } finally {
     console.log('Fin de changeSousFamille');
   }
+}
+
+function onBlurEvent(found, designation, fields) {
+  console.log(found);
+
+  let baseId = designation.id.replace('artDesi', '');
+  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+  let nomFournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
+
+  // Champs requis ou non
+  Object.values(fields).forEach((field) => {
+    field.required = found;
+  });
+
+  // Champ readonly ou non
+  nomFournisseur.readOnly = found;
+
+  allFields.forEach((field) => {
+    if (found) {
+      field.classList.remove('text-danger');
+    } else {
+      field.classList.add('text-danger');
+    }
+    if (field.id.includes('catalogue')) {
+      field.checked = found;
+      console.log(field.checked);
+    }
+  });
 }

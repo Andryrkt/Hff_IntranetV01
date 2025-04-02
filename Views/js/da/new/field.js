@@ -117,10 +117,16 @@ export function createDesiAndAppendTo(className, prototype, parentField) {
 
 export function formatAllField() {
   let designations = document.querySelectorAll(`[id*="artDesi"]`);
+  let fournisseurs = document.querySelectorAll(`[id*="nomFournisseur"]`);
   let quantites = document.querySelectorAll(`[id*="qteDem"]`);
   designations.forEach((designation) => {
     designation.addEventListener('input', function () {
       designation.value = designation.value.toUpperCase();
+    });
+  });
+  fournisseurs.forEach((fournisseur) => {
+    fournisseur.addEventListener('input', function () {
+      fournisseur.value = fournisseur.value.toUpperCase();
     });
   });
   quantites.forEach((quantite) => {

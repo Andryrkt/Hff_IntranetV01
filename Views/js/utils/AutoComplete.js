@@ -7,6 +7,7 @@ export class AutoComplete {
     onSelectCallback,
     loaderElement = null,
     itemToStringCallback = null,
+    itemToStringForBlur = null,
     onBlurCallback = null,
     debounceDelay = 300,
   }) {
@@ -17,6 +18,7 @@ export class AutoComplete {
     this.onSelectCallback = onSelectCallback;
     this.loaderElement = loaderElement;
     this.itemToStringCallback = itemToStringCallback;
+    this.itemToStringForBlur = itemToStringForBlur;
     this.onBlurCallback = onBlurCallback;
     this.debounceDelay = debounceDelay;
 
@@ -100,8 +102,8 @@ export class AutoComplete {
     const inputValue = this.inputElement.value.trim().toLowerCase();
 
     // Vérifie si la valeur saisie est dans les suggestions filtrées
-    const found = this.filteredData.some(
-      (item) => this.itemToString(item).toLowerCase() === inputValue
+    const found = this.data.some(
+      (item) => this.itemToStringForBlur(item).toLowerCase() === inputValue
     );
 
     onBlurCallback(found);
@@ -152,6 +154,7 @@ export class AutoComplete {
       suggestionElement.dataset.index = index;
 
       suggestionElement.addEventListener('click', () => {
+        this.onBlurCallback(true);
         this.onSelectCallback(item);
         this.clearSuggestions();
       });
