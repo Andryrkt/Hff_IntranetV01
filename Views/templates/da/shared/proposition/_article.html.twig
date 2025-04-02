@@ -53,20 +53,20 @@
 		</div>
 		<div class="col-9 col-md-9">
 			<div class="row">
-				<div class="col-4 col-md-4">
-					<div class="mb-2">
-						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur</label>
-						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
-						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
-					</div>
-				</div>
 				<div class="col-8 col-md-8">
 					<div class="mb-2">
 						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation</label>
 						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
 						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
 						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
+					</div>
+				</div>
+				<div class="col-4 col-md-4">
+					<div class="mb-2">
+						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur</label>
+						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
+						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
+						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
 					</div>
 				</div>
 			</div>
@@ -103,7 +103,20 @@
 				<th>Commentaire / motif</th>
 			</tr>
 		</thead>
-		<tbody id="tableBody_{{ currentPage }}"></tbody>
+		<tbody id="tableBody_{{ currentPage }}">
+			{% for DALR in article.demandeApproLR %}
+				<tr>
+					<td>{{ DALR.nomFournisseur }}</td>
+					<td>{{ DALR.artRefp }}</td>
+					<td>{{ DALR.artDesi }}</td>
+					<td>{{ DALR.prixUnitaire }}</td>
+					<td>{{ DALR.total }}</td>
+					<td>{{ DALR.conditionnement }}</td>
+					<td>{{ DALR.qteDispo }}</td>
+					<td>{{ DALR.motif }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
 	</table>
 
 	<div class="d-flex justify-content-between">

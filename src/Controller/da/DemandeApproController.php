@@ -17,6 +17,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DemandeApproLR;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproFormType;
 use App\Form\da\DemandeApproLRCollectionType;
@@ -215,7 +216,36 @@ class DemandeApproController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            dd($form->getData());
+            $dalrList = $form->getData()->getDALR();
+            if ($dalrList->isEmpty()) {
+                $notification = [
+                    'type'    => 'info',
+                    'message' => "Aucune modification n'a été effectuée",
+                ];
+            } else {
+                foreach ($dalrList as $demandeApproLR) {
+                    $DAL = $data->filter(function ($entite) use ($demandeApproLR) {
+                        return $entite->getNumeroLigne() === $demandeApproLR->getNumeroLigneDem();
+                    })->first();
+                    $demandeApproLR
+                        ->setDemandeApproL($DAL)
+                        ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
+                        ->setQteDem($DAL->getQteDem())
+                        ->setArtConstp($DAL->getArtConstp())
+                        ->setArtFams1($DAL->getArtFams1())
+                        ->setArtFams2($DAL->getArtFams2())
+                    ;
+                    self::$em->persist($demandeApproLR);
+                }
+                self::$em->flush();
+                $notification = [
+                    'type'    => 'success',
+                    'message' => "Votre demande a été enregistré avec succès",
+                ];
+            }
+
+            $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+            $this->redirectToRoute("da_list");
         }
 
         self::$twig->display('da/proposition.html.twig', [
