@@ -17,6 +17,7 @@ module.exports = {
     secondFormBadm: "./assets/js/badm/secondFormBadm.js",
     listBadm: "./assets/js/badm/listBadm.js",
     firstFormDom: "./assets/js/dom/firstFormDom.js",
+    secondFormDom: "./assets/js/dom/secondFormDom.js",
   },
 
   // La sortie du bundle généré par Webpack

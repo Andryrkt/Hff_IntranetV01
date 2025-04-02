@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="{{webpack_asset("secondFormDom.css")}}"/>
 {% endblock %}
 
 {% block content %}
@@ -215,17 +215,17 @@
 						{{ form_row(form.pieceJoint02) }}
 					</div>
 
-		</div>
-		<div class="row">
-			<div class="mt-2 ">
-				<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-					<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
-						<i class="fa fa-print"></i>
-						Envoyer
-					</button>
-				</a>
-			</div>
-		</div>
+				</div>
+				<div class="row">
+					<div class="mt-2 ">
+						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
+							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
+								<i class="fa fa-print"></i>
+								Envoyer
+							</button>
+						</a>
+					</div>
+				</div>
 
 				{{ form_end(form)}}
 
@@ -234,5 +234,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js" type="module"></script>
+	<script type="module" src="{{webpack_asset("secondFormDom.js")}}"></script>
 {% endblock %}
