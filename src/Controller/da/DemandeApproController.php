@@ -160,7 +160,7 @@ class DemandeApproController extends Controller
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
-
+            dd($demandeAppro->getDAL());
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
@@ -187,7 +187,7 @@ class DemandeApproController extends Controller
         ]);
     }
 
-    
+
 
     /**
      * @Route("/proposition/{id}", name="da_proposition")

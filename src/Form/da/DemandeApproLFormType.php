@@ -5,6 +5,7 @@ namespace App\Form\da;
 use App\Entity\da\DemandeApproL;
 use App\Model\da\DaModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -78,6 +79,10 @@ class DemandeApproLFormType extends AbstractType
                 'attr' => [
                     'readonly' => true,
                 ]
+            ])
+            ->add('catalogue', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
             ])
         ;
     }

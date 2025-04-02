@@ -15,7 +15,7 @@ export function createFieldAndAppendTo(
   let dateFinSouhaitee = document.getElementById(
     'demande_appro_form_dateFinSouhaite'
   ).value;
-  field.required = fieldName === 'commentaire' ? false : true;
+  field.required = !['commentaire', 'catalogue'].includes(fieldName);
   field.value =
     fieldName === 'dateFinSouhaite'
       ? dateFinSouhaitee

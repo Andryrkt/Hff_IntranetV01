@@ -45,6 +45,7 @@ export function ajouterUneLigne() {
     ['d-none', 'artFams1'],
     ['d-none', 'artFams2'],
     ['d-none', 'numeroFournisseur'],
+    ['d-none', 'catalogue'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
