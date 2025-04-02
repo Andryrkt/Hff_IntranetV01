@@ -22,7 +22,7 @@ class GeneretePdfBordereau extends GeneratePdf{
         $pdf->Cell(0, 5, 'Page ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
 
         // Ajout du logo
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henriFraise.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
         $pdf->Image($logoPath, 10, 12, 35);
         
         // Date en haut à droite
