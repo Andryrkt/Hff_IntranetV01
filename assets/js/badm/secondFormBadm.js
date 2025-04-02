@@ -1,4 +1,8 @@
-import "../../css/badm/formCompleBadm.css";
+import "../../css/badm/secondFormBadm.css";
+import "select2/dist/css/select2.min.css"; // Styles de base
+import $ from "jquery";
+import "select2";
+
 import { FetchManager } from "../api/FetchManager";
 
 // Instanciation de FetchManager avec la base URL

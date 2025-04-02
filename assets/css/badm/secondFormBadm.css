@@ -1,3 +1,5 @@
+@Import "../main.css";
+
 .sousTitre h3{
     color: #0e4194;
     font-weight: bold;

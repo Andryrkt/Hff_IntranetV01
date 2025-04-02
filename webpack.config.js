@@ -14,11 +14,14 @@ module.exports = {
     accueil: "./assets/js/accueil.js",
     signin: "./assets/js/signin/signin.js",
     404: "./assets/js/404.js",
-    secondFormBadm: "./assets/js/badm/secondFormBadm.js",
-    listBadm: "./assets/js/badm/listBadm.js",
+    //Demande d'ordre de mission DOM
     firstFormDom: "./assets/js/dom/firstFormDom.js",
     secondFormDom: "./assets/js/dom/secondFormDom.js",
     listDom: "./assets/js/dom/listDom.js",
+    //Bordereaux d'accisiton BADM
+    firstFormBadm: "./assets/js/badm/firstFormBadm.js",
+    secondFormBadm: "./assets/js/badm/secondFormBadm.js",
+    listBadm: "./assets/js/badm/listBadm.js",
   },
 
   // La sortie du bundle généré par Webpack

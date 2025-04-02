@@ -2,6 +2,10 @@
 
 {% import "macroForm.html.twig" as formMacro %}
 
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{webpack_asset("firstFormBadm.css")}}">
+{% endblock %}
+
 {% block content %}
 
 
@@ -44,5 +48,5 @@
 {% endblock content %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/badm/firstForm.js"></script>
+	<script type="module" src="{{ webpack_asset("firstFormBadm.js") }}"></script>
 {% endblock %}

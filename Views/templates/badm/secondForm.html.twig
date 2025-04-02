@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
-{% endblock%}
+	<link href="{{ webpack_asset("secondFormBadm.css")}}" rel="stylesheet"/>
+{% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
 
@@ -129,5 +129,5 @@
 
 
     {% block javascript %}
-    <script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js"></script>
-    {% endblock %}
+    <script type="module" src="{{webpack_asset("secondFormBadm.js")}}"></script>
+	{% endblock %}
