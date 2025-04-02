@@ -22,6 +22,12 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
         'ACHATS LOCAUX' => 'ACHATS LOCAUX'
     ];
 
+    const TYPE_DOC = [
+        'ORDRE DE REPARATION' => 'OR',
+        'CESSION INTER STOCK' => 'CIS',
+        'VENTE NEGOCE' => 'VTE NEGOCE',
+    ];
+
     private $magasinModel;
 
     public function __construct()
@@ -126,9 +132,11 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 'label' => 'N° Document',
                 'required' => false
             ])
-            ->add('typeDoc', TextType::class, [
+            ->add('typeDoc', ChoiceType::class, [
                 'label' => 'Type document',
-                'required' => false
+                'required' => false,
+                'choices' => self::TYPE_DOC,
+                'placeholder' => ' -- choisir un type de document --',
             ])
 
             ->add('agenceEmetteur',

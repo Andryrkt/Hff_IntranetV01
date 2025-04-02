@@ -115,7 +115,12 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=100)
      */
-    private string $demandeur;
+    private ?string $demandeur = '';
+
+    /**
+     * @ORM\Column(type="integer", name="id_materiel", nullable=true)
+     */
+    private ?int $idMateriel = 0;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeApproL::class, mappedBy="demandeAppro")
@@ -123,6 +128,11 @@ class DemandeAppro
     private Collection $DAL;
 
     private ?DemandeIntervention $dit = null;
+
+    /**===========================================================================
+     * GETTER & SETTER
+     *
+     *==========================================================================*/
 
     public function __construct()
     {
@@ -493,6 +503,26 @@ class DemandeAppro
     public function setDemandeur($demandeur)
     {
         $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idMateriel
+     */ 
+    public function getIdMateriel()
+    {
+        return $this->idMateriel;
+    }
+
+    /**
+     * Set the value of idMateriel
+     *
+     * @return  self
+     */ 
+    public function setIdMateriel($idMateriel)
+    {
+        $this->idMateriel = $idMateriel;
 
         return $this;
     }

@@ -42,6 +42,7 @@ class ListeCdeFrnNonGenererModel extends Model
         $statement = " SELECT * from (SELECT
                 trim(seor_refdem) as NumDit,
                 seor_numor as NumDocument,
+                seor_nomcli as libelle,
                 trim(slor_constp) as constructeur,
                 trim(slor_refp) as referencePiece,
                 trim(slor_desi) AS Designations,
@@ -75,6 +76,7 @@ class ListeCdeFrnNonGenererModel extends Model
                 SELECT
                 '' AS NumDit,
                 nlig_numcde AS NumDocument,
+                nent_nomcli AS libelle,
                 trim(nlig_constp) as constructeur,
                 trim(nlig_refp) as referencePiece,
                 trim(nlig_desi) AS Designations,

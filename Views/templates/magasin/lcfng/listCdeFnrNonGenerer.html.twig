@@ -15,7 +15,7 @@
 			</h3>
 
 			{% include "/magasin/partials/lcfng/_formRechLcfng.html.twig" %}
-			{# {% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "export_excel_a_traiter_cis" } %} #}
+			{% include "/magasin/partials/_boutonExcel.html.twig" with { "routeName" : "liste_Cde_Frn_Non_Generer_Export_Excel" } %}
 		</div>
 
 		<div class="container-fluid">
@@ -26,9 +26,10 @@
 							<th>
 								<i class="fas fa-ellipsis-vertical"></i>
 							</th>
+							<th class="text-center">Type Document</th>
 							<th class="text-center">N° Document</th>
 							<th class="text-center">Date Document</th>
-							<th class="text-center">Type Document</th>
+							<th class="text-center">Libelle</th>
 							<th class="text-center">N° DIT</th>
 							<th class="text-center">Ag/Serv Emetteur</th>
 							<th class="text-center">Ag/Serv Débiteur / Client</th>
@@ -47,9 +48,10 @@
 								<td>
 									<i class="fas fa-ellipsis-vertical"></i>
 								</td>
+								<td class="text-center">{{item.type_document}}</td>
 								<td class="text-center">{{item.numdocument}}</td>
 								<td class="text-center">{{item.datedocument | date('d/m/Y')}}</td>
-								<td class="text-center">{{item.type_document}}</td>
+								<td class="text-center">{{item.libelle}}</td>
 								<td class="text-center">{{item.numdit == null ? '-' : item.numdit}}</td>
 								<td class="text-center">{{item.agenceservicecrediteur}}</td>
 								<td class="text-center">{{item.agenceservicedebiteur == null ? '-' : item.agenceservicedebiteur}}</td>

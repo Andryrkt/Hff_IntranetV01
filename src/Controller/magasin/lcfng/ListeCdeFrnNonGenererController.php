@@ -25,7 +25,7 @@ class ListeCdeFrnNonGenererController extends Controller
     }
 
     /**
-     * @Route("/magasin/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
+     * @Route("/magasin/lcfng/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
      *
      * @return void
      */
@@ -43,6 +43,8 @@ class ListeCdeFrnNonGenererController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
+        
+        $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
 
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
         
