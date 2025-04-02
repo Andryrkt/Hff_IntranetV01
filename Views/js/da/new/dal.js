@@ -34,8 +34,9 @@ export function ajouterUneLigne() {
 
   let fields = [
     ['w-15', 'codeFams1'],
-    ['w-20', 'codeFams2'],
-    ['w-25', 'artDesi'],
+    ['w-15', 'codeFams2'],
+    ['w-20', 'artDesi'],
+    ['w-10', 'nomFournisseur'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
     ['w-23', 'commentaire'],
@@ -44,7 +45,6 @@ export function ajouterUneLigne() {
     ['d-none', 'artFams1'],
     ['d-none', 'artFams2'],
     ['d-none', 'numeroFournisseur'],
-    ['d-none', 'nomFournisseur'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {

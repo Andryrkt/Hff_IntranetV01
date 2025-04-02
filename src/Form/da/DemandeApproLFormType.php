@@ -75,6 +75,9 @@ class DemandeApproLFormType extends AbstractType
             ->add('nomFournisseur', TextType::class, [
                 'label' => false,
                 'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                ]
             ])
         ;
     }
