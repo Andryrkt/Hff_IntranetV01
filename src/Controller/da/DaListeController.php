@@ -36,7 +36,14 @@ class DaListeController extends Controller
             'method' => 'GET',
         ])->getForm();
 
-        $data = $this->daRepository->findAll();
+        $form->handleRequest($request);
+
+        $criteria = [];
+        if ($form->isSubmitted() && $form->isValid()) {
+            $criteria = $form->getData();
+        }
+
+        $data = $this->daRepository->findDaData($criteria);
 
         self::$twig->display('da/list.html.twig', [
             'data' => $data,

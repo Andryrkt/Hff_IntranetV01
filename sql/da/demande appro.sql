@@ -20,3 +20,7 @@ CREATE TABLE Demande_Appro(
     statut_dal varchar(100) null,
     CONSTRAINT PK_Demande_Appro PRIMARY KEY (id)
 )
+
+
+ALTER TABLE Demande_Appro 
+ADD id_Materiel INT
