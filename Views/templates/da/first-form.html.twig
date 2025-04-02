@@ -1,0 +1,31 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+				<div class="container mb-5">
+					<h3 class="perso-titre">Formulaire demande d'Appro (sélection de choix)</h3>
+					<div class="mt-5 text-center">
+						<p>Veuillez sélectionner votre choix:</p>
+						<div class="choix">
+							<a href="{{ path('da_list_dit') }}">Demande d’achat avec DIT</a>
+						</div>
+						<div class="choix">
+							<a href="#">Demande d’achat direct (sans DIT)</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}

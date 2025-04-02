@@ -647,4 +647,81 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->getSingleScalarResult()
         ;
     }
+
+     /**
+     * FONCTION Pour récupérer les donnée filtrer  pour demande d'approvisionnement
+     *
+     * @param integer $page
+     * @param integer $limit
+     * @param DitSearch $ditSearch
+     * @param array $options
+     * @return void
+     */
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
+    {
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.typeDocument', 'td')
+            ->leftJoin('d.idNiveauUrgence', 'nu')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->where('d.sectionAffectee <> :sectionAffectee')
+            ->setParameter('sectionAffectee', '')
+            ;
+
+        $this->applyStatusFilter($queryBuilder, $ditSearch);
+
+        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+
+        $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
+
+        // section affect et support section
+        $this->applySection($queryBuilder, $ditSearch);
+
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+
+        if (!$options['boolean']) {
+            $queryBuilder
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteurId = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $options['codeAgence'])
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
+
+        $queryBuilder->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
+
+        $queryBuilder->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+        ;
+
+        $paginator = new DoctrinePaginator($queryBuilder->getQuery());
+
+        $totalItems = count($paginator);
+        $lastPage = ceil($totalItems / $limit);
+        //  $sql = $queryBuilder->getQuery()->getSQL();
+        //  echo $sql;
+
+        // Récupérer le nombre de lignes par statut
+        $statusCounts = $this->countByStatus($ditSearch, $options);
+        //return $queryBuilder->getQuery()->getResult();
+        return [
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+            'statusCounts' => $statusCounts,
+        ];
+    }
 }
