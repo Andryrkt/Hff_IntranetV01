@@ -32,13 +32,14 @@ class ListeCdeFrnNonGenererController extends Controller
     public function index(Request $request)
     {
 
-        $form = self::$validator->createBuilder(ListeCdeFrnNonGenererSearchType::class, ['agenceEmetteur' => '01-ANTANANARIVO'], [
+        $form = self::$validator->createBuilder(ListeCdeFrnNonGenererSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();
 
         $form->handleRequest($request);
         $criteria = [
-            'orValide' => true
+            'orValide' => true,
+            'agenceEmetteur'  => '01-ANTANANARIVO',
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();

@@ -145,17 +145,15 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
                 'label' => 'Agence Emetteur',
                 'required' => false,
                 'choices' => $this->agence() ?? [],
-                'placeholder' => ' -- choisir agence --',
                 'data' => '01-ANTANANARIVO',
-                'attr' => [
-                    'disabled' => true,
-                ]
+                'mapped' => false,
+                'disabled' => true,
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 $service = [];
-
+                $data['agenceEmetteur'] = $data['agenceEmetteur'] ?? '01-ANTANANARIVO';
                 if($data['agenceEmetteur'] !== ""){
                     $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
                     
@@ -178,6 +176,7 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
             ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
+                $data['agenceEmetteur'] = $data['agenceEmetteur'] ?? '01-ANTANANARIVO';
 
                 $service = [];
                 if($data['agenceEmetteur'] !== ""){
