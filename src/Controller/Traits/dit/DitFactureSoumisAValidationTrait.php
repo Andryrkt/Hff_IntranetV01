@@ -91,7 +91,7 @@ trait DitFactureSoumisAValidationtrait
         } 
         
         if ((int)$quantiter[0]['quantitelivree'] == 0) {
-            return "Validé";
+            return "A livrer";
         } elseif ((int)$quantiter[0]['quantitelivree'] == (int)$quantiter[0]['quantitedemander']) {
             return "Livré";
         } elseif ((int)$quantiter[0]['quantitelivree'] < (int)$quantiter[0]['quantitedemander']) {
@@ -122,31 +122,43 @@ trait DitFactureSoumisAValidationtrait
             $montantValide = (float) ($em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv'])['montantItv']);
             $montantFacture = (float) $value['montantfactureitv'];
     
-    
-            if (empty($statutOrsSoumisValidation) || $nombreItv === 0 ||
-                ($statutOrsSoumisValidation !== 'Livré' && $statutOrsSoumisValidation !== 'Validé' && $statutOrsSoumisValidation !== 'Livré partiellement') ||
-                $statutOrsSoumisValidation === 'Refusée') 
-            {
-                $statutFac[] = 'Itv non validée';
-                $nombreStatutControle['nbrNonValideFacture']++;
-            } 
-            elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') &&
-                $agServDebDit !== $agServFac) 
-            {
+            $conditionDifferenceServDeb =  $agServDebDit !== $agServFac;
+            $conditionDifferenceMontant = abs($montantValide - $montantFacture) > 0.01; // Comparaison avec tolérance
+            $conditionPasSoumissionOr = $nombreItv === 0;
+            $conditionExiteMotRefuse = strpos($statutOrsSoumisValidation, 'refusée') !== false;
+            $conditionStatutDiffValide = $statutOrsSoumisValidation !== 'Validé';
+            $conditionStatutValide = $statutOrsSoumisValidation === 'Validé';
+
+
+
+            if ($conditionDifferenceServDeb) {
                 $statutFac[] = 'Serv deb DIT # Serv deb FAC';
                 $nombreStatutControle['nbrServDebDitDiffServDebFac']++;
-            } 
-            elseif (abs($montantValide - $montantFacture) > 0.01) { // Comparaison avec tolérance
-                if ($migration == 1) {
-                    $statutFac[] = 'DIT migrée';
-                } else {
-                    $statutFac[] = 'Mtt validé # Mtt facturé';
+            } elseif ($conditionPasSoumissionOr) {
+                $statutFac[] = 'INTERVENTION NON SOUMISE A VALIDATION'; // pas de soumission or
+                $nombreStatutControle['nbrNonValideFacture']++;
+            } elseif ($conditionExiteMotRefuse ) {
+                $statutFac[] = 'INTERVENTION REFUSEE';
+                $nombreStatutControle['nbrNonValideFacture']++;
+            } elseif ($conditionStatutDiffValide) {
+                $statutFac[] = 'INTERVENTION NON VALIDEE';
+                $nombreStatutControle['nbrNonValideFacture']++;
+            } elseif ($conditionStatutValide) {
+                if ($conditionDifferenceMontant) { 
+                    if ($migration == 1) {
+                        $statutFac[] = 'DIT migrée';
+                    } else {
+                        $statutFac[] = 'Mtt validé # Mtt facturé';
+                    }
+                    $nombreStatutControle['nbrMttValideDiffMttFac']++;
                 }
-                $nombreStatutControle['nbrMttValideDiffMttFac']++;
-            } 
-            else {
+                else {
+                    $statutFac[] = 'OK';
+                }
+            } else {
                 $statutFac[] = 'OK';
             }
+
         }
     
         return [
