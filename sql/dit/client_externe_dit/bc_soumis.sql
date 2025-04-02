@@ -49,3 +49,6 @@ ADD atelier VARCHAR(10)
 
 ALTER TABLE bc_soumis
 ADD statut VARCHAR(50)
+
+INSERT INTO bc_soumis(numeroDit, numeroDevis, numeroBc, numeroVersion, dateBc, dateDevis, montantDevis, dateHeureSoumission, nomFichier, statut)
+VALUES ('DIT25039993', '17099925', 'BC DT/COL-25.03.N026313', 1, '2025-03-18', '2025-03-04', 15359334.87, '2025-04-02 10:50:00', 'bc_1004014_17099925-1#C.pdf', 'Soumis à validation')

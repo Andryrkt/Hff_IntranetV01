@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{webpack_asset("list.css")}}">
+	<link rel="stylesheet" href="{{webpack_asset("listDom.css")}}">
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -120,5 +120,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{webpack_asset("listBadm.js")}}"></script>
+	<script type="module" src="{{webpack_asset("listDom.js")}}"></script>
 {% endblock %}

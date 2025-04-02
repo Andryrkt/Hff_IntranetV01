@@ -1,3 +1,4 @@
+@import "./main.css";
 @media print {
     * {
       -webkit-print-color-adjust: exact !important; /* Safari et Chrome */
