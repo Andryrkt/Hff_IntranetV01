@@ -4,46 +4,68 @@
   <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
 {% endblock %}
 {% block content %}
-  <div class="sticky-header-titre">
-    <div class="container">
-      <h3 class="perso-titre">Liste inventaire</h3>
-      {% include '/inventaire/_formulaire.html.twig' %}
+<div class="sticky-header-titre">
+  <div class="container">
+    <h3 class="perso-titre">Liste inventaire</h3>
+    {% include '/inventaire/_formulaire.html.twig' %}
+    <div class="d-flex justify-content-between">
+          <a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+            <i class="fas fa-table"></i>
+            Excel</a>
     </div>
-    <div class="container-fluid">
-        <div class="sticky-header-statut"> <div class="container">
-				<div class="d-flex justify-content-between">
-					<div>
-						<a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
-							<i class="fas fa-table"></i>
-							Excel</a>
-					</div>
-				</div>
-			</div>
+  </div>
+</div> 
+<div class="container-fluid">
+
+  <div class="sticky-header-statut"> 
+  </div>
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
+         
+             <tr class = "total">
+             <th>
+             TOTAL
+						</th>
+             <th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
+             <th></th>
+             <th></th>
+             <th></th>
+             <th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
+             <th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
+             <th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
+             <th></th>
+             <th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
+             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
+             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
+             <th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
+             <th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart ~'%'}} </th>
+             <th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
+             <th style="text-align: center;">{{ data.sum.pourcentage_ecart is  null  ?"": data.sum.pourcentage_ecart  ~'%'}} </th>
+             </tr>
              <tr>
+
              <th>
 							<i class="fas fa-ellipsis-vertical"></i>
 						</th>
-             <th> Numéro</th>
-             <th> Description</th>
-             <th> Ouvert le </th>
-             <th> Clôturer le </th>
-             <th> Nbr casier</th>
-             <th> Nbr Ref</th>
-             <th> Qté comptée</th>
-             <th> Statut</th>
-             <th> Montant</th>
-             <th> Nbr Ref écart > 0</th>
-             <th> Nbr Ref écart < 0</th>
-             <th> Nbr Ref en écart</th>
-             <th> % Ref avec écart</th>
-             <th> Mont. écart</th>
-             <th> % écart</th>
+             <th style="text-align: center;"> Numéro</th>
+             <th style="text-align: center;"> Description</th>
+             <th style="text-align: center;"> Ouvert le </th>
+             <th style="text-align: center;"> Clôturer le </th>
+             <th style="text-align: center;"> Nbr casier</th>
+             <th style="text-align: center;"> Nbr Ref</th>
+             <th style="text-align: center;"> Qté comptée</th>
+             <th style="text-align: center;"> Statut</th>
+             <th style="text-align: center;"> Montant</th>
+             <th style="text-align: center;"> Nbr Ref écart > 0</th>
+             <th style="text-align: center;"> Nbr Ref écart < 0</th>
+             <th style="text-align: center;"> Nbr Ref en écart</th>
+             <th style="text-align: center;"> % Ref avec écart</th>
+             <th style="text-align: center;"> Mont. écart</th>
+             <th style="text-align: center;"> % écart</th>
              </tr>
          </thead>
          <tbody id="tableBody">
-            {% for item in data %}
+            {% for item in data.data %} 
                 <tr>
                 {# Début Action #}
 							<td class="align-middle" style="padding: 0px">
@@ -53,7 +75,7 @@
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										<li>
-											<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank">Voir détail</a>
+											<a class="dropdown-item fw-bold" href="{{path('detail_inventaire',{numinv : item.numero})}}"  target="_blank"> Voir détails des écarts</a>
 										</li>
 										<li>
                     {% if item.statut | trim != "CLOTURE" %}
@@ -75,27 +97,26 @@
 								</div>
 							</td>
 							{# Fin Actions #}
-                <td>   {{item.numero}}</td>
+                <td style="text-align: center;">   {{item.numero}}</td>
                 <td> {{item.description}}</td>
-                <td> {{item.ouvert}}</td>
-                <td> {{item.dateClo}}</td>
-                <td> {{item.nbr_casier}}</td>
-                <td> {{item.nbr_ref}}</td>
-                <td> {{item.qte_comptee}}</td>
+                <td style="text-align: center;"> {{item.ouvert}}</td>
+                <td style="text-align: center;"> {{item.dateClo}}</td>
+                <td style="text-align: center;"> {{item.nbr_casier}}</td>
+                <td style="text-align: center;"> {{item.nbr_ref}}</td>
+                <td style="text-align: center;"> {{item.qte_comptee}}</td>
                 <td> {{item.statut}}</td>
-                <td> {{item.montant}}</td>
-                <td> {{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
-                <td> {{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
-                <td> {{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
-                <td> {{item.pourcentage_ref_avec_ecart is same as("0 %") ?"" : item.pourcentage_ref_avec_ecart}}</td>
-                <td> {{item.montant_ecart is same as("0")?"":item.montant_ecart}}</td>
-                <td> {{item.pourcentage_ecart  is same as("0 %") ?"" : item.pourcentage_ecart }}</td>
+                <td style="text-align: right;"> {{item.montant |number_format(0, '', ' ')}}</td>
+                <td style="text-align: center;"> {{item.nbre_ref_ecarts_positif is same as("0") ?"" : item.nbre_ref_ecarts_positif }}</td>
+                <td style="text-align: center;"> {{item.nbre_ref_ecarts_negatifs is same as("0") ?"" : item.nbre_ref_ecarts_negatifs}}</td>
+                <td style="text-align: center;"> {{item.total_nbre_ref_ecarts is same as("0") ?"": item.total_nbre_ref_ecarts }}</td>
+                <td style="text-align: center;"> {{item.pourcentage_ref_avec_ecart is same as("0") ?"" : item.pourcentage_ref_avec_ecart ~ ' %'}}</td>
+                <td style="text-align: right;"> {{item.montant_ecart is same as("0")?"":item.montant_ecart |number_format(0, '', ' ') }}</td>
+                <td style="text-align: center;"> {{item.pourcentage_ecart  is same as("0") ?"" : item.pourcentage_ecart ~ ' %'}}</td>
                 </tr>
             {% endfor %}
          </tbody>
       </table> 
-    </div>
-  </div>
+</div>
 
 {% endblock %}
 {% block javascript %}
@@ -122,4 +143,5 @@ function uploadFile(input, id) {
 </script>
   <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
   <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
 {% endblock %}
