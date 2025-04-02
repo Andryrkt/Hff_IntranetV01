@@ -2,9 +2,10 @@ import { replaceNameToNewIndex } from '../new/dal';
 
 export function ajouterUneLigne(line, fields) {
   const tableBody = document.getElementById(`tableBody_${line}`);
-  const qteDem = parseInt(document.getElementById(`qteDem_${line}`).value);
+  const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
+  const prixUnitaire = parseFloat(fields.prixUnitaire.value);
   const row = tableBody.insertRow();
-  let total = parseFloat(fields.prixUnitaire.value) * qteDem;
+  let total = (prixUnitaire * qteDem).toFixed(2);
 
   // Insérer des données dans le tableau
   insertCellData(row, fields.fournisseur.value);
