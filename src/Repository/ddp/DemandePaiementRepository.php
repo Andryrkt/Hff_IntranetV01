@@ -22,4 +22,5 @@ class DemandePaiementRepository extends EntityRepository
 
         return $nbrLigne ? $nbrLigne : 0;
     }
+
 }

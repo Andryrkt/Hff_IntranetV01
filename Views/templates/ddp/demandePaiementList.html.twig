@@ -29,6 +29,7 @@
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
+					<th>Statut DDP</th>
 					<th>N° demande</th>
 					<th>Type</th>
 					<th>Date</th>
@@ -40,6 +41,8 @@
 					<th>Service débité</th>
 					<th>Contact</th>
 					<th>Mode de paiement</th>
+					<th>Suivi paiement</th>
+					<th>Utilisateur</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -54,7 +57,11 @@
 							</div>
 						</td>
 						{# Fin Actions #}
-
+						<td class="text-center">
+							<a href="#" data-bs-toggle="modal" data-bs-target="#listeStatut" id="statutInput" data-id="{{item.numeroDdp}}" data-bs-toggle="tooltip" title="historique des statuts">
+								{{ item.statut }}
+							</a>
+						</td>
 						<td>{{ item.numeroDdp }}</td>
 						<td>{{ item.typeDemandeId.libelle}}</td>
 						<td>
@@ -76,18 +83,23 @@
 							</ul>
 						</td>
 						<td>{{ item.beneficiaire}}</td>
-						<td>{{ item.agencedebiter}}</td>
-						<td>{{ item.servicedebiter}}</td>
+						<td class="text-center">{{ item.agencedebiter}}</td>
+						<td class="text-center">{{ item.servicedebiter}}</td>
 						<td>{{ item.contact}}</td>
 						<td>{{ item.modePaiement}}</td>
+						<td>
+							-
+						</td>
+						<td>{{ item.demandeur }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
 		</table>
 	</div>
-
 	<!-- FIN tableau -->
+
+	{% include "/ddp/shared/_modal_statut.html.twig"  %}
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/ddp/listDdp.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js" type="module"></script>
 {% endblock %}

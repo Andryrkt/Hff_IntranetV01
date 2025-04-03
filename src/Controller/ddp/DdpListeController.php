@@ -28,7 +28,7 @@ class DdpListeController extends Controller
     public function ddpListe()
     {
 
-        $data = $this->demandePaiementRepository->findBy([], ['numeroDdp' => 'ASC']);
+        $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
 
 
         self::$twig->display('ddp/demandePaiementList.html.twig', [
