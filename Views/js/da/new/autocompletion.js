@@ -24,7 +24,7 @@ function initializeAutoCompleteForDesignation(designation) {
   };
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
-  let loaderElement = document.getElementById(`spinner${baseId}`);
+  let loaderElement = document.getElementById(`spinner_container${baseId}`);
 
   if (fields.famille && fields.sousFamille) {
     new AutoComplete({

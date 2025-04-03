@@ -56,6 +56,53 @@
   width: 23% !important;
 }
 
+/**
+ * Pour le loader dans le suggestion-container
+ */
+.loader-points {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+  color: #fff;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite alternate;
+}
+
+@keyframes animloader {
+  0% {
+    box-shadow: -15px -12px, -5px 0, 5px 0, 15px 0;
+  }
+  33% {
+    box-shadow: -15px 0px, -5px -12px, 5px 0, 15px 0;
+  }
+  66% {
+    box-shadow: -15px 0px, -5px 0, 5px -12px, 15px 0;
+  }
+  100% {
+    box-shadow: -15px 0, -5px 0, 5px 0, 15px -12px;
+  }
+}
+
+[id*='spinner_container_'] {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+  width: 40%; /* Assure que la liste occupe toute la largeur du champ */
+  margin-top: 5px;
+  padding: 10px;
+}
+
+[id*='spinner_container_'] .text-overlay {
+  font-size: 14px;
+  color: white;
+  margin-right: 10px;
+  display: inline-block;
+}
+
 /*
 * pour le spiner
 */

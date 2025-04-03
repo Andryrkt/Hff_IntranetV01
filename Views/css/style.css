@@ -138,8 +138,8 @@ label {
 
 .little-spinner-overlay,
 .little-spinner-overlay::after {
-  width: 20px;
-  height: 20px;
+  width: 25px;
+  height: 25px;
 }
 
 .spinner-overlay,

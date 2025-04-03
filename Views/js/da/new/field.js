@@ -60,21 +60,19 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = fams2Field.id.replace('demande_appro_form_DAL', '');
-  let spinnerId = `spinner${baseId}`;
-  let containerId = `container${baseId}`;
 
   // Création du conteneur du spinner
   let spinnerContainer = document.createElement('div');
   spinnerContainer.classList.add('spinner-container');
   spinnerContainer.innerHTML = `
-        <div class="spinner-load m-auto" id="${spinnerId}" style="display: none;">
+        <div class="spinner-load m-auto" id="spinner${baseId}" style="display: none;">
             ${'<div></div>'.repeat(12)} 
         </div>
     `;
 
   // Création du conteneur de l'élément cible
   let containerDiv = document.createElement('div');
-  containerDiv.id = containerId;
+  containerDiv.id = `container${baseId}`;
   containerDiv.appendChild(fams2Field);
 
   // Ajout des éléments au conteneur principal
@@ -94,18 +92,17 @@ export function createDesiAndAppendTo(className, prototype, parentField) {
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = DesiField.id.replace('demande_appro_form_DAL', '');
-  let spinnerId = `spinner${baseId}`;
-  let suggestionId = `suggestion${baseId}`;
 
   // Création du conteneur du spinner
   let spinnerContainer = document.createElement('div');
-  spinnerContainer.id = spinnerId;
-  spinnerContainer.classList.add('spinner');
+  spinnerContainer.id = `spinner_container${baseId}`;
   spinnerContainer.style.display = 'none';
+  spinnerContainer.classList.add('text-center');
+  spinnerContainer.innerHTML = `<div class="text-overlay">Veuillez patienter s'il vous plaît! Chargement des données </div><div class="loader-points"></div>`;
 
   // Création du conteneur de l'élément cible
   let containerDiv = document.createElement('div');
-  containerDiv.id = suggestionId;
+  containerDiv.id = `suggestion${baseId}`;
   containerDiv.classList.add('suggestions-container');
 
   // Ajout des éléments au conteneur principal
