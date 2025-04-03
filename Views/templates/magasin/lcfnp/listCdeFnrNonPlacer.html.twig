@@ -1,0 +1,56 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/magasin.css">
+	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
+{% endblock %}
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div id="conteneur" data-page-type="liste_cde_fnr_non_place">
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste des commande fournisseurs non placée
+			</h3>
+
+			{% include "/magasin/partials/lcfnp/_formRechLcfnp.html.twig" %}
+		</div>
+
+		<div class="container-fluid">
+			<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark sticky-top">
+						<tr>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
+							<th class="text-center">Type Document</th>
+							<th class="text-center">N° Document</th>
+							<th class="text-center">Date Document</th>
+							<th class="text-center">Libelle</th>
+							<th class="text-center">N° DIT</th>
+							<th class="text-center">Ag/Serv Emetteur</th>
+							<th class="text-center">Ag/Serv Débiteur / Client</th>
+							<th class="text-center">N° ITV</th>
+							<th class="text-center">N° lig</th>
+							<th class="text-center">CST</th>
+							<th>Réf</th>
+							<th>Désignation</th>
+							<th class="text-center">Qté demandée</th>
+							<th class="text-center">Qté reliquat</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody">
+						
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/magasin/main.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/magasin/autoFrsnp.js"  type="module"></script>
+{% endblock %}
