@@ -8,6 +8,10 @@
 
 {% import "macroForm.html.twig" as macroForm %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
 {% block content %}
 
 {% set role_ids = App.user.roleIds %}
@@ -19,14 +23,14 @@
 	</h3>
 	{% include "/partials/_notification.html.twig" %}
 
-	{% include "/da/shared/_formulaireRecherche.html.twig" %}
+	{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
 </div>
 
 <div
 	class="container-fluid">
 	<!-- DEBUT tableau -->
 	<div class="container">
-		{% include "/da/shared/_pagination.html.twig" %}
+		{% include "/da/shared/listeDIT/_pagination.html.twig" %}
 	</div>
 
 	<table class="table rounded table-plein-ecran">
@@ -109,12 +113,20 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	<div class="d-flex justify-content-end mb-2">
+		<button class="btn btn-warning fw-bold" id="suivant" data-uri="{{ path('da_new', { id:'__id__' } ) }}">
+			Suivant
+			<i class="fas fa-arrow-right"></i>
+		</button>
+	</div>
 </div>
 
 	<!-- FIN tableau -->
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
-{% endblock %}  
+{% endblock %}
+

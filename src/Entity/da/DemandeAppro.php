@@ -90,13 +90,13 @@ class DemandeAppro
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="daAgenceEmetteur")
-     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="agence_emmetteur_id", referencedColumnName="id")
      */
     private  $agenceEmetteur;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="daServiceEmetteur")
-     * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="service_emmetteur_id", referencedColumnName="id")
      */
     private  $serviceEmetteur;
 
@@ -113,11 +113,26 @@ class DemandeAppro
     private  $serviceDebiteur;
 
     /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $demandeur = '';
+
+    /**
+     * @ORM\Column(type="integer", name="id_materiel", nullable=true)
+     */
+    private ?int $idMateriel = 0;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeApproL::class, mappedBy="demandeAppro")
      */
     private Collection $DAL;
 
     private ?DemandeIntervention $dit = null;
+
+    /**===========================================================================
+     * GETTER & SETTER
+     *
+     *==========================================================================*/
 
     public function __construct()
     {
@@ -455,7 +470,7 @@ class DemandeAppro
         return $this->DAL;
     }
 
-    public function addChild(DemandeApproL $DAL): void
+    public function addDAL(DemandeApproL $DAL): void
     {
         if (!$this->DAL->contains($DAL)) {
             $this->DAL[] = $DAL;
@@ -463,12 +478,52 @@ class DemandeAppro
         }
     }
 
-    public function removeChild(DemandeApproL $DAL): void
+    public function removeDAL(DemandeApproL $DAL): void
     {
         if ($this->DAL->removeElement($DAL)) {
             if ($DAL->getDemandeAppro() === $this) {
                 $DAL->setDemandeAppro(null);
             }
         }
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     *
+     * @return  self
+     */
+    public function setDemandeur($demandeur)
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of idMateriel
+     */ 
+    public function getIdMateriel()
+    {
+        return $this->idMateriel;
+    }
+
+    /**
+     * Set the value of idMateriel
+     *
+     * @return  self
+     */ 
+    public function setIdMateriel($idMateriel)
+    {
+        $this->idMateriel = $idMateriel;
+
+        return $this;
     }
 }

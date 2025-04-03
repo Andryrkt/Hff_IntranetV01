@@ -37,8 +37,8 @@ class DitModel extends Model
 
 
 
-    
-        $statement = "SELECT
+
+    $statement = "SELECT
 
         mmat_marqmat as constructeur,
         trim(mmat_desi) as designation,
@@ -65,9 +65,9 @@ class DitModel extends Model
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
       ";
-      
 
-        
+
+
 
     $result = $this->connect->executeQuery($statement);
 
@@ -77,29 +77,29 @@ class DitModel extends Model
     return $this->convertirEnUtf8($data);
   }
 
-    public function infoMaterielExterne($matricule = '0',  $numParc = '0', $numSerie = '0')
-    {
+  public function infoMaterielExterne($matricule = '0',  $numParc = '0', $numSerie = '0')
+  {
 
-      if($matricule === '' || $matricule === '0' || $matricule === null){
-        $conditionNummat = "";
-      } else {
-        $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-      }
+    if ($matricule === '' || $matricule === '0' || $matricule === null) {
+      $conditionNummat = "";
+    } else {
+      $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
+    }
 
 
-      if($numParc === '' || $numParc === '0' || $numParc === null){
-        $conditionNumParc = "";
-      } else {
-        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-      }
+    if ($numParc === '' || $numParc === '0' || $numParc === null) {
+      $conditionNumParc = "";
+    } else {
+      $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
+    }
 
-      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-        $conditionNumSerie = "";
-      } else {
-        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-      }
+    if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+      $conditionNumSerie = "";
+    } else {
+      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+    }
 
-      $statement=" SELECT FIRST 1
+    $statement = " SELECT FIRST 1
         mmat_marqmat as constructeur,
         trim(mmat_desi) as designation,
         trim(mmat_typmat) as modele,
@@ -121,18 +121,21 @@ class DitModel extends Model
       FROM MAT_MAT, mat_bil
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
       and mbil_dateclot = '12/31/1899'
-      ".$conditionNummat."
-      ".$conditionNumParc."
-      ".$conditionNumSerie."
+      " . $conditionNummat . "
+      " . $conditionNumParc . "
+      " . $conditionNumSerie . "
       ";
 
-        $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    $result = $this->connect->executeQuery($statement);
+
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
 
 
     public function historiqueMateriel($idMateriel) {

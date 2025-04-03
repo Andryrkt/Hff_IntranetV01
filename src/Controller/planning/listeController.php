@@ -76,41 +76,42 @@ class ListeController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 50; // Nombre d'éléments par page
 
-        $data = [];
+        $data = ['data'=>[]];
+        $count = [];
         if ($request->query->get('action') !== 'oui') {
 
             $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
             // dump($lesOrvalides['orSansItv']);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'],$criteria,$tousLesOrSoumis);
-
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
-            $result = $this->planningModel->recupMatListeTous($criteria,$lesOrvalides['orSansItv'],$backString,$tousLesOrSoumis);
-            $data = $this->recupData($result,$criteriaTAb);
+            $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
+            $data = $this->recupData($result, $criteriaTAb, $back);
+            // dump($data);
+            $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
+            $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
+            // dump($data['data'], $data['data_excel']);
         }
-        // dump($data);
         self::$twig->display('planning/listePlanning.html.twig', [
             'form' => $form->createView(),
-            'currentPage' => $page,
-            'totalPages' => $pagesCount,
-            'resultat' => $resultat,
             'criteria' => $criteriaTAb,
-            'data' => $data,
+            'data' => $data['data'],
+            'count' => $count
         ]);
     }
     private function allOrsItv()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
     }
 
     private function allOrs()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrAll());
+        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrAll());
     }
 
     /**
@@ -120,22 +121,7 @@ class ListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
-        $criteriaTAb = $this->sessionService->get('planning_search_criteria');
-
-        $criteria = $this->creationObjetCriteria($criteriaTAb);
-        $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
-        $tousLesOrSoumis = $this->allOrs();
-        $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'],$criteria,$tousLesOrSoumis);
-
-        if (is_array($back)) {
-            $backString = TableauEnStringService::orEnString($back);
-        } else {
-            $backString = '';
-        }
-
-        $result = $this->planningModel->recupMatListeTous($criteria,$lesOrvalides['orSansItv'],$backString,$tousLesOrSoumis);
-        $data = $this->recupData($result,$criteriaTAb,true);
+        $data = $this->sessionService->get('data_planning_detail_excel');
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
             'Marque' => 'Marque',
@@ -156,9 +142,10 @@ class ListeController extends Controller
             'qteliv_or' => 'Qte Livrée OR',
             'statutOR' => 'Statut OR',
             'datestatutOR' => 'Date statut OR',
-            'numcis' => 'Num CIS',
+            'ctr_marque' => 'Ctr Marque ',
             'numerocmd' => 'Numéro CMD',
             'statut_ctrmq' => 'Statut CTRMQ',
+            'numcis' => 'Numéro CIS',
             'qteORlig_cis' => 'Qte OR CIS',
             'qtealllig_cis' => 'Qte All CIS',
             'qterlqlig_cis' => 'Qte Reliquat CIS',
@@ -171,9 +158,7 @@ class ListeController extends Controller
             'ord' => 'Commande Envoyé',
             'status_b' => 'Statut'
         ];
-
         array_unshift($data, $header);
-
         $this->exporterDonneesExcel($data);
     }
 
@@ -231,15 +216,25 @@ class ListeController extends Controller
         }
     }
 
-   
 
-    public function recupData($result, $criteriaTAb, $sendCmd = false){
+
+    public function recupData($result, $criteriaTAb, $back, $sendCmd = false, $excelBack = false)
+    { 
         $data = [];
+        $data_excel = [];
+    
         if (!empty($result)) {
+            // dump($result);
             $qteCis = [];
             $dateLivLigCIS = [];
             $dateAllLigCIS = [];
-            for ($i=0; $i <count($result) ; $i++) { 
+            for ($i = 0; $i < count($result); $i++) {
+                $orItv = $result[$i]['orintv'];
+                if (in_array($orItv, $back) ) {
+                    $result[$i]['backOrder'] = $excelBack === false ? 'back' : '';
+                }else{
+                    $result[$i]['backOrder'] = $excelBack === false ? 'not' : '';
+                }
                 if (substr($result[$i]['numor'], 0, 1) == '5') {
                     if ($result[$i]['numcis'] !== "0" || $result[$i]['numerocdecis'] == "0") {
                         $recupGcot = [];
@@ -255,7 +250,7 @@ class ListeController extends Controller
                         $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocdecis']);
                         $recupPartiel[] = $this->planningModel->recuperationPartiel($result[$i]['numerocdecis'], $result[$i]['ref']);
                     }
-                }else {
+                } else {
                     if (empty($result[$i]['numerocmd']) || $result[$i]['numerocmd'] == '0') {
                         $recupGcot = [];
                     } else {
@@ -264,8 +259,8 @@ class ListeController extends Controller
                         $recupGcot['ord'] = $this->planningModel->recuperationinfodGcot($result[$i]['numerocmd']);
                     }
                 }
-               
-                
+
+
                 if (!empty($etatMag[0])) {
                     $result[$i]['Eta_ivato'] = $etatMag[0][0]['Eta_ivato'];
                     $result[$i]['Eta_magasin'] =  $etatMag[0][0]['Eta_magasin'];
@@ -277,7 +272,7 @@ class ListeController extends Controller
                 }
 
                 if (!empty($recupPartiel[$i])) {
-                    $result[$i]['qteSlode'] = $recupPartiel[$i]['0']['solde'] ;
+                    $result[$i]['qteSlode'] = $recupPartiel[$i]['0']['solde'];
                     $result[$i]['qte'] = $recupPartiel[$i]['0']['qte'];
                 } else {
                     $result[$i]['qteSlode'] = "";
@@ -289,13 +284,13 @@ class ListeController extends Controller
                 } else {
                     $result[$i]['Ord'] = "";
                 }
-            
+
                 if (!empty($dateLivLigCIS[$i][0])) {
                     $result[$i]['dateLivLIg'] = $dateLivLigCIS[$i]['0']['datelivlig'];
                 } else {
                     $result[$i]['dateLivLIg'] = "";
                 }
-           
+
                 if (!empty($dateAllLigCIS)) {
                     $result[$i]['dateAllLIg'] = $dateAllLigCIS[0]['0']['datealllig'];
                 } else {
@@ -325,7 +320,6 @@ class ListeController extends Controller
                     $result[$i]['qterlqlig'] = "";
                     $result[$i]['qtelivlig'] = "";
                 }
-
                 if ($result[$i]['qtelivlig'] > 0 &&  $result[$i]['qtealllig']  == 0 && $result[$i]['qterlqlig'] == 0) {
                     $result[$i]['StatutCIS'] = "LIVRE";
                     $result[$i]['DateStatutCIS'] = $result[$i]['dateLivLIg'];
@@ -336,44 +330,47 @@ class ListeController extends Controller
                     $result[$i]['StatutCIS'] = "";
                     $result[$i]['DateStatutCIS'] = "";
                 }
-                if ($result[$i]['numcis'] === $result[$i]['numerocmd']) {
+                // dump($i, $result[$i]['numcis'] , $result[$i]['numerocmd'] );
+                if (substr($result[$i]['numcis'], 0, 1) !== '1') {
                     $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                    $result[$i]['numcisOR'] = '';
                 } else {
                     $result[$i]['numcde_cis'] = $result[$i]['numcis'];
+                    $result[$i]['numcisOR'] = $result[$i]['numcis'];
                 }
-               
 
-                if ($result[$i]['statut'] == "" || $result[$i]['statut'] == null  ) {
+
+                if ($result[$i]['statut'] == "" || $result[$i]['statut'] == null) {
                     $statutDetail = "";
                 } else {
                     $statutDetail = $result[$i]['statut'];
                 }
-                if ($result[$i]['StatutCIS'] == "" || $result[$i]['StatutCIS'] == null  ) {
+                if ($result[$i]['StatutCIS'] == "" || $result[$i]['StatutCIS'] == null) {
                     $statutCisDetail = "";
                 } else {
                     $statutCisDetail = $result[$i]['StatutCIS'];
                 }
-                if ($result[$i]['datestatut'] == "" || $result[$i]['datestatut'] == null  ) {
+                if ($result[$i]['datestatut'] == "" || $result[$i]['datestatut'] == null) {
                     $datestatutDetail = "";
                 } else {
                     $datestatutDetail = (new DateTime($result[$i]['datestatut']))->format('d/m/Y');
                 }
-                if ($result[$i]['DateStatutCIS'] == "" || $result[$i]['DateStatutCIS'] == null  ) {
+                if ($result[$i]['DateStatutCIS'] == "" || $result[$i]['DateStatutCIS'] == null) {
                     $datestatutCisDetail = "";
                 } else {
                     $datestatutCisDetail = (new DateTime($result[$i]['DateStatutCIS']))->format('d/m/Y');
                 }
-                if ($result[$i]['Eta_ivato'] == "" || $result[$i]['Eta_ivato'] == null  ) {
+                if ($result[$i]['Eta_ivato'] == "" || $result[$i]['Eta_ivato'] == null) {
                     $dateEtaIvato = "";
                 } else {
                     $dateEtaIvato = (new DateTime($result[$i]['Eta_ivato']))->format('d/m/Y');
                 }
-                if ($result[$i]['Eta_magasin'] == "" || $result[$i]['Eta_magasin'] == null  ) {
+                if ($result[$i]['Eta_magasin'] == "" || $result[$i]['Eta_magasin'] == null) {
                     $dateEtaMag = "";
                 } else {
                     $dateEtaMag = (new DateTime($result[$i]['Eta_magasin']))->format('d/m/Y');
-                }  
-                $data[] = [
+                }
+                $row = [
                     'agenceServiceTravaux' => $result[$i]['libsuc'] . ' - ' . $result[$i]['libserv'],
                     'Marque' => $result[$i]['markmat'],
                     'Modele' => $result[$i]['typemat'],
@@ -383,39 +380,44 @@ class ListeController extends Controller
                     'casier' => $result[$i]['casier'],
                     'commentaire' => $result[$i]['commentaire'],
                     'numor_itv' => $result[$i]['numor'] . '-' . $result[$i]['itv'],
-                    'dateplanning' => $result[$i]['dateplanning'],
+                    'dateplanning' =>  (new DateTime($result[$i]['dateplanning']))->format('d/m/Y'),
                     'cst' => $result[$i]['cst'],
                     'ref' => $result[$i]['ref'],
                     'desi' => $result[$i]['desi'],
-                    'qteres_or' => $result[$i]['qteres_or'],
-                    'qteall_or' => $result[$i]['qteall'],
-                    'qtereliquat' => $result[$i]['qtereliquat'],
-                    'qteliv_or' => $result[$i]['qteliv'],
+                    'qteres_or' => $result[$i]['qteres_or'] == 0 ? '':$result[$i]['qteres_or'] ,
+                    'qteall_or' => $result[$i]['qteall'] == 0 ? '':$result[$i]['qteall'] ,
+                    'qtereliquat' => $result[$i]['qtereliquat'] == 0 ? '':$result[$i]['qtereliquat'],
+                    'qteliv_or' => $result[$i]['qteliv'] == 0 ? '':$result[$i]['qteliv'] ,
                     'statutOR' => $statutDetail,
-                    'datestatutOR' => $datestatutDetail  ,
-                    'numcis' => $result[$i]['numcde_cis'],
+                    'datestatutOR' => $datestatutDetail,
+                    'ctr_marque' => $result[$i]['numcde_cis'] == 0 ? '' :$result[$i]['numcde_cis']  ,
                     'numerocmd' => $result[$i]['numerocdecis'],
                     'statut_ctrmq' => $result[$i]['statut_ctrmq'] . $result[$i]['statut_ctrmq_cis'],
-                    'qteORlig_cis' => $result[$i]['qteORlig'],
-                    'qtealllig_cis' => $result[$i]['qtealllig'],
-                    'qterlqlig_cis' => $result[$i]['qterlqlig'],
-                    'qtelivlig_cis' => $result[$i]['qtelivlig'],
+                    'numcis' => $result[$i]['numcisOR'] == 0 ? '' :$result[$i]['numcisOR']  ,
+                    'qteORlig_cis' => $result[$i]['qteORlig']== 0 ? '':$result[$i]['qteORlig']  ,
+                    'qtealllig_cis' => $result[$i]['qtealllig'] == 0 ? '':$result[$i]['qtealllig'],
+                    'qterlqlig_cis' => $result[$i]['qterlqlig'] == 0 ? '':$result[$i]['qterlqlig'] ,
+                    'qtelivlig_cis' => $result[$i]['qtelivlig'] == 0 ? '':$result[$i]['qtelivlig'],
                     'statutCis' => $statutCisDetail,
-                    'datestatutCis' => $datestatutCisDetail ,
-                    'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '': $dateEtaIvato ,
-                    'Eta_magasin' => $dateEtaMag == '01/01/1900' ? '': $dateEtaMag ,
+                    'datestatutCis' => $datestatutCisDetail,
+                    'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '' : $dateEtaIvato,
+                    'Eta_magasin' => $dateEtaMag == '01/01/1900' ? '' : $dateEtaMag,
                     'message' => $result[$i]['message'],
-                    'ord' => $result[$i]['Ord'],
-                    'status_b' =>$result[$i]['status_b'],
+                    'ord' => $result[$i]['Ord'], //*****
+                    'status_b' => $result[$i]['status_b'],
                     'Qte_Solde' => $result[$i]['qteSlode'],
-                    'qte' => $result[$i]['qte']
+                    'qte' => $result[$i]['qte'],
+                    'backorder' =>$result[$i]['backOrder'] 
+                ];
 
-                ]; 
-                
+                $row_excel = $row;
+                $row_excel['backorder'] = ''; // Supprimer la partie visuelle Excel
+                $row_excel['ord'] = $row_excel['ord'] !== '' ? 'oui' : ''; // Excel
+
+                $data[] = $row;
+                $data_excel[] = $row_excel;
             }
         }
-        return $data;
+        return ['data' => $data, 'data_excel' => $data_excel];
     }
-
-
 }

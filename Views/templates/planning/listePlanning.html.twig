@@ -3,6 +3,23 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css">
 {% endblock %}
+{% block overlay %}
+    <div id="loading-overlay" style="position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background-color: rgba(0, 0, 0, 0.7);
+                        display: flex;
+                        flex-direction: column;
+                        row-gap: 20px;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 9999;">
+        <div class="spinner-overlay"></div>
+        <div class="text-overlay text-white">Veuillez patienter s'il vous plaît!</div>
+    </div>
+{% endblock %}
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
@@ -29,7 +46,12 @@
 					</div>
 					<div role="button" tabindex="0" id="complet-non-livre">
 						<i class="fa-solid fa-circle text-primary"></i>
-						<small class="text-primary">Complet non livré
+						<small class="text-primary">Complet non livré | 
+						</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order /Error
 						</small>
 					</div>
 				</div>
@@ -57,16 +79,17 @@
 
 			{% include "/planning/_pagination.html.twig" %}
 		</div>
+	</div>
 	<table class="table rounded table-plein-ecran ">
 		<thead class="table-dark position-sticky">
 
 			<tr>
 
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Agence-service</th>
+				<th rowspan="2" style="text-align:center;border: 2px solid white; width: 194px;" class="align-middle">Agence-service</th>
 				<th style="text-align:center;border: 2px solid white;" colspan="12">Matériel</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="8">OR
+				<th style="text-align:center;border: 2px solid white;" colspan="9">ORDRE DE REPARATION
 				</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="7">CIS</th>
+				<th style="text-align:center;border: 2px solid white;" colspan="7">CESSION INTER STOCK</th>
 				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato
 				</th>
 				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin
@@ -89,29 +112,24 @@
 				<th>CST</th>
 				<th>Ref</th>
 				<th>Dési</th>
-				<th>Qté cde
-				</th>
-				<th>Qté all
-				</th>
-				<th>Qté reliq
-				</th>
-				<th>Qté liv
-				</th>
+				<th>Qté cde</th>
+				<th>Qté all</th>
+				<th>Qté reliq</th>
+				<th>Qté liv</th>
 				<th>Statut</th>
 				<th>Date statut</th>
 				{#  (num CIS) #}
 				<th>Ctr Marque</th>
 				<th>Cde frn</th>
-				{#  (recp/cmd=>CIS OR)#}
 				<th>Statut ctrmrq</th>
+				{#  (recp/cmd=>CIS OR)#}
+				<th>numCIS</th>
 				<th>Qté Cde</th>
 				<th>Qté all</th>
 				<th>Qté rel</th>
 				<th>Qté liv</th>
-				<th>Statut
-				</th>
-				<th>Date statut
-				</th>
+				<th>Statut</th>
+				<th>Date statut</th>
 				{# <th>ETA Ivato </th>
 								<th>ETA Magasin </th>
 								<th>Message </th> #}
@@ -146,73 +164,108 @@
 					{% set statut = ' partiellement-dispo bg-info text-white'%}
 				{% elseif  item.status_b is same as "COMPLET NON LIVRE"%}
 					{% set statut = ' complet-non-livre bg-primary text-white'%}
+				{% elseif  item.backorder is same as "back"%}
+					{% set statut = ' back-order border-end border-start border-danger border-3'%}
 				{% else %}
 					{% set statut = ""%}
 				{% endif %}
 				<tr>
 					<td>
-						{{item.agenceServiceTravaux}}</td>
+						{{item.agenceServiceTravaux}}
+					</td>
 					<td>
-						{{item.Marque}}</td>
+						{{item.Marque}}
+					</td>
 					<td>
-						{{item.Modele}}</td>
+						{{item.Modele}}
+					</td>
 					<td>
-						{{item.Id}}</td>
+						{{item.Id}}
+					</td>
 					<td>
-						{{item.N_Serie}}</td>
+						{{item.N_Serie}}
+					</td>
 					<td>
-						{{item.parc}}</td>
+						{{item.parc}}
+					</td>
 					<td>
-						{{item.casier}}</td>
+						{{item.casier}}
+					</td>
 					<td>
-						{{item.commentaire}}</td>
+						{{item.commentaire}}
+					</td>
 					<td class="{{statut}}">
 						<span class="numOr-itv">{{item.numor_itv}}</span>
 					</td>
 					<td>
-						{{item.dateplanning | date("d/m/Y")}}</td>
+						{{item.dateplanning }}
+					</td>
 					<td>
-						{{item.cst}}</td>
+						{{item.cst}}
+					</td>
 					<td>
-						{{item.ref}}</td>
+						{{item.ref}}
+					</td>
 					<td>
-						{{item.desi}}</td>
+						{{item.desi}}
+					</td>
 					<td>
-						{{item.qteres_or | number_format(0)}}</td>
+						{{item.qteres_or }}
+					</td>
 					<td>
-						{{item.qteall_or | number_format(0)}}</td>
+						{{item.qteall_or }}
+					</td>
 					<td>
-						{{item.qtereliquat | number_format(0)}}</td>
+						{{item.qtereliquat }}
+					</td>
 					<td>
-						{{item.qteliv_or | number_format(0)}}</td>
+						{{item.qteliv_or }}
+					</td>
 					<td style="{{styl}}">
-						{{item.statutOR}}</td>
+						{{item.statutOR}}
+					</td>
 					<td>
-						{{item.datestatutOR}}</td>
+						{{item.datestatutOR}}
+					</td>
 					<td>
-						{{item.numcis}}</td>
+						{{item.ctr_marque}}
+					</td>
 					<td>
-						{{item.numerocmd}}</td>
+						{{item.numerocmd}}
+					</td>
 					<td style="{{classe}}">
-						{{item.statut_ctrmq}}</td>
+						{{item.statut_ctrmq}}
+					</td>
 					<td>
-						{{item.qteORlig_cis | number_format(0)}}</td>
+					{{item.numcis}}
+					</td>
 					<td>
-						{{item.qtealllig_cis | number_format(0)}}</td>
+						{{item.qteORlig_cis }}
+					</td>
 					<td>
-						{{item.qterlqlig_cis | number_format(0)}}</td>
+						{{item.qtealllig_cis }}
+					</td>
 					<td>
-						{{item.qtelivlig_cis | number_format(0)}}</td>
+						{{item.qterlqlig_cis }}
+					</td>
 					<td>
-						{{item.statutCis}}</td>
+						{{item.qtelivlig_cis }}
+					</td>
 					<td>
-						{{item.datestatutCis }}</td>
+						{{item.statutCis}}
+					</td>
 					<td>
-						{{item.Eta_ivato }}</td>
+						{{item.datestatutCis }}
+					</td>
 					<td>
-						{{item.Eta_magasin }}</td>
+						{{item.Eta_ivato }}
+					</td>
 					<td>
-						{{item.message}}</td>
+						{{item.Eta_magasin }}
+					</td>
+					<td>
+						{{item.message}}
+					</td>
 				</tr>
 			{% endfor %}
 		</tbody>

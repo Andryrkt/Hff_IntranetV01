@@ -89,6 +89,32 @@ class DemandeApproLR
     private string $nomFournisseur;
 
     /**
+     * @ORM\Column(type="string", length=100, name="PU")
+     */
+    private string $prixUnitaire;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="total")
+     */
+    private string $total;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="conditionnement")
+     */
+    private string $conditionnement;
+
+    /**
+     * @ORM\Column(type="string", length=1000, name="motif")
+     */
+    private string $motif;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproL::class, inversedBy="demandeApproLR")
+     * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id")
+     */
+    private ?DemandeApproL $demandeApproL = null;
+
+    /**
      * Get the value of id
      */
     public function getId()
@@ -343,6 +369,106 @@ class DemandeApproLR
     public function setNomFournisseur(string $nomFournisseur): self
     {
         $this->nomFournisseur = $nomFournisseur;
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproL
+     */
+    public function getDemandeApproL()
+    {
+        return $this->demandeApproL;
+    }
+
+    /**
+     * Set the value of demandeApproL
+     *
+     * @return  self
+     */
+    public function setDemandeApproL($demandeApproL)
+    {
+        $this->demandeApproL = $demandeApproL;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prixUnitaire
+     */
+    public function getPrixUnitaire()
+    {
+        return $this->prixUnitaire;
+    }
+
+    /**
+     * Set the value of prixUnitaire
+     *
+     * @return  self
+     */
+    public function setPrixUnitaire($prixUnitaire)
+    {
+        $this->prixUnitaire = $prixUnitaire;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of total
+     */
+    public function getTotal()
+    {
+        return $this->total;
+    }
+
+    /**
+     * Set the value of total
+     *
+     * @return  self
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of conditionnement
+     */
+    public function getConditionnement()
+    {
+        return $this->conditionnement;
+    }
+
+    /**
+     * Set the value of conditionnement
+     *
+     * @return  self
+     */
+    public function setConditionnement($conditionnement)
+    {
+        $this->conditionnement = $conditionnement;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of motif
+     */
+    public function getMotif()
+    {
+        return $this->motif;
+    }
+
+    /**
+     * Set the value of motif
+     *
+     * @return  self
+     */
+    public function setMotif($motif)
+    {
+        $this->motif = $motif;
+
         return $this;
     }
 }

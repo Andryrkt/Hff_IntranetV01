@@ -182,7 +182,7 @@
 								<a class="dropdown-item" href="{{ path('da_first_form') }}">Nouvelle Demande d'Appro</a>
 							</li>
 							<li>
-								<a class="dropdown-item" href="#">Liste des demandes d'Appro</a>
+								<a class="dropdown-item" href="{{ path('da_list') }}">Liste des demandes d'Appro</a>
 							</li>
 						</ul>
 					</li>
@@ -257,6 +257,16 @@
 										Liste inventaire</a>
 								</li>
 							{% endif %}
+							<li>
+								<hr class="dropdown-divider">
+							</li>
+							<li class="dropdown-header">
+								LISTE CDE FOURNISSEUR
+							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Generer")}}">
+									Liste commande fournisseur non générée</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
@@ -287,9 +297,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
-							</li>
+							<li> 
+								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a> 
+							 </li>
 						</ul>
 					</li>
 				{% endif %}

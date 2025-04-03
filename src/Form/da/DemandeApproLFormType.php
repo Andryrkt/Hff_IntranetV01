@@ -19,31 +19,65 @@ class DemandeApproLFormType extends AbstractType
         $daModel = new DaModel;
 
         $builder
-            ->add('artFams1', ChoiceType::class, [
+            ->add('codeFams1', ChoiceType::class, [
                 'label' => false,
+                'required' => false,
                 'placeholder' => '-- Choisir une famille --',
                 'choices' => $daModel->getAllFamille(),
             ])
-            ->add('artFams2', ChoiceType::class, [
+            ->add('codeFams2', ChoiceType::class, [
                 'label' => false,
+                'required' => false,
                 'placeholder' => '-- Choisir une sous-famille --',
-                'choices' => [],
+                'choices' => $daModel->getAllSousFamille()
             ])
             ->add('artDesi', TextType::class, [
-                'label' => false
+                'label' => false,
+                'required' => false,
             ])
             ->add('dateFinSouhaite', DateType::class, [
                 'label' => false,
+                'required' => false,
                 'widget' => 'single_text',
                 'constraints' => [
                     new NotBlank(['message' => 'la date ne doit pas être vide'])
                 ]
             ])
             ->add('qteDem', TextType::class,  [
-                'label' => false
+                'label' => false,
+                'required' => false,
             ])
             ->add('commentaire', TextType::class, [
-                'label' => false
+                'label' => false,
+                'required' => false,
+                'empty_data' => ''
+            ])
+            ->add('artConstp', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artRefp', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artFams1', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artFams2', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('numeroFournisseur', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('nomFournisseur', TextType::class, [
+                'label' => false,
+                'required' => false,
+                'attr' => [
+                    'readonly' => true,
+                ]
             ])
         ;
     }

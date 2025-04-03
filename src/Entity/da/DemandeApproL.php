@@ -16,6 +16,7 @@ use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\da\DemandeApproLRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -83,6 +84,16 @@ class DemandeApproL
     private string $artFams2;
 
     /**
+     * @ORM\Column(type="string", length=10, name="code_fams1")
+     */
+    private string $codeFams1;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="code_fams2")
+     */
+    private string $codeFams2;
+
+    /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
      */
     private string $numeroFournisseur;
@@ -114,8 +125,20 @@ class DemandeApproL
 
     /**
      * @ORM\ManyToOne(targetEntity=DemandeAppro::class, inversedBy="DAL")
+     * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id")
      */
     private ?DemandeAppro $demandeAppro = null;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
+     */
+    private $demandeApproLR;
+
+    //=============================================================================================
+    public function __construct()
+    {
+        $this->demandeApproLR = new ArrayCollection();
+    }
 
     /**
      * Get the value of numeroDemandeAppro
@@ -477,6 +500,94 @@ class DemandeApproL
     {
         $this->qteDem = $qteDem;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproLR
+     */
+    public function getDemandeApproLR()
+    {
+        return $this->demandeApproLR;
+    }
+
+    public function addDemandeApproLR(DemandeApproLR $demandeApproLR): self
+    {
+        if (!$this->demandeApproLR->contains($demandeApproLR)) {
+            $this->demandeApproLR[] = $demandeApproLR;
+            $demandeApproLR->setDemandeApproL($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeApproLR(DemandeApproLR $demandeApproLR): self
+    {
+        if ($this->demandeApproLR->contains($demandeApproLR)) {
+            $this->demandeApproLR->removeElement($demandeApproLR);
+            if ($demandeApproLR->getDemandeApproL() === $this) {
+                $demandeApproLR->setDemandeApproL(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of demandeApproLR
+     *
+     * @return  self
+     */
+    public function setDemandeApproLR($demandeApproLR)
+    {
+        $this->demandeApproLR = $demandeApproLR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams1
+     *
+     * @return string
+     */
+    public function getCodeFams1(): string
+    {
+        return $this->codeFams1;
+    }
+
+    /**
+     * Set the value of codeFams1
+     *
+     * @param string $codeFams1
+     *
+     * @return self
+     */
+    public function setCodeFams1(string $codeFams1): self
+    {
+        $this->codeFams1 = $codeFams1;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams2
+     *
+     * @return string
+     */
+    public function getCodeFams2(): string
+    {
+        return $this->codeFams2;
+    }
+
+    /**
+     * Set the value of codeFams2
+     *
+     * @param string $codeFams2
+     *
+     * @return self
+     */
+    public function setCodeFams2(string $codeFams2): self
+    {
+        $this->codeFams2 = $codeFams2;
         return $this;
     }
 }
