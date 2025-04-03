@@ -52,18 +52,14 @@ class DitOrsSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $numOrDansSqlServer = $this->ditRepository->findNumeroOrDit($numDit);
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
         $numOr = $numOrBaseDonner[0]['numor'];
+
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-        } elseif ($numOr <> $numOrDansSqlServer) {
-            $message = " Le numéro OR de la DIT ne correspond pas au numéro OR de l'IPS";
-
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-        }
+        } 
 
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis

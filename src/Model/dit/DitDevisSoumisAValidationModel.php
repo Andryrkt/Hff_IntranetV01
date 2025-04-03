@@ -75,7 +75,7 @@ class DitDevisSoumisAValidationModel extends Model
     public function recupNbPieceMagasin(string $numDevis)
     {
         $statement = " SELECT
-                    SUM(slor.slor_constp) AS nbr_sortie_magasin
+                    COUNT(slor.slor_constp) AS nbr_sortie_magasin
                 FROM sav_lor slor
                 INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
                 WHERE slor.slor_constp IN (".GlobalVariablesService::get('pieces_magasin').")
@@ -369,7 +369,7 @@ class DitDevisSoumisAValidationModel extends Model
 
     public function recupNbrPieceMagasin($numDevis)
     {
-        $statement = "SELECT count(slor_nolign)  as nbLigne
+        $statement = "SELECT SUM(slor_nolign)  as nbLigne
                         from sav_lor 
                         where slor_numor='{$numDevis}' 
                         and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
