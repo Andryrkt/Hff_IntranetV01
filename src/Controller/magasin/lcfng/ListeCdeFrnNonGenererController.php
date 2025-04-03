@@ -38,7 +38,8 @@ class ListeCdeFrnNonGenererController extends Controller
 
         $form->handleRequest($request);
         $criteria = [
-            'orValide' => true
+            'orValide' => true,
+            'agenceEmetteur'  => '01-ANTANANARIVO',
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();

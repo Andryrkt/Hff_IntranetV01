@@ -180,11 +180,11 @@ class InventaireModel extends Model
                                 ELSE
                                 '100'
                                 END as pourcentage_nbr_ecart,
-                        ainvp_prix as PMP,
-                        ainvp_prix * ainvp_stktheo as montant_inventaire,
-                        ainvp_prix * ainvp_ecart as montant_ajuste,
+                        ROUND(ainvp_prix) as PMP,
+                        ROUND(ainvp_prix * ainvp_stktheo)as montant_inventaire,
+                        ROUND(ainvp_prix * ainvp_ecart) as montant_ajuste,
                         CASE
-                        WHEN (ainvp_prix * ainvp_stktheo) != 0 THEN
+                        WHEN ROUND((ainvp_prix * ainvp_stktheo)) != 0 THEN
                         ROUND( ( ainvp_prix * ainvp_ecart) / (ainvp_prix * ainvp_stktheo) * 100 ) || ' %'
                         ELSE
                         '100'
@@ -214,11 +214,11 @@ class InventaireModel extends Model
                             ELSE
                                 '100'
                             END AS pourcentage_nbr_ecart,
-                            SUM(ainvp_prix) as PMP,
-                            SUM(ainvp_prix * ainvp_stktheo) as montant_inventaire,
-                            SUM(ainvp_prix * ainvp_ecart )as montant_ecart,
+                           ROUND( SUM(ainvp_prix) )as PMP,
+                            ROUND( SUM(ainvp_prix * ainvp_stktheo) ) as montant_inventaire,
+                            ROUND( SUM(ainvp_prix * ainvp_ecart ) )as montant_ecart,
                             CASE
-                            WHEN SUM(ainvp_prix * ainvp_stktheo) != 0 THEN
+                            WHEN ROUND(SUM(ainvp_prix * ainvp_stktheo)) != 0 THEN
                                 ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100) || ' %'
                             ELSE
                                 '100'

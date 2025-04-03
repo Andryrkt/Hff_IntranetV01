@@ -1,7 +1,7 @@
 {% extends 'baseTemplate.html.twig' %}
 {% block stylesheets %}
-  <link rel="stylesheet" href="/Hffintranet/Views/css/list.css" />
-  <link rel="stylesheet" href="/Hffintranet/Views/css/inventaire/liste.css" />
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
 {% endblock %}
 {% block content %}
   <div class="sticky-header-titre">
@@ -29,16 +29,16 @@
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
             <tr>
-              <th>Date inventaire</th>
-              <th>Numero</th>
-              <th>Bordereau</th>
-              <th>Ligne</th>
-              <th>Casier</th>
-              <th>CST</th>
-              <th>Ref</th>
-              <th>Description</th>
-              <th>Qté théorique</th>
-              <th>Qté allouée</th>
+              <th style="text-align: center;">Date inventaire</th>
+              <th style="text-align: center;">Numero</th>
+              <th style="text-align: center;">Bordereau</th>
+              <th style="text-align: center;">Ligne</th>
+              <th style="text-align: center;">Casier</th>
+              <th style="text-align: center;">CST</th>
+              <th style="text-align: center;">Ref</th>
+              <th style="text-align: center;">Description</th>
+              <th style="text-align: center;">Qté théorique</th>
+              <th style="text-align: center;">Qté allouée</th>
             </tr>
          </thead>
          <tbody id="tableBody">
@@ -49,16 +49,16 @@
           {% else %}
             {% for item in data %}
                  <tr>
-                    <td> {{item.dateinv}}</td>
-                    <td> {{item.numinv}}</td>
+                    <td style="text-align: center;"> {{item.dateinv}}</td>
+                    <td style="text-align: center;"> {{item.numinv}}</td>
                     <td> {{item.numbordereau}}</td>
-                    <td> {{item.ligne}}</td>
+                    <td style="text-align: center;"> {{item.ligne}}</td>
                     <td> {{item.casier}}</td>
                     <td> {{item.cst}}</td>
                     <td> {{item.refp}}</td>
                     <td> {{item.descrip}}</td>
-                    <td> {{item.qte_theo  is same as("0") ? "" : item.qte_theo }}</td>
-                    <td> {{item.qte_alloue is same as("0") ? "" :  item.qte_alloue }}</td>
+                    <td style="text-align: center;"> {{item.qte_theo  is same as("0") ? "" : item.qte_theo }}</td>
+                    <td style="text-align: center;">  {{item.qte_alloue is same as("0") ? "" :  item.qte_alloue }}</td>
                  </tr>
             {% endfor %}
           {% endif %}
