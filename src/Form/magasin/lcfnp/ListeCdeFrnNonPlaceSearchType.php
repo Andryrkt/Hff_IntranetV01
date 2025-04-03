@@ -111,31 +111,31 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
             })
            
           
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-                $data['agenceEmetteur'] = $data['agenceEmetteur'] ?? '01-ANTANANARIVO';
+            // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            //     $form = $event->getForm();
+            //     $data = $event->getData();
+            //     $data['agenceEmetteur'] = $data['agenceEmetteur'] ?? '01-ANTANANARIVO';
 
-                $service = [];
-                if($data['agenceEmetteur'] !== ""){
-                    $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
+            //     $service = [];
+            //     if($data['agenceEmetteur'] !== ""){
+            //         $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
                     
-                    foreach ($services as $value) {
-                        $service[$value['text']] = $value['text'];
-                    }
-                } else {
-                    $service = [];
-                }
+            //         foreach ($services as $value) {
+            //             $service[$value['text']] = $value['text'];
+            //         }
+            //     } else {
+            //         $service = [];
+            //     }
 
-                $form->add('serviceEmetteur',
-                ChoiceType::class,
-                [
-                    'label' => 'Service Emetteur',
-                    'required' => false,
-                    'choices' => $service,
-                    'placeholder' => ' -- choisir service --'
-                ]);
-            })
+            //     $form->add('serviceEmetteur',
+            //     ChoiceType::class,
+            //     [
+            //         'label' => 'Service Emetteur',
+            //         'required' => false,
+            //         'choices' => $service,
+            //         'placeholder' => ' -- choisir service --'
+            //     ]);
+            // })
           
             ;
     }

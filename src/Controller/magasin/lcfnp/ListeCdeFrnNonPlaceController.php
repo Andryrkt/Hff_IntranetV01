@@ -31,11 +31,37 @@ class ListeCdeFrnNonPlaceController extends  Controller{
 
         $form->handleRequest($request);
         $criteria = [
-            'orValide' => true,
-            'agenceEmetteur'  => '01-ANTANANARIVO',
+            'orValide' => true
         ];
+        $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
+        $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
+
+        
         self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function orEnString($tab): string
+    {
+        $numOrValide = $this->transformEnSeulTableau($tab);
+
+        return implode("','", $numOrValide);
+    }
+    public function transformEnSeulTableau(array $tabs): array
+    {
+        $tab = [];
+        foreach ($tabs as  $values) {
+            if(is_array($values)){
+                foreach ($values as $value) {
+                    $tab[] = $value;
+                }
+            } else {
+                $tab[] = $values;
+            }
+            
+        }
+
+        return $tab;
     }
 }

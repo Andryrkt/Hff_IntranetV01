@@ -16,6 +16,7 @@ class ListeCdeFrnNonPlacerModel extends Model
                     WHERE frn_cde .fcde_numfou = frn_bse.fbse_numfou
                     AND  frn_cde .fcde_soc = 'HF'
                     AND fcde_numfou not in ('1','10','20','30','40','50','60','92','10019','6000001')
+                    ORDER BY 1
         ";
          $result = $this->connect->executeQuery($statement);
          $data = $this->connect->fetchResults($result);
