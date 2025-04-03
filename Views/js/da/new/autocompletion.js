@@ -1,16 +1,12 @@
 import { FetchManager } from '../../api/FetchManager';
 import { AutoComplete } from '../../utils/AutoComplete';
 import { updateDropdown } from '../../utils/selectionHandler';
+import { getTheField } from './field';
 
-export function autocompleteTheFields() {
-  let designations = document.querySelectorAll(
-    `[id*="artDesi"][id*="form_DAL"]:not([id*="__name__"])`
-  ); // éléments avec id contenant "artDesi" et "form_DAL" mais ne contenant pas "__name__"
+export function autocompleteTheFields(line) {
+  let designation = getTheField(line, 'artDesi');
 
-  // Appel dans la boucle forEach
-  designations.forEach((designation) => {
-    initializeAutoCompleteForDesignation(designation); // Initialisation
-  });
+  initializeAutoCompleteForDesignation(designation);
 }
 
 function initializeAutoCompleteForDesignation(designation) {
@@ -116,32 +112,37 @@ async function changeSousFamille(famille, sousFamille) {
 }
 
 function onBlurEvent(found, designation, fields) {
-  let baseId = designation.id.replace('artDesi', '');
-  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-  let nomFournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
+  if (designation.value.trim() !== '') {
+    let baseId = designation.id.replace('artDesi', '');
+    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+    let nomFournisseur = getFieldByGeneratedId(
+      designation.id,
+      'nomFournisseur'
+    );
 
-  // Champs requis ou non et valeurs
-  Object.values(fields).forEach((field) => {
-    field.required = found;
-    field.value = found ? field.value : '';
-  });
+    // Champs requis ou non et valeurs
+    Object.values(fields).forEach((field) => {
+      field.required = found;
+      field.value = found ? field.value : '';
+    });
 
-  // réinitialiser l'autocomplete de désignation
-  if (!found) {
-    initializeAutoCompleteForDesignation(designation);
+    // réinitialiser l'autocomplete de désignation
+    if (!found) {
+      initializeAutoCompleteForDesignation(designation);
+    }
+
+    // Champ readonly ou non
+    nomFournisseur.readOnly = found;
+
+    allFields.forEach((field) => {
+      if (found) {
+        field.classList.remove('text-danger');
+      } else {
+        field.classList.add('text-danger');
+      }
+      if (field.id.includes('catalogue')) {
+        field.checked = found;
+      }
+    });
   }
-
-  // Champ readonly ou non
-  nomFournisseur.readOnly = found;
-
-  allFields.forEach((field) => {
-    if (found) {
-      field.classList.remove('text-danger');
-    } else {
-      field.classList.add('text-danger');
-    }
-    if (field.id.includes('catalogue')) {
-      field.checked = found;
-    }
-  });
 }

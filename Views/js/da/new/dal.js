@@ -68,9 +68,9 @@ export function ajouterUneLigne() {
   prototype.appendChild(div);
   container.appendChild(prototype);
 
-  eventOnFamille(); // gestion d'évènement sur les familles et sous-familles
-  formatAllField();
-  autocompleteTheFields();
+  eventOnFamille(newIndex); // gestion d'évènement sur la famille et sous-famille à la ligne newIndex
+  formatAllField(newIndex); // formater les champs à la ligne newIndex
+  autocompleteTheFields(newIndex); // autocomplète les champs
 }
 
 export function replaceNameToNewIndex(element, newIndex) {

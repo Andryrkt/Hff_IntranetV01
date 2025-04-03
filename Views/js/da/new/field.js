@@ -65,10 +65,10 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   let spinnerContainer = document.createElement('div');
   spinnerContainer.classList.add('spinner-container');
   spinnerContainer.innerHTML = `
-        <div class="spinner-load m-auto" id="spinner${baseId}" style="display: none;">
-            ${'<div></div>'.repeat(12)} 
-        </div>
-    `;
+    <div class="spinner-load m-auto" id="spinner${baseId}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+      ${'<div></div>'.repeat(12)} 
+    </div>
+  `;
 
   // Création du conteneur de l'élément cible
   let containerDiv = document.createElement('div');
@@ -112,23 +112,25 @@ export function createDesiAndAppendTo(className, prototype, parentField) {
   parentField.appendChild(field);
 }
 
-export function formatAllField() {
-  let designations = document.querySelectorAll(`[id*="artDesi"]`);
-  let fournisseurs = document.querySelectorAll(`[id*="nomFournisseur"]`);
-  let quantites = document.querySelectorAll(`[id*="qteDem"]`);
-  designations.forEach((designation) => {
-    designation.addEventListener('input', function () {
-      designation.value = designation.value.toUpperCase();
-    });
+export function formatAllField(line) {
+  let designation = getTheField(line, 'artDesi');
+  let fournisseur = getTheField(line, 'nomFournisseur');
+  let quantite = getTheField(line, 'qteDem');
+  designation.addEventListener('input', function () {
+    designation.value = designation.value.toUpperCase();
   });
-  fournisseurs.forEach((fournisseur) => {
-    fournisseur.addEventListener('input', function () {
-      fournisseur.value = fournisseur.value.toUpperCase();
-    });
+  fournisseur.addEventListener('input', function () {
+    fournisseur.value = fournisseur.value.toUpperCase();
   });
-  quantites.forEach((quantite) => {
-    quantite.addEventListener('input', function () {
-      quantite.value = quantite.value.replace(/[^\d]/g, '');
-    });
+  quantite.addEventListener('input', function () {
+    quantite.value = quantite.value.replace(/[^\d]/g, '');
   });
+}
+
+export function getTheField(
+  line,
+  fieldName,
+  prefixId = 'demande_appro_form_DAL'
+) {
+  return document.getElementById(`${prefixId}_${line}_${fieldName}`);
 }
