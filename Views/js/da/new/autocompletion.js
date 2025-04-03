@@ -116,16 +116,20 @@ async function changeSousFamille(famille, sousFamille) {
 }
 
 function onBlurEvent(found, designation, fields) {
-  console.log(found);
-
   let baseId = designation.id.replace('artDesi', '');
   let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
   let nomFournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
 
-  // Champs requis ou non
+  // Champs requis ou non et valeurs
   Object.values(fields).forEach((field) => {
     field.required = found;
+    field.value = found ? field.value : '';
   });
+
+  // réinitialiser l'autocomplete de désignation
+  if (!found) {
+    initializeAutoCompleteForDesignation(designation);
+  }
 
   // Champ readonly ou non
   nomFournisseur.readOnly = found;
@@ -138,7 +142,6 @@ function onBlurEvent(found, designation, fields) {
     }
     if (field.id.includes('catalogue')) {
       field.checked = found;
-      console.log(field.checked);
     }
   });
 }

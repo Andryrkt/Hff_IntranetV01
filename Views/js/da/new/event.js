@@ -8,18 +8,11 @@ export function eventOnFamille() {
   ); // éléments avec id contenant "fams1" et "form_DAL" mais ne contenant pas "__name__"
 
   familles.forEach((famille) => {
-    let familleId = famille.id;
-    let sousFamilleId = familleId.replace('codeFams1', 'codeFams2');
-    let familleLibelleId = familleId.replace('codeFams1', 'artFams1');
-    let sousFamilleLibelleId = familleId.replace('codeFams1', 'artFams2');
-    let baseId = sousFamilleId.replace('demande_appro_form_DAL', '');
-    let spinnerId = `spinner${baseId}`;
-    let containerId = `container${baseId}`;
-    let familleLibelle = document.getElementById(familleLibelleId);
-    let sousFamilleLibelle = document.getElementById(sousFamilleLibelleId);
-    let sousFamille = document.getElementById(sousFamilleId);
-    let spinnerElement = document.getElementById(spinnerId);
-    let containerElement = document.getElementById(containerId);
+    let sousFamille = getField(famille.id, 'codeFams1', 'codeFams2');
+    let familleLibelle = getField(famille.id, 'codeFams1', 'artFams1');
+    let sousFamilleLibelle = getField(famille.id, 'codeFams1', 'artFams2');
+    let spinnerElement = getField(sousFamille.id,'demande_appro_form_DAL','','spinner');
+    let containerElement = getField(sousFamille.id,'demande_appro_form_DAL','','container');
 
     famille.addEventListener('change', function () {
       if (famille.value !== '') {
@@ -34,12 +27,14 @@ export function eventOnFamille() {
         resetDropdown(sousFamille, '-- Choisir une sous-famille --');
       }
       sousFamille.value = '';
-      familleLibelle.value = this.options[this.selectedIndex].text;
-      handleDesignation(familleId);
+      familleLibelle.value =
+        this.selectedIndex === 0 ? '' : this.options[this.selectedIndex].text;
+      handleDesignation(famille.id);
     });
     sousFamille.addEventListener('change', function () {
-      sousFamilleLibelle.value = this.options[this.selectedIndex].text;
-      handleDesignation(familleId);
+      sousFamilleLibelle.value =
+        this.selectedIndex === 0 ? '' : this.options[this.selectedIndex].text;
+      handleDesignation(famille.id);
     });
   });
 }
@@ -49,4 +44,10 @@ function handleDesignation(familleId) {
     `#${familleId.replace('codeFams1', 'artDesi')}`
   ).value = '';
   autocompleteTheFields();
+}
+
+function getField(oldId, idSearch, idReplace, suffixId = '') {
+  return document.getElementById(
+    `${suffixId}${oldId.replace(idSearch, idReplace)}`
+  );
 }
