@@ -6,10 +6,10 @@ import { getTheField } from './field';
 export function autocompleteTheFields(line) {
   let designation = getTheField(line, 'artDesi');
 
-  initializeAutoCompleteForDesignation(designation);
+  initializeAutoCompletion(designation);
 }
 
-function initializeAutoCompleteForDesignation(designation) {
+function initializeAutoCompletion(designation) {
   let baseId = designation.id.replace('demande_appro_form_DAL', '');
 
   let fields = {
@@ -30,7 +30,8 @@ function initializeAutoCompleteForDesignation(designation) {
       debounceDelay: 150,
       fetchDataCallback: () =>
         fetchDesignations(fields.famille, fields.sousFamille),
-      displayItemCallback: displayDesignation,
+      displayItemCallback: (item) =>
+        `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`,
       itemToStringCallback: (item) =>
         `${item.fournisseur} - ${item.designation}`,
       itemToStringForBlur: (item) => `${item.designation}`,
@@ -53,29 +54,21 @@ async function fetchDesignations(famille, sousFamille) {
   );
 }
 
-function displayDesignation(item) {
-  return `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`;
-}
-
 function getFieldByGeneratedId(baseId, suffix) {
   return document.getElementById(baseId.replace('artDesi', suffix));
 }
 
 async function handleValueOfTheFields(item, designation, fields) {
-  let referencePiece = document.getElementById(
-    designation.id.replace('artDesi', 'artRefp')
+  let referencePiece = getFieldByGeneratedId(designation.id, 'artRefp');
+  let numeroFournisseur = getFieldByGeneratedId(
+    designation.id,
+    'numeroFournisseur'
   );
-  let numeroFournisseur = document.getElementById(
-    designation.id.replace('artDesi', 'numeroFournisseur')
-  );
-  let nomFournisseur = document.getElementById(
-    designation.id.replace('artDesi', 'nomFournisseur')
-  );
+  let nomFournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
   let famille = fields.famille;
   let sousFamille = fields.sousFamille;
   let familleLibelle = fields.familleLibelle;
   let sousFamilleLibelle = fields.sousFamilleLibelle;
-  console.log(item);
 
   if (famille.value !== item.codefamille) {
     famille.value = item.codefamille;
@@ -128,7 +121,7 @@ function onBlurEvent(found, designation, fields) {
 
     // réinitialiser l'autocomplete de désignation
     if (!found) {
-      initializeAutoCompleteForDesignation(designation);
+      initializeAutoCompletion(designation);
     }
 
     // Champ readonly ou non
