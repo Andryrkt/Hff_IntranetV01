@@ -112,15 +112,21 @@ function onBlurEvent(found, designation, fields) {
       designation.id,
       'nomFournisseur'
     );
+    let oldValueFamille = fields.famille.value;
+    let oldValueSousFamille = fields.sousFamille.value;
 
-    // Champs requis ou non et valeurs
+    // Champs requis ou non et changement de valeur de champs
     Object.values(fields).forEach((field) => {
       field.required = found;
       field.value = found ? field.value : '';
     });
 
     // réinitialiser l'autocomplete de désignation
-    if (!found) {
+    if (
+      !found &&
+      oldValueFamille !== fields.famille.value &&
+      oldValueSousFamille !== fields.sousFamille.value
+    ) {
       initializeAutoCompletion(designation);
     }
 
