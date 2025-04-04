@@ -30,7 +30,7 @@ class GeneratePdf
 
 
     /**
-     * Copie le PDF generer dans l'upload 
+     * ORDRE DE MISSION et BADM
      */
     public function copyInterneToDOCUWARE($NumDom, $codeAg_serv)
     {
@@ -43,13 +43,16 @@ class GeneratePdf
         }
     }
 
-    public function copyToDw($numeroVersion, $numeroOR)
+    // ORDRE DE REPARATION (OR)
+    public function copyToDw($numeroVersion, $numeroOR, $suffix)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#'.$suffix.'.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+
+    // Facture
     public function copyToDwFactureSoumis($numeroVersion, $numeroOR)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/factureValidation_' . $numeroOR . '_' . $numeroVersion . '.pdf';
@@ -57,6 +60,7 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
@@ -64,16 +68,18 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
-        for ($i=1; $i <= count($pathFichiers); $i++) { 
-            $cheminFichierDistant = $this->baseCheminDocuware . '/ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+        for ($i=0; $i < count($pathFichiers); $i++) { 
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             copy($cheminDestinationLocal, $cheminFichierDistant);
         }
         
     }
 
+    //Rapport d'intervention
     public function copyToDwRiSoumis($numeroVersion, $numeroOR)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
@@ -92,6 +98,7 @@ class GeneratePdf
         }
     }
 
+    // devis
     public function copyToDWDevisSoumis($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
@@ -106,6 +113,14 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    public function copyToDWFichierDevisSoumisVp($fileName)
+    {   
+        $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //bon de commande
     public function copyToDWAcSoumis($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
@@ -113,6 +128,7 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
     
+    //commande fournisseur
     public function copyToDWCdeFnrSoumis($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
@@ -121,7 +137,15 @@ class GeneratePdf
     }
 
 
-    /**
+    /** DEMANDE DE PAIEMENT */
+    public function copyToDwDdp(string $fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+/**
  * Méthode pour ajouter un titre au PDF
  * 
  * @param TCPDF $pdf le pdf à générer
@@ -143,7 +167,7 @@ protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica
     $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
 
     // Ajouter un espace après le titre
-    $pdf->Ln($lineBreak);
+    $pdf->Ln($lineBreak, true);
 }
 
     /** 

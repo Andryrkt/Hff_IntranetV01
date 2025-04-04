@@ -1,4 +1,4 @@
-# Processus de  soumission devis
+# Processus de soumission devis
 
 - création de DIT (InterneExtrene = Externe)
 - Atendre que la statut DIT change en AFFECTER SECTION
@@ -32,6 +32,7 @@
 - une notification s'affiche si le BC est bien soumis ou non et l'AC est bien crée
 
 # Processus de soumission d'OR
+
 - On peut soumettre une OR si dans l'IPS, un numéro OR a été crée pour le numero DIT, le statut du DIT doit être "AFFECTER SECTION" et dans la table ors_soumis_a_validation il n'y a pas d'OR encore soumis (première soumission)
 - cliquant sur le bouton "Soumission document à valider" dans le trois pin à droite
 - choisir OR sur le select du modal
@@ -39,5 +40,6 @@
 - une notification s'affiche si l'OR est bien soumis ou non
 
 ## resoumission de l'OR
-- on peur resoumettre un OR si la statut du DIT est "CLOTUREE VALIDEE"
 
+- on peur resoumettre un OR si la statut du DIT est "CLOTUREE VALIDEE" (deuxième soumission et plus)
+- on peut soumettre une OR si le statut du DIT est "TERMINER" et le service debiteur est LST

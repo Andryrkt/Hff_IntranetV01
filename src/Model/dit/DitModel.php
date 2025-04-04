@@ -9,34 +9,36 @@ use App\Model\Traits\ConversionModel;
 class DitModel extends Model
 {
 
-    use ConversionModel;
+  use ConversionModel;
 
-    /**
-     * informix
-     */
-    public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
-    {
-      if($matricule === '' || $matricule === '0' || $matricule === null){
-        $conditionNummat = "";
-      } else {
-        $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-      }
+  /**
+   * informix
+   */
+  public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
+  {
+    if ($matricule === '' || $matricule === '0' || $matricule === null) {
+      $conditionNummat = "";
+    } else {
+      $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
+    }
 
 
-      if($numParc === '' || $numParc === '0' || $numParc === null){
-        $conditionNumParc = "";
-      } else {
-        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-      }
+    if ($numParc === '' || $numParc === '0' || $numParc === null) {
+      $conditionNumParc = "";
+    } else {
+      $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
+    }
 
-      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-        $conditionNumSerie = "";
-      } else {
-        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-      }
-      
+    if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+      $conditionNumSerie = "";
+    } else {
+      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+    }
 
-        $statement = "SELECT
+
+
+
+    $statement = "SELECT
 
         mmat_marqmat as constructeur,
         trim(mmat_desi) as designation,
@@ -57,26 +59,88 @@ class DitModel extends Model
 
       FROM MAT_MAT, mat_bil
       WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-      --and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       and (mmat_nummat = mbil_nummat and mbil_dateclot < '01/01/1900')
       and mbil_dateclot = '12/31/1899'
-      ".$conditionNummat."
-      ".$conditionNumParc."
-      ".$conditionNumSerie."
+      " . $conditionNummat . "
+      " . $conditionNumParc . "
+      " . $conditionNumSerie . "
       ";
 
-        $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
+    $result = $this->connect->executeQuery($statement);
+
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function infoMaterielExterne($matricule = '0',  $numParc = '0', $numSerie = '0')
+  {
+
+    if ($matricule === '' || $matricule === '0' || $matricule === null) {
+      $conditionNummat = "";
+    } else {
+      $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
     }
 
 
-    public function historiqueMateriel($idMateriel) {
+    if ($numParc === '' || $numParc === '0' || $numParc === null) {
+      $conditionNumParc = "";
+    } else {
+      $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
+    }
 
-      $statement = " SELECT
+    if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+      $conditionNumSerie = "";
+    } else {
+      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+    }
+
+    $statement = " SELECT FIRST 1
+        mmat_marqmat as constructeur,
+        trim(mmat_desi) as designation,
+        trim(mmat_typmat) as modele,
+        trim(mmat_numparc) as casier_emetteur,
+        mmat_nummat as num_matricule,
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc,
+
+        (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
+        (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
+
+        0 as Prix_achat,
+        0 as Amortissement,
+
+        0 as ChiffreAffaires,
+        0 as ChargeLocative,
+        0 as ChargeEntretien
+
+      FROM MAT_MAT, mat_bil
+      WHERE MMAT_ETSTOCK in ('ST','AT', '--')
+      and mbil_dateclot = '12/31/1899'
+      " . $conditionNummat . "
+      " . $conditionNumParc . "
+      " . $conditionNumSerie . "
+      ";
+
+
+
+
+    $result = $this->connect->executeQuery($statement);
+
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function historiqueMateriel($idMateriel)
+  {
+
+    $statement = " SELECT
 
             trim(seor_succ) as codeAgence,
             --trim(asuc_lib),
@@ -110,114 +174,131 @@ class DitModel extends Model
             order by sitv_pos desc, sitv_datdeb desc, sitv_numor, sitv_interv
             ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
-    
+    return $this->convertirEnUtf8($data);
+  }
 
 
-    public function recuperationNumSerieNumParc($matricule)
-    {
-     
-        $statement = "SELECT
+
+  public function recuperationNumSerieNumParc($matricule)
+  {
+
+    $statement = "SELECT
         mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc
 
         from mat_mat
-        where mmat_nummat IN ".$matricule."
+        where mmat_nummat IN " . $matricule . "
         and MMAT_ETSTOCK in ('ST','AT', '--')
         and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupNumSerieParc($matricule)
-    {
-        $statement = "SELECT
+  public function recupNumSerieParc($matricule)
+  {
+    $statement = "SELECT
         mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
         trim(mmat_recalph) as num_parc
 
         from mat_mat
-        where mmat_nummat ='".$matricule."'
+        where mmat_nummat ='" . $matricule . "'
         and MMAT_ETSTOCK in ('ST','AT', '--')
         and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function recupNumSerieParcPourDa($matricule)
+  {
+    $statement = "SELECT
+        trim(mmat_numserie) as num_serie,
+        trim(mmat_recalph) as num_parc
+
+        from mat_mat
+        where mmat_nummat ='" . $matricule . "'";
+
+    $result = $this->connect->executeQuery($statement);
+
+
+    $data = $this->connect->fetchResults($result);
+
+    return $this->convertirEnUtf8($data);
+  }
+
+  public function recuperationIdMateriel($numParc = '', $numSerie = '')
+  {
+    if ($numParc === '' || $numParc === '0' || $numParc === null) {
+      $conditionNumParc = "";
+    } else {
+      $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
     }
 
-    public function recuperationIdMateriel($numParc = '', $numSerie = '')
-    {
-      if($numParc === '' || $numParc === '0' || $numParc === null){
-        $conditionNumParc = "";
-      } else {
-        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-      }
+    if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+      $conditionNumSerie = "";
+    } else {
+      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+    }
 
-      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-        $conditionNumSerie = "";
-      } else {
-        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-      }
-
-        $statement = "SELECT
+    $statement = "SELECT
         mmat_nummat as num_matricule
         from mat_mat
         where  MMAT_ETSTOCK in ('ST','AT', '--')
         and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
-        ".$conditionNumParc."
-        ".$conditionNumSerie."
+        " . $conditionNumParc . "
+        " . $conditionNumSerie . "
         ";
 
-      
-        $result = $this->connect->executeQuery($statement);
+
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
 
-        return $this->convertirEnUtf8($data);
-    }
-    
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recuperationSectionValidation()
-    {
-     
-        $statement = "SELECT trim(Atab_Code) AS ATAB_CODE,
+
+  public function recuperationSectionValidation()
+  {
+
+    $statement = "SELECT trim(Atab_Code) AS ATAB_CODE,
                   trim(Atab_lib)  AS ATAB_LIB
                   FROM AGR_TAB
                   WHERE Atab_nom = 'TYI'
       ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    
 
-    public function RecupereCommandeOr($numero_or)
-    {
-       $statement = "SELECT
+
+  public function RecupereCommandeOr($numero_or)
+  {
+    $statement = "SELECT
         slor_numcf,
         fcde_date,
         slor_typcf,
@@ -231,21 +312,20 @@ class DitModel extends Model
       --and slor_succ = '01'
       and slor_constp not like '%Z'
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
-      and slor_numor = '".$numero_or."'
-      group by 1,2,3,4,5"
-      ;
+      and slor_numor = '" . $numero_or . "'
+      group by 1,2,3,4,5";
 
-      $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
-   
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupQuantite($numOr)
-    {
-      $statement = "SELECT 
+
+  public function recupQuantite($numOr)
+  {
+    $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -269,17 +349,17 @@ class DitModel extends Model
             group by 1,2;
         ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
-    
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupQuantiteStatutAchatLocaux($numOr)
-    {
-      $statement = "SELECT 
+
+  public function recupQuantiteStatutAchatLocaux($numOr)
+  {
+    $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -303,16 +383,16 @@ class DitModel extends Model
             group by 1,2;
         ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupQuantiteQuatreStatutOr($numOr)
-    {
-      $statement = "SELECT 
+  public function recupQuantiteQuatreStatutOr($numOr)
+  {
+    $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -336,16 +416,16 @@ class DitModel extends Model
             group by 1,2;
         ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupOrSoumisValidation($numOr)
-    {
-      $statement = "SELECT
+  public function recupOrSoumisValidation($numOr)
+  {
+    $statement = "SELECT
           slor_numor,
           sitv_datdeb,
           trim(seor_refdem) as NUMERo_DIT,
@@ -432,68 +512,66 @@ class DitModel extends Model
               AND seor_soc = 'HF'
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
-          AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+          --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
           AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
-          AND seor_numor = '".$numOr."'
+          AND seor_numor = '" . $numOr . "'
           --AND SEOR_SUCC = '01'
           group by 1, 2, 3, 4, 5
           order by slor_numor, sitv_interv
         ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupererNumdevis($numOr)
-    {
-        $statement = "SELECT  seor_numdev  
+  public function recupererNumdevis($numOr)
+  {
+    $statement = "SELECT  seor_numdev  
                 from sav_eor
-                where seor_numor = '".$numOr."'"
-                ;
+                where seor_numor = '" . $numOr . "'";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupAgenceServiceDebiteur($numOr)
-    {
-       $statement = " SELECT 
+  public function recupAgenceServiceDebiteur($numOr)
+  {
+    $statement = " SELECT 
           slor_succdeb || '-' || slor_servdeb AS agServDebiteur
           FROM sav_lor
-          WHERE slor_numor = '".$numOr."'"
-        ;
+          WHERE slor_numor = '" . $numOr . "'";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'agservdebiteur');
-    }
+    return array_column($this->convertirEnUtf8($data), 'agservdebiteur');
+  }
 
-    public function recupNbNumor($numDit)
-    {
-        $statement = "SELECT 
+  public function recupNbNumor($numDit)
+  {
+    $statement = "SELECT 
             count(seor_numor) AS nbOr
             from sav_eor 
-            where seor_refdem='".$numDit."'
+            where seor_refdem='" . $numDit . "'
         ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 
-    public function recupMarqueCasierMateriel($matricule)
-    {
-        $statement = "SELECT
+  public function recupMarqueCasierMateriel($matricule)
+  {
+    $statement = "SELECT
           mmat_nummat as num_matricule,
           trim(mmat_numserie) as num_serie,
           trim(mmat_recalph) as num_parc ,
@@ -503,16 +581,16 @@ class DitModel extends Model
           trim(mmat_numparc) as casier
 
           from mat_mat
-          where mmat_nummat ='".$matricule."'
+          where mmat_nummat ='" . $matricule . "'
           and MMAT_ETSTOCK in ('ST','AT', '--')
           and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
       ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
+    return $this->convertirEnUtf8($data);
+  }
 }

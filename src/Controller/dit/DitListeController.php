@@ -51,7 +51,7 @@ class DitListeController extends Controller
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
-      
+
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
@@ -86,12 +86,10 @@ class DitListeController extends Controller
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
-        
+
         //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-        //ajout de numero devis
-        $paginationData = $this->updateNumeroDevis($paginationData, $ditListeModel);
-        
+
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
@@ -99,21 +97,23 @@ class DitListeController extends Controller
 
         // $this->dossierDit($request, $formDocDansDW);
         $formDocDansDW->handleRequest($request);
-            
-        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+
+        if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif  ($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
-                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VP') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VP']);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VA') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VA']);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
                 $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
-        } 
-        
+        }
+
         /** HISTORIQUE DES OPERATION */
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = $this->criteriaTab($criteria);
@@ -124,7 +124,7 @@ class DitListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        
+
         self::$twig->display('dit/list.html.twig', [
             'data'          => $paginationData['data'],
             'currentPage'   => $paginationData['currentPage'],
@@ -197,7 +197,7 @@ class DitListeController extends Controller
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
         $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_ENV['BASE_PATH_FICHIER'].'/dit/csv/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileName;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
@@ -213,7 +213,7 @@ class DitListeController extends Controller
         $this->redirectToRoute("dit_index");
     }
 
-   
+
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -288,9 +288,8 @@ class DitListeController extends Controller
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
-
     }
-    
+
     private function changementStatutDit($dit, $statutCloturerAnnuler)
     {
         $dit->setIdStatutDemande($statutCloturerAnnuler);
@@ -326,6 +325,4 @@ class DitListeController extends Controller
         // Ferme le fichier
         fclose($handle);
     }
-
-
 }

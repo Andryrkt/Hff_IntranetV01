@@ -2,6 +2,7 @@
 
 namespace App\Controller\dit;
 
+use Exception;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
@@ -17,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
-use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class AcBcSoumisController extends Controller
 {
@@ -52,15 +52,15 @@ class AcBcSoumisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        // $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+
         $devis = $this->filtredataDevis($numDit);
 
 
-        // if (empty($devis)) {
-        //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
-        //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
-        // }
-        
+        if (empty($devis)) {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+        }
+
         $acSoumis = $this->initialisation($devis, $numDit);
 
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
@@ -69,7 +69,6 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-           
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numDevis = $acSoumis->getNumeroDevis();
@@ -79,20 +78,26 @@ class AcBcSoumisController extends Controller
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $numClientBcDevis = $numClient . '_' . $numBc . '_' . $numDevis;
+            $numClientBcDevis = $numClient . '_'. $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
-            $suffix = $this->pieceGererMagasinConstructeur($numDevis);
-            $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
+            $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
+            $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
-            
+
             //fusionne le pdf
-            $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
+            $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
             $file = $form->get('pieceJoint01')->getData();
+
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
-            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
-            $fileUploader->fusionFichers($uploadedFiles, $chemin.$nomFichier);
+            $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
+
+            $this->ConvertirLesPdf($uploadedFiles);
+
+            $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
+
+
 
             //envoie le pdf dans docuware
             $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
@@ -110,29 +115,71 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
-    private function pieceGererMagasinConstructeur($numDevis)
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
-        $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
-
-        if(isset($constructeur[0])) {
-            $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
-
-            if($containsOther === 0) {
-                $suffix = 'C';
-            } else if(!$containsCAT) {
-                $suffix = 'P';
-            } else if ($containsOther > 0 ) {
-                $suffix = 'CP';
-            } else {
-                $suffix = 'N';
-            }
-        } else {
-            $suffix = 'N';
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
         }
+        
 
-        return $suffix;
+        return $tousLesFichiers;
     }
+
+    private function convertPdfWithGhostscript($filePath) {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+    
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+    
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+    
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+    
+        exec($command, $output, $returnVar);
+    
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+    
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+    
+        return $filePath;
+    }
+    // private function pieceGererMagasinConstructeur($numDevis)
+    // {
+    //     $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
+
+    //     if(isset($constructeur[0])) {
+    //         $containsCAT = in_array("CAT", $constructeur[0]);
+    //         $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+
+    //         if($containsOther === 0) {
+    //             $suffix = 'C';
+    //         } else if(!$containsCAT) {
+    //             $suffix = 'P';
+    //         } else if ($containsOther > 0 ) {
+    //             $suffix = 'CP';
+    //         } else {
+    //             $suffix = 'N';
+    //         }
+    //     } else {
+    //         $suffix = 'N';
+    //     }
+
+    //     return $suffix;
+    // }
 
     private function filtredataDevis($numDit)
     {
@@ -145,12 +192,12 @@ class AcBcSoumisController extends Controller
 
     private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
-        $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/ac_bc/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
-        $options =[
-            'prefix' => $prefix,
-            'numeroDoc' => $numClientBcDevis,
+        $options = [
+            'prefix'        => $prefix,
+            'numeroDoc'     => $numClientBcDevis,
             'numeroVersion' => $numeroVersion,
             'mainFirstPage' => true
         ];

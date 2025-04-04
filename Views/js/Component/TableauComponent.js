@@ -3,9 +3,9 @@ export class TableauComponent {
     this.props = props;
     this.state = {
       sortKey: null,
-      sortOrder: "asc", // 'asc' ou 'desc'
+      sortOrder: 'asc', // 'asc' ou 'desc'
     };
-    this.container = document.createElement("div");
+    this.container = document.createElement('div');
   }
 
   setState(newState) {
@@ -15,10 +15,10 @@ export class TableauComponent {
 
   handleSort(key) {
     const { sortKey, sortOrder } = this.state;
-    const newOrder = sortKey === key && sortOrder === "asc" ? "desc" : "asc";
+    const newOrder = sortKey === key && sortOrder === 'asc' ? 'desc' : 'asc';
     const sortedData = [...this.props.data].sort((a, b) => {
-      if (a[key] < b[key]) return newOrder === "asc" ? -1 : 1;
-      if (a[key] > b[key]) return newOrder === "asc" ? 1 : -1;
+      if (a[key] < b[key]) return newOrder === 'asc' ? -1 : 1;
+      if (a[key] > b[key]) return newOrder === 'asc' ? 1 : -1;
       return 0;
     });
     this.props.data = sortedData; // Tri les données
@@ -26,95 +26,115 @@ export class TableauComponent {
   }
 
   render() {
-    this.container.innerHTML = ""; // Efface l'ancien contenu
+    this.container.innerHTML = ''; // Efface l'ancien contenu
 
     // Créer l'élément table avec classes Bootstrap
-    const table = document.createElement("table");
-    table.className = "table rounded table-plein-ecran"; // Classes Bootstrap
+    const table = document.createElement('table');
+    table.className = 'table rounded table-plein-ecran'; // Classes Bootstrap
 
     // Définir la classe de l'en-tête (par défaut à 'table-dark' si non spécifiée)
-    const theadClass = this.props.theadClass || "table-dark";
+    const theadClass = this.props.theadClass || 'table-dark';
 
     // Ajouter l'en-tête avec classe personnalisée
-    const thead = document.createElement("thead");
+    const thead = document.createElement('thead');
     thead.className = theadClass;
-    const headerRow = document.createElement("tr");
+    const headerRow = document.createElement('tr');
     this.props.columns.forEach((column) => {
-      const th = document.createElement("th");
+      const th = document.createElement('th');
       th.textContent = column.label;
-      th.style.cursor = "pointer";
+      th.style.cursor = 'pointer';
 
       // Appliquer l'alignement si défini
       if (column.align) {
         th.style.textAlign = column.align;
       }
 
-      th.addEventListener("click", () => this.handleSort(column.key)); // Ajouter le tri
+      th.addEventListener('click', () => this.handleSort(column.key)); // Ajouter le tri
       headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
     table.appendChild(thead);
 
     // Ajouter le corps
-    const tbody = document.createElement("tbody");
+    const tbody = document.createElement('tbody');
 
     // Vérifier si les données sont présentes
     if (this.props.data && this.props.data.length > 0) {
       // Si des données existent, les afficher
-      this.props.data.forEach((row) => {
-        const tableRow = document.createElement("tr");
-        this.props.columns.forEach((column) => {
-          const td = document.createElement("td");
-          // Utiliser defaultValue si la donnée est vide ou inexistante
-          if (column.format && typeof column.format === "function") {
-            td.textContent =
-              column.format(row[column.key]) || this.props.defaultValue || "-";
-          } else {
-            td.textContent = row[column.key] || this.props.defaultValue || "-";
-          }
+      this.props.data.forEach((row, index) => {
+        let tableRow;
 
-          // Appliquer une classe spécifique
-          if (column.className) {
-            td.className = column.className;
-          }
+        if (this.props.customRenderRow) {
+          tableRow = this.props.customRenderRow(row, index, this.props.data);
+        } else {
+          tableRow = document.createElement('tr');
 
-          // Ajouter plusieurs attributs si définis
-          if (column.attributes) {
-            Object.entries(column.attributes).forEach(
-              ([attrName, attrValue]) => {
-                td.setAttribute(attrName, attrValue);
-              }
-            );
-          }
+          this.props.columns.forEach((column) => {
+            const td = document.createElement('td');
+            const value =
+              column.format && typeof column.format === 'function'
+                ? column.format(row[column.key])
+                : row[column.key] || this.props.defaultValue || '-';
 
-          // Appliquer les styles dynamiques via des fonctions
-          if (column.styles && typeof column.styles === "function") {
-            const dynamicStyles = column.styles(row);
-            if (dynamicStyles) {
-              Object.entries(dynamicStyles).forEach(
-                ([styleName, styleValue]) => {
-                  td.style[styleName] = styleValue;
+            td.textContent = value;
+
+            if (column.className) {
+              td.className = column.className;
+            }
+
+            if (column.attributes) {
+              Object.entries(column.attributes).forEach(
+                ([attrName, attrValue]) => {
+                  td.setAttribute(attrName, attrValue);
                 }
               );
             }
-          }
 
-          // Appliquer l'alignement si défini
-          if (column.align) {
-            td.style.textAlign = column.align;
-          }
+            if (column.styles && typeof column.styles === 'function') {
+              const dynamicStyles = column.styles(row);
+              if (dynamicStyles) {
+                Object.entries(dynamicStyles).forEach(
+                  ([styleName, styleValue]) => {
+                    td.style[styleName] = styleValue;
+                  }
+                );
+              }
+            }
 
-          tableRow.appendChild(td);
-        });
+            if (column.align) {
+              td.style.textAlign = column.align;
+            }
+
+            tableRow.appendChild(td);
+          });
+        }
+
+        // Ajout d'une classe personnalisée si définie
+        if (this.props.rowClassName) {
+          if (typeof this.props.rowClassName === 'function') {
+            const dynamicClass = this.props.rowClassName(row);
+            if (dynamicClass) {
+              tableRow.className = dynamicClass;
+            }
+          } else {
+            tableRow.className = this.props.rowClassName;
+          }
+        }
+
+        // Ajout de l'événement personnalisé sur le clic de la ligne
+        if (this.props.onRowClick) {
+          tableRow.addEventListener('click', () => this.props.onRowClick(row));
+        }
+
         tbody.appendChild(tableRow);
       });
     } else {
       // Si aucune donnée, afficher une ligne spéciale
-      const noDataRow = document.createElement("tr");
-      const noDataCell = document.createElement("td");
+      const noDataRow = document.createElement('tr');
+      const noDataCell = document.createElement('td');
       noDataCell.colSpan = this.props.columns.length; // Fusionner toutes les colonnes
-      noDataCell.textContent = "Aucune donnée disponible.";
-      noDataCell.style.textAlign = "center"; // Centrer le texte
+      noDataCell.textContent = 'Aucune donnée disponible.';
+      noDataCell.style.textAlign = 'center'; // Centrer le texte
       noDataRow.appendChild(noDataCell);
       tbody.appendChild(noDataRow);
     }

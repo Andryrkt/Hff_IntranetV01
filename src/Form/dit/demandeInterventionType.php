@@ -48,6 +48,7 @@ class demandeInterventionType extends AbstractType
         'ATE TMV' => 'ATE TMV',
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
     ];
 
     const INTERNE_EXTERNE = [
@@ -445,7 +446,12 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'noEntrer autocomplete', 
                         'autocomplete' => 'off',
-                    ]
+                    ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
+                        ]),
+                    ],
                 ]
             )
             ->add(

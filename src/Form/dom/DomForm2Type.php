@@ -550,7 +550,7 @@ class DomForm2Type extends AbstractType
                 'idemnityDepl',
                 TextType::class,
                 [
-                    'label' => 'Indemnité de déplacement',
+                    'label' => 'Indemnité de chantier',
                     'required' => false
                 ]
             )
@@ -560,7 +560,7 @@ class DomForm2Type extends AbstractType
                 TextType::class,
                 [
                     'mapped' => false,
-                    'label' => 'Total indemnité de déplacement',
+                    'label' => 'Total indemnité de chantier',
                     'attr' => [
                         'readonly' => true
                     ]

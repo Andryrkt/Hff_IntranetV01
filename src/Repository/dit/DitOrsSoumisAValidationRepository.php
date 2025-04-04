@@ -36,6 +36,18 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    public function findNumOrValide()
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroOR AS numeroOR")
+            ->where('osv.statut IN (:statut)')
+            ->setParameter('statut', ['Validé', 'Livré', 'Livré partiellement'])
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
     public function findNbrItv($numOr)
     {
         $nbrItv = $this->createQueryBuilder('osv')
@@ -167,15 +179,23 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
     public function findMontantValide($numOr, $numItv)
     {
-        // Étape 1 : Récupérer le numeroVersion maximum
-        $numeroVersionMax = $this->createQueryBuilder('osv')
+         // Étape 1 : Récupérer le numeroVersion maximum
+            $numeroVersionMax = $this->createQueryBuilder('osv')
             ->select('MAX(osv.numeroVersion)')
             ->where('osv.numeroOR = :numOr')
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();
 
-        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        // Vérifier si un numeroVersion a été trouvé
+        if ($numeroVersionMax === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucune version trouvée pour le numeroOR {$numOr}."
+            ];
+        }
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le montant valide
         $montantValide = $this->createQueryBuilder('osv')
             ->select('osv.montantItv')
             ->where('osv.numeroVersion = :numeroVersionMax')
@@ -187,10 +207,19 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'numItv' => $numItv,
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult();
+
+        // Vérifier si un montant a été trouvé
+        if ($montantValide === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucun montant valide trouvé pour le numeroOR {$numOr} et le numeroItv {$numItv}."
+            ];
+        }
 
         return $montantValide;
     }
+
 
     public function findOrSoumisValid($numOr)
     {

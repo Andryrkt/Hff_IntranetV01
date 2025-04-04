@@ -1,80 +1,128 @@
-
 /* Style par défaut de la dropzone */
 .dropzone {
-    border: 2px dashed #ddd;
-    padding: 20px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+  border: 2px dashed #ddd;
+  padding: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+.little-dropzone {
+  border: 1.5px dashed #474747;
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+}
+
+/* Notice */
+.notice {
+  background-color: #fde089; /* Couleur de fond douce */
+  border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
+  padding: 10px 15px; /* Espacement à l'intérieur de la boîte */
+  margin: 20px 0; /* Marges autour de la boîte */
+  font-family: Arial, sans-serif; /* Police d'écriture */
+  color: #000000; /* Couleur du texte */
+  border-radius: 4px; /* Coins arrondis */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  display: flex; /* Permet d'ajouter une icône avec flexbox */
+  align-items: center; /* Centre l'icône verticalement */
+}
+
+.notice-icon {
+  margin-right: 10px; /* Espace entre l'icône et le texte */
+  color: #000000; /* Couleur de l'icône */
+  font-size: 1rem !important; /* Taille de l'icône */
+}
+
+.notice-content {
+  flex: 1; /* Le texte prend tout l'espace disponible */
+}
 
 /* Style lorsqu'on fait glisser un fichier au-dessus de la zone */
 .dropzone.dragover {
-    background-color: #fff9c4; /* Fond jaune clair */
-    border-color: #fdd835; /* Bordure dorée vive */
+  background-color: #fff9c4; /* Fond jaune clair */
+  border-color: #fdd835; /* Bordure dorée vive */
 }
 
 .file-list {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 15px;
-    text-align: left;
+  list-style-type: none;
+  padding: 0;
+  margin-top: 15px;
+  text-align: left;
 }
 
 .file-list li {
-    padding: 8px;
-    background-color: #f4f4f4;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 5px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+  padding: 8px;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .file-list li .file-name {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: 500;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
 }
 
 .file-list li .file-size {
-    margin-left: 10px;
-    color: #666;
+  margin-left: 10px;
+  color: #666;
 }
 
 .file-list li .remove-file {
-    color: #d9534f;
-    cursor: pointer;
-    font-weight: bold;
-    margin-left: auto;
-    padding-left: 10px;
+  color: #d9534f;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: auto;
+  padding-left: 10px;
 }
 
 #paperclip-icon {
-    cursor: pointer;
-    color: #666;
-    margin: 10px;
-    font-size: 1rem;
+  cursor: pointer;
+  color: #666;
+  margin: 10px;
+  font-size: 1rem;
 }
 
 #paperclip-icon:hover {
-    color: #000000;
+  color: #000000;
 }
 
 /* Style pour le spinner */
 .spinner {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #ccc;
-    border-top: 2px solid #4caf50;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-    margin-left: 10px;
-  }
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ccc;
+  border-top: 2px solid #4caf50;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-left: 10px;
+}
 
-  /* Animation du spinner */
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* Animation du spinner */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
   }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.emphasis {
+  animation: emphase 0.5s ease-out 1;
+}
+
+@keyframes emphase {
+  from {
+    transform: scale(1);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  }
+  to {
+    transform: scale(1.01);
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4); /* Ombre douce */
+  }
+}

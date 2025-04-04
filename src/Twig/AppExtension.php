@@ -9,6 +9,7 @@ use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
 use App\Model\dom\DomModel;
+use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -51,6 +52,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
             'App' => [
                 'user' => $user,
                 'base_path' => $_ENV['BASE_PATH_COURT'],
+                'base_path_long' => $_ENV['BASE_PATH_FICHIER'],
                 'session' => $this->session,
                 'request' => $this->requestStack->getCurrentRequest(),
                 'notification' => $notification,

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits;
 
+use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
@@ -47,9 +48,14 @@ trait DitTrait
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
             if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                if($dits->getInternetExterne() == 'INTERNE') {
+                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                } else {
+                    $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                }
+                
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                    $message = 'ce matériel n\'est pas enregistré dans IPS';
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
@@ -114,10 +120,15 @@ trait DitTrait
         $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+            if($dits->getInternetExterne() == 'INTERNE') {
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            } else {
+                $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            }
 
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistrer dans Irium';
+                $message = 'ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel
@@ -212,25 +223,68 @@ trait DitTrait
         // Nom du fichier PDF fusionné
         $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
 
+        
+
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
 
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+        
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath) {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+    
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+    
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+    
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+    
+        exec($command, $output, $returnVar);
+    
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+    
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+    
+        return $filePath;
+    }
 
 
     /**
      * INFO AJOUTER MANUELEMENT des entités DANS LA CLASSE DEMANDE D'INTERVENTION
      *
-     * @param [type] $form
+     * @param [type] $dits
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
-    {
-        $dits = $form->getData();
-        
+    private function infoEntrerManuel($dits, $em, $user) : DemandeIntervention
+    {        
             $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));
