@@ -57,10 +57,10 @@ class MigrationPdfDitService
             // $this->fusionPdfmigrations($dit);
 
             // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
-            $ditPdf->copyInterneToDOCUWARE(
-                $dit->getNumeroDemandeIntervention(),
-                str_replace("-", "", $dit->getAgenceServiceEmetteur())
-            );
+            // $ditPdf->copyInterneToDOCUWARE(
+            //     $dit->getNumeroDemandeIntervention(),
+            //     str_replace("-", "", $dit->getAgenceServiceEmetteur())
+            // );
 
 
             // Avancer la barre de progression
