@@ -3,6 +3,11 @@
 {% set currentPage = article.numeroLigne %}
 {% set catalogueCss = article.catalogue ? 'success' : 'danger' %}
 {% set catalogueBool = article.catalogue ? 'catalogué' : 'non catalogué' %}
+{% set famille = article.artFams1 ?? '-' %}
+{% set sousFamille = article.artFams2 ?? '-' %}
+{% set codeFamille = article.codeFams1 ?? '-' %}
+{% set codeSousFamille = article.codeFams2 ?? '-' %}
+{% set referencePiece = article.artRefp ?? '-' %}
 
 <div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
 	<div class="h2 text-uppercase fw-bold position-absolute text-{{ catalogueCss }}" style="top:65px;right:30px;">{{ catalogueBool }}</div>
@@ -12,11 +17,11 @@
 			<div class="row">
 				<div class="col-6">
 					{{ macroForm.affichage2('N° Fournisseur', article.numeroFournisseur, 'mb-2') }}
-					{{ macroForm.affichage2('Famille', article.artFams1, 'mb-2') }}
+					{{ macroForm.affichage2('Famille', famille, 'mb-2') }}
 				</div>
 				<div class="col-6">
 					{{ macroForm.affichage2('Nom Fournisseur', article.nomFournisseur, 'mb-2') }}
-					{{ macroForm.affichage2('Sous-famille', article.artFams2, 'mb-2') }}
+					{{ macroForm.affichage2('Sous-famille', sousFamille, 'mb-2') }}
 				</div>
 			</div>
 		</div>
@@ -26,7 +31,7 @@
 	</div>
 	<div class="row">
 		<div class="col-3 col-md-3">
-			{{ macroForm.affichage2('Référence', article.artRefp, 'mb-2') }}
+			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
 		<div class="col-3 col-md-7">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
@@ -37,8 +42,8 @@
 	</div>
 
 	<input type="hidden" name="qteDem_{{ currentPage }}" id="qteDem_{{ currentPage }}" value="{{ article.qteDem }}">
-	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ article.codeFams1 }}">
-	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ article.codeFams2 }}">
+	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ codeFamille }}">
+	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
 	<div class="row">
