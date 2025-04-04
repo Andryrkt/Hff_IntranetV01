@@ -102,10 +102,8 @@ function onBlurEvent(found, designation, fields) {
   if (designation.value.trim() !== '') {
     let baseId = designation.id.replace('artDesi', '');
     let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let nomFournisseur = getFieldByGeneratedId(
-      designation.id,
-      'nomFournisseur'
-    );
+    let fournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
+    let referencePiece = getFieldByGeneratedId(designation.id, 'artRefp');
     let oldValueFamille = fields.famille.value;
     let oldValueSousFamille = fields.sousFamille.value;
 
@@ -121,6 +119,9 @@ function onBlurEvent(found, designation, fields) {
       }
     });
 
+    // Si non trouvé alors valeur de reférence pièce = ''
+    referencePiece.value = found ? referencePiece.value : '';
+
     // Champs requis ou non et changement de valeur de champs
     Object.values(fields).forEach((field) => {
       field.required = found;
@@ -128,7 +129,7 @@ function onBlurEvent(found, designation, fields) {
     });
 
     // Champ readonly ou non
-    nomFournisseur.readOnly = found;
+    fournisseur.readOnly = found;
 
     // réinitialiser l'autocomplete de désignation
     if (
