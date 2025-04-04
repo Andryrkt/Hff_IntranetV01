@@ -285,10 +285,11 @@ class AcBcSoumisController extends Controller
             return $acc + $item->getMontantItv();
         }, 0);
 
-        $montantForfait = array_reduce($devis, function ($acc, $item) {
-            return $acc + $item->getMontantForfait();
-        }, 0);
+        // $montantForfait = array_reduce($devis, function ($acc, $item) {
+        //     return $acc + $item->getMontantForfait();
+        // }, 0);
 
-        return $montantItv - $montantForfait;
+        // return $montantItv - $montantForfait;
+        return $montantItv;
     }
 }
