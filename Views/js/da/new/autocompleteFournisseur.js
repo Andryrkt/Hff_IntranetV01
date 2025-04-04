@@ -1,6 +1,5 @@
 import { FetchManager } from '../../api/FetchManager';
 import { AutoComplete } from '../../utils/AutoComplete';
-import { updateDropdown } from '../../utils/selectionHandler';
 
 export function initializeAutoCompletionFrn(fournisseur) {
   let baseId = fournisseur.id.replace('demande_appro_form_DAL', '');
@@ -14,108 +13,20 @@ export function initializeAutoCompletionFrn(fournisseur) {
     debounceDelay: 150,
     fetchDataCallback: fetchFournisseurs,
     displayItemCallback: (item) =>
-      `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`,
-    itemToStringCallback: (item) => `${item.fournisseur} - ${item.designation}`,
-    itemToStringForBlur: (item) => `${item.designation}`,
-    onBlurCallback: (found) => onBlurEvent(found, designation, fields),
-    onSelectCallback: (item) =>
-      handleValueOfTheFields(item, designation, fields),
+      `${item.numerofournisseur} - ${item.nomfournisseur}`,
+    itemToStringCallback: (item) =>
+      `${item.numerofournisseur} - ${item.nomfournisseur}`,
+    onSelectCallback: (item) => {
+      let numeroFournisseur = document.getElementById(
+        fournisseur.id.replace('nom', 'numero')
+      );
+      fournisseur.value = item.nomFournisseur;
+      numeroFournisseur.value = item.numeroFournisseur;
+    },
   });
 }
 
 async function fetchFournisseurs() {
   const fetchManager = new FetchManager();
   return await fetchManager.get(`demande-appro/autocomplete/all-fournisseur`);
-}
-
-function getFieldByGeneratedId(baseId, suffix) {
-  return document.getElementById(baseId.replace('artDesi', suffix));
-}
-
-async function handleValueOfTheFields(item, designation, fields) {
-  let referencePiece = getFieldByGeneratedId(designation.id, 'artRefp');
-  let numeroFournisseur = getFieldByGeneratedId(
-    designation.id,
-    'numeroFournisseur'
-  );
-  let nomFournisseur = getFieldByGeneratedId(designation.id, 'nomFournisseur');
-  let famille = fields.famille;
-  let sousFamille = fields.sousFamille;
-  let familleLibelle = fields.familleLibelle;
-  let sousFamilleLibelle = fields.sousFamilleLibelle;
-
-  if (famille.value !== item.codefamille) {
-    famille.value = item.codefamille;
-    familleLibelle.value = famille.options[famille.selectedIndex].text;
-    await changeSousFamille(famille, sousFamille);
-  } else if (sousFamille.value !== item.codesousfamille) {
-    await changeSousFamille(famille, sousFamille);
-  }
-  sousFamille.value = item.codesousfamille;
-  sousFamilleLibelle.value =
-    sousFamille.options[sousFamille.selectedIndex].text;
-  designation.value = item.designation;
-  referencePiece.value = item.referencepiece;
-  numeroFournisseur.value = item.numerofournisseur;
-  nomFournisseur.value = item.fournisseur;
-}
-
-async function changeSousFamille(famille, sousFamille) {
-  let baseId = sousFamille.id.replace('demande_appro_form_DAL', '');
-
-  try {
-    await updateDropdown(
-      sousFamille,
-      `api/demande-appro/sous-famille/${famille.value}`,
-      '-- Choisir une sous-famille --',
-      document.getElementById(`spinner${baseId}`),
-      document.getElementById(`container${baseId}`)
-    );
-  } catch (error) {
-    console.error('Erreur dans changeSousFamille:', error);
-  } finally {
-    console.log('Fin de changeSousFamille');
-  }
-}
-
-function onBlurEvent(found, designation, fields) {
-  if (designation.value.trim() !== '') {
-    let baseId = designation.id.replace('artDesi', '');
-    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let nomFournisseur = getFieldByGeneratedId(
-      designation.id,
-      'nomFournisseur'
-    );
-    let oldValueFamille = fields.famille.value;
-    let oldValueSousFamille = fields.sousFamille.value;
-
-    // Champs requis ou non et changement de valeur de champs
-    Object.values(fields).forEach((field) => {
-      field.required = found;
-      field.value = found ? field.value : '';
-    });
-
-    // réinitialiser l'autocomplete de désignation
-    if (
-      !found &&
-      oldValueFamille !== fields.famille.value &&
-      oldValueSousFamille !== fields.sousFamille.value
-    ) {
-      initializeAutoCompletion(designation);
-    }
-
-    // Champ readonly ou non
-    nomFournisseur.readOnly = found;
-
-    allFields.forEach((field) => {
-      if (found) {
-        field.classList.remove('text-danger');
-      } else {
-        field.classList.add('text-danger');
-      }
-      if (field.id.includes('catalogue')) {
-        field.checked = found;
-      }
-    });
-  }
 }

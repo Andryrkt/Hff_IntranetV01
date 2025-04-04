@@ -1,4 +1,5 @@
-import { autocompleteTheFields } from './autocompleteDesignation';
+import { initializeAutoCompletionDesi } from './autocompleteDesignation';
+import { initializeAutoCompletionFrn } from './autocompleteFournisseur';
 import { eventOnFamille } from './event';
 import {
   createFams2AndAppendTo,
@@ -6,6 +7,7 @@ import {
   createFieldAutocompleteAndAppendTo,
   createRemoveButtonAndAppendTo,
   formatAllField,
+  getTheField,
 } from './field';
 
 let container = document.getElementById('children-container');
@@ -75,4 +77,12 @@ export function ajouterUneLigne() {
 
 export function replaceNameToNewIndex(element, newIndex) {
   return element.replace('__name__', newIndex);
+}
+
+export function autocompleteTheFields(line) {
+  let designation = getTheField(line, 'artDesi');
+  let nomFournisseur = getTheField(line, 'nomFournisseur');
+
+  initializeAutoCompletionDesi(designation);
+  initializeAutoCompletionFrn(nomFournisseur);
 }

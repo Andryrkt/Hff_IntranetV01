@@ -1,16 +1,8 @@
 import { FetchManager } from '../../api/FetchManager';
 import { AutoComplete } from '../../utils/AutoComplete';
 import { updateDropdown } from '../../utils/selectionHandler';
-import { initializeAutoCompletionFrn } from './autocompleteFournisseur';
-import { getTheField } from './field';
 
-export function autocompleteTheFields(line) {
-  let designation = getTheField(line, 'artDesi');
-
-  initializeAutoCompletionDesi(designation);
-}
-
-function initializeAutoCompletionDesi(designation) {
+export function initializeAutoCompletionDesi(designation) {
   let baseId = designation.id.replace('demande_appro_form_DAL', '');
 
   let fields = {
@@ -144,7 +136,6 @@ function onBlurEvent(found, designation, fields) {
       oldValueSousFamille !== fields.sousFamille.value
     ) {
       initializeAutoCompletionDesi(designation);
-      initializeAutoCompletionFrn(nomFournisseur);
     }
   }
 }

@@ -1,6 +1,6 @@
 import { resetDropdown } from '../../utils/dropdownUtils';
 import { updateDropdown } from '../../utils/selectionHandler';
-import { autocompleteTheFields } from './autocompleteDesignation';
+import { autocompleteTheFields } from './dal';
 import { getTheField } from './field';
 
 export function eventOnFamille(line) {
