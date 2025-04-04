@@ -87,6 +87,8 @@ class AcBcSoumisController extends Controller
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
+            
+            
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
             
@@ -98,7 +100,7 @@ class AcBcSoumisController extends Controller
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin.$nomFichier, count([$uploadedFilePath]));
 
-            $this->ConvertirLesPdf($uploadedFiles);
+            $this->ConvertirLesPdf($uploadedFiles);// très important pour les pdf externe
 
             $fileUploader->fusionFichers($uploadedFiles,  $chemin.$nomFichier);
 
@@ -285,10 +287,11 @@ class AcBcSoumisController extends Controller
             return $acc + $item->getMontantItv();
         }, 0);
 
-        $montantForfait = array_reduce($devis, function ($acc, $item) {
-            return $acc + $item->getMontantForfait();
-        }, 0);
+        // $montantForfait = array_reduce($devis, function ($acc, $item) {
+        //     return $acc + $item->getMontantForfait();
+        // }, 0);
 
-        return $montantItv - $montantForfait;
+        // return $montantItv - $montantForfait;
+        return $montantItv;
     }
 }
