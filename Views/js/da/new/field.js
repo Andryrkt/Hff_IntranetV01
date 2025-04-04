@@ -82,16 +82,21 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   parentField.appendChild(field);
 }
 
-export function createDesiAndAppendTo(className, prototype, parentField) {
+export function createFieldAutocompleteAndAppendTo(
+  className,
+  prototype,
+  fieldName,
+  parentField
+) {
   // Création du conteneur principal
-  let field = document.createElement('div');
-  field.classList.add(className);
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add(className);
 
   // Sélection de l'élément cible
-  let DesiField = prototype.querySelector(`[id*="artDesi"]`);
+  let field = prototype.querySelector(`[id*="${fieldName}"]`);
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
-  let baseId = DesiField.id.replace('demande_appro_form_DAL', '');
+  let baseId = field.id.replace('demande_appro_form_DAL', '');
 
   // Création du conteneur du spinner
   let spinnerContainer = document.createElement('div');
@@ -106,10 +111,10 @@ export function createDesiAndAppendTo(className, prototype, parentField) {
   containerDiv.classList.add('suggestions-container');
 
   // Ajout des éléments au conteneur principal
-  field.append(DesiField, containerDiv, spinnerContainer);
+  fieldContainer.append(field, containerDiv, spinnerContainer);
 
   // Ajout du conteneur principal au parent
-  parentField.appendChild(field);
+  parentField.appendChild(fieldContainer);
 }
 
 export function formatAllField(line) {

@@ -1,9 +1,9 @@
 import { autocompleteTheFields } from './autocompleteDesignation';
 import { eventOnFamille } from './event';
 import {
-  createDesiAndAppendTo,
   createFams2AndAppendTo,
   createFieldAndAppendTo,
+  createFieldAutocompleteAndAppendTo,
   createRemoveButtonAndAppendTo,
   formatAllField,
 } from './field';
@@ -51,8 +51,8 @@ export function ajouterUneLigne() {
   fields.forEach(function ([classe, fieldName]) {
     if (fieldName === 'codeFams2') {
       createFams2AndAppendTo(classe, prototype, row);
-    } else if (fieldName === 'artDesi') {
-      createDesiAndAppendTo(classe, prototype, row);
+    } else if (fieldName === 'artDesi' || fieldName === 'nomFournisseur') {
+      createFieldAutocompleteAndAppendTo(classe, prototype, fieldName, row);
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
