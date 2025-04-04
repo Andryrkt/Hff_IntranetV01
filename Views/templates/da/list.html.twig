@@ -13,7 +13,7 @@
 
 {% block content %}
 
-	<div class="container">
+	<div class="container mb-3">
 		<h3 class="perso-titre">
 			Liste des demandes d'achat
 		</h3>
@@ -21,7 +21,6 @@
 		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
 	</div>
-
 
 	<div class="container-fluid">
 		<table class="table rounded table-plein-ecran">
@@ -68,7 +67,6 @@
 		</table>
 	</div>
 
-	{% include "/da/shared/listeDA/_modalAppro.html.twig"  %}
 	<!-- FIN tableau -->
 {% endblock %}
 
