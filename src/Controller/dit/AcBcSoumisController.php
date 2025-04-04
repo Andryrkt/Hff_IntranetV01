@@ -2,6 +2,7 @@
 
 namespace App\Controller\dit;
 
+use Exception;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
 use App\Controller\Controller;
@@ -92,6 +93,7 @@ class AcBcSoumisController extends Controller
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
 
+            $this->ConvertirLesPdf($uploadedFiles);
 
             $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
 
@@ -113,6 +115,48 @@ class AcBcSoumisController extends Controller
         ]);
     }
 
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+        
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath) {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+    
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+    
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+    
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+    
+        exec($command, $output, $returnVar);
+    
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+    
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+    
+        return $filePath;
+    }
     // private function pieceGererMagasinConstructeur($numDevis)
     // {
     //     $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
@@ -236,10 +280,11 @@ class AcBcSoumisController extends Controller
             return $acc + $item->getMontantItv();
         }, 0);
 
-        $montantForfait = array_reduce($devis, function ($acc, $item) {
-            return $acc + $item->getMontantForfait();
-        }, 0);
+        // $montantForfait = array_reduce($devis, function ($acc, $item) {
+        //     return $acc + $item->getMontantForfait();
+        // }, 0);
 
-        return $montantItv - $montantForfait;
+        // return $montantItv - $montantForfait;
+        return $montantItv;
     }
 }
