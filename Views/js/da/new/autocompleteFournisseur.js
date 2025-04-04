@@ -20,8 +20,8 @@ export function initializeAutoCompletionFrn(fournisseur) {
       let numeroFournisseur = document.getElementById(
         fournisseur.id.replace('nom', 'numero')
       );
-      fournisseur.value = item.nomFournisseur;
-      numeroFournisseur.value = item.numeroFournisseur;
+      fournisseur.value = item.nomfournisseur;
+      numeroFournisseur.value = item.numerofournisseur;
     },
   });
 }

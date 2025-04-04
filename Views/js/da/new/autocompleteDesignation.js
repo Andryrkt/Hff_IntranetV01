@@ -52,6 +52,7 @@ function getFieldByGeneratedId(baseId, suffix) {
 }
 
 async function handleValueOfTheFields(item, designation, fields) {
+  console.log(item);
   let referencePiece = getFieldByGeneratedId(designation.id, 'artRefp');
   let numeroFournisseur = getFieldByGeneratedId(
     designation.id,

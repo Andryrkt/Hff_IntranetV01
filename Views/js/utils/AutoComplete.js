@@ -154,7 +154,9 @@ export class AutoComplete {
       suggestionElement.dataset.index = index;
 
       suggestionElement.addEventListener('click', () => {
-        this.onBlurCallback(true);
+        if (this.onBlurCallback) {
+          this.onBlurCallback(true);
+        }
         this.onSelectCallback(item);
         this.clearSuggestions();
       });
