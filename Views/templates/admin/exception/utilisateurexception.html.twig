@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/404.css" rel="stylesheet">
+	<link href="{{ App.base_path }}/Views/css/404.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}{% endblock %}
@@ -22,5 +22,5 @@
 
 {% block footer %}{% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/404.js"></script>
+	<script src="{{ App.base_path }}/Views/js/404.js"></script>
 {% endblock %}

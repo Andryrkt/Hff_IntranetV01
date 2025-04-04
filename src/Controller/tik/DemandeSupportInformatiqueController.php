@@ -4,34 +4,45 @@ namespace App\Controller\tik;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\lienGenerique;
+use App\Service\fichier\FileUploaderService;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
-use App\Service\EmailService;
-use App\Service\fichier\FileUploaderService;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
+    private $historiqueOperation;
+    private $tikRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->tikRepository = self::$em->getRepository(DemandeSupportInformatique::class);
+    }
 
     /**
      * @Route("/demande-support-informatique", name="demande_support_informatique")
      */
     public function new(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
+
+        if ($this->conditionNouveauTicket($user->getId())) {
+            $this->redirectToRoute('profil_acceuil');
+        }
 
         $supportInfo = new DemandeSupportInformatique();
         //INITIALISATION DU FORMULAIRE
@@ -42,25 +53,33 @@ class DemandeSupportInformatiqueController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $donnerForm = $form->getData();
-            $this->ajoutDonnerDansEntity($donnerForm, $supportInfo, $user);
+            $dataForm = $form->getData();
+
+            if (!$this->validateEmail($user->getMail())) {
+                $message = "Echec de la création de la demande: email invalide.";
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'liste_tik_index');
+            }
+
+            $this->ajoutDonnerDansEntity($dataForm, $supportInfo, $user);
             $this->rectificationDernierIdApplication($supportInfo);
             $this->traitementEtEnvoiDeFichier($form, $supportInfo);
+
+            $text = str_replace(["\r\n", "\n", "\r"], "<br>", $supportInfo->getDetailDemande());
+            $supportInfo->setDetailDemande($text);
 
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
 
             $this->envoyerMailAuxValidateurs([
-                'id'            => $donnerForm->getId(),
-                'numTik'        => $donnerForm->getNumeroTicket(),
-                'objet'         => $donnerForm->getObjetDemande(),
-                'detail'        => $donnerForm->getDetailDemande(),
+                'id'            => $dataForm->getId(),
+                'numTik'        => $dataForm->getNumeroTicket(),
+                'objet'         => $dataForm->getObjetDemande(),
+                'detail'        => $dataForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("liste_tik_index");
+            $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $supportInfo->getNumeroTicket(), 'liste_tik_index', true);
         }
 
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
@@ -74,7 +93,7 @@ class DemandeSupportInformatiqueController extends Controller
      * INITIALISER LA VALEUR DE LA FORMULAIRE
      *
      * @param DemandeIntervention $demandeIntervention
-     * @param [type] $em
+     * @param User $user
      * @return void
      */
     private function initialisationForm(DemandeSupportInformatique $supportInfo, User $user)
@@ -88,16 +107,16 @@ class DemandeSupportInformatiqueController extends Controller
         $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
 
-    private function ajoutDonnerDansEntity($donnerForm, DemandeSupportInformatique $supportInfo, User $user)
+    private function ajoutDonnerDansEntity($dataForm, DemandeSupportInformatique $supportInfo, User $user)
     {
-        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $donnerForm->getAgenceEmetteur())[0]]);
-        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $donnerForm->getServiceEmetteur())[0]]);
+        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $dataForm->getAgenceEmetteur())[0]]);
+        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $dataForm->getServiceEmetteur())[0]]);
 
-        $statut = self::$em->getRepository(StatutDemande::class)->find('79');
+        $statut = self::$em->getRepository(StatutDemande::class)->find('58');
 
         $supportInfo
-            ->setAgenceDebiteurId($donnerForm->getAgence())
-            ->setServiceDebiteurId($donnerForm->getService())
+            ->setAgenceDebiteurId($dataForm->getAgence())
+            ->setServiceDebiteurId($dataForm->getService())
             ->setAgenceEmetteurId($agenceEmetteur)
             ->setServiceEmetteurId($serviceEmetteur)
             ->setHeureCreation($this->getTime())
@@ -105,7 +124,7 @@ class DemandeSupportInformatiqueController extends Controller
             ->setUserId($user)
             ->setMailDemandeur($user->getMail())
             ->setAgenceServiceEmetteur($agenceEmetteur->getCodeAgence() . '-' . $serviceEmetteur->getCodeService())
-            ->setAgenceServiceDebiteur($donnerForm->getAgence()->getCodeAgence() . '-' . $donnerForm->getService()->getCodeService())
+            ->setAgenceServiceDebiteur($dataForm->getAgence()->getCodeAgence() . '-' . $dataForm->getService()->getCodeService())
             ->setNumeroTicket($this->autoINcriment('TIK'))
             ->setIdStatutDemande($statut)
             ->setCodeSociete($user->getSociettes()->getCodeSociete())
@@ -142,7 +161,7 @@ class DemandeSupportInformatiqueController extends Controller
         $fileNames = [];
         // Récupérez les fichiers uploadés depuis le formulaire
         $files = $form->get('fileNames')->getData();
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/tik/fichiers';
         $fileUploader = new FileUploaderService($chemin);
         if ($files) {
             foreach ($files as $file) {
@@ -194,9 +213,44 @@ class DemandeSupportInformatiqueController extends Controller
                 'statut'     => "newTik",
                 'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}")
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/tik-detail/{$tab['id']}")
             ]
         ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+
+    /** 
+     * Méthode pour vérifier si l'utilisateur peut créer un nouveau ticket, retourne le nombre de ticket résolu, non cloturé
+     * 
+     * @return bool
+     */
+    private function conditionNouveauTicket($userId): bool
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        if ($this->tikRepository->countByStatutDemande('62', $userId) === 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /** 
+     * Méthode pour valider l'email selon le règle de HFF
+     * 
+     * @param string $email l'email à valider
+     * 
+     * @return bool
+     */
+    private function validateEmail(string $email): bool
+    {
+        $pattern = '/^[a-zA-Z0-9._%+-]+@(hff\.mg|natema\.mg|airways\.hff\.mg|travel\.hff\.mg|somava\.mg)$/';
+
+        if (preg_match($pattern, $email)) {
+            return true;
+        }
+
+        return false;
     }
 }

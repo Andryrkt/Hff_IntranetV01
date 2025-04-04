@@ -1,0 +1,196 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Tous les catégories
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/tik/tousCategorie.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+	<div class="container-fluid mt-4">
+		<nav>
+			<div class="onglet-head nav nav-tabs mx-2" id="nav-tab" role="tablist">
+				<button class="nav-link" id="nav-categorie-tab" data-bs-toggle="tab" data-bs-target="#nav-categorie" type="button" role="tab" aria-controls="nav-categorie">Catégories</button>
+				<button class="nav-link" id="nav-sous-categorie-tab" data-bs-toggle="tab" data-bs-target="#nav-sous-categorie" type="button" role="tab" aria-controls="nav-sous-categorie">Sous-catégories</button>
+				<button class="nav-link" id="nav-autre-categorie-tab" data-bs-toggle="tab" data-bs-target="#nav-autre-categorie" type="button" role="tab" aria-controls="nav-autre-categorie">Autres catégories</button>
+			</div>
+		</nav>
+		<div class="card mb-3 mx-2 border-top-left-radius-0">
+			<div class="card-body">
+				<div class="tab-content p-3 border bg-light" id="nav-tabContent">
+					<div class="tab-pane fade" id="nav-categorie" role="tabpanel" aria-labelledby="nav-categorie-tab">
+						<h2 class="perso-titre">
+							Listes des Catégories ticketing
+						</h2>
+
+						<div class="d-flex flex-row ">
+							<div class="p-2">
+								<a href="{{ path("tki_categorie_new")}}" class="btn btn-success fw-bold">
+									Ajouter une catégorie
+								</a>
+							</div>
+						</div>
+
+						<table class="table">
+							<thead class="table-dark">
+								<tr>
+									<th>Actions</th>
+									<th>Catégorie</th>
+									<th>Sous-catégorie(s)</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in dataCategorie %}
+
+									<tr>
+										<td>
+											<div class="dropdown">
+												<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+													Actions
+												</button>
+												<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+													<li>
+														<a class="dropdown-item fw-bold" href="{{ path("tki_categorie_edit", {id:item.id})}}">Modifier</a>
+													</li>
+													<li>
+														<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("tki_categorie_delete", {id:item.id})}}">Supprimer</a>
+													</li>
+												</ul>
+											</div>
+										</td>
+										<td>{{item.description}}</td>
+										<td>
+											<ul>
+												{% for p in item.sousCategories %}
+													<li>
+														{{p.description}}
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="tab-pane fade" id="nav-sous-categorie" role="tabpanel" aria-labelledby="nav-sous-categorie-tab">
+						<h2 class="perso-titre">
+							Listes des sous-catégories ticketing
+						</h2>
+
+						<div class="d-flex flex-row ">
+							<div class="p-2">
+								<a href="{{ path("tki_sous_categorie_new")}}" class="btn btn-success fw-bold">
+									Ajouter une sous-catégorie
+								</a>
+							</div>
+						</div>
+
+						<table class="table">
+							<thead class="table-dark">
+								<tr>
+									<th>Actions</th>
+									<th>Sous-catégorie</th>
+									<th>Catégorie(s) liée(s)</th>
+									<th>Autre(s) Catégorie(s) liée(s)</th>
+
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in dataSousCategorie %}
+									<tr>
+										<td>
+											<div class="dropdown">
+												<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+													Actions
+												</button>
+												<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+													<li>
+														<a class="dropdown-item fw-bold" href="{{ path("tki_sous_categorie_edit", {id:item.id})}}">Modifier</a>
+													</li>
+													<li>
+														<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("tki_sous_categorie_delete", {id:item.id})}}">Supprimer</a>
+													</li>
+												</ul>
+											</div>
+										</td>
+										<td>{{item.description}}</td>
+										<td>
+											<ul>
+												{% for c in item.categories %}
+													<li>
+														{{c.description}}
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+										<td>
+											<ul>
+												{% for autreCategorie in item.autresCategories %}
+													<li>
+														{{ autreCategorie.description }}
+													</li>
+												{% endfor %}
+											</ul>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+					<div class="tab-pane fade" id="nav-autre-categorie" role="tabpanel" aria-labelledby="nav-autre-categorie-tab">
+						<h2 class="perso-titre">
+							Listes des autres Catégories ticketing
+						</h2>
+
+						<div class="d-flex flex-row ">
+							<div class="p-2">
+								<a href="{{ path("tki_autres_categories_new")}}" class="btn btn-success fw-bold">
+									Ajouter une autre catégorie
+								</a>
+							</div>
+						</div>
+
+						<table class="table">
+							<thead class="table-dark">
+								<tr>
+									<th>Actions</th>
+									<th>Autre catégorie</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in dataAutreCategorie %}
+
+									<tr>
+										<td>
+											<div class="dropdown">
+												<button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+													Actions
+												</button>
+												<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+													<li>
+														<a class="dropdown-item fw-bold" href="{{ path("tki_autres_categories_edit", {id:item.id})}}">Modifier</a>
+													</li>
+													<li>
+														<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("tki_autres_categories_delete", {id:item.id})}}">Supprimer</a>
+													</li>
+												</ul>
+											</div>
+										</td>
+										<td>{{item.description}}</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/tik/tousCategorie.js"></script>
+{% endblock %}

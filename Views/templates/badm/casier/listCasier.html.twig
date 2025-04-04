@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/ListDomRech.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/badm/listeCasier.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/badm/listeCasier.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
@@ -87,5 +87,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="/Hffintranet/Views/js/badm/listCasier.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/badm/listCasier.js"></script>
 {% endblock %}

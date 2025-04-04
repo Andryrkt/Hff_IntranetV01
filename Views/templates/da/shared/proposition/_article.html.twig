@@ -1,0 +1,144 @@
+{% import "macroForm.html.twig" as macroForm %}
+
+{% set currentPage = article.numeroLigne %}
+
+<div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
+	{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<div class="row">
+				<div class="col-6">
+					{{ macroForm.affichage2('N° Fournisseur', article.numeroFournisseur, 'mb-2') }}
+					{{ macroForm.affichage2('Famille', article.artFams1, 'mb-2') }}
+				</div>
+				<div class="col-6">
+					{{ macroForm.affichage2('Nom Fournisseur', article.nomFournisseur, 'mb-2') }}
+					{{ macroForm.affichage2('Sous-famille', article.artFams2, 'mb-2') }}
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6">
+			{{ macroForm.affichage2('Commentaire sur l’article', article.commentaire, 'h-90 mb-2') }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-3 col-md-3">
+			{{ macroForm.affichage2('Référence', article.artRefp, 'mb-2') }}
+		</div>
+		<div class="col-3 col-md-7">
+			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+		</div>
+		<div class="col-3 col-md-2">
+			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
+		</div>
+	</div>
+
+	<input type="hidden" name="qteDem_{{ currentPage }}" id="qteDem_{{ currentPage }}" value="{{ article.qteDem }}">
+	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ article.codeFams1 }}">
+	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ article.codeFams2 }}">
+
+	{{ macroForm.sousTitre('Proposition d’une référence') }}
+	<div class="row">
+		<div class="col-3 col-md-3">
+			<div class="mb-2">
+				<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence</label>
+				<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control">
+				<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
+				<div id="loader_reference_{{ currentPage }}" class="spinner" style="display: none;"></div>
+			</div>
+			<div class="mb-2">
+				<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
+				<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control">
+			</div>
+		</div>
+		<div class="col-9 col-md-9">
+			<div class="row">
+				<div class="col-8 col-md-8">
+					<div class="mb-2">
+						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation</label>
+						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
+						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
+						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
+					</div>
+				</div>
+				<div class="col-4 col-md-4">
+					<div class="mb-2">
+						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur</label>
+						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
+						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
+						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
+					</div>
+				</div>
+			</div>
+			<div class="mb-2">
+				<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif</label>
+				<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control">
+			</div>
+			<div class="mb-2 d-none">
+				<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}">
+			</div>
+			<div class="mb-2 d-none">
+				<input type="text" id="demande_appro_proposition_numeroFournisseur_{{ currentPage }}">
+			</div>
+		</div>
+	</div>
+
+	<div class="d-flex justify-content-end">
+		<button type="button" id="add_line_{{ currentPage }}" class="btn bouton mt-2">
+			<i class="fas fa-plus"></i>
+			Ajouter la référence
+		</button>
+	</div>
+
+	<table class="table rounded table-plein-ecran mt-4">
+		<thead class="table-dark text-center">
+			<tr>
+				<th>Fournisseur</th>
+				<th>Référence</th>
+				<th>Désignation</th>
+				<th>PU</th>
+				<th>Montant Total</th>
+				<th>Conditionnement</th>
+				<th>Qté Dispo</th>
+				<th>Commentaire / motif</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody_{{ currentPage }}">
+			{% for DALR in article.demandeApproLR %}
+				<tr>
+					<td>{{ DALR.nomFournisseur }}</td>
+					<td>{{ DALR.artRefp }}</td>
+					<td>{{ DALR.artDesi }}</td>
+					<td>{{ DALR.prixUnitaire }}</td>
+					<td>{{ DALR.total }}</td>
+					<td>{{ DALR.conditionnement }}</td>
+					<td>{{ DALR.qteDispo }}</td>
+					<td>{{ DALR.motif }}</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+	<div class="d-flex justify-content-between">
+		<div class="">
+			{% if totalPage > 1 %}
+				{% if currentPage > 1 %}
+					<button type="button" class="btn bouton mt-2 me-3 prevBtn">
+						<i class="fas fa-arrow-left"></i>
+						Précédent
+					</button>
+				{% endif %}
+
+				{% if currentPage < totalPage %}
+					<button type="button" class="btn bouton mt-2 nextBtn">
+						Suivant
+						<i class="fas fa-arrow-right"></i>
+					</button>
+				{% endif %}
+			{% endif %}
+		</div>
+		<div class="align-self-end">
+			<span class="fs-6">{{ currentPage }}/{{ totalPage }}</span>
+		</div>
+	</div>
+</div>

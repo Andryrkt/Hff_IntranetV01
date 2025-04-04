@@ -10,43 +10,31 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 
 class DitSearch
 {
-   
-    private ?WorNiveauUrgence $niveauUrgence;
+    private ?WorNiveauUrgence $niveauUrgence = null;
 
-    
-    private ?StatutDemande $statut;
+    private ?StatutDemande $statut = null;
 
-    
     private ?int $idMateriel = 0;
 
-    
-    private ?WorTypeDocument $typeDocument;
+    private ?WorTypeDocument $typeDocument = null;
 
-   
-    private ?string $internetExterne;
+    private ?string $internetExterne = '';
 
+    private ?\Datetime $dateDebut = null;
 
-    private ?\Datetime $dateDebut;
+    private ?\DateTime $dateFin = null;
 
-    private ?\DateTime $dateFin;
-
-   
     private ?string $numParc = '';
 
     private ?string $numSerie = '';
 
-
-  
     private ?Agence $agenceEmetteur = null;
 
-   
     private ?Service $serviceEmetteur = null;
 
     private ?Agence $agenceDebiteur = null;
 
-   
     private ?Service $serviceDebiteur = null;
-
 
     private ?string $numDit = '';
 
@@ -62,14 +50,15 @@ class DitSearch
 
     private ?string $sectionAffectee = null;
 
-    
-    private ?string $sectionSupport1;
+    private ?string $sectionSupport1 = '';
 
-    private ?string $sectionSupport2;
+    private ?string $sectionSupport2 = '';
 
-    private ?string $sectionSupport3;
+    private ?string $sectionSupport3 = '';
 
     private ?string $etatFacture = '';
+
+    private ?string $numDevis = '';
 
     //-===============================================================================================================================
     public function getNiveauUrgence()
@@ -578,6 +567,26 @@ class DitSearch
         return $this;
     }
 
+    /**
+     * Get the value of numDevis
+     */ 
+    public function getNumDevis()
+    {
+        return $this->numDevis;
+    }
+
+    /**
+     * Set the value of numDevis
+     *
+     * @return  self
+     */ 
+    public function setNumDevis($numDevis)
+    {
+        $this->numDevis = $numDevis;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -604,8 +613,11 @@ class DitSearch
             'sectionSupport1' => $this->sectionSupport1,
             'sectionSupport2' => $this->sectionSupport2,
             'sectionSupport3' => $this->sectionSupport3,
-            'etatFacture' => $this->etatFacture
+            'etatFacture' => $this->etatFacture,
+            'numDevis' => $this->numDevis
         ];
     }
+
+    
 }
 

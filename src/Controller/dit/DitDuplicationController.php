@@ -96,7 +96,8 @@ class DitDuplicationController extends Controller
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            $dits = $this->infoEntrerManuel($form, self::$em, $user);
+            $dit = $form->getData();
+            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
 
             //envoie des pièce jointe dans une dossier
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
@@ -128,7 +129,7 @@ class DitDuplicationController extends Controller
 
             //ENVOYER le PDF DANS DOXCUWARE
             if ($dits->getAgence()->getCodeAgence() === "91" || $dits->getAgence()->getCodeAgence() === "92" || $dits->getAgence()->getCodeAgence() === "50") {
-                $this->genererPdf->copyInterneToDOXCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
+                $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
             }
 
             $this->redirectToRoute("dit_index");

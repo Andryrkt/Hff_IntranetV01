@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
@@ -14,6 +15,7 @@ use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\tik\TkiSousCategorie;
 use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\admin\tik\TkiCommentaires;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
 
@@ -77,7 +79,7 @@ class DemandeSupportInformatique
      */
     private ?TkiSousCategorie $sousCategorie;
 
-   /**
+    /**
      * @ORM\ManyToOne(targetEntity=TkiAutresCategorie::class, inversedBy="supportInfo")
      * @ORM\JoinColumn(nullable=false, name="ID_TKL_Autres_Categorie", referencedColumnName="id")
      */
@@ -98,7 +100,7 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(nullable=true, name="ID_Intervenant", referencedColumnName="id")
      */
     private ?User $intervenant;
-    
+
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoValidateur")
      * @ORM\JoinColumn(nullable=true, name="ID_Validateur", referencedColumnName="id")
@@ -109,7 +111,7 @@ class DemandeSupportInformatique
      * @ORM\Column(type="string", length=100, name="Nom_Intervenant")
      */
     private ?string $nomIntervenant = null;
-      
+
     /**
      * @ORM\Column(type="string", length=100, name="Mail_Intervenant")
      */
@@ -213,9 +215,24 @@ class DemandeSupportInformatique
     private $idStatutDemande = null;
 
     /**
-     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=TkiCommentaires::class, mappedBy="demandeSupportInformatique")
+     */
+    private $commentaires;
+
+    /**
+     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
      */
     private $planning;
+
+    /**
+     * @ORM\OneToOne(targetEntity=TkiReplannification::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
+     */
+    private $replanification;
+
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true, name="part_day_planning")
+     */
+    private ?string $partOfDay;
 
     /**=====================================================================================
      * 
@@ -225,7 +242,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -233,7 +250,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of numeroTicket
-     */ 
+     */
     public function getNumeroTicket()
     {
         return $this->numeroTicket;
@@ -243,7 +260,7 @@ class DemandeSupportInformatique
      * Set the value of numeroTicket
      *
      * @return  self
-     */ 
+     */
     public function setNumeroTicket($numeroTicket)
     {
         $this->numeroTicket = $numeroTicket;
@@ -253,7 +270,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -263,7 +280,7 @@ class DemandeSupportInformatique
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -273,7 +290,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of utilisateurDemandeur
-     */ 
+     */
     public function getUtilisateurDemandeur()
     {
         return $this->utilisateurDemandeur;
@@ -283,7 +300,7 @@ class DemandeSupportInformatique
      * Set the value of utilisateurDemandeur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateurDemandeur($utilisateurDemandeur)
     {
         $this->utilisateurDemandeur = $utilisateurDemandeur;
@@ -293,7 +310,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of mailDemandeur
-     */ 
+     */
     public function getMailDemandeur()
     {
         return $this->mailDemandeur;
@@ -303,7 +320,7 @@ class DemandeSupportInformatique
      * Set the value of mailDemandeur
      *
      * @return  self
-     */ 
+     */
     public function setMailDemandeur($mailDemandeur)
     {
         $this->mailDemandeur = $mailDemandeur;
@@ -313,7 +330,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of mailEnCopie
-     */ 
+     */
     public function getMailEnCopie()
     {
         return $this->mailEnCopie;
@@ -323,7 +340,7 @@ class DemandeSupportInformatique
      * Set the value of mailEnCopie
      *
      * @return  self
-     */ 
+     */
     public function setMailEnCopie($mailEnCopie)
     {
         $this->mailEnCopie = $mailEnCopie;
@@ -333,7 +350,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of codeSociete
-     */ 
+     */
     public function getCodeSociete()
     {
         return $this->codeSociete;
@@ -343,7 +360,7 @@ class DemandeSupportInformatique
      * Set the value of codeSociete
      *
      * @return  self
-     */ 
+     */
     public function setCodeSociete($codeSociete)
     {
         $this->codeSociete = $codeSociete;
@@ -353,7 +370,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of categorie
-     */ 
+     */
     public function getCategorie()
     {
         return $this->categorie;
@@ -363,7 +380,7 @@ class DemandeSupportInformatique
      * Set the value of categorie
      *
      * @return  self
-     */ 
+     */
     public function setCategorie($categorie)
     {
         $this->categorie = $categorie;
@@ -373,7 +390,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of sousCategorie
-     */ 
+     */
     public function getSousCategorie()
     {
         return $this->sousCategorie;
@@ -383,7 +400,7 @@ class DemandeSupportInformatique
      * Set the value of sousCategorie
      *
      * @return  self
-     */ 
+     */
     public function setSousCategorie($sousCategorie)
     {
         $this->sousCategorie = $sousCategorie;
@@ -393,7 +410,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of autresCategorie
-     */ 
+     */
     public function getAutresCategorie()
     {
         return $this->autresCategorie;
@@ -403,7 +420,7 @@ class DemandeSupportInformatique
      * Set the value of autresCategorie
      *
      * @return  self
-     */ 
+     */
     public function setAutresCategorie($autresCategorie)
     {
         $this->autresCategorie = $autresCategorie;
@@ -413,7 +430,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of agenceServiceEmetteur
-     */ 
+     */
     public function getAgenceServiceEmetteur()
     {
         return $this->agenceServiceEmetteur;
@@ -423,7 +440,7 @@ class DemandeSupportInformatique
      * Set the value of agenceServiceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceServiceEmetteur($agenceServiceEmetteur)
     {
         $this->agenceServiceEmetteur = $agenceServiceEmetteur;
@@ -433,7 +450,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of agenceServiceDebiteur
-     */ 
+     */
     public function getAgenceServiceDebiteur()
     {
         return $this->agenceServiceDebiteur;
@@ -443,7 +460,7 @@ class DemandeSupportInformatique
      * Set the value of agenceServiceDebiteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceServiceDebiteur($agenceServiceDebiteur)
     {
         $this->agenceServiceDebiteur = $agenceServiceDebiteur;
@@ -453,7 +470,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of nomIntervenant
-     */ 
+     */
     public function getNomIntervenant()
     {
         return $this->nomIntervenant;
@@ -463,7 +480,7 @@ class DemandeSupportInformatique
      * Set the value of nomIntervenant
      *
      * @return  self
-     */ 
+     */
     public function setNomIntervenant($nomIntervenant)
     {
         $this->nomIntervenant = $nomIntervenant;
@@ -473,7 +490,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of mailIntervenant
-     */ 
+     */
     public function getMailIntervenant()
     {
         return $this->mailIntervenant;
@@ -483,17 +500,17 @@ class DemandeSupportInformatique
      * Set the value of mailIntervenant
      *
      * @return  self
-     */ 
+     */
     public function setMailIntervenant($mailIntervenant)
     {
         $this->mailIntervenant = $mailIntervenant;
 
         return $this;
     }
-    
+
     /**
      * Get the value of objetDemande
-     */ 
+     */
     public function getObjetDemande()
     {
         return $this->objetDemande;
@@ -503,7 +520,7 @@ class DemandeSupportInformatique
      * Set the value of objetDemande
      *
      * @return  self
-     */ 
+     */
     public function setObjetDemande($objetDemande)
     {
         $this->objetDemande = $objetDemande;
@@ -511,11 +528,11 @@ class DemandeSupportInformatique
         return $this;
     }
 
-    
+
 
     /**
      * Get the value of detailDemande
-     */ 
+     */
     public function getDetailDemande()
     {
         return $this->detailDemande;
@@ -525,7 +542,7 @@ class DemandeSupportInformatique
      * Set the value of detailDemande
      *
      * @return  self
-     */ 
+     */
     public function setDetailDemande($detailDemande)
     {
         $this->detailDemande = $detailDemande;
@@ -535,7 +552,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of pieceJointe1
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -545,7 +562,7 @@ class DemandeSupportInformatique
      * Set the value of pieceJointe1
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJointe1)
     {
         $this->pieceJoint01 = $pieceJointe1;
@@ -555,7 +572,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of pieceJointe2
-     */ 
+     */
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
@@ -565,7 +582,7 @@ class DemandeSupportInformatique
      * Set the value of pieceJointe2
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint02($pieceJointe2)
     {
         $this->pieceJoint02 = $pieceJointe2;
@@ -575,7 +592,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of pieceJointe3
-     */ 
+     */
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
@@ -585,7 +602,7 @@ class DemandeSupportInformatique
      * Set the value of pieceJointe3
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint03($pieceJointe3)
     {
         $this->pieceJoint03 = $pieceJointe3;
@@ -595,7 +612,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of dateDebutPlanning
-     */ 
+     */
     public function getDateDebutPlanning()
     {
         return $this->dateDebutPlanning;
@@ -605,7 +622,7 @@ class DemandeSupportInformatique
      * Set the value of dateDebutPlanning
      *
      * @return  self
-     */ 
+     */
     public function setDateDebutPlanning($dateDebutPlanning)
     {
         $this->dateDebutPlanning = $dateDebutPlanning;
@@ -615,7 +632,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of dateFinPlanning
-     */ 
+     */
     public function getDateFinPlanning()
     {
         return $this->dateFinPlanning;
@@ -625,7 +642,7 @@ class DemandeSupportInformatique
      * Set the value of dateFinPlanning
      *
      * @return  self
-     */ 
+     */
     public function setDateFinPlanning($dateFinPlanning)
     {
         $this->dateFinPlanning = $dateFinPlanning;
@@ -635,7 +652,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of niveauUrgence
-     */ 
+     */
     public function getNiveauUrgence()
     {
         return $this->niveauUrgence;
@@ -645,17 +662,17 @@ class DemandeSupportInformatique
      * Set the value of niveauUrgence
      *
      * @return  self
-     */ 
+     */
     public function setNiveauUrgence($niveauUrgence)
     {
         $this->niveauUrgence = $niveauUrgence;
 
         return $this;
     }
-    
+
     /**
      * Get the value of parcInformatique
-     */ 
+     */
     public function getParcInformatique()
     {
         return $this->parcInformatique;
@@ -665,7 +682,7 @@ class DemandeSupportInformatique
      * Set the value of parcInformatique
      *
      * @return  self
-     */ 
+     */
     public function setParcInformatique($parcInformatique)
     {
         $this->parcInformatique = $parcInformatique;
@@ -675,7 +692,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of dateFinSouhaitee
-     */ 
+     */
     public function getDateFinSouhaitee()
     {
         return $this->dateFinSouhaitee;
@@ -685,7 +702,7 @@ class DemandeSupportInformatique
      * Set the value of dateFinSouhaitee
      *
      * @return  self
-     */ 
+     */
     public function setDateFinSouhaitee($dateFinSouhaitee)
     {
         $this->dateFinSouhaitee = $dateFinSouhaitee;
@@ -697,7 +714,7 @@ class DemandeSupportInformatique
      * Set the automatic value of dateFinSouhaitee
      *
      * @return  self
-     */ 
+     */
     public function setDateFinSouhaiteeAutomatique()
     {
         $date = new GlobalDateTime();
@@ -709,7 +726,7 @@ class DemandeSupportInformatique
         while ($joursOuvrablesAjoutes < 2) {
             // Ajouter un jour
             $date->modify('+1 day');
-            
+
             // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
             if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
                 $joursOuvrablesAjoutes++;
@@ -721,9 +738,9 @@ class DemandeSupportInformatique
         return $this;
     }
 
-     /**
+    /**
      * Get the value of fileNames
-     */ 
+     */
     public function getFileNames()
     {
         return $this->fileNames;
@@ -733,20 +750,20 @@ class DemandeSupportInformatique
      * Set the value of fileNames
      *
      * @return  self
-     */ 
+     */
     public function setFileNames($fileNames)
     {
         $this->fileNames = $fileNames;
 
         return $this;
     }
-    
+
     public function getAgenceEmetteurId()
     {
         return $this->agenceEmetteurId;
     }
 
-    
+
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -754,13 +771,13 @@ class DemandeSupportInformatique
         return $this;
     }
 
-    
+
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
 
-   
+
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
         $this->serviceEmetteurId = $serviceEmetteurId;
@@ -768,13 +785,13 @@ class DemandeSupportInformatique
         return $this;
     }
 
-  
+
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
 
-    
+
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
         $this->agenceDebiteurId = $agenceDebiteurId;
@@ -782,13 +799,13 @@ class DemandeSupportInformatique
         return $this;
     }
 
-    
+
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
 
-    
+
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
         $this->serviceDebiteurId = $serviceDebiteurId;
@@ -798,7 +815,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of userId
-     */ 
+     */
     public function getUserId()
     {
         return $this->userId;
@@ -808,7 +825,7 @@ class DemandeSupportInformatique
      * Set the value of userId
      *
      * @return  self
-     */ 
+     */
     public function setUserId($userId)
     {
         $this->userId = $userId;
@@ -818,7 +835,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of idStatutDemande
-     */ 
+     */
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
@@ -828,7 +845,7 @@ class DemandeSupportInformatique
      * Set the value of idStatutDemande
      *
      * @return  self
-     */ 
+     */
     public function setIdStatutDemande($idStatutDemande)
     {
         $this->idStatutDemande = $idStatutDemande;
@@ -838,7 +855,7 @@ class DemandeSupportInformatique
 
     /**
      * Get the value of intervenant
-     */ 
+     */
     public function getIntervenant()
     {
         return $this->intervenant;
@@ -848,7 +865,7 @@ class DemandeSupportInformatique
      * Set the value of intervenant
      *
      * @return  self
-     */ 
+     */
     public function setIntervenant($intervenant)
     {
         $this->intervenant = $intervenant;
@@ -864,19 +881,18 @@ class DemandeSupportInformatique
     public function setPlanning(?TkiPlanning $planning): self
     {
         // set the owning side of the relation if necessary
-        if ($planning && $planning->getDemandeId() !== $this) {
-            $planning->setDemandeId($this);
+        if ($planning && $planning->getDemandeSupportInfo() !== $this) {
+            $planning->setDemandeSupportInfo($this);
         }
 
         $this->planning = $planning;
 
         return $this;
-
     }
-    
+
     /**
      * Get the value of validateur
-     */ 
+     */
     public function getValidateur()
     {
         return $this->validateur;
@@ -886,10 +902,70 @@ class DemandeSupportInformatique
      * Set the value of validateur
      *
      * @return  self
-     */ 
+     */
     public function setValidateur($validateur)
     {
         $this->validateur = $validateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of commentaires
+     */
+    public function getCommentaires()
+    {
+        return $this->commentaires;
+    }
+
+    /**
+     * Set the value of commentaires
+     *
+     * @return  self
+     */
+    public function setCommentaires($commentaires)
+    {
+        $this->commentaires = $commentaires;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of partOfDay
+     */
+    public function getPartOfDay()
+    {
+        return $this->partOfDay;
+    }
+
+    /**
+     * Set the value of partOfDay
+     *
+     * @return  self
+     */
+    public function setPartOfDay($partOfDay)
+    {
+        $this->partOfDay = $partOfDay;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanification
+     */
+    public function getReplanification()
+    {
+        return $this->replanification;
+    }
+
+    /**
+     * Set the value of replanification
+     *
+     * @return  self
+     */
+    public function setReplanification($replanification)
+    {
+        $this->replanification = $replanification;
 
         return $this;
     }

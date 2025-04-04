@@ -1,0 +1,32 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Détail d'utilisateur
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/detail.css">
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h3 class="perso-titre">Détails des opérations pour le document
+			{{ documentNumber }}</h3>
+
+		<!-- Chronologie -->
+		<ul class="timeline">
+			{% for operation in documentOperations %}
+				<li>
+					<strong>{{ operation.date }}</strong>:
+					<em>{{ operation.operationType }}</em>
+					effectuée par
+					{{ operation.user }}. Statut:
+					<em>{{ operation.status }}</em>.
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+
+{% endblock %}
+
+{% block javascript %}{% endblock %}

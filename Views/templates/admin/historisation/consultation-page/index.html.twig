@@ -1,0 +1,67 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Historique des consultations
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/index.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block content %}
+	<div class="position-sticky sticky-header">
+		<div class="container mt-4">
+			<h3 class="perso-titre">Historique des consultations de page</h3>
+
+			{% include "/admin/historisation/consultation-page/shared/_formulaireRecherche.html.twig" %}
+			<div class="container">
+				{% include "/admin/historisation/consultation-page/shared/_pagination.html.twig" %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Tableau -->
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark position-sticky sticky-table-header">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>ID</th>
+					<th>Nom de l'utilisateur</th>
+					<th>Nom de la page</th>
+					<th>Date de consultation</th>
+					<th>Paramètres</th>
+					<th>Machine</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					<tr>
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+							</div>
+						</td>
+						<td>{{ item.id }}</td>
+						<td>{{ item.utilisateur }}</td>
+						<td>{{ item.nom_page }}</td>
+						<td>{{ item.dateConsultation|date('d/m/Y - H:i:s') }}</td>
+						<td>{{ macroForm.listAssociative(item.params) }}</td>
+						<td>{{ item.machineUser }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/index.js" type="module"></script>
+{% endblock %}

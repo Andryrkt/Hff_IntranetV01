@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/tik/liste.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/tik/liste.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -11,13 +11,33 @@
 	{# {% include "/partials/_loader.html.twig" %} #}
 
 	<div class="container">
-
-
 		<h3 class="perso-titre">
 			Liste de Demande support informatique
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
 		{% include "/tik/demandeSupportInformatique/shared/_formulaireRecherche.html.twig" %}
+		<div class="row">
+			<div class=" col-12 col-md-12 my-3">
+				<i class="fa-solid fa-circle statut-ouvert"></i>
+				<small class="">OUVERT |</small>
+				<i class="fa-solid fa-circle statut-en-attente"></i>
+				<small class="statut-en-attente">EN ATTENTE</small> |
+				<i class="fa-solid fa-circle statut-refuse"></i>
+				<small class="statut-refuse">REFUSE</small> |
+				<i class="fa-solid fa-circle statut-en-cours"></i>
+				<small class="statut-en-cours">EN COURS</small> |
+				<i class="fa-solid fa-circle statut-planifie"></i>
+				<small class="statut-planifie">PLANIFIE</small> |
+				<i class="fa-solid fa-circle text-danger"></i>
+				<small class="text-danger">Hors Date</small> |
+				<i class="fa-solid fa-circle statut-resolu"></i>
+				<small class="statut-resolu">RESOLU</small> |
+				<i class="fa-solid fa-circle statut-cloture"></i>
+				<small class="statut-cloture">CLÔTURE</small> |
+				<i class="fa-solid fa-circle statut-reouvert"></i>
+				<small class="statut-reouvert">REOUVERT</small>
+			</div>
+		</div>
 	</div>
 
 	<div
@@ -41,6 +61,7 @@
 					<th>N° parc PC</th>
 					<th>Objet du demande</th>
 					<th>Date de demande</th>
+					<th>Dernier commentaire</th>
 					<th>Intervenant</th>
 				</tr>
 			</thead>
@@ -51,20 +72,24 @@
 					{% set classeStatutTik = '' %}
 					{% set styleStatutTik = '' %}
 
-					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
+					{% set ticketId = item.id %}
+
+					{% if item.idStatutDemande.description|trim == 'OUVERT' %}
 						{% set classeStatutTik ='ouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'REFUSE'  %}
+					{% elseif item.idStatutDemande.description|trim == 'REFUSE'  %}
 						{% set classeStatutTik ='refuse' %}
-					{% elseif  item.idStatutDemande.description | trim == 'ENCOURS' %}
+					{% elseif  item.idStatutDemande.description|trim == 'ENCOURS' %}
 						{% set classeStatutTik ='encours' %}
-					{% elseif item.idStatutDemande.description | trim == 'PLANIFIE' %}
+					{% elseif item.idStatutDemande.description|trim == 'PLANIFIE' %}
 						{% set classeStatutTik ='planifie' %}
-					{% elseif item.idStatutDemande.description | trim == 'RESOLU' %}
+					{% elseif item.idStatutDemande.description|trim == 'RESOLU' %}
 						{% set classeStatutTik ='resolu' %}
-					{% elseif item.idStatutDemande.description | trim == 'REOUVERT' %}
+					{% elseif item.idStatutDemande.description|trim == 'REOUVERT' %}
 						{% set classeStatutTik ='reouvert' %}
-					{% elseif item.idStatutDemande.description | trim == 'CLÔTURE' %}
+					{% elseif item.idStatutDemande.description|trim == 'CLÔTURE' %}
 						{% set classeStatutTik ='cloture' %}
+					{% elseif item.idStatutDemande.description|trim == 'EN ATTENTE' %}
+						{% set classeStatutTik ='enattente' %}
 					{% else %}
 						{% set classeStatutTik = '' %}
 					{% endif %}
@@ -78,9 +103,14 @@
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									<li>
-										<a class="dropdown-item fw-bold" href="{{ path("tik_modification_edit", {id: item.id})}}">Modifier</a>
+										<a class="dropdown-item fw-bold editer-ticket" href="{{ path("tik_modification_edit", {id: item.id})}}" data-tik-monticket="{{ ticketsEdit[ticketId]['monTicket'] }}" data-tik-ouvert="{{ ticketsEdit[ticketId]['ouvert'] }}">Modifier</a>
 									</li>
-
+									<li>
+										<a class="dropdown-item fw-bold cloturer-ticket" href="{{ path("tik_cloture", {id: item.id})}}" data-tik-profil="{{ ticketsCloture[ticketId]['profil'] }}" data-tik-statut="{{ ticketsCloture[ticketId]['statut'] }}">Cloturer</a>
+									</li>
+									<li>
+										<a class="dropdown-item fw-bold reouvrir-ticket" href="{{ path("tik_reouvert", {id: item.id})}}" data-tik-profil="{{ ticketsReouvrir[ticketId]['profil'] }}" data-tik-statut="{{ ticketsReouvrir[ticketId]['statut'] }}">Réouvrir</a>
+									</li>
 								</ul>
 							</div>
 						</td>
@@ -88,20 +118,24 @@
 
 						{# DEBUT Statut #}
 
-						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutTik}}" style="{{styleStatutTik}}">{{ item.idStatutDemande.description|trim}}</td>
 
 						{# FIN Statut #}
 
 						<td>
-							<a href="{{ path("detail_tik", {id: item.id}) }}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
+							<a href="{{ path("detail_tik", {id: item.id}) }}" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroTicket }}</a>
 						</td>
-						<td>{{ item.niveauUrgence.description }}</td>
+						<td>{{ item.niveauUrgence.description|default('--')  }}</td>
 						<td>{{ item.utilisateurDemandeur}}</td>
-						<td>{{ item.parcInformatique }}</td>
+						<td>{{ item.parcInformatique|default('--') }}</td>
 						<td>{{ item.objetDemande }}</td>
-						<td>{{ item.dateCreation | date('d/m/Y')}}</td>
-						<td>{{ item.nomIntervenant }}</td>
-
+						<td>{{ item.dateCreation|date('d/m/Y')}}</td>
+						<td>
+							<a class="comment-link" href="#" data-bs-toggle="modal" data-bs-target="#commentaire" data-commentaire-user="{{ item.commentaires|last ? item.commentaires|last.nomUtilisateur : '--' }}" data-commentaire-day="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('d') : '--' }}" data-commentaire-month="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('m') : '--' }}" data-commentaire-year="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('Y') : '--' }}" data-commentaire-time="{{ item.commentaires|last ? item.commentaires|last.dateCreation|date('H:i') : '--' }}" data-original-text="{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}">
+								{{ item.commentaires|last ? item.commentaires|last.commentaires : '--' }}
+							</a>
+						</td>
+						<td>{{ item.nomIntervenant|default('--') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
@@ -109,9 +143,14 @@
 	</div>
 	<!-- FIN tableau -->
 
-
+	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalCommentaire.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalModification.html.twig"  %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalCloture.html.twig" %}
+	{% include "/tik/demandeSupportInformatique/shared/_modalReouverture.html.twig" %}
 {% endblock %}
 {% block javascript %}
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="/Hffintranet/Views/js/tik/tikListe.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/tik/tikListe.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/tik/tikListeModal.js" type="module"></script>
 {% endblock %}

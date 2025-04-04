@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/dom/secondForm.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -224,7 +224,7 @@
 		<div class="row">
 			<div class="mt-2 ">
 
-				<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+				<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
 					<i class="fa fa-print"></i>
 					Envoyer
 				</button>
@@ -236,5 +236,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dom/secondForm.js"></script>
+	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js" type="module"></script>
 {% endblock %}

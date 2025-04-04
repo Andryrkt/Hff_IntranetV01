@@ -24,8 +24,6 @@ class PermissionController extends Controller
 
         $data = self::$em->getRepository(Permission::class)->findBy([], ['id' => 'DESC']);
 
-        $this->logUserVisit('permission_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display(
             'admin/permission/list.html.twig',
             [
@@ -54,8 +52,6 @@ class PermissionController extends Controller
             self::$em->flush();
             $this->redirectToRoute("permission_index");
         }
-
-        $this->logUserVisit('permission_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'admin/permission/new.html.twig',
@@ -88,10 +84,6 @@ class PermissionController extends Controller
             self::$em->flush();
             $this->redirectToRoute("permission_index");
         }
-
-        $this->logUserVisit('permission_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display(
             'admin/permission/edit.html.twig',

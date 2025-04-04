@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dw/dw.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css">
 {% endblock %}
 
 {% block nav %}
@@ -88,11 +88,10 @@
 				id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
 				<!-- Le fichier sélectionné sera affiché ici -->
 				<div id="spinners" style="display: none;">Loading...</div>
-
 			</div>
 		</div>
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dw/dossierInterventionAtelier.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/dw/dossierInterventionAtelier.js" type="module"></script>
 {% endblock %}

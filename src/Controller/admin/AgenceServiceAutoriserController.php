@@ -20,8 +20,6 @@ class AgenceServiceAutoriserController extends Controller
 
         $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
 
-        $this->logUserVisit('autoriser_index'); // historisation du page visité par l'utilisateur
-
         self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
             'data' => $data
         ]);
@@ -46,8 +44,6 @@ class AgenceServiceAutoriserController extends Controller
             self::$em->flush();
             $this->redirectToRoute("autoriser_index");
         }
-
-        $this->logUserVisit('autoriser_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('admin/AgenceServiceAutoriser/new.html.twig', [
 
@@ -77,10 +73,6 @@ class AgenceServiceAutoriserController extends Controller
             self::$em->flush();
             $this->redirectToRoute("autoriser_index");
         }
-
-        $this->logUserVisit('autoriser_update', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
 
         self::$twig->display(
             'admin/AgenceServiceAutoriser/edit.html.twig',

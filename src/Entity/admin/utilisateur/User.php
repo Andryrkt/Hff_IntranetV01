@@ -8,7 +8,6 @@ use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\UserLogger;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
@@ -19,9 +18,11 @@ use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
 use App\Entity\admin\utilisateur\Permission;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -156,17 +157,34 @@ class User implements UserInterface
      */
     private $supportInfoValidateur;
 
-
     /**
      * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
      */
     private $tikPlanningUser;
 
     /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="user")
+     */
+    private $replanificationUser;
+
+    /**
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
      */
     private $userLoggers;
 
+    /**
+     * @ORM\Column(type="string", length=10, name="num_tel")
+     *
+     * @var string 
+     */
+    private ?string $numTel;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="poste")
+     *
+     * @var string
+     */
+    private ?string $poste;
     //=================================================================================================================================
 
     public function __construct()
@@ -592,7 +610,7 @@ class User implements UserInterface
     {
         if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUserId($this);
+            $tikPlanningUser->setUser($this);
         }
 
         return $this;
@@ -602,8 +620,8 @@ class User implements UserInterface
     {
         if ($this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUserId() === $this) {
-                $tikPlanningUser->setUserId(null);
+            if ($tikPlanningUser->getUser() === $this) {
+                $tikPlanningUser->setUser(null);
             }
         }
 
@@ -703,6 +721,74 @@ class User implements UserInterface
     public function setUserLoggers($userLoggers)
     {
         $this->userLoggers = $userLoggers;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numTel
+     *
+     * @return  string
+     */
+    public function getNumTel()
+    {
+        return $this->numTel;
+    }
+
+    /**
+     * Set the value of numTel
+     *
+     * @param  string  $numTel
+     *
+     * @return  self
+     */
+    public function setNumTel(string $numTel)
+    {
+        $this->numTel = $numTel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of poste
+     *
+     * @return  string
+     */
+    public function getPoste()
+    {
+        return $this->poste;
+    }
+
+    /**
+     * Set the value of poste
+     *
+     * @param  string  $poste
+     *
+     * @return  self
+     */
+    public function setPoste(string $poste)
+    {
+        $this->poste = $poste;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationUser
+     */
+    public function getReplanificationUser()
+    {
+        return $this->replanificationUser;
+    }
+
+    /**
+     * Set the value of replanificationUser
+     *
+     * @return  self
+     */
+    public function setReplanificationUser($replanificationUser)
+    {
+        $this->replanificationUser = $replanificationUser;
 
         return $this;
     }

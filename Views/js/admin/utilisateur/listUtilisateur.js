@@ -1,4 +1,6 @@
 /** RECHERCHE */
+console.log(document.getElementById("searchInput"));
+
 document.getElementById("searchInput").addEventListener("keyup", function () {
   let filter = this.value.toLowerCase();
   let rows = document.querySelectorAll("#tableBody tr");

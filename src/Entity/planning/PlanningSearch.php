@@ -27,6 +27,8 @@ class PlanningSearch
     private $months;
     private ?bool $orBackOrder = false;
     private $typeDocument;
+    private $reparationRealise;
+    private $orNonValiderDw;
 
     public function getNiveauUrgence()
     {
@@ -321,27 +323,7 @@ class PlanningSearch
 
         return $this;
     }
-    public function toArray(): array
-    {
-        return [
-            'agence' => $this->agence,
-            'annee' => $this->annee,
-            'interneExterne' => $this->interneExterne,
-            'facture' => $this->facture,
-            'plan' => $this->plan,
-            'dateDebut' => $this->dateDebut,
-            'dateFin' => $this->dateFin,
-            'numOr' => $this->numOr,
-            'numSerie' => $this->numSerie,
-            'idMat' => $this->idMat,
-            'numParc' => $this->numParc,
-            'agenceDebite' => $this->agenceDebite,
-            'serviceDebite' => $this->serviceDebite,
-            'typeligne' => $this->typeligne,
-            'orBackOrder' => $this->orBackOrder
-           
-        ];
-    }
+   
 
     /**
      * Get the value of casier
@@ -442,5 +424,67 @@ class PlanningSearch
         $this->typeDocument = $typeDocument;
 
         return $this;
+    }
+
+    /**
+     * Get the value of reparationRealise
+     */ 
+    public function getReparationRealise()
+    {
+        return $this->reparationRealise;
+    }
+
+    /**
+     * Set the value of reparationRealise
+     *
+     * @return  self
+     */ 
+    public function setReparationRealise($reparationRealise)
+    {
+        $this->reparationRealise = $reparationRealise;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orNonValiderDw
+     */ 
+    public function getOrNonValiderDw()
+    {
+        return $this->orNonValiderDw;
+    }
+
+    /**
+     * Set the value of orNonValiderDw
+     *
+     * @return  self
+     */ 
+    public function setOrNonValiderDw($orNonValiderDw)
+    {
+        $this->orNonValiderDw = $orNonValiderDw;
+
+        return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'agence' => $this->agence,
+            'annee' => $this->annee,
+            'interneExterne' => $this->interneExterne,
+            'facture' => $this->facture,
+            'plan' => $this->plan,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'numOr' => $this->numOr,
+            'numSerie' => $this->numSerie,
+            'idMat' => $this->idMat,
+            'numParc' => $this->numParc,
+            'agenceDebite' => $this->agenceDebite,
+            'serviceDebite' => $this->serviceDebite,
+            'typeligne' => $this->typeligne,
+            'orBackOrder' => $this->orBackOrder,
+            'orNonValiderDw' => $this->orNonValiderDw
+        ];
     }
 }

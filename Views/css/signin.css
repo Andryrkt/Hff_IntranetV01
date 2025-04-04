@@ -1,36 +1,55 @@
 #intro {
-    background-image: url("../assets/Hff.png");
-    height: 100vh;
+  background-image: url('../assets/Hff.png');
+  height: 100vh;
 }
 
 #Logo {
-    margin-left: 10%;
-    margin-bottom: 5%;
+  margin-left: 10%;
+  margin-bottom: 5%;
 }
 
 .navbar .nav-link {
-    color: #fff !important;
+  color: #fff !important;
 }
 
 .notice {
-    background-color: #FBBB01; /* Couleur de fond douce */
-    border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
-    padding: 10px 15px; /* Espacement à l'intérieur de la boîte */
-    margin: 20px 0; /* Marges autour de la boîte */
-    font-family: Arial, sans-serif; /* Police d'écriture */
-    color: #000000; /* Couleur du texte */
-    border-radius: 4px; /* Coins arrondis */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
-    display: flex; /* Permet d'ajouter une icône avec flexbox */
-    align-items: center; /* Centre l'icône verticalement */
-  }
-  
-  .notice-icon {
-    margin-right: 10px; /* Espace entre l'icône et le texte */
-    color: #000000; /* Couleur de l'icône */
-    font-size: 24px; /* Taille de l'icône */
-  }
-  
-  .notice-content {
-    flex: 1; /* Le texte prend tout l'espace disponible */
-  }
+  background-color: #fbbb01; /* Couleur de fond douce */
+  border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
+  padding: 10px 15px; /* Espacement à l'intérieur de la boîte */
+  margin: 20px 0; /* Marges autour de la boîte */
+  font-family: Arial, sans-serif; /* Police d'écriture */
+  color: #000000; /* Couleur du texte */
+  border-radius: 4px; /* Coins arrondis */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Ombre douce */
+  display: flex; /* Permet d'ajouter une icône avec flexbox */
+  align-items: center; /* Centre l'icône verticalement */
+}
+
+.notice-icon {
+  margin-right: 10px; /* Espace entre l'icône et le texte */
+  color: #000000; /* Couleur de l'icône */
+  font-size: 24px; /* Taille de l'icône */
+}
+
+.notice-content {
+  flex: 1; /* Le texte prend tout l'espace disponible */
+}
+
+/* Enlever la bordure entre l'input et le conteneur */
+.input-group #password.form-control {
+  border-right: none;
+}
+
+.input-group .input-group-text {
+  border-left: none;
+  width: 2rem; /* Taille fixe pour l'icône */
+  padding: 0; /* Pas de padding supplémentaire */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.input-group .form-control:focus {
+  z-index: 3; /* Éviter tout problème de superposition au focus */
+}

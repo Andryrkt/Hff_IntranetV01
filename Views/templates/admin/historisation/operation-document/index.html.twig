@@ -1,0 +1,75 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Historique des opérations de documents
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/index.css">
+{% endblock %}
+
+{% block content %}
+	<div class="position-sticky sticky-header">
+		<div class="container mt-4">
+			<h3 class="perso-titre">Historique des opérations sur les documents</h3>
+			{% include "/admin/historisation/operation-document/shared/_formulaireRecherche.html.twig" %}
+			<div class="container">
+				{% include "/admin/historisation/operation-document/shared/_pagination.html.twig" %}
+			</div>
+		</div>
+	</div>
+
+	<!-- Tableau -->
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark position-sticky sticky-table-header">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>ID</th>
+					<th>Type de document</th>
+					<th>Numéro du document</th>
+					<th>Utilisateur</th>
+					<th>Date de l’opération</th>
+					<th>Type d’opération</th>
+					<th>Statut</th>
+					<th>Libellé</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					{% set statutClass = "bg-success" %}
+					{% if (item.statutOperation in ["Echec", "Erreur"]) %}
+						{% set statutClass = "bg-danger" %}
+					{% endif %}
+
+					<tr>
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+							</div>
+						</td>
+						<td>{{ item.id }}</td>
+						<td>{{ item.idTypeDocument.libelleDocument }}</td>
+						<td>{{ item.numeroDocument }}</td>
+						<td>{{ item.utilisateur }}</td>
+						<td>{{ item.dateOperation|date('d/m/Y') }}
+							-
+							{{ item.heureOperation|date('H:i:s') }}</td>
+						<td>{{ item.idTypeOperation.typeOperation }}</td>
+						<td class="{{ statutClass }}">{{ item.statutOperation }}</td>
+						<td>{{ item.libelleOperation }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/operation-document/index.js" type="module"></script>
+{% endblock %}

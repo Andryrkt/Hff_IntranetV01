@@ -3,6 +3,7 @@
 namespace App\Service\genererPdf;
 
 use TCPDF;
+use App\Service\GlobalVariablesService;
 
 class GenererPdfCasier extends GeneratePdf
 {
@@ -21,7 +22,7 @@ class GenererPdfCasier extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henrifraise.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henrifraise.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -124,7 +125,7 @@ class GenererPdfCasier extends GeneratePdf
 
 
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cas/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/cas/';
         $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
     }
 

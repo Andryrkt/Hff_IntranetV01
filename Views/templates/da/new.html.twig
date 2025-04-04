@@ -1,0 +1,117 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class=" container-fluid">
+		<div class="card">
+			<div class="card-body">
+				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Formulaire Demande d'achat
+						</h3>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ form_row(form.objetDal)}}
+							<div class="mb-3 position-relative">
+								{{ form_row(form.detailDal) }}
+								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
+							</div>
+							{{ form_row(form.dateFinSouhaite) }}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ form_row(form.agenceEmetteur) }}
+									{{ form_row(form.serviceEmetteur) }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ form_row(form.agenceDebiteur) }}
+									{{ form_row(form.serviceDebiteur) }}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information Matériel / DIT') }}
+							<div class="row">
+								<div class="col-md-6 col-6">
+									{{ form_row(form.idMateriel) }}
+									{{ form_row(form.serie) }}
+								</div>
+								<div class="col-md-6 col-6">
+									{{ form_row(form.parc) }}
+									{{ form_row(form.dit) }}
+								</div>
+								{{ form_row(form.objetDit) }}
+							</div>
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="button" id="add-child" class="btn bouton mt-2">
+							<i class="fas fa-plus"></i>
+							Ajouter une ligne
+						</button>
+					</div>
+
+					<table class="table rounded table-plein-ecran mt-4">
+						<thead class="table-dark text-center">
+							<tr>
+								<th class="w-15">Famille</th>
+								<th class="w-15">Sous-famille</th>
+								<th class="w-20">Désignation</th>
+								<th class="w-10">Fournisseur</th>
+								<th class="w-10">Date fin souhaitée</th>
+								<th class="w-5">Quantité</th>
+								<th class="w-23">Commentaire</th>
+								<th class="w-2">
+									<i class="fas fa-times fs-5"></i>
+								</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="children-container"></div>
+
+					<div id="child-prototype" style="display: none;">
+						{{ form_widget(form.DAL.vars.prototype)|raw }}
+					</div>
+				</div>
+
+
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn bouton mt-2">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+				</div>
+				{{ form_end(form) }}
+
+			</div>
+		</div>
+
+		<div id="materielInfos"></div>
+	</div>
+
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>
+{% endblock %}

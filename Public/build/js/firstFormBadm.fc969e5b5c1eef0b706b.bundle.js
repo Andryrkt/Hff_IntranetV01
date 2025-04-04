@@ -1,0 +1,1 @@
+(()=>{"use strict";const e=document.querySelector("#badm_form1_typeMouvement"),n=document.querySelector("#badm_form1_numParc");e.addEventListener("change",(function(){"1"===e.value?n.readOnly=!0:n.readOnly=!1}))})();

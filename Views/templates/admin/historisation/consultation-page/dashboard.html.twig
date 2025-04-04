@@ -1,0 +1,28 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Historique des consultations
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/dashboard.css">
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h3 class="perso-titre">Statistiques globales</h3>
+
+		<div class="row">
+			<div class="col-md-6">
+				<canvas id="pageVisitsChart"></canvas>
+			</div>
+			<div class="col-md-6">
+				<canvas id="userActivityChart"></canvas>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/consultation-page/dashboard.js"></script>
+{% endblock %}

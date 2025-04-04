@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits;
 
+use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
@@ -13,10 +14,6 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 
 trait DitTrait
 {
-    private function alertRedirection(string $message, string $chemin = "/Hffintranet/dit/new")
-    {
-        echo "<script type=\"text/javascript\"> alert( ' $message ' ); document.location.href ='$chemin';</script>";
-    } 
 
     private function demandeDevis($dits){
         return $dits->getDemandeDevis() === null ? 'NON' : $dits->getDemandeDevis();
@@ -33,7 +30,11 @@ trait DitTrait
             $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
             //AGENCE - SERVICE
             $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            if($dits->getAgence() === null) {
+                $demandeIntervention->setAgenceServiceDebiteur(null);
+            } else {
+                $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            }
             //INTERVENTION
             $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
             $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
@@ -47,10 +48,15 @@ trait DitTrait
             $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
             //INFORMATION MATERIEL
             if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                if($dits->getInternetExterne() == 'INTERNE') {
+                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                } else {
+                    $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                }
+                
                 if (empty($data)) {
-                    $message = 'ce matériel n\'est pas enregistrer dans Irium';
-                    $this->alertRedirection($message);
+                    $message = 'ce matériel n\'est pas enregistré dans IPS';
+                    $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
                 } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
                 }
@@ -76,7 +82,7 @@ trait DitTrait
             $demandeIntervention->setServiceDebiteurId($dits->getService());
             
             //societte
-           
+        // dd($demandeIntervention);
         return $demandeIntervention;
     }
 
@@ -97,8 +103,12 @@ trait DitTrait
 
         //Agence - service
         $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-        $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
-
+        if($dits->getAgence() === null) {
+            $demandeIntervention->setAgenceServiceDebiteur(null);
+        } else {
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+        }
+        
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());
@@ -107,14 +117,19 @@ trait DitTrait
         //INFO CLIENT
         $demandeIntervention->setNomClient($dits->getNomClient());
         $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-        $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+        $demandeIntervention->setMailClient($dits->getMailClient());
         
         if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+            if($dits->getInternetExterne() == 'INTERNE') {
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            } else {
+                $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            }
 
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+
             if (empty($data)) {
-                $message = 'ce matériel n\'est pas enregistrer dans Irium';
-                $this->alertRedirection($message);
+                $message = 'ce matériel n\'est pas enregistré dans IPS';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_new');
             } else {
                 //Caractéristiques du matériel
                 $demandeIntervention->setNumParc($data[0]['num_parc']);
@@ -177,7 +192,7 @@ trait DitTrait
         $file = $form->get($nomFichier)->getData();
         $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
        
-        $fileDossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/fichier/';
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/dit/fichier/';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
 
@@ -193,7 +208,6 @@ trait DitTrait
 
     private function envoiePieceJoint($form, $dits, $fusionPdf)
     {
-
         $pdfFiles = [];
 
         for ($i=1; $i < 4; $i++) { 
@@ -203,30 +217,73 @@ trait DitTrait
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_SERVER['DOCUMENT_ROOT'] . '/Upload/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+
+        
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
 
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+        
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath) {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+    
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+    
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+    
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+    
+        exec($command, $output, $returnVar);
+    
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+    
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+    
+        return $filePath;
+    }
 
 
     /**
      * INFO AJOUTER MANUELEMENT des entités DANS LA CLASSE DEMANDE D'INTERVENTION
      *
-     * @param [type] $form
+     * @param [type] $dits
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($form, $em, $user) : DemandeIntervention
-    {
-        $dits = $form->getData();
-        
+    private function infoEntrerManuel($dits, $em, $user) : DemandeIntervention
+    {        
             $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
             $dits->setHeureDemande($this->getTime());
             $dits->setDateDemande(new \DateTime($this->getDatesystem()));

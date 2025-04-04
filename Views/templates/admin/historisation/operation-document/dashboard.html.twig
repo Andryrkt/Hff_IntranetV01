@@ -1,0 +1,50 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Statistiques des opérations de documents
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/operation-document/dashboard.css">
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h3 class="perso-titre">Statistiques globales sur les opérations des documents</h3>
+
+		<div
+			class="row">
+			<!-- Graphique 1 : Répartition des types d'opérations -->
+			<div class="col-md-6">
+				<h4>Répartition des types d'opérations</h4>
+				<canvas id="operationTypesChart"></canvas>
+			</div>
+
+			<!-- Graphique 2 : Activité des utilisateurs -->
+			<div class="col-md-6">
+				<h4>Activité des utilisateurs</h4>
+				<canvas id="userActivityChart"></canvas>
+			</div>
+		</div>
+
+		<div
+			class="row mt-4">
+			<!-- Graphique 3 : Répartition des types de documents -->
+			<div class="col-md-6">
+				<h4>Répartition des types de documents</h4>
+				<canvas id="documentTypesChart"></canvas>
+			</div>
+
+			<!-- Graphique 4 : Statut des opérations -->
+			<div class="col-md-6">
+				<h4>Statut des opérations</h4>
+				<canvas id="operationStatusChart"></canvas>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="{{ App.base_path }}/Views/js/admin/historisation/operation-document/dashboard.js"></script>
+{% endblock %}

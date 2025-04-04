@@ -1,0 +1,76 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block content %}
+	<div class="container">
+		<div class="card">
+			<div class="card-body">
+
+				<h2 class="perso-titre">
+					Listes des contacts agences ate
+				</h2>
+				<input type="text" id="searchInput" class="form-control my-3" placeholder="Rechercher...">
+
+				<div class="d-flex flex-row ">
+					<div class="p-2">
+						<a href="{{ path("contact_agence_ate_new")}}" class="btn btn-success fw-bold">
+							Add
+						</a>
+					</div>
+				</div>
+
+				<table class="table">
+					<thead class="table-dark">
+						<tr>
+							<th>
+								<i class="fas fa-ellipsis-vertical"></i>
+							</th>
+							<th>Agence</th>
+							<th>Matricule</th>
+							<th>Nom et prénom(s)</th>
+							<th>Email</th>
+							<th>Téléphone</th>
+							<th>Atelier</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody">
+						{% for item in data %}
+
+							<tr>
+								<td>
+									<div class="dropdown">
+										<button class="btn  dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false" style="text-decoration: none; color: #000; font-weight: 700">
+											<i class="fas fa-ellipsis-vertical"></i>
+										</button>
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="#">Détails</a>
+											</li>
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ path("contact_agence_ate_edit", { id: item.id})}}">Modifier</a>
+											</li>
+											<li>
+												<a class="dropdown-item fw-bold" style="color: red;" href="{{ path("contact_agence_ate_delete", { id: item.id})}}">Supprimer</a>
+											</li>
+										</ul>
+									</div>
+								</td>
+								<td>{{item.agencestring}}</td>
+								<td>{{item.matriculestring}}</td>
+								<td>{{item.nomString}}
+									{{item.prenom}}</td>
+								<td>{{item.emailstring}}</td>
+								<td>{{item.telephone}}</td>
+								<td>{{item.atelier}}</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/utilisateur/listUtilisateur.js" type="module"></script>
+{% endblock %}

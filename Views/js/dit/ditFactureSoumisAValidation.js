@@ -291,22 +291,22 @@ numOrInput.addEventListener("input", function () {
   numOrInput.value = value;
 });
 
-const numFactInput = document.querySelector(
-  "#dit_facture_soumis_a_validation_numeroFact"
-);
+// const numFactInput = document.querySelector(
+//   "#dit_facture_soumis_a_validation_numeroFact"
+// );
 
-numFactInput.addEventListener("input", function () {
-  let value = numFactInput.value;
+// numFactInput.addEventListener("input", function () {
+//   let value = numFactInput.value;
 
-  // Retirer tous les caractères qui ne sont pas des chiffres
-  value = value.replace(/[^0-9]/g, "");
+//   // Retirer tous les caractères qui ne sont pas des chiffres
+//   value = value.replace(/[^0-9]/g, "");
 
-  // Limiter la longueur à 8 caractères maximum
-  value = value.slice(0, 8);
+//   // Limiter la longueur à 8 caractères maximum
+//   value = value.slice(0, 8);
 
-  // Appliquer la valeur filtrée au champ d'entrée
-  numFactInput.value = value;
-});
+//   // Appliquer la valeur filtrée au champ d'entrée
+//   numFactInput.value = value;
+// });
 
 // Fonction pour formater la taille des fichiers en Ko ou Mo
 function formatFileSize(bytes) {

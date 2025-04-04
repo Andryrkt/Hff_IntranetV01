@@ -1,0 +1,30 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Détail d'utilisateur
+{% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/admin/historisation/consultation-page/detail.css">
+{% endblock %}
+
+{% block content %}
+	<div class="container mt-4">
+		<h3 class="perso-titre">Détails pour
+			{{ userName }}</h3>
+
+		<!-- Chronologie -->
+		<ul class="timeline">
+			{% for consultation in userConsultations %}
+				<li>
+					<strong>{{ consultation.date }}</strong>: Page
+					<em>{{ consultation.page }}</em>
+					consultée sur la machine
+					<em>{{ consultation.machine }}</em>.
+				</li>
+			{% endfor %}
+		</ul>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}
