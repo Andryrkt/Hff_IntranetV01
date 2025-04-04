@@ -1,58 +1,31 @@
 import { FetchManager } from '../../api/FetchManager';
 import { AutoComplete } from '../../utils/AutoComplete';
 import { updateDropdown } from '../../utils/selectionHandler';
-import { initializeAutoCompletionFrn } from './autocompleteFournisseur';
-import { getTheField } from './field';
 
-export function autocompleteTheFields(line) {
-  let designation = getTheField(line, 'artDesi');
-
-  initializeAutoCompletionDesi(designation);
-}
-
-function initializeAutoCompletionDesi(designation) {
-  let baseId = designation.id.replace('demande_appro_form_DAL', '');
-
-  let fields = {
-    famille: getFieldByGeneratedId(designation.id, 'codeFams1'),
-    sousFamille: getFieldByGeneratedId(designation.id, 'codeFams2'),
-    familleLibelle: getFieldByGeneratedId(designation.id, 'artFams1'),
-    sousFamilleLibelle: getFieldByGeneratedId(designation.id, 'artFams2'),
-  };
-
+export function initializeAutoCompletionFrn(fournisseur) {
+  let baseId = fournisseur.id.replace('demande_appro_form_DAL', '');
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
 
-  if (fields.famille && fields.sousFamille) {
-    new AutoComplete({
-      inputElement: designation,
-      suggestionContainer: suggestionContainer,
-      loaderElement: loaderElement,
-      debounceDelay: 150,
-      fetchDataCallback: () =>
-        fetchDesignations(fields.famille, fields.sousFamille),
-      displayItemCallback: (item) =>
-        `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`,
-      itemToStringCallback: (item) =>
-        `${item.fournisseur} - ${item.designation}`,
-      itemToStringForBlur: (item) => `${item.designation}`,
-      onBlurCallback: (found) => onBlurEvent(found, designation, fields),
-      onSelectCallback: (item) =>
-        handleValueOfTheFields(item, designation, fields),
-    });
-  } else {
-    console.error('Certains éléments nécessaires sont manquants.');
-  }
+  new AutoComplete({
+    inputElement: fournisseur,
+    suggestionContainer: suggestionContainer,
+    loaderElement: loaderElement,
+    debounceDelay: 150,
+    fetchDataCallback: fetchFournisseurs,
+    displayItemCallback: (item) =>
+      `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`,
+    itemToStringCallback: (item) => `${item.fournisseur} - ${item.designation}`,
+    itemToStringForBlur: (item) => `${item.designation}`,
+    onBlurCallback: (found) => onBlurEvent(found, designation, fields),
+    onSelectCallback: (item) =>
+      handleValueOfTheFields(item, designation, fields),
+  });
 }
 
-async function fetchDesignations(famille, sousFamille) {
+async function fetchFournisseurs() {
   const fetchManager = new FetchManager();
-  let codeFamille = famille.value !== '' ? famille.value : '-';
-  let codeSousFamille = sousFamille.value !== '' ? sousFamille.value : '-';
-
-  return await fetchManager.get(
-    `demande-appro/autocomplete/all-designation/${codeFamille}/${codeSousFamille}`
-  );
+  return await fetchManager.get(`demande-appro/autocomplete/all-fournisseur`);
 }
 
 function getFieldByGeneratedId(baseId, suffix) {
@@ -116,7 +89,24 @@ function onBlurEvent(found, designation, fields) {
     let oldValueFamille = fields.famille.value;
     let oldValueSousFamille = fields.sousFamille.value;
 
-    // Texte rouge ou non, ajout de valeur dans catalogue
+    // Champs requis ou non et changement de valeur de champs
+    Object.values(fields).forEach((field) => {
+      field.required = found;
+      field.value = found ? field.value : '';
+    });
+
+    // réinitialiser l'autocomplete de désignation
+    if (
+      !found &&
+      oldValueFamille !== fields.famille.value &&
+      oldValueSousFamille !== fields.sousFamille.value
+    ) {
+      initializeAutoCompletion(designation);
+    }
+
+    // Champ readonly ou non
+    nomFournisseur.readOnly = found;
+
     allFields.forEach((field) => {
       if (found) {
         field.classList.remove('text-danger');
@@ -127,24 +117,5 @@ function onBlurEvent(found, designation, fields) {
         field.checked = found;
       }
     });
-
-    // Champs requis ou non et changement de valeur de champs
-    Object.values(fields).forEach((field) => {
-      field.required = found;
-      field.value = found ? field.value : '';
-    });
-
-    // Champ readonly ou non
-    nomFournisseur.readOnly = found;
-
-    // réinitialiser l'autocomplete de désignation
-    if (
-      !found &&
-      oldValueFamille !== fields.famille.value &&
-      oldValueSousFamille !== fields.sousFamille.value
-    ) {
-      initializeAutoCompletionDesi(designation);
-      initializeAutoCompletionFrn(nomFournisseur);
-    }
   }
 }
