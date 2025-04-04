@@ -176,6 +176,7 @@ export class AutoComplete {
   toggleLoader(show) {
     if (this.loaderElement) {
       this.loaderElement.style.display = show ? 'block' : 'none';
+      this.inputElement.style.pointerEvents = show ? 'none' : 'auto';
     }
   }
 }
