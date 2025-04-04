@@ -208,7 +208,6 @@ trait DitTrait
 
     private function envoiePieceJoint($form, $dits, $fusionPdf)
     {
-
         $pdfFiles = [];
 
         for ($i=1; $i < 4; $i++) { 
