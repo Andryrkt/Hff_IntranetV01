@@ -56,6 +56,10 @@
   width: 23% !important;
 }
 
+[id*='tableBody'] td {
+  text-align: center;
+}
+
 /**
  * Pour le loader dans le suggestion-container
  */
