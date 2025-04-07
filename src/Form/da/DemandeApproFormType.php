@@ -28,6 +28,9 @@ class DemandeApproFormType extends AbstractType
         $builder
             ->add('objetDal', TextType::class, [
                 'label' => 'Objet de la demande *',
+                'attr' => [
+                    'autofocus' => true,
+                ],
                 'constraints' => [
                     new NotBlank([
                         'message' => 'l\'objet de la demande ne peut pas être vide .', // Message d'erreur si le champ est vide
