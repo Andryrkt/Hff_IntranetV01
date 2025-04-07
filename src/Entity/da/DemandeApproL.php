@@ -66,7 +66,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp;
+    private ?string $artRefp;
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -76,22 +76,22 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private string $artFams1;
+    private ?string $artFams1;
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private string $artFams2;
+    private ?string $artFams2;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
      */
-    private string $codeFams1;
+    private ?string $codeFams1;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams2")
      */
-    private string $codeFams2;
+    private ?string $codeFams2;
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
@@ -547,22 +547,16 @@ class DemandeApproL
 
     /**
      * Get the value of codeFams1
-     *
-     * @return string
      */
-    public function getCodeFams1(): string
+    public function getCodeFams1()
     {
         return $this->codeFams1;
     }
 
     /**
      * Set the value of codeFams1
-     *
-     * @param string $codeFams1
-     *
-     * @return self
      */
-    public function setCodeFams1(string $codeFams1): self
+    public function setCodeFams1($codeFams1)
     {
         $this->codeFams1 = $codeFams1;
         return $this;
@@ -570,22 +564,16 @@ class DemandeApproL
 
     /**
      * Get the value of codeFams2
-     *
-     * @return string
      */
-    public function getCodeFams2(): string
+    public function getCodeFams2()
     {
         return $this->codeFams2;
     }
 
     /**
      * Set the value of codeFams2
-     *
-     * @param string $codeFams2
-     *
-     * @return self
      */
-    public function setCodeFams2(string $codeFams2): self
+    public function setCodeFams2($codeFams2)
     {
         $this->codeFams2 = $codeFams2;
         return $this;

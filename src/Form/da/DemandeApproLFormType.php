@@ -5,6 +5,7 @@ namespace App\Form\da;
 use App\Entity\da\DemandeApproL;
 use App\Model\da\DaModel;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -33,6 +34,10 @@ class DemandeApproLFormType extends AbstractType
             ])
             ->add('artDesi', TextType::class, [
                 'label' => false,
+                'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
+                ],
                 'required' => false,
             ])
             ->add('dateFinSouhaite', DateType::class, [
@@ -76,8 +81,14 @@ class DemandeApproLFormType extends AbstractType
                 'label' => false,
                 'required' => false,
                 'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
                     'readonly' => true,
                 ]
+            ])
+            ->add('catalogue', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
             ])
         ;
     }
