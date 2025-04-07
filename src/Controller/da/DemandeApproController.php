@@ -42,7 +42,7 @@ class DemandeApproController extends Controller
          */
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
-        $dit->getAgenceDebiteurId();
+        // $dit->getAgenceDebiteurId();
 
         $demandeAppro = new DemandeAppro;
         $this->initialisationDemandeAppro($demandeAppro, $dit);

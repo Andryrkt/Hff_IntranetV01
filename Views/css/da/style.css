@@ -89,7 +89,7 @@
   }
 }
 
-[id*='spinner_container_'] {
+[id*='spinner_container_']:not([id*='nomFournisseur']) {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
