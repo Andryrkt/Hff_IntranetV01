@@ -107,7 +107,7 @@ trait DemandeApproTrait
     private function ajoutCriteredansSession(array $criteriaTab)
     {
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('dit_search_criteria', $criteriaTab);
+        $this->sessionService->set('list_dit_da_search_criteria', $criteriaTab);
     }
 
     /**
@@ -140,7 +140,7 @@ trait DemandeApproTrait
     private function initialisationRechercheDit(): DitSearch
     {
 
-        $criteria = $this->sessionService->get('dit_search_criteria', []);
+        $criteria = $this->sessionService->get('list_dit_da_search_criteria', []);
         if ($criteria !== null) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
