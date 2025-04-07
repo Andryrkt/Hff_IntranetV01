@@ -88,7 +88,87 @@
 							</tr>
 						</thead>
 					</table>
-					<div id="children-container"></div>
+					<div id="children-container">
+						{% for DAL in form.DAL %}
+							{% set ligne = loop.index %}
+							<div id="demande_appro_form_DAL_{{ ligne }}">
+								<div class="row g-3">
+									<div class="w-15">
+										{{ form_widget(DAL.codeFams1) }}
+									</div>
+									<div class="w-15">
+										<div class="spinner-container">
+											<div class="spinner-load m-auto" id="spinner_{{ ligne }}_codeFams2" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+											</div>
+										</div>
+										<div id="container_{{ ligne }}_codeFams2">
+											{{ form_widget(DAL.codeFams2) }}
+										</div>
+									</div>
+									<div class="w-20">
+										{{ form_widget(DAL.artDesi) }}
+										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
+										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
+											<div class="text-overlay">
+												Veuillez patienter s'il vous plaît! Chargement des données
+											</div>
+											<div class="loader-points"></div>
+										</div>
+									</div>
+									<div class="w-10">
+										{{ form_widget(DAL.nomFournisseur) }}
+										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
+										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
+									</div>
+									<div class="w-10">
+										{{ form_widget(DAL.dateFinSouhaite) }}
+									</div>
+									<div class="w-5">
+										{{ form_widget(DAL.qteDem) }}
+									</div>
+									<div class="w-23">
+										{{ form_widget(DAL.commentaire) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artConstp) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artRefp) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artFams1) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artFams2) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.numeroFournisseur) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.catalogue) }}
+									</div>
+									<div class="w-2">
+										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
+											<i class="fas fa-times fs-4"></i>
+										</span>
+									</div>
+								</div>
+								<div class="mt-3 mb-3"></div>
+							</div>
+						{% endfor %}
+					</div>
 
 					<div id="child-prototype" style="display: none;">
 						{{ form_widget(form.DAL.vars.prototype)|raw }}
