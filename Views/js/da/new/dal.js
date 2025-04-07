@@ -1,25 +1,27 @@
-import { autocompleteTheFields } from './autocompletion';
-import { eventOnFamille } from './event';
+import { initializeAutoCompletionDesi } from "./autocompleteDesignation";
+import { initializeAutoCompletionFrn } from "./autocompleteFournisseur";
+import { eventOnFamille } from "./event";
 import {
-  createDesiAndAppendTo,
   createFams2AndAppendTo,
   createFieldAndAppendTo,
+  createFieldAutocompleteAndAppendTo,
   createRemoveButtonAndAppendTo,
   formatAllField,
-} from './field';
+  getTheField,
+} from "./field";
 
-let container = document.getElementById('children-container');
+let container = document.getElementById("children-container");
 
 export function ajouterUneLigne() {
-  let newIndex = parseInt(localStorage.getItem('index')) + 1; // Déterminer un index unique pour les nouveaux champs
-  localStorage.setItem('index', newIndex); // Changer la valeur de newIndex
+  let newIndex = parseInt(localStorage.getItem("index")) + 1; // Déterminer un index unique pour les nouveaux champs
+  localStorage.setItem("index", newIndex); // Changer la valeur de newIndex
   let prototype = document
-    .getElementById('child-prototype')
+    .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype
 
   // Mettre à jour dynamiquement les IDs et Names
   prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
-  prototype.querySelectorAll('[id], [name]').forEach(function (element) {
+  prototype.querySelectorAll("[id], [name]").forEach(function (element) {
     element.id = element.id
       ? replaceNameToNewIndex(element.id, newIndex)
       : element.id;
@@ -29,49 +31,58 @@ export function ajouterUneLigne() {
   });
 
   // Créer la structure Bootstrap "row g-3"
-  let row = document.createElement('div');
-  row.classList.add('row', 'g-3');
+  let row = document.createElement("div");
+  row.classList.add("row", "g-3");
 
   let fields = [
-    ['w-15', 'codeFams1'],
-    ['w-15', 'codeFams2'],
-    ['w-20', 'artDesi'],
-    ['w-10', 'nomFournisseur'],
-    ['w-10', 'dateFinSouhaite'],
-    ['w-5', 'qteDem'],
-    ['w-23', 'commentaire'],
-    ['d-none', 'artConstp'],
-    ['d-none', 'artRefp'],
-    ['d-none', 'artFams1'],
-    ['d-none', 'artFams2'],
-    ['d-none', 'numeroFournisseur'],
+    ["w-15", "codeFams1"],
+    ["w-15", "codeFams2"],
+    ["w-20", "artDesi"],
+    ["w-10", "nomFournisseur"],
+    ["w-10", "dateFinSouhaite"],
+    ["w-5", "qteDem"],
+    ["w-23", "commentaire"],
+    ["d-none", "artConstp"],
+    ["d-none", "artRefp"],
+    ["d-none", "artFams1"],
+    ["d-none", "artFams2"],
+    ["d-none", "numeroFournisseur"],
+    ["d-none", "catalogue"],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
-    if (fieldName === 'codeFams2') {
+    if (fieldName === "codeFams2") {
       createFams2AndAppendTo(classe, prototype, row);
-    } else if (fieldName === 'artDesi') {
-      createDesiAndAppendTo(classe, prototype, row);
+    } else if (fieldName === "artDesi" || fieldName === "nomFournisseur") {
+      createFieldAutocompleteAndAppendTo(classe, prototype, fieldName, row);
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }
   });
-  prototype.querySelectorAll('.mb-3').forEach((el) => el.remove()); // supprimer tous les <div class="mb-3"> à l'intérieur de prototype
+  prototype.querySelectorAll(".mb-3").forEach((el) => el.remove()); // supprimer tous les <div class="mb-3"> à l'intérieur de prototype
   createRemoveButtonAndAppendTo(prototype, row);
 
-  let div = document.createElement('div');
-  div.classList.add('mt-3', 'mb-3');
+  let div = document.createElement("div");
+  div.classList.add("mt-3", "mb-3");
 
   // Ajouter la row complète dans le container
   prototype.appendChild(row);
   prototype.appendChild(div);
   container.appendChild(prototype);
 
-  eventOnFamille(); // gestion d'évènement sur les familles et sous-familles
-  formatAllField();
-  autocompleteTheFields();
+  eventOnFamille(newIndex); // gestion d'évènement sur la famille et sous-famille à la ligne newIndex
+  formatAllField(newIndex); // formater les champs à la ligne newIndex
+  autocompleteTheFields(newIndex); // autocomplète les champs
 }
 
 export function replaceNameToNewIndex(element, newIndex) {
-  return element.replace('__name__', newIndex);
+  return element.replace("__name__", newIndex);
+}
+
+export function autocompleteTheFields(line) {
+  let designation = getTheField(line, "artDesi");
+  let nomFournisseur = getTheField(line, "nomFournisseur");
+
+  initializeAutoCompletionDesi(designation);
+  initializeAutoCompletionFrn(nomFournisseur);
 }

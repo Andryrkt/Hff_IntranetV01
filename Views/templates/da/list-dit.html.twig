@@ -105,9 +105,7 @@
 						{{ item.objetDemande}}</td>
 					{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
                     <td>
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
-                            {{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
-                        </a>
+						{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
                     </td>
 				</tr>
 			{% endfor %}
@@ -129,4 +127,3 @@
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
 {% endblock %}
-
