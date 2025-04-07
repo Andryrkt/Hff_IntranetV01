@@ -54,6 +54,7 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
 
   // Sélection de l'élément cible
   let fams2Field = prototype.querySelector(`[id*="codeFams2"]`);
+  fams2Field.required = true; // champ requis
 
   // Effacer tous les options
   resetDropdown(fams2Field, '-- Choisir une sous-famille --');
@@ -94,6 +95,7 @@ export function createFieldAutocompleteAndAppendTo(
 
   // Sélection de l'élément cible
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
+  field.required = true; // champ requis
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = field.id.replace('demande_appro_form_DAL', '');

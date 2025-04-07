@@ -34,6 +34,10 @@ class DemandeApproLFormType extends AbstractType
             ])
             ->add('artDesi', TextType::class, [
                 'label' => false,
+                'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
+                ],
                 'required' => false,
             ])
             ->add('dateFinSouhaite', DateType::class, [
@@ -77,6 +81,8 @@ class DemandeApproLFormType extends AbstractType
                 'label' => false,
                 'required' => false,
                 'attr' => [
+                    'class' => 'autocomplete',
+                    'autocomplete' => 'off',
                     'readonly' => true,
                 ]
             ])

@@ -53,7 +53,7 @@ export function ajouterUneLigne() {
   fields.forEach(function ([classe, fieldName]) {
     if (fieldName === 'codeFams2') {
       createFams2AndAppendTo(classe, prototype, row);
-    } else if (fieldName === 'artDesi' || fieldName === 'nomFournisseur') {
+    } else if (fieldName === 'artDesi') {
       createFieldAutocompleteAndAppendTo(classe, prototype, fieldName, row);
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
