@@ -2,33 +2,16 @@
 
 namespace App\Controller\da;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\admin\Application;
-use App\Form\dit\DitSearchType;
-use App\Model\dit\DitListModel;
-use App\Entity\admin\StatutDemande;
-use App\Repository\dit\DitRepository;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\da\DemandeApproLR;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproFormType;
 use App\Form\da\DemandeApproLRCollectionType;
-use App\Repository\admin\AgenceRepository;
-use App\Repository\admin\ServiceRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\admin\StatutDemandeRepository;
-use App\Repository\admin\dit\CategorieAteAppRepository;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 
 /**
  * @Route("/demande-appro")
@@ -37,104 +20,12 @@ class DemandeApproController extends Controller
 {
     use DemandeApproTrait;
 
-    private DitSearch $ditSearch;
-    private WorTypeDocumentRepository $worTypeDocumentRepository;
-    private ServiceRepository $serviceRepository;
-    private AgenceRepository $agenceRepository;
-    private WorNiveauUrgenceRepository $worNiveauUrgenceRepository;
-    private StatutDemandeRepository $statutDemandeRepository;
-    private CategorieAteAppRepository $categorieAteAppRepository;
-    private DitListModel $ditListModel;
-    private DitRepository $ditRepository;
-
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->ditSearch = new DitSearch();
-        $this->worTypeDocumentRepository = self::$em->getRepository(WorTypeDocument::class);
-        $this->serviceRepository = self::$em->getRepository(Service::class);
-        $this->agenceRepository = self::$em->getRepository(Agence::class);
-        $this->worNiveauUrgenceRepository = self::$em->getRepository(WorNiveauUrgence::class);
-        $this->statutDemandeRepository = self::$em->getRepository(StatutDemande::class);
-        $this->categorieAteAppRepository = self::$em->getRepository(CategorieAteApp::class);
-        $this->ditListModel = new DitListModel();
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-    }
-
     /**
      * @Route("/first-form", name="da_first_form")
      */
     public function firstForm()
     {
         self::$twig->display('da/first-form.html.twig');
-    }
-
-    /**
-     * @Route("/list-dit", name="da_list_dit")
-     * 
-     * Methode pour afficher et faire une recherche sur la liste DIT
-     */
-    public function listeDIT(Request $request)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        //recupère les information de l'utilisateur connecter
-        $user = $this->getUser();
-
-        //recuperation agence et service autoriser
-        $agenceIds = $user->getAgenceAutoriserIds();
-        $serviceIds = $user->getServiceAutoriserIds();
-
-        //creation d'autorisation
-        $autoriser = $this->autorisationRole();
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie();
-
-        //initialisation du champ de recherche
-        $ditSearch = $this->initialisationRechercheDit();
-
-        //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
-            'method' => 'GET',
-            'autorisationRoleEnergie' => $autorisationRoleEnergie
-        ])->getForm();
-
-        $criteria = $this->recupDataFormulaireRecherhce($form, $request);
-
-        //transformer l'objet ditSearch en tableau
-        $criteriaTab = $criteria->toArray();
-
-        $this->ajoutCriteredansSession($criteriaTab);
-
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
-        $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-        $this->sessionService->set('dit_search_option', $option);
-
-        //recupération des donnée
-        $paginationData = $this->data($request, $option, $criteria);
-
-
-        self::$twig->display('da/list-dit.html.twig', [
-            'data'          => $paginationData['data'],
-            'currentPage'   => $paginationData['currentPage'],
-            'totalPages'    => $paginationData['lastPage'],
-            'criteria'      => $criteriaTab,
-            'resultat'      => $paginationData['totalItems'],
-            'statusCounts'  => $paginationData['statusCounts'],
-            'form'          => $form->createView(),
-        ]);
-    }
-
-
-    private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
-    {
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->ditSearch = $form->getData();
-        }
-        return $this->ditSearch;
     }
 
     /**
@@ -146,7 +37,12 @@ class DemandeApproController extends Controller
         $this->verifierSessionUtilisateur();
 
         // obtenir le dit correspondant à l'id {id} du DIT
+        /** 
+         * @var DemandeIntervention $dit DIT correspondant à l'id $id
+         */
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+
+        $dit->getAgenceDebiteurId();
 
         $demandeAppro = new DemandeAppro;
         $this->initialisationDemandeAppro($demandeAppro, $dit);
@@ -185,8 +81,6 @@ class DemandeApproController extends Controller
             'form' => $form->createView(),
         ]);
     }
-
-
 
     /**
      * @Route("/proposition/{id}", name="da_proposition")
