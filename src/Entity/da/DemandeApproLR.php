@@ -115,6 +115,15 @@ class DemandeApproLR
     private ?DemandeApproL $demandeApproL = null;
 
     /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**==============================================================================
+     * GETTERS & SETTERS
+     *===============================================================================*/
+
+    /**
      * Get the value of id
      */
     public function getId()
@@ -468,6 +477,26 @@ class DemandeApproLR
     public function setMotif($motif)
     {
         $this->motif = $motif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
 
         return $this;
     }
