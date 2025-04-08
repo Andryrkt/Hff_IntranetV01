@@ -15,6 +15,7 @@ use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -26,6 +27,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class DemandeApproLR
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

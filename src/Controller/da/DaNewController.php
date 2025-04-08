@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DemandeApproController extends Controller
+class DaNewController extends Controller
 {
     use DemandeApproTrait;
 
@@ -79,58 +79,6 @@ class DemandeApproController extends Controller
 
         self::$twig->display('da/new.html.twig', [
             'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/proposition/{id}", name="da_proposition")
-     */
-    public function propositionDeReference($id, Request $request)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-        $data = self::$em->getRepository(DemandeAppro::class)->find($id)->getDAL();
-
-        $DapLRCollection = new DemandeApproLRCollection();
-        $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $dalrList = $form->getData()->getDALR();
-            if ($dalrList->isEmpty()) {
-                $notification = [
-                    'type'    => 'info',
-                    'message' => "Aucune modification n'a été effectuée",
-                ];
-            } else {
-                foreach ($dalrList as $demandeApproLR) {
-                    $DAL = $data->filter(function ($entite) use ($demandeApproLR) {
-                        return $entite->getNumeroLigne() === $demandeApproLR->getNumeroLigneDem();
-                    })->first();
-                    $demandeApproLR
-                        ->setDemandeApproL($DAL)
-                        ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
-                        ->setQteDem($DAL->getQteDem())
-                        ->setArtConstp($DAL->getArtConstp())
-                        ->setArtFams1($DAL->getArtFams1())
-                        ->setArtFams2($DAL->getArtFams2())
-                    ;
-                    self::$em->persist($demandeApproLR);
-                }
-                self::$em->flush();
-                $notification = [
-                    'type'    => 'success',
-                    'message' => "Votre demande a été enregistré avec succès",
-                ];
-            }
-
-            $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-            $this->redirectToRoute("da_list");
-        }
-
-        self::$twig->display('da/proposition.html.twig', [
-            'data' => $data,
-            'form' => $form->createView()
         ]);
     }
 }

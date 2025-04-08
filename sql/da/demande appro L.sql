@@ -25,3 +25,9 @@ CREATE TABLE Demande_Appro_L(
 
 ALTER TABLE Demande_Appro_L
 ADD est_validee bit DEFAULT 0
+
+ALTER TABLE Demande_Appro_L
+ADD date_creation DATETIME2(0)
+
+ALTER TABLE Demande_Appro_L
+ADD date_modification DATETIME2(0)
