@@ -16,6 +16,16 @@ trait ConditionModelTrait
 
         return $condition;
     }
+    private function conditionEgal(string $colonneBase, string $indexCriteria, $criteria)
+    {
+        if(!empty($criteria[$indexCriteria])) {
+            $condition = " AND {$colonneBase} = '".(string)$criteria[$indexCriteria]."'";
+        } else {
+            $condition = "";
+        }
+
+        return $condition;
+    }
 
     private function conditionDateSigne(string $colonneBase, string $indexCriteria, array $criteria, string $signe)
     {
@@ -172,6 +182,28 @@ trait ConditionModelTrait
     }
 
     private function conditionServiceLcfng(string $colonneBase, string $indexCriteria,array $criteria): string 
+    {
+
+        if(!empty($criteria[$indexCriteria])){
+            $agenceUser = " AND {$colonneBase} LIKE '%-".explode(' ',$criteria[$indexCriteria])[0]."%'";
+        } else {
+            $agenceUser = "";
+        }
+
+        return $agenceUser;
+    }
+    private function conditionAgenceLcfnp(string $colonneBase, string $indexCriteria,array $criteria): string 
+    {
+        if(!empty($criteria[$indexCriteria])){
+            $agenceUser = " AND {$colonneBase} LIKE '%".explode('-',$criteria[$indexCriteria])[0]."-%'";
+        } else {
+            $agenceUser = "";
+        }
+
+        return $agenceUser;
+    }
+
+    private function conditionServiceLcfnp(string $colonneBase, string $indexCriteria,array $criteria): string 
     {
 
         if(!empty($criteria[$indexCriteria])){

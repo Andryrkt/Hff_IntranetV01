@@ -8,6 +8,8 @@ use App\Model\Traits\ConditionModelTrait;
 
 class ListeCdeFrnNonPlacerModel extends Model
 {
+    use ConversionModel;
+    use ConditionModelTrait;
     public function fournisseurIrum()
     {
         $statement = "SELECT 
@@ -25,7 +27,7 @@ class ListeCdeFrnNonPlacerModel extends Model
     }
     public function viewHffCtrmarqVinstant($criteria, $vinstant)
     {
-        $statement = "create view hff_ctrmarq_agence_".$vinstant." as 
+        $statement = "create view hff_ctrmarq_agence_" . $vinstant . " as 
 select nlig_succ as SUCC, to_char(nlig_numcli) as CLIENT, nent_nomcli as NOM_CLIENT, nlig_numcde as COMMANDE_OR, nlig_numcf as CTR_MARQUE,'Vente' as TYPE
 from neg_lig, neg_ent where nlig_soc = 'HF' and nlig_succ not in ('01') and nent_natop = 'DIR' and nlig_numcde = nent_numcde
 and nvl(nlig_numcf,0) not in (0)
@@ -45,23 +47,31 @@ group by 1,2,3,4,5,6
 
         ";
         $result = $this->connect->executeQuery($statement);
-      
     }
 
     public function requetteBase($criteria, $vinstant, string $numOrValide)
     {
-
-        if($criteria['orValide']) {
-            $numOrValide = " AND requete_base.n_OR in ('".$numOrValide."')";
+        $agence = $this->conditionAgenceLcfnp('requete_base.agence_deb','agence',$criteria);
+        $service = $this->conditionServiceLcfnp('requete_base.serv_deb','service',$criteria);
+        $dateDebut = $this->conditionDateSigne('requete_base.date_cmd','dateDebutDoc',$criteria,'>=');
+        $dateFin = $this->conditionDateSigne('requete_base.date_cmd','dateFinDoc',$criteria,'<=');
+        $numOR = $this->conditionEgal('requete_base.n_OR','numOR',$criteria);
+        $numClient = $this->conditionEgal('requete_base.client','numClient',$criteria);
+        $numCdeFrs = $this->conditionEgal('requete_base.n_commande','numCdFrs',$criteria);
+        $numFrs = $this->conditionEgal('requete_base.n_frs','CodeNomFrs',$criteria);
+        if ($criteria['orValide']) {
+            $numOrValide = " WHERE requete_base.n_OR in ('" . $numOrValide . "')";
         } else {
             $numOrValide = "";
         }
+
+
         $statement = " SELECT * FROM (select 
 slor_succdeb as agence_deb,
-slor_servdeb as serv_dev,
+slor_servdeb as serv_deb,
 fcde_numcde as n_commande,
  fcde_date as date_cmd, 
-fcde_numfou n_frs,
+fcde_numfou as  n_frs,
  (select fbse_nomfou from frn_bse where fcde_numfou = fbse_numfou) as nom_Frs,
 fcde_ttc as mont_TTC, 
 fcde_devise as Devis,
@@ -87,7 +97,7 @@ union
 
 select 
 fcde_succ agence_deb,
-fcde_serv as serv_dev,
+fcde_serv as serv_deb,
 fcde_numcde as n_commande ,
 fcde_date as date_cmd, 
 fcde_numfou as n_frs, 
@@ -108,7 +118,7 @@ case
      else 'Vente'
 end as obs
 
-from frn_cde, neg_lig, outer hff_ctrmarq_agence_" . $vinstant ."
+from frn_cde, neg_lig, outer hff_ctrmarq_agence_" . $vinstant . "
 where fcde_soc = 'HF' and fcde_succ = '01' and fcde_serv = 'NEG'
 and fcde_posl = '--'
 and (nlig_soc = fcde_soc and nlig_numcf = fcde_numcde)
@@ -119,7 +129,7 @@ union
 
 select
 fcde_succ agence_deb,
-fcde_serv as serv_dev,
+fcde_serv as serv_deb,
 fcde_numcde as n_commande, 
 fcde_date as date_cmd, 
 fcde_numfou as n_frs,
@@ -138,8 +148,17 @@ and not exists (select slor_numcf from sav_lor where slor_soc = fcde_soc and slo
 and not exists (select nlig_numcf from neg_lig where nlig_soc = fcde_soc and nlig_numcf = fcde_numcde)
 group by 1,2,3,4,5,6,7,8,9,10,11,12
 ) as  requete_base
-
+$numOrValide
+$numFrs
+$numCdeFrs
+$numClient
+$numOR
+$dateDebut
+$dateFin
+$agence
+$service
  ";
+//  dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return $this->convertirEnUtf8($data);
@@ -147,7 +166,7 @@ group by 1,2,3,4,5,6,7,8,9,10,11,12
 
     public function dropView($vinstant)
     {
-        $statement = " drop view hff_ctrmarq_agence_" . $vinstant ."";
+        $statement = " drop view hff_ctrmarq_agence_" . $vinstant . "";
         $result = $this->connect->executeQuery($statement);
     }
 }

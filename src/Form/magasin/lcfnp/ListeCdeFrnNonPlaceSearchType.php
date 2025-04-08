@@ -43,10 +43,10 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
                 'label' => 'code/nom fournisseur ',
                 'required' => false
             ])
-            ->add('numCdeNego', TextType::class, [
-                'label' => 'N° Commande Négoce',
-                'required' => false
-            ])
+            // ->add('numCdeNego', TextType::class, [
+            //     'label' => 'N° Commande Négoce',
+            //     'required' => false
+            // ])
             ->add('numCdFrs', NumberType::class, [
                 'label' => 'N° Commande Fournisseur',
                 'required' => false

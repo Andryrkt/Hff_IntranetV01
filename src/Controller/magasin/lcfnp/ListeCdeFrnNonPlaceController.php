@@ -40,18 +40,18 @@ class ListeCdeFrnNonPlaceController extends  Controller
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-            dd($criteria);
+            // dd($criteria);
         }
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
         $vheure = $today->format("H:i:s"); 
         $vinstant = str_replace(":", "", $vheure); 
-        $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
+
+        $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
+
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
-        $viewCreate = $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
-        // echo ('view created'.$vinstant);
+        $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
         $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
-        $dropCreate =  $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
-        // echo ('view drop'.$vinstant);
+         $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
         self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
