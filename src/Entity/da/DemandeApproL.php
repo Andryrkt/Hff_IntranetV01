@@ -134,7 +134,15 @@ class DemandeApproL
      */
     private $demandeApproLR;
 
-    //=============================================================================================
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**==============================================================================
+     * GETTERS & SETTERS
+     *===============================================================================*/
+
     public function __construct()
     {
         $this->demandeApproLR = new ArrayCollection();
@@ -576,6 +584,26 @@ class DemandeApproL
     public function setCodeFams2($codeFams2)
     {
         $this->codeFams2 = $codeFams2;
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */ 
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */ 
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
         return $this;
     }
 }

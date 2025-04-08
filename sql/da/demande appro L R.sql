@@ -19,3 +19,6 @@ CREATE TABLE Demande_Appro_L_R(
     demande_appro_l_id int not null,
     CONSTRAINT PK_Demande_Appro_L_R PRIMARY KEY (id)
 )
+
+ALTER TABLE Demande_Appro_L_R
+ADD est_validee bit DEFAULT 0
