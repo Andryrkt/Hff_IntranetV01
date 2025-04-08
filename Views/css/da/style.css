@@ -11,16 +11,20 @@
   align-items: unset !important;
 }
 
-.choix {
+a.choix {
   width: 300px;
   background: #fbbb01;
   margin: 15px auto;
   padding: 15px;
-}
-
-.choix a {
   text-decoration: none;
   color: #000;
+  display: block;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+a.choix:hover {
+  background: #f8a900;
+  transform: scale(1.05);
 }
 
 #children-container .mt-3 {
