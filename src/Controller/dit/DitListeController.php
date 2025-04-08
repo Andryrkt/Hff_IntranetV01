@@ -196,17 +196,19 @@ class DitListeController extends Controller
 
         $this->changementStatutDit($dit, $statutCloturerAnnuler);
 
-        $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileName;
+        $fileNameUplode = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
+        $filePathUplode = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameUplode;
+        $fileNameDw = 'fichier_cloturer_annuler'. '.csv';
+        // $filePathDw = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameDw;
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
             'Clôturé annulé'
         ];
-        $this->ajouterDansCsv($filePath, $data, $headers);
+        $this->ajouterDansCsv($filePathUplode, $data, $headers);
 
         $copyDocuwareService = new CopyDocuwareService();
-        $copyDocuwareService->copyCsvToDw($fileName, $filePath);
+        $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
@@ -300,8 +302,6 @@ class DitListeController extends Controller
     private function ajouterDansCsv($filePath, $data, $headers = null)
     {
         $fichierExiste = file_exists($filePath);
-
-        // Ouvre le fichier en mode append
         $handle = fopen($filePath, 'a');
 
         // Si le fichier est nouveau, ajoute un BOM UTF-8
@@ -309,20 +309,23 @@ class DitListeController extends Controller
             fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
         }
 
-        // Si le fichier est nouveau, ajouter les en-têtes
+        // Fonction pour écrire une ligne sans guillemets
+        $ecrireLigne = function ($ligne) use ($handle) {
+            $ligneUtf8 = array_map(function ($field) {
+                return mb_convert_encoding($field, 'UTF-8');
+            }, $ligne);
+            fwrite($handle, implode(';', $ligneUtf8) . PHP_EOL); // tu peux changer ';' par ',' si nécessaire
+        };
+
+        // Écrit les en-têtes si le fichier est nouveau
         if (!$fichierExiste && $headers !== null) {
-            // Force l'encodage UTF-8 pour les en-têtes
-            fputcsv($handle, array_map(function ($header) {
-                return mb_convert_encoding($header, 'UTF-8');
-            }, $headers));
+            $ecrireLigne($headers);
         }
 
-        // Force l'encodage UTF-8 pour les données
-        fputcsv($handle, array_map(function ($field) {
-            return mb_convert_encoding($field, 'UTF-8');
-        }, $data));
+        // Écrit les données sans guillemets
+        $ecrireLigne($data);
 
-        // Ferme le fichier
         fclose($handle);
     }
+
 }
