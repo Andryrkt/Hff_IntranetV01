@@ -12,19 +12,32 @@ use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 
-class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType {
+class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
+{
     private $magasinModel;
-
+    const CMD = [
+        'TOUS' => 'TOUS',
+        'ATELIER' => 'ATE',
+        'MAGASIN' => 'NEG',
+        'REAPPRO' => 'REAPPRO'
+    ];
     public function __construct()
     {
         $this->magasinModel = new MagasinListeOrATraiterModel();
     }
-    private function agence(){
+    private function agence()
+    {
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
     }
     public function buildForm(\Symfony\Component\Form\FormBuilderInterface $builder, array $options)
     {
-            $builder
+        $builder
+            ->add('commande', ChoiceType::class, [
+                'label' => 'Commande',
+                'required' => true,
+                'data' => 'TOUS',
+                'choices' => self::CMD
+            ])
             ->add('numOR', TextType::class, [
                 'label' => 'N° OR',
                 'required' => false
@@ -55,62 +68,64 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
                 'label' => 'N° Client',
                 'required' => false
             ])
-            ->add('orValide', 
-            CheckboxType::class,
-            [
-                'label' => 'OR validé',
-                'required' => false,
-                'data' => true // Définit la case comme cochée par défaut
-            ])
+            ->add(
+                'orValide',
+                CheckboxType::class,
+                [
+                    'label' => 'OR validé',
+                    'required' => false,
+                    'data' => true // Définit la case comme cochée par défaut
+                ]
+            )
 
 
-          
-            ->add('agence',
-            ChoiceType::class,
-            [
-                'label' => 'Agence débiteur',
-                'required' => false,
-                'choices' => $this->agence() ?? [],
-                'placeholder' => ' -- choisir agence --'
-            ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-                $form->add('service',
-                ChoiceType::class,
-                [
-                    'label' => 'Service débiteur',
-                    'required' => false,
-                    'choices' => [],
-                    'placeholder' => ' -- choisir service --'
-                ]);
-            })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-                
-                $service = [];
-                if($data['agence'] !== ""){
-                    $services = $this->magasinModel->service(explode('-',$data['agence'])[0]);
-                    
-                    foreach ($services as $value) {
-                        $service[$value['text']] = $value['text'];
-                    }
-                } else {
-                    $service = [];
-                }
-        
-                $form->add('service',
-                ChoiceType::class,
-                [
-                    'label' => 'Service débiteur',
-                    'required' => false,
-                    'choices' => $service,
-                    'placeholder' => ' -- choisir service --'
-                ]);
-            })
-           
-          
+
+            // ->add('agence',
+            // ChoiceType::class,
+            // [
+            //     'label' => 'Agence débiteur',
+            //     'required' => false,
+            //     'choices' => $this->agence() ?? [],
+            //     'placeholder' => ' -- choisir agence --'
+            // ])
+            // ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            //     $form = $event->getForm();
+            //     $data = $event->getData();
+            //     $form->add('service',
+            //     ChoiceType::class,
+            //     [
+            //         'label' => 'Service débiteur',
+            //         'required' => false,
+            //         'choices' => [],
+            //         'placeholder' => ' -- choisir service --'
+            //     ]);
+            // })
+            // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            //     $form = $event->getForm();
+            //     $data = $event->getData();
+
+            //     $service = [];
+            //     if($data['agence'] !== ""){
+            //         $services = $this->magasinModel->service(explode('-',$data['agence'])[0]);
+
+            //         foreach ($services as $value) {
+            //             $service[$value['text']] = $value['text'];
+            //         }
+            //     } else {
+            //         $service = [];
+            //     }
+
+            //     $form->add('service',
+            //     ChoiceType::class,
+            //     [
+            //         'label' => 'Service débiteur',
+            //         'required' => false,
+            //         'choices' => $service,
+            //         'placeholder' => ' -- choisir service --'
+            //     ]);
+            // })
+
+
             // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
             //     $form = $event->getForm();
             //     $data = $event->getData();
@@ -119,7 +134,7 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
             //     $service = [];
             //     if($data['agenceEmetteur'] !== ""){
             //         $services = $this->magasinModel->service(explode('-',$data['agenceEmetteur'])[0]);
-                    
+
             //         foreach ($services as $value) {
             //             $service[$value['text']] = $value['text'];
             //         }
@@ -136,7 +151,7 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
             //         'placeholder' => ' -- choisir service --'
             //     ]);
             // })
-          
-            ;
+
+        ;
     }
 }

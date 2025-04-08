@@ -11,8 +11,12 @@
 				{{ form_start(form)}}
 				<div class="row">
 					
-					<div class="col-12 col-md-2">
+					{# <div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+					</div> #}
+					<div class="col-12 col-md-2">
+						{{form_row(form.commande)}}
+						{{form_row(form.numClient)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebutDoc)}}
@@ -27,9 +31,6 @@
 					</div>
 					<div class="col-12 col-md-2">
                         {{form_row(form.numOR)}}
-						{{form_row(form.numClient)}}
-					</div>
-					<div class="col-12 col-md-2">
 						{{form_row(form.orValide)}}
 					</div>
 				</div>

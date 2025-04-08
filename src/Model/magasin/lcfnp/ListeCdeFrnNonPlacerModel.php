@@ -50,9 +50,9 @@ group by 1,2,3,4,5,6
     }
 
     public function requetteBase($criteria, $vinstant, string $numOrValide)
-    {
-        $agence = $this->conditionAgenceLcfnp('requete_base.agence_deb','agence',$criteria);
-        $service = $this->conditionServiceLcfnp('requete_base.serv_deb','service',$criteria);
+    {   
+        
+        $vRequette = $this->requette($criteria,$vinstant);
         $dateDebut = $this->conditionDateSigne('requete_base.date_cmd','dateDebutDoc',$criteria,'>=');
         $dateFin = $this->conditionDateSigne('requete_base.date_cmd','dateFinDoc',$criteria,'<=');
         $numOR = $this->conditionEgal('requete_base.n_OR','numOR',$criteria);
@@ -66,98 +66,15 @@ group by 1,2,3,4,5,6
         }
 
 
-        $statement = " SELECT * FROM (select 
-slor_succdeb as agence_deb,
-slor_servdeb as serv_deb,
-fcde_numcde as n_commande,
- fcde_date as date_cmd, 
-fcde_numfou as  n_frs,
- (select fbse_nomfou from frn_bse where fcde_numfou = fbse_numfou) as nom_Frs,
-fcde_ttc as mont_TTC, 
-fcde_devise as Devis,
- slor_numor as n_OR, 
-case  
-     when slor_natop = 'CES' then 'OR - Cession'
-     else 'OR - Client'
-end as commentaire,
-case  
-     when slor_natop = 'CES' then (select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb)||' - '||
-(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb)
-     else (select seor_numcli||' - '||trim(seor_nomcli) from sav_eor where seor_soc = slor_soc and seor_numor = slor_numor)
-end as client ,
-'OR' as obs
-
-from frn_cde, sav_lor
-where fcde_soc = 'HF' and fcde_succ = '01' and fcde_serv = 'NEG'
-and fcde_posl = '--'
-and (slor_soc = fcde_soc and slor_numcf = fcde_numcde)
-group by 1,2,3,4,5,6,7,8,9,10,11,12
-
-union 
-
-select 
-fcde_succ agence_deb,
-fcde_serv as serv_deb,
-fcde_numcde as n_commande ,
-fcde_date as date_cmd, 
-fcde_numfou as n_frs, 
-(select fbse_nomfou from frn_bse where fcde_numfou = fbse_numfou) as nom_Frs,
-fcde_ttc as mont_TTC, 
-fcde_devise as Devis,
- nlig_numcde as n_OR, 
-case  
-     when nlig_natop = 'CIS' then 'CIS'||' vers '||(select trim(asuc_lib) from agr_succ where asuc_numsoc = nlig_soc and asuc_num = nlig_succd)
-     else 'Vente Client'
-end as commentaire,
-case  
-     when nlig_natop = 'CIS' then case when NOM_CLIENT is null then 'REAPPRO' else CLIENT||' - '||NOM_CLIENT end
-     else (select nent_numcli||' - '||trim(nent_nomcli) from neg_ent where nent_soc = nlig_soc and nent_numcde = nlig_numcde)
-end as client,
-case  
-     when nlig_natop = 'CIS' then case when TYPE is null then 'REAPPRO' else TYPE end
-     else 'Vente'
-end as obs
-
-from frn_cde, neg_lig, outer hff_ctrmarq_agence_" . $vinstant . "
-where fcde_soc = 'HF' and fcde_succ = '01' and fcde_serv = 'NEG'
-and fcde_posl = '--'
-and (nlig_soc = fcde_soc and nlig_numcf = fcde_numcde)
-and (ctr_marque = nlig_numcde)
-group by 1,2,3,4,5,6,7,8,9,10,11,12
-
-union 
-
-select
-fcde_succ agence_deb,
-fcde_serv as serv_deb,
-fcde_numcde as n_commande, 
-fcde_date as date_cmd, 
-fcde_numfou as n_frs,
-(select fbse_nomfou from frn_bse where fcde_numfou = fbse_numfou) as nom_Frs,
-fcde_ttc as mont_TTC, 
-fcde_devise  as Devis, 
-0 as n_OR, 
-'REAPPRO' as commentaire,
-'' as client,
-'REAPPRO' as obs
-
-from frn_cde
-where fcde_soc = 'HF' and fcde_succ = '01' and fcde_serv = 'NEG'
-and fcde_posl = '--'
-and not exists (select slor_numcf from sav_lor where slor_soc = fcde_soc and slor_numcf = fcde_numcde)
-and not exists (select nlig_numcf from neg_lig where nlig_soc = fcde_soc and nlig_numcf = fcde_numcde)
-group by 1,2,3,4,5,6,7,8,9,10,11,12
-) as  requete_base
-$numOrValide
-$numFrs
-$numCdeFrs
-$numClient
-$numOR
-$dateDebut
-$dateFin
-$agence
-$service
- ";
+        $statement = $vRequette
+.$numOrValide
+.$numFrs
+.$numCdeFrs
+.$numClient
+.$numOR
+.$dateDebut
+.$dateFin
+ ;
 //  dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);

@@ -38,20 +38,20 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $criteria = [
             'orValide' => true
         ];
+        $data = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-            // dd($criteria);
+            $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
+            $vheure = $today->format("H:i:s"); 
+            $vinstant = str_replace(":", "", $vheure); 
+    
+            $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
+    
+            $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
+            $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
+            $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
+             $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
         }
-        $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
-        $vheure = $today->format("H:i:s"); 
-        $vinstant = str_replace(":", "", $vheure); 
-
-        $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
-
-        $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
-        $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
-        $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
-         $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
         self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
