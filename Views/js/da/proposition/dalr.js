@@ -1,4 +1,4 @@
-import { replaceNameToNewIndex } from '../new/dal';
+import { replaceNameToNewIndex } from "../new/dal";
 
 export function ajouterUneLigne(line, fields) {
   const tableBody = document.getElementById(`tableBody_${line}`);
@@ -13,7 +13,7 @@ export function ajouterUneLigne(line, fields) {
   insertCellData(row, fields.designation.value);
   insertCellData(row, fields.prixUnitaire.value);
   insertCellData(row, total);
-  insertCellData(row, '1'); // conditionnement TO DO
+  insertCellData(row, "1"); // conditionnement TO DO
   insertCellData(row, fields.qteDispo.value);
   insertCellData(row, fields.motif.value);
 
@@ -22,7 +22,7 @@ export function ajouterUneLigne(line, fields) {
 
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
-    field.value = '';
+    field.value = "";
   });
 }
 
@@ -34,13 +34,13 @@ function insertCellData(row, $data) {
 function ajouterLigneDansForm(line, fields, total) {
   let newIndex = Date.now();
   let prototype = document
-    .getElementById('child-prototype')
+    .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype
-  let container = document.getElementById('demande_appro_lr_collection_DALR'); // contenant du formulaire
-  container.style.display = 'none'; // ne pas afficher le contenant
+  let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
+  container.style.display = "none"; // ne pas afficher le contenant
 
   prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
-  prototype.querySelectorAll('[id], [name]').forEach(function (element) {
+  prototype.querySelectorAll("[id], [name]").forEach(function (element) {
     element.id = element.id
       ? replaceNameToNewIndex(element.id, newIndex)
       : element.id;
@@ -49,16 +49,18 @@ function ajouterLigneDansForm(line, fields, total) {
       : element.name;
   });
 
-  ajouterValeur(prototype, 'numeroLigneDem', line);
-  ajouterValeur(prototype, 'numeroFournisseur', fields.numeroFournisseur.value);
-  ajouterValeur(prototype, 'nomFournisseur', fields.fournisseur.value);
-  ajouterValeur(prototype, 'artRefp', fields.reference.value);
-  ajouterValeur(prototype, 'artDesi', fields.designation.value);
-  ajouterValeur(prototype, 'qteDispo', fields.qteDispo.value);
-  ajouterValeur(prototype, 'prixUnitaire', fields.prixUnitaire.value);
-  ajouterValeur(prototype, 'total', total);
-  ajouterValeur(prototype, 'conditionnement', '1'); // conditionnement TO DO
-  ajouterValeur(prototype, 'motif', fields.motif.value);
+  ajouterValeur(prototype, "numeroLigneDem", line);
+  ajouterValeur(prototype, "numeroFournisseur", fields.numeroFournisseur.value);
+  ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
+  ajouterValeur(prototype, "artRefp", fields.reference.value);
+  ajouterValeur(prototype, "artDesi", fields.designation.value);
+  ajouterValeur(prototype, "qteDispo", fields.qteDispo.value);
+  ajouterValeur(prototype, "prixUnitaire", fields.prixUnitaire.value);
+  ajouterValeur(prototype, "total", total);
+  ajouterValeur(prototype, "conditionnement", "1"); // conditionnement TO DO
+  ajouterValeur(prototype, "motif", fields.motif.value);
+  ajouterValeur(prototype, "artFams1", fields.famille.value);
+  ajouterValeur(prototype, "artFams2", fields.sousFamille.value);
 
   container.append(prototype);
 }

@@ -57,6 +57,14 @@ class DemandeApproLRFormType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
+            ->add('artFams1', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
+            ->add('artFams2', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
         ;
     }
 

@@ -1,21 +1,36 @@
-import { FetchManager } from '../../api/FetchManager';
-import { AutoComplete } from '../../utils/AutoComplete';
+import { FetchManager } from "../../api/FetchManager";
+import { AutoComplete } from "../../utils/AutoComplete";
+import { updateDropdown } from "../../utils/selectionHandler";
 
-export function autocompleteTheField(field, fieldName) {
-  let baseId = field.id.replace('demande_appro_proposition', '');
+export function autocompleteTheField(field, fieldName, numPage = null) {
+  let baseId = field.id.replace("demande_appro_proposition", "");
 
-  let reference = getField(field.id, fieldName, 'reference');
-  let fournisseur = getField(field.id, fieldName, 'fournisseur');
-  let numeroFournisseur = getField(field.id, fieldName, 'numeroFournisseur');
-  let designation = getField(field.id, fieldName, 'designation');
-  let PU = getField(field.id, fieldName, 'PU');
-  let line = baseId.replace(`_${fieldName}_`, '');
+  let reference = getField(field.id, fieldName, "reference");
+  let fournisseur = getField(field.id, fieldName, "fournisseur");
+  let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
+  let designation = getField(field.id, fieldName, "designation");
+  let PU = getField(field.id, fieldName, "PU");
+  let line = baseId.replace(`_${fieldName}_`, "");
 
-  let codeFams1 = getValueCodeFams('codeFams1', line);
-  let codeFams2 = getValueCodeFams('codeFams2', line);
+  let codeFams1 = getValueCodeFams("codeFams1", line);
+  let codeFams2 = getValueCodeFams("codeFams2", line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`loader${baseId}`);
+
+  if (numPage) {
+    const sousFamille = document.querySelector(
+      "#demande_appro_proposition_codeFams2_" + numPage
+    );
+    const famille = document.querySelector(
+      "#demande_appro_proposition_codeFams1_" + numPage
+    );
+    console.log(sousFamille.value, famille.value);
+
+    codeFams2 = sousFamille.value ?? "-";
+    codeFams1 = famille.value ?? "-";
+  }
+  // console.log(codeFams1, codeFams2);
 
   new AutoComplete({
     inputElement: field,
@@ -32,7 +47,9 @@ export function autocompleteTheField(field, fieldName) {
         numeroFournisseur,
         reference,
         designation,
-        PU
+        PU,
+        getField(field.id, fieldName, "codeFams1"),
+        getField(field.id, fieldName, "codeFams2")
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
   });
@@ -49,7 +66,7 @@ function getField(id, fieldName, fieldNameReplace) {
 async function fetchAllData(fieldName, codeFams1, codeFams2) {
   const fetchManager = new FetchManager();
   let url = `demande-appro/autocomplete/all-${
-    fieldName === 'fournisseur'
+    fieldName === "fournisseur"
       ? fieldName
       : `designation/${codeFams1}/${codeFams2}`
   }`;
@@ -57,7 +74,7 @@ async function fetchAllData(fieldName, codeFams1, codeFams2) {
 }
 
 function displayValues(item, fieldName) {
-  if (fieldName === 'fournisseur') {
+  if (fieldName === "fournisseur") {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
     return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Désignation: ${item.designation}`;
@@ -65,9 +82,9 @@ function displayValues(item, fieldName) {
 }
 
 function stringsToSearch(item, fieldName) {
-  if (fieldName === 'reference') {
+  if (fieldName === "reference") {
     return `${item.referencepiece}`;
-  } else if (fieldName === 'fournisseur') {
+  } else if (fieldName === "fournisseur") {
     return `${item.numerofournisseur} - ${item.nomfournisseur}`;
   } else {
     return `${item.designation}`;
@@ -81,9 +98,13 @@ function handleValuesOfFields(
   numeroFournisseur,
   reference,
   designation,
-  PU
+  PU,
+  famille,
+  sousFamille
 ) {
-  if (fieldName === 'fournisseur') {
+  console.log(item, famille, sousFamille);
+
+  if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
   } else {
@@ -92,5 +113,21 @@ function handleValuesOfFields(
     numeroFournisseur.value = item.numerofournisseur;
     designation.value = item.designation;
     PU.value = item.prix;
+    famille.value = item.codefamille;
+    const numPage = localStorage.getItem("currentTab");
+    const spinnerElement = document.querySelector(
+      "#spinner_codeFams2_" + numPage
+    );
+    const containerElement = document.querySelector(
+      "#container_codeFams2_" + numPage
+    );
+    updateDropdown(
+      sousFamille,
+      `api/demande-appro/sous-famille/${famille.value}`,
+      "-- Choisir une sous-famille --",
+      spinnerElement,
+      containerElement,
+      item.codesousfamille
+    );
   }
 }

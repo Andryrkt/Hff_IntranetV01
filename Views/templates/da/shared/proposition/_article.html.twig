@@ -46,10 +46,114 @@
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
-	<div class="row">
-		<div class="col-12 col-md-3"></div>
-		<div class="col-12 col-md-3"></div>
-	</div>
+	{% if not(article.catalogue) and famille == '-' and sousFamille == '-' %}
+		<div class="row">
+			<div class="col-12 col-md-3">
+				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" required>
+					<option value="">-- Choisir une famille --</option>
+					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
+					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
+					<option value="BAT">BATTERIE</option>
+					<option value="EPI">EQUIPEMENT DE PROTECTION INDIV</option>
+					<option value="EXT">EXTINCTEUR</option>
+					<option value="FLQ">FILTRE ET LIQUIDE ENTRETIEN</option>
+					<option value="FRA">FRAIS DIVERS</option>
+					<option value="GSC">GAZ ET SOLUTIONS CHIMIQUES</option>
+					<option value="LUM">LUMINAIRE</option>
+					<option value="MAM">MATÉRIEL AUTOMOBILE</option>
+					<option value="MAT">MATÉRIAUX</option>
+					<option value="MEO">MACHINE ET OUTILLAGE</option>
+					<option value="MO">MAIN D'OEUVRE</option>
+					<option value="NP">NON PRECISE</option>
+					<option value="PAM">PIÈCES AUTOMOBILE</option>
+					<option value="PNE">PNEU</option>
+					<option value="PNT">PEINTURE</option>
+					<option value="PRE">PRESTATION</option>
+					<option value="QUI">QUINCAILLERIE</option>
+				</select>
+			</div>
+			<div class="col-12 col-md-3">
+				<div class="spinner-container">
+					<div class="spinner-load m-auto" id="spinner_codeFams2_{{ currentPage }}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+				</div>
+				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
+					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" required>
+						<option value="">-- Choisir une sous-famille --</option>
+					</select>
+				</div>
+
+			</div>
+		</div>
+
+	{% else %}
+		<div class="row d-none">
+			<div class="col-12 col-md-3">
+				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" required>
+					<option value="">-- Choisir une famille --</option>
+					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
+					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
+					<option value="BAT">BATTERIE</option>
+					<option value="EPI">EQUIPEMENT DE PROTECTION INDIV</option>
+					<option value="EXT">EXTINCTEUR</option>
+					<option value="FLQ">FILTRE ET LIQUIDE ENTRETIEN</option>
+					<option value="FRA">FRAIS DIVERS</option>
+					<option value="GSC">GAZ ET SOLUTIONS CHIMIQUES</option>
+					<option value="LUM">LUMINAIRE</option>
+					<option value="MAM">MATÉRIEL AUTOMOBILE</option>
+					<option value="MAT">MATÉRIAUX</option>
+					<option value="MEO">MACHINE ET OUTILLAGE</option>
+					<option value="MO">MAIN D'OEUVRE</option>
+					<option value="NP">NON PRECISE</option>
+					<option value="PAM">PIÈCES AUTOMOBILE</option>
+					<option value="PNE">PNEU</option>
+					<option value="PNT">PEINTURE</option>
+					<option value="PRE">PRESTATION</option>
+					<option value="QUI">QUINCAILLERIE</option>
+				</select>
+			</div>
+			<div class="col-12 col-md-3">
+				<div class="spinner-container">
+					<div class="spinner-load m-auto" id="spinner_codeFams2_{{ currentPage }}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+				</div>
+				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
+					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" required>
+						<option value="">-- Choisir une sous-famille --</option>
+					</select>
+				</div>
+
+			</div>
+		</div>
+	{% endif %}
 	<div class="row">
 		<div class="col-3 col-md-3">
 			<div class="mb-2">
