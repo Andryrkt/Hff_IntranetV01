@@ -75,7 +75,7 @@ group by 1,2,3,4,5,6
 .$dateDebut
 .$dateFin
  ;
-//  dd($statement);
+//  dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return $this->convertirEnUtf8($data);

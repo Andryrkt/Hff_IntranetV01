@@ -44,7 +44,6 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $vinstant = str_replace(":", "", $vheure); 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-    
             $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
     
             $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
