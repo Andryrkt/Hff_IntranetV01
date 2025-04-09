@@ -1,4 +1,5 @@
 import { replaceNameToNewIndex } from "../new/dal";
+import { formaterNombre } from "../../utils/formatNumberUtils";
 
 export function ajouterUneLigne(line, fields) {
   const tableBody = document.getElementById(`tableBody_${line}`);

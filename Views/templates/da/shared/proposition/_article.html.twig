@@ -224,12 +224,12 @@
 				<tr>
 					<td>{{ DALR.nomFournisseur }}</td>
 					<td>{{ DALR.artRefp }}</td>
-					<td>{{ DALR.artDesi }}</td>
-					<td>{{ DALR.prixUnitaire }}</td>
-					<td>{{ DALR.total }}</td>
+					<td style="text-align: left;">{{ DALR.artDesi }}</td>
+					<td style="text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
+					<td style="text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
 					<td>{{ DALR.conditionnement }}</td>
 					<td>{{ DALR.qteDispo }}</td>
-					<td>{{ DALR.motif }}</td>
+					<td style="text-align: left;">{{ DALR.motif }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
