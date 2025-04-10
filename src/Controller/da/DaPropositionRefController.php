@@ -62,20 +62,19 @@ class DaPropositionRefController extends Controller
             $selectedRefs = $refsString ? explode(',', $refsString) : [];
             $refs = $this->separationNbrPageLigne($selectedRefs);
 
+            if ($dalrList->isEmpty()) {
+                $notification = $this->notification('info', "Aucune modification n'a été effectuée");
+            } else {
+                $this->enregistrementDb($data, $dalrList);
+                $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+            }
+
             if (!empty($refs)) {
                 // reset les ligne de la page courante
                 $this->resetEstValide($refs);
 
                 //modifier la colonne estvalidee 
                 $this->modifEstValide($refs);
-            }
-
-
-            if ($dalrList->isEmpty()) {
-                $notification = $this->notification('info', "Aucune modification n'a été effectuée");
-            } else {
-                $this->enregistrementDb($data, $dalrList);
-                $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
             }
 
             $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -96,6 +95,7 @@ class DaPropositionRefController extends Controller
         $dalrs = $this->modifEntite($dalrs);
         $this->modificationBd($dalrs);
     }
+
     private function separationNbrPageLigne(array $selectedRefs): array
     {
         $refs = [];

@@ -102,8 +102,6 @@ function handleValuesOfFields(
   famille,
   sousFamille
 ) {
-  console.log(item, famille, sousFamille);
-
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
