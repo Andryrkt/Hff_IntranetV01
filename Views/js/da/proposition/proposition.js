@@ -4,8 +4,6 @@ import { autocompleteTheField } from "./autocompletion";
 import { changeTab, showTab } from "./pageNavigation";
 import { updateDropdown } from "../../utils/selectionHandler";
 
-
-
 document.addEventListener("DOMContentLoaded", function () {
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
 
@@ -141,21 +139,3 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
-
-let lastCheckedRadio = null;
-
-function toggleRadio(radio) {
-  if (lastCheckedRadio === radio) {
-    radio.checked = false;
-    lastCheckedRadio = null;
-  } else {
-    lastCheckedRadio = radio;
-    const selectedValue = radio.value;
-    console.log("Ligne sélectionnée :", selectedValue);
-
-    // Rediriger vers une nouvelle URL avec le paramètre
-    // window.location.href = `{{ App.base_path }}/demande-appro/proposition/${id}?ligne=${encodeURIComponent(
-    //   selectedValue
-    // )}`;
-  }
-}

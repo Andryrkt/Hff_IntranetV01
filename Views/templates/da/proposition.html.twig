@@ -58,15 +58,15 @@ function toggleRadio(radio) {
 const valeur = radio.value;
 const prefix = valeur.split('-')[0];
 
-if (lastCheckedRadio === radio) {
-radio.checked = false;
-lastCheckedRadio = null;
-selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
-} else {
+// if (lastCheckedRadio === radio) {
+// radio.checked = false;
+// lastCheckedRadio = null;
+// selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
+// } else {
 lastCheckedRadio = radio;
 selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
 selectedValues.push(valeur);
-}
+// }
 
 console.log("Valeurs sélectionnées :", selectedValues);
 }

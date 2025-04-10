@@ -54,15 +54,21 @@ class DaPropositionRefController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
 
-            // ✅ Récupérer les valeurs du champ caché
+
             $refsString = $request->request->get('refs');
             $selectedRefs = $refsString ? explode(',', $refsString) : [];
             $refs = $this->separationNbrPageLigne($selectedRefs);
-            $dalrs = $this->recupEntiteAModifier($refs);
-            $dalrs = $this->modifEntite($dalrs);
-            $this->modificationBd($dalrs);
+
+            if (!empty($refs)) {
+                // reset les ligne de la page courante
+                $this->resetEstValide($refs);
+
+                //modifier la colonne estvalidee 
+                $this->modifEstValide($refs);
+            }
 
 
             if ($dalrList->isEmpty()) {
@@ -77,6 +83,19 @@ class DaPropositionRefController extends Controller
         }
     }
 
+    private function resetEstValide(array $refs): void
+    {
+        $dalrsAll = $this->recupEntitePageCourante($refs);
+        $dalrsAll = $this->resetEntite($dalrsAll);
+        $this->resetBd($dalrsAll);
+    }
+
+    private function modifEstValide(array $refs): void
+    {
+        $dalrs = $this->recupEntiteAModifier($refs);
+        $dalrs = $this->modifEntite($dalrs);
+        $this->modificationBd($dalrs);
+    }
     private function separationNbrPageLigne(array $selectedRefs): array
     {
         $refs = [];
@@ -84,6 +103,30 @@ class DaPropositionRefController extends Controller
             $refs[] = explode('-', $value);
         }
         return $refs;
+    }
+
+    private function recupEntitePageCourante(array $refs): array
+    {
+        foreach ($refs as $ref) {
+            $dalrsAll = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0]]);
+        }
+
+        return $dalrsAll;
+    }
+    private function resetEntite(array $dalrsAll): array
+    {
+        foreach ($dalrsAll as  $dalr) {
+            $dalr->setEstValidee(false);
+        }
+        return $dalrsAll;
+    }
+
+    private function resetBd(array $dalrsAll): void
+    {
+        foreach ($dalrsAll as $dalr) {
+            self::$em->persist($dalr);
+        }
+        self::$em->flush();
     }
 
     private function recupEntiteAModifier(array $refs): array

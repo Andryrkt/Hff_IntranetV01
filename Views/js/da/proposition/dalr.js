@@ -1,4 +1,5 @@
 import { replaceNameToNewIndex } from "../new/dal";
+import { formaterNombre } from "../../utils/formatNumberUtils";
 
 export function ajouterUneLigne(line, fields) {
   const tableBody = document.getElementById(`tableBody_${line}`);
@@ -20,12 +21,12 @@ export function ajouterUneLigne(line, fields) {
   );
   insertCellData(row, fields.fournisseur.value);
   insertCellData(row, fields.reference.value);
-  insertCellData(row, fields.designation.value);
-  insertCellData(row, fields.prixUnitaire.value);
-  insertCellData(row, total);
+  insertCellData(row, fields.designation.value, "left");
+  insertCellData(row, formaterNombre(fields.prixUnitaire.value), "right");
+  insertCellData(row, formaterNombre(total), "right");
   insertCellData(row, "1"); // conditionnement TO DO
   insertCellData(row, fields.qteDispo.value);
-  insertCellData(row, fields.motif.value);
+  insertCellData(row, fields.motif.value, "left");
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
@@ -36,9 +37,10 @@ export function ajouterUneLigne(line, fields) {
   });
 }
 
-function insertCellData(row, $data) {
+function insertCellData(row, $data, align = "center") {
   let cell = row.insertCell();
   cell.innerHTML = $data;
+  cell.style.textAlign = align;
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
@@ -60,7 +62,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
       : element.name;
   });
 
-  ajouterValeur(prototype, "numeroLigneDem", line);
+  ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
   ajouterValeur(prototype, "numeroFournisseur", fields.numeroFournisseur.value);
   ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
   ajouterValeur(prototype, "artRefp", fields.reference.value);

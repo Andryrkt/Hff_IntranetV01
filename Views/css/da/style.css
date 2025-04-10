@@ -60,7 +60,7 @@ a.choix:hover {
   width: 23% !important;
 }
 
-[id*='tableBody'] td {
+[id*="tableBody"] td {
   text-align: center;
 }
 
@@ -93,7 +93,7 @@ a.choix:hover {
   }
 }
 
-[id*='spinner_container_']:not([id*='nomFournisseur']) {
+[id*="spinner_container_"]:not([id*="nomFournisseur"]) {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
@@ -104,7 +104,7 @@ a.choix:hover {
   padding: 10px;
 }
 
-[id*='spinner_container_'] .text-overlay {
+[id*="spinner_container_"] .text-overlay {
   font-size: 14px;
   color: white;
   margin-right: 10px;
