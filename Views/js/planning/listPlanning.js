@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         planningTableHeadLign.innerHTML = '';
 
         if (data.data.length > 0) {
-          if (data.data[0].numor.startsWith('5')) {
+          if (data.data[0].numor.startsWith('5') || data.data[0].numor.startsWith('4')) {
             let rowHeader = `<th>N° OR</th>
                             <th>Intv</th>
                             <th>N° CIS</th>
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
               dateStatutCIS = '';
             }
 
-            if (detail.numor && detail.numor.startsWith('5')) {
+            if (detail.numor && detail.numor.startsWith('5') || detail.numor && detail.numor.startsWith('4')) {
               // Affichage
               let row = `<tr>
                         <td>${detail.numor}</td> 

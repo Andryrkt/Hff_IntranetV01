@@ -21,8 +21,8 @@ class GenererNonFichierService
         $prefix = $options['prefix'] ?? '';
         $numeroDoc = $options['numeroDoc'] ?? '';
         $numeroVersion = $options['numeroVersion'] ?? '';
-        $index = $option['index'] ?? '';
-        $extension = $option['extension']?? '.pdf';
+        $index = $options['index'] ?? '';
+        $extension = $options['extension']?? 'pdf';
 
         return sprintf(
             '%s%s%s%s%s',
@@ -30,7 +30,7 @@ class GenererNonFichierService
             $numeroDoc !=='' ? "_{$numeroDoc}": '',
             $numeroVersion !== '' ? "_{$numeroVersion}" : '',
             $index !== '' ? "_0{$index}" : '',
-            $extension
+            '.'.$extension
         );
     }
 
