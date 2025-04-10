@@ -35,6 +35,7 @@
 		</div>
 		<div class="col-3 col-md-7">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+
 		</div>
 		<div class="col-3 col-md-2">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
@@ -172,9 +173,14 @@
 				<div class="col-8 col-md-8">
 					<div class="mb-2">
 						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation (*)</label>
-						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
-						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
+						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">{# <div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>#}
+						{#<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div> #}<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"> </div>
+						<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
+							<div class="text-overlay">
+								Veuillez patienter s'il vous plaît! Chargement des données
+							</div>
+							<div class="loader-points"></div>
+						</div>
 					</div>
 				</div>
 				<div class="col-4 col-md-4">

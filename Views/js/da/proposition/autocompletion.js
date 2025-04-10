@@ -16,7 +16,7 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
   let codeFams2 = getValueCodeFams("codeFams2", line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
-  let loaderElement = document.getElementById(`loader${baseId}`);
+  let loaderElement = document.getElementById(`spinner_container${baseId}`);
 
   if (numPage) {
     const sousFamille = document.querySelector(
