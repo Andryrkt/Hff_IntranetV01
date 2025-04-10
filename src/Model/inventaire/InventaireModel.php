@@ -216,7 +216,7 @@ class InventaireModel extends Model
                             END AS pourcentage_nbr_ecart,
                            ROUND( SUM(ainvp_prix) )as PMP,
                             ROUND( SUM(ainvp_prix * ainvp_stktheo) ) as montant_inventaire,
-                            ROUND( SUM(ainvp_prix * ainvp_ecart ) )as montant_ecart,
+                            ROUND( SUM(ainvp_prix * ainvp_ecart ) )  as montant_ecart,
                             CASE
                             WHEN ROUND(SUM(ainvp_prix * ainvp_stktheo)) != 0 THEN
                                 ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100) || ' %'
