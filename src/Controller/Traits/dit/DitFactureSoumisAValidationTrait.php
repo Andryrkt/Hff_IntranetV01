@@ -126,7 +126,7 @@ trait DitFactureSoumisAValidationtrait
             $conditionDifferenceMontant = abs($montantValide - $montantFacture) > 0.01; // Comparaison avec tolérance
             $conditionPasSoumissionOr = $nombreItv === 0;
             $conditionExiteMotRefuse = strpos($statutOrsSoumisValidation, 'refusée') !== false;
-            $conditionStatutDiffValide = $statutOrsSoumisValidation !== 'Validé' && $statutOrsSoumisValidation !== 'Livré'; 
+            $conditionStatutDiffValide = $statutOrsSoumisValidation !== 'Validé' && $statutOrsSoumisValidation !== 'Livré';
             $conditionStatutValide = $statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré';
 
 

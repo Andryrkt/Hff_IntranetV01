@@ -151,7 +151,8 @@ class DitModel extends Model
             sitv_interv as numeroIntervention, 
             trim(sitv_comment) as commentaire,
 	          sitv_pos as pos,
-            sum(slor_qterea*slor_pmp) as somme
+            --sum(slor_qterea*slor_pmp) as somme d'après le demande de Hoby rahalahy 
+            sum(slor_pxnreel*slor_pmp) as somme
 
 
             FROM  sav_eor, sav_lor, sav_itv, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
