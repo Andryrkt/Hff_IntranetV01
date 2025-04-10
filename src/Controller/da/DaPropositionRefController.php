@@ -2,12 +2,14 @@
 
 namespace App\Controller\da;
 
+use App\Model\da\DaModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproLR;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
-use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -16,15 +18,17 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaPropositionRefController extends Controller
 {
     private DaModel $daModel;
+    private DemandeApproLRRepository $demandeApproLRRepository;
     public function __construct()
     {
         parent::__construct();
 
         $this->daModel = new DaModel();
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
     }
 
     /**
-     * @Route("/proposition/{id}", name="da_proposition")
+     * @Route("/proposition/{id}", name="da_proposition", methods={"GET","POST"})
      */
     public function propositionDeReference($id, Request $request)
     {
@@ -40,6 +44,7 @@ class DaPropositionRefController extends Controller
 
         self::$twig->display('da/proposition.html.twig', [
             'data' => $data,
+            'id' => $id,
             'form' => $form->createView()
         ]);
     }
@@ -50,7 +55,16 @@ class DaPropositionRefController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dalrList = $form->getData()->getDALR();
-            // dd($dalrList);
+
+            // ✅ Récupérer les valeurs du champ caché
+            $refsString = $request->request->get('refs');
+            $selectedRefs = $refsString ? explode(',', $refsString) : [];
+            $refs = $this->separationNbrPageLigne($selectedRefs);
+            $dalrs = $this->recupEntiteAModifier($refs);
+            $dalrs = $this->modifEntite($dalrs);
+            $this->modificationBd($dalrs);
+
+
             if ($dalrList->isEmpty()) {
                 $notification = $this->notification('info', "Aucune modification n'a été effectuée");
             } else {
@@ -61,6 +75,40 @@ class DaPropositionRefController extends Controller
             $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
             $this->redirectToRoute("da_list");
         }
+    }
+
+    private function separationNbrPageLigne(array $selectedRefs): array
+    {
+        $refs = [];
+        foreach ($selectedRefs as  $value) {
+            $refs[] = explode('-', $value);
+        }
+        return $refs;
+    }
+
+    private function recupEntiteAModifier(array $refs): array
+    {
+        foreach ($refs as $ref) {
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1]]);
+        }
+
+        return $dalrs;
+    }
+
+    private function modifEntite(array $dalrs): array
+    {
+        foreach ($dalrs as  $dalr) {
+            $dalr->setEstValidee(true);
+        }
+        return $dalrs;
+    }
+
+    private function modificationBd(array $dalrs): void
+    {
+        foreach ($dalrs as $dalr) {
+            self::$em->persist($dalr);
+        }
+        self::$em->flush();
     }
 
     private function notification(string $type, string $message): array

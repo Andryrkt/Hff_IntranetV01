@@ -29,3 +29,7 @@ ADD date_creation DATETIME2(0)
 
 ALTER TABLE Demande_Appro_L_R
 ADD date_modification DATETIME2(0)
+ALTER TABLE Demande_Appro_L_R
+ADD num_ligne_tableau INT
+
+

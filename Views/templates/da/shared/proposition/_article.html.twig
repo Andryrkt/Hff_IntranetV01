@@ -209,6 +209,7 @@
 	<table class="table rounded table-plein-ecran mt-4">
 		<thead class="table-dark text-center">
 			<tr>
+				<th>Choix</th>
 				<th>Fournisseur</th>
 				<th>Référence</th>
 				<th>Désignation</th>
@@ -222,6 +223,9 @@
 		<tbody id="tableBody_{{ currentPage }}">
 			{% for DALR in article.demandeApproLR %}
 				<tr>
+					<td>
+						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)">
+					</td>
 					<td>{{ DALR.nomFournisseur }}</td>
 					<td>{{ DALR.artRefp }}</td>
 					<td style="text-align: left;">{{ DALR.artDesi }}</td>

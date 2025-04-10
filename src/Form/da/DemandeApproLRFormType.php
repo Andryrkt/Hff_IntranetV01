@@ -65,6 +65,10 @@ class DemandeApproLRFormType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
+            ->add('numLigneTableau', TextType::class, [
+                'label' => false,
+                'required' => false,
+            ])
         ;
     }
 

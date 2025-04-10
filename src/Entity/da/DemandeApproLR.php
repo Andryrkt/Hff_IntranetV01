@@ -122,6 +122,11 @@ class DemandeApproLR
      */
     private $estValidee = false;
 
+    /**
+     * @ORM\Column(type="integer", name="num_ligne_tableau")
+     */
+    private $numLigneTableau = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -500,6 +505,26 @@ class DemandeApproLR
     public function setEstValidee($estValidee)
     {
         $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numLigneTableau
+     */ 
+    public function getNumLigneTableau()
+    {
+        return $this->numLigneTableau;
+    }
+
+    /**
+     * Set the value of numLigneTableau
+     *
+     * @return  self
+     */ 
+    public function setNumLigneTableau($numLigneTableau)
+    {
+        $this->numLigneTableau = $numLigneTableau;
 
         return $this;
     }

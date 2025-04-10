@@ -1,14 +1,23 @@
 import { replaceNameToNewIndex } from "../new/dal";
-import { formaterNombre } from "../../utils/formatNumberUtils";
 
 export function ajouterUneLigne(line, fields) {
   const tableBody = document.getElementById(`tableBody_${line}`);
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
   const row = tableBody.insertRow();
+  const rowIndex = tableBody.rows.length; // numero de ligne du tableau
+  console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);
 
   // Insérer des données dans le tableau
+  const radioId = `radio_${line}_${rowIndex}`;
+
+  insertCellData(
+    row,
+    `<input type="radio" name="selectedRow_${line}" id="${radioId}" value="${
+      line + "-" + rowIndex
+    }" onclick="toggleRadio(this)">`
+  );
   insertCellData(row, fields.fournisseur.value);
   insertCellData(row, fields.reference.value);
   insertCellData(row, fields.designation.value);
@@ -19,7 +28,7 @@ export function ajouterUneLigne(line, fields) {
   insertCellData(row, fields.motif.value);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
-  ajouterLigneDansForm(line, fields, total);
+  ajouterLigneDansForm(line, fields, total, rowIndex);
 
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
@@ -32,8 +41,9 @@ function insertCellData(row, $data) {
   cell.innerHTML = $data;
 }
 
-function ajouterLigneDansForm(line, fields, total) {
-  let newIndex = Date.now();
+function ajouterLigneDansForm(line, fields, total, rowIndex) {
+  // let newIndex = Date.now();
+  let newIndex = rowIndex;
   let prototype = document
     .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype
@@ -62,6 +72,7 @@ function ajouterLigneDansForm(line, fields, total) {
   ajouterValeur(prototype, "motif", fields.motif.value);
   ajouterValeur(prototype, "artFams1", fields.famille.value);
   ajouterValeur(prototype, "artFams2", fields.sousFamille.value);
+  ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
   container.append(prototype);
 }

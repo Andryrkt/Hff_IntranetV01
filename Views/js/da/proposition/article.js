@@ -2,7 +2,6 @@ import { ajouterUneLigne } from "./dalr";
 
 export function ajouterReference(addLineId) {
   const line = addLineId.replace("add_line_", "");
-  console.log(line);
 
   const fields = {
     fournisseur: getField("fournisseur", line),
