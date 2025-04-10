@@ -50,32 +50,39 @@ group by 1,2,3,4,5,6
     }
 
     public function requetteBase($criteria, $vinstant, string $numOrValide)
-    {   
-        
-        $vRequette = $this->requette($criteria,$vinstant);
-        $dateDebut = $this->conditionDateSigne('requete_base.date_cmd','dateDebutDoc',$criteria,'>=');
-        $dateFin = $this->conditionDateSigne('requete_base.date_cmd','dateFinDoc',$criteria,'<=');
-        $numOR = $this->conditionEgal('requete_base.n_OR','numOR',$criteria);
-        $numClient = $this->conditionEgal('requete_base.client','numClient',$criteria);
-        $numCdeFrs = $this->conditionEgal('requete_base.n_commande','numCdFrs',$criteria);
-        $numFrs = $this->conditionEgal('requete_base.n_frs','CodeNomFrs',$criteria);
+    {
+
+        $vRequette = $this->requette($criteria, $vinstant);
+        $conditions = [];
         if ($criteria['orValide']) {
-            $numOrValide = " WHERE requete_base.n_OR in ('" . $numOrValide . "')";
-        } else {
-            $numOrValide = "";
+            $conditions[] = "  requete_base.n_OR in ('" . $numOrValide . "')";
+        }
+        if ($criteria['dateDebutDoc']) {
+            $conditions[] = " requete_base.date_cmd >= TO_DATE('" . $criteria['dateDebutDoc']->format('Y-m-d') . "', '%Y-%m-%d')";
+        }
+        if ($criteria['dateFinDoc']) {
+            $conditions[] = " requete_base.date_cmd <= TO_DATE('" . $criteria['dateFinDoc']->format('Y-m-d') . "', '%Y-%m-%d')";
+        }
+        if ($criteria['numOR']) {
+            $conditions[] = "requete_base.n_OR = '" . $criteria['numOR'] . "'";
+        }
+        if ($criteria['numCdFrs']) {
+            $conditions[] = "requete_base.n_commande = '" . $criteria['numCdFrs'] . "'";
+        }
+        if ($criteria['numClient']) {
+            $conditions[] = "requete_base.client = '" . $criteria['numClient'] . "'";
+        }
+        if ($criteria['CodeNomFrs']) {
+            $conditions[] = "requete_base.n_frs = '" . $criteria['CodeNomFrs'] . "'";
+        }
+        $whereClause = "";
+        if (count($conditions) > 0) {
+            $whereClause = " WHERE " . implode(" AND ", $conditions);
         }
 
-
         $statement = $vRequette
-.$numOrValide
-.$numFrs
-.$numCdeFrs
-.$numClient
-.$numOR
-.$dateDebut
-.$dateFin
- ;
-//  dump($statement);
+            . $whereClause;
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return $this->convertirEnUtf8($data);
