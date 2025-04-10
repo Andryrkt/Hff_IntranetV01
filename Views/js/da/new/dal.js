@@ -86,3 +86,4 @@ export function autocompleteTheFields(line) {
   initializeAutoCompletionDesi(designation);
   initializeAutoCompletionFrn(nomFournisseur);
 }
+

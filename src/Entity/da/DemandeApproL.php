@@ -15,6 +15,7 @@ use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class DemandeApproL
 {
+    use DateTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -134,7 +136,15 @@ class DemandeApproL
      */
     private $demandeApproLR;
 
-    //=============================================================================================
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**==============================================================================
+     * GETTERS & SETTERS
+     *===============================================================================*/
+
     public function __construct()
     {
         $this->demandeApproLR = new ArrayCollection();
@@ -576,6 +586,26 @@ class DemandeApproL
     public function setCodeFams2($codeFams2)
     {
         $this->codeFams2 = $codeFams2;
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */ 
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */ 
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
         return $this;
     }
 }

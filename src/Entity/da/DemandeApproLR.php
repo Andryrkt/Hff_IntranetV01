@@ -15,6 +15,7 @@ use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -26,6 +27,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class DemandeApproLR
 {
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -113,6 +116,20 @@ class DemandeApproLR
      * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id")
      */
     private ?DemandeApproL $demandeApproL = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**
+     * @ORM\Column(type="integer", name="num_ligne_tableau")
+     */
+    private $numLigneTableau = 0;
+
+    /**==============================================================================
+     * GETTERS & SETTERS
+     *===============================================================================*/
 
     /**
      * Get the value of id
@@ -468,6 +485,46 @@ class DemandeApproLR
     public function setMotif($motif)
     {
         $this->motif = $motif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numLigneTableau
+     */ 
+    public function getNumLigneTableau()
+    {
+        return $this->numLigneTableau;
+    }
+
+    /**
+     * Set the value of numLigneTableau
+     *
+     * @return  self
+     */ 
+    public function setNumLigneTableau($numLigneTableau)
+    {
+        $this->numLigneTableau = $numLigneTableau;
 
         return $this;
     }

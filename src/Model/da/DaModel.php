@@ -59,6 +59,38 @@ class DaModel extends Model
         return $data;
     }
 
+    public function getLibelleFamille($codeFamille)
+    {
+        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
+                FROM agr_tab t
+                INNER JOIN art_bse a ON a.abse_fams1 = t.atab_code
+                WHERE t.atab_code = '$codeFamille' 
+                AND t.atab_nom = 'STA'
+                AND a.abse_constp = 'ZST'
+                LIMIT 1";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
+    }
+
+    public function getLibelleSousFamille($codeSousFamille, $codeFamille)
+    {
+        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
+                FROM art_bse a
+                INNER JOIN agr_tab t ON t.atab_nom = 'S/S' AND t.atab_code = a.abse_fams2
+                WHERE a.abse_constp = 'ZST' 
+                AND a.abse_fams1 = '$codeFamille'
+                AND a.abse_fams2 = '$codeSousFamille'
+                LIMIT 1";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
+    }
+    
     public function getAllDesignation($codeFamille, $codeSousFamille)
     {
         $statement = "SELECT 
@@ -100,35 +132,7 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getLibelleFamille($codeFamille)
-    {
-        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
-                FROM agr_tab t
-                INNER JOIN art_bse a ON a.abse_fams1 = t.atab_code
-                WHERE t.atab_code = '$codeFamille' 
-                AND t.atab_nom = 'STA'
-                AND a.abse_constp = 'ZST'
-                LIMIT 1";
+    
 
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
-    }
-
-    public function getLibelleSousFamille($codeSousFamille, $codeFamille)
-    {
-        $statement = "SELECT DISTINCT TRIM(t.atab_lib) AS libelle
-                FROM art_bse a
-                INNER JOIN agr_tab t ON t.atab_nom = 'S/S' AND t.atab_code = a.abse_fams2
-                WHERE a.abse_constp = 'ZST' 
-                AND a.abse_fams1 = '$codeFamille'
-                AND a.abse_fams2 = '$codeSousFamille'
-                LIMIT 1";
-
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
-
-        return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
-    }
+    
 }

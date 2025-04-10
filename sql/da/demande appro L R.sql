@@ -1,5 +1,6 @@
 
-CREATE TABLE Demande_Appro_L_R(
+CREATE TABLE Demande_Appro_L_R
+(
     id int IDENTITY(1,1) NOT NULL,
     numero_demande_appro varchar(11) not null,
     num_ligne_dem int not null,
@@ -19,3 +20,16 @@ CREATE TABLE Demande_Appro_L_R(
     demande_appro_l_id int not null,
     CONSTRAINT PK_Demande_Appro_L_R PRIMARY KEY (id)
 )
+
+ALTER TABLE Demande_Appro_L_R
+ADD est_validee bit DEFAULT 0
+
+ALTER TABLE Demande_Appro_L_R
+ADD date_creation DATETIME2(0)
+
+ALTER TABLE Demande_Appro_L_R
+ADD date_modification DATETIME2(0)
+ALTER TABLE Demande_Appro_L_R
+ADD num_ligne_tableau INT
+
+

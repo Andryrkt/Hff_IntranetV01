@@ -33,11 +33,12 @@
 		</div>
 
 		{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+		<input type="hidden" name="refs" id="refsHiddenInput">
 		<div id="child-prototype" style="display: none;">
 			{{ form_widget(form.DALR.vars.prototype)|raw }}
 		</div>
 		<div class="d-flex justify-content-end mt-2">
-			<button type="submit" class="btn bouton mt-2 me-4">
+			<button type="submit" class="btn bouton mt-2 me-4" id="envoyerSelections">
 				<i class="fas fa-save"></i>
 				Enregistrer
 			</button>
@@ -48,4 +49,34 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/da/proposition/proposition.js" type="module"></script>
+
+	<script>
+		let lastCheckedRadio = null;
+let selectedValues = [];
+
+function toggleRadio(radio) {
+const valeur = radio.value;
+const prefix = valeur.split('-')[0];
+
+// if (lastCheckedRadio === radio) {
+// radio.checked = false;
+// lastCheckedRadio = null;
+// selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
+// } else {
+lastCheckedRadio = radio;
+selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
+selectedValues.push(valeur);
+// }
+
+console.log("Valeurs sélectionnées :", selectedValues);
+}
+
+// Avant soumission du formulaire
+document.getElementById('myForm').addEventListener('submit', function (e) { // Met à jour l’input caché avec les valeurs sélectionnées
+const hiddenInput = document.getElementById('refsHiddenInput');
+hiddenInput.value = selectedValues.join(','); // ex: "1-5,4-9"
+});
+	</script>
+
+
 {% endblock %}

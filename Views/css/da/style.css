@@ -11,16 +11,20 @@
   align-items: unset !important;
 }
 
-.choix {
+a.choix {
   width: 300px;
   background: #fbbb01;
   margin: 15px auto;
   padding: 15px;
-}
-
-.choix a {
   text-decoration: none;
   color: #000;
+  display: block;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+a.choix:hover {
+  background: #f8a900;
+  transform: scale(1.05);
 }
 
 #children-container .mt-3 {
@@ -56,7 +60,7 @@
   width: 23% !important;
 }
 
-[id*='tableBody'] td {
+[id*="tableBody"] td {
   text-align: center;
 }
 
@@ -89,7 +93,7 @@
   }
 }
 
-[id*='spinner_container_'] {
+[id*="spinner_container_"]:not([id*="nomFournisseur"]) {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
@@ -100,7 +104,7 @@
   padding: 10px;
 }
 
-[id*='spinner_container_'] .text-overlay {
+[id*="spinner_container_"] .text-overlay {
   font-size: 14px;
   color: white;
   margin-right: 10px;
