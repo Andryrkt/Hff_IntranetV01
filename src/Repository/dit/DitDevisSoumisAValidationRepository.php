@@ -319,7 +319,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->setParameter('numDevis', $numDevis)
             ->getQuery()
             ->getSingleScalarResult();
-    
+
         // Si aucun numéro de version trouvé, retourner 0
         if ($numeroVersionMax === 0) {
             return true;
