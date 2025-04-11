@@ -189,8 +189,8 @@ class DitDevisSoumisAValidationController extends Controller
             // if (true) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            // $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
-            // $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
+            $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
+            $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
 
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
@@ -206,11 +206,11 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
                 //envoye des fichier dans le DW
-                // if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
-                //     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                // } else {
-                //     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                // }
+                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
+                } else {
+                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
+                }
             } else {
                 $nomFichierCtrl = 'devisctrl_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '.pdf';
                 //generer le nom du fichier
@@ -223,14 +223,14 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
 
                 // envoyer les fichiers dans DW
-                // if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
-                //     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
-                //     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                // } else {
-                //     /**envoie des fichiers dans docuware*/
-                //     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
-                //     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                // }
+                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
+                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
+                } else {
+                    /**envoie des fichiers dans docuware*/
+                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
+                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
+                }
             }
 
 
