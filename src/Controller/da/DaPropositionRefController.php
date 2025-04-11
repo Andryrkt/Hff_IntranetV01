@@ -62,7 +62,7 @@ class DaPropositionRefController extends Controller
             $selectedRefs = $refsString ? explode(',', $refsString) : [];
             $refs = $this->separationNbrPageLigne($selectedRefs);
 
-            if ($dalrList->isEmpty()) {
+            if ($dalrList->isEmpty() && empty($refs)) {
                 $notification = $this->notification('info', "Aucune modification n'a été effectuée");
             } else {
                 $this->enregistrementDb($data, $dalrList);

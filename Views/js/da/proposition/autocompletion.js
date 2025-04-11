@@ -25,13 +25,11 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
     const famille = document.querySelector(
       "#demande_appro_proposition_codeFams1_" + numPage
     );
-    console.log(sousFamille.value, famille.value);
 
     codeFams2 = sousFamille.value ?? "-";
     codeFams1 = famille.value ?? "-";
   }
-  // console.log(codeFams1, codeFams2);
-
+  const numPages = localStorage.getItem("currentTab");
   new AutoComplete({
     inputElement: field,
     suggestionContainer: suggestionContainer,
@@ -52,7 +50,77 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
         getField(field.id, fieldName, "codeFams2")
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
+    itemToStringForBlur: (item) => `${item.designation}`,
+    onBlurCallback: (found) => onBlurEvents(found, designation, numPages),
   });
+}
+
+function getFieldByGeneratedId(baseId, suffix) {
+  return document.getElementById(baseId.replace("artDesi", suffix));
+}
+
+function onBlurEvents(found, designation, numPage) {
+  if (designation.value.trim() !== "") {
+    const desi = `designation_${numPage}`;
+
+    let baseId = designation.id.replace(desi, "");
+
+    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+    let fournisseur = getFieldByGeneratedId(
+      designation.id,
+      `fournisseur_${numPage}`
+    );
+    let referencePiece = getFieldByGeneratedId(
+      designation.id,
+      `reference_${numPage}`
+    );
+
+    // let oldValueFamille = fields.famille.value;
+    // let oldValueSousFamille = fields.sousFamille.value;
+
+    // Texte rouge ou non, ajout de valeur dans catalogue
+
+    allFields.forEach((field) => {
+      if (found) {
+        field.classList.remove("text-danger");
+      } else {
+        field.classList.add("text-danger");
+        if (field.id.includes(`PU_${numPage}`)) {
+          field.value = 0;
+        }
+        if (field.id.includes(`numeroFournisseur_${numPage}`)) {
+          field.value = 0;
+        }
+      }
+    });
+
+    // Si non trouvé alors valeur de reférence pièce = ''
+    // referencePiece.value = found ? referencePiece.value : "";
+
+    // Champs requis ou non et changement de valeur de champs
+    // Object.values(fields).forEach((field) => {
+    //   field.required = found;
+
+    //   // Ne pas vider si c'est le champ de désignation
+    //   if (field !== designation) {
+    //     field.value = found ? field.value : "";
+    //   }
+
+    //   console.log(field, found);
+    // });
+
+    // Champ readonly ou non
+    // fournisseur.readOnly = found;
+
+    // réinitialiser l'autocomplete de désignation
+    // if (
+    //   !found &&
+    //   oldValueFamille !== fields.famille.value &&
+    //   oldValueSousFamille !== fields.sousFamille.value
+    // ) {
+    //   initializeAutoCompletionDesi(designation);
+    // }
+  }
 }
 
 function getValueCodeFams(fams, line) {
