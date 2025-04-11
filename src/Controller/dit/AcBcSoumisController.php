@@ -52,9 +52,9 @@ class AcBcSoumisController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-
-        $devis = $this->filtredataDevis($numDit);
-
+        // $devis = $this->filtredataDevis($numDit);
+        $devis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
+dd($devis);
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
         if($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . le DIT est interne";
@@ -62,7 +62,7 @@ class AcBcSoumisController extends Controller
         }
 
         if (empty($devis)) {
-            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
+            $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide ou le statut n'est pas 'Validé atelier' pour le numero {$numDit}";
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
@@ -86,7 +86,9 @@ class AcBcSoumisController extends Controller
             $numClientBcDevis = $numClient . '_'. $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
-            $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
+            $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
+            
+            
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
 
@@ -98,7 +100,7 @@ class AcBcSoumisController extends Controller
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
 
-            $this->ConvertirLesPdf($uploadedFiles);
+            $this->ConvertirLesPdf($uploadedFiles);// très important pour les pdf externe
 
             $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
 
@@ -281,15 +283,42 @@ class AcBcSoumisController extends Controller
      */
     private function calculMontantDevis(array $devis): float
     {
-        $montantItv = array_reduce($devis, function ($acc, $item) {
+        if($this->estCeVente($devis[0]->getNumeroDevis())) {
+            return $this->sommeMontantTousItv($devis) ;
+        } else {
+            return $this->sommeMontantPremierItv($devis);
+        }
+    }
+
+    private function sommeMontantPremierItv(array $devis): float
+    {
+        return $devis[0]->getMontantItv();
+    }
+
+    private function sommeMontantTousItv(array $devis): float
+    {
+        return array_reduce($devis, function ($acc, $item) {
             return $acc + $item->getMontantItv();
         }, 0);
+    }
 
-        // $montantForfait = array_reduce($devis, function ($acc, $item) {
-        //     return $acc + $item->getMontantForfait();
-        // }, 0);
 
-        // return $montantItv - $montantForfait;
-        return $montantItv;
+    /**
+     * Methode qui permet de savoir si la soumission
+     * est une Devis vente ou forfait
+     *
+     * @param string $numDevis
+     * @return boolean
+     */
+    public function estCeVente(string $numDevis): bool
+    {
+        $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis);
+        $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
+
+        if($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0 ) {
+            return false; //Devis forfait
+        } else {
+            return true; //Devis vente
+        }
     }
 }
