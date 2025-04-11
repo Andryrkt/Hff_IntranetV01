@@ -78,6 +78,8 @@ document.addEventListener("DOMContentLoaded", function () {
             spinnerElement,
             containerElement
           );
+
+          autocompleteTheFieldsPage(numPage);
         } else {
           resetDropdown(sousFamille, "-- Choisir une sous-famille --");
         }

@@ -2,18 +2,8 @@
 
 namespace App\Api\da;
 
-use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\mutation\Mutation;
 use App\Model\da\DaModel;
 use Symfony\Component\Routing\Annotation\Route;
 
