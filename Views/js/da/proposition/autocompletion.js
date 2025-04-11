@@ -26,8 +26,9 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
       "#demande_appro_proposition_codeFams1_" + numPage
     );
 
-    codeFams2 = sousFamille.value ?? "-";
-    codeFams1 = famille.value ?? "-";
+    codeFams2 = safeValue(sousFamille.value);
+    codeFams1 = safeValue(famille.value);
+    console.log(`codeFams1: ${codeFams1}, codeFams2: ${codeFams2}`);
   }
   const numPages = localStorage.getItem("currentTab");
   new AutoComplete({
@@ -53,6 +54,10 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
     itemToStringForBlur: (item) => `${item.designation}`,
     onBlurCallback: (found) => onBlurEvents(found, designation, numPages),
   });
+}
+
+function safeValue(val) {
+  return val && val.trim() !== "" ? val : "-";
 }
 
 function getFieldByGeneratedId(baseId, suffix) {
