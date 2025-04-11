@@ -56,7 +56,6 @@ class BadmsForm2Controller extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             $badm->setTypeMouvement(self::$em->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
-            dump($badm);
             //recuperatin de l'id du type de mouvemnet choisi par l'utilisateur dans le formulaire 1
             $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
@@ -68,13 +67,13 @@ class BadmsForm2Controller extends Controller
             $idMateriel = (int)$data[0]['num_matricule'];
             $idMateriels = self::$em->getRepository(Badm::class)->findIdMateriel();
 
-            
+
 
             if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-            } 
+            }
             // elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
             //     $message = 'ce matériel est déjà en PARC';
 
