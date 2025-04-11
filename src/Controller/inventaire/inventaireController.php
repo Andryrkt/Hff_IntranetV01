@@ -250,7 +250,7 @@ class InventaireController extends Controller
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 // dump($numIntvMax);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
-                $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
+                // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
                 // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {
                     $dateCLo = "";
@@ -271,8 +271,8 @@ class InventaireController extends Controller
                     'nbre_ref_ecarts_negatifs' => $invLigne[0]['nbre_ref_ecarts_negatifs'],
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
-                    // 'montant_ecart' =>  $invLigne[0]['montant_ecart'],
-                    'montant_ecart' =>  $sumMontEcart[0]['montant_ecart'],
+                    'montant_ecart' =>  $invLigne[0]['montant_ecart'],
+                    // 'montant_ecart' =>  $sumMontEcart[0]['montant_ecart'],
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 $dataExcel[$i] = [

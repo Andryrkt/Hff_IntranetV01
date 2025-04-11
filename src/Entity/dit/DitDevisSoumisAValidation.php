@@ -145,7 +145,7 @@ class DitDevisSoumisAValidation
      *
      * @var integer
      */
-    private int $nombreLignePiece;
+    private int $nombreLignePiece = 0;
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/

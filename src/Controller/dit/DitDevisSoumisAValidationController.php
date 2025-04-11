@@ -101,8 +101,14 @@ class DitDevisSoumisAValidationController extends Controller
 
         $devisValide = $this->devisRepository->findDevisVpValide($numDevis);
         $devisStatut = $this->devisRepository->findStatut($numDevis);
+        if ($devisStatut == 0) {
+            $devisStatut = [''];
+        }
 
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
         $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
 
         $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
@@ -510,7 +516,12 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $venteOuForfait = 'DEVIS FORFAIT';
         }
+
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
 
         foreach ($devisSoumisAValidationInformix as $devisSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
@@ -565,7 +576,7 @@ class DitDevisSoumisAValidationController extends Controller
         // dd(empty($numeroDevis));
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }
