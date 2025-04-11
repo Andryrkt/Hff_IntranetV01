@@ -39,6 +39,11 @@ class Authentification extends Controller
                     $newData = [$userId, $Username, $Password]; 
                     $this->updateOrInsertCSV($filename, $newData);
 
+                    if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI'])) {
+                        // Donner accès qu'à certains utilisateurs
+                        in_array(1, $user->getRoleIds()) ? $this->redirectToRoute('profil_acceuil') : $this->redirectTo('/Hffintranet/login');
+                    }
+
                     $this->redirectToRoute('profil_acceuil');
                 }
             } catch (Exception $e) {
