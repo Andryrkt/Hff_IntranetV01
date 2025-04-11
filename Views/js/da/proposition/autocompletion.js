@@ -28,7 +28,6 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
 
     codeFams2 = safeValue(sousFamille.value);
     codeFams1 = safeValue(famille.value);
-    console.log(`codeFams1: ${codeFams1}, codeFams2: ${codeFams2}`);
   }
   const numPages = localStorage.getItem("currentTab");
   new AutoComplete({
