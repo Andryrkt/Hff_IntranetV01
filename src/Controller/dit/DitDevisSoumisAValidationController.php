@@ -72,7 +72,7 @@ class DitDevisSoumisAValidationController extends Controller
         $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis), $type);
 
         // Vérification si une version du devis est déjà validée
-        if($this->verificationTypeDevis($numDevis, $type, $numDit)) {
+        if ($this->verificationTypeDevis($numDevis, $type, $numDit)) {
             if ($request->query->get('continueDevis') == 1) {
                 $this->sessionService->set('devis_version_valide', 'KO');
             }
@@ -96,13 +96,19 @@ class DitDevisSoumisAValidationController extends Controller
     }
 
     private function verificationTypeDevis(string $numDevis, string $type, string $numDit)
-    {   
+    {
         $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
 
         $devisValide = $this->devisRepository->findDevisVpValide($numDevis);
         $devisStatut = $this->devisRepository->findStatut($numDevis);
+        if ($devisStatut == 0) {
+            $devisStatut = [''];
+        }
 
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
         $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
 
         $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
@@ -115,18 +121,19 @@ class DitDevisSoumisAValidationController extends Controller
 
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
 
-        if($ditInterneouExterne === 'INTERNE') {
+        if ($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le DIT est interne";
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
-        if($type === 'VP') {
-            
+
+        if ($type === 'VP') {
+
             // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il n'y a pas de pièce magasin et pas de nouvelle ligne
             //     $message = " Merci de passer le devis à validation à l'atelier ";
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             // } else 
-            if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
+            if (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } elseif ($nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") { // il n'y a pas de pièce magasin
@@ -146,20 +153,21 @@ class DitDevisSoumisAValidationController extends Controller
             }
         } else {
             // si avec pièce magasin ET premier soumission
-            if($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
+            if ($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
                 $message = " Merci de passer le devis à validation au magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } 
+            }
+
             // SI (devis est prix refusé ou prix a confirmer)     ET    nouvelle reference ajoutée
-            else if((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
+            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            }  
+            }
             // SI le devis est statué "PRix à confirmer"
             elseif ($condition['conditionStatutDevisVp']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le devis est encore en cours de vérification";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } 
+            }
             // SI le devis est statué "à valider atelier"
             elseif ($condition['conditionStatutDevisVa']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
@@ -181,8 +189,8 @@ class DitDevisSoumisAValidationController extends Controller
             // if (true) {
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
-            $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
-            $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
+            // $this->envoieDonnerDansBd($devisSoumisValidataion, $type);
+            // $this->editDevisRattacherDit($numDit, $numDevis, $type); //ajout du numero devis dans la table demande_intervention
 
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
@@ -198,11 +206,11 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->fileUploader->uploadFileSansName($file, $nomFichierGenerer);
 
                 //envoye des fichier dans le DW
-                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
-                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                } else {
-                    $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
-                }
+                // if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                //     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
+                // } else {
+                //     $this->generePdfDevis->copyToDWFichierDevisSoumisVp($nomFichierGenerer); // copier le fichier de devis dans docuware
+                // }
             } else {
                 $nomFichierCtrl = 'devisctrl_' . $numDevis . '-' . $numeroVersion . '#' . $suffix . '.pdf';
                 //generer le nom du fichier
@@ -215,14 +223,14 @@ class DitDevisSoumisAValidationController extends Controller
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
 
                 // envoyer les fichiers dans DW
-                if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
-                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
-                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                } else {
-                    /**envoie des fichiers dans docuware*/
-                    $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
-                    $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
-                }
+                // if ($this->estCeVente($numDevis)) { // si vrai c'est une vente
+                //     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);
+                //     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
+                // } else {
+                //     /**envoie des fichiers dans docuware*/
+                //     $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl); // copier le fichier de controlle dans docuware
+                //     $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer); // copier le fichier de devis dans docuware
+                // }
             }
 
 
@@ -510,7 +518,12 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $venteOuForfait = 'DEVIS FORFAIT';
         }
+
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
 
         foreach ($devisSoumisAValidationInformix as $devisSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
@@ -565,7 +578,7 @@ class DitDevisSoumisAValidationController extends Controller
         // dd(empty($numeroDevis));
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }
