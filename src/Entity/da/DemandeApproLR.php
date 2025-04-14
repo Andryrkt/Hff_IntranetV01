@@ -74,12 +74,12 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private string $artFams1;
+    private ?string $artFams1;
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private string $artFams2;
+    private ?string $artFams2;
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
@@ -126,6 +126,21 @@ class DemandeApproLR
      * @ORM\Column(type="integer", name="num_ligne_tableau")
      */
     private $numLigneTableau = 0;
+
+    /**
+     * @ORM\Column(type="boolean", name="choix")
+     */
+    private $choix = false;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="code_fams1")
+     */
+    private ?string $codeFams1;
+
+    /**
+     * @ORM\Column(type="string", length=10, name="code_fams2")
+     */
+    private ?string $codeFams2;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -302,7 +317,7 @@ class DemandeApproLR
      *
      * @return string
      */
-    public function getArtFams1(): string
+    public function getArtFams1(): ?string
     {
         return $this->artFams1;
     }
@@ -310,11 +325,11 @@ class DemandeApproLR
     /**
      * Set the value of artFams1
      *
-     * @param string $artFams1
+     * @param ?string $artFams1
      *
      * @return self
      */
-    public function setArtFams1(string $artFams1): self
+    public function setArtFams1(?string $artFams1): self
     {
         $this->artFams1 = $artFams1;
         return $this;
@@ -325,7 +340,7 @@ class DemandeApproLR
      *
      * @return string
      */
-    public function getArtFams2(): string
+    public function getArtFams2(): ?string
     {
         return $this->artFams2;
     }
@@ -337,7 +352,7 @@ class DemandeApproLR
      *
      * @return self
      */
-    public function setArtFams2(string $artFams2): self
+    public function setArtFams2(?string $artFams2): self
     {
         $this->artFams2 = $artFams2;
         return $this;
@@ -511,7 +526,7 @@ class DemandeApproLR
 
     /**
      * Get the value of numLigneTableau
-     */ 
+     */
     public function getNumLigneTableau()
     {
         return $this->numLigneTableau;
@@ -521,10 +536,70 @@ class DemandeApproLR
      * Set the value of numLigneTableau
      *
      * @return  self
-     */ 
+     */
     public function setNumLigneTableau($numLigneTableau)
     {
         $this->numLigneTableau = $numLigneTableau;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of choix
+     */
+    public function getChoix()
+    {
+        return $this->choix;
+    }
+
+    /**
+     * Set the value of choix
+     *
+     * @return  self
+     */
+    public function setChoix($choix)
+    {
+        $this->choix = $choix;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams1
+     */
+    public function getCodeFams1()
+    {
+        return $this->codeFams1;
+    }
+
+    /**
+     * Set the value of codeFams1
+     *
+     * @return  self
+     */
+    public function setCodeFams1($codeFams1)
+    {
+        $this->codeFams1 = $codeFams1;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of codeFams2
+     */
+    public function getCodeFams2()
+    {
+        return $this->codeFams2;
+    }
+
+    /**
+     * Set the value of codeFams2
+     *
+     * @return  self
+     */
+    public function setCodeFams2($codeFams2)
+    {
+        $this->codeFams2 = $codeFams2;
 
         return $this;
     }

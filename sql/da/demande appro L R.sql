@@ -25,11 +25,25 @@ ALTER TABLE Demande_Appro_L_R
 ADD est_validee bit DEFAULT 0
 
 ALTER TABLE Demande_Appro_L_R
+ADD choix bit DEFAULT 0
+
+ALTER TABLE Demande_Appro_L_R
 ADD date_creation DATETIME2(0)
 
 ALTER TABLE Demande_Appro_L_R
 ADD date_modification DATETIME2(0)
+
 ALTER TABLE Demande_Appro_L_R
 ADD num_ligne_tableau INT
 
+ALTER TABLE Demande_Appro_L_R
+ADD code_fams1 VARCHAR(10)
 
+ALTER TABLE Demande_Appro_L_R
+ADD code_fams2 VARCHAR(50)
+
+ALTER TABLE Demande_Appro_L_R
+ALTER COLUMN art_fams1 varchar(50)
+
+ALTER TABLE Demande_Appro_L_R
+ALTER COLUMN art_fams2 varchar(50)

@@ -5,10 +5,12 @@ namespace App\Controller\da;
 use App\Model\da\DaModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,12 +21,16 @@ class DaPropositionRefController extends Controller
 {
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+
+
     public function __construct()
     {
         parent::__construct();
 
         $this->daModel = new DaModel();
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
     }
 
     /**
@@ -71,10 +77,13 @@ class DaPropositionRefController extends Controller
 
             if (!empty($refs)) {
                 // reset les ligne de la page courante
-                $this->resetEstValide($refs);
+                $this->resetChoix($refs, $data);
 
-                //modifier la colonne estvalidee 
-                $this->modifEstValide($refs);
+                //modifier la colonne choix
+                $this->modifChoix($refs, $data);
+
+                //modification de la table demande_appro_L
+                $this->modificationTableDaL($refs, $data);
             }
 
             $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -82,16 +91,37 @@ class DaPropositionRefController extends Controller
         }
     }
 
-    private function resetEstValide(array $refs): void
+    private function modificationTableDaL(array $refs,  $data): void
     {
-        $dalrsAll = $this->recupEntitePageCourante($refs);
+        for ($i = 0; $i < count($refs); $i++) {
+            $dals = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
+
+            $dals[$i]->setQteDispo($dalrs[$i]->getQteDispo())
+                ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
+                ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
+                ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
+                ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
+                ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
+                ->setEstValidee($dalrs[$i]->getEstValidee())
+                ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
+            ;
+
+            self::$em->persist($dals[$i]);
+        }
+        self::$em->flush();
+    }
+
+    private function resetChoix(array $refs, $data): void
+    {
+        $dalrsAll = $this->recupEntitePageCourante($refs, $data);
         $dalrsAll = $this->resetEntite($dalrsAll);
         $this->resetBd($dalrsAll);
     }
 
-    private function modifEstValide(array $refs): void
+    private function modifChoix(array $refs, $data): void
     {
-        $dalrs = $this->recupEntiteAModifier($refs);
+        $dalrs = $this->recupEntiteAModifier($refs, $data);
         $dalrs = $this->modifEntite($dalrs);
         $this->modificationBd($dalrs);
     }
@@ -105,18 +135,19 @@ class DaPropositionRefController extends Controller
         return $refs;
     }
 
-    private function recupEntitePageCourante(array $refs): array
+    private function recupEntitePageCourante(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrsAll = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0]]);
+            $dalrsAll = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
         }
 
         return $dalrsAll;
     }
+
     private function resetEntite(array $dalrsAll): array
     {
         foreach ($dalrsAll as  $dalr) {
-            $dalr->setEstValidee(false);
+            $dalr->setChoix(false);
         }
         return $dalrsAll;
     }
@@ -129,10 +160,10 @@ class DaPropositionRefController extends Controller
         self::$em->flush();
     }
 
-    private function recupEntiteAModifier(array $refs): array
+    private function recupEntiteAModifier(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1]]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
         }
 
         return $dalrs;
@@ -141,7 +172,7 @@ class DaPropositionRefController extends Controller
     private function modifEntite(array $dalrs): array
     {
         foreach ($dalrs as  $dalr) {
-            $dalr->setEstValidee(true);
+            $dalr->setChoix(true);
         }
         return $dalrs;
     }
@@ -189,8 +220,10 @@ class DaPropositionRefController extends Controller
             ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
             ->setQteDem($DAL->getQteDem())
             ->setArtConstp($DAL->getArtConstp())
-            ->setArtFams1($libelleFamille)
-            ->setArtFams2($libelleSousFamille)
+            ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille)
+            ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille)
+            ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1())
+            ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2())
         ;
 
         return $demandeApproLR;
