@@ -60,34 +60,43 @@ class DaPropositionRefController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ✅ Récupérer les valeurs des champs caché
-            $dalrList = $form->getData()->getDALR();
+
+            if ($request->request->has('enregistrer')) {
+                // ✅ Récupérer les valeurs des champs caché
+                $dalrList = $form->getData()->getDALR();
 
 
-            $refsString = $request->request->get('refs');
-            $selectedRefs = $refsString ? explode(',', $refsString) : [];
-            $refs = $this->separationNbrPageLigne($selectedRefs);
+                $refsString = $request->request->get('refs');
+                $selectedRefs = $refsString ? explode(',', $refsString) : [];
+                $refs = $this->separationNbrPageLigne($selectedRefs);
 
-            if ($dalrList->isEmpty() && empty($refs)) {
-                $notification = $this->notification('info', "Aucune modification n'a été effectuée");
-            } else {
-                $this->enregistrementDb($data, $dalrList);
-                $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+                if ($dalrList->isEmpty() && empty($refs)) {
+                    $notification = $this->notification('info', "Aucune modification n'a été effectuée");
+                } else {
+                    $this->enregistrementDb($data, $dalrList);
+                    $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+                }
+
+                if (!empty($refs)) {
+                    // reset les ligne de la page courante
+                    $this->resetChoix($refs, $data);
+
+                    //modifier la colonne choix
+                    $this->modifChoix($refs, $data);
+
+                    //modification de la table demande_appro_L
+                    $this->modificationTableDaL($refs, $data);
+                }
+
+                $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+                $this->redirectToRoute("da_list");
+            } elseif ($request->request->has('bonAchat')) {
+
+                // ✅ Récupérer les valeurs des champs caché
+                $dalrList = $form->getData()->getDALR();
+
+                dd($dalrList);
             }
-
-            if (!empty($refs)) {
-                // reset les ligne de la page courante
-                $this->resetChoix($refs, $data);
-
-                //modifier la colonne choix
-                $this->modifChoix($refs, $data);
-
-                //modification de la table demande_appro_L
-                $this->modificationTableDaL($refs, $data);
-            }
-
-            $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-            $this->redirectToRoute("da_list");
         }
     }
 

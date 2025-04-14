@@ -49,6 +49,7 @@ class AcBcSoumisController extends Controller
      */
     public function traitementFormulaire(Request $request, $numDit)
     {
+
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -56,7 +57,7 @@ class AcBcSoumisController extends Controller
         $devis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
 
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
-        if($ditInterneouExterne === 'INTERNE') {
+        if ($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . le DIT est interne";
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
@@ -74,22 +75,29 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            $montantDevis = $form->getData()->getMontantDevis();
+
+            if ((float) str_replace('.', '', $montantDevis) != $this->calculMontantDevis($devis)) {
+                $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . La montant du devis ne correspond pas au montant devis validée";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+            }
+
             // initialisation de l'entité acSoumis
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
             $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
             $numClient = $this->ditRepository->findNumClient($numDit); //recupère le numero cline
-            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);// récupération de la version maximal du numero version
+            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc); // récupération de la version maximal du numero version
             // ajouter les données nécessaire pour l'enregistrement dans la table bc_soumis
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
             $acSoumis->setNumeroVersion($bcSoumis->getNumVersion());
-            $numClientBcDevis = $numClient . '_'. $numDevis;
+            $numClientBcDevis = $numClient . '_' . $numDevis;
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
-            $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
-            
+            $nomFichier = 'bc_' . $numClientBcDevis . '-' . $numeroVersionMaxDit . '#' . $suffix . '.pdf';
+
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
 
@@ -101,16 +109,16 @@ class AcBcSoumisController extends Controller
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
             $uploadedFiles = $fileUploader->insertFileAtPosition([$uploadedFilePath], $chemin . $nomFichier, count([$uploadedFilePath]));
 
-            $this->ConvertirLesPdf($uploadedFiles);// très important pour les pdf externe
+            $this->ConvertirLesPdf($uploadedFiles); // très important pour les pdf externe
 
             $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
 
             //envoie le pdf dans docuware
-            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
-            $this->envoieBcDansBd($bcSoumis);
+            // $this->envoieBcDansBd($bcSoumis);
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
@@ -127,40 +135,41 @@ class AcBcSoumisController extends Controller
         foreach ($tousLesFichersAvecChemin as $filePath) {
             $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
         }
-        
+
 
         return $tousLesFichiers;
     }
 
-    private function convertPdfWithGhostscript($filePath) {
+    private function convertPdfWithGhostscript($filePath)
+    {
         $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
         $tempFile = $filePath . "_temp.pdf";
-    
+
         // Vérifier si le fichier existe et est accessible
         if (!file_exists($filePath)) {
             throw new Exception("Fichier introuvable : $filePath");
         }
-    
+
         if (!is_readable($filePath)) {
             throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
         }
-    
+
         // Commande Ghostscript
         $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
         // echo "Commande exécutée : $command<br>";
-    
+
         exec($command, $output, $returnVar);
-    
+
         if ($returnVar !== 0) {
             echo "Sortie Ghostscript : " . implode("\n", $output);
             throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
         }
-    
+
         // Remplacement du fichier
         if (!rename($tempFile, $filePath)) {
             throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
         }
-    
+
         return $filePath;
     }
     // private function pieceGererMagasinConstructeur($numDevis)
@@ -282,8 +291,8 @@ class AcBcSoumisController extends Controller
      */
     private function calculMontantDevis(array $devis): float
     {
-        if($this->estCeVente($devis[0]->getNumeroDevis())) {
-            return $this->sommeMontantTousItv($devis) ;
+        if ($this->estCeVente($devis[0]->getNumeroDevis())) {
+            return $this->sommeMontantTousItv($devis);
         } else {
             return $this->sommeMontantPremierItv($devis);
         }
@@ -314,7 +323,7 @@ class AcBcSoumisController extends Controller
         $recupConstRefPremDev = $this->ditDevisSoumisAValidationModel->recupConstRefPremDev($numDevis);
         $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
 
-        if($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0 ) {
+        if ($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0) {
             return false; //Devis forfait
         } else {
             return true; //Devis vente
