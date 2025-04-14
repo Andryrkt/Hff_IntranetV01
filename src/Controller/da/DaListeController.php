@@ -44,7 +44,7 @@ class DaListeController extends Controller
         }
 
         $data = $this->daRepository->findDaData($criteria);
-
+        
         self::$twig->display('da/list.html.twig', [
             'data' => $data,
             'form' => $form->createView(),

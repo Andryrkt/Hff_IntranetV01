@@ -74,11 +74,13 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            // initialisation de l'entité acSoumis
             $acSoumis = $this->initialisation($devis, $numDit);
-            $numBc = $acSoumis->getNumeroBc();
-            $numDevis = $acSoumis->getNumeroDevis();
-            $numClient = $this->ditRepository->findNumClient($numDit);
-            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);
+            $numBc = $acSoumis->getNumeroBc(); // recupère le numero bon de commande
+            $numDevis = $acSoumis->getNumeroDevis(); // recupère le numero devis
+            $numClient = $this->ditRepository->findNumClient($numDit); //recupère le numero cline
+            $numeroVersionMax = $this->bcRepository->findNumeroVersionMax($numBc);// récupération de la version maximal du numero version
+            // ajouter les données nécessaire pour l'enregistrement dans la table bc_soumis
             $bcSoumis = $this->ajoutDonneeBc($acSoumis, $numeroVersionMax);
 
             /** CREATION , FUSION, ENVOIE DW du PDF */
@@ -87,7 +89,6 @@ class AcBcSoumisController extends Controller
             $numeroVersionMaxDit = $this->bcRepository->findNumeroVersionMaxParDit($numDit) + 1;
             $suffix = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis)[0]['retour'];
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
-            
             
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
@@ -103,8 +104,6 @@ class AcBcSoumisController extends Controller
             $this->ConvertirLesPdf($uploadedFiles);// très important pour les pdf externe
 
             $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
-
-
 
             //envoie le pdf dans docuware
             $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware

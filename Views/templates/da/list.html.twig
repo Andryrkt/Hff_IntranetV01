@@ -51,7 +51,11 @@
 							<td>{{ dal.statutDal }}</td>
 							<td>{{ dal.artFams1 ?? '-' }}</td>
 							<td>{{ dal.artFams2 ?? '-' }}</td>
-							<td>{{ dal.artRefp ?? '-' }}</td>
+							{% if dal.estModifier %}
+								<td>{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
+							{% else %}
+								<td>{{ dal.artRefp ?? '-' }}</td>
+							{% endif %}
 							<td>
 								<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
 									{{ dal.artDesi }}

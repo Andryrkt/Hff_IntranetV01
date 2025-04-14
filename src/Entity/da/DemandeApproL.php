@@ -141,6 +141,11 @@ class DemandeApproL
      */
     private $estValidee = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_modifier")
+     */
+    private $estModifier = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -591,7 +596,7 @@ class DemandeApproL
 
     /**
      * Get the value of estValidee
-     */ 
+     */
     public function getEstValidee()
     {
         return $this->estValidee;
@@ -601,10 +606,30 @@ class DemandeApproL
      * Set the value of estValidee
      *
      * @return  self
-     */ 
+     */
     public function setEstValidee($estValidee)
     {
         $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estModifier
+     */ 
+    public function getEstModifier()
+    {
+        return $this->estModifier;
+    }
+
+    /**
+     * Set the value of estModifier
+     *
+     * @return  self
+     */ 
+    public function setEstModifier($estModifier)
+    {
+        $this->estModifier = $estModifier;
 
         return $this;
     }

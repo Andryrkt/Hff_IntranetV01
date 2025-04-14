@@ -101,10 +101,12 @@ class DaPropositionRefController extends Controller
                 ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
                 ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
                 ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
-                ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
-                ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
+                ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
+                // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
+                // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
                 ->setEstValidee($dalrs[$i]->getEstValidee())
-                ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
+                ->setEstModifier($dalrs[$i]->getChoix())
+                // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
             ;
 
             self::$em->persist($dals[$i]);
@@ -222,8 +224,8 @@ class DaPropositionRefController extends Controller
             ->setArtConstp($DAL->getArtConstp())
             ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille)
             ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille)
-            ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1())
-            ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2())
+            // ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1())
+            // ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2())
         ;
 
         return $demandeApproLR;

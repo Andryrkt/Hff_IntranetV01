@@ -135,12 +135,12 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
      */
-    private ?string $codeFams1;
+    private ?string $codeFams1 = null;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams2")
      */
-    private ?string $codeFams2;
+    private ?string $codeFams2 = null;
 
     /**==============================================================================
      * GETTERS & SETTERS
