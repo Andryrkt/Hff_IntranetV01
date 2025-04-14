@@ -54,7 +54,7 @@ class AcBcSoumisController extends Controller
 
         // $devis = $this->filtredataDevis($numDit);
         $devis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findInfoDevis($numDit);
-dd($devis);
+
         $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
         if($ditInterneouExterne === 'INTERNE') {
             $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . le DIT est interne";
