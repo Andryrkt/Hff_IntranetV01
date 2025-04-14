@@ -74,11 +74,9 @@ function onBlurEvents(found, designation, numPage) {
       designation.id,
       `fournisseur_${numPage}`
     );
-    let referencePiece = getFieldByGeneratedId(
-      designation.id,
-      `reference_${numPage}`
+    let referencePiece = document.querySelector(
+      `#demande_appro_proposition_reference_${numPage}`
     );
-
     // let oldValueFamille = fields.famille.value;
     // let oldValueSousFamille = fields.sousFamille.value;
 
@@ -99,7 +97,7 @@ function onBlurEvents(found, designation, numPage) {
     });
 
     // Si non trouvé alors valeur de reférence pièce = ''
-    // referencePiece.value = found ? referencePiece.value : "";
+    referencePiece.value = found ? referencePiece.value : "-";
 
     // Champs requis ou non et changement de valeur de champs
     // Object.values(fields).forEach((field) => {

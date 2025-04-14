@@ -47,7 +47,7 @@
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
-	{% if not(article.catalogue) and famille == '-' and sousFamille == '-' %}
+	{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
 		<div class="row">
 			<div class="col-12 col-md-3">
 				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
@@ -230,7 +230,7 @@
 			{% for DALR in article.demandeApproLR %}
 				<tr>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
-						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.estValidee ? 'checked' : '' }}>
+						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.choix ? 'checked' : '' }}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
