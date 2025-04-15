@@ -1,0 +1,80 @@
+{% extends 'baseTemplate.html.twig' %}
+{% block stylesheets %}
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css" />
+  <link rel="stylesheet" href="{{ App.base_path }}/Views/css/inventaire/liste.css" />
+{% endblock %}
+{% block content %}
+<div class="sticky-header-titre">
+  <div class="container">
+    <h3 class="perso-titre">Liste inventaire détaillé</h3>
+    {% include '/inventaire/_detailFormulaire.html.twig' %}
+    {# <div class="d-flex justify-content-between">
+          <a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+            <i class="fas fa-table"></i>
+            Excel</a>
+    </div> #}
+  </div>
+</div> 
+<div class="container-fluid">
+
+  <div class="sticky-header-statut"> 
+  </div>
+        <table class="table rounded table-plein-ecran">
+         <thead class="table-dark position-sticky">
+         
+             <tr class = "total">
+             <th>
+             TOTAL
+						</th>
+             <th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
+             <th></th>
+             <th></th>
+             <th></th>
+             <th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
+             <th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
+             <th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
+             <th></th>
+             <th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
+             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
+             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
+             <th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
+             <th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart ~'%'}} </th>
+             <th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
+             <th style="text-align: center;">{{ data.sum.pourcentage_ecart is  null  ?"": data.sum.pourcentage_ecart  ~'%'}} </th>
+             </tr>
+             <tr>
+
+             <th>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</th>
+             <th style="text-align: center;"> Numéro</th>
+             <th style="text-align: center;"> Description</th>
+             <th style="text-align: center;"> Ouvert le </th>
+             <th style="text-align: center;"> Clôturer le </th>
+             <th style="text-align: center;"> Nbr casier</th>
+             <th style="text-align: center;"> Nbr Ref</th>
+             <th style="text-align: center;"> Qté comptée</th>
+             <th style="text-align: center;"> Statut</th>
+             <th style="text-align: center;"> Montant</th>
+             <th style="text-align: center;"> Nbr Ref écart > 0</th>
+             <th style="text-align: center;"> Nbr Ref écart < 0</th>
+             <th style="text-align: center;"> Nbr Ref en écart</th>
+             <th style="text-align: center;"> % Ref avec écart</th>
+             <th style="text-align: center;"> Mont. écart</th>
+             <th style="text-align: center;"> % écart</th>
+             </tr>
+         </thead>
+         <tbody id="tableBody">
+            
+         </tbody>
+      </table> 
+</div>
+
+{% endblock %}
+{% block javascript %}
+
+  <script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+{# //   <script src="{{ App.base_path }}/Views/js/inventaire/inventaireAg.js" type="module"></script> #}
+  <script src="{{ App.base_path }}/Views/js/inventaire/inventaireDetailAgence.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+{% endblock %}
