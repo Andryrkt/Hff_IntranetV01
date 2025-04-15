@@ -116,6 +116,8 @@ document.addEventListener("DOMContentLoaded", function () {
   /** Mode de paiement et valeur */
   matricule.addEventListener("change", function () {
     if (this.value) {
+      console.log(this.value);
+      
       updateModePaiement(this.value);
     }
   });
