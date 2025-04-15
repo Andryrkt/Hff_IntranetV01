@@ -65,6 +65,7 @@ class DaPropositionRefController extends Controller
                 // ✅ Récupérer les valeurs des champs caché
                 $dalrList = $form->getData()->getDALR();
 
+                dd($dalrList);
 
                 $refsString = $request->request->get('refs');
                 $selectedRefs = $refsString ? explode(',', $refsString) : [];
@@ -85,7 +86,7 @@ class DaPropositionRefController extends Controller
                     $this->modifChoix($refs, $data);
 
                     //modification de la table demande_appro_L
-                    $this->modificationTableDaL($refs, $data);
+                    // $this->modificationTableDaL($refs, $data);
                 }
 
                 $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -106,20 +107,25 @@ class DaPropositionRefController extends Controller
             $dals = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
             $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
 
-            $dals[$i]->setQteDispo($dalrs[$i]->getQteDispo())
-                ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
-                ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
-                ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
-                ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
-                // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
-                // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
-                ->setEstValidee($dalrs[$i]->getEstValidee())
-                ->setEstModifier($dalrs[$i]->getChoix())
-                // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
-            ;
+            for ($i = 0; $i < count($dalrs); $i++) {
 
-            self::$em->persist($dals[$i]);
+                $dals[$i]
+                    ->setQteDispo($dalrs[$i]->getQteDispo())
+                    ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
+                    ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
+                    ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
+                    ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
+                    // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
+                    // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
+                    ->setEstValidee($dalrs[$i]->getEstValidee())
+                    ->setEstModifier($dalrs[$i]->getChoix())
+                    // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
+                ;
+
+                self::$em->persist($dals[$i]);
+            }
         }
+        die('fin');
         self::$em->flush();
     }
 

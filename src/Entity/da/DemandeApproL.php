@@ -98,7 +98,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
      */
-    private string $numeroFournisseur;
+    private ?string $numeroFournisseur = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="nom_fournisseur")
@@ -616,7 +616,7 @@ class DemandeApproL
 
     /**
      * Get the value of estModifier
-     */ 
+     */
     public function getEstModifier()
     {
         return $this->estModifier;
@@ -626,7 +626,7 @@ class DemandeApproL
      * Set the value of estModifier
      *
      * @return  self
-     */ 
+     */
     public function setEstModifier($estModifier)
     {
         $this->estModifier = $estModifier;
