@@ -60,34 +60,44 @@ class DaPropositionRefController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // ✅ Récupérer les valeurs des champs caché
-            $dalrList = $form->getData()->getDALR();
 
+            if ($request->request->has('enregistrer')) {
+                // ✅ Récupérer les valeurs des champs caché
+                $dalrList = $form->getData()->getDALR();
 
-            $refsString = $request->request->get('refs');
-            $selectedRefs = $refsString ? explode(',', $refsString) : [];
-            $refs = $this->separationNbrPageLigne($selectedRefs);
+                dd($dalrList);
 
-            if ($dalrList->isEmpty() && empty($refs)) {
-                $notification = $this->notification('info', "Aucune modification n'a été effectuée");
-            } else {
-                $this->enregistrementDb($data, $dalrList);
-                $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+                $refsString = $request->request->get('refs');
+                $selectedRefs = $refsString ? explode(',', $refsString) : [];
+                $refs = $this->separationNbrPageLigne($selectedRefs);
+
+                if ($dalrList->isEmpty() && empty($refs)) {
+                    $notification = $this->notification('info', "Aucune modification n'a été effectuée");
+                } else {
+                    $this->enregistrementDb($data, $dalrList);
+                    $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+                }
+
+                if (!empty($refs)) {
+                    // reset les ligne de la page courante
+                    $this->resetChoix($refs, $data);
+
+                    //modifier la colonne choix
+                    $this->modifChoix($refs, $data);
+
+                    //modification de la table demande_appro_L
+                    // $this->modificationTableDaL($refs, $data);
+                }
+
+                $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+                $this->redirectToRoute("da_list");
+            } elseif ($request->request->has('bonAchat')) {
+
+                // ✅ Récupérer les valeurs des champs caché
+                $dalrList = $form->getData()->getDALR();
+
+                dd($dalrList);
             }
-
-            if (!empty($refs)) {
-                // reset les ligne de la page courante
-                $this->resetChoix($refs, $data);
-
-                //modifier la colonne choix
-                $this->modifChoix($refs, $data);
-
-                //modification de la table demande_appro_L
-                $this->modificationTableDaL($refs, $data);
-            }
-
-            $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-            $this->redirectToRoute("da_list");
         }
     }
 
@@ -97,20 +107,25 @@ class DaPropositionRefController extends Controller
             $dals = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
             $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
 
-            $dals[$i]->setQteDispo($dalrs[$i]->getQteDispo())
-                ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
-                ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
-                ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
-                ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
-                // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
-                // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
-                ->setEstValidee($dalrs[$i]->getEstValidee())
-                ->setEstModifier($dalrs[$i]->getChoix())
-                // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
-            ;
+            for ($i = 0; $i < count($dalrs); $i++) {
 
-            self::$em->persist($dals[$i]);
+                $dals[$i]
+                    ->setQteDispo($dalrs[$i]->getQteDispo())
+                    ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
+                    ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
+                    ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
+                    ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
+                    // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
+                    // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
+                    ->setEstValidee($dalrs[$i]->getEstValidee())
+                    ->setEstModifier($dalrs[$i]->getChoix())
+                    // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
+                ;
+
+                self::$em->persist($dals[$i]);
+            }
         }
+        die('fin');
         self::$em->flush();
     }
 
