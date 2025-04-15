@@ -45,8 +45,8 @@ class DitController extends Controller
 
         /** Autorisation accées */
         $this->autorisationAcces($user);
-        /** FIN AUtorisation acées */
 
+        /** FIN AUtorisation acées */
         $demandeIntervention = new DemandeIntervention();
 
         //INITIALISATION DU FORMULAIRE
@@ -60,8 +60,13 @@ class DitController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $dit = $form->getData();
 
-            if(empty($dit->getIdMateriel())) {
-                $message='Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
+            if (empty($dit->getIdMateriel())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            }
+
+            if ($dit->getInternetExterne() === "EXTERNE" && empty($dit->getNomClient()) && empty($dit->getNumeroClient())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
             }
 
@@ -78,14 +83,14 @@ class DitController extends Controller
             /**CREATION DU PDF*/
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
-        
-            if(!in_array($pdfDemandeInterventions->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,7675,7677,9863])) {
+
+            if (!in_array($pdfDemandeInterventions->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
                 //récupération des historique de materiel (informix)
                 $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
             } else {
                 $historiqueMateriel = [];
             }
-            
+
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);

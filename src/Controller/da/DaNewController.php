@@ -52,6 +52,7 @@ class DaNewController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $demandeAppro
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
@@ -62,6 +63,10 @@ class DaNewController extends Controller
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal('Ouvert')
                 ;
+                if (null === $DAL->getNumeroFournisseur()) {
+                    $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
+                    $this->redirectToRoute("da_list");
+                }
                 self::$em->persist($DAL);
             }
 

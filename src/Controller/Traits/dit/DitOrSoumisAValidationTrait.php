@@ -49,7 +49,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -413,14 +413,15 @@ trait DitOrSoumisAValidationTrait
     }
 
     private function datePlanning($numOr)
-    { 
+    {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
         $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-    
+
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
