@@ -49,11 +49,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const categorieInput = document.querySelector("#mutation_form_categorie");
   categorieInput.addEventListener("change", () => {
-    const valeur = categorieInput.value;
-    localStorage.setItem("categorie", valeur);
+    const catgId = categorieInput.value;
+    localStorage.setItem("categorie", catgId);
+    if (site.value) {
+      updateIndemnite(site.value, catgId);
+    }
   });
-
-  
 
   /** Gérer les champs requis ou non */
   handleAllField(avance.value);
