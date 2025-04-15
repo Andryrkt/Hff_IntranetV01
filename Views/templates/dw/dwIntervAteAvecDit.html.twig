@@ -34,7 +34,6 @@
 					</thead>
 					<tbody>
 						{% for item in data %}
-
 							{% set extension = item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower %}
 							{% set icon = '<i class="fas fa-file fs-4"></i>' %}
 							{% set icons = {
@@ -52,7 +51,7 @@
 
 							{% set numeroVersion = item.numero_version ? item.numero_version :'-'%}
 
-							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}">
+							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}" data-chemin="{{item.chemin}}">
 								<td>{{icon|raw}}</td>
 								<td>{{item.nomDoc}}</td>
 								<td>{{item.numero_doc}}</td>
