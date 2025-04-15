@@ -46,6 +46,12 @@ document.addEventListener('DOMContentLoaded', function () {
     'mutation_form_totalAutresDepenses'
   );
 
+  const categorieInput = document.querySelector("#mutation_form_categorie");
+  categorieInput.addEventListener("change", () => {
+    const valeur = categorieInput.value;
+    localStorage.setItem("categorie", valeur);
+  });
+
   /** Gérer les champs requis ou non */
   handleAllField(avance.value);
 
@@ -68,6 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
   dateDebutInput.addEventListener('change', function () {
     calculateDaysAvance();
     let siteId = localStorage.getItem('site');
+    let catgId = localStorage.getItem("categorie");
     if (
       site.value &&
       (siteId !== site.value ||
@@ -75,12 +82,13 @@ document.addEventListener('DOMContentLoaded', function () {
       this.value &&
       avance.value === 'OUI'
     ) {
-      updateIndemnite(site.value);
+      updateIndemnite(site.value, catgId);
     }
   });
   dateFinInput.addEventListener('change', function () {
     calculateDaysAvance();
     let siteId = localStorage.getItem('site');
+    let catgId = localStorage.getItem("categorie");
     if (
       site.value &&
       (siteId !== site.value ||
@@ -88,15 +96,16 @@ document.addEventListener('DOMContentLoaded', function () {
       this.value &&
       avance.value === 'OUI'
     ) {
-      updateIndemnite(site.value);
+      updateIndemnite(site.value, catgId);
     }
   });
 
   /** Calcul de l'indemnité forfaitaire journalière */
   site.addEventListener('change', function () {
     localStorage.setItem('site', this.value);
+    let catgId = localStorage.getItem("categorie");
     if (this.value && avance.value === 'OUI') {
-      updateIndemnite(this.value);
+      updateIndemnite(this.value, catgId);
     }
   });
 

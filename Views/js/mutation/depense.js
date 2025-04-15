@@ -75,7 +75,7 @@ export function conditionDisableField() {
   }
 }
 
-export async function updateIndemnite(siteId) {
+export async function updateIndemnite(siteId, catgId) {
   const spinnerElement = document.getElementById(
     'spinner-indemnite-forfaitaire'
   );
@@ -86,7 +86,7 @@ export async function updateIndemnite(siteId) {
   try {
     // Affiche le spinner avant de lancer le fetch
     toggleSpinner(spinnerElement, containerElement, true);
-    const data = await fetchData(`site-idemnite-fetch/${siteId}/5/5/1`);
+    const data = await fetchData(`site-idemnite-fetch/${siteId}/5/${catgId}/1`);
     indemniteInput.value = data.montant;
     calculTotalIndemnite();
   } catch (error) {
