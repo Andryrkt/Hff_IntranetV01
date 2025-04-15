@@ -2,8 +2,8 @@
 namespace App\Entity\inventaire;
 class DetailInventaireSearch{
     private $agence;
-    private $dateDebut;
-    private $dateFin;
+    private ?\DateTimeInterface $dateDebut = null;
+    private ?\DateTimeInterface $dateFin = null;
     private $inventaireDispo;
 
     /**

@@ -42,4 +42,10 @@ class inventaireApi extends Controller
 
     return new Response("Aucun fichier reçu.", 400);
     }
+    /**
+     * @Route("/listeInventaireDispo-fetch/{agence}/{dateDeb}/{dateFin}")
+     */
+    public function listeInventaireDispo($agence,$dateDeb,$dateFin){
+        
+    }
 }

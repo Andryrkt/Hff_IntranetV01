@@ -4,7 +4,7 @@ namespace App\Form\inventaire;
 
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
-use App\Model\inventaire\DetailInventaireModel;
+use App\Model\inventaire\InventaireModel;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -13,26 +13,28 @@ use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 class detailInventaireSearchType extends AbstractType
 {
     use Transformation;
-    private $DetailInventaireModel;
+    private $InventaireModel;
     private ?\DateTime $datefin = null;
     private ?\DateTime $dateDebut = null;
     public function __construct()
     {
-        $this->DetailInventaireModel = new DetailInventaireModel;
+        $this->InventaireModel = new InventaireModel;
         $this->datefin = new \DateTime();
         $this->dateDebut = clone $this->datefin;
         $this->dateDebut->modify('first day of this month');
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $agence = $this->transformEnSeulTableauAvecKey($this->DetailInventaireModel->recuperationAgenceIrium());
+        $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
         $builder
             ->add('agence', ChoiceType::class, [
                 'label' => 'Agence',
                 'required' => false,
                 'choices' => $agence,
-                'multiple' => true,
-                'expanded' => true,
+                'placeholder' => ' -- choisir agence --',
+                'data'=>$agence['01-ANTANANARIVO']
+                // 'multiple' => true,
+                // 'expanded' => true,
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
@@ -46,11 +48,7 @@ class detailInventaireSearchType extends AbstractType
                 'required' => false,
                 'data' => $this->datefin
             ])
-            ->add('inventaireDispo', 
-            CheckboxType::class,[
-                'label' => 'Inventaire disponible',
-                'required' => true
-            ])
+           
             ;
     }
 }
