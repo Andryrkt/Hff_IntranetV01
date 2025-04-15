@@ -210,12 +210,10 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             $devis = $this->createQueryBuilder('dsv')
                 ->where('dsv.numeroDit = :numDit')
                 ->andWhere('dsv.numeroVersion = :numeroVersionMax')
-                ->andWhere('dsv.natureOperation = :natureOperation')
                 ->andWhere('dsv.statut = :statut')
                 ->setParameters([
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
-                    'natureOperation' => 'VTE',
                     'statut' => 'Validé atelier'
                 ])
                 ->getQuery()

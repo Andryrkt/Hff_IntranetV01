@@ -35,6 +35,7 @@
 		</div>
 		<div class="col-3 col-md-7">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+
 		</div>
 		<div class="col-3 col-md-2">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
@@ -46,12 +47,12 @@
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
-	{% if not(article.catalogue) and famille == '-' and sousFamille == '-' %}
+	{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
 		<div class="row">
 			<div class="col-12 col-md-3">
 				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
-				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" required>
-					<option value="">-- Choisir une famille --</option>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select">
+					<option value="-">-- Choisir une famille --</option>
 					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
 					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
 					<option value="BAT">BATTERIE</option>
@@ -92,8 +93,8 @@
 				</div>
 				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
 					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
-					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" required>
-						<option value="">-- Choisir une sous-famille --</option>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select">
+						<option value="-">-- Choisir une sous-famille --</option>
 					</select>
 				</div>
 
@@ -104,8 +105,8 @@
 		<div class="row d-none">
 			<div class="col-12 col-md-3">
 				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
-				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" required>
-					<option value="">-- Choisir une famille --</option>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select">
+					<option value="-">-- Choisir une famille --</option>
 					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
 					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
 					<option value="BAT">BATTERIE</option>
@@ -146,8 +147,8 @@
 				</div>
 				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
 					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
-					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" required>
-						<option value="">-- Choisir une sous-famille --</option>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select">
+						<option value="-">-- Choisir une sous-famille --</option>
 					</select>
 				</div>
 
@@ -160,7 +161,7 @@
 				<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence (*)</label>
 				<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control">
 				<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
-				<div id="loader_reference_{{ currentPage }}" class="spinner" style="display: none;"></div>
+				<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 			</div>
 			<div class="mb-2">
 				<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo (*)</label>
@@ -174,7 +175,12 @@
 						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation (*)</label>
 						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
 						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
+						<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
+							<div class="text-overlay">
+								Veuillez patienter s'il vous plaît! Chargement des données
+							</div>
+							<div class="loader-points"></div>
+						</div>
 					</div>
 				</div>
 				<div class="col-4 col-md-4">
@@ -182,7 +188,7 @@
 						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur (*)</label>
 						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
 						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
+						<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 					</div>
 				</div>
 			</div>
@@ -223,18 +229,19 @@
 		<tbody id="tableBody_{{ currentPage }}">
 			{% for DALR in article.demandeApproLR %}
 				<tr>
-					<td>
-						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.estValidee ? 'checked' : '' }}>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
+						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.choix ? 'checked' : '' }}>
 					</td>
-					<td>{{ DALR.nomFournisseur }}</td>
-					<td>{{ DALR.artRefp }}</td>
-					<td style="text-align: left;">{{ DALR.artDesi }}</td>
-					<td style="text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
-					<td style="text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
-					<td>{{ DALR.conditionnement }}</td>
-					<td>{{ DALR.qteDispo }}</td>
-					<td style="text-align: left;">{{ DALR.motif }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.conditionnement }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 				</tr>
+
 			{% endfor %}
 		</tbody>
 	</table>

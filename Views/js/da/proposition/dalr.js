@@ -13,20 +13,28 @@ export function ajouterUneLigne(line, fields) {
   // Insérer des données dans le tableau
   const radioId = `radio_${line}_${rowIndex}`;
 
+  // Déterminer la couleur selon la condition
+  const color = prixUnitaire === 0 ? "red" : "#000";
+
   insertCellData(
     row,
     `<input type="radio" name="selectedRow_${line}" id="${radioId}" value="${
       line + "-" + rowIndex
     }" onclick="toggleRadio(this)">`
   );
-  insertCellData(row, fields.fournisseur.value);
-  insertCellData(row, fields.reference.value);
-  insertCellData(row, fields.designation.value, "left");
-  insertCellData(row, formaterNombre(fields.prixUnitaire.value), "right");
-  insertCellData(row, formaterNombre(total), "right");
-  insertCellData(row, "1"); // conditionnement TO DO
-  insertCellData(row, fields.qteDispo.value);
-  insertCellData(row, fields.motif.value, "left");
+  insertCellData(row, fields.fournisseur.value, "Center", color);
+  insertCellData(row, fields.reference.value, "Center", color);
+  insertCellData(row, fields.designation.value, "left", color);
+  insertCellData(
+    row,
+    formaterNombre(fields.prixUnitaire.value),
+    "right",
+    color
+  );
+  insertCellData(row, formaterNombre(total), "right", color);
+  insertCellData(row, "1", "center", color); // conditionnement TO DO
+  insertCellData(row, fields.qteDispo.value, "center", color);
+  insertCellData(row, fields.motif.value, "left", color);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
@@ -37,10 +45,11 @@ export function ajouterUneLigne(line, fields) {
   });
 }
 
-function insertCellData(row, $data, align = "center") {
+function insertCellData(row, $data, align = "center", color = "red") {
   let cell = row.insertCell();
   cell.innerHTML = $data;
   cell.style.textAlign = align;
+  cell.style.color = color;
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {

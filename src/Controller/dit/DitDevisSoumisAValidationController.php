@@ -126,14 +126,13 @@ class DitDevisSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
-
-        if ($type === 'VP') {
-
-            // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il n'y a pas de pièce magasin et pas de nouvelle ligne
+        if($type === 'VP') {
+            /** suite à la demande de mianta devis avec piece magasin mais pas de nouvelle ligne */
+            // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il y a  de pièce magasin et pas de nouvelle ligne
             //     $message = " Merci de passer le devis à validation à l'atelier ";
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            // } else 
-            if (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
+            // } else
+             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } elseif ($nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") { // il n'y a pas de pièce magasin

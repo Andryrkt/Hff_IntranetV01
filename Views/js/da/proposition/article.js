@@ -28,6 +28,7 @@ function getField(fieldName, line) {
 }
 
 function handleFieldValue(field) {
+
   if (field.value) {
     return false;
   } else {

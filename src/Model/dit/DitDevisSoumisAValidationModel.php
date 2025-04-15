@@ -131,7 +131,16 @@ class DitDevisSoumisAValidationModel extends Model
      */
     public function recupDevisSoumisValidation(string $numDevis)
     {
-        $statement = " SELECT sitv_succdeb as num_agence, slor_numor as numero_devis, sitv_datdeb, trim(seor_refdem) as numero_dit, sitv_interv as numero_itv, trim(sitv_comment) as libelle_itv, trim(sitv_natop) as nature_operation, trim(seor_devise) as devise, count(slor_constp) as nombre_ligne,
+        $statement = " SELECT 
+        sitv_succdeb as num_agence, 
+        slor_numor as numero_devis, 
+        sitv_datdeb, 
+        trim(seor_refdem) as numero_dit, 
+        sitv_interv as numero_itv, 
+        trim(sitv_comment) as libelle_itv, 
+        trim(sitv_natop) as nature_operation, 
+        trim(seor_devise) as devise, 
+        count(slor_constp) as nombre_ligne,
             Sum(
                 CASE
                     WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
