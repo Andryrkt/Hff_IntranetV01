@@ -311,4 +311,29 @@ class InventaireModel extends Model
         $resultat = $this->convertirEnUtf8($data);
         return $resultat;
     }
+
+    public function recuperationListeInventaireDispo($criteria)
+    {
+        $agence = $this->agenceArray($criteria);
+        $dateDebut = $this->dateDebutArray($criteria);
+        $dateFin = $this->dateFinArray($criteria);
+        $statement = " SELECT  ainvi_numinv as ainvi_numinv, 
+                            ainvi_comment as ainvi_comment
+                       FROM art_invi
+                        $agence
+                        $dateDebut
+                        $dateFin
+                        AND  ainvi_comment not matches 'KPI*'
+                       order by 1
+        ";
+        // dd($statement);
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
+
+        return
+            array_map(function ($item) {
+                return [$item['ainvi_numinv'] . '-' . $item['ainvi_comment'] => $item['ainvi_numinv']];
+            }, $dataUtf8);
+    }
 }

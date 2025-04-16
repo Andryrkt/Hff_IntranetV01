@@ -2,6 +2,8 @@
 
 namespace App\Form\inventaire;
 
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
@@ -26,6 +28,14 @@ class detailInventaireSearchType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
+        $criteria = [
+            'agence'=>$agence['01-ANTANANARIVO'],
+            'dateDebut'=>$this->dateDebut,
+            'dateFin'=>$this->datefin
+        ];
+            $listeInventaireDispo = $this->InventaireModel->recuperationListeInventaireDispo($criteria);
+        
+        
         $builder
             ->add('agence', ChoiceType::class, [
                 'label' => 'Agence',
@@ -33,8 +43,13 @@ class detailInventaireSearchType extends AbstractType
                 'choices' => $agence,
                 'placeholder' => ' -- choisir agence --',
                 'data'=>$agence['01-ANTANANARIVO']
-                // 'multiple' => true,
-                // 'expanded' => true,
+            ])
+            ->add('InventaireDispo', ChoiceType::class,[
+                'label' =>'Inventaire Dispo',
+                'multiple' => true,
+                'choices' => $listeInventaireDispo,
+                'placeholder' => " -- Choisir un inventaire--",
+                'expanded' => true,
             ])
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
@@ -49,6 +64,19 @@ class detailInventaireSearchType extends AbstractType
                 'data' => $this->datefin
             ])
            
+
+            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+                $inventaireDispo = $this->transformEnSeulTableau($this->InventaireModel->recuperationListeInventaireDispo($data['agence'],$data['dateDebut'],$data['dateFin']));
+                $form->add('InventaireDispo',ChoiceType::class,[
+                    'label' =>'Inventaire Dispo',
+                'multiple' => true,
+                'choices' => $inventaireDispo,
+                'placeholder' => " -- Choisir un service--",
+                'expanded' => true,
+                ]);
+            })
             ;
     }
 }

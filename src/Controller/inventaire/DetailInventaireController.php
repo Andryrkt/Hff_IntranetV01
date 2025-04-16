@@ -31,6 +31,7 @@ class DetailInventaireController extends Controller{
     public function listeDetailInventaire(Request $request){
          //verification si user connecter
          $this->verifierSessionUtilisateur();
+         
          $form = self::$validator->createBuilder(
             detailInventaireSearchType::class,
             $this->DetailInventaireSearch,[
@@ -38,7 +39,7 @@ class DetailInventaireController extends Controller{
             ]
          )->getForm();
          $form->handleRequest($request);
-         $criteria =  $form->getdata();
+        //  $criteria =  $form->getdata();
          self::$twig->display('inventaire/detailInventaire.html.twig', [
             'form' => $form->createView(),
         ]);

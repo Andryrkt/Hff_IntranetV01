@@ -6,15 +6,20 @@
 			</button>
 		</h2>
 		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
-			{{ form_start(form) }}
 			<div class="accordion-body">
+				{{ form_start(form, { 'attr': { 'id': 'detailInvenatire_search_form' } }) }}
+
 				<div class="row">
 					<div class="col-12 col-md-2">
 						{{form_row(form.agence)}}
-						{# <div class="form-check-all">
-							<input type="checkbox" id="inventaire_search_agence_all" class="form-check-input-all">
-        					<label class="form-check-label" for="inventaire_search_agence_all">Tout séléctionner</label>
-						</div> #}
+					</div>
+					<div class="col-12 col-md-3">
+						{{form_label(form.InventaireDispo)}}
+								<div class="form-check-all">
+									<input type="checkbox" id="detailInventaire_search_service_all" class="form-check-input-all">
+									<label class="form-check-label" for="detailInventaire_search_service_all">Tout séléctionner</label>
+								</div>
+						{{ form_widget(form.InventaireDispo) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebut)}}
@@ -22,17 +27,14 @@
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateFin)}}
 					</div>
-					<div class="col-12 col-md-2">
-					</div>
 				</div>
-			</div>
-			<div class="d-flex justify-content-end mb-2 me-2">
-				<button class="btn btn-warning fw-bold" type="submit">
+			</class>
+			<div class="d-flex justify-content-end mb-2">
+				<button class="btn btn-warning fw-bold"  id = "btn_search" type="submit">
 					<i class="fab fa-searchengin"></i>
 					Recherche</button>
 			</div>
 			{{ form_end(form)}}
 		</div>
 	</div>
-</div>
-
+</div></div>
