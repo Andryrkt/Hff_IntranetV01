@@ -2,6 +2,7 @@
 namespace App\Model\inventaire;
 
 use App\Model\Traits\ConditionModelTrait;
+use App\Service\TableauEnStringService;
 
 trait InventaireModelTrait
 {
@@ -11,6 +12,15 @@ trait InventaireModelTrait
         // dd($criteria);
         if (!empty($criteria->getAgence())) {
             $agence = "WHERE ainvi_succ IN ('".implode("','",$criteria->getAgence())."')";
+        }else{
+            $agence = "";
+        }
+        return $agence;
+    }
+    private function invenatireDispoligne($criteria){
+        // dd(TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo()));
+        if (!empty($criteria->getInventaireDispo())) {
+            $agence = "WHERE ainvi_numinv  IN (".TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo() ).")";
         }else{
             $agence = "";
         }
@@ -33,6 +43,7 @@ trait InventaireModelTrait
         }
         return $dateF;
     }
+
     private function agenceArray(array $criteria){
         if (!empty($criteria['agence'])) {
             $agence = "WHERE ainvi_succ IN ('".$criteria['agence']."')";

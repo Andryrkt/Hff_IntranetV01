@@ -8,11 +8,11 @@
   <div class="container">
     <h3 class="perso-titre">Liste inventaire détaillé</h3>
     {% include '/inventaire/_detailFormulaire.html.twig' %}
-    {# <div class="d-flex justify-content-between">
-          <a href="{{path("export_liste_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
+    <div class="d-flex justify-content-between">
+          <a href="{{path("export_excel_detail_inventaire")}}" id="excelInventaire" name="excelinvenatire" class="btn btn bg-success text-white my-3 fw-bold">
             <i class="fas fa-table"></i>
             Excel</a>
-    </div> #}
+    </div>
   </div>
 </div> 
 <div class="container-fluid">
@@ -21,47 +21,26 @@
   </div>
         <table class="table rounded table-plein-ecran">
          <thead class="table-dark position-sticky">
-         
-             <tr class = "total">
-             <th>
-             TOTAL
-						</th>
-             <th style="text-align: center;">{{ data.data|length == 0 ? "" : data.data|length }}</th>
-             <th></th>
-             <th></th>
-             <th></th>
-             <th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
-             <th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
-             <th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
-             <th></th>
-             <th style="text-align: right;">{{ data.sum.montant|number_format(0, '', ' ')  == 0 ? "" : data.sum.montant|number_format(0, '', ' ')}}</th>
-             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_positif }}</th>
-             <th style="text-align: center;">{{ data.sum.nbre_ref_ecarts_negatifs }}</th>
-             <th style="text-align: center;">{{ data.sum.total_nbre_ref_ecarts }}</th>
-             <th style="text-align: center;">{{ data.sum.pourcentage_ref_avec_ecart is  null  ?"": data.sum.pourcentage_ref_avec_ecart ~'%'}} </th>
-             <th style="text-align: right;">{{ data.sum.montant_ecart |number_format(0, '', ' ')  == 0 ? "" :  data.sum.montant_ecart |number_format(0, '', ' ')}}</th>
-             <th style="text-align: center;">{{ data.sum.pourcentage_ecart is  null  ?"": data.sum.pourcentage_ecart  ~'%'}} </th>
-             </tr>
-             <tr>
-
              <th>
 							<i class="fas fa-ellipsis-vertical"></i>
 						</th>
              <th style="text-align: center;"> Numéro</th>
-             <th style="text-align: center;"> Description</th>
-             <th style="text-align: center;"> Ouvert le </th>
-             <th style="text-align: center;"> Clôturer le </th>
-             <th style="text-align: center;"> Nbr casier</th>
-             <th style="text-align: center;"> Nbr Ref</th>
-             <th style="text-align: center;"> Qté comptée</th>
-             <th style="text-align: center;"> Statut</th>
-             <th style="text-align: center;"> Montant</th>
-             <th style="text-align: center;"> Nbr Ref écart > 0</th>
-             <th style="text-align: center;"> Nbr Ref écart < 0</th>
-             <th style="text-align: center;"> Nbr Ref en écart</th>
-             <th style="text-align: center;"> % Ref avec écart</th>
-             <th style="text-align: center;"> Mont. écart</th>
-             <th style="text-align: center;"> % écart</th>
+             <th style="text-align: center;"> Date</th>
+             <th style="text-align: center;"> Nbr comptage </th>
+             <th style="text-align: center;"> Nbr bordereau </th>
+             <th style="text-align: center;"> Ligne</th>
+             <th style="text-align: center;"> Constructeurf</th>
+             <th style="text-align: center;"> Reférence</th>
+             <th style="text-align: center;"> Designation</th>
+             <th style="text-align: center;"> Casier</th>
+             <th style="text-align: center;"> Stock</th>
+             <th style="text-align: center;"> Prix</th>
+             <th style="text-align: center;"> Valeur stock</th>
+             <th style="text-align: center;"> Comptage1</th>
+             <th style="text-align: center;"> Comptage2</th>
+             <th style="text-align: center;"> Comptage3</th>
+             <th style="text-align: center;"> Ecart</th>
+             <th style="text-align: center;"> Mont.ecart</th>
              </tr>
          </thead>
          <tbody id="tableBody">

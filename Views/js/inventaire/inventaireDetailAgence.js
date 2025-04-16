@@ -20,7 +20,6 @@ const agenceInput = document.querySelector(config.elements.agenceInput);
 const inventaireDispo = document.querySelector(config.elements.inventaireDispo);
 const dateD = document.querySelector(config.elements.dateD);
 const dateF = document.querySelector(config.elements.dateF);
-const searchForm = document.querySelector(config.elements.searchForm);
 const checkAll = document.getElementById("detailInventaire_search_service_all");
 const allInputCheckbox = document.querySelectorAll(".form-check-input");
 

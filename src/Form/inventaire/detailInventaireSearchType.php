@@ -65,18 +65,7 @@ class detailInventaireSearchType extends AbstractType
             ])
            
 
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
-                $form = $event->getForm();
-                $data = $event->getData();
-                $inventaireDispo = $this->transformEnSeulTableau($this->InventaireModel->recuperationListeInventaireDispo($data['agence'],$data['dateDebut'],$data['dateFin']));
-                $form->add('InventaireDispo',ChoiceType::class,[
-                    'label' =>'Inventaire Dispo',
-                'multiple' => true,
-                'choices' => $inventaireDispo,
-                'placeholder' => " -- Choisir un service--",
-                'expanded' => true,
-                ]);
-            })
+
             ;
     }
 }

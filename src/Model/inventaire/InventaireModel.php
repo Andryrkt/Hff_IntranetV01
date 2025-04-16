@@ -312,7 +312,7 @@ class InventaireModel extends Model
         return $resultat;
     }
 
-    public function recuperationListeInventaireDispo($criteria)
+    public function recuperationListeInventaireDispo(array $criteria)
     {
         $agence = $this->agenceArray($criteria);
         $dateDebut = $this->dateDebutArray($criteria);
@@ -335,5 +335,95 @@ class InventaireModel extends Model
             array_map(function ($item) {
                 return [$item['ainvi_numinv'] . '-' . $item['ainvi_comment'] => $item['ainvi_numinv']];
             }, $dataUtf8);
+    }
+
+    public function ligneInventaire($criteria)
+    {
+        $inventDispo = $this->invenatireDispoligne($criteria);
+        $statement = "SELECT ainvi_numinv_mait as numinv, 
+ainvi_date as date ,
+ (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv) as nbr_comptage,
+ainvp_nbordereau as nb_bordereau, 
+ainvp_nligne as ligne, 
+ainvp_constp as cst, 
+trim(ainvp_refp) as ref,
+ trim((select abse_desi from art_bse where abse_constp = ainvp_constp and abse_refp = ainvp_refp)) as desi,
+trim((select astp_casier from art_stp where astp_soc = ainvp_soc and astp_succ = ainvp_succ and astp_constp = ainvp_constp and astp_refp = ainvp_refp)) as casier,
+ainvp_stktheo as tsk,
+ainvp_prix as prix,
+ainvp_stktheo*ainvp_prix as Valeur_Stock,
+(ainvp_stktheo + ainvp_ecart) as comptage1,
+(
+select (cpt2.ainvp_stktheo + cpt2.ainvp_ecart)
+from art_invp cpt2, art_invi inv2
+where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
+and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt2.ainvp_nligne = cpt.ainvp_nligne
+) as comptage2,
+(
+select (cpt3.ainvp_stktheo + cpt3.ainvp_ecart)
+from art_invp cpt3, art_invi inv3
+where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
+and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt3.ainvp_nligne = cpt.ainvp_nligne
+) as comptage3,
+CASE (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv)
+when 1 then
+cpt.ainvp_ecart
+when 2 then
+(
+select (cpt2.ainvp_ecart)
+from art_invp cpt2, art_invi inv2
+where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
+and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt2.ainvp_nligne = cpt.ainvp_nligne
+)
+else
+(
+select (cpt3.ainvp_ecart)
+from art_invp cpt3, art_invi inv3
+where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
+and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt3.ainvp_nligne = cpt.ainvp_nligne
+)
+END as ecart,
+
+CASE (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv)
+when 1 then
+cpt.ainvp_ecart
+when 2 then
+(
+select (cpt2.ainvp_ecart)
+from art_invp cpt2, art_invi inv2
+where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
+and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt2.ainvp_nligne = cpt.ainvp_nligne
+)
+else
+(
+select (cpt3.ainvp_ecart)
+from art_invp cpt3, art_invi inv3
+where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
+and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
+and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
+and cpt3.ainvp_nligne = cpt.ainvp_nligne
+)
+END * ainvp_prix as Montant_Ecart
+
+from art_invp cpt, art_invi inv
+ $inventDispo
+and (ainvp_numinv = ainvi_numinv_mait and ainvi_sequence = 1)
+and ainvp_nbordereau <> 0
+order by ainvi_numinv_mait, ainvi_numinv,ainvp_nbordereau, ainvp_nligne";
+        // dd($statement);
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
     }
 }
