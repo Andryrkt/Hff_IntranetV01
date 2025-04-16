@@ -94,7 +94,7 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ->andWhere('d.numeroDemandeIntervention = :numDit')
             ->setParameter('numDit', $numDit);
-        
+
         return $queryBuilder->getQuery()->getResult();
     }
 
@@ -356,13 +356,13 @@ class DitRepository extends EntityRepository
     //     }
     // }
 
-private function applySection($queryBuilder, DitSearch $ditSearch)
-{
-    // Filtrer selon la section affectée
-    $sectionAffectee = $ditSearch->getSectionAffectee();
-    if (!empty($sectionAffectee)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+    private function applySection($queryBuilder, DitSearch $ditSearch)
+    {
+        // Filtrer selon la section affectée
+        $sectionAffectee = $ditSearch->getSectionAffectee();
+        if (!empty($sectionAffectee)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $index => $groupe) {
                 $phraseConstruite = $groupe . $sectionAffectee;
@@ -376,11 +376,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             $queryBuilder->andWhere($orX);
         }
 
-    //filtre selon le section support 1
-    $sectionSupport1 = $ditSearch->getSectionSupport1();
-    if (!empty($sectionSupport1)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+        //filtre selon le section support 1
+        $sectionSupport1 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport1)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport1;
@@ -391,26 +391,26 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             $queryBuilder->andWhere($orX);
         }
 
-     //filtre selon le section support 2
-    $sectionSupport2 = $ditSearch->getSectionSupport2();
-    if (!empty($sectionSupport2)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
-        
-        foreach ($groupes as $groupe) {
-            $phraseConstruite = $groupe. $sectionSupport2;
-            $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
-            $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
-        }
-        
-        $queryBuilder->andWhere($orX);
-    }
+        //filtre selon le section support 2
+        $sectionSupport2 = $ditSearch->getSectionSupport2();
+        if (!empty($sectionSupport2)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
-      //filtre selon le section support 3
-    $sectionSupport3 = $ditSearch->getSectionSupport1();
-    if (!empty($sectionSupport3)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe . $sectionSupport2;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
+            }
+
+            $queryBuilder->andWhere($orX);
+        }
+
+        //filtre selon le section support 3
+        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport3)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport3;
@@ -440,56 +440,56 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     public function findSectionSupport1()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport1')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport1')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
 
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport2')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport2')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport2');
     }
 
     public function findSectionSupport3()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport3')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport3')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport3');
     }
 
     public function findSectionAffectee()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionAffectee')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionAffectee')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionAffectee');
     }
 
@@ -521,22 +521,22 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
 
     /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
-{
-    $nombrePiecesJointes = $this->createQueryBuilder('d')
-        ->select(
-            "SUM(
+    {
+        $nombrePiecesJointes = $this->createQueryBuilder('d')
+            ->select(
+                "SUM(
                 (CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END) + 
                 (CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END) + 
                 (CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END)
             ) AS nombrePiecesJointes"
-        )
-        ->where('d.numeroDemandeIntervention = :numDit')
-        ->setParameter('numDit', $numDit)
-        ->getQuery()
-        ->getSingleScalarResult();
+            )
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    return (int) $nombrePiecesJointes;
-}
+        return (int) $nombrePiecesJointes;
+    }
 
 
 
@@ -618,11 +618,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     public function findInterneExterne($numDit)
     {
         return $this->createQueryBuilder('d')
-        ->select('d.internetExterne')
-        ->where('d.numeroDemandeIntervention = :numDit')
-        ->setParameter('numDit', $numDit)
-        ->getQuery()
-        ->getSingleScalarResult()
+            ->select('d.internetExterne')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 
@@ -648,7 +648,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
         ;
     }
 
-     /**
+    /**
      * FONCTION Pour récupérer les donnée filtrer  pour demande d'approvisionnement
      *
      * @param integer $page
@@ -665,8 +665,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
             ->where('d.sectionAffectee <> :sectionAffectee')
-            ->setParameter('sectionAffectee', '')
-            ;
+            ->setParameter('sectionAffectee', '');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
 
@@ -723,5 +722,20 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             'lastPage' => $lastPage,
             'statusCounts' => $statusCounts,
         ];
+    }
+
+    public function getNumDitAAnnuler()
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroDemandeIntervention')
+            ->where('d.aAnnuler = :aAnnuler')
+            ->andWhere('d.idStatutDemande <> :statut')
+            ->setParameters([
+                'aAnnuler' => 1,
+                'statut' => 52
+            ])
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
     }
 }
