@@ -218,7 +218,7 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                             AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
+                    --sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
                     AND slor_numor = '".$numOr."'
                     AND slor_numfac = '".$numFact."'
                 GROUP BY
@@ -323,5 +323,23 @@ class DitFactureSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function orStatutEstValide($numOr, $numItv)
+    {
+        $sql = " SELECT 
+                case when statut = 'Validé' then 'Validé'else 'Non validé' end as Statut
+                from ors_soumis_a_validation
+                where numeroOR = '$numOr' 
+                and numeroItv = '$numItv' 
+                and numeroVersion = (select max(numeroversion) from ors_soumis_a_validation where numeroOR = '$numOr' and numeroItv = '$numItv')
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return array_column($tab, 'Statut');
     }
 }

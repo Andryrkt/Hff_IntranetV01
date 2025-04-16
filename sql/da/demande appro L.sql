@@ -11,7 +11,7 @@ CREATE TABLE Demande_Appro_L(
     art_desi varchar(100) not null,
     code_fams1 varchar(10),
     art_fams1 varchar(50),
-    code_fams2 varchar(10),
+    code_fams2 varchar(50),
     art_fams2 varchar(50),
     numero_fournisseur varchar(7) not null,
     nom_fournisseur	varchar(50) not null,
@@ -22,3 +22,18 @@ CREATE TABLE Demande_Appro_L(
     demande_appro_id int not null,
     CONSTRAINT PK_Demande_Appro_L PRIMARY KEY (id)
 )
+
+ALTER TABLE Demande_Appro_L
+ADD est_validee bit DEFAULT 0
+
+ALTER TABLE Demande_Appro_L
+ADD est_modifier bit DEFAULT 0
+
+ALTER TABLE Demande_Appro_L
+ADD date_creation DATETIME2(0)
+
+ALTER TABLE Demande_Appro_L
+ADD date_modification DATETIME2(0)
+
+ALTER TABLE Demande_Appro_L
+ALTER COLUMN code_fams2 VARCHAR(50)

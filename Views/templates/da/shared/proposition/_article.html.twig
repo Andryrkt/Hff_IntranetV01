@@ -1,19 +1,27 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% set currentPage = article.numeroLigne %}
+{% set catalogueCss = article.catalogue ? 'success' : 'danger' %}
+{% set catalogueBool = article.catalogue ? 'catalogué' : 'non catalogué' %}
+{% set famille = article.artFams1 ?? '-' %}
+{% set sousFamille = article.artFams2 ?? '-' %}
+{% set codeFamille = article.codeFams1 ?? '-' %}
+{% set codeSousFamille = article.codeFams2 ?? '-' %}
+{% set referencePiece = article.artRefp ?? '-' %}
 
 <div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
+	<div class="h2 text-uppercase fw-bold position-absolute text-{{ catalogueCss }}" style="top:65px;right:30px;">{{ catalogueBool }}</div>
 	{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
 	<div class="row">
 		<div class="col-12 col-md-6">
 			<div class="row">
 				<div class="col-6">
 					{{ macroForm.affichage2('N° Fournisseur', article.numeroFournisseur, 'mb-2') }}
-					{{ macroForm.affichage2('Famille', article.artFams1, 'mb-2') }}
+					{{ macroForm.affichage2('Famille', famille, 'mb-2') }}
 				</div>
 				<div class="col-6">
 					{{ macroForm.affichage2('Nom Fournisseur', article.nomFournisseur, 'mb-2') }}
-					{{ macroForm.affichage2('Sous-famille', article.artFams2, 'mb-2') }}
+					{{ macroForm.affichage2('Sous-famille', sousFamille, 'mb-2') }}
 				</div>
 			</div>
 		</div>
@@ -23,10 +31,11 @@
 	</div>
 	<div class="row">
 		<div class="col-3 col-md-3">
-			{{ macroForm.affichage2('Référence', article.artRefp, 'mb-2') }}
+			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
 		<div class="col-3 col-md-7">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+
 		</div>
 		<div class="col-3 col-md-2">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
@@ -34,20 +43,128 @@
 	</div>
 
 	<input type="hidden" name="qteDem_{{ currentPage }}" id="qteDem_{{ currentPage }}" value="{{ article.qteDem }}">
-	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ article.codeFams1 }}">
-	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ article.codeFams2 }}">
+	<input type="hidden" name="codeFams1_{{ currentPage }}" id="codeFams1_{{ currentPage }}" value="{{ codeFamille }}">
+	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
+	{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
+		<div class="row">
+			<div class="col-12 col-md-3">
+				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select">
+					<option value="-">-- Choisir une famille --</option>
+					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
+					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
+					<option value="BAT">BATTERIE</option>
+					<option value="EPI">EQUIPEMENT DE PROTECTION INDIV</option>
+					<option value="EXT">EXTINCTEUR</option>
+					<option value="FLQ">FILTRE ET LIQUIDE ENTRETIEN</option>
+					<option value="FRA">FRAIS DIVERS</option>
+					<option value="GSC">GAZ ET SOLUTIONS CHIMIQUES</option>
+					<option value="LUM">LUMINAIRE</option>
+					<option value="MAM">MATÉRIEL AUTOMOBILE</option>
+					<option value="MAT">MATÉRIAUX</option>
+					<option value="MEO">MACHINE ET OUTILLAGE</option>
+					<option value="MO">MAIN D'OEUVRE</option>
+					<option value="NP">NON PRECISE</option>
+					<option value="PAM">PIÈCES AUTOMOBILE</option>
+					<option value="PNE">PNEU</option>
+					<option value="PNT">PEINTURE</option>
+					<option value="PRE">PRESTATION</option>
+					<option value="QUI">QUINCAILLERIE</option>
+				</select>
+			</div>
+			<div class="col-12 col-md-3">
+				<div class="spinner-container">
+					<div class="spinner-load m-auto" id="spinner_codeFams2_{{ currentPage }}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+				</div>
+				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
+					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select">
+						<option value="-">-- Choisir une sous-famille --</option>
+					</select>
+				</div>
+
+			</div>
+		</div>
+
+	{% else %}
+		<div class="row d-none">
+			<div class="col-12 col-md-3">
+				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
+				<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select">
+					<option value="-">-- Choisir une famille --</option>
+					<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
+					<option value="APE">APPAREILLAGE ÉLECTRIQUE</option>
+					<option value="BAT">BATTERIE</option>
+					<option value="EPI">EQUIPEMENT DE PROTECTION INDIV</option>
+					<option value="EXT">EXTINCTEUR</option>
+					<option value="FLQ">FILTRE ET LIQUIDE ENTRETIEN</option>
+					<option value="FRA">FRAIS DIVERS</option>
+					<option value="GSC">GAZ ET SOLUTIONS CHIMIQUES</option>
+					<option value="LUM">LUMINAIRE</option>
+					<option value="MAM">MATÉRIEL AUTOMOBILE</option>
+					<option value="MAT">MATÉRIAUX</option>
+					<option value="MEO">MACHINE ET OUTILLAGE</option>
+					<option value="MO">MAIN D'OEUVRE</option>
+					<option value="NP">NON PRECISE</option>
+					<option value="PAM">PIÈCES AUTOMOBILE</option>
+					<option value="PNE">PNEU</option>
+					<option value="PNT">PEINTURE</option>
+					<option value="PRE">PRESTATION</option>
+					<option value="QUI">QUINCAILLERIE</option>
+				</select>
+			</div>
+			<div class="col-12 col-md-3">
+				<div class="spinner-container">
+					<div class="spinner-load m-auto" id="spinner_codeFams2_{{ currentPage }}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+				</div>
+				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
+					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
+					<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select">
+						<option value="-">-- Choisir une sous-famille --</option>
+					</select>
+				</div>
+
+			</div>
+		</div>
+	{% endif %}
 	<div class="row">
 		<div class="col-3 col-md-3">
 			<div class="mb-2">
-				<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence</label>
+				<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence (*)</label>
 				<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control">
 				<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
-				<div id="loader_reference_{{ currentPage }}" class="spinner" style="display: none;"></div>
+				<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 			</div>
 			<div class="mb-2">
-				<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
+				<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo (*)</label>
 				<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control">
 			</div>
 		</div>
@@ -55,23 +172,28 @@
 			<div class="row">
 				<div class="col-8 col-md-8">
 					<div class="mb-2">
-						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation</label>
+						<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation (*)</label>
 						<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control">
 						<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_designation_{{ currentPage }}" class="spinner" style="display: none;"></div>
+						<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
+							<div class="text-overlay">
+								Veuillez patienter s'il vous plaît! Chargement des données
+							</div>
+							<div class="loader-points"></div>
+						</div>
 					</div>
 				</div>
 				<div class="col-4 col-md-4">
 					<div class="mb-2">
-						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur</label>
+						<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur (*)</label>
 						<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control">
 						<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
-						<div id="loader_fournisseur_{{ currentPage }}" class="spinner" style="display: none;"></div>
+						<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 					</div>
 				</div>
 			</div>
 			<div class="mb-2">
-				<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif</label>
+				<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif (*)</label>
 				<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control">
 			</div>
 			<div class="mb-2 d-none">
@@ -93,6 +215,7 @@
 	<table class="table rounded table-plein-ecran mt-4">
 		<thead class="table-dark text-center">
 			<tr>
+				<th>Choix</th>
 				<th>Fournisseur</th>
 				<th>Référence</th>
 				<th>Désignation</th>
@@ -106,15 +229,19 @@
 		<tbody id="tableBody_{{ currentPage }}">
 			{% for DALR in article.demandeApproLR %}
 				<tr>
-					<td>{{ DALR.nomFournisseur }}</td>
-					<td>{{ DALR.artRefp }}</td>
-					<td>{{ DALR.artDesi }}</td>
-					<td>{{ DALR.prixUnitaire }}</td>
-					<td>{{ DALR.total }}</td>
-					<td>{{ DALR.conditionnement }}</td>
-					<td>{{ DALR.qteDispo }}</td>
-					<td>{{ DALR.motif }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
+						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.choix ? 'checked' : '' }}>
+					</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.conditionnement }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
+					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 				</tr>
+
 			{% endfor %}
 		</tbody>
 	</table>

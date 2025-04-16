@@ -60,7 +60,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $nbrItv ? $nbrItv : 0;
     }
 
-    public function findNumItvValide($numOr)
+    public function findNumItvValide($numOr): array
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
@@ -179,14 +179,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
     public function findMontantValide($numOr, $numItv)
     {
-         // Étape 1 : Récupérer le numeroVersion maximum
-            $numeroVersionMax = $this->createQueryBuilder('osv')
-            ->select('MAX(osv.numeroVersion)')
-            ->where('osv.numeroOR = :numOr')
-            ->setParameter('numOr', $numOr)
-            ->getQuery()
-            ->getSingleScalarResult();
-
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+        ->select('MAX(osv.numeroVersion)')
+        ->where('osv.numeroOR = :numOr')
+        ->setParameter('numOr', $numOr)
+        ->getQuery()
+        ->getSingleScalarResult();
+        
         // Vérifier si un numeroVersion a été trouvé
         if ($numeroVersionMax === null) {
             return [
@@ -194,6 +194,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 "message" => "Aucune version trouvée pour le numeroOR {$numOr}."
             ];
         }
+        // dd($numOr, $numItv, (int)$numeroVersionMax);
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le montant valide
         $montantValide = $this->createQueryBuilder('osv')
@@ -202,7 +203,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroItv = :numItv')
             ->setParameters([
-                'numeroVersionMax' => $numeroVersionMax,
+                'numeroVersionMax' => (int)$numeroVersionMax,
                 'numOr' => $numOr,
                 'numItv' => $numItv,
             ])

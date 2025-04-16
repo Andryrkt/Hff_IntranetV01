@@ -248,7 +248,10 @@ class InventaireController extends Controller
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
+                // dump($numIntvMax);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+                // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
+                // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {
                     $dateCLo = "";
                 } else {
@@ -269,6 +272,7 @@ class InventaireController extends Controller
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ref_avec_ecart'],
                     'montant_ecart' =>  $invLigne[0]['montant_ecart'],
+                    // 'montant_ecart' =>  $sumMontEcart[0]['montant_ecart'],
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 $dataExcel[$i] = [
@@ -361,7 +365,7 @@ class InventaireController extends Controller
                     "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
                     "pmp" => $detailInvent[$j]["pmp"],
                     "montant_inventaire" => $detailInvent[$j]["montant_inventaire"],
-                    "montant_ajuste" => $detailInvent[$j]["montant_ajuste"],
+                    "montant_ajuste" => $detailInvent[$j]["montant_ajuste"], //Mont.ecart
                     "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"] == "0%" ? " " : $detailInvent[$j]["pourcentage_ecart"],
                     "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
                 ];
@@ -369,7 +373,6 @@ class InventaireController extends Controller
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
                         $data['data'][$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
-                        
                     }
                     $countQtee1 += (int) $data['data'][$j]["qte_comptee_1"];
                     $countQtee2 += (int) $data['data'][$j]["qte_comptee_2"];

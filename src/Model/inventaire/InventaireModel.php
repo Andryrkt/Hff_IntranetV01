@@ -191,7 +191,7 @@ class InventaireModel extends Model
                         END  as pourcentage_ecart
                         FROM art_invp
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
-                        INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp
+                        INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp and astp_soc = ainvp_soc and astp_succ = ainvp_succ
                         WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '" . $numInv . "')
                         and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
@@ -216,7 +216,7 @@ class InventaireModel extends Model
                             END AS pourcentage_nbr_ecart,
                            ROUND( SUM(ainvp_prix) )as PMP,
                             ROUND( SUM(ainvp_prix * ainvp_stktheo) ) as montant_inventaire,
-                            ROUND( SUM(ainvp_prix * ainvp_ecart ) )as montant_ecart,
+                            ROUND( SUM(ainvp_prix * ainvp_ecart ) )  as montant_ecart,
                             CASE
                             WHEN ROUND(SUM(ainvp_prix * ainvp_stktheo)) != 0 THEN
                                 ROUND((SUM(ainvp_prix * ainvp_ecart) / SUM(ainvp_prix * ainvp_stktheo)) * 100) || ' %'

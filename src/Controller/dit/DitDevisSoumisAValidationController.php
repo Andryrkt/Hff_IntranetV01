@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
+use App\Repository\dit\DitRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 use App\Traits\CalculeTrait;
@@ -33,6 +34,7 @@ class DitDevisSoumisAValidationController extends Controller
     private DitDevisSoumisAValidationRepository $devisRepository;
     private string $chemin;
     private FileUploaderService $fileUploader;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -48,6 +50,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
         $this->chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/dev/';
         $this->fileUploader = new FileUploaderService($this->chemin);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -69,7 +72,7 @@ class DitDevisSoumisAValidationController extends Controller
         $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVente($numDevis), $type);
 
         // Vérification si une version du devis est déjà validée
-        if ($this->verificationTypeDevis($numDevis, $type)) {
+        if ($this->verificationTypeDevis($numDevis, $type, $numDit)) {
             if ($request->query->get('continueDevis') == 1) {
                 $this->sessionService->set('devis_version_valide', 'KO');
             }
@@ -92,13 +95,20 @@ class DitDevisSoumisAValidationController extends Controller
         ]);
     }
 
-    private function verificationTypeDevis(string $numDevis, string $type)
+    private function verificationTypeDevis(string $numDevis, string $type, string $numDit)
     {
         $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
+
         $devisValide = $this->devisRepository->findDevisVpValide($numDevis);
         $devisStatut = $this->devisRepository->findStatut($numDevis);
+        if ($devisStatut == 0) {
+            $devisStatut = [''];
+        }
 
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
         $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
 
         $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
@@ -109,13 +119,20 @@ class DitDevisSoumisAValidationController extends Controller
 
         $estCepremierSoumission = $this->devisRepository->findVerificationPrimeSoumission($numDevis);
 
-        if ($type === 'VP') {
+        $ditInterneouExterne = $this->ditRepository->findInterneExterne($numDit);
+
+        if ($ditInterneouExterne === 'INTERNE') {
+            $message = "Erreur lors de la soumission, Impossible de soumettre le devis . . . le DIT est interne";
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+        }
+
+        if($type === 'VP') {
             /** suite à la demande de mianta devis avec piece magasin mais pas de nouvelle ligne */
             // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il y a  de pièce magasin et pas de nouvelle ligne
             //     $message = " Merci de passer le devis à validation à l'atelier ";
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             // } else
-            if (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
+             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } elseif ($nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") { // il n'y a pas de pièce magasin
@@ -135,20 +152,21 @@ class DitDevisSoumisAValidationController extends Controller
             }
         } else {
             // si avec pièce magasin ET premier soumission
-            if($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
+            if ($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
                 $message = " Merci de passer le devis à validation au magasin ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            } 
+            }
+
             // SI (devis est prix refusé ou prix a confirmer)     ET    nouvelle reference ajoutée
-            else if((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
+            else if ((in_array("Prix à confirmer", $devisStatut) || in_array('Prix refusé magasin', $devisStatut)) && (int)$nbrPieceInformix != (int)$nbrPieceSqlServ) {
                 $message = " Merci de repasser la soumission du devis au magasin pour vérification ";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
-            }  
+            }
             // SI le devis est statué "PRix à confirmer"
             elseif ($condition['conditionStatutDevisVp']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . le devis est encore en cours de vérification";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } 
+            }
             // SI le devis est statué "à valider atelier"
             elseif ($condition['conditionStatutDevisVa']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
@@ -499,7 +517,12 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $venteOuForfait = 'DEVIS FORFAIT';
         }
+
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
+
+        if ($nbrPieceInformix === null) {
+            $nbrPieceInformix = 0;
+        }
 
         foreach ($devisSoumisAValidationInformix as $devisSoumis) {
             // Instancier une nouvelle entité pour chaque entrée du tableau
@@ -554,7 +577,7 @@ class DitDevisSoumisAValidationController extends Controller
         // dd(empty($numeroDevis));
         if (empty($numeroDevis)) {
             $message = "Echec , ce DIT n'a pas de numéro devis";
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         } else {
             return $numeroDevis[0]['numdevis'];
         }

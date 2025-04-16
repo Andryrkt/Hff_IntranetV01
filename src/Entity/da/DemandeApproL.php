@@ -15,6 +15,7 @@ use App\Repository\dom\DomRepository;
 use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -26,6 +27,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class DemandeApproL
 {
+    use DateTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -66,7 +68,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp;
+    private ?string $artRefp;
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -76,27 +78,27 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private string $artFams1;
+    private ?string $artFams1;
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private string $artFams2;
+    private ?string $artFams2;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
      */
-    private string $codeFams1;
+    private ?string $codeFams1;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams2")
      */
-    private string $codeFams2;
+    private ?string $codeFams2;
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
      */
-    private string $numeroFournisseur;
+    private ?string $numeroFournisseur = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="nom_fournisseur")
@@ -134,7 +136,20 @@ class DemandeApproL
      */
     private $demandeApproLR;
 
-    //=============================================================================================
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_modifier")
+     */
+    private $estModifier = false;
+
+    /**==============================================================================
+     * GETTERS & SETTERS
+     *===============================================================================*/
+
     public function __construct()
     {
         $this->demandeApproLR = new ArrayCollection();
@@ -547,22 +562,16 @@ class DemandeApproL
 
     /**
      * Get the value of codeFams1
-     *
-     * @return string
      */
-    public function getCodeFams1(): string
+    public function getCodeFams1()
     {
         return $this->codeFams1;
     }
 
     /**
      * Set the value of codeFams1
-     *
-     * @param string $codeFams1
-     *
-     * @return self
      */
-    public function setCodeFams1(string $codeFams1): self
+    public function setCodeFams1($codeFams1)
     {
         $this->codeFams1 = $codeFams1;
         return $this;
@@ -570,24 +579,58 @@ class DemandeApproL
 
     /**
      * Get the value of codeFams2
-     *
-     * @return string
      */
-    public function getCodeFams2(): string
+    public function getCodeFams2()
     {
         return $this->codeFams2;
     }
 
     /**
      * Set the value of codeFams2
-     *
-     * @param string $codeFams2
-     *
-     * @return self
      */
-    public function setCodeFams2(string $codeFams2): self
+    public function setCodeFams2($codeFams2)
     {
         $this->codeFams2 = $codeFams2;
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estModifier
+     */
+    public function getEstModifier()
+    {
+        return $this->estModifier;
+    }
+
+    /**
+     * Set the value of estModifier
+     *
+     * @return  self
+     */
+    public function setEstModifier($estModifier)
+    {
+        $this->estModifier = $estModifier;
+
         return $this;
     }
 }

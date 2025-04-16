@@ -22,7 +22,7 @@ if (!currentConfig) {
   // Initialiser la gestion des tableaux
   const tableBody = document.querySelector(currentConfig.tableBody);
   const rows = document.querySelectorAll(`${currentConfig.tableBody} tr`);
-  if (pageType === "liste_cde_fnr_non_genere") {
+  if (pageType === "liste_cde_fnr_non_genere" ||pageType === "liste_cde_fnr_non_place"  ) {
     // groupRows(rows, tableBody, currentConfig.cellIndices, false);
   } else {
     groupRows(rows, tableBody, currentConfig.cellIndices);

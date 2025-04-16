@@ -7,6 +7,8 @@ export class AutoComplete {
     onSelectCallback,
     loaderElement = null,
     itemToStringCallback = null,
+    itemToStringForBlur = null,
+    onBlurCallback = null,
     debounceDelay = 300,
   }) {
     this.inputElement = inputElement;
@@ -16,6 +18,8 @@ export class AutoComplete {
     this.onSelectCallback = onSelectCallback;
     this.loaderElement = loaderElement;
     this.itemToStringCallback = itemToStringCallback;
+    this.itemToStringForBlur = itemToStringForBlur;
+    this.onBlurCallback = onBlurCallback;
     this.debounceDelay = debounceDelay;
 
     this.data = [];
@@ -37,6 +41,12 @@ export class AutoComplete {
 
     this.inputElement.addEventListener('input', () => this.onInput());
     this.inputElement.addEventListener('keydown', (e) => this.onKeyDown(e));
+
+    if (this.onBlurCallback) {
+      this.inputElement.addEventListener('blur', () =>
+        this.onBlur(this.onBlurCallback)
+      );
+    }
 
     document.addEventListener('click', (e) => {
       if (
@@ -88,15 +98,15 @@ export class AutoComplete {
     }
   }
 
-  onBlur() {
+  onBlur(onBlurCallback) {
     const inputValue = this.inputElement.value.trim().toLowerCase();
 
     // Vérifie si la valeur saisie est dans les suggestions filtrées
-    const found = this.filteredData.some(
-      (item) => this.itemToString(item).toLowerCase() === inputValue
+    const found = this.data.some(
+      (item) => this.itemToStringForBlur(item).toLowerCase() === inputValue
     );
 
-    return found;
+    onBlurCallback(found);
   }
 
   updateActiveSuggestion(suggestions) {
@@ -144,6 +154,9 @@ export class AutoComplete {
       suggestionElement.dataset.index = index;
 
       suggestionElement.addEventListener('click', () => {
+        if (this.onBlurCallback) {
+          this.onBlurCallback(true);
+        }
         this.onSelectCallback(item);
         this.clearSuggestions();
       });
@@ -165,6 +178,7 @@ export class AutoComplete {
   toggleLoader(show) {
     if (this.loaderElement) {
       this.loaderElement.style.display = show ? 'block' : 'none';
+      this.inputElement.style.pointerEvents = show ? 'none' : 'auto';
     }
   }
 }

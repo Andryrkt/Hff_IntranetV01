@@ -70,4 +70,17 @@ export const config = {
     numDocInput: "#liste_cde_frn_non_generer_search_numDoc",
     cellIndices: cellIndicesLcfng,
   },
+  liste_cde_fnr_non_place: {
+    tableBody: "#tableBody",
+    // agenceEmetteurInput: "#liste_cde_frn_non_place_search_agenceEmetteur",
+    // serviceEmetteurInput: "#liste_cde_frn_non_place_search_serviceEmetteur",
+    agenceInput: "#liste_cde_frn_non_place_search_agence",
+    serviceInput: "#liste_cde_frn_non_place_search_service",
+    // spinnerServiceEmetteur: "#spinner-service-emetteur",
+    // serviceContainerEmetteur: "#service-container-emetteur",
+    spinnerService: "#spinner-service",
+    serviceContainer: "#service-container",
+  
+    cellIndices: cellIndicesLcfng,
+  },
 };

@@ -18,6 +18,7 @@ use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
+use DateTime;
 
 class DitListeController extends Controller
 {
@@ -191,29 +192,87 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
-        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $ditRepository = self::$em->getRepository(DemandeIntervention::class);
 
-        $this->changementStatutDit($dit, $statutCloturerAnnuler);
+        $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
 
-        $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileName;
+
+        $this->modificationTableDit($dit);
+
+        $fileNameUplode = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
+        $filePathUplode = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameUplode;
+        $fileNameDw = 'fichier_cloturer_annuler' . '.csv';
+        // $filePathDw = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameDw;
         $headers = ['numéro DIT', 'statut'];
-        $data = [
-            $dit->getNumeroDemandeIntervention(),
-            'Clôturé annulé'
-        ];
-        $this->ajouterDansCsv($filePath, $data, $headers);
+        $numDits = $ditRepository->getNumDitAAnnuler();
+
+        $data = [];
+        foreach ($numDits as  $numDit) {
+            $data[] = [
+                $numDit,
+                'Clôturé annulé'
+            ];
+        }
+
+        if (file_exists($filePathUplode)) {
+            unlink($filePathUplode);
+        }
+
+        $this->ajouterDansCsv($filePathUplode, $data, $headers);
 
         $copyDocuwareService = new CopyDocuwareService();
-        $copyDocuwareService->copyCsvToDw($fileName, $filePath);
+        $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
         $this->redirectToRoute("dit_index");
     }
 
+    private function modificationTableDit($dit)
+    {
+        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $dit
+            ->setIdStatutDemande($statutCloturerAnnuler)
+            ->setAAnnuler(true)
+            ->setDateAnnulation(new DateTime())
+        ;
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
 
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+    {
+        $fichierExiste = file_exists($filePath);
+        $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajoute un BOM UTF-8
+        if (!$fichierExiste) {
+            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+        }
+
+        // Fonction pour écrire une ligne sans guillemets
+        $ecrireLigne = function ($ligne) use ($handle) {
+            $ligneUtf8 = array_map(function ($field) {
+                if (is_array($field)) {
+                    // Tu peux choisir un séparateur ou une structure ici
+                    $field = implode(';', $field);
+                }
+                return mb_convert_encoding($field, 'UTF-8');
+            }, $ligne);
+            fwrite($handle, implode(';', $ligneUtf8) . PHP_EOL); // tu peux changer ';' par ',' si nécessaire
+        };
+        // Écrit les en-têtes si le fichier est nouveau
+        if (!$fichierExiste && $headers !== null) {
+            $ecrireLigne($headers);
+        }
+
+        // Écrit les données sans guillemets
+        foreach ($data as $ligne) {
+            $ecrireLigne($ligne);
+        }
+
+        fclose($handle);
+    }
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -288,41 +347,5 @@ class DitListeController extends Controller
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
-    }
-
-    private function changementStatutDit($dit, $statutCloturerAnnuler)
-    {
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
-    }
-
-    private function ajouterDansCsv($filePath, $data, $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
-
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
-
-        // Si le fichier est nouveau, ajoute un BOM UTF-8
-        if (!$fichierExiste) {
-            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
-        }
-
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            // Force l'encodage UTF-8 pour les en-têtes
-            fputcsv($handle, array_map(function ($header) {
-                return mb_convert_encoding($header, 'UTF-8');
-            }, $headers));
-        }
-
-        // Force l'encodage UTF-8 pour les données
-        fputcsv($handle, array_map(function ($field) {
-            return mb_convert_encoding($field, 'UTF-8');
-        }, $data));
-
-        // Ferme le fichier
-        fclose($handle);
     }
 }

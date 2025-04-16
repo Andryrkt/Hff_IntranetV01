@@ -37,7 +37,8 @@ trait DitFactureSoumisAValidationtrait
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em, $ditFactureSoumiAValidation): array
     {
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
-
+        
+    
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
 
         $factureSoumisAValidation = [];
@@ -126,8 +127,8 @@ trait DitFactureSoumisAValidationtrait
             $conditionDifferenceMontant = abs($montantValide - $montantFacture) > 0.01; // Comparaison avec tolérance
             $conditionPasSoumissionOr = $nombreItv === 0;
             $conditionExiteMotRefuse = strpos($statutOrsSoumisValidation, 'refusée') !== false;
-            $conditionStatutDiffValide = $statutOrsSoumisValidation !== 'Validé';
-            $conditionStatutValide = $statutOrsSoumisValidation === 'Validé';
+            $conditionStatutDiffValide = $statutOrsSoumisValidation !== 'Validé' && $statutOrsSoumisValidation !== 'Livré';
+            $conditionStatutValide = $statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré';
 
 
 
@@ -166,6 +167,7 @@ trait DitFactureSoumisAValidationtrait
             'nombreStatutControle' => $nombreStatutControle
         ];
     }
+    
 
     private function infoItvFac($factureSoumisAValidation, $statut)
     {
@@ -206,6 +208,7 @@ trait DitFactureSoumisAValidationtrait
             'controleAFaire' => ''
         ];
         foreach ($factureSoumisAValidation as  $value) {
+
             $totalItvFacture['totalMttItv'] += $value->getMttItv();
             $totalItvFacture['totalMttFac'] += $value->getMontantFactureitv();
         }
@@ -213,7 +216,7 @@ trait DitFactureSoumisAValidationtrait
         return $totalItvFacture;
     }
 
-    private function montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact)
+    private function montantpdf($factureSoumisAValidation, $statut, $orSoumisFact)
     {
 
         return [

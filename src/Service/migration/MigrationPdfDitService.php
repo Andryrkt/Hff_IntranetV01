@@ -30,7 +30,7 @@ class MigrationPdfDitService
     ini_set('memory_limit', '1024M');
 
     $dits = $this->recupDonnerDit();
-    
+   
     $total = count($dits);
     $batchSize = 3; // Par exemple, 10 éléments par lot
 
@@ -57,10 +57,10 @@ class MigrationPdfDitService
             // $this->fusionPdfmigrations($dit);
 
             // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
-            $ditPdf->copyInterneToDOCUWARE(
-                $dit->getNumeroDemandeIntervention(),
-                str_replace("-", "", $dit->getAgenceServiceEmetteur())
-            );
+            // $ditPdf->copyInterneToDOCUWARE(
+            //     $dit->getNumeroDemandeIntervention(),
+            //     str_replace("-", "", $dit->getAgenceServiceEmetteur())
+            // );
 
 
             // Avancer la barre de progression
@@ -106,6 +106,7 @@ class MigrationPdfDitService
     {
         $dits = $this->ditRepository->findDitMigration();
         
+       
         
         foreach ($dits as $dit) {
             if(!empty($dit->getIdMateriel())){

@@ -1,6 +1,7 @@
 import { baseUrl } from "./utils/config";
 
 import { FetchManager } from "./api/FetchManager";
+import { afficherToast } from "./utils/toastUtils";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
@@ -56,6 +57,8 @@ function updateChrono() {
   if (timeRemaining <= 0) {
     clearInterval(timer);
     window.location.href = `${baseUrl}/logout`;
+  } else if (timeRemaining <= 15) {
+    afficherToast("erreur", `Votre session va expiré dans ${timeRemaining} s.`);
   }
 }
 
@@ -163,9 +166,9 @@ document.addEventListener("DOMContentLoaded", function () {
  */
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("modalTypeDemande")
-    .addEventListener("click", function (event) {
+  const modalTypeDemande = document.getElementById("modalTypeDemande");
+  if (modalTypeDemande) {
+    modalTypeDemande.addEventListener("click", function (event) {
       event.preventDefault();
       const overlay = document.getElementById("loading-overlays");
       overlay.classList.remove("hidden");
@@ -210,6 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
           overlay.classList.add("hidden");
         });
     });
+  }
 });
 
 /** OVERLAY */

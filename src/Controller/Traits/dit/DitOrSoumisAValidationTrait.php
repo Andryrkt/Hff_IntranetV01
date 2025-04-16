@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\dit;
 
+use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -48,7 +49,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -121,8 +122,53 @@ trait DitOrSoumisAValidationTrait
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 
     private function autoIncrement($num)
@@ -367,14 +413,15 @@ trait DitOrSoumisAValidationTrait
     }
 
     private function datePlanning($numOr)
-    { 
+    {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
         $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-    
+
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [

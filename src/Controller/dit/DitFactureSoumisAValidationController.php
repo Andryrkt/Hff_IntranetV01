@@ -54,11 +54,12 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
-
+        
+    
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numDit, 'dit_index');
         }
 
         $this->ditFactureSoumiAValidation->setNumeroDit($numDit);
@@ -83,15 +84,35 @@ class DitFactureSoumisAValidationController extends Controller
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
 
             $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
-
+            
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
+            
+            // $numItv = $this->ditFactureSoumiAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor'], $numFac);
+            // $numItvValide = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
+
+            // if(in_array($numItv, $numItvValide)) {
+            //     echo "
+            //     <script>
+            //         if (confirm('⚠️  L'intervention n° $numItv n'a pas encore été validée. Voulez-vous tout de même soumettre la facture ? Cliquez sur OUI pour confirmer ou sur NON pour abandonner')) {
+            //             // Redirection ou soumission ici si l’utilisateur confirme
+            //             window.location.href = 'ton-lien-ou-action.php'; // à adapter
+            //         } else {
+            //             // Rien ou retour en arrière
+            //             history.back();
+            //         }
+            //     </script>
+            //     ";
+            //     exit;
+            // }
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
+
+            
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } elseif ($nbFact === 0) {
+            } elseif ($nbFact == 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             }
@@ -155,7 +176,7 @@ class DitFactureSoumisAValidationController extends Controller
         $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
         $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
         $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
-        $montantPdf = $this->montantpdf($orSoumisValidataion, $factureSoumisAValidation, $statut, $orSoumisFact);
+        $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
 
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
         $this->modificationEtatFacturDit($etatOr, $numDit);
