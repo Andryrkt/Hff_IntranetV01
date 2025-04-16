@@ -373,3 +373,11 @@ SET mail_demandeur = CASE
     ELSE '-'
 END
 WHERE num_migr=4
+
+
+
+ALTER TABLE demande_intervention
+ADD a_annuler bit DEFAULT 0
+
+ALTER TABLE demande_intervention
+ADD date_annulation DATETIME2
