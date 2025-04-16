@@ -34,7 +34,7 @@ class DaPropositionRefController extends Controller
     }
 
     /**
-     * @Route("/proposition/{id}", name="da_proposition", methods={"GET","POST"})
+     * @Route("/proposition/{id}", name="da_proposition")
      */
     public function propositionDeReference($id, Request $request)
     {
