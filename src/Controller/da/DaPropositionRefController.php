@@ -64,9 +64,7 @@ class DaPropositionRefController extends Controller
             if ($request->request->has('enregistrer')) {
                 // ✅ Récupérer les valeurs des champs caché
                 $dalrList = $form->getData()->getDALR();
-
-                dd($dalrList);
-
+                // dump($dalrList);
                 $refsString = $request->request->get('refs');
                 $selectedRefs = $refsString ? explode(',', $refsString) : [];
                 $refs = $this->separationNbrPageLigne($selectedRefs);
@@ -86,7 +84,7 @@ class DaPropositionRefController extends Controller
                     $this->modifChoix($refs, $data);
 
                     //modification de la table demande_appro_L
-                    // $this->modificationTableDaL($refs, $data);
+                    $this->modificationTableDaL($refs, $data);
                 }
 
                 $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -103,30 +101,46 @@ class DaPropositionRefController extends Controller
 
     private function modificationTableDaL(array $refs,  $data): void
     {
-        for ($i = 0; $i < count($refs); $i++) {
-            $dals = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
+        $dals = $this->recupDataDaL($refs,  $data);
+        $dalrs = $this->recupDataDaLR($refs,  $data);
 
-            for ($i = 0; $i < count($dalrs); $i++) {
-
-                $dals[$i]
-                    ->setQteDispo($dalrs[$i]->getQteDispo())
-                    ->setArtRefp($dalrs[$i]->getArtRefp() == '' ? NULL : $dalrs[$i]->getArtRefp())
-                    ->setArtFams1($dalrs[$i]->getArtFams1() == '' ? NULL : $dalrs[$i]->getArtFams1())
-                    ->setArtFams2($dalrs[$i]->getArtFams2() == '' ? NULL : $dalrs[$i]->getArtFams2())
-                    ->setArtDesi($dalrs[$i]->getArtDesi() == '' ? NULL : $dalrs[$i]->getArtDesi())
-                    // ->setCodeFams1($dalrs[$i]->getCodeFams1() == '' ? NULL : $dalrs[$i]->getCodeFams1())
-                    // ->setCodeFams2($dalrs[$i]->getCodeFams2() == '' ? NULL : $dalrs[$i]->getCodeFams2())
-                    ->setEstValidee($dalrs[$i]->getEstValidee())
-                    ->setEstModifier($dalrs[$i]->getChoix())
-                    // ->setCatalogue($dalrs[$i]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
-                ;
-
-                self::$em->persist($dals[$i]);
-            }
+        for ($i = 0; $i < count($dals); $i++) {
+            $dals[$i][0]
+                ->setQteDispo($dalrs[$i][0]->getQteDispo())
+                ->setArtRefp($dalrs[$i][0]->getArtRefp() == '' ? NULL : $dalrs[$i][0]->getArtRefp())
+                ->setArtFams1($dalrs[$i][0]->getArtFams1() == '' ? NULL : $dalrs[$i][0]->getArtFams1())
+                ->setArtFams2($dalrs[$i][0]->getArtFams2() == '' ? NULL : $dalrs[$i][0]->getArtFams2())
+                ->setArtDesi($dalrs[$i][0]->getArtDesi() == '' ? NULL : $dalrs[$i][0]->getArtDesi())
+                // ->setCodeFams1($dalrs[$i][0]->getCodeFams1() == '' ? NULL : $dalrs[$i][0]->getCodeFams1())
+                // ->setCodeFams2($dalrs[$i][0]->getCodeFams2() == '' ? NULL : $dalrs[$i][0]->getCodeFams2())
+                ->setEstValidee($dalrs[$i][0]->getEstValidee())
+                ->setEstModifier($dalrs[$i][0]->getChoix())
+                // ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i]->getArtFams2() == NULL ? FALSE : TRUE)
+            ;
+            self::$em->persist($dals[$i][0]);
         }
-        die('fin');
+
         self::$em->flush();
+    }
+
+
+    private function recupDataDaL(array $refs,  $data)
+    {
+        $dals = [];
+        for ($i = 0; $i < count($refs); $i++) {
+            $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
+        }
+
+        return $dals;
+    }
+    private function recupDataDaLR(array $refs,  $data)
+    {
+        $dalrs = [];
+        for ($i = 0; $i < count($refs); $i++) {
+            $dalrs[] = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
+        }
+
+        return $dalrs;
     }
 
     private function resetChoix(array $refs, $data): void
