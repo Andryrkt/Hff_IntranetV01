@@ -59,7 +59,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
     .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype
   let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
-  container.style.display = "none"; // ne pas afficher le contenant
+  container.style.display = "block"; // ne pas afficher le contenant
 
   prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
   prototype.querySelectorAll("[id], [name]").forEach(function (element) {
