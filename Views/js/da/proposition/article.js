@@ -14,6 +14,7 @@ export function ajouterReference(addLineId) {
     famille: getField("codeFams1", line),
     sousFamille: getField("codeFams2", line),
   };
+
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
@@ -28,7 +29,6 @@ function getField(fieldName, line) {
 }
 
 function handleFieldValue(field) {
-
   if (field.value) {
     return false;
   } else {
