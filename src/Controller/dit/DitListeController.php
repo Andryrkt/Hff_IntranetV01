@@ -196,7 +196,6 @@ class DitListeController extends Controller
 
         $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
 
-
         $this->modificationTableDit($dit);
 
         $fileNameUplode = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
