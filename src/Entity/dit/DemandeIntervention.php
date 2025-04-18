@@ -507,6 +507,16 @@ class DemandeIntervention
      */
     private int $numMigration;
 
+    /**
+     * @ORM\Column(type="boolean", name="a_annuler")
+     */
+    private $aAnnuler = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_annulation")
+     */
+    private $dateAnnulation;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1573,6 +1583,46 @@ class DemandeIntervention
     public function setNumMigration($numMigration)
     {
         $this->numMigration = $numMigration;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of aAnnuler
+     */
+    public function getAAnnuler()
+    {
+        return $this->aAnnuler;
+    }
+
+    /**
+     * Set the value of aAnnuler
+     *
+     * @return  self
+     */
+    public function setAAnnuler($aAnnuler)
+    {
+        $this->aAnnuler = $aAnnuler;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateAnnulation
+     */
+    public function getDateAnnulation()
+    {
+        return $this->dateAnnulation;
+    }
+
+    /**
+     * Set the value of dateAnnulation
+     *
+     * @return  self
+     */
+    public function setDateAnnulation($dateAnnulation)
+    {
+        $this->dateAnnulation = $dateAnnulation;
 
         return $this;
     }

@@ -141,7 +141,7 @@ class GeneratePdf
     public function copyToDwDdp(string $fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

@@ -115,7 +115,10 @@ class MutationFormType extends AbstractType
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
-                        return $catg->createQueryBuilder('c')->where('c.id <> 5')->orderBy('c.description', 'ASC');
+                        return $catg->createQueryBuilder('c')
+                                    ->where('c.id NOT IN (:excluded)')
+                                    ->setParameter('excluded', [5, 6, 7])
+                                    ->orderBy('c.description', 'ASC');
                     }
                 ]
             )

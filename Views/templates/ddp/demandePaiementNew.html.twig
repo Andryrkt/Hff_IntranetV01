@@ -30,8 +30,6 @@
 				</div>
 				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
 				{{ form_errors(form)}}
-
-
 					<div class="row">
 						<div class="col-12 col-md-2">
 							{{ form_row(form.numeroFournisseur) }}
@@ -89,10 +87,18 @@
 						{% endif %}
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-						<div class="col-12 col-md-4"	
+						<div class="col-12 col-md-4"
+						{% if id_type == 1 %}
+						<p>Veuillez insérer
+									<strong>la commande *</strong>
+								</p>
+						{% else %}
+
+
 							<p>Veuillez insérer
 									<strong>le contrôle livraison *</strong>
 								</p>
+							{% endif %}
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
 						</div>
 						<div class="col-12 col-md-4"

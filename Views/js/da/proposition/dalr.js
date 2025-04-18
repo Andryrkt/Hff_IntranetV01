@@ -54,7 +54,7 @@ function insertCellData(row, $data, align = "center", color = "red") {
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
   // let newIndex = Date.now();
-  let newIndex = rowIndex;
+  let newIndex = line + rowIndex;
   let prototype = document
     .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype

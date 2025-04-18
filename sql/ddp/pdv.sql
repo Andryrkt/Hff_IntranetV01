@@ -91,3 +91,13 @@ ADD numero_commande VARCHAR(max)
 
 ALTER TABLE demande_paiement
 ADD numero_facture VARCHAR(max)
+
+
+CREATE TABLE historique_statut_ddp
+(
+    id INT IDENTITY (1, 1),
+    numero_ddp VARCHAR(50),
+    statut VARCHAR(50),
+    date DATETIME2 (3),
+    CONSTRAINT PK_historique_statut_ddp PRIMARY KEY (id)
+);

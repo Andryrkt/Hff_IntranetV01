@@ -690,4 +690,37 @@ document.addEventListener("DOMContentLoaded", function () {
   montantInput.addEventListener("input", (e) => {
     montantInput.value = formatNumberSpecial(montantInput.value);
   });
+
+  /**
+   * TEST
+   */
+
+  document.getElementById("tester").addEventListener("click", async () => {
+    const cheminRelatif = "DD0070A25/PDV_10236125.PDF";
+    const url = `/Hffintranet/api/recuperer-fichier?path=${encodeURIComponent(
+      cheminRelatif
+    )}`;
+
+    try {
+      const response = await fetch(url);
+      const text = await response.text(); // récupération brute
+      const data = JSON.parse(text); // conversion en objet
+
+      if (data.success) {
+        alert(data.message);
+
+        // ⚠️ Windows uniquement, et fonctionne seulement si l'utilisateur a accès au chemin réseau
+        const cheminWindows = data.chemin.replace(/\\\\/g, "\\\\"); // sécurité, double échappement
+        const lienFile = `file://${cheminWindows.replace(/\\/g, "/")}`; // file:// + conversion en URL
+
+        // Ouvrir dans une nouvelle fenêtre ou onglet
+        window.open(lienFile, "_blank");
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Erreur JSON ou réseau :", error);
+      alert("Erreur de communication avec le serveur.");
+    }
+  });
 });
