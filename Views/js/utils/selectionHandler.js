@@ -20,7 +20,6 @@ export async function updateDropdown(
     populateDropdown(dropdown, data); // Ajoute les nouvelles options
 
     if (values) {
-      console.log(values);
       dropdown.value = values; // Définit la valeur sélectionnée si fournie
     }
   } catch (error) {

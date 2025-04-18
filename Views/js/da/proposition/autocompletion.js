@@ -189,6 +189,7 @@ function handleValuesOfFields(
     const containerElement = document.querySelector(
       "#container_codeFams2_" + numPage
     );
+
     updateDropdown(
       sousFamille,
       `api/demande-appro/sous-famille/${famille.value}`,
