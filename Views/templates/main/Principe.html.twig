@@ -27,6 +27,7 @@
 				{% set hasCFR = false %}
 				{% set hasINV = false %}
 				{% set hasMUT = false %}
+				{% set hasLCF = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -51,6 +52,8 @@
 						{% set hasINV = true %}
 					{% elseif item.codeApp == 'MUT' %}
 						{% set hasMUT = true %}
+					{% elseif item.codeApp == 'LCF' %}
+						{% set hasLCF = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -246,7 +249,7 @@
 							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
 							{# </li> #}
 
-							{% if hasINV %}
+								{% if hasINV %}
 									<li>
 								<hr class="dropdown-divider"> </li>
 								<li class="dropdown-header">
@@ -264,17 +267,19 @@
 							<li>
 								<hr class="dropdown-divider">
 							</li>
-							<li class="dropdown-header">
-								LISTE CDE FOURNISSEUR
-							</li>
-							{# <li>
-								<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Generer")}}">
-									Liste commande fournisseur non générée</a>
-							</li> #}
-							<li>
-								<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Placer")}}">
-									Liste commande fournisseur non placée </a>
-							</li>
+							{% if hasLCF %}
+								<li class="dropdown-header">
+									LISTE CDE FOURNISSEUR
+								</li>
+								{# <li> #}
+								{# <a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Generer")}}"> #}
+								{# Liste commande fournisseur non générée</a> #}
+								{# </li> #}
+									<li>
+										<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Placer")}}"> Liste commande fournisseur non placée
+									</a>
+								</li>
+							{% endif %}
 						</ul>
 					</li>
 				{% endif %}
@@ -305,9 +310,9 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('planning_vue', {'action': 'oui'}) }}">Planning</a>
 							</li>
-							<li> 
-								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a> 
-							 </li>
+							<li>
+								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
+							</li>
 						</ul>
 					</li>
 				{% endif %}
