@@ -1,12 +1,12 @@
 <?php
 
-namespace App\security;
+namespace App\Security;
 
 
 use app\security\PermissionDebugger;
 use App\Entity\admin\utilisateur\User;
 
-final class Permission
+final class PermissionManager
 {
     /**
      * Undocumented variable
@@ -25,12 +25,11 @@ final class Permission
 
     public function can(User $user, string $permission, $subject = null): bool
     {
-        
-        foreach($this->voters as $voter) {
-            if($voter->canVote($permission, $subject)) 
-            {
+
+        foreach ($this->voters as $voter) {
+            if ($voter->canVote($permission, $subject)) {
                 $vote = $voter->vote($user, $permission, $subject);
-                if($this->debugger) {
+                if ($this->debugger) {
                     $this->debugger->debug($voter, $vote, $permission, $user, $subject);
                 }
                 if ($vote === true) {
@@ -42,7 +41,7 @@ final class Permission
     }
 
 
-    public function addvoter($voter)
+    public function addvoter(Voter $voter)
     {
         $this->voters[] = $voter;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\security;
+namespace App\Security;
 
 use App\Controller\ProfilControl;
 use App\Entity\admin\utilisateur\User;
