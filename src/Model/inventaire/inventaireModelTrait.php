@@ -22,7 +22,7 @@ trait InventaireModelTrait
         if (!empty($criteria->getInventaireDispo())) {
             $agence = "AND ainvi_numinv  IN (".TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo() ).")";
         }else{
-            $agence = "";
+            $agence = "AND ainvi_numinv  IN ('')";
         }
         return $agence;
     }
