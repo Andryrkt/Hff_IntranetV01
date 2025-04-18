@@ -417,11 +417,11 @@ and cpt3.ainvp_nligne = cpt.ainvp_nligne
 END * ainvp_prix as Montant_Ecart
 
 from art_invp cpt, art_invi inv
- $inventDispo
+WHERE ainvp_nbordereau <> 0
 and (ainvp_numinv = ainvi_numinv_mait and ainvi_sequence = 1)
-and ainvp_nbordereau <> 0
+ $inventDispo
 order by ainvi_numinv_mait, ainvi_numinv,ainvp_nbordereau, ainvp_nligne";
-        // dd($statement);
+        dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
