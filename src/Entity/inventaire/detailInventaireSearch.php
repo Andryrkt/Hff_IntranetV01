@@ -85,4 +85,22 @@ class DetailInventaireSearch{
 
         return $this;
     }
+    public function toArray(): array
+    {
+        return [
+            'agence' => $this->agence,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'inventaireDispo' => $this->inventaireDispo,
+        ];
+    }
+    public function arrayToObjet(array $criteriaTab)
+    {
+        $this
+            ->setAgence($criteriaTab['agence'])
+            ->setDateDebut($criteriaTab['dateDebut'])
+            ->setDateFin($criteriaTab['dateFin'])
+            ->setInventaireDispo($criteriaTab['inventaireDispo'])
+        ;
+    }
 }

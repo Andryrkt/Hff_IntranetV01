@@ -11,7 +11,7 @@ trait InventaireModelTrait
     private function agence($criteria){
         // dd($criteria);
         if (!empty($criteria->getAgence())) {
-            $agence = "WHERE ainvi_succ IN ('".implode("','",$criteria->getAgence())."')";
+            $agence = "AND ainvi_succ IN ('".implode("','",$criteria->getAgence())."')";
         }else{
             $agence = "";
         }

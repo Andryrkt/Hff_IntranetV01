@@ -148,7 +148,7 @@ function agence() {
       // Suppression du spinner
       spinner.remove();
     });
-    checkAll.checked = false
+    // checkAll.checked = false
 }
 
 /// Fonction pour créer le spinner HTML avec CSS intégré
