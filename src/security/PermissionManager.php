@@ -41,7 +41,7 @@ final class PermissionManager
     }
 
 
-    public function addvoter(Voter $voter)
+    public function addvoter(PermissionVoterInterface $voter)
     {
         $this->voters[] = $voter;
     }

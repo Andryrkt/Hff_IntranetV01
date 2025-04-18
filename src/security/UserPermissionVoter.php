@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\security\Voter;
+
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Permission;
@@ -10,7 +10,7 @@ use App\Repository\admin\utilisateur\PermissionRepository;
 
 
 
-class UserPermissionVoter extends Voter
+class UserPermissionVoter implements PermissionVoterInterface
 {
     private  $em;
     private PermissionRepository $permissionRepository;

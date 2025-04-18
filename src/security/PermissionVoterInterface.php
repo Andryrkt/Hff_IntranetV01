@@ -2,10 +2,10 @@
 
 namespace App\Security;
 
-use App\Controller\ProfilControl;
+
 use App\Entity\admin\utilisateur\User;
 
-interface Voter
+interface PermissionVoterInterface
 {
     public function canVote(string $permission, $subject = null): bool;
 

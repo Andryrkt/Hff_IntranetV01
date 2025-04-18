@@ -7,7 +7,7 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Permission;
 use App\Repository\admin\utilisateur\PermissionRepository;
 
-class GroupePermissionVoter implements Voter
+class GroupePermissionVoter implements PermissionVoterInterface
 {
     private $em;
     private PermissionRepository $permissionRepository;
