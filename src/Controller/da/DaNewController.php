@@ -3,14 +3,16 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DemandeApproTrait;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
+use App\Entity\admin\Application;
+use App\Form\da\DaObservationType;
+use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Form\da\DemandeApproFormType;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Traits\da\DemandeApproTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -18,7 +20,13 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewController extends Controller
 {
-    use DemandeApproTrait;
+    private DaObservation $daObservation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->daObservation = new DaObservation();
+    }
 
     /**
      * @Route("/first-form", name="da_first_form")
@@ -48,7 +56,16 @@ class DaNewController extends Controller
         $this->initialisationDemandeAppro($demandeAppro, $dit);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $this->traitementForm($form, $request, $demandeAppro);
 
+
+        self::$twig->display('da/new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
+    {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -57,6 +74,7 @@ class DaNewController extends Controller
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
+
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
@@ -76,14 +94,43 @@ class DaNewController extends Controller
             self::$em->persist($application);
             self::$em->persist($demandeAppro);
 
+            $this->insertionObservation($demandeAppro);
+
             self::$em->flush();
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("da_list");
         }
+    }
 
-        self::$twig->display('da/new.html.twig', [
-            'form' => $form->createView(),
-        ]);
+    private function insertionObservation(DemandeAppro $demandeAppro): void
+    {
+        $daObservation = $this->recupDonnerDaObservation($demandeAppro);
+
+        self::$em->persist($daObservation);
+    }
+
+    private function recupDonnerDaObservation(DemandeAppro $demandeAppro): DaObservation
+    {
+        return $this->daObservation
+            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+            ->setUtilisateur($demandeAppro->getDemandeur())
+            ->setObservation($demandeAppro->getObservation())
+        ;
+    }
+
+    private function initialisationDemandeAppro(DemandeAppro $demandeAppro, DemandeIntervention $dit)
+    {
+        $demandeAppro
+            ->setDit($dit)
+            ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
+            ->setAgenceDebiteur($dit->getAgenceDebiteurId())
+            ->setServiceDebiteur($dit->getServiceDebiteurId())
+            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
+            ->setServiceEmetteur($dit->getServiceEmetteurId())
+            ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
+            ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
+            ->setStatutDal('Ouvert')
+        ;
     }
 }
