@@ -13,6 +13,7 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,6 +28,7 @@ class DaPropositionRefController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaObservation $daObservation;
+    private DaObservationRepository $daObservationRepository;
 
 
     public function __construct()
@@ -39,6 +41,7 @@ class DaPropositionRefController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daObservation = new DaObservation();
+        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
     }
 
     /**
@@ -57,10 +60,13 @@ class DaPropositionRefController extends Controller
 
         $this->traitementFormulaire($form, $data, $request, $numDa);
 
+        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
+
         self::$twig->display('da/proposition.html.twig', [
             'data' => $data,
             'id' => $id,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'observations' => $observations
         ]);
     }
 

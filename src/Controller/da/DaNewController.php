@@ -13,6 +13,7 @@ use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\da\DemandeApproTrait;
+use App\Repository\da\DaObservationRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -21,11 +22,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaNewController extends Controller
 {
     private DaObservation $daObservation;
+    private DaObservationRepository $daObservationRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->daObservation = new DaObservation();
+        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
     }
 
     /**
@@ -50,17 +53,18 @@ class DaNewController extends Controller
          */
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
 
-        // $dit->getAgenceDebiteurId();
-
         $demandeAppro = new DemandeAppro;
         $this->initialisationDemandeAppro($demandeAppro, $dit);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro);
 
+        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
+
 
         self::$twig->display('da/new.html.twig', [
             'form' => $form->createView(),
+            'observations' => $observations
         ]);
     }
 
