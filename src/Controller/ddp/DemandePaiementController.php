@@ -10,6 +10,7 @@ use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
+use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
@@ -87,7 +88,8 @@ class DemandePaiementController extends Controller
              /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data);// enregistrement des données dans la table demande_paiement_ligne
-            $this->enregisterDdpF($data);
+            $this->enregisterDdpF($data);// enregistrement des données dans la table doc_demande_paiement
+            $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
 
             /** COPIER LES FICHIERS */
             $this->copierFichierDistant($data);
@@ -103,8 +105,8 @@ class DemandePaiementController extends Controller
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
 
-            /** ENVOYER DAN DW */
-            // $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde);
+            /** ENVOYER DANS DW */
+            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde);
 
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
@@ -116,7 +118,21 @@ class DemandePaiementController extends Controller
         ]);
     }
 
-     /**
+    private function enregistrementBdHistoriqueStatut(DemandePaiement $data): void
+    {
+        $historiqueStatutDdp = new HistoriqueStatutDdp();
+        $historiqueStatutDdp
+            ->setNumeroDdp($data->getNumeroDdp())
+            ->setStatut($data->getStatut())
+            ->setDate(new \DateTime())
+        ;
+
+        self::$em->persist($historiqueStatutDdp);
+        self::$em->flush();
+    }
+
+
+    /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
      *
      * @param string $nomDemande
@@ -172,7 +188,6 @@ class DemandePaiementController extends Controller
             $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
         }
         
-
         return $tousLesFichiers;
     }
 
