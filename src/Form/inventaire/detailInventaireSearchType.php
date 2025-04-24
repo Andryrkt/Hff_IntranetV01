@@ -108,7 +108,7 @@ class detailInventaireSearchType extends AbstractType
                     'choices' => $listeInventaireDispo,
                     'placeholder' => " -- Choisir un inventaire--",
                     'expanded' => true,
-                    'data' =>$data["InventaireDispo"]
+                    'data' =>$data["InventaireDispo"] ?? []
                 ]);
                 
             })
