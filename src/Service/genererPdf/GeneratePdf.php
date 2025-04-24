@@ -140,7 +140,7 @@ class GeneratePdf
     /** DEMANDE DE PAIEMENT */
     public function copyToDwDdp(string $fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware. 'RAPPORT_INTERVENTION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

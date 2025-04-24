@@ -69,7 +69,18 @@ class DemandePaiementController extends Controller
         $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
-        
+      
+        $this->traitementForm($request, $form,$id);
+
+        self::$twig->display('ddp/demandePaiementNew.html.twig', [
+            'id_type' => $id,
+            'form' => $form->createView()
+        ]);
+    }
+
+    private function traitementForm(Request $request, $form, int $id): void
+    {
+          
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -111,11 +122,6 @@ class DemandePaiementController extends Controller
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
-
-        self::$twig->display('ddp/demandePaiementNew.html.twig', [
-            'id_type' => $id,
-            'form' => $form->createView()
-        ]);
     }
 
     private function enregistrementBdHistoriqueStatut(DemandePaiement $data): void
