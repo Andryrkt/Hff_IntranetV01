@@ -6,14 +6,12 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
-use App\Form\da\DaObservationType;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\da\DemandeApproLRCollection;
-use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Controller\Traits\da\DemandeApproTrait;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dit\DitRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -21,14 +19,19 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewController extends Controller
 {
+
+
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
+    private DitRepository $ditRepository;
+
 
     public function __construct()
     {
         parent::__construct();
         $this->daObservation = new DaObservation();
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -51,7 +54,7 @@ class DaNewController extends Controller
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $id
          */
-        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+        $dit = $this->ditRepository->find($id);
 
         $demandeAppro = new DemandeAppro;
         $this->initialisationDemandeAppro($demandeAppro, $dit);
@@ -67,6 +70,8 @@ class DaNewController extends Controller
             'observations' => $observations
         ]);
     }
+
+
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
     {

@@ -2,9 +2,12 @@
 
 namespace App\Api\da;
 
-use App\Controller\Controller;
-use App\Controller\Traits\FormatageTrait;
 use App\Model\da\DaModel;
+use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\FormatageTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DaApi extends Controller
@@ -62,5 +65,34 @@ class DaApi extends Controller
         header("Content-type:application/json");
 
         echo json_encode($data);
+    }
+
+    /**
+     * @Route("/api/recup-statut-da", name="api_recup_statut_da")
+     *
+     * @return void
+     */
+    public function recupStatutDaPourDitSelectionner(Request $request)
+    {
+        if ($request->isMethod('POST')) {
+            $data = json_decode($request->getContent(), true);
+
+            $dit = self::$em->getRepository(DemandeIntervention::class)->find($data['id']);
+            if (!$dit) {
+                echo json_encode(['error' => 'DemandeIntervention non trouvée']);
+                exit;
+            }
+
+            $statut = self::$em->getRepository(DemandeAppro::class)
+                ->getStatut($dit->getNumeroDemandeIntervention());
+
+            if ($statut === null) {
+                echo json_encode(['statut' => null, 'message' => 'Aucun statut trouvé']);
+            } else {
+                echo json_encode(['statut' => $statut]);
+            }
+
+            exit;
+        }
     }
 }
