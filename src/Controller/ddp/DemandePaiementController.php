@@ -311,7 +311,7 @@ class DemandePaiementController extends Controller
      * @param DemandePaiement $data
      * @return void
      */
-    private function copierFichierDistant(DemandePaiement $data)
+    private function copierFichierDistant(DemandePaiement $data): void
     {
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
         $cheminDestination = $_ENV['BASE_PATH_FICHIER'] . '/ddp/fichiers';

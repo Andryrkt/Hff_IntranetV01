@@ -101,3 +101,10 @@ CREATE TABLE historique_statut_ddp
     date DATETIME2 (3),
     CONSTRAINT PK_historique_statut_ddp PRIMARY KEY (id)
 );
+
+
+ALTER TABLE document_demande_paiement
+ADD nom_dossier VARCHAR(255)
+
+ALTER TABLE document_demande_paiement
+ADD num_ddr VARCHAR(11)

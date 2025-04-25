@@ -29,7 +29,12 @@ class DdpListeController extends Controller
     {
 
         $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-
+        
+        /** suppression de ssession page_loadede  */
+        if($this->sessionService->has('page_loaded')){
+            $this->sessionService->remove('page_loaded');
+        }
+        
 
         self::$twig->display('ddp/demandePaiementList.html.twig', [
             'data' => $data
