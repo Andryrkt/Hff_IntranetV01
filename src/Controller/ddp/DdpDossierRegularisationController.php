@@ -25,7 +25,7 @@ class DdpDossierRegularisationController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationDDPService $historiqueOperation;
     private string $baseCheminDocuware;
-    
+
 
     public function __construct()
     {
@@ -33,9 +33,9 @@ class DdpDossierRegularisationController extends Controller
         $this->DdpDossierRegulModel = new DdpDossierRegulModel;
         $this->demandePaiementRepository  = self::$em->getRepository(DemandePaiement::class);
         $this->docRepository = self::$em->getRepository(DocDemandePaiement::class);
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] .'/ddp';
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService();
-        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'].'/';
+        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
     }
     /**
      * @Route("/dossierRegul/{numDdp}", name="demande_regulation")
@@ -46,12 +46,12 @@ class DdpDossierRegularisationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(DdpDossierRegulType::class, null)->getForm();
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $numDdr = $this->autoDecrementDDP('DDR'); // decrementation du numero DDP
-           
+
             $this->modificationDernierIdApp($numDdr); // modification du dernière id dans la table applications
             $fileUploaderService = new FileUploaderService($this->cheminDeBase);
 
@@ -59,9 +59,9 @@ class DdpDossierRegularisationController extends Controller
             /** @var UploadedFile|null $file */
             $file = $form->get('pieceJoint01')->getData();
             if ($file instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
-                $fileName = $this->moveFichierUploder( $file, $numDdp, $fileUploaderService);
+                $fileName = $this->moveFichierUploder($file, $numDdp, $fileUploaderService);
                 $this->modificationBdDoc($numDdp, $numDdr);
-                $this->enregistrementUpload($numDdp,$fileName, $numDdr);
+                $this->enregistrementUpload($numDdp, $fileName, $numDdr);
             } else {
                 throw new \Exception('Le fichier n\'est pas valide');
             }
@@ -69,18 +69,18 @@ class DdpDossierRegularisationController extends Controller
             /** FUSIONER LES PDFS */
             $cheminDesFichierFinale = $this->recupCheminTousLesFichier($numDdp, $fileName);
             $fichierConvertir = $this->ConvertirLesPdf($cheminDesFichierFinale);
-            $cheminEtNomFichierFusioner = $this->cheminDeBase . '/'.$numDdp.'/'.$numDdr.'.pdf';
+            $cheminEtNomFichierFusioner = $this->cheminDeBase . '/' . $numDdp . '/' . $numDdr . '.pdf';
             $fileUploaderService->fusionFichers($fichierConvertir, $cheminEtNomFichierFusioner);
 
             /** Copie du fichier fusionner dans DW */
-           $this->copyDocuware($cheminEtNomFichierFusioner, $numDdr);
-
+            $this->copyDocuware($cheminEtNomFichierFusioner, $numDdr);
+            /** modifier le statut de regularisation */
+            $this->modificationStatutDossierRegul($numDdp);
             /** enregistrer dans l'historique */
             $this->historiqueOperation->sendNotificationSoumission('Les documents de régularisation a été stockée avec succès', $numDdr, 'ddp_liste', true);
+        }
 
-        } 
-
-        if(!$this->sessionService->has('page_loaded')) {
+        if (!$this->sessionService->has('page_loaded')) {
 
             /** creation du session */
             $this->sessionService->set('page_loaded', true);
@@ -93,24 +93,24 @@ class DdpDossierRegularisationController extends Controller
 
             /** recupération de nom de fichier */
             $groupes = $this->recupInfoFichier($numDdp);
-
         }
-            
-        
 
-        
+
+
+
         self::$twig->display('ddp/DdpDossierRegul.html.twig', [
             'form' => $form->createView(),
             'groupes' => $groupes
         ]);
     }
 
-    private function copyDocuware( string $cheminEtNomFichierFusioner, string $numDdr){
+    private function copyDocuware(string $cheminEtNomFichierFusioner, string $numDdr)
+    {
         $cheminDeFichier = $cheminEtNomFichierFusioner;
-        $destinationFinal = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/'.$numDdr.'.pdf';
+        $destinationFinal = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $numDdr . '.pdf';
         copy($cheminDeFichier, $destinationFinal);
     }
-    
+
     private function modificationBdDoc(string $numDdp, string $numDdr): void
     {
         $docDdps = $this->docRepository->findBy(["numeroDdp" => $numDdp]);
@@ -134,8 +134,21 @@ class DdpDossierRegularisationController extends Controller
         self::$em->persist($application);
         self::$em->flush();
     }
-
-     /**
+    /**
+     * modification de statut_dossier_regul dans la table demande_paiement
+     * 
+     * @param string $nimDdp
+     * @return void
+     */
+    private function modificationStatutDossierRegul($numDdp)
+    {
+        $demande_paiement = self::$em->getRepository(DemandePaiement::class)->findOneBy(['numeroDdp' => $numDdp]);
+        $demande_paiement->setStatutDossierRegul('DOSSIER DE REGULARISTATION');
+        // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
+        self::$em->persist($demande_paiement);
+        self::$em->flush();
+    }
+    /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
      *
      * @param string $nomDemande
@@ -189,29 +202,30 @@ class DdpDossierRegularisationController extends Controller
     private function recupCheminTousLesFichier(string $numDdp, string $fileName): array
     {
         $chemins = $this->docRepository->getFileName($numDdp);
-            $nomFichierAvecChemin= [];
-            foreach ($chemins as  $chemin) {
-                $nomFichierAvecChemin[] = $this->cheminDeBase.'/'.$numDdp.'/'.$chemin['nomDossier'].'/'.$chemin['nomFichier'];
-            }
-            $nomFichierAvecCheminUploder = [$this->cheminDeBase.'/'.$numDdp.'/'.$fileName];
-            return array_merge($nomFichierAvecCheminUploder, $nomFichierAvecChemin);
+        $nomFichierAvecChemin = [];
+        foreach ($chemins as  $chemin) {
+            $nomFichierAvecChemin[] = $this->cheminDeBase . '/' . $numDdp . '/' . $chemin['nomDossier'] . '/' . $chemin['nomFichier'];
+        }
+        $nomFichierAvecCheminUploder = [$this->cheminDeBase . '/' . $numDdp . '/' . $fileName];
+        return array_merge($nomFichierAvecCheminUploder, $nomFichierAvecChemin);
     }
 
-    private function enregistrementUpload(string $numDdp, string $fileName, string $numDdr){
+    private function enregistrementUpload(string $numDdp, string $fileName, string $numDdr)
+    {
         $docDdp = new DocDemandePaiement();
-                   $docDdp->setNumeroDdp($numDdp)
-                    ->setNomFichier($fileName)
-                    ->setNomDossier(null)
-                    ->setNumDdr($numDdr)
-                    ;
-                self::$em->persist($docDdp);
-                self::$em->flush();
+        $docDdp->setNumeroDdp($numDdp)
+            ->setNomFichier($fileName)
+            ->setNomDossier(null)
+            ->setNumDdr($numDdr)
+        ;
+        self::$em->persist($docDdp);
+        self::$em->flush();
     }
     private function moveFichierUploder(UploadedFile $file, string $numDdp, FileUploaderService $fileUploaderService): string
     {
-        $fileName = 'control_livraison_'.$numDdp.'.pdf';
-                $pathFichier = '/' . $numDdp;
-                $fileUploaderService->uploadFileSansName($file, $fileName, $pathFichier);
+        $fileName = 'control_livraison_' . $numDdp . '.pdf';
+        $pathFichier = '/' . $numDdp;
+        $fileUploaderService->uploadFileSansName($file, $fileName, $pathFichier);
         return $fileName;
     }
 
@@ -222,40 +236,41 @@ class DdpDossierRegularisationController extends Controller
         foreach ($tousLesFichersAvecChemin as $filePath) {
             $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
         }
-        
+
         return $tousLesFichiers;
     }
 
 
-    private function convertPdfWithGhostscript($filePath) {
+    private function convertPdfWithGhostscript($filePath)
+    {
         $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
         $tempFile = $filePath . "_temp.pdf";
-    
+
         // Vérifier si le fichier existe et est accessible
         if (!file_exists($filePath)) {
             throw new Exception("Fichier introuvable : $filePath");
         }
-    
+
         if (!is_readable($filePath)) {
             throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
         }
-    
+
         // Commande Ghostscript
         $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
         // echo "Commande exécutée : $command<br>";
-    
+
         exec($command, $output, $returnVar);
-    
+
         if ($returnVar !== 0) {
             echo "Sortie Ghostscript : " . implode("\n", $output);
             throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
         }
-    
+
         // Remplacement du fichier
         if (!rename($tempFile, $filePath)) {
             throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
         }
-    
+
         return $filePath;
     }
 
@@ -267,25 +282,26 @@ class DdpDossierRegularisationController extends Controller
      * @param string $prefix
      * @return array
      */
-    private function addPrefixToElementArray(array $files, string $prefix): array {
-        return array_map(function($file) use ($prefix) {
-            return $prefix.$file;
+    private function addPrefixToElementArray(array $files, string $prefix): array
+    {
+        return array_map(function ($file) use ($prefix) {
+            return $prefix . $file;
         }, $files);
     }
 
     private function recupInfoFichier(string $numDdp): array
     {
         $documents = $this->docRepository->findBy(["numeroDdp" => $numDdp]);
-        
+
         $groupes = [];
 
         foreach ($documents as $doc) {
             $nomDossier = $doc->getNomDossier();
-    
+
             if (!isset($groupes[$nomDossier])) {
                 $groupes[$nomDossier] = [];
             }
-    
+
             $groupes[$nomDossier][] = $doc;
         }
         return $groupes;
@@ -302,8 +318,7 @@ class DdpDossierRegularisationController extends Controller
                 $docDddps[] = $docDdp
                     ->setNumeroDdp($numDdp)
                     ->setNomFichier($this->nomFichier($cheminDeFichier))
-                    ->setNomDossier($key)
-                ;
+                    ->setNomDossier($key);
             }
         }
         return $docDddps;
@@ -328,14 +343,13 @@ class DdpDossierRegularisationController extends Controller
         $FrsCde = $this->demandePaiementRepository->recuperation_numFrs_numCde($numDdp);
         $list = $this->DdpDossierRegulModel->getListeGcot($FrsCde);
         $cheminFichier = [];
-        $index = 1; 
+        $index = 1;
         foreach ($list as  $value) {
-            $cheminFichier[$value.'_'.$index] = $this->DdpDossierRegulModel->getListeDoc($value);
+            $cheminFichier[$value . '_' . $index] = $this->DdpDossierRegulModel->getListeDoc($value);
             $index++;
         }
 
         return $cheminFichier;
-
     }
 
     /**
@@ -349,10 +363,10 @@ class DdpDossierRegularisationController extends Controller
         //chemin des fichier à copier
         $cheminDeFichiers = $this->recupCheminFichierDistant15($numDdp);
         // repertoire des fichier à coller
-        $cheminDestination = $this->cheminDeBase.'/'.$numDdp;
+        $cheminDestination = $this->cheminDeBase . '/' . $numDdp;
 
         foreach ($cheminDeFichiers as $key => $cheminDeFichieres) {
-            $sousDossier = $cheminDestination  . '/'. $key;
+            $sousDossier = $cheminDestination  . '/' . $key;
 
             // Créer le dossier s'il n'existe pas
             if (!is_dir($sousDossier)) {
@@ -364,39 +378,38 @@ class DdpDossierRegularisationController extends Controller
                 $destinationFinal = $sousDossier . '/' . $nomFichier;
                 copy($cheminDeFichier, $destinationFinal);
             }
-
         }
     }
 
 
-    
 
-    private function nomFichier(string $cheminFichier): string 
+
+    private function nomFichier(string $cheminFichier): string
     {
         $motExacteASupprimer = [
             '\\\\192.168.0.15',
             '\\GCOT_DATA',
             '\\TRANSIT',
         ];
-    
+
         $motCommenceASupprimer = ['\\DD'];
-    
+
         return $this->enleverPartiesTexte($cheminFichier, $motExacteASupprimer, $motCommenceASupprimer);
     }
 
-    private function enleverPartiesTexte(string $texte, array $motsExacts, array $motsCommencent): string 
+    private function enleverPartiesTexte(string $texte, array $motsExacts, array $motsCommencent): string
     {
         // Supprimer les correspondances exactes
         foreach ($motsExacts as $mot) {
             $texte = str_replace($mot, '', $texte);
         }
-    
+
         // Supprimer les parties qui commencent par un mot donné
         foreach ($motsCommencent as $motDebut) {
             $pattern = '/' . preg_quote($motDebut, '/') . '[^\\\\]*/';
             $texte = preg_replace($pattern, '', $texte);
         }
-    
+
         // Supprimer les éventuels slashes de début
         return ltrim($texte, '\\/');
     }

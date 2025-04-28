@@ -133,6 +133,12 @@ class DemandePaiement
      */
     private $numeroFacture = [];
 
+ /**
+     * @ORM\Column(type="string", length=100, name="statut_dossier_regul")
+     *
+     * @var string|null
+     */
+    private ?string $statutDossierRegul;
 
     private string $montantAPayer;
 
@@ -707,6 +713,30 @@ class DemandePaiement
     public function setPieceJoint03($pieceJoint03)
     {
         $this->pieceJoint03 = $pieceJoint03;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutDossierRegul
+     *
+     * @return  string|null
+     */ 
+    public function getStatutDossierRegul()
+    {
+        return $this->statutDossierRegul;
+    }
+
+    /**
+     * Set the value of statutDossierRegul
+     *
+     * @param  string|null  $statutDossierRegul
+     *
+     * @return  self
+     */ 
+    public function setStatutDossierRegul($statutDossierRegul)
+    {
+        $this->statutDossierRegul = $statutDossierRegul;
 
         return $this;
     }

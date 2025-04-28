@@ -108,3 +108,8 @@ ADD nom_dossier VARCHAR(255)
 
 ALTER TABLE document_demande_paiement
 ADD num_ddr VARCHAR(11)
+
+ALTER TABLE demande_paiement
+ADD statut_dossier_regul VARCHAR(100)
+
+ 
