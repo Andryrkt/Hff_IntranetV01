@@ -61,11 +61,13 @@
 										</li>
 									</ul>
 								{% endif %}
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp})}}">Dossier régularisation </a>
-										</li>
-									</ul>
+								{% if item.typeDemandeId.id == 1 %}
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp})}}">Dossier régularisation </a>
+											</li>
+										</ul>
+								{% endif %}
 							</div>
 						</td>
 						{# Fin Actions #}

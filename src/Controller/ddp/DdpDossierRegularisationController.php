@@ -35,7 +35,7 @@ class DdpDossierRegularisationController extends Controller
         $this->docRepository = self::$em->getRepository(DocDemandePaiement::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] .'/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService();
-        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'];
+        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'].'/';
     }
     /**
      * @Route("/dossierRegul/{numDdp}", name="demande_regulation")
@@ -107,7 +107,7 @@ class DdpDossierRegularisationController extends Controller
 
     private function copyDocuware( string $cheminEtNomFichierFusioner, string $numDdr){
         $cheminDeFichier = $cheminEtNomFichierFusioner;
-        $destinationFinal = $this->baseCheminDocuware . '/ORDRE_DE_MISSION'.$numDdr.'.pdf';
+        $destinationFinal = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/'.$numDdr.'.pdf';
         copy($cheminDeFichier, $destinationFinal);
     }
     
