@@ -112,4 +112,7 @@ ADD num_ddr VARCHAR(11)
 ALTER TABLE demande_paiement
 ADD statut_dossier_regul VARCHAR(100)
 
+ALTER TABLE demande_paiement
+ADD numeroVersion int
+
  
