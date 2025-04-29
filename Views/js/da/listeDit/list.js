@@ -101,10 +101,10 @@ document.addEventListener("DOMContentLoaded", function () {
       fetchManager.post(endpoint, data).then((statut) => {
         console.log(statut);
         let url;
-        if (statut.statut == "ouvert") {
-          url = `${baseUrl}/demande-appro/new/${checkedValue}`;
-        } else {
+        if (statut.statut == "soumis à l'appro") {
           url = `${baseUrl}/demande-appro/edit/${checkedValue}`;
+        } else {
+          url = `${baseUrl}/demande-appro/new/${checkedValue}`;
         }
         // let url = suivant
         //   .getAttribute("data-uri")

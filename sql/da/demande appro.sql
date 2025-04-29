@@ -1,5 +1,6 @@
 
-CREATE TABLE Demande_Appro(
+CREATE TABLE Demande_Appro
+(
     id int IDENTITY(1,1) NOT NULL,
     numero_demande_appro varchar(11) NOT NULL,
     demandeur varchar(100) not null,
@@ -24,3 +25,6 @@ CREATE TABLE Demande_Appro(
 
 ALTER TABLE Demande_Appro 
 ADD id_Materiel INT
+
+ALTER TABLE Demande_Appro 
+ADD statut_email VARCHAR(100)

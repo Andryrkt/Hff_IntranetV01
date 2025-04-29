@@ -11,9 +11,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
-        ->where('osv.numeroOR = :numOr')
-        ->setParameter('numOr', $numOr)
-        ->setMaxResults(1);
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->setMaxResults(1);
 
         try {
             $result = $qb->getQuery()->getOneOrNullResult();
@@ -70,7 +70,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $statut = ['Validé', 'Livré','Livré partiellement'];
+        $statut = ['Validé', 'Livré', 'Livré partiellement'];
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')
@@ -181,12 +181,12 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
-        ->select('MAX(osv.numeroVersion)')
-        ->where('osv.numeroOR = :numOr')
-        ->setParameter('numOr', $numOr)
-        ->getQuery()
-        ->getSingleScalarResult();
-        
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
         // Vérifier si un numeroVersion a été trouvé
         if ($numeroVersionMax === null) {
             return [
@@ -264,5 +264,59 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getSingleColumnResult();
 
         return $query;
+    }
+
+    public function getblocageStatut(string $numOr)
+    {
+        $qb = $this->createQueryBuilder('o');
+
+        // Étape 1 : Vérifier l'existence
+        $count = $qb
+            ->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ((int) $count === 0) {
+            return 'ne pas bloquer';
+        }
+
+        // Étape 2 : Récupérer la version max
+        $maxVersion = $this->createQueryBuilder('o')
+            ->select('MAX(o.numeroVersion)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Étape 3 : Vérifier les statuts avec like()
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        $qb = $this->createQueryBuilder('o');
+        $qb->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->andWhere('o.numeroVersion = :maxVersion')
+            ->andWhere(
+                $expr->orX(
+                    $expr->like('o.statut', ':valide'),
+                    $expr->like('o.statut', ':refuse'),
+                    $expr->like('o.statut', ':livre_part'),
+                    $expr->like('o.statut', ':modif_client')
+                )
+            )
+            ->setParameters([
+                'numOr' => $numOr,
+                'maxVersion' => $maxVersion,
+                'valide' => '%Validé%',
+                'refuse' => '%Refusé%',
+                'livre_part' => '%Livré partiellement%',
+                'modif_client' => '%Modification demandée par client%',
+
+            ]);
+
+        $matchingCount = $qb->getQuery()->getSingleScalarResult();
+
+        return ((int) $matchingCount > 0) ? 'ne pas bloquer' : 'bloquer';
     }
 }

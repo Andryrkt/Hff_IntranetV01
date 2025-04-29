@@ -131,6 +131,11 @@ class DemandeAppro
 
     private $observation;
 
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_email")
+     */
+    private ?string $statutEmail = '';
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -531,7 +536,7 @@ class DemandeAppro
 
     /**
      * Get the value of observation
-     */ 
+     */
     public function getObservation()
     {
         return $this->observation;
@@ -541,10 +546,30 @@ class DemandeAppro
      * Set the value of observation
      *
      * @return  self
-     */ 
+     */
     public function setObservation($observation)
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutEmail
+     */ 
+    public function getStatutEmail()
+    {
+        return $this->statutEmail;
+    }
+
+    /**
+     * Set the value of statutEmail
+     *
+     * @return  self
+     */ 
+    public function setStatutEmail($statutEmail)
+    {
+        $this->statutEmail = $statutEmail;
 
         return $this;
     }

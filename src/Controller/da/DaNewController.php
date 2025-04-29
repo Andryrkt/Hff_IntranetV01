@@ -2,16 +2,18 @@
 
 namespace App\Controller\da;
 
+use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
+use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\dit\DitRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaNewController extends Controller
 {
 
+    use lienGenerique;
 
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
@@ -88,7 +91,7 @@ class DaNewController extends Controller
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
                     ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal('Ouvert')
+                    ->setStatutDal('soumis à l’appro')
                 ;
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
@@ -103,14 +106,48 @@ class DaNewController extends Controller
             self::$em->persist($application);
             self::$em->persist($demandeAppro);
 
-            $this->insertionObservation($demandeAppro);
+            if ($demandeAppro->getObservation() == null) {
+                $this->insertionObservation($demandeAppro);
+            }
 
             self::$em->flush();
+
+            $this->envoyerMailAuxAppros([
+                'id'            => $demandeAppro->getId(),
+                'numDa'        => $demandeAppro->getNumeroDemandeAppro(),
+                'objet'         => $demandeAppro->getObjetDal(),
+                'detail'        => $demandeAppro->getDetailDal(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("da_list");
         }
     }
+
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAppros(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'hasina.andrianadison@hff.mg',
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "newDa",
+                'subject'    => "{$tab['numDa']} - Nouvelle demande d'approvisionnement créé",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+    }
+
 
     private function insertionObservation(DemandeAppro $demandeAppro): void
     {

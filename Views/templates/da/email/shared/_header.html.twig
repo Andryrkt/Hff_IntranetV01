@@ -1,0 +1,11 @@
+<div class="email-header">
+	{{ numDa }}
+	- NOUVELLE DEMANDE D'APPROVISIONNEMENT
+	<span class="{{ statut }}">
+		{% if statut == "valide" %}
+			VALIDÉ
+		{% elseif statut == "newDa" %}
+			CRÉÉ
+		{% endif %}
+	</span>
+</div>
