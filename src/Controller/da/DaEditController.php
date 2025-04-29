@@ -45,7 +45,7 @@ class DaEditController extends Controller
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
-        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->numeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/edit.html.twig', [
             'form' => $form->createView(),

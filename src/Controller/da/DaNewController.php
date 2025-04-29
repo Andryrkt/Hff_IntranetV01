@@ -65,12 +65,10 @@ class DaNewController extends Controller
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro);
 
-        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
 
 
         self::$twig->display('da/new.html.twig', [
             'form' => $form->createView(),
-            'observations' => $observations
         ]);
     }
 
@@ -176,7 +174,7 @@ class DaNewController extends Controller
             ->setServiceEmetteur($dit->getServiceEmetteurId())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal('Ouvert')
+            ->setStatutDal('soumis à l’appro')
         ;
     }
 }

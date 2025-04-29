@@ -60,13 +60,14 @@ class DaPropositionRefController extends Controller
 
         $this->traitementFormulaire($form, $data, $request, $numDa);
 
-        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
             'data' => $data,
             'id' => $id,
             'form' => $form->createView(),
-            'observations' => $observations
+            'observations' => $observations,
+            'numDa' => $numDa,
         ]);
     }
 

@@ -47,3 +47,6 @@ ALTER COLUMN art_fams1 varchar(50)
 
 ALTER TABLE Demande_Appro_L_R
 ALTER COLUMN art_fams2 varchar(50)
+
+ALTER TABLE Demande_Appro_L_R
+ADD valide_par VARCHAR(50)

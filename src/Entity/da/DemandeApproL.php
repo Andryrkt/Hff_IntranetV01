@@ -146,6 +146,11 @@ class DemandeApproL
      */
     private $estModifier = false;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="valide_par")
+     */
+    private string $validePar;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -630,6 +635,26 @@ class DemandeApproL
     public function setEstModifier($estModifier)
     {
         $this->estModifier = $estModifier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validePar
+     */ 
+    public function getValidePar()
+    {
+        return $this->validePar;
+    }
+
+    /**
+     * Set the value of validePar
+     *
+     * @return  self
+     */ 
+    public function setValidePar($validePar)
+    {
+        $this->validePar = $validePar;
 
         return $this;
     }

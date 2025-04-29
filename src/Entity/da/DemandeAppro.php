@@ -136,6 +136,16 @@ class DemandeAppro
      */
     private ?string $statutEmail = '';
 
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="valide_par")
+     */
+    private string $validePar;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -556,7 +566,7 @@ class DemandeAppro
 
     /**
      * Get the value of statutEmail
-     */ 
+     */
     public function getStatutEmail()
     {
         return $this->statutEmail;
@@ -566,10 +576,50 @@ class DemandeAppro
      * Set the value of statutEmail
      *
      * @return  self
-     */ 
+     */
     public function setStatutEmail($statutEmail)
     {
         $this->statutEmail = $statutEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validePar
+     */ 
+    public function getValidePar()
+    {
+        return $this->validePar;
+    }
+
+    /**
+     * Set the value of validePar
+     *
+     * @return  self
+     */ 
+    public function setValidePar($validePar)
+    {
+        $this->validePar = $validePar;
 
         return $this;
     }

@@ -1,5 +1,6 @@
 
-CREATE TABLE Demande_Appro_L(
+CREATE TABLE Demande_Appro_L
+(
     id int IDENTITY(1,1) NOT NULL,
     numero_demande_appro varchar(11) not null,
     num_ligne int not null,
@@ -14,10 +15,10 @@ CREATE TABLE Demande_Appro_L(
     code_fams2 varchar(50),
     art_fams2 varchar(50),
     numero_fournisseur varchar(7) not null,
-    nom_fournisseur	varchar(50) not null,
+    nom_fournisseur varchar(50) not null,
     date_fin_souhaitee_l DATETIME2(0),
-    commentaire	varchar(1000),
-    statut_dal	varchar(50),
+    commentaire varchar(1000),
+    statut_dal varchar(50),
     catalogue BIT,
     demande_appro_id int not null,
     CONSTRAINT PK_Demande_Appro_L PRIMARY KEY (id)
@@ -37,3 +38,6 @@ ADD date_modification DATETIME2(0)
 
 ALTER TABLE Demande_Appro_L
 ALTER COLUMN code_fams2 VARCHAR(50)
+
+ALTER TABLE Demande_Appro_L
+ADD valide_par VARCHAR(50)
