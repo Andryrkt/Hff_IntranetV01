@@ -44,13 +44,13 @@
 				Enregistrer
 			</button>
 			<a href="{{ path("da_validate", {numDa: numDa})}}" class="btn bouton mt-2 me-4">
-				<i class="
-					fas fa-square"></i>
-				Validé</a>
-			<button type="submit" class="btn bouton mt-2 me-4" id="envoyerSelections" name="bonAchat">
+				<i class="fas fa-square"></i>
+				Validé
+			</a>
+			<a href="{{ path("da_bon_achat", {numDa: numDa})}}" class="btn bouton mt-2 me-4">
 				<i class="fas fa-table"></i>
 				Générer bon d'achat
-			</button>
+			</a>
 		</div>
 		{{ form_end(form) }}
 	</div>

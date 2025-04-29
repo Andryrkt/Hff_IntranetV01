@@ -82,24 +82,7 @@ class DaPropositionRefController extends Controller
 
             if ($request->request->has('enregistrer')) {
                 $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa);
-            } elseif ($request->request->has('bonAchat')) {
-
-                $dalrs = [];
-                foreach ($dalrList as $demandeApproLR) {
-                    $DAL = $this->filtreDal($data, $demandeApproLR);
-                    $dalrs[] = $this->ajoutDonnerDaLR($DAL, $demandeApproLR);
-                }
-
-                // Convertir les entités en tableau de données
-                $dataExel = $this->transformationEnTableauAvecEntet($dalrs);
-
-                //creation du fichier excel
-                $date = new DateTime();
-                $formattedDate = $date->format('Ymd_His');
-                $fileName = $dalrs[0]->getNumeroDemandeAppro() . '_' . $formattedDate . '.xlsx';
-                $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
-                $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
-            }
+            } 
         }
     }
 
@@ -150,21 +133,7 @@ class DaPropositionRefController extends Controller
         ;
     }
 
-    private function transformationEnTableauAvecEntet($entities): array
-    {
-        $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité'];
-
-        foreach ($entities as $entity) {
-            $data[] = [
-                $entity->getArtConstp(),
-                $entity->getArtRefp(),
-                $entity->getQteDem(),
-            ];
-        }
-
-        return $data;
-    }
+    
 
     private function modificationTableDaL(array $refs,  $data): void
     {
