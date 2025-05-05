@@ -55,28 +55,20 @@ class EditDemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/edit-demande-paiement/{numDdp}", name="edit_demande_paiement")
+     * @Route("/edit-demande-paiement/{numDdp}/{numVersion}", name="edit_demande_paiement")
      */
-    public function afficheEdit(Request $request, $numDdp)
-    {
+    public function afficheEdit(Request $request, $numDdp,$numVersion)
+    { 
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
-        $demandePaiement = $this->ddpRepository->findOneBy(['numeroDdp' => $numDdp]);
+        $demandePaiement = $this->ddpRepository->findOneBy(['numeroDdp' => $numDdp,'numeroVersion'=>$numVersion]);
         $demandePaiement->setMontantAPayer($demandePaiement->getMontantAPayers());
-
-        // dd($demandePaiement);
+        $demandePaiement = $demandePaiement->dupliquer();
         $id = $demandePaiement->getTypeDemandeId()->getId();
         $form = self::$validator->createBuilder(DemandePaiementType::class, $demandePaiement, ['id_type' => $id])->getForm();
-
         $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement);
-
-
-
         $numeroFournisseur = $demandePaiement->getNumeroFournisseur();
         $listeGcot = $this->listGcot($numeroFournisseur);
-
-
         self::$twig->display('ddp/EditdemandePaiement.html.twig', [
             'id_type' => $id,
             'form' => $form->createView(),
@@ -90,7 +82,7 @@ class EditDemandePaiementController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData(); //recupération des donnnées
-            $data = $data->dupliquer();
+            
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);

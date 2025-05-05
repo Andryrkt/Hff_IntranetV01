@@ -794,6 +794,7 @@ class DemandePaiement
         $nouvelle->pieceJoint03 = $this->pieceJoint03;
         $nouvelle->beneficiaire = $this->beneficiaire;
         $nouvelle->modePaiement = $this->modePaiement;
+        $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
     }
 
