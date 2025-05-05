@@ -159,8 +159,8 @@
 									<div class="d-none">
 										{{ form_widget(DAL.catalogue, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
-									<div class="w-2">
-										<span title="Supprimer la ligne de DA" style="cursor: pointer;" {{ peutModifier ? 'disabled' : ''}}>
+									<div class="w-2" {{ peutModifier ? 'disabled' : ''}}>
+										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
 											<i class="fas fa-times fs-4"></i>
 										</span>
 									</div>

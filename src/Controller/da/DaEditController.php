@@ -9,6 +9,7 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaEditController extends Controller
 {
     private const ID_ATELIER = 3;
+    private const DA_STATUT = 'soumis à l’appro';
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
@@ -34,7 +36,7 @@ class DaEditController extends Controller
     /**
      * @Route("/edit/{id}", name="da_edit")
      */
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -45,7 +47,9 @@ class DaEditController extends Controller
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->numeroDemandeAppro()], ['dateCreation' => 'DESC']);
+        $this->traitementForm($form, $request, $demandeAppro);
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/edit.html.twig', [
             'form' => $form->createView(),
@@ -56,12 +60,24 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && $demandeAppro->getStatutDal() == 'soumis à l’appro');
+        return ($this->estUserDansServiceAtelier() && $demandeAppro->getStatutDal() == self::DA_STATUT);
     }
 
     private function estUserDansServiceAtelier()
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_ATELIER, $serviceIds);
+    }
+
+    private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $demandeAppro
+                ->setDemandeur($this->getUser()->getNomUtilisateur())
+            ;
+        }
     }
 }

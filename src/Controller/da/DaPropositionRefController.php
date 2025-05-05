@@ -4,11 +4,15 @@ namespace App\Controller\da;
 
 use DateTime;
 use App\Model\da\DaModel;
+use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\da\DemandeApproRepository;
@@ -23,12 +27,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionRefController extends Controller
 {
+    use lienGenerique;
+
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
+    private DitRepository $ditRepository;
 
 
     public function __construct()
@@ -42,6 +49,7 @@ class DaPropositionRefController extends Controller
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daObservation = new DaObservation();
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -52,13 +60,14 @@ class DaPropositionRefController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $numDa = $this->demandeApproRepository->find($id)->getNumeroDemandeAppro();
-        $data = $this->demandeApproRepository->find($id)->getDAL();
+        $da = $this->demandeApproRepository->find($id);
+        $numDa = $da->getNumeroDemandeAppro();
+        $data = $da->getDAL();
 
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $data, $request, $numDa);
+        $this->traitementFormulaire($form, $data, $request, $numDa, $da);
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
@@ -71,7 +80,7 @@ class DaPropositionRefController extends Controller
         ]);
     }
 
-    private function traitementFormulaire($form, $data, Request $request, string $numDa)
+    private function traitementFormulaire($form, $data, Request $request, string $numDa, DemandeAppro $da)
     {
         $form->handleRequest($request);
 
@@ -81,12 +90,12 @@ class DaPropositionRefController extends Controller
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
-                $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa);
-            } 
+                $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa, $da);
+            }
         }
     }
 
-    private function taitementPourBtnEnregistrer($dalrList, Request $request, $data, string $observation, string $numDa): void
+    private function taitementPourBtnEnregistrer($dalrList, Request $request, $data, ?string $observation, string $numDa, DemandeAppro $da): void
     {
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
@@ -95,8 +104,13 @@ class DaPropositionRefController extends Controller
         if ($dalrList->isEmpty() && empty($refs)) {
             $notification = $this->notification('info', "Aucune modification n'a été effectuée");
         } else {
-            $this->enregistrementDb($data, $dalrList);
-            $this->insertionObservation($observation, $numDa);
+            $this->enregistrementDb($data, $dalrList); // enregistrement des données dans la table demande_appro_LR
+            if ($observation !== null) {
+                $this->insertionObservation($observation, $numDa); // enregistrement de l'observation dans la table da_observation
+            }
+            $this->modificationStatutDal($numDa); // modification du statut de la table demande_appro_L
+            $this->modificationStatutDa($numDa); // modification du statut de la table demande_appro
+
             $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
         }
 
@@ -107,15 +121,71 @@ class DaPropositionRefController extends Controller
             //modifier la colonne choix
             $this->modifChoix($refs, $data);
 
-            //modification de la table demande_appro_L
+            //modification de la table demande_appro_L pour les lignes refs
             $this->modificationTableDaL($refs, $data);
         }
+
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+        /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
+        $this->envoyerMailAuxAte([
+            'id'            => $da->getId(),
+            'idDit'       => $dit->getId(),
+            'numDa'        => $da->getNumeroDemandeAppro(),
+            'objet'         => $da->getObjetDal(),
+            'detail'        => $da->getDetailDal(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
     }
 
-    private function insertionObservation(string $observation, string $numDa): void
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAte(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'hasina.andrianadison@hff.mg',
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "propositionDa",
+                'subject'    => "{$tab['numDa']} - demande d'approvisionnement proposition créee ",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/edit/" . $tab['idDit']),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+    }
+
+    private function modificationStatutDal(string $numDa): void
+    {
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa]);
+        foreach ($dals as  $dal) {
+            $dal->setStatutDal('soumis à l’ATE');
+            self::$em->persist($dal);
+        }
+
+        self::$em->flush();
+    }
+
+
+    private function modificationStatutDa(string $numDa): void
+    {
+        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $da->setStatutDal('soumis à l’ATE');
+
+        self::$em->persist($da);
+        self::$em->flush();
+    }
+
+
+    private function insertionObservation(?string $observation, string $numDa): void
     {
         $daObservation = $this->recupDonnerDaObservation($observation, $numDa);
 
@@ -124,7 +194,7 @@ class DaPropositionRefController extends Controller
         self::$em->flush();
     }
 
-    private function recupDonnerDaObservation(string $observation, string $numDa): DaObservation
+    private function recupDonnerDaObservation(?string $observation, string $numDa): DaObservation
     {
         return $this->daObservation
             ->setNumDa($numDa)
@@ -133,7 +203,7 @@ class DaPropositionRefController extends Controller
         ;
     }
 
-    
+
 
     private function modificationTableDaL(array $refs,  $data): void
     {

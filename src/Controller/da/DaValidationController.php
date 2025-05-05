@@ -37,15 +37,17 @@ class DaValidationController extends Controller
      */
     public function validate(string $numDa)
     {
-
+        /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         if ($da) {
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setStatutDal('Bon validé')
             ;
         }
 
+        /** @var DemandeApproL */
         $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa]);
         if (!empty($dal)) {
             foreach ($dal as $item) {
@@ -53,11 +55,13 @@ class DaValidationController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setStatutDal('Bon validé')
                     ;
                 }
             }
         }
 
+        /** @var DemandeApproLR */
         $dalr = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
         if (!empty($dalr)) {
             foreach ($dalr as $item) {
@@ -72,7 +76,7 @@ class DaValidationController extends Controller
 
         self::$em->flush();
 
-        $this->envoyerMailAuxAppros([
+        $this->envoyerMailAuxAte([
             'id'            => $da->getId(),
             'numDa'        => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
@@ -87,7 +91,7 @@ class DaValidationController extends Controller
     /** 
      * Fonctions pour envoyer un mail à la service Appro 
      */
-    private function envoyerMailAuxAppros(array $tab)
+    private function envoyerMailAuxAte(array $tab)
     {
         $email       = new EmailService;
 

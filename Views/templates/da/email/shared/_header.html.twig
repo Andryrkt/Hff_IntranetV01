@@ -3,11 +3,13 @@
 	- DEMANDE D'APPROVISIONNEMENT
 	<span class="{{ statut }}">
 		{% if statut == "validationDa" %}
-			VALIDÉ
+			VALIDÉE
 		{% elseif statut == "newDa" %}
 			CRÉÉ
 		{% elseif statut == 'bonAchatDa' %}
 			BON D'ACHAT
+		{% elseif statut == 'propositionDa' %}
+			PROPOSITION
 		{% endif %}
 	</span>
 </div>

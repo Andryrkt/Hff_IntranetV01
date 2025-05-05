@@ -24,6 +24,8 @@ class DaNewController extends Controller
 
     use lienGenerique;
 
+    private const DA_STATUT = 'soumis à l’appro';
+
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
@@ -89,7 +91,7 @@ class DaNewController extends Controller
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
                     ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal('soumis à l’appro')
+                    ->setStatutDal(self::DA_STATUT)
                 ;
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
@@ -103,8 +105,8 @@ class DaNewController extends Controller
 
             self::$em->persist($application);
             self::$em->persist($demandeAppro);
-
-            if ($demandeAppro->getObservation() == null) {
+            // dd($demandeAppro->getObservation());
+            if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro);
             }
 

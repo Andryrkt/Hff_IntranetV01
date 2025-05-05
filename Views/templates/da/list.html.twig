@@ -44,7 +44,15 @@
 				{% for item in data %}
 					{% for dal in item.DAL %}
 						<tr>
-							<td>{{ item.numeroDemandeAppro }}</td>
+							<td>
+								{% if serviceAppro %}
+									{{ item.numeroDemandeAppro }}
+								{% else %}
+									<a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank">
+										{{ item.numeroDemandeAppro }}
+									</a>
+								{% endif %}
+							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
@@ -57,9 +65,14 @@
 								<td>{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td>
-								<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+								{% if serviceAtelier %}
 									{{ dal.artDesi }}
-								</a>
+								{% else %}
+									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+										{{ dal.artDesi }}
+									</a>
+								{% endif %}
+
 							</td>
 							<td>{{ dal.qteDem }}</td>
 							<td>0</td>

@@ -146,6 +146,7 @@ class DemandeAppro
      */
     private string $validePar;
 
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -606,7 +607,7 @@ class DemandeAppro
 
     /**
      * Get the value of validePar
-     */ 
+     */
     public function getValidePar()
     {
         return $this->validePar;
@@ -616,7 +617,7 @@ class DemandeAppro
      * Set the value of validePar
      *
      * @return  self
-     */ 
+     */
     public function setValidePar($validePar)
     {
         $this->validePar = $validePar;
