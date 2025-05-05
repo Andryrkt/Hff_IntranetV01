@@ -115,4 +115,13 @@ ADD statut_dossier_regul VARCHAR(100)
 ALTER TABLE demande_paiement
 ADD numeroVersion int
 
+ALTER TABLE demande_paiement_ligne
+ADD numeroVersion int
+
+ALTER TABLE document_demande_paiement
+ADD numeroVersion int
+
+ALTER TABLE demande_paiement
+ADD devis varchar(5)
+
  

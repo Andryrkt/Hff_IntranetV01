@@ -45,6 +45,10 @@ class DocDemandePaiement
      * @ORM\Column(type="string", length=11, name="num_ddr")
      */
     private ?string $numDdr;
+     /**
+     * @ORM\Column(type="integer", name="numeroVersion")
+     */
+    private ?int $numeroVersion = 0;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -159,6 +163,26 @@ class DocDemandePaiement
     public function setNumDdr($numDdr)
     {
         $this->numDdr = $numDdr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }

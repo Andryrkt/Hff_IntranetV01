@@ -46,4 +46,16 @@ class DemandePaiementRepository extends EntityRepository
     return null;
             return $data;
     }
+
+    public function findNumeroVersionMax(string $numDdp)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('Ddp')
+            ->select('MAX(Ddp.numeroVersion)')
+            ->where('Ddp.numeroDdp = :numDdp')
+            ->setParameter('numDdp', $numDdp)
+            ->getQuery()
+            ->getSingleScalarResult(); 
+    
+        return $numeroVersionMax;
+    }
 }

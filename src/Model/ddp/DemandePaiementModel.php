@@ -75,6 +75,24 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04($sql);
     }
 
+    public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array{
+        $sql = " SELECT  
+          distinct 
+            TRZT_Facture.Numero_Facture
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture like 'PDV_%'
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+           
+        ";
+
+        return array_column($this->retournerResultGcot04($sql),'Numero_Facture');
+    }
+
     public function findListeDoc($numeroDossier)
     {
         $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO

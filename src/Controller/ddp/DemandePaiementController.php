@@ -91,7 +91,7 @@ class DemandePaiementController extends Controller
 
             // dd($data);
             /** ENREGISTREMENT DU FICHIER */
-            $nomDesFichiers = $this->enregistrementFichier($form);
+            $nomDesFichiers = $this->enregistrementFichier($form,$numDdp);
             
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers);
@@ -103,21 +103,21 @@ class DemandePaiementController extends Controller
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
 
             /** COPIER LES FICHIERS */
-            $this->copierFichierDistant($data);
+            $this->copierFichierDistant($data,$numDdp);
 
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp.'.pdf';
-            $cheminEtNom = $this->cheminDeBase . '/fichiers/' . $nomPageDeGarde;
+            $cheminEtNom = $this->cheminDeBase . '/'.$numDdp.'_New_1/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
 
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/fichiers/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/'.$numDdp.'_New_1/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
 
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde);
+            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde,$numDdp);
 
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
@@ -266,7 +266,7 @@ class DemandePaiementController extends Controller
      * @param [type] $form
      * @return array
      */
-    private function enregistrementFichier($form): array
+    private function enregistrementFichier($form,$numDdp): array
     {
         $nomDesFichiers = [];
         $fieldPattern ='/^pieceJoint(\d{2})$/';
@@ -277,7 +277,7 @@ class DemandePaiementController extends Controller
                 if ($file !== null) {
                     $nomDeFichier = $file->getClientOriginalName();//recuperer le nom de fichier
                     // Appeler la méthode upload
-                    $this->traitementDeFichier->upload($file, $this->cheminDeBase.'/fichiers', $nomDeFichier);
+                    $this->traitementDeFichier->upload($file, $this->cheminDeBase.'/'.$numDdp.'_New_1', $nomDeFichier);
                     $nomDesFichiers[] = $nomDeFichier; 
                 }
             }
@@ -300,6 +300,7 @@ class DemandePaiementController extends Controller
             ->setAdresseMailDemandeur($this->getEmail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setStatut('OUVERT')
+            ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($lesFichiers)
         ;
@@ -311,10 +312,11 @@ class DemandePaiementController extends Controller
      * @param DemandePaiement $data
      * @return void
      */
-    private function copierFichierDistant(DemandePaiement $data): void
+    private function copierFichierDistant(DemandePaiement $data,$numDdp): void
     {
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
-        $cheminDestination = $_ENV['BASE_PATH_FICHIER'] . '/ddp/fichiers';
+        $cheminDestination = $chemin.'/'.$numDdp.'_New_1';
 
         foreach ($cheminDeFichiers as $cheminDeFichier) {
             $nomFichier = $this->nomFichier($cheminDeFichier);
@@ -382,6 +384,7 @@ class DemandePaiementController extends Controller
                 ->setNumeroDdp($numDdp)
                 ->setTypeDocumentId($data->getTypeDemandeId())
                 ->setNomFichier($nomFichier)
+                ->setNumeroVersion('1')
             ;
         }
 
@@ -465,6 +468,7 @@ class DemandePaiementController extends Controller
                         : '-'
                 )                
                 ->setMontantFacture($this->transformChaineEnNombre($data->getMontantAPayer()))
+                ->setNumeroVersion('1')
             ;
         }
 

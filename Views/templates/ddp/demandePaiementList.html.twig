@@ -62,13 +62,17 @@
 										</li>
 									</ul>
 								{% endif %}
-								{% if item.typeDemandeId.id == 1 %}
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+								{% if item.typeDemandeId.id == 1 %}
 											<li>
 												<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp})}}">Dossier régularisation </a>
 											</li>
-										</ul>
 								{% endif %}
+											<li>
+												<a class="dropdown-item fw-bold" href="{{path("edit_demande_paiement",{numDdp:item.numeroDdp})}}">Modifier </a>
+											</li>
+										</ul>
+								
 							</div>
 						</td>
 						{# Fin Actions #}

@@ -134,6 +134,13 @@ class DemandePaiement
     private $numeroFacture = [];
 
     /**
+      * @ORM\Column(type="string", length=5, name="devise")
+      *
+      * @var [type]
+      */
+     private $devise;
+
+    /**
      * @ORM\Column(type="string", length=100, name="statut_dossier_regul")
      *
      * @var string|null
@@ -141,13 +148,12 @@ class DemandePaiement
     private ?string $statutDossierRegul;
     
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="numeroVersion")
      */
     private ?int $numeroVersion = 0;
 
     private string $montantAPayer;
-
-    private ?string $devise;
+    
 
     private $pieceJoint01; // proforma facture fournisseur
 
@@ -742,6 +748,26 @@ class DemandePaiement
     public function setStatutDossierRegul($statutDossierRegul)
     {
         $this->statutDossierRegul = $statutDossierRegul;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }
