@@ -771,4 +771,30 @@ class DemandePaiement
 
         return $this;
     }
+
+    public function dupliquer(): self
+    {
+        $nouvelle = new self();
+        $nouvelle->numeroDdp = $this->numeroDdp;
+        $nouvelle->numeroFournisseur = $this->numeroFournisseur;
+        $nouvelle->ribFournisseur = $this->ribFournisseur;
+        $nouvelle->motif = $this->motif;
+        $nouvelle->agenceDebiter = $this->agenceDebiter;
+        $nouvelle->serviceDebiter = $this->serviceDebiter;
+        $nouvelle->adresseMailDemandeur = $this->adresseMailDemandeur;
+        $nouvelle->demandeur = $this->demandeur;
+        $nouvelle->montantAPayers = $this->montantAPayers;
+        $nouvelle->montantAPayer = $this->montantAPayer;
+        $nouvelle->contact = $this->contact;
+        $nouvelle->numeroCommande = $this->numeroCommande;
+        $nouvelle->devise = $this->devise;
+        $nouvelle->numeroFacture = $this->numeroFacture;
+        $nouvelle->pieceJoint01 = $this->pieceJoint01;
+        $nouvelle->pieceJoint02 = $this->pieceJoint02;
+        $nouvelle->pieceJoint03 = $this->pieceJoint03;
+        $nouvelle->beneficiaire = $this->beneficiaire;
+        $nouvelle->modePaiement = $this->modePaiement;
+        return $nouvelle;
+    }
+
 }

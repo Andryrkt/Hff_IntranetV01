@@ -89,46 +89,38 @@ class EditDemandePaiementController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
-
             $data = $form->getData(); //recupération des donnnées
+            $data = $data->dupliquer();
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
-
-
-            // dd($data);
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
-
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion);
-
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
-            $this->enregisterDdpF($data, $numDdp); // enregistrement des données dans la table doc_demande_paiement
+            $this->enregisterDdpF($data, $numeroversion); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
-
             /** COPIER LES FICHIERS */
-            $this->copierFichierDistant($data, $numDdp);
-
+            $this->copierFichierDistant($data, $numDdp,$numeroversion);
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp . '.pdf';
-            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New/' . $nomPageDeGarde;
+            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_'.$numeroversion.'/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
-
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '_New/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '_New_'.$numeroversion.'/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
-
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp);
-
+            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp,$numeroversion);
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
     }
+
+    
+
 
     /**
      * methode qui permet d'enregestrer les données dans la table demande_paiement
@@ -156,7 +148,7 @@ class EditDemandePaiementController extends Controller
 
     private function enregisterDdpF(DemandePaiement $data, $numeroversion): void
     {
-        $donners = $this->recuperationDonnerDdpF($data, $numeroversion);
+        $donners = $this->recuperationDonnerDdpF($data, (int) $numeroversion);
         foreach ($donners as $value) {
             self::$em->persist($value);
         }
@@ -397,11 +389,11 @@ class EditDemandePaiementController extends Controller
      * @param DemandePaiement $data
      * @return void
      */
-    private function copierFichierDistant(DemandePaiement $data, $numDdp): void
+    private function copierFichierDistant(DemandePaiement $data, $numDdp, $numeroversion): void
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
-        $cheminDestination = $chemin . '/' . $numDdp . '_New';
+        $cheminDestination = $chemin . '/' . $numDdp . '_New_'.$numeroversion;
 
         foreach ($cheminDeFichiers as $cheminDeFichier) {
             $nomFichier = $this->nomFichier($cheminDeFichier);

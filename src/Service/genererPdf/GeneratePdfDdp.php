@@ -50,7 +50,7 @@ class GeneratePdfDdp extends GeneratePdf
 
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, $data->getNumeroDdp(), 0, 1, 'R');  // TO DO: valeur de "NUMERO DOCUMENT" (changer 'DDP25019999')
+        $pdf->Cell(0, 10, $data->getNumeroDdp() .'_'.$data->getNumeroVersion() , 0, 1, 'R');  // TO DO: valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);

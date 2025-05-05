@@ -117,7 +117,7 @@ class DemandePaiementController extends Controller
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
 
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde,$numDdp);
+            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde,$numDdp,'1');
 
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
