@@ -6,7 +6,7 @@ use App\Entity\ddp\DemandePaiement;
 use App\Traits\ChaineCaractereTrait;
 use TCPDF;
 
-class GeneratePdfDdp extends GeneratePdf
+class GeneratePdfDdr extends GeneratePdf
 {
     use ChaineCaractereTrait;
 
@@ -38,7 +38,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->setY(19);
         $pdf->Rect($pdf->GetX() + 20, $pdf->GetY(), $w50 * 2 - 40, 8);
-        $pdf->Cell(0, 8, 'Service comptabilité – DEMANDE DE PAIEMENT ', 0, 1, 'C');
+        $pdf->Cell(0, 8, 'DOSSIER DE REGULARISATION ', 0, 1, 'C');
 
         $pdf->setY(28);
         $pdf->Cell($pdf->GetStringWidth('TYPE DE DEMANDE : '), 10, 'TYPE DE DEMANDE : ', 0, 0);

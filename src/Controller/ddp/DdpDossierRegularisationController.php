@@ -9,6 +9,7 @@ use App\Form\ddp\DdpDossierRegulType;
 use App\Model\ddp\DdpDossierRegulModel;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\FileUploaderService;
+use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\admin\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,7 +26,7 @@ class DdpDossierRegularisationController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationDDPService $historiqueOperation;
     private string $baseCheminDocuware;
-
+    private GeneratePdfDdp $generatePdfDdr;
 
     public function __construct()
     {
@@ -38,16 +39,17 @@ class DdpDossierRegularisationController extends Controller
         $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
     }
     /**
-     * @Route("/dossierRegul/{numDdp}", name="demande_regulation")
+     * @Route("/dossierRegul/{numDdp}/{numVersion}", name="demande_regulation")
      */
-    public function afficheForm(Request $request, $numDdp)
+    public function afficheForm(Request $request, $numDdp, $numVersion)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(DdpDossierRegulType::class, null)->getForm();
-
         $form->handleRequest($request);
+        $Ddp = $this->demandePaiementRepository->findOneBy(['numeroDdp' => $numDdp, 'numeroVersion' => $numVersion]);
+
 
         if ($form->isSubmitted() && $form->isValid()) {
             $numDdr = $this->autoDecrementDDP('DDR'); // decrementation du numero DDP
@@ -65,11 +67,14 @@ class DdpDossierRegularisationController extends Controller
             } else {
                 throw new \Exception('Le fichier n\'est pas valide');
             }
-
+            /**GENERETE PDF (page de garde) */
+            $nomPageDeGarde = $numDdr . '.pdf';
+            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_Regul_' . $numVersion . '/' . $nomPageDeGarde;
+            $this->generatePdfDdr->genererPDF($Ddp,$cheminEtNom);
             /** FUSIONER LES PDFS */
             $cheminDesFichierFinale = $this->recupCheminTousLesFichier($numDdp, $fileName);
             $fichierConvertir = $this->ConvertirLesPdf($cheminDesFichierFinale);
-            $cheminEtNomFichierFusioner = $this->cheminDeBase . '/' . $numDdp . '/' . $numDdr . '.pdf';
+            $cheminEtNomFichierFusioner = $this->cheminDeBase . '/' . $numDdp . '_Regul_' . $numVersion . '/' . $numDdr . '.pdf';
             $fileUploaderService->fusionFichers($fichierConvertir, $cheminEtNomFichierFusioner);
 
             /** Copie du fichier fusionner dans DW */
