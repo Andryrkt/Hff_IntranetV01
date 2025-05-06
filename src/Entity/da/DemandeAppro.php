@@ -129,6 +129,8 @@ class DemandeAppro
 
     private ?DemandeIntervention $dit = null;
 
+    private $observation;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -509,7 +511,7 @@ class DemandeAppro
 
     /**
      * Get the value of idMateriel
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -519,10 +521,30 @@ class DemandeAppro
      * Set the value of idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */ 
+    public function getObservation()
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     *
+     * @return  self
+     */ 
+    public function setObservation($observation)
+    {
+        $this->observation = $observation;
 
         return $this;
     }

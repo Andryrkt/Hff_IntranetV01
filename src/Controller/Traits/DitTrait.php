@@ -15,78 +15,76 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 trait DitTrait
 {
 
-    private function demandeDevis($dits){
+    private function demandeDevis($dits)
+    {
         return $dits->getDemandeDevis() === null ? 'NON' : $dits->getDemandeDevis();
     }
-    private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em) : DemandeIntervention
+    private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em): DemandeIntervention
     {
 
-            $demandeIntervention->setObjetDemande($dits->getObjetDemande());
-            $demandeIntervention->setDetailDemande($dits->getDetailDemande());
-            $demandeIntervention->setTypeDocument($dits->getTypeDocument());
-            $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
-            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-            $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
-            $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
-            //AGENCE - SERVICE
-            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-            if($dits->getAgence() === null) {
-                $demandeIntervention->setAgenceServiceDebiteur(null);
+        $demandeIntervention->setObjetDemande($dits->getObjetDemande());
+        $demandeIntervention->setDetailDemande($dits->getDetailDemande());
+        $demandeIntervention->setTypeDocument($dits->getTypeDocument());
+        $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
+        $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+        $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
+        $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
+        //AGENCE - SERVICE
+        $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2) . '-' . substr($dits->getServiceEmetteur(), 0, 3));
+        if ($dits->getAgence() === null) {
+            $demandeIntervention->setAgenceServiceDebiteur(null);
+        } else {
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence() . '-' . $dits->getService()->getCodeService());
+        }
+        //INTERVENTION
+        $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
+        $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
+        //REPARATION
+        $demandeIntervention->setTypeReparation($dits->getTypeReparation());
+        $demandeIntervention->setReparationRealise($dits->getReparationRealise());
+        $demandeIntervention->setInternetExterne($dits->getInternetExterne());
+        //INFO CLIENT
+        $demandeIntervention->setNomClient($dits->getNomClient());
+        $demandeIntervention->setNumeroTel($dits->getNumeroTel());
+        $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+        //INFORMATION MATERIEL
+        if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
+            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+
+
+            if (empty($data)) {
+                $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
+                $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel() . '-' . $dits->getNumParc() . '-' . $dits->getNumSerie(), 'dit_new');
             } else {
-                $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
-            }
-            //INTERVENTION
-            $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
-            $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
-            //REPARATION
-            $demandeIntervention->setTypeReparation($dits->getTypeReparation());
-            $demandeIntervention->setReparationRealise($dits->getReparationRealise());
-            $demandeIntervention->setInternetExterne($dits->getInternetExterne());
-            //INFO CLIENT
-            $demandeIntervention->setNomClient($dits->getNomClient());
-            $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-            $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
-            //INFORMATION MATERIEL
-            if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-                if($dits->getInternetExterne() == 'INTERNE') {
-                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-                } else {
-                    $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-                }
-                
-                if (empty($data)) {
-                    $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
-                    $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel().'-'.$dits->getNumParc().'-'.$dits->getNumSerie(), 'dit_new');
-                } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
-                }
             }
-            //PIECE JOINT
-            $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
-            $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
-            $demandeIntervention->setPieceJoint03($dits->getPieceJoint03());
+        }
+        //PIECE JOINT
+        $demandeIntervention->setPieceJoint01($dits->getPieceJoint01());
+        $demandeIntervention->setPieceJoint02($dits->getPieceJoint02());
+        $demandeIntervention->setPieceJoint03($dits->getPieceJoint03());
 
-            //INFORMATION ENTRER MANUELEMENT
-            $demandeIntervention->setIdStatutDemande($dits->getIdStatutDemande());
-            $demandeIntervention->setNumeroDemandeIntervention($dits->getNumeroDemandeIntervention());
-            $demandeIntervention->setMailDemandeur($dits->getMailDemandeur());
-            $demandeIntervention->setDateDemande($dits->getDateDemande());
-            $demandeIntervention->setHeureDemande($dits->getHeureDemande());
-            $demandeIntervention->getUtilisateurDemandeur($dits->getUtilisateurDemandeur());
+        //INFORMATION ENTRER MANUELEMENT
+        $demandeIntervention->setIdStatutDemande($dits->getIdStatutDemande());
+        $demandeIntervention->setNumeroDemandeIntervention($dits->getNumeroDemandeIntervention());
+        $demandeIntervention->setMailDemandeur($dits->getMailDemandeur());
+        $demandeIntervention->setDateDemande($dits->getDateDemande());
+        $demandeIntervention->setHeureDemande($dits->getHeureDemande());
+        $demandeIntervention->getUtilisateurDemandeur($dits->getUtilisateurDemandeur());
 
-            
-            //Agence et service emetteur debiteur ID
-            $demandeIntervention->setAgenceEmetteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dits->getAgenceEmetteur(), 0, 2)]));
-            $demandeIntervention->setServiceEmetteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dits->getServiceEmetteur(), 0, 3)]));
-            $demandeIntervention->setAgenceDebiteurId($dits->getAgence());
-            $demandeIntervention->setServiceDebiteurId($dits->getService());
-            
-            //societte
+
+        //Agence et service emetteur debiteur ID
+        $demandeIntervention->setAgenceEmetteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dits->getAgenceEmetteur(), 0, 2)]));
+        $demandeIntervention->setServiceEmetteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dits->getServiceEmetteur(), 0, 3)]));
+        $demandeIntervention->setAgenceDebiteurId($dits->getAgence());
+        $demandeIntervention->setServiceDebiteurId($dits->getService());
+
+        //societte
         // dd($demandeIntervention);
         return $demandeIntervention;
     }
 
-    private function pdfDemandeIntervention($dits, DemandeIntervention $demandeIntervention) : DemandeIntervention
+    private function pdfDemandeIntervention($dits, DemandeIntervention $demandeIntervention): DemandeIntervention
     {
 
         //Objet - Detail
@@ -102,34 +100,29 @@ trait DitTrait
         $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
 
         //Agence - service
-        $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
-        if($dits->getAgence() === null) {
+        $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2) . '-' . substr($dits->getServiceEmetteur(), 0, 3));
+        if ($dits->getAgence() === null) {
             $demandeIntervention->setAgenceServiceDebiteur(null);
         } else {
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence() . '-' . $dits->getService()->getCodeService());
         }
-        
+
         //REPARATION
         $demandeIntervention->setTypeReparation($dits->getTypeReparation());
         $demandeIntervention->setReparationRealise($dits->getReparationRealise());
         $demandeIntervention->setInternetExterne($dits->getInternetExterne());
-        
+
         //INFO CLIENT
         $demandeIntervention->setNomClient($dits->getNomClient());
         $demandeIntervention->setNumeroTel($dits->getNumeroTel());
         $demandeIntervention->setMailClient($dits->getMailClient());
-        
-        if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
-            if($dits->getInternetExterne() == 'INTERNE') {
-                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-            } else {
-                $data = $this->ditModel->infoMaterielExterne($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-            }
 
+        if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
+            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
-                $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel().'-'.$dits->getNumParc().'-'.$dits->getNumSerie(), 'dit_new');
+                $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel() . '-' . $dits->getNumParc() . '-' . $dits->getNumSerie(), 'dit_new');
             } else {
                 //Caractéristiques du matériel
                 $demandeIntervention->setNumParc($data[0]['num_parc']);
@@ -151,12 +144,12 @@ trait DitTrait
                 $demandeIntervention->setHeure($data[0]['heure']);
             }
         }
-        
+
         //INFORMATION ENTRER MANUELEMENT
         $demandeIntervention->setNumeroDemandeIntervention($dits->getNumeroDemandeIntervention());
         $demandeIntervention->setMailDemandeur($dits->getMailDemandeur());
         $demandeIntervention->setDateDemande($dits->getDateDemande());
-        
+
 
 
         return $demandeIntervention;
@@ -165,15 +158,15 @@ trait DitTrait
     private function historiqueInterventionMateriel($dits): array
     {
         $historiqueMateriel = $this->ditModel->historiqueMateriel($dits->getIdMateriel());
-            foreach ($historiqueMateriel as $keys => $values) {
-                foreach ($values as $key => $value) {
-                    if ($key == "datedebut") {
-                        $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
-                    } elseif ($key === 'somme') {
-                        $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
-                    }
+        foreach ($historiqueMateriel as $keys => $values) {
+            foreach ($values as $key => $value) {
+                if ($key == "datedebut") {
+                    $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
+                } elseif ($key === 'somme') {
+                    $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
                 }
             }
+        }
         return $historiqueMateriel;
     }
 
@@ -187,42 +180,40 @@ trait DitTrait
      */
     private function uplodeFile($form, $dits, $nomFichier, &$pdfFiles)
     {
-        
+
         /** @var UploadedFile $file*/
         $file = $form->get($nomFichier)->getData();
-        $fileName = $dits->getNumeroDemandeIntervention(). '_0'. substr($nomFichier,-1,1) . '.' . $file->getClientOriginalExtension();
-       
-        $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/dit/fichier/';
+        $fileName = $dits->getNumeroDemandeIntervention() . '_0' . substr($nomFichier, -1, 1) . '.' . $file->getClientOriginalExtension();
+
+        $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/dit/fichier/';
         //$fileDossier = '\\\\192.168.0.15\\hff_pdf\\DOCUWARE\\PRODUCTION\\DIT\\';
         $file->move($fileDossier, $fileName);
 
         if ($file->getClientOriginalExtension() === 'pdf') {
-            $pdfFiles[] = $fileDossier.$fileName;
+            $pdfFiles[] = $fileDossier . $fileName;
         }
 
-        $setPieceJoint = 'set'.ucfirst($nomFichier);
+        $setPieceJoint = 'set' . ucfirst($nomFichier);
         $dits->$setPieceJoint($fileName);
-
-        
     }
 
     private function envoiePieceJoint($form, $dits, $fusionPdf)
     {
         $pdfFiles = [];
 
-        for ($i=1; $i < 4; $i++) { 
-        $nom = "pieceJoint0{$i}";
-        if($form->get($nom)->getData() !== null){
+        for ($i = 1; $i < 4; $i++) {
+            $nom = "pieceJoint0{$i}";
+            if ($form->get($nom)->getData() !== null) {
                 $this->uplodeFile($form, $dits, $nom, $pdfFiles);
             }
         }
         //ajouter le nom du pdf crée par dit en avant du tableau
-        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf');
+        array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'] . '/dit/' . $dits->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()) . '.pdf');
 
         // Nom du fichier PDF fusionné
-        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dit/' . $dits->getNumeroDemandeIntervention(). '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()). '.pdf';
+        $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'] . '/dit/' . $dits->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dits->getAgenceServiceEmetteur()) . '.pdf';
 
-        
+
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
@@ -237,40 +228,41 @@ trait DitTrait
         foreach ($tousLesFichersAvecChemin as $filePath) {
             $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
         }
-        
+
 
         return $tousLesFichiers;
     }
 
-    private function convertPdfWithGhostscript($filePath) {
+    private function convertPdfWithGhostscript($filePath)
+    {
         $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
         $tempFile = $filePath . "_temp.pdf";
-    
+
         // Vérifier si le fichier existe et est accessible
         if (!file_exists($filePath)) {
             throw new Exception("Fichier introuvable : $filePath");
         }
-    
+
         if (!is_readable($filePath)) {
             throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
         }
-    
+
         // Commande Ghostscript
         $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
         // echo "Commande exécutée : $command<br>";
-    
+
         exec($command, $output, $returnVar);
-    
+
         if ($returnVar !== 0) {
             echo "Sortie Ghostscript : " . implode("\n", $output);
             throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
         }
-    
+
         // Remplacement du fichier
         if (!rename($tempFile, $filePath)) {
             throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
         }
-    
+
         return $filePath;
     }
 
@@ -282,16 +274,16 @@ trait DitTrait
      * @param [type] $em
      * @return DemandeIntervention
      */
-    private function infoEntrerManuel($dits, $em, $user) : DemandeIntervention
-    {        
-            $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
-            $dits->setHeureDemande($this->getTime());
-            $dits->setDateDemande(new \DateTime($this->getDatesystem()));
-            $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
-            $dits->setIdStatutDemande($statutDemande);
-            $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
-            $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
-            $dits->setMailDemandeur($email);
+    private function infoEntrerManuel($dits, $em, $user): DemandeIntervention
+    {
+        $dits->setUtilisateurDemandeur($user->getNomUtilisateur());
+        $dits->setHeureDemande($this->getTime());
+        $dits->setDateDemande(new \DateTime($this->getDatesystem()));
+        $statutDemande = $em->getRepository(StatutDemande::class)->find(50);
+        $dits->setIdStatutDemande($statutDemande);
+        $dits->setNumeroDemandeIntervention($this->autoDecrementDIT('DIT'));
+        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
+        $dits->setMailDemandeur($email);
 
         return $dits;
     }
@@ -306,13 +298,11 @@ trait DitTrait
     private function initialisationForm(DemandeIntervention $demandeIntervention, $em)
     {
         $agenceService = $this->agenceServiceIpsObjet();
-        
-        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' '. $agenceService['agenceIps']->getLibelleAgence() );
+
+        $demandeIntervention->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
         $demandeIntervention->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
         $demandeIntervention->setAgence($agenceService['agenceIps']);
         $demandeIntervention->setService($agenceService['serviceIps']);
         $demandeIntervention->setIdNiveauUrgence($em->getRepository(WorNiveauUrgence::class)->find(1));
     }
-
-
 }

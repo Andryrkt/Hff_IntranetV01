@@ -153,6 +153,13 @@ class DemandeApproFormType extends AbstractType
                 'by_reference' => false,
                 'prototype' => true,
             ])
+            ->add('observation', TextareaType::class, [
+                'label' => 'Observation',
+                'attr' => [
+                    'rows' => 5,
+                ],
+                'required' => false
+            ])
         ;
     }
 

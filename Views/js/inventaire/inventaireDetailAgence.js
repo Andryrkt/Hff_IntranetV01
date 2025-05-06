@@ -22,8 +22,13 @@ const dateD = document.querySelector(config.elements.dateD);
 const dateF = document.querySelector(config.elements.dateF);
 const checkAll = document.getElementById("detailInventaire_search_service_all");
 const allInputCheckbox = document.querySelectorAll(".form-check-input");
+const buttonSend = document.getElementById('btn_search');
 
-checkAll.addEventListener("click", afficherTous);
+buttonSend.addEventListener("click",()=>{
+  verifierCheckboxes()
+});
+
+checkAll.addEventListener("click", (afficherTous));
 dateD.addEventListener("change", () => {
   dateDebut();
 });
@@ -211,10 +216,24 @@ function afficherTous() {
   checkAll.addEventListener("click", () =>
     checkAllCheckbox(allInputCheckbox, false)
   );
+ 
 }
 function checkAllCheckbox(allCheckboxes, checked = false) {
   allCheckboxes.forEach((inputCheckbox) => {
     checkAll.checked = checked ? true : checkAll.checked;
     inputCheckbox.checked = checkAll.checked;
   });
+}
+function verifierCheckboxes() {
+  let auMoinsUneCochee = false;
+
+  allInputCheckbox.forEach((checkbox) => {
+    if (checkbox.checked) {
+      auMoinsUneCochee = true;
+    }
+  });
+
+  if (!auMoinsUneCochee) {
+    Swal.fire("Merci de cocher une inventaire au moins!");
+  } 
 }

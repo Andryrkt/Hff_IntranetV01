@@ -77,10 +77,10 @@ class AcBcSoumisController extends Controller
 
             $montantDevis = $form->getData()->getMontantDevis();
 
-            if ((float) str_replace('.', '', $montantDevis) != $this->calculMontantDevis($devis)) {
-                $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . La montant du devis ne correspond pas au montant devis validée";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
-            }
+            // if ($this->convertirMontantFrVersFloat($montantDevis) != $this->calculMontantDevis($devis)) {
+            //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . La montant du devis ne correspond pas au montant devis validée";
+            //     $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
+            // }
 
             // initialisation de l'entité acSoumis
             $acSoumis = $this->initialisation($devis, $numDit);
@@ -114,7 +114,7 @@ class AcBcSoumisController extends Controller
             $fileUploader->fusionFichers($uploadedFiles,  $chemin . $nomFichier);
 
             //envoie le pdf dans docuware
-            // $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
+            $this->genererPdfAc->copyToDWAcSoumis($nomFichier); // copier le fichier dans docuware
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
@@ -127,6 +127,12 @@ class AcBcSoumisController extends Controller
         self::$twig->display('dit/AcBcSoumis.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    private function convertirMontantFrVersFloat(string $montant): float
+    {
+        $montant = str_replace(['.', ','], ['', '.'], $montant);
+        return (float) $montant;
     }
 
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)

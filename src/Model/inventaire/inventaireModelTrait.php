@@ -20,9 +20,9 @@ trait InventaireModelTrait
     private function invenatireDispoligne($criteria){
         // dd(TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo()));
         if (!empty($criteria->getInventaireDispo())) {
-            $agence = "WHERE ainvi_numinv  IN (".TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo() ).")";
+            $agence = "AND ainvi_numinv  IN (".TableauEnStringService::TableauEnString(',',$criteria->getInventaireDispo() ).")";
         }else{
-            $agence = "";
+            $agence = "AND ainvi_numinv  IN ('')";
         }
         return $agence;
     }
