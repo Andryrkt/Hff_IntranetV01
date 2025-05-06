@@ -21,3 +21,59 @@
 <div class="espace">
 	{{ tab.detail | raw }}
 </div>
+
+
+<hr>
+<p>demande Ancien</p>
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000;">
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Réference</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dala in tab.dalAncien %}
+			<tr>
+				<td>{{dala.artFams1}}</td>
+				<td>{{dala.artFams2}}</td>
+				<td>{{dala.artDesi}}</td>
+				<td>{{dala.nomFournisseur}}</td>
+				<td>{{dala.artRefp}}</td>
+				<td>{{dala.commentaire}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<hr>
+<p>Proposition</p>
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000;">
+	<thead style="background-color:#000; color:#fff;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Réference</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dala in tab.dalNouveau %}
+			<tr>
+				<td>{{dala.artFams1}}</td>
+				<td>{{dala.artFams2}}</td>
+				<td>{{dala.artDesi}}</td>
+				<td>{{dala.nomFournisseur}}</td>
+				<td>{{dala.artRefp}}</td>
+				<td>{{dala.commentaire}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+
+<hr>

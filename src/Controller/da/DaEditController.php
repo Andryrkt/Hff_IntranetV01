@@ -5,6 +5,7 @@ namespace App\Controller\da;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
@@ -41,9 +42,7 @@ class DaEditController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dit = $this->ditRepository->find($id);
-        $demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]);
-        $demandeAppro->setDit($dit);
+        $demandeAppro = $this->recuperationDa($id);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
@@ -52,10 +51,26 @@ class DaEditController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/edit.html.twig', [
-            'form' => $form->createView(),
-            'observations' => $observations,
-            'peutModifier' => $this->PeutModifier($demandeAppro)
+            'form'          => $form->createView(),
+            'observations'  => $observations,
+            'peutModifier'  => $this->PeutModifier($demandeAppro)
         ]);
+    }
+
+    private function recuperationDa(int $id): DemandeAppro
+    {
+        $dit = $this->ditRepository->find($id); // recupération du DIT
+        $demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]); // recupération de la DA associée au DIT
+        $demandeAppro->setDit($dit); // association de la DA avec le DIT
+
+        // filtre une collection de versions selon le numero de version max
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
+            return $item->getNumeroVersion() == $numeroVersionMax;
+        });
+        $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
+
+        return $demandeAppro;
     }
 
     private function PeutModifier($demandeAppro)
@@ -76,8 +91,7 @@ class DaEditController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
 
             $demandeAppro
-                ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ;
+                ->setDemandeur($this->getUser()->getNomUtilisateur());
         }
     }
 }

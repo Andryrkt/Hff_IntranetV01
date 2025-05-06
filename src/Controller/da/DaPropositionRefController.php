@@ -128,14 +128,22 @@ class DaPropositionRefController extends Controller
             $this->modificationTableDaL($refs, $data);
         }
 
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $numeroVersionMaxAvant = $numeroVersionMax - 1;
+        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+        $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
+        
         $this->envoyerMailAuxAte([
             'id'            => $da->getId(),
-            'idDit'       => $dit->getId(),
-            'numDa'        => $da->getNumeroDemandeAppro(),
+            'idDit'         => $dit->getId(),
+            'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
+            'dalAncien'     => $dalAncien,
+            'dalNouveau'    => $dalNouveau,
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 

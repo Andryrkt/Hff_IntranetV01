@@ -505,6 +505,11 @@ class DemandeAppro
         }
     }
 
+    public function setDAL(Collection $collection): self
+    {
+        $this->DAL = $collection;
+        return $this;
+    }
     /**
      * Get the value of demandeur
      */
