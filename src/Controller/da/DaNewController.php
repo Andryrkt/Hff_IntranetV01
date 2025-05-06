@@ -8,6 +8,7 @@ use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\admin\Application;
+use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
@@ -87,11 +88,14 @@ class DaNewController extends Controller
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
 
+            $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(self::DA_STATUT)
+                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                 ;
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
@@ -148,6 +152,13 @@ class DaNewController extends Controller
         $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
     }
 
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
+    }
 
     private function insertionObservation(DemandeAppro $demandeAppro): void
     {
@@ -176,7 +187,7 @@ class DaNewController extends Controller
             ->setServiceEmetteur($dit->getServiceEmetteurId())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal('soumis à l’appro')
+            ->setStatutDal(self::DA_STATUT)
         ;
     }
 }

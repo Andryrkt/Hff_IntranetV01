@@ -10,6 +10,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @Route("/demande-appro")
@@ -49,20 +50,53 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
-        $datas = $this->daRepository->findDaData($criteria);
+        $das = $this->daRepository->findDaData($criteria);
 
-        foreach ($datas as $data) {
-            $data->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]));
-        }
+        $this->ajoutInfoDit($das);
 
+        $dataFiltered = $this->filtrerDalParNumVersion($das);
 
         self::$twig->display('da/list.html.twig', [
-            'data' => $datas,
+            'data' => $dataFiltered,
             'form' => $form->createView(),
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
             'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);
     }
+
+    private function filtrerDalParNumVersion($das): array
+    {
+        /** @var DemandeAppro[] $datas */
+        $dataFiltered = [];
+
+        foreach ($das as $da) {
+            $grouped = [];
+            foreach ($da->getDAL() as $dal) {
+                $numLigne = $dal->getNumeroLigne();
+                $version = $dal->getNumeroVersion();
+
+                if (!isset($grouped[$numLigne]) || $version > $grouped[$numLigne]->getNumeroVersion()) {
+                    $grouped[$numLigne] = $dal;
+                }
+            }
+            // Nouvelle entrée structurée : l'objet DemandeAppro + ses DAL filtrés
+            $dataFiltered[] = [
+                'da' => $da,
+                'DAL' => array_values($grouped),
+            ];
+        }
+
+        return $dataFiltered;
+    }
+
+
+    private function ajoutInfoDit(array $datas): void
+    {
+        foreach ($datas as $data) {
+            $data->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]));
+        }
+    }
+
 
     private function estUserDansServiceAtelier()
     {

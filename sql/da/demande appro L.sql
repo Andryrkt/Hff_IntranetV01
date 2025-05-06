@@ -41,3 +41,6 @@ ALTER COLUMN code_fams2 VARCHAR(50)
 
 ALTER TABLE Demande_Appro_L
 ADD valide_par VARCHAR(50)
+
+ALTER TABLE Demande_Appro_L
+ADD numero_version INT DEFAULT 0

@@ -42,20 +42,21 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set da = item.da %}
 					{% for dal in item.DAL %}
 						<tr>
 							<td>
 								{% if serviceAppro %}
-									{{ item.numeroDemandeAppro }}
+									{{ da.numeroDemandeAppro }}
 								{% else %}
-									<a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank">
-										{{ item.numeroDemandeAppro }}
+									<a href="{{ path('da_edit', { id : da.dit.id }) }}" target="_blank">
+										{{ da.numeroDemandeAppro }}
 									</a>
 								{% endif %}
 							</td>
-							<td>{{ item.numeroDemandeDit }}</td>
-							<td>{{ item.demandeur }}</td>
-							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
+							<td>{{ da.numeroDemandeDit }}</td>
+							<td>{{ da.demandeur }}</td>
+							<td>{{ da.dateCreation | date('d/m/Y') }}</td>
 							<td>{{ dal.statutDal }}</td>
 							<td>{{ dal.artFams1 ?? '-' }}</td>
 							<td>{{ dal.artFams2 ?? '-' }}</td>
@@ -68,7 +69,7 @@
 								{% if serviceAtelier %}
 									{{ dal.artDesi }}
 								{% else %}
-									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+									<a href="{{ path('da_proposition', { id : da.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
 										{{ dal.artDesi }}
 									</a>
 								{% endif %}

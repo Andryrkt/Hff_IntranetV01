@@ -29,6 +29,8 @@ class DaPropositionRefController extends Controller
 {
     use lienGenerique;
 
+    private const DA_STATUT = 'soumis à l’ATE';
+
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproLRepository $demandeApproLRepository;
@@ -105,6 +107,7 @@ class DaPropositionRefController extends Controller
             $notification = $this->notification('info', "Aucune modification n'a été effectuée");
         } else {
             $this->enregistrementDb($data, $dalrList); // enregistrement des données dans la table demande_appro_LR
+            $this->duplicationDataDaL($data); // duplication des lignes de la table demande_appro_L
             if ($observation !== null) {
                 $this->insertionObservation($observation, $numDa); // enregistrement de l'observation dans la table da_observation
             }
@@ -165,9 +168,10 @@ class DaPropositionRefController extends Controller
 
     private function modificationStatutDal(string $numDa): void
     {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa]);
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         foreach ($dals as  $dal) {
-            $dal->setStatutDal('soumis à l’ATE');
+            $dal->setStatutDal(self::DA_STATUT);
             self::$em->persist($dal);
         }
 
@@ -178,7 +182,7 @@ class DaPropositionRefController extends Controller
     private function modificationStatutDa(string $numDa): void
     {
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal('soumis à l’ATE');
+        $da->setStatutDal(self::DA_STATUT);
 
         self::$em->persist($da);
         self::$em->flush();
@@ -230,16 +234,57 @@ class DaPropositionRefController extends Controller
     }
 
 
-    private function recupDataDaL(array $refs,  $data)
+    /**
+     * recupération d'uen ou des lignes à modifier
+     *
+     * @param array $refs
+     * @param [type] $data
+     * @return array
+     */
+    private function recupDataDaL(array $refs, $data): array
     {
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
         $dals = [];
         for ($i = 0; $i < count($refs); $i++) {
-            $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
+            $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
         }
 
         return $dals;
     }
-    private function recupDataDaLR(array $refs,  $data)
+
+    /**
+     * Dupliquer les lignes de la table demande_appro_L
+     *
+     * @param array $refs
+     * @param [type] $data
+     * @return array
+     */
+    private function duplicationDataDaL($data): void
+    {
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+
+        foreach ($dals as $dal) {
+            // On clone l'entité (copie en mémoire)
+            $newDal = clone $dal;
+            $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
+
+            // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
+            self::$em->persist($newDal);
+        }
+
+        self::$em->flush();
+    }
+
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
+    }
+
+    private function recupDataDaLR(array $refs,  $data): array
     {
         $dalrs = [];
         for ($i = 0; $i < count($refs); $i++) {

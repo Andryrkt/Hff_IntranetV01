@@ -151,6 +151,13 @@ class DemandeApproL
      */
     private string $validePar;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_version")
+     *
+     * @var integer | null
+     */
+    private ?int $numeroVersion = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -641,7 +648,7 @@ class DemandeApproL
 
     /**
      * Get the value of validePar
-     */ 
+     */
     public function getValidePar()
     {
         return $this->validePar;
@@ -651,10 +658,34 @@ class DemandeApproL
      * Set the value of validePar
      *
      * @return  self
-     */ 
+     */
     public function setValidePar($validePar)
     {
         $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     *
+     * @return  integer
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @param  ?integer  $numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }
