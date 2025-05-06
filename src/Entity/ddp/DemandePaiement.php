@@ -152,7 +152,7 @@ class DemandePaiement
      */
     private ?int $numeroVersion = 0;
 
-    private string $montantAPayer;
+    private string $montantAPayer = '0';
     
 
     private $pieceJoint01; // proforma facture fournisseur

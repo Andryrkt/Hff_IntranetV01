@@ -13,7 +13,7 @@ class GeneratePdfDdr extends GeneratePdf
     /**
      * Genere le PDF DEMANDE DE PAIEMENT (DDP)
      */
-    public function genererPDF(DemandePaiement $data, string $cheminDeFichier)
+    public function genererPDF(DemandePaiement $data,$email,$numDdr, string $cheminDeFichier)
     {
         $pdf = new TCPDF();
 
@@ -30,7 +30,7 @@ class GeneratePdfDdr extends GeneratePdf
         // tête de page 
         $pdf->setY(5);
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 8, 'Emetteur : '.$data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
+        $pdf->Cell(0, 8, 'Emetteur : '.$email, 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
         $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
 
@@ -64,17 +64,22 @@ class GeneratePdfDdr extends GeneratePdf
         $pdf->Ln(2);
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'N° commande ', 1, 0);
+        $pdf->Cell(50, 10, 'N° DDR ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell($usable_width - 50, 10, implode(';', $data->getNumeroCommande()), 1, 1); // TO DO: valeur de "N° commande" (remplacer '' par sa valeur)
+        $pdf->MultiCell($usable_width - 50, 10,$numDdr, 1, 1); // TO DO: valeur de "N° commande" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'N° facture ', 1, 0);
+        $pdf->Cell(50, 10, 'N° DDP ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell($usable_width - 50, 10, implode(';', $data->getNumeroFacture()), 1, 1); // TO DO: valeur de "N° facture" (remplacer '' par sa valeur)
+        $pdf->MultiCell($usable_width - 50, 10,  $data->getNumeroDdp(), 1, 1); // TO DO: valeur de "N° facture" (remplacer '' par sa valeur)
 
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(50, 10, 'Version', 1, 0);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->Cell($usable_width - 50, 10, $data->getNumeroVersion(), 1, 1); // TO DO: valeur de "Bénéficiaire" (remplacer '' par sa valeur)
         $pdf->Ln(5);
 
         $pdf->SetFont('helvetica', 'B', 12);
@@ -113,35 +118,7 @@ class GeneratePdfDdr extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell($usable_width - 50, 10, $data->getContact(), 1, 1); // TO DO: valeur de "Contact" (remplacer '' par sa valeur)
 
-        $pdf->Cell(0, 10, '*Attention : RIB mis à jour', 0, 1);
-
-        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('*Attention') + 1, $pdf->GetY() - 2.5);
-
-        $pdf->Ln(5);
-
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(70, 10, 'Mode de paiement', 1, 0, 'C');
-        $pdf->Cell($usable_width - 100, 10, 'Montant à payer', 1, 0, 'C');
-        $pdf->Cell(30, 10, 'Devise', 1, 1, 'C');
-
-        $pdf->Line($pdf->GetX() + 16.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Mode de paiement') + 16.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 98.5, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Montant à payer') + 98.5, $pdf->GetY() - 2.5);
-        $pdf->Line($pdf->GetX() + 168.2, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Devise') + 168.2, $pdf->GetY() - 2.5);
-
-        $pdf->Cell(70, 10, $data->getModePaiement(), 1, 0);
-
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell($usable_width - 100, 10, $data->getMontantAPayer(), 1, 0); // TO DO: valeur de "Montant à payer" (remplacer '' par sa valeur)
-        $pdf->Cell(30, 10, $data->getDevise(), 1, 1); // TO DO: valeur de "Devise" (remplacer '' par sa valeur)
-
-        $pdf->Ln(5);
-
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, 'Liste des pièces jointes :', 0, 1);
-        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
-
-        $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($data->getLesFichiers())), 0, 'L', 0, 1);// TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+       
 
         // génération de fichier: à changer plus tard
         $pdf->Output($cheminDeFichier, 'F');

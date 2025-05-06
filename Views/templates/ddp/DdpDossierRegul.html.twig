@@ -53,10 +53,11 @@
             </div>
 
             {% for dossier, docs in groupes %}
+			
                 <div id="tab{{ loop.index }}" class="tab-content {{ loop.first ? 'active' : '' }}">
                     {% for doc in docs %}
                     <h3>{{doc.nomFichier}}</h3>
-                        <iframe src="{{ '/Upload/ddp/' ~ doc.numeroDdp ~ '/' ~ doc.nomDossier ~ '/' ~ doc.nomFichier }}" frameborder="0"></iframe>
+                        <iframe src="{{ '/Upload/ddp/' ~ doc.numeroDdp ~ '_Regul/' ~ doc.nomDossier ~ '/' ~ doc.nomFichier }}" frameborder="0"></iframe>
                     {% endfor %}
                 </div>
             {% endfor %}
