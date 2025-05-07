@@ -59,7 +59,7 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function findDemandePaiement()
+    public function findDemandePaiement($criteria)
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -73,12 +73,48 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
-
+        if(!empty($criteria->getAgence())){
+            $qb->andWhere('d.agenceDebiter = :agenceDebiter')
+                ->setParameter('agenceDebiter',$criteria->getAgence()->getCodeAgence());
+        }
+        if(!empty($criteria->getService())){
+            $qb->andWhere('d.serviceDebiter = :serviceDebiter')
+                ->setParameter('serviceDebiter',$criteria->getService()->getCodeService());
+        }
+        if(!empty($criteria->getTypeDemande())){
+            $qb->andWhere('d.typeDemandeId = :typeDemandeId')
+                ->setParameter('typeDemandeId',$criteria->getTypeDemande()->getId());
+        }
+        if(!empty($criteria->getNumDdp())){
+            $qb->andWhere('d.numeroDdp = :numeroDdp')
+                ->setParameter('typeDemandeId',$criteria->getNumDdp());
+        }
+        if(!empty($criteria->getNumCommande())){
+            $qb->andWhere('d.numeroCommande = :numeroCommande')
+                ->setParameter('numeroCommande',$criteria->getNumCommande());
+        }
+        if(!empty($criteria->getNumFacture())){
+            $qb->andWhere('d.numeroFacture = :numeroFacture')
+                ->setParameter('numeroFacture',$criteria->getNumFacture());
+        }
+        if(!empty($criteria->getUtilisateur())){
+            $qb->andWhere('d.demandeur = :demandeur')
+                ->setParameter('demandeur',$criteria->getUtilisateur());
+        }
         
 
         // Tri
         $qb->orderBy('d.dateCreation', 'DESC');
+// $query = $qb->getQuery();
+//         $sql = $query->getSQL();
+//         $params = $query->getParameters();
 
+//         dump("SQL : " . $sql . "\n");
+//         foreach ($params as $param) {
+//             dump($param->getName());
+//             dump($param->getValue());
+//         }
+//         die();
         return $qb->getQuery()->getResult();
     }
 

@@ -8,6 +8,7 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
+<div class="sticky-header-titre">
 	{# {% include "/partials/_loader.html.twig" %} #}
 	{% set role_ids = App.user.roleIds %}
 	{% set user_connecter = App.user.nom_utilisateur %}
@@ -17,14 +18,14 @@
 			Liste des demandes de paiement
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
-
+        {% include "/ddp/shared/_formualireDdpSearch.html.twig"%}
 	</div>
-
-	<div
-		class="container-fluid">
-		<!-- DEBUT tableau -->
-		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+</div>
+	<div class="container-fluid">
+		<div class="sticky-header-statut">
+        </div> 
+		<table class="table rounded table-plein-ecran" >
+			<thead class="table-dark position-sticky">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -124,4 +125,6 @@
 {% endblock %}
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js" type="module"></script>
+	
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
 {% endblock %}
