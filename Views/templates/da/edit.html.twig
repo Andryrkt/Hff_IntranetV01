@@ -160,9 +160,11 @@
 										{{ form_widget(DAL.catalogue, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
 									<div class="w-2" {{ peutModifier ? 'disabled' : ''}}>
-										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
-											<i class="fas fa-times fs-4"></i>
-										</span>
+										<a href="{{ path('da_edit_delete_ligne', { ligne : ligne, numeroVersion: numeroVersionMax, idDit: idDit }) }}">
+											<span title="Supprimer la ligne de DA" style="cursor: pointer;">
+												<i class="fas fa-times fs-4"></i>
+											</span>
+										</a>
 									</div>
 								</div>
 								<div class="mt-3 mb-3"></div>
