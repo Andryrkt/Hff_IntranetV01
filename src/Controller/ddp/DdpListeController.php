@@ -28,8 +28,8 @@ class DdpListeController extends Controller
     public function ddpListe()
     {
 
-        $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
-        
+        // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
+        $data = $this->demandePaiementRepository->findDemandePaiement();
         /** suppression de ssession page_loadede  */
         if($this->sessionService->has('page_loaded')){
             $this->sessionService->remove('page_loaded');

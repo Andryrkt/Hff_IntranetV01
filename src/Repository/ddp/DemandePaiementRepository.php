@@ -59,7 +59,27 @@ class DemandePaiementRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function listeDemandePaiement(){
+    public function findDemandePaiement()
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        // Sous-requête imbriquée dans la clause WHERE
+        $qb->where(
+            'd.numeroVersion = (
+                SELECT MAX(dp2.numeroVersion)
+                FROM App\Entity\ddp\DemandePaiement dp2
+                WHERE dp2.numeroDdp = d.numeroDdp
+                AND dp2.agenceDebiter = d.agenceDebiter
+                AND dp2.serviceDebiter = d.serviceDebiter
+            )'
+        );
+
         
+
+        // Tri
+        $qb->orderBy('d.dateCreation', 'DESC');
+
+        return $qb->getQuery()->getResult();
     }
+
 }
