@@ -24,12 +24,14 @@ class DaEditController extends Controller
 {
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'soumis à l’appro';
+    private const EDIT_DELETE = 2;
+    private const EDIT_MODIF = 3;
+    private const EDIT_LOADED_PAGE = 1;
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $daLRepository;
-    private DemandeApproLTemporaireRepository $daLTemporaireRepository;
 
     public function __construct()
     {
@@ -38,7 +40,6 @@ class DaEditController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->daLTemporaireRepository = self::$em->getRepository(DemandeApproLTemporaire::class);
     }
 
     /**
@@ -50,9 +51,15 @@ class DaEditController extends Controller
         $this->verifierSessionUtilisateur();
         $dit = $this->ditRepository->find($id); // recupération du DIT
         $demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]); // recupération de la DA associée au DIT
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        if (!$this->sessionService->has('firstCharge')) {
+            $this->sessionService->set('firstCharge', true);
+            $this->duplicationDataDaL($numDa); // on duplique les lignes de la DA 
+        }
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
-        $this->transferetDansDalTemporaire($demandeAppro->getDAL());
+
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
@@ -61,24 +68,27 @@ class DaEditController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/edit.html.twig', [
-            'form'          => $form->createView(),
-            'observations'  => $observations,
-            'peutModifier'  => $this->PeutModifier($demandeAppro),
-            'numeroVersionMax' => $numeroVersionMax,
-            'idDit' => $id,
+            'form'              => $form->createView(),
+            'observations'      => $observations,
+            'peutModifier'      => $this->PeutModifier($demandeAppro),
+            'idDit'             => $id,
+            'numeroVersionMax'  => $numeroVersionMax,
+            'numDa'             => $numDa,
         ]);
     }
 
 
     /**
-     * @Route("/delete-edit-ligne/{ligne}/{numeroVersion}/{idDit}", name="da_edit_delete_ligne")
+     * @Route("/delete-edit-ligne/{ligne}/{idDit}/{numeroVersionMax}", name="da_edit_delete_ligne")
      */
-    public function deleteLigne(int $ligne, int $numeroVersion, int $idDit)
+    public function deleteLigne(int $ligne, int $idDit, int $numeroVersionMax)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $demandeApproLs = $this->daLRepository->findBy(['numeroLigne' => $ligne, 'numeroVersion' => $numeroVersion]); // recupération de la ligne à supprimer
+        $demandeApproLs = $this->daLRepository->findBy(['numeroLigne' => $ligne, 'numeroVersion' => $numeroVersionMax]); // recupération de la ligne à supprimer
+
+        $this->modificationEdit($demandeApproLs, self::EDIT_DELETE);
 
         foreach ($demandeApproLs as $demandeApproL) {
             $demandeAppro = $demandeApproL->getDemandeAppro();
@@ -91,6 +101,15 @@ class DaEditController extends Controller
         return $this->redirectToRoute('da_edit', ['id' => $idDit]);
     }
 
+    private function modificationEdit($demandeApproLs, $numero)
+    {
+        foreach ($demandeApproLs as $demandeApproL) {
+            $demandeApproL->setEdit($numero); // Indiquer que c'est une version modifiée
+            self::$em->persist($demandeApproL); // on persiste la DA
+        }
+
+        self::$em->flush(); // on enregistre les modifications
+    }
     /**
      * Dupliquer les lignes de la table demande_appro_L
      *
@@ -98,15 +117,16 @@ class DaEditController extends Controller
      * @param [type] $data
      * @return array
      */
-    private function duplicationDataDaL($data): void
+    private function duplicationDataDaL($numDa): void
     {
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
-        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
 
         foreach ($dals as $dal) {
             // On clone l'entité (copie en mémoire)
             $newDal = clone $dal;
             $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
+            $newDal->setEdit(self::EDIT_LOADED_PAGE); // Indiquer que c'est une version modifiée
 
             // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
             self::$em->persist($newDal);
@@ -147,64 +167,35 @@ class DaEditController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $demandeAppro = $form->getData();
-            // $this->modificationDa($demandeAppro);
+            $this->modificationDa($demandeAppro);
 
-
-            $demandeApproLs = $demandeAppro->getDAL();
-
-            foreach ($demandeApproLs as $demandeApproL) {
-                $dal = new DemandeApproL();
-                dump($demandeApproL);
-            }
-            die();
+            //notification
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->redirectToRoute("da_list");
         }
     }
 
     private function modificationDa(DemandeAppro $demandeAppro): void
     {
         self::$em->persist($demandeAppro); // on persiste la DA
+        $this->modificationDAL($demandeAppro);
         self::$em->flush(); // on enregistre les modifications
     }
 
-    /**
-     * transferet Dans DalTemporaire
-     * @param [type] $dals
-     * @return void
-     */
-    private function transferetDansDalTemporaire($dals)
+    private function modificationDAL($demandeAppro)
     {
-        foreach ($dals as $dal) {
-            $dalTemporaire = new DemandeApproLTemporaire();
-            $dalTemporaire
-                ->setNumeroDemandeAppro($dal->getNumeroDemandeAppro())
-                ->setNumeroLigne($dal->getNumeroLigne())
-                ->setArtRempl($dal->getArtRempl())
-                ->setQteDem($dal->getQteDem())
-                ->setQteDispo($dal->getQteDispo())
-                ->setArtConstp($dal->getArtConstp())
-                ->setArtRefp($dal->getArtRefp())
-                ->setArtDesi($dal->getArtDesi())
-                ->setArtFams1($dal->getArtFams1())
-                ->setArtFams2($dal->getArtFams2())
-                ->setCodeFams1($dal->getCodeFams1())
-                ->setCodeFams2($dal->getCodeFams2())
-                ->setNumeroFournisseur($dal->getNumeroFournisseur())
-                ->setNomFournisseur($dal->getNomFournisseur())
-                ->setDateFinSouhaite($dal->getDateFinSouhaite())
-                ->setCommentaire($dal->getCommentaire())
-                ->setStatutDal($dal->getStatutDal())
-                ->setCatalogue($dal->getCatalogue())
-                ->setDemandeAppro($dal->getDemandeAppro())
-                ->setDemandeApproLR($dal->getDemandeApproLR())
-                ->setEstValidee($dal->getEstValidee())
-                ->setEstModifier($dal->getEstModifier())
-                ->setDateCreation($dal->getDateCreation())
-                ->setDateModification($dal->getDateModification())
-                ->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion()))
-            ;
-            self::$em->persist($dalTemporaire);
+        $demandeApproLs = $demandeAppro->getDAL();
+        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        foreach ($demandeApproLs as $ligne => $demandeApproL) {
+            $demandeApproL
+                ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                ->setNumeroLigne($ligne + 1)
+                ->setStatutDal(self::DA_STATUT)
+                ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
+                ->setNumeroVersion($numeroVersionMax)
+            ; // Incrémenter le numéro de version
+            self::$em->persist($demandeApproL); // on persiste la DA
         }
-        self::$em->flush();
     }
 
     private function autoIncrement(?int $num): int

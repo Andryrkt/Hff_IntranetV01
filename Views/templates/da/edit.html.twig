@@ -21,7 +21,8 @@
 				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
-							Formulaire Demande d'achat
+							Modification Demande d'achat, n°
+							{{numDa}}
 						</h3>
 					</div>
 
@@ -160,7 +161,7 @@
 										{{ form_widget(DAL.catalogue, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
 									<div class="w-2" {{ peutModifier ? 'disabled' : ''}}>
-										<a href="{{ path('da_edit_delete_ligne', { ligne : ligne, numeroVersion: numeroVersionMax, idDit: idDit }) }}">
+										<a href="{{ path('da_edit_delete_ligne', { ligne : ligne, idDit: idDit, numeroVersionMax: numeroVersionMax }) }}">
 											<span title="Supprimer la ligne de DA" style="cursor: pointer;">
 												<i class="fas fa-times fs-4"></i>
 											</span>

@@ -76,8 +76,13 @@ trait DitTrait
         //Agence et service emetteur debiteur ID
         $demandeIntervention->setAgenceEmetteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dits->getAgenceEmetteur(), 0, 2)]));
         $demandeIntervention->setServiceEmetteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dits->getServiceEmetteur(), 0, 3)]));
-        $demandeIntervention->setAgenceDebiteurId($dits->getAgence());
-        $demandeIntervention->setServiceDebiteurId($dits->getService());
+        if ($dits->getInternetExterne() === 'EXTERNE') {
+            $demandeIntervention->setAgenceDebiteurId($em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($dits->getAgenceEmetteur(), 0, 2)]));
+            $demandeIntervention->setServiceDebiteurId($em->getRepository(Service::class)->findOneBy(['codeService' => substr($dits->getServiceEmetteur(), 0, 3)]));
+        } else {
+            $demandeIntervention->setAgenceDebiteurId($dits->getAgence());
+            $demandeIntervention->setServiceDebiteurId($dits->getService());
+        }
 
         //societte
         // dd($demandeIntervention);

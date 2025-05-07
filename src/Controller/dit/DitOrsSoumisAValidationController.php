@@ -151,7 +151,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
         $situationOrSoumis = $this->orRepository->getblocageStatut($numOr);
-        
+
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
         return [
@@ -267,7 +267,7 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
-        $dit->setStatutOr('Soumis à validation');
+        // $dit->setStatutOr('Soumis à validation');
         self::$em->flush();
     }
 

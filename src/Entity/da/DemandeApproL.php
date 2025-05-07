@@ -158,6 +158,13 @@ class DemandeApproL
      */
     private ?int $numeroVersion = 0;
 
+    /**
+     * @ORM\Column(type="integer", name="edit")
+     *
+     * @var integer | null
+     */
+    private ?int $edit = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -686,6 +693,18 @@ class DemandeApproL
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    public function getEdit()
+    {
+        return $this->edit;
+    }
+
+    public function setEdit($edit)
+    {
+        $this->edit = $edit;
 
         return $this;
     }

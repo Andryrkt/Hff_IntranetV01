@@ -5,10 +5,12 @@ namespace App\Controller\da;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproLRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -22,6 +24,7 @@ class DaListeController extends Controller
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
+    private DemandeApproLRepository $daLRepository;
 
     public function __construct()
     {
@@ -29,6 +32,7 @@ class DaListeController extends Controller
 
         $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
     }
 
     /**
@@ -51,10 +55,9 @@ class DaListeController extends Controller
         }
 
         $das = $this->daRepository->findDaData($criteria);
-
         $this->ajoutInfoDit($das);
+        $dataFiltered  = $this->filtreDal($das);
 
-        $dataFiltered = $this->filtrerDalParNumVersion($das);
 
         self::$twig->display('da/list.html.twig', [
             'data' => $dataFiltered,
@@ -64,30 +67,22 @@ class DaListeController extends Controller
         ]);
     }
 
-    private function filtrerDalParNumVersion($das): array
+    private function filtreDal(array $das): array
     {
-        /** @var DemandeAppro[] $datas */
-        $dataFiltered = [];
-
         foreach ($das as $da) {
-            $grouped = [];
-            foreach ($da->getDAL() as $dal) {
-                $numLigne = $dal->getNumeroLigne();
-                $version = $dal->getNumeroVersion();
-
-                if (!isset($grouped[$numLigne]) || $version > $grouped[$numLigne]->getNumeroVersion()) {
-                    $grouped[$numLigne] = $dal;
-                }
-            }
-            // Nouvelle entrée structurée : l'objet DemandeAppro + ses DAL filtrés
-            $dataFiltered[] = [
-                'da' => $da,
-                'DAL' => array_values($grouped),
-            ];
+            $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($da->getNumeroDemandeAppro());
+            // filtre une collection de versions selon le numero de version max
+            $dernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
+                return $item->getNumeroVersion() == $numeroVersionMax;
+            });
+            $da->setDAL($dernieresVersions);
         }
 
-        return $dataFiltered;
+
+        return $das;
     }
+
+
 
 
     private function ajoutInfoDit(array $datas): void
