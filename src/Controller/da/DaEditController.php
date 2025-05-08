@@ -2,19 +2,19 @@
 
 namespace App\Controller\da;
 
+use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLTemporaire;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLTemporaireRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -22,6 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaEditController extends Controller
 {
+    use lienGenerique;
+
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'soumis à l’appro';
     private const EDIT_DELETE = 2;
@@ -32,6 +34,7 @@ class DaEditController extends Controller
     private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $daLRepository;
+    private DaObservation $daObservation;
 
     public function __construct()
     {
@@ -40,6 +43,7 @@ class DaEditController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->daObservation = new DaObservation();
     }
 
     /**
@@ -86,7 +90,7 @@ class DaEditController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $demandeApproLs = $this->daLRepository->findBy(['numeroLigne' => $ligne, 'numeroVersion' => $numeroVersionMax]); // recupération de la ligne à supprimer
+        $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroLigne' => $ligne, 'numeroVersion' => $numeroVersionMax]); // recupération de la ligne à supprimer
 
         $this->modificationEdit($demandeApproLs, self::EDIT_DELETE);
 
@@ -97,6 +101,7 @@ class DaEditController extends Controller
         }
 
         self::$em->flush();
+
 
         return $this->redirectToRoute('da_edit', ['id' => $idDit]);
     }
@@ -166,14 +171,83 @@ class DaEditController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
             $demandeAppro = $form->getData();
+
             $this->modificationDa($demandeAppro);
+            if ($demandeAppro->getObservation() !== null) {
+                $this->insertionObservation($demandeAppro);
+            }
+
+
+
 
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("da_list");
         }
     }
+
+    private function mailPourAppro($demandeAppro): void
+    {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMaxAvant = $numeroVersionMax - 1;
+        $dalNouveau = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $dalAncien = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxAvant]);
+        /** NOTIFICATION MAIL */
+        $this->envoyerMailAuxAppro([
+            'id'            => $demandeAppro->getId(),
+            'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+            'objet'         => $demandeAppro->getObjetDal(),
+            'detail'        => $demandeAppro->getDetailDal(),
+            'dalAncien'     => $dalAncien,
+            'dalNouveau'    => $dalNouveau,
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
+    }
+
+    private function insertionObservation(DemandeAppro $demandeAppro): void
+    {
+        $daObservation = $this->recupDonnerDaObservation($demandeAppro);
+
+        self::$em->persist($daObservation);
+
+        self::$em->flush();
+    }
+
+    private function recupDonnerDaObservation(DemandeAppro $demandeAppro): DaObservation
+    {
+        return $this->daObservation
+            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+            ->setUtilisateur($demandeAppro->getDemandeur())
+            ->setObservation($demandeAppro->getObservation())
+        ;
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAppro(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'hasina.andrianadison@hff.mg',
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "modificationDa",
+                'subject'    => "{$tab['numDa']} - modification demande d'approvisionnement ",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list"),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+    }
+
 
     private function modificationDa(DemandeAppro $demandeAppro): void
     {
@@ -185,11 +259,12 @@ class DaEditController extends Controller
     private function modificationDAL($demandeAppro)
     {
         $demandeApproLs = $demandeAppro->getDAL();
+
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        foreach ($demandeApproLs as $ligne => $demandeApproL) {
+        foreach ($demandeApproLs as $demandeApproL) {
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                ->setNumeroLigne($ligne + 1)
+                // ->setNumeroLigne($demandeApproL->getNumeroLigne())
                 ->setStatutDal(self::DA_STATUT)
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)

@@ -54,7 +54,12 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
+        $this->sessionService->remove('firstCharge');
+        
         $das = $this->daRepository->findDaData($criteria);
+        $this->deleteDal($das);
+
+
         $this->ajoutInfoDit($das);
         $dataFiltered  = $this->filtreDal($das);
 
@@ -65,6 +70,27 @@ class DaListeController extends Controller
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
             'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);
+    }
+
+    /**
+     * supprime les ligne de DAl qui est dupliquer mais pas modifier (l'utilisateur ne clique pas sur le bouton modifier)
+     *
+     * @param array $das
+     * @return void
+     */
+    private function deleteDal(array $das): void
+    {
+        foreach ($das as $da) {
+            foreach ($da->getDAL() as $dal) {
+                if ($dal->getEdit() !== 3 && $dal->getEdit() !== 0 && !is_null($dal->getEdit())) {
+                    $demandeAppro = $dal->getDemandeAppro();
+                    $demandeAppro->removeDAL($dal); // supprime le lien
+                    self::$em->remove($dal); // supprime l'entité
+
+                    self::$em->flush();
+                }
+            }
+        }
     }
 
     private function filtreDal(array $das): array

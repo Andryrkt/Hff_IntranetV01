@@ -89,7 +89,6 @@ class DaNewController extends Controller
             ;
 
             $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
                     ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())

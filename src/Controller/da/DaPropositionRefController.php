@@ -135,7 +135,8 @@ class DaPropositionRefController extends Controller
         $numeroVersionMaxAvant = $numeroVersionMax - 1;
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
         $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
-        
+
+        /** NOTIFICATION MAIL */
         $this->envoyerMailAuxAte([
             'id'            => $da->getId(),
             'idDit'         => $dit->getId(),
@@ -164,7 +165,7 @@ class DaPropositionRefController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "propositionDa",
-                'subject'    => "{$tab['numDa']} - demande d'approvisionnement proposition créee ",
+                'subject'    => "{$tab['numDa']} - proposition demande d'approvisionnement  créee ",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/edit/" . $tab['idDit']),
             ]
