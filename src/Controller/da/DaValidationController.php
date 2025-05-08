@@ -2,12 +2,13 @@
 
 namespace App\Controller\da;
 
+use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Controller\Traits\lienGenerique;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
@@ -37,6 +38,8 @@ class DaValidationController extends Controller
      */
     public function validate(string $numDa)
     {
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
         /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         if ($da) {
@@ -48,7 +51,7 @@ class DaValidationController extends Controller
         }
 
         /** @var DemandeApproL */
-        $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa]);
+        $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         if (!empty($dal)) {
             foreach ($dal as $item) {
                 if ($item) {
@@ -76,16 +79,51 @@ class DaValidationController extends Controller
 
         self::$em->flush();
 
+        /** CREATION EXCEL */
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        // Convertir les entités en tableau de données
+        $dataExel = $this->transformationEnTableauAvecEntet($dals);
+
+        //creation du fichier excel
+        $date = new DateTime();
+        $formattedDate = $date->format('Ymd_His');
+        $fileName = $numDa . '_' . $formattedDate . '.xlsx';
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
+        $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
+
+        /** ENVOIE D'EMAIL */
+        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         $this->envoyerMailAuxAte([
-            'id'            => $da->getId(),
-            'numDa'        => $da->getNumeroDemandeAppro(),
-            'objet'         => $da->getObjetDal(),
-            'detail'        => $da->getDetailDal(),
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'id'                => $da->getId(),
+            'numDa'             => $da->getNumeroDemandeAppro(),
+            'objet'             => $da->getObjetDal(),
+            'detail'            => $da->getDetailDal(),
+            'fileName'          => $fileName,
+            'filePath'          => $filePath,
+            'dalNouveau'        => $dalNouveau,
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
+        /** NOTIFICATION */
         $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("da_list");
+    }
+
+    private function transformationEnTableauAvecEntet($entities): array
+    {
+        $data = [];
+        $data[] = ['constructeur', 'reference', 'quantité'];
+
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity->getArtConstp(),
+                $entity->getArtRefp(),
+                $entity->getQteDem(),
+            ];
+        }
+
+        return $data;
     }
 
     /** 
@@ -101,13 +139,16 @@ class DaValidationController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - demande d'approvisionnement validée ",
+                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
-            ]
+            ],
+            'attachments' => [
+                $tab['filePath'] => $tab['fileName'],
+            ],
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
         // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables'], $content['attachments']);
     }
 }
