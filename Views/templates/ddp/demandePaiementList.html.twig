@@ -68,7 +68,7 @@
 														<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Dossier régularisation </a>
 													</li>
 										{% endif %}
-										{% if item.statut matches '/payé/i' %}
+										{% if item.statut matches '/refusé/i' %}
 											<li>
 												<a class="dropdown-item fw-bold" href="{{path("edit_demande_paiement",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Modifier </a>
 											</li>
