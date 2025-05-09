@@ -63,10 +63,11 @@ class InfoFournisseurApi extends Controller
     public function numeroCommandeFournisseur($numeroFournisseur)
     {
         
-        $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
+        // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
         // if ($nbrLigne <= 0) {
             $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
+            
             $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             

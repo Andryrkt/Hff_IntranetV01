@@ -1,0 +1,9 @@
+/* Conteneur pour l'en-tête fixe */
+.sticky-header-titre {
+    position: sticky;
+    top: 0; /* Fixe au sommet de la page */
+    z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+    background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+    padding-bottom: 10px;
+    /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+  }
