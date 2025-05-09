@@ -246,6 +246,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $montantValide;
     }
 
+    /**
+     * recupère tous les numéros OR Distincts
+     *
+     * @return void
+     */
     public function findNumOrAll()
     {
         $query = $this->createQueryBuilder('osv')
@@ -256,6 +261,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    /**
+     * Recupère tous les numéros ITV Distincts
+     *
+     * @return void
+     */
     public function findNumOrItvAll()
     {
         $query = $this->createQueryBuilder('osv')
@@ -266,7 +276,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
-    public function getblocageStatut(string $numOr)
+    /**
+     * cette méthode permet de vérifier si un OR doit être bloqué ou non
+     * tous les statuts qui contiennent "Validé", "Refusé", "Livré partiellement" ou "Modification demandée par client" ne sont pas bloqués
+     *
+     * @param string $numOr
+     * @return void
+     */
+    public function getblocageStatut(string $numOr): string
     {
         $qb = $this->createQueryBuilder('o');
 

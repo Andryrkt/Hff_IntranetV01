@@ -54,8 +54,8 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
-        
-    
+
+
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
@@ -75,18 +75,22 @@ class DitFactureSoumisAValidationController extends Controller
 
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            $typeFacVente = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209];
+            $numFac = explode('_', $originalName)[1];
+            $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
+            $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
 
-            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0) {
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0 && !(in_array($typeFacture, $typeFacVente) && strpos($originalName, 'AVOIR') !== 0 && $qterea < 0)) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
 
-            $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
+            $this->ditFactureSoumiAValidation->setNumeroFact($numFac);
 
             $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
-            
+
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
-            
+
             // $numItv = $this->ditFactureSoumiAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor'], $numFac);
             // $numItvValide = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
 
@@ -107,12 +111,12 @@ class DitFactureSoumisAValidationController extends Controller
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
-            
+
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } elseif (!(int)$nbFact > 0 ) {
+            } elseif (!(int)$nbFact > 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             }
