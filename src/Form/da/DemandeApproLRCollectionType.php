@@ -16,7 +16,7 @@ class DemandeApproLRCollectionType extends AbstractType
     {
         $builder
             ->add('estValidee', CheckboxType::class, [
-                'label' => false,
+                'label' => 'Cocher pour valider et generer le bon d\'achat',
                 'required' => false,
             ])
             ->add('observation', TextareaType::class, [

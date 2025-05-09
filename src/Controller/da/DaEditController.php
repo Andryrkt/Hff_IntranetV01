@@ -26,6 +26,7 @@ class DaEditController extends Controller
 
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'soumis à l’appro';
+    private const DA_STATUT_VALIDE = 'Bon validé';
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
@@ -57,7 +58,7 @@ class DaEditController extends Controller
         $demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]); // recupération de la DA associée au DIT
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-        if (!$this->sessionService->has('firstCharge')) {
+        if (!$this->sessionService->has('firstCharge') && !$this->PeutModifier($demandeAppro)) {
             $this->sessionService->set('firstCharge', true);
             $this->duplicationDataDaL($numDa); // on duplique les lignes de la DA 
         }
@@ -157,7 +158,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && $demandeAppro->getStatutDal() == self::DA_STATUT);
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT || $demandeAppro->getStatutDal() == self::DA_STATUT_VALIDE));
     }
 
     private function estUserDansServiceAtelier()
@@ -180,7 +181,8 @@ class DaEditController extends Controller
             }
 
 
-
+            /** ENVOIE MAIL */
+            $this->mailPourAppro($demandeAppro);
 
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);

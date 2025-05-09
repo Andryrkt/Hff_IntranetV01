@@ -30,6 +30,7 @@ class DaPropositionRefController extends Controller
     use lienGenerique;
 
     private const DA_STATUT = 'soumis à l’ATE';
+    private const EDIT = 0;
 
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
@@ -114,7 +115,7 @@ class DaPropositionRefController extends Controller
             $this->modificationStatutDal($numDa); // modification du statut de la table demande_appro_L
             $this->modificationStatutDa($numDa); // modification du statut de la table demande_appro
 
-            $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+            $notification = $this->notification('success', "La proposition a été soumis à l'atelier");
         }
 
         if (!empty($refs)) {
@@ -160,7 +161,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -181,6 +182,7 @@ class DaPropositionRefController extends Controller
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         foreach ($dals as  $dal) {
             $dal->setStatutDal(self::DA_STATUT);
+            $dal->setEdit(self::EDIT);
             self::$em->persist($dal);
         }
 

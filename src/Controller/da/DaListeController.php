@@ -55,7 +55,7 @@ class DaListeController extends Controller
         }
 
         $this->sessionService->remove('firstCharge');
-        
+
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
 
@@ -82,7 +82,7 @@ class DaListeController extends Controller
     {
         foreach ($das as $da) {
             foreach ($da->getDAL() as $dal) {
-                if ($dal->getEdit() !== 3 && $dal->getEdit() !== 0 && !is_null($dal->getEdit())) {
+                if ($dal->getEdit() !== 3 && $dal->getEdit() !== 0 && !is_null($dal->getEdit()) && $dal->getEstValidee() == false) {
                     $demandeAppro = $dal->getDemandeAppro();
                     $demandeAppro->removeDAL($dal); // supprime le lien
                     self::$em->remove($dal); // supprime l'entité

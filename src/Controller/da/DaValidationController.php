@@ -134,7 +134,7 @@ class DaValidationController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [

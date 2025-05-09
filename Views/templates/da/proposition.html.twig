@@ -39,15 +39,24 @@
 			{{ form_widget(form.DALR.vars.prototype)|raw }}
 		</div>
 		{{ form_row(form.observation)}}
-		<div class="d-flex justify-content-end mt-2">
-			<button type="submit" class="btn bouton mt-2 me-4" id="envoyerSelections" name="enregistrer">
-				<i class="fas fa-save"></i>
-				Enregistrer
-			</button>
-			{{ form_row(form.estValidee)}}
-			<a href="{{ path("da_validate", {numDa: numDa})}}" class="btn bouton mt-2 me-4">
-				Ok
-			</a>
+		<div class="d-flex justify-content-between mt-2">
+			<div>
+				<button type="submit" class="btn bouton mt-2 me-4" id="envoyerSelections" name="enregistrer">
+					Envoyer proposition à l'ATE
+					<i class="fa-solid fa-square-arrow-up-right"></i>
+				</button>
+			</div>
+			<div class="d-flex justify-content-end">
+				<div style="margin-right: 13px; margin-top: 13px;">
+					{{ form_row(form.estValidee)}}
+				</div>
+				<div>
+					<a href="{{ path("da_validate", {numDa: numDa})}}" class="btn bouton mt-2 me-4">
+						Ok
+					</a>
+				</div>
+			</div>
+
 		</div>
 		{{ form_end(form) }}
 	</div>

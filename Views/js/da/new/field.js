@@ -12,7 +12,7 @@ export function createFieldAndAppendTo(
 
   // Champ à mettre dans le conteneur
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
-  console.log(fieldName, field);
+  // console.log(fieldName, field);
 
   let dateFinSouhaitee = document.getElementById(
     "demande_appro_form_dateFinSouhaite"
