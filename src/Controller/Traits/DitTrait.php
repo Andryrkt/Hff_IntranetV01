@@ -22,40 +22,40 @@ trait DitTrait
     private function insertDemandeIntervention($dits, DemandeIntervention $demandeIntervention, $em): DemandeIntervention
     {
 
-        $demandeIntervention->setObjetDemande($dits->getObjetDemande());
-        $demandeIntervention->setDetailDemande($dits->getDetailDemande());
-        $demandeIntervention->setTypeDocument($dits->getTypeDocument());
-        $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
-        $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
-        $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
-        $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
-        //AGENCE - SERVICE
-        $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2) . '-' . substr($dits->getServiceEmetteur(), 0, 3));
-        if ($dits->getAgence() === null) {
-            $demandeIntervention->setAgenceServiceDebiteur(null);
-        } else {
-            $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence() . '-' . $dits->getService()->getCodeService());
-        }
-        //INTERVENTION
-        $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
-        $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
-        //REPARATION
-        $demandeIntervention->setTypeReparation($dits->getTypeReparation());
-        $demandeIntervention->setReparationRealise($dits->getReparationRealise());
-        $demandeIntervention->setInternetExterne($dits->getInternetExterne());
-        //INFO CLIENT
-        $demandeIntervention->setNomClient($dits->getNomClient());
-        $demandeIntervention->setNumeroTel($dits->getNumeroTel());
-        $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
-        //INFORMATION MATERIEL
-        if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
-
-
-            if (empty($data)) {
-                $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
-                $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel() . '-' . $dits->getNumParc() . '-' . $dits->getNumSerie(), 'dit_new');
+            $demandeIntervention->setObjetDemande($dits->getObjetDemande());
+            $demandeIntervention->setDetailDemande($dits->getDetailDemande());
+            $demandeIntervention->setTypeDocument($dits->getTypeDocument());
+            $demandeIntervention->setCategorieDemande($dits->getCategorieDemande());
+            $demandeIntervention->setLivraisonPartiel($dits->getLivraisonPartiel());
+            $demandeIntervention->setDemandeDevis($this->demandeDevis($dits));
+            $demandeIntervention->setAvisRecouvrement($dits->getAvisRecouvrement());
+            //AGENCE - SERVICE
+            $demandeIntervention->setAgenceServiceEmetteur(substr($dits->getAgenceEmetteur(), 0, 2).'-'.substr($dits->getServiceEmetteur(), 0, 3));
+            if($dits->getAgence() === null) {
+                $demandeIntervention->setAgenceServiceDebiteur(null);
             } else {
+                $demandeIntervention->setAgenceServiceDebiteur($dits->getAgence()->getCodeAgence().'-'. $dits->getService()->getCodeService());
+            }
+            //INTERVENTION
+            $demandeIntervention->setIdNiveauUrgence($dits->getIdNiveauUrgence());
+            $demandeIntervention->setDatePrevueTravaux($dits->getDatePrevueTravaux());
+            //REPARATION
+            $demandeIntervention->setTypeReparation($dits->getTypeReparation());
+            $demandeIntervention->setReparationRealise($dits->getReparationRealise());
+            $demandeIntervention->setInternetExterne($dits->getInternetExterne());
+            //INFO CLIENT
+            $demandeIntervention->setNomClient($dits->getNomClient());
+            $demandeIntervention->setNumeroTel($dits->getNumeroTel());
+            $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
+            //INFORMATION MATERIEL
+            if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+                    $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+                
+                
+                if (empty($data)) {
+                    $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
+                    $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel().'-'.$dits->getNumParc().'-'.$dits->getNumSerie(), 'dit_new');
+                } else {
                 $demandeIntervention->setIdMateriel($data[0]['num_matricule']);
             }
         }
@@ -121,9 +121,10 @@ trait DitTrait
         $demandeIntervention->setNomClient($dits->getNomClient());
         $demandeIntervention->setNumeroTel($dits->getNumeroTel());
         $demandeIntervention->setMailClient($dits->getMailClient());
+        
+        if(!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())){
+                $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
-        if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';

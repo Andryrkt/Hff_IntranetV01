@@ -1,0 +1,15 @@
+.tabs { display: flex; gap: 10px; margin-bottom: 10px; cursor: pointer; }
+.tabs button {
+    padding: 10px;
+    border: none;
+    background: #ddd;
+    border-radius: 5px 5px 0 0;
+}
+.tabs button.active {
+    background: #fff;
+    font-weight: bold;
+    border-bottom: 2px solid white;
+}
+.tab-content { display: none; border: 1px solid #ccc; padding: 10px; }
+.tab-content.active { display: block; }
+iframe { width: 100%; height: 500px; margin-bottom: 15px; }
