@@ -278,7 +278,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
     /**
      * cette méthode permet de vérifier si un OR doit être bloqué ou non
-     * tous les statuts qui contiennent "Validé", "Refusé", "Livré partiellement" ou "Modification demandée par client" ne sont pas bloqués
+     * tous les statuts qui contiennent "Validé", "Refusé", "Livré partiellement", "Modification demandée par client", "Modification demandée par CA" ne sont pas bloqués
      *
      * @param string $numOr
      * @return void
@@ -319,7 +319,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                     $expr->like('o.statut', ':valide'),
                     $expr->like('o.statut', ':refuse'),
                     $expr->like('o.statut', ':livre_part'),
-                    $expr->like('o.statut', ':modif_client')
+                    $expr->like('o.statut', ':modif_client'),
+                    $expr->like('o.statut', ':modif_ca')
                 )
             )
             ->setParameters([
@@ -329,6 +330,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'refuse' => '%Refusé%',
                 'livre_part' => '%Livré partiellement%',
                 'modif_client' => '%Modification demandée par client%',
+                'modif_ca' => '%Modification demandée par CA%',
 
             ]);
 
