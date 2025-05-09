@@ -85,7 +85,13 @@ class InventaireModel extends Model
                             AND ainvp_numinv = ainvi_numinv
                             AND ainvp_ctrlok = 0
                             AND ainvp_nbordereau > 0
-                            ) = 0 THEN 
+                            ) = 0 AND (
+                            (SELECT MAX(DATE (ladm_date)) FROM log_art_invi A 
+                JOIN log_adm b ON A.ladm_id = b.ladm_id
+                WHERE A.ainvi_soc = ainvi.ainvi_soc
+                AND A.ainvi_numinv = (SELECT  MAX(ainvi_numinv) FROM art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait )
+                AND A.ainvi_cloture = 'O'
+                ) ='' ) THEN 
                             'SOLDE'
                     ELSE 
                     (SELECT DECODE (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS') 
