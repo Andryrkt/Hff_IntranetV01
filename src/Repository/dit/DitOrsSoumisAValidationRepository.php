@@ -265,4 +265,58 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $query;
     }
+
+    public function getblocageStatut(string $numOr)
+    {
+        $qb = $this->createQueryBuilder('o');
+
+        // Étape 1 : Vérifier l'existence
+        $count = $qb
+            ->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ((int) $count === 0) {
+            return 'ne pas bloquer';
+        }
+
+        // Étape 2 : Récupérer la version max
+        $maxVersion = $this->createQueryBuilder('o')
+            ->select('MAX(o.numeroVersion)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Étape 3 : Vérifier les statuts avec like()
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        $qb = $this->createQueryBuilder('o');
+        $qb->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->andWhere('o.numeroVersion = :maxVersion')
+            ->andWhere(
+                $expr->orX(
+                    $expr->like('o.statut', ':valide'),
+                    $expr->like('o.statut', ':refuse'),
+                    $expr->like('o.statut', ':livre_part'),
+                    $expr->like('o.statut', ':modif_client')
+                )
+            )
+            ->setParameters([
+                'numOr' => $numOr,
+                'maxVersion' => $maxVersion,
+                'valide' => '%Validé%',
+                'refuse' => '%Refusé%',
+                'livre_part' => '%Livré partiellement%',
+                'modif_client' => '%Modification demandée par client%',
+
+            ]);
+
+        $matchingCount = $qb->getQuery()->getSingleScalarResult();
+
+        return ((int) $matchingCount > 0) ? 'ne pas bloquer' : 'bloquer';
+    }
 }

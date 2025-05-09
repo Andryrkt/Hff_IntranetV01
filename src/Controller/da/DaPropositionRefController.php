@@ -2,17 +2,20 @@
 
 namespace App\Controller\da;
 
+use DateTime;
 use App\Model\da\DaModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -23,6 +26,9 @@ class DaPropositionRefController extends Controller
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DaObservation $daObservation;
+    private DaObservationRepository $daObservationRepository;
 
 
     public function __construct()
@@ -30,8 +36,12 @@ class DaPropositionRefController extends Controller
         parent::__construct();
 
         $this->daModel = new DaModel();
+
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daObservation = new DaObservation();
+        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
     }
 
     /**
@@ -42,34 +52,35 @@ class DaPropositionRefController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(DemandeAppro::class)->find($id)->getDAL();
+        $numDa = $this->demandeApproRepository->find($id)->getNumeroDemandeAppro();
+        $data = $this->demandeApproRepository->find($id)->getDAL();
 
-        // foreach ($data as $key => $value) {
-        //     dump($value);
-        // }
-        // die('fin');
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $data, $request);
+        $this->traitementFormulaire($form, $data, $request, $numDa);
+
+        $observations = $this->daObservationRepository->findBy([], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
             'data' => $data,
             'id' => $id,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'observations' => $observations
         ]);
     }
 
-    private function traitementFormulaire($form, $data, $request)
+    private function traitementFormulaire($form, $data, Request $request, string $numDa)
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
+            $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
-                $this->taitementPourBtnEnregistrer($dalrList, $request, $data);
+                $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa);
             } elseif ($request->request->has('bonAchat')) {
 
                 $dalrs = [];
@@ -91,7 +102,7 @@ class DaPropositionRefController extends Controller
         }
     }
 
-    private function taitementPourBtnEnregistrer($dalrList, $request, $data): void
+    private function taitementPourBtnEnregistrer($dalrList, Request $request, $data, string $observation, string $numDa): void
     {
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
@@ -101,6 +112,7 @@ class DaPropositionRefController extends Controller
             $notification = $this->notification('info', "Aucune modification n'a été effectuée");
         } else {
             $this->enregistrementDb($data, $dalrList);
+            $this->insertionObservation($observation, $numDa);
             $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
         }
 
@@ -117,6 +129,24 @@ class DaPropositionRefController extends Controller
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
+    }
+
+    private function insertionObservation(string $observation, string $numDa): void
+    {
+        $daObservation = $this->recupDonnerDaObservation($observation, $numDa);
+
+        self::$em->persist($daObservation);
+
+        self::$em->flush();
+    }
+
+    private function recupDonnerDaObservation(string $observation, string $numDa): DaObservation
+    {
+        return $this->daObservation
+            ->setNumDa($numDa)
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setObservation($observation)
+        ;
     }
 
     private function transformationEnTableauAvecEntet($entities): array

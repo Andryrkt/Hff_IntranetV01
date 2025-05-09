@@ -4,7 +4,7 @@ namespace App\Repository\da;
 
 use Doctrine\ORM\EntityRepository;
 
-class DemandeApproRepository extends EntityRepository 
+class DemandeApproRepository extends EntityRepository
 {
     public function findDaData(array $criteria = [])
     {
@@ -15,23 +15,23 @@ class DemandeApproRepository extends EntityRepository
         // Filtre sur le numero DIT
         if (isset($criteria['numDit'])) {
             $qb->andWhere("da.numeroDemandeDit LIKE :numDit")
-                ->setParameter('numDit', '%'. $criteria['numDit'] .'%');
+                ->setParameter('numDit', '%' . $criteria['numDit'] . '%');
         }
 
         //filtre sur le numéro de DA
         if (isset($criteria['numDa'])) {
             $qb->andWhere("da.numeroDemandeAppro LIKE :numDa")
-                ->setParameter('numDa', '%'. $criteria['numDa'] .'%');
+                ->setParameter('numDa', '%' . $criteria['numDa'] . '%');
         }
 
         //filtre sur le demandeur
         if (isset($criteria['demandeur'])) {
             $qb->andWhere("da.demandeur LIKE :demandeur")
-                ->setParameter('demandeur', '%'. $criteria['demandeur'] .'%');
+                ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
         }
 
         //Filtre sur l'id matériel
-        if(isset($criteria['idMateriel'])) {
+        if (isset($criteria['idMateriel'])) {
             $qb->andWhere("da.idMateriel = :idMat")
                 ->setParameter('idMat', (int)$criteria['idMateriel']);
         }
@@ -79,7 +79,19 @@ class DemandeApproRepository extends EntityRepository
             $qb->andWhere("da.serviceDestinataire = :serviceDestinataire")
                 ->setParameter('serviceDestinataire', $criteria['serviceDestinataire']->getId());
         }
-        
+
         return $qb->getQuery()->getResult();
+    }
+
+    public function getStatut($numDit)
+    {
+        $result = $this->createQueryBuilder('da')
+            ->select('da.statutDal')
+            ->where('da.numeroDemandeDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getOneOrNullResult();;
+
+        return $result ? $result['statutDal'] : null;
     }
 }

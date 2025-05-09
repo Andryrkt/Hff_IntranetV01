@@ -13,6 +13,13 @@ class DemandeApproLRCollection
 {
     private Collection $DALR;
 
+    private $Observation;
+
+    /**===========================================================================
+     * GETTER & SETTER
+     *
+     *==========================================================================*/
+
     public function __construct()
     {
         $this->DALR = new ArrayCollection();
@@ -38,6 +45,26 @@ class DemandeApproLRCollection
     public function setDALR(Collection $DALR): self
     {
         $this->DALR = $DALR;
+        return $this;
+    }
+
+    /**
+     * Get the value of Observation
+     */
+    public function getObservation()
+    {
+        return $this->Observation;
+    }
+
+    /**
+     * Set the value of Observation
+     *
+     * @return  self
+     */
+    public function setObservation($Observation)
+    {
+        $this->Observation = $Observation;
+
         return $this;
     }
 }

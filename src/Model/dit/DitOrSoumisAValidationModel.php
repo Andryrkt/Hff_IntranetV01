@@ -240,25 +240,38 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupBlockageStatut($numOr)
-    {
-        $sql = " SELECT
-                case when count(statut) > 0 then 'bloquer' else 'ne pas bloquer' end as retour
-            FROM ors_soumis_a_validation
-            WHERE numeroOR = '{$numOr}'
-            AND numeroVersion = (
-                SELECT MAX(numeroVersion)
-                FROM ors_soumis_a_validation
-                WHERE numeroOR = '{$numOr}'
-            )
-            and statut not like ('%Validé%')
-            and statut not like ('%Refusé%')
-            and statut <> 'Livré partiellement'
-            and statut = 'Livré'
-        ";
+    // public function recupBlockageStatut($numOr)
+    // {
+    //     $sql = " SELECT
+    //         CASE
+    //             WHEN NOT EXISTS (
+    //                 SELECT 1
+    //                 FROM ors_soumis_a_validation
+    //                 WHERE numeroOR = '{$numOr}'
+    //             ) THEN 'ne pas bloquer'
+    //             WHEN EXISTS (
+    //                 SELECT 1
+    //                 FROM ors_soumis_a_validation
+    //                 WHERE numeroOR = '{$numOr}'
+    //                 AND numeroVersion = (
+    //                     SELECT MAX(numeroVersion)
+    //                     FROM ors_soumis_a_validation
+    //                     WHERE numeroOR = '{$numOr}'
+    //                 )
+    //                 AND (
+    //                     statut LIKE '%Validé%' OR
+    //                     statut LIKE '%Refusé%' OR
+    //                     statut LIKE '%Livré partiellement%' OR
+    //                     statut LIKE '%Modification demandée par client%'
+    //                 )
+    //             ) THEN 'ne pas bloquer'
+    //             ELSE 'bloquer'
+    //         END AS retour
 
-        return $this->retournerResult28($sql);
-    }
+    //     ";
+
+    //     return $this->retournerResult28($sql);
+    // }
 
     public function constructeurPieceMagasin(string $numOr)
     {

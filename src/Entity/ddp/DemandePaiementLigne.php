@@ -49,7 +49,10 @@ class DemandePaiementLigne
      */
     private float $montantFacture = 0.00;
 
-
+ /**
+     * @ORM\Column(type="integer", name="numeroVersion")
+     */
+    private ?int $numeroVersion = 0;
     
 
     /**===========================================================================
@@ -167,4 +170,24 @@ class DemandePaiementLigne
     }
 
  
+
+    /**
+     * Get the value of numeroVersion
+     */ 
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */ 
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
 }
