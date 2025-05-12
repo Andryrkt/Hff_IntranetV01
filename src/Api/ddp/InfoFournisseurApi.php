@@ -66,11 +66,11 @@ class InfoFournisseurApi extends Controller
         // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
         // if ($nbrLigne <= 0) {
-            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
-            if($typeId == 1) {
-                
-            }
-            $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
+        $numComandes = $this->demandePaiementRepository->getnumCde();
+            $excludedCommands = $this->changeStringToArray($numComandes);
+            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+         
+           $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             
             $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
@@ -92,6 +92,21 @@ class InfoFournisseurApi extends Controller
         // }
     }
 
+    private function changeStringToArray(array $input): array 
+    {
+        
+        $resultCde = [];
+
+            foreach ($input as $item) {
+                $decoded = json_decode($item, true); // transforme la string en tableau
+                if (is_array($decoded)) {
+                    $resultCde = array_merge($resultCde, $decoded);
+                }
+            }
+
+        return $resultCde;
+    }
+    
     /**
      * @Route("/api/liste-doc/{numeroDossier}", name="api_liste_doc")
      *

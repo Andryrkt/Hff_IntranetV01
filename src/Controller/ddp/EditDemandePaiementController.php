@@ -275,11 +275,29 @@ class EditDemandePaiementController extends Controller
 
     public function listGcot($numeroFournisseur, $typeId)
     {
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+        $numComandes = $this->ddpRepository->getnumCde();
+        $excludedCommands = $this->changeStringToArray($numComandes);
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
         return $listeGcot;
     }
+
+    private function changeStringToArray(array $input): array 
+    {
+        
+        $resultCde = [];
+
+            foreach ($input as $item) {
+                $decoded = json_decode($item, true); // transforme la string en tableau
+                if (is_array($decoded)) {
+                    $resultCde = array_merge($resultCde, $decoded);
+                }
+            }
+
+        return $resultCde;
+    }
+
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
         $tousLesFichiers = [];

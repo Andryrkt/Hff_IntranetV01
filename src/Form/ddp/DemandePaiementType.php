@@ -14,6 +14,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
+use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
@@ -29,6 +30,7 @@ class DemandePaiementType extends AbstractType
     private $cdeFnrRepository;
     private $demandePaiementModel;
     private $em;
+    private DemandePaiementRepository $demandePaiementRepository;
     public function __construct()
     {
         $this->em=Controller::getEntity();
@@ -36,20 +38,41 @@ class DemandePaiementType extends AbstractType
         $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
         $this->cdeFnrRepository = $this->em->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
      
     }
     private function numeroFac($numeroFournisseur, $typeId){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+          $numComandes = $this->demandePaiementRepository->getnumCde();
+            $excludedCommands = $this->changeStringToArray($numComandes);
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+
     
-        $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
     
         $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
             return array_combine($listeGcot, $listeGcot);
     }
     private function numeroCmd($numeroFournisseur, $typeId){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+         $numComandes = $this->demandePaiementRepository->getnumCde();
+            $excludedCommands = $this->changeStringToArray($numComandes);
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         return array_combine($numCdes, $numCdes);
+    }
+
+    
+    private function changeStringToArray(array $input): array 
+    {
+        
+        $resultCde = [];
+
+            foreach ($input as $item) {
+                $decoded = json_decode($item, true); // transforme la string en tableau
+                if (is_array($decoded)) {
+                    $resultCde = array_merge($resultCde, $decoded);
+                }
+            }
+
+        return $resultCde;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
