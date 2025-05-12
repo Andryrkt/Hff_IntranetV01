@@ -38,8 +38,8 @@ class DemandePaiementType extends AbstractType
         $this->demandePaiementModel = new DemandePaiementModel();
      
     }
-    private function numeroFac($numeroFournisseur){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
+    private function numeroFac($numeroFournisseur, $typeId){
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
     
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
@@ -47,8 +47,8 @@ class DemandePaiementType extends AbstractType
         $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
             return array_combine($listeGcot, $listeGcot);
     }
-    private function numeroCmd($numeroFournisseur){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
+    private function numeroCmd($numeroFournisseur, $typeId){
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
         return array_combine($numCdes, $numCdes);
     }
 
@@ -72,7 +72,7 @@ class DemandePaiementType extends AbstractType
                 ChoiceType::class,
                 [
                     'label'     => 'N° Commande *',
-                    'choices'   =>  array_key_exists('data',$options) ? $this->numeroCmd($options['data']->getNumeroFournisseur()): [],
+                    'choices'   =>  array_key_exists('data',$options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']): [],
                     'multiple'  => true,
                     'expanded'  => false,
                 ]
@@ -83,7 +83,7 @@ class DemandePaiementType extends AbstractType
                 [
                     'label' => 'N° Facture *',
                     'required' => false,
-                    'choices'   => array_key_exists('data',$options) ? $this->numeroFac($options['data']->getNumeroFournisseur()): [],
+                    'choices'   => array_key_exists('data',$options) ? $this->numeroFac($options['data']->getNumeroFournisseur(), $options['id_type']): [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [

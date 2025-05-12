@@ -58,16 +58,18 @@ class InfoFournisseurApi extends Controller
     }
 
     /**
-     * @Route("/api/num-cde-frn/{numeroFournisseur}", name="api_num_cde_frn")
+     * @Route("/api/num-cde-frn/{numeroFournisseur}/{typeId}", name="api_num_cde_frn")
      */
-    public function numeroCommandeFournisseur($numeroFournisseur)
+    public function numeroCommandeFournisseur($numeroFournisseur, $typeId)
     {
         
         // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
         // if ($nbrLigne <= 0) {
-            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
-            
+            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+            if($typeId == 1) {
+                
+            }
             $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             

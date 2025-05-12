@@ -109,6 +109,8 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04($sql);
     }
 
+    
+
     public function findListeDoc($numeroDossier)
     {
         $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO

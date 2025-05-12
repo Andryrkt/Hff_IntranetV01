@@ -38,6 +38,17 @@ class CdefnrSoumisAValidationController extends Controller
 
         $form= self::$validator->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
 
+        $this->traitementFormulaire($request, $form);
+
+        self::$twig->display('cde/cdeFnr.html.twig', [
+            //'fournisseurs' => $fournisseurs
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function traitementFormulaire(Request $request, $form): void
+    {
+        
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -64,11 +75,6 @@ class CdefnrSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
             }
         }
-
-        self::$twig->display('cde/cdeFnr.html.twig', [
-            //'fournisseurs' => $fournisseurs
-            'form' => $form->createView(),
-        ]);
     }
 
     private function conditionDeBlockage( FormInterface $form, CdefnrSoumisAValidation $data): array 
@@ -110,13 +116,19 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function ajoutDonnerEntity(CdefnrSoumisAValidation $data)
     {
+
         $numeroVersionMax = $this->cdeFnrRepository->findNumeroVersionMax($data->getNumCdeFournisseur());
         $cdeFournisseur = $this->cdeFnrModel->recupListeInitialCdeFrn($data->getCodeFournisseur(), $data->getNumCdeFournisseur());
+        $nbFacture = $this->cdeFnrModel->facOUNonFacEtValide($data->getCodeFournisseur(), $data->getNumCdeFournisseur());
 
             $dateCommande = new \DateTime($cdeFournisseur[0]['date_cde']);
             $prixTTc = $cdeFournisseur[0]['prix_cde_ttc'];
             $deviseCommande = $cdeFournisseur[0]['devise_cde'];
             $cdeFournisseur = new CdefnrSoumisAValidation();
+
+            if((int)$nbFacture[0] > 0) {
+                $cdeFournisseur->setEstFacture(true);
+            } 
 
             return $cdeFournisseur
                 ->setCodeFournisseur($data->getCodeFournisseur())
@@ -129,6 +141,8 @@ class CdefnrSoumisAValidationController extends Controller
                 ->setMontantCommande($prixTTc)
                 ->setDeviseCommande($deviseCommande)
             ;
+
+            
     }
 
     private function ajoutDonnerDansDb($cdeFournisseur)

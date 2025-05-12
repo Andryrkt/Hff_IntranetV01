@@ -68,7 +68,7 @@ class EditDemandePaiementController extends Controller
         $form = self::$validator->createBuilder(DemandePaiementType::class, $demandePaiement, ['id_type' => $id])->getForm();
         $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement);
         $numeroFournisseur = $demandePaiement->getNumeroFournisseur();
-        $listeGcot = $this->listGcot($numeroFournisseur);
+        $listeGcot = $this->listGcot($numeroFournisseur, $id);
         self::$twig->display('ddp/EditdemandePaiement.html.twig', [
             'id_type' => $id,
             'form' => $form->createView(),
@@ -273,9 +273,9 @@ class EditDemandePaiementController extends Controller
         }, $files);
     }
 
-    public function listGcot($numeroFournisseur)
+    public function listGcot($numeroFournisseur, $typeId)
     {
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur);
+        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
         return $listeGcot;

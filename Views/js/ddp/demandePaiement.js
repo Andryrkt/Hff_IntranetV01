@@ -65,21 +65,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Récupérer les facture
     if (typeId == 2) {
-      listeFacture(item.num_fournisseur);
-      listeCommande2(item.num_fournisseur);
+      listeFacture(item.num_fournisseur, typeId);
+      listeCommande2(item.num_fournisseur, typeId);
       //  pour affichage de tableau de facture
-      updateCommandesFournisseur(item.num_fournisseur);
+      updateCommandesFournisseur(item.num_fournisseur, typeId);
 
       $("#demande_paiement_numeroFacture").on("change", () => {
-        changeCommandeSelonFacture(item.num_fournisseur);
+        changeCommandeSelonFacture(item.num_fournisseur, typeId);
       });
 
       $("#demande_paiement_numeroCommande").on("change", () => {
-        changeFactureSelonCommande(item.num_fournisseur);
+        changeFactureSelonCommande(item.num_fournisseur, typeId);
       });
     } else {
+      console.log(typeId);
+      
       //  Récupérer les commandes du fournisseur après la sélection
-      listeCommande(item.num_fournisseur);
+      listeCommande(item.num_fournisseur, typeId);
     }
   }
 
@@ -107,10 +109,10 @@ document.addEventListener("DOMContentLoaded", function () {
    * numero commande
    *==========================*/
 
-  async function listeCommande(numFournisseur) {
+  async function listeCommande(numFournisseur, id_type) {
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${id_type}`
       );
 
       ajoutDesOptions(numCommandeInput, commandes.numCdes);
@@ -127,10 +129,10 @@ document.addEventListener("DOMContentLoaded", function () {
     width: "100%",
   });
 
-  async function listeCommande2(numFournisseur) {
+  async function listeCommande2(numFournisseur, id_type) {
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${id_type}`
       );
 
       const listeCommande = transformTab(commandes.listeGcot, "Numero_PO");
@@ -169,12 +171,12 @@ document.addEventListener("DOMContentLoaded", function () {
   /**================
    * numéro facture
    ==================*/
-  async function listeFacture(numFournisseur) {
+  async function listeFacture(numFournisseur, typeId) {
     try {
       console.log(numFournisseur);
       
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       const listeFacture = transformTab(commandes.listeGcot, "Numero_Facture");
@@ -197,7 +199,7 @@ document.addEventListener("DOMContentLoaded", function () {
     width: "100%",
   });
 
-  async function changeCommandeSelonFacture(numFournisseur) {
+  async function changeCommandeSelonFacture(numFournisseur, typeId) {
     if (isUpdatingFacture) return; // évite le rebouclage
     isUpdatingCommande = true;
 
@@ -206,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       // Filtrer les factures correspondant à au moins une facture sélectionnée
@@ -232,7 +234,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  async function changeFactureSelonCommande(numFournisseur) {
+  async function changeFactureSelonCommande(numFournisseur, typeId) {
     if (isUpdatingCommande) return;
     isUpdatingFacture = true;
 
@@ -241,7 +243,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       // Filtrer les factures correspondant à au moins une facture sélectionnée
@@ -397,9 +399,9 @@ document.addEventListener("DOMContentLoaded", function () {
    * Permet d'afficher le tableau de facture
    * @param {string} numFournisseur
    */
-  async function updateCommandesFournisseur(numFournisseur) {
+  async function updateCommandesFournisseur(numFournisseur, typeId) {
     const commandes = await fetchManager.get(
-      `api/num-cde-frn/${numFournisseur}`
+      `api/num-cde-frn/${numFournisseur}/${typeId}`
     );
 
     const $tableauContainer = document.querySelector("#tableau_facture");

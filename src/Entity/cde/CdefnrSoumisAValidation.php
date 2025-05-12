@@ -65,6 +65,12 @@ class CdefnrSoumisAValidation
 
     private $pieceJoint01;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_facture")
+     */
+    private $estFacture = false;
+    
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -273,6 +279,26 @@ class CdefnrSoumisAValidation
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estFacture
+     */ 
+    public function getEstFacture()
+    {
+        return $this->estFacture;
+    }
+
+    /**
+     * Set the value of estFacture
+     *
+     * @return  self
+     */ 
+    public function setEstFacture($estFacture)
+    {
+        $this->estFacture = $estFacture;
 
         return $this;
     }

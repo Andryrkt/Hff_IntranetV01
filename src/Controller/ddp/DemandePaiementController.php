@@ -103,7 +103,9 @@ class DemandePaiementController extends Controller
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
 
             /** COPIER LES FICHIERS */
-            $this->copierFichierDistant($data,$numDdp);
+            if($id == 2) {
+                $this->copierFichierDistant($data,$numDdp);
+            }
 
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp.'.pdf';

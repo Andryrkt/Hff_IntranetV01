@@ -43,7 +43,7 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
      * @param string $numeroFournisseur
      * @return void
      */
-    public function findNumCommandeValideNonAnnuler(string $numeroFournisseur)
+    public function findNumCommandeValideNonAnnuler(string $numeroFournisseur, int $typeId)
     {
         $qb = $this->createQueryBuilder('cfr');
 
@@ -54,16 +54,34 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->andWhere('sub.codeFournisseur = :numFrn')
             ->getDQL();
 
-        return $qb->select('cfr.numCdeFournisseur')
-            ->where('cfr.codeFournisseur = :numFrn')
-            ->andWhere('cfr.numVersion = (' . $subQuery . ')')
-            ->andWhere('cfr.statut = :statut')
-            ->setParameters([
-                'numFrn' => $numeroFournisseur,
-                'statut' => 'Validé',
-            ])
-            ->getQuery()
-            ->getSingleColumnResult();
+            if($typeId == 2) {
+                 return $qb->select('cfr.numCdeFournisseur')
+                    ->where('cfr.codeFournisseur = :numFrn')
+                    ->andWhere('cfr.numVersion = (' . $subQuery . ')')
+                    ->andWhere('cfr.statut = :statut')
+                    ->andWhere('cfr.estFacture = :fac')
+                    ->setParameters([
+                        'numFrn' => $numeroFournisseur,
+                        'statut' => 'Validé',
+                        'fac'    => 1
+                    ])
+                    ->getQuery()
+                    ->getSingleColumnResult();
+            } else {
+                return $qb->select('cfr.numCdeFournisseur')
+                    ->where('cfr.codeFournisseur = :numFrn')
+                    ->andWhere('cfr.numVersion = (' . $subQuery . ')')
+                    ->andWhere('cfr.statut = :statut')
+                    ->andWhere('cfr.estFacture = :fac')
+                    ->setParameters([
+                        'numFrn' => $numeroFournisseur,
+                        'statut' => 'Validé',
+                        'fac'    => 0
+                    ])
+                    ->getQuery()
+                    ->getSingleColumnResult();
+            }
+       
     }
 
 }
