@@ -84,7 +84,7 @@ class DemandePaiementController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $numDdp = $this->autoDecrementDDP('DDP'); // decrementation du numero DDP
+            $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
 
             $data = $form->getData();//recupération des donnnées
