@@ -70,7 +70,7 @@ class DemandePaiementModel extends Model
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
-        ";
+            ";
         return $this->retournerResultGcot04($sql);
     }
 
@@ -90,6 +90,23 @@ class DemandePaiementModel extends Model
         ";
 
         return array_column($this->retournerResultGcot04($sql),'Numero_Facture');
+    }
+
+    public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    {
+        $sql = " SELECT  
+
+            TRZT_Dossier_Douane.Numero_Dossier_Douane
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture in ({$numFactString})
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return $this->retournerResultGcot04($sql);
     }
 
     public function findListeDoc($numeroDossier)

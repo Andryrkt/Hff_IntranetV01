@@ -354,15 +354,16 @@ class DemandePaiementController extends Controller
         $numFrs = $data->getNumeroFournisseur();
         $numCde = $data->getNumeroCommande();
 
+        $numFactures = $data->getNumeroFacture();
+
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
+        $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
         
-        $listeGcot = $this->demandePaiementModel->findListeGcot($numFrs, $numCdesString);
+        $numDossiers = array_column($this->demandePaiementModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
 
         $cheminDeFichiers = [];
-        foreach ($listeGcot as $value) {
-            $numDocDouane = $value['Numero_Dossier_Douane'];
-
-            $dossiers = $this->demandePaiementModel->findListeDoc($numDocDouane);
+        foreach ($numDossiers as $value) {
+            $dossiers = $this->demandePaiementModel->findListeDoc($value);
             foreach ($dossiers as  $dossier) {
                 $cheminDeFichiers[] = $dossier['Nom_Fichier'];
             }
