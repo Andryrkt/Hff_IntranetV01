@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   async function fetchCommandesFrn() {
     try {
-      const response = await fetchManager.get(`api/num-cde-fnr`);
+      const response = await fetchManager.get(`api/commande-fournisseur`);
       prelodDataCde = response;
     } catch (error) {
       console.error(
