@@ -91,8 +91,7 @@ class InventaireModel extends Model
                 WHERE A.ainvi_soc = ainvi.ainvi_soc
                 AND A.ainvi_numinv = (SELECT  MAX(ainvi_numinv) FROM art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait )
                 AND A.ainvi_cloture = 'O'
-                ) =''
-                            ) THEN 
+                ) ='' ) THEN 
                             'SOLDE'
                     ELSE 
                     (SELECT DECODE (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS') 

@@ -6,6 +6,7 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
+use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -15,9 +16,9 @@ use App\Model\dit\DitOrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Service\fichier\GenererNonFichierService;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
@@ -31,6 +32,7 @@ class DitOrsSoumisAValidationController extends Controller
     private DitOrSoumisAValidationModel $ditOrsoumisAValidationModel;
     private GenererPdfOrSoumisAValidation $genererPdfDit;
     private DitRepository $ditRepository;
+    private DitOrsSoumisAValidationRepository $orRepository;
 
     public function __construct()
     {
@@ -40,6 +42,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->orRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -147,7 +150,8 @@ class DitOrsSoumisAValidationController extends Controller
 
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
 
-        $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
+        // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
+        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr);
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
@@ -159,7 +163,7 @@ class DitOrsSoumisAValidationController extends Controller
             'invalidePosition'      => in_array($pos[0]['position'], $invalidPositions),
             'idMaterielDifferent'   => $demandeIntervention->getIdMateriel() !== (int)$idMateriel[0]['nummatricule'],
             'sansrefClient'         => empty($refClient),
-            'situationOrSoumis'     => $situationOrSoumis[0]['retour'] === 'bloquer',
+            'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr
         ];
@@ -269,7 +273,7 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
-        $dit->setStatutOr('Soumis à validation');
+        // $dit->setStatutOr('Soumis à validation');
         self::$em->flush();
     }
 
