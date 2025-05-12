@@ -70,7 +70,7 @@
 						
 						<div class="col-12 col-md-4">
 						<p><b>Listes des fichiers</b></p>
-							<ul id="liste_fichiers"></ul> 
+							<ul id="liste_fichiers" class="d-none"></ul> 
 							{# liste des fichiers #}
 						</div>
 					</div>
@@ -112,8 +112,8 @@
 					<div class="row">
 						
 						<!-- Debut affichage du tableau liste des factures-->
-						<div class="row" id="tableau_facture"></div>
-						<div class="row" id="tableau_dossier"></div>
+						<div class="row d-none" id="tableau_facture"></div>
+						<div class="row d-none" id="tableau_dossier"></div>
 					</div>
 					<div class="d-flex justify-content-end">
 										<button type="submit" class="btn bouton mt-2 ajout-overlay" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
