@@ -92,6 +92,26 @@ class InfoFournisseurApi extends Controller
         // }
     }
 
+    /**
+     * @Route("/api/montant-facture/{numeroFournisseur}/{numFacture}/{typeId}", name="api_montant_factures")
+     */
+    public function montantFacture(string $numeroFournisseur, string $numFacture, int $typeId)
+    {
+        $factureArray = explode(',', $numFacture);
+        $numComandes = $this->demandePaiementRepository->getnumCde();
+            $excludedCommands = $this->changeStringToArray($numComandes);
+            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+         
+        
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+            $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
+
+        $montants = $this->demandePaiementModel->getMontantFacGcot($numeroFournisseur, $numCdesString, $numFacString );
+
+        header("Content-type:application/json");
+            echo json_encode($montants);
+    }
+
     private function changeStringToArray(array $input): array 
     {
         

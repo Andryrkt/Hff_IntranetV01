@@ -74,9 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
         changeCommandeSelonFacture(item.num_fournisseur, typeId);
       });
 
-      $("#demande_paiement_numeroCommande").on("change", () => {
-        changeFactureSelonCommande(item.num_fournisseur, typeId);
-      });
+      // $("#demande_paiement_numeroCommande").on("change", () => {
+      //   changeFactureSelonCommande(item.num_fournisseur, typeId);
+      // });
     } else {
       console.log(typeId);
       
@@ -227,6 +227,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Définir les valeurs sélectionnées directement
       $(numCommandeInput).val(numerosPO).trigger("change");
+
+
+      const facturesString = facturesCorrespondantes
+    .map(f => f.Numero_Facture) // extrait chaque numéro
+    .join(',');
+
+      const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
+
+      montantInput.value = montantFacture;
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
     } finally {
