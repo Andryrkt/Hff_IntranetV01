@@ -84,6 +84,7 @@ class DitListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
 
+
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);

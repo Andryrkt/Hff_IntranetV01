@@ -48,6 +48,7 @@ export function ajouterUneLigne() {
     ["d-none", "artFams2"],
     ["d-none", "numeroFournisseur"],
     ["d-none", "catalogue"],
+    ["d-none", "numeroLigne"],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
@@ -86,4 +87,3 @@ export function autocompleteTheFields(line) {
   initializeAutoCompletionDesi(designation);
   initializeAutoCompletionFrn(nomFournisseur);
 }
-

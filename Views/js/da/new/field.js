@@ -12,21 +12,26 @@ export function createFieldAndAppendTo(
 
   // Champ à mettre dans le conteneur
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
+  // console.log(fieldName, field);
+
   let dateFinSouhaitee = document.getElementById(
     "demande_appro_form_dateFinSouhaite"
   ).value;
   field.required = ![
     "commentaire",
     "catalogue",
+    "numeroLigne",
     "artRefp",
     "numeroFournisseur",
   ].includes(fieldName);
-  field.value =
-    fieldName === "dateFinSouhaite"
-      ? dateFinSouhaitee
-      : fieldName === "artConstp"
-      ? "ZST"
-      : field.value;
+
+  if (fieldName === "dateFinSouhaite") {
+    field.value = dateFinSouhaitee;
+  } else if (fieldName === "artConstp") {
+    field.value = "ZST";
+  } else if (fieldName === "numeroLigne") {
+    field.value = localStorage.getItem("index");
+  }
 
   // Append the field
   fieldContainer.appendChild(field);

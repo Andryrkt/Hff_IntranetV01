@@ -35,9 +35,9 @@ class DaObservation
     /**
      * @ORM\Column(type="string", name="observation")
      *
-     * @var string
+     * @var string|NULL
      */
-    private string $observation;
+    private ?string $observation;
 
 
 
@@ -96,8 +96,6 @@ class DaObservation
 
     /**
      * Get the value of observation
-     *
-     * @return  string
      */
     public function getObservation()
     {
@@ -106,12 +104,8 @@ class DaObservation
 
     /**
      * Set the value of observation
-     *
-     * @param  string  $observation
-     *
-     * @return  self
      */
-    public function setObservation(string $observation)
+    public function setObservation($observation)
     {
         $this->observation = $observation;
 
