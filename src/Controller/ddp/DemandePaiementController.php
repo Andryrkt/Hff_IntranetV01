@@ -92,8 +92,28 @@ class DemandePaiementController extends Controller
         
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form,$numDdp);
+            $pathAndCdes = [];
+            foreach ($data->getNumeroCommande() as  $numcde) {
+                $pathAndCdes[] = $this->demandePaiementModel->getPathDwCommande($numcde);
+            }
+            
+            $nomDufichierCde= [];
+            foreach ($pathAndCdes as  $pathAndCde) {
+
+                $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
+                $nomFichierInitial = explode("/",$pathAndCde[0]['path'])[2];
+
+                $cheminDufichierDestinataire = $this->cheminDeBase . '/'.$numDdp.'_New_1/'.$nomFichierInitial;
+                copy($cheminDufichierInitial, $cheminDufichierDestinataire);
+                $nomDufichierCde[] =  $nomFichierInitial;
+            }
+
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
+
+            
+
+
             
              /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
@@ -287,11 +307,12 @@ class DemandePaiementController extends Controller
         return $nomDesFichiers;
     }
     
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
 
+        $nomDefichierFusionners = array_merge($lesFichiers, $cheminDufichierCde);
         $data
             ->setNumeroDdp($numDdp)// ajout du numero DDP dans l'entity DDP
             // ->setAgenceDebiter($data->getAgence()->getCodeAgence())
@@ -303,7 +324,7 @@ class DemandePaiementController extends Controller
             ->setStatut('OUVERT')
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
-            ->setLesFichiers($lesFichiers)
+            ->setLesFichiers($nomDefichierFusionners)
         ;
     }
 

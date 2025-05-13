@@ -234,8 +234,9 @@ document.addEventListener("DOMContentLoaded", function () {
     .join(',');
 
       const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
+console.log(montantFacture);
 
-      montantInput.value = montantFacture;
+      montantInput.value =  montantFacture[0] ;
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
     } finally {
@@ -626,9 +627,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
   initializeFileHandlers("2", fileInput2);
-
-  const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
-  initializeFileHandlers("3", fileInput3);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer

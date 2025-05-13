@@ -111,7 +111,11 @@ class InfoFournisseurApi extends Controller
             $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
 
         $montants = $this->demandePaiementModel->getMontantFacGcot($numeroFournisseur, $numCdesString, $numFacString );
-
+       
+        if($montants[0] == null) {
+            $montants[0] = 0.00;
+        }
+// dd($montants);
         header("Content-type:application/json");
             echo json_encode($montants);
     }

@@ -159,4 +159,12 @@ class DemandePaiementModel extends Model
         ";
         return array_column($this->retournerResult28($sql), 'numcde');
     }
+
+
+    public function getPathDwCommande(string $numCde): array 
+    {
+        $sql = " SELECT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
+
+        return $this->retournerResult28($sql);
+    }
 }
