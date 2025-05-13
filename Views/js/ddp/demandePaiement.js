@@ -232,9 +232,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const facturesString = facturesCorrespondantes
     .map(f => f.Numero_Facture) // extrait chaque numéro
     .join(',');
-
+     if (numFacs.length === 0) {
+      montantInput.value = "";
+      
+     }
       const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
-console.log(montantFacture);
+    console.log(montantFacture);
 
       montantInput.value =  montantFacture[0] ;
     } catch (error) {
