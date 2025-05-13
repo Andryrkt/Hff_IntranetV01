@@ -90,8 +90,14 @@ class EditDemandePaiementController extends Controller
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
             $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
+
+             $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+            $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
+            $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde, $numeroCommandes);
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
@@ -374,7 +380,7 @@ class EditDemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde, array $numeroCommandes)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
@@ -391,6 +397,7 @@ class EditDemandePaiementController extends Controller
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
+            ->setNumeroCommande($numeroCommandes)
         ;
     }
     private function autoIncrement($num)
