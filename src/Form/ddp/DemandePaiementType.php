@@ -5,6 +5,7 @@ namespace App\Form\ddp;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -25,6 +26,8 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DemandePaiementType extends AbstractType
 {
+    use DdpTrait;
+
     private $agenceRepository;
     private $serviceRepository;
     private $cdeFnrRepository;
@@ -42,20 +45,21 @@ class DemandePaiementType extends AbstractType
      
     }
     private function numeroFac($numeroFournisseur, $typeId){
-          $numComandes = $this->demandePaiementRepository->getnumCde();
-            $excludedCommands = $this->changeStringToArray($numComandes);
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        //   $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
 
-    
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
     
         $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
             return array_combine($listeGcot, $listeGcot);
     }
     private function numeroCmd($numeroFournisseur, $typeId){
-         $numComandes = $this->demandePaiementRepository->getnumCde();
-            $excludedCommands = $this->changeStringToArray($numComandes);
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        //  $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+$numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         return array_combine($numCdes, $numCdes);
     }
 

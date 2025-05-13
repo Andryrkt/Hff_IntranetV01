@@ -139,4 +139,24 @@ class DemandePaiementModel extends Model
 
         return $this->retournerResultGcot04($sql);
     }
+
+    public function cdeFacOuNonFac(string  $numCdesString)
+    {
+        $statement = "SELECT ffac_facext  
+                    FROM  frn_fac 
+                    WHERE ffac_numfac 
+                    IN( SELECT DISTINCT fllf_numfac FROM  frn_llf WHERE fllf_numcde = $numCdesString ) 
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getNumCdeDw()
+    {
+        $sql = " SELECT DISTINCT numero_cde as numcde
+                FROM DW_Commande 
+        ";
+        return array_column($this->retournerResult28($sql), 'numcde');
+    }
 }

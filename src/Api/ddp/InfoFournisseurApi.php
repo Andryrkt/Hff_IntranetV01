@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 
 
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InfoFournisseurApi extends Controller
 {
+    use DdpTrait;
+
     private $demandePaiementModel;
     private $cdeFnrRepository;
     private $demandePaiementRepository;
@@ -66,13 +69,14 @@ class InfoFournisseurApi extends Controller
         // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
         // if ($nbrLigne <= 0) {
-        $numComandes = $this->demandePaiementRepository->getnumCde();
-            $excludedCommands = $this->changeStringToArray($numComandes);
-            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        // $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
          
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
            $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            
+            // dd($numCdesString);
             $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
 
             $data = [
@@ -98,10 +102,10 @@ class InfoFournisseurApi extends Controller
     public function montantFacture(string $numeroFournisseur, string $numFacture, int $typeId)
     {
         $factureArray = explode(',', $numFacture);
-        $numComandes = $this->demandePaiementRepository->getnumCde();
-            $excludedCommands = $this->changeStringToArray($numComandes);
-            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-         
+        // $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);

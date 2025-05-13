@@ -339,7 +339,7 @@ class DemandePaiementController extends Controller
 
     private function ajoutDesFichiers(DemandePaiement $data, array $fichierTelechargerName): array
     {
-        $lesCheminsFichiers = $this-> recupCheminFichierDistant($data);
+        $lesCheminsFichiers = $this->recupCheminFichierDistant($data);
 
         $lesFichiers = [];
         foreach ($lesCheminsFichiers as $value) {

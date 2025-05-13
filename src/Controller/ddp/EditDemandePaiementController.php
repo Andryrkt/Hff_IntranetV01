@@ -6,6 +6,7 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
@@ -28,6 +29,8 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 class EditDemandePaiementController extends Controller
 {
+    use DdpTrait;
+    
     private $cdeFnrRepository;
     private $demandePaiementModel;
     private string $cheminDeBase;
@@ -275,9 +278,10 @@ class EditDemandePaiementController extends Controller
 
     public function listGcot($numeroFournisseur, $typeId)
     {
-        $numComandes = $this->ddpRepository->getnumCde();
-        $excludedCommands = $this->changeStringToArray($numComandes);
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        // $numComandes = $this->ddpRepository->getnumCde();
+        // $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
         return $listeGcot;
