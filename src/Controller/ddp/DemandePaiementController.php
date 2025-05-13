@@ -89,10 +89,9 @@ class DemandePaiementController extends Controller
 
             $data = $form->getData();//recupération des donnnées
 
-            // dd($data);
+        
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form,$numDdp);
-            
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers);
             
@@ -366,6 +365,7 @@ class DemandePaiementController extends Controller
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {
             $dossiers = $this->demandePaiementModel->findListeDoc($value);
+
             foreach ($dossiers as  $dossier) {
                 $cheminDeFichiers[] = $dossier['Nom_Fichier'];
             }

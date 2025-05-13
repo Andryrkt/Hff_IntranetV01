@@ -112,7 +112,7 @@ class DemandePaiementModel extends Model
 
     public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
     {
-        $sql = " SELECT  
+        $sql = " SELECT  DISTINCT
 
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
