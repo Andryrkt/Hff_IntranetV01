@@ -74,9 +74,9 @@ document.addEventListener("DOMContentLoaded", function () {
         changeCommandeSelonFacture(item.num_fournisseur, typeId);
       });
 
-      $("#demande_paiement_numeroCommande").on("change", () => {
-        changeFactureSelonCommande(item.num_fournisseur, typeId);
-      });
+      // $("#demande_paiement_numeroCommande").on("change", () => {
+      //   changeFactureSelonCommande(item.num_fournisseur, typeId);
+      // });
     } else {
       console.log(typeId);
       
@@ -227,6 +227,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Définir les valeurs sélectionnées directement
       $(numCommandeInput).val(numerosPO).trigger("change");
+
+
+      const facturesString = facturesCorrespondantes
+    .map(f => f.Numero_Facture) // extrait chaque numéro
+    .join(',');
+
+      const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
+console.log(montantFacture);
+
+      montantInput.value =  montantFacture[0] ;
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
     } finally {
@@ -617,9 +627,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
   initializeFileHandlers("2", fileInput2);
-
-  const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
-  initializeFileHandlers("3", fileInput3);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer

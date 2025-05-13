@@ -42,7 +42,7 @@
 					<th style="text-align: center;">N° facture</th>
 					<th style="text-align: center;">N° Commande</th>
 					<th style="text-align: center;">Bénéficiaire</th>
-					<th style="text-align: center;">Contact</th>
+					<th style="text-align: center;">Montant</th>
 					<th style="text-align: center;">Mode de paiement</th>
 					<th style="text-align: center;">Suivi paiement</th>
 					<th style="text-align: center;">Utilisateur</th>
@@ -68,7 +68,7 @@
 														<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Dossier régularisation </a>
 													</li>
 										{% endif %}
-										{% if item.statut matches '/refusé/i' %}
+										{% if item.statut matches '/Refusé/i' %}
 											<li>
 												<a class="dropdown-item fw-bold" href="{{path("edit_demande_paiement",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Modifier </a>
 											</li>
@@ -108,7 +108,7 @@
 							</ul>
 						</td>
 						<td style="text-align: center;">{{ item.beneficiaire}}</td>
-						<td>{{ item.contact}}</td>
+						<td>{{ item.montantAPayers |number_format(2, ',' ,'.') }}</td>
 						<td style="text-align: center;">{{ item.modePaiement}}</td>
 						<td>
 							-

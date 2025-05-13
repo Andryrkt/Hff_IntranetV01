@@ -73,6 +73,24 @@ class DemandePaiementModel extends Model
             ";
         return $this->retournerResultGcot04($sql);
     }
+    
+    public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
+    {
+        $sql = " SELECT  
+            SUM(Montant_Total_Facture) as montantfacture
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture in ({$numfacture})
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}' 
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return array_column($this->retournerResultGcot04($sql), 'montantfacture');
+    }
+
+
 
     public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array{
         $sql = " SELECT  
@@ -94,7 +112,7 @@ class DemandePaiementModel extends Model
 
     public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
     {
-        $sql = " SELECT  
+        $sql = " SELECT  DISTINCT
 
             TRZT_Dossier_Douane.Numero_Dossier_Douane
             from TRZT_Dossier_Douane
@@ -120,5 +138,33 @@ class DemandePaiementModel extends Model
         ";
 
         return $this->retournerResultGcot04($sql);
+    }
+
+    public function cdeFacOuNonFac(string  $numCdesString)
+    {
+        $statement = "SELECT ffac_facext  
+                    FROM  frn_fac 
+                    WHERE ffac_numfac 
+                    IN( SELECT DISTINCT fllf_numfac FROM  frn_llf WHERE fllf_numcde = $numCdesString ) 
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getNumCdeDw()
+    {
+        $sql = " SELECT DISTINCT numero_cde as numcde
+                FROM DW_Commande 
+        ";
+        return array_column($this->retournerResult28($sql), 'numcde');
+    }
+
+
+    public function getPathDwCommande(string $numCde): array 
+    {
+        $sql = " SELECT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
+
+        return $this->retournerResult28($sql);
     }
 }

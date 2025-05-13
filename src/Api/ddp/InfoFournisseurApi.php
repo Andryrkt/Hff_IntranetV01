@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 
 
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
@@ -22,6 +23,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class InfoFournisseurApi extends Controller
 {
+    use DdpTrait;
+
     private $demandePaiementModel;
     private $cdeFnrRepository;
     private $demandePaiementRepository;
@@ -66,13 +69,14 @@ class InfoFournisseurApi extends Controller
         // $nbrLigne = $this->demandePaiementRepository->CompteNbrligne($numeroFournisseur);
         
         // if ($nbrLigne <= 0) {
-            $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
-            if($typeId == 1) {
-                
-            }
-            $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
+        // $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+         
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+           $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-            
+            // dd($numCdesString);
             $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
 
             $data = [
@@ -92,6 +96,45 @@ class InfoFournisseurApi extends Controller
         // }
     }
 
+    /**
+     * @Route("/api/montant-facture/{numeroFournisseur}/{numFacture}/{typeId}", name="api_montant_factures")
+     */
+    public function montantFacture(string $numeroFournisseur, string $numFacture, int $typeId)
+    {
+        $factureArray = explode(',', $numFacture);
+        // $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+            $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
+
+        $montants = $this->demandePaiementModel->getMontantFacGcot($numeroFournisseur, $numCdesString, $numFacString );
+       
+        if($montants[0] == null) {
+            $montants[0] = 0.00;
+        }
+// dd($montants);
+        header("Content-type:application/json");
+            echo json_encode($montants);
+    }
+
+    private function changeStringToArray(array $input): array 
+    {
+        
+        $resultCde = [];
+
+            foreach ($input as $item) {
+                $decoded = json_decode($item, true); // transforme la string en tableau
+                if (is_array($decoded)) {
+                    $resultCde = array_merge($resultCde, $decoded);
+                }
+            }
+
+        return $resultCde;
+    }
+    
     /**
      * @Route("/api/liste-doc/{numeroDossier}", name="api_liste_doc")
      *

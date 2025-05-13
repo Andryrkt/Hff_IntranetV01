@@ -5,6 +5,7 @@ namespace App\Form\ddp;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\DemandePaiement;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -14,6 +15,7 @@ use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
+use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
@@ -24,11 +26,14 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DemandePaiementType extends AbstractType
 {
+    use DdpTrait;
+
     private $agenceRepository;
     private $serviceRepository;
     private $cdeFnrRepository;
     private $demandePaiementModel;
     private $em;
+    private DemandePaiementRepository $demandePaiementRepository;
     public function __construct()
     {
         $this->em=Controller::getEntity();
@@ -36,20 +41,42 @@ class DemandePaiementType extends AbstractType
         $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
         $this->cdeFnrRepository = $this->em->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
      
     }
     private function numeroFac($numeroFournisseur, $typeId){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
-    
-        $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
+        //   $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
     
         $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
             return array_combine($listeGcot, $listeGcot);
     }
     private function numeroCmd($numeroFournisseur, $typeId){
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+        //  $numComandes = $this->demandePaiementRepository->getnumCde();
+        //     $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+$numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         return array_combine($numCdes, $numCdes);
+    }
+
+    
+    private function changeStringToArray(array $input): array 
+    {
+        
+        $resultCde = [];
+
+            foreach ($input as $item) {
+                $decoded = json_decode($item, true); // transforme la string en tableau
+                if (is_array($decoded)) {
+                    $resultCde = array_merge($resultCde, $decoded);
+                }
+            }
+
+        return $resultCde;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -210,27 +237,6 @@ class DemandePaiementType extends AbstractType
                 [
                     'label' => 'Pièce Jointe 02 (PDF)',
                     'required' => $options['id_type'] == 2,
-                    'constraints' => [
-                        new File([
-                            'maxSize' => '5M',
-                            'mimeTypes' => [
-                                'application/pdf',
-                                // 'image/jpeg',
-                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            ],
-                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ])
-                    ],
-                ]
-            )
-
-            ->add(
-                'pieceJoint03',
-                FileType::class,
-                [
-                    'label' => 'Pièce Jointe 03 (PDF)',
-                    'required' => false,
                     'constraints' => [
                         new File([
                             'maxSize' => '5M',

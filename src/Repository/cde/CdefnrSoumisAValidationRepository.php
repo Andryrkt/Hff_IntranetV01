@@ -43,7 +43,7 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
      * @param string $numeroFournisseur
      * @return void
      */
-    public function findNumCommandeValideNonAnnuler(string $numeroFournisseur, int $typeId)
+   public function findNumCommandeValideNonAnnuler(string $numeroFournisseur, int $typeId, array $excludedCommands = [])
     {
         $qb = $this->createQueryBuilder('cfr');
 
@@ -54,34 +54,20 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->andWhere('sub.codeFournisseur = :numFrn')
             ->getDQL();
 
-            if($typeId == 2) {
-                 return $qb->select('cfr.numCdeFournisseur')
-                    ->where('cfr.codeFournisseur = :numFrn')
-                    ->andWhere('cfr.numVersion = (' . $subQuery . ')')
-                    ->andWhere('cfr.statut = :statut')
-                    ->andWhere('cfr.estFacture = :fac')
-                    ->setParameters([
-                        'numFrn' => $numeroFournisseur,
-                        'statut' => 'Validé',
-                        'fac'    => 1
-                    ])
-                    ->getQuery()
-                    ->getSingleColumnResult();
-            } else {
-                return $qb->select('cfr.numCdeFournisseur')
-                    ->where('cfr.codeFournisseur = :numFrn')
-                    ->andWhere('cfr.numVersion = (' . $subQuery . ')')
-                    ->andWhere('cfr.statut = :statut')
-                    ->andWhere('cfr.estFacture = :fac')
-                    ->setParameters([
-                        'numFrn' => $numeroFournisseur,
-                        'statut' => 'Validé',
-                        'fac'    => 0
-                    ])
-                    ->getQuery()
-                    ->getSingleColumnResult();
-            }
-       
-    }
+        $qb->select('cfr.numCdeFournisseur')
+            ->where('cfr.codeFournisseur = :numFrn')
+            ->andWhere('cfr.numVersion = (' . $subQuery . ')')
+            ->andWhere('cfr.statut = :statut')
+            ->andWhere('cfr.estFacture = :fac')
+            ->setParameter('numFrn', $numeroFournisseur)
+            ->setParameter('statut', 'Validé')
+            ->setParameter('fac', $typeId == 2 ? 1 : 0);
 
+        if (!empty($excludedCommands)) {
+            $qb->andWhere($qb->expr()->notIn('cfr.numCdeFournisseur', ':excluded'))
+            ->setParameter('excluded', $excludedCommands);
+        }
+
+        return $qb->getQuery()->getSingleColumnResult();
+    }
 }

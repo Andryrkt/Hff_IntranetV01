@@ -6,6 +6,7 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
@@ -28,6 +29,8 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 class EditDemandePaiementController extends Controller
 {
+    use DdpTrait;
+
     private $cdeFnrRepository;
     private $demandePaiementModel;
     private string $cheminDeBase;
@@ -57,11 +60,11 @@ class EditDemandePaiementController extends Controller
     /**
      * @Route("/edit-demande-paiement/{numDdp}/{numVersion}", name="edit_demande_paiement")
      */
-    public function afficheEdit(Request $request, $numDdp,$numVersion)
-    { 
+    public function afficheEdit(Request $request, $numDdp, $numVersion)
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $demandePaiement = $this->ddpRepository->findOneBy(['numeroDdp' => $numDdp,'numeroVersion'=>$numVersion]);
+        $demandePaiement = $this->ddpRepository->findOneBy(['numeroDdp' => $numDdp, 'numeroVersion' => $numVersion]);
         $demandePaiement->setMontantAPayer($demandePaiement->getMontantAPayers());
         $demandePaiement = $demandePaiement->dupliquer();
         $id = $demandePaiement->getTypeDemandeId()->getId();
@@ -82,36 +85,39 @@ class EditDemandePaiementController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData(); //recupération des donnnées
-            
+
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde);
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
             $this->enregisterDdpF($data, $numeroversion); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
             /** COPIER LES FICHIERS */
-            $this->copierFichierDistant($data, $numDdp,$numeroversion);
+            if ($demandePaiement->getTypeDemandeId()->getId() == 2) {
+                $this->copierFichierDistant($data, $numDdp, $numeroversion);
+            }
             /** GENERATION DE PDF */
             $nomPageDeGarde = $numDdp . '.pdf';
-            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_'.$numeroversion.'/' . $nomPageDeGarde;
+            $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numeroversion . '/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
             /** FUSION DES PDF */
-            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '_New_'.$numeroversion.'/');
+            $nomFichierAvecChemin = $this->addPrefixToElementArray($data->getLesFichiers(), $this->cheminDeBase . '/' . $numDdp . '_New_' . $numeroversion . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemin);
             $tousLesFichersAvecChemin = $this->traitementDeFichier->insertFileAtPosition($fichierConvertir, $cheminEtNom, 0);
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp,$numeroversion);
+            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, $numeroversion);
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
     }
 
-    
+
 
 
     /**
@@ -275,11 +281,30 @@ class EditDemandePaiementController extends Controller
 
     public function listGcot($numeroFournisseur, $typeId)
     {
-        $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId);
+        // $numComandes = $this->ddpRepository->getnumCde();
+        // $excludedCommands = $this->changeStringToArray($numComandes);
+        // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
         return $listeGcot;
     }
+
+    private function changeStringToArray(array $input): array
+    {
+
+        $resultCde = [];
+
+        foreach ($input as $item) {
+            $decoded = json_decode($item, true); // transforme la string en tableau
+            if (is_array($decoded)) {
+                $resultCde = array_merge($resultCde, $decoded);
+            }
+        }
+
+        return $resultCde;
+    }
+
     private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
     {
         $tousLesFichiers = [];
@@ -349,11 +374,11 @@ class EditDemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
-
+        $nomDefichierFusionners = array_merge($lesFichiers, $cheminDufichierCde);
         $data
             ->setNumeroDdp($numDdp) // ajout du numero DDP dans l'entity DDP
             // ->setAgenceDebiter($data->getAgence()->getCodeAgence())
@@ -365,7 +390,7 @@ class EditDemandePaiementController extends Controller
             ->setStatut('OUVERT')
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
-            ->setLesFichiers($lesFichiers)
+            ->setLesFichiers($nomDefichierFusionners)
         ;
     }
     private function autoIncrement($num)
@@ -385,7 +410,7 @@ class EditDemandePaiementController extends Controller
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $cheminDeFichiers = $this->recupCheminFichierDistant($data);
-        $cheminDestination = $chemin . '/' . $numDdp . '_New_'.$numeroversion;
+        $cheminDestination = $chemin . '/' . $numDdp . '_New_' . $numeroversion;
 
         foreach ($cheminDeFichiers as $cheminDeFichier) {
             $nomFichier = $this->nomFichier($cheminDeFichier);

@@ -118,12 +118,22 @@ class DemandePaiementRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function getCdeAndFacture()
+    // public function getnumFacture()
+    // {
+    //     return  $this->createQueryBuilder('d')
+    //             ->select('d.numeroFacture')
+    //             ->getQuery()
+    //             ->getSingleColumnResult()
+    //             ;
+    // }
+
+    public function getnumCde()
     {
         return  $this->createQueryBuilder('d')
-                ->select('d.numeroCommande, d.numeroFacture')
+                ->select('d.numeroCommande')
                 ->getQuery()
-                ->getResult();
+                ->getSingleColumnResult()
+                ;
     }
 
 }
