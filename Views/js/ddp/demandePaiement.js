@@ -78,13 +78,39 @@ document.addEventListener("DOMContentLoaded", function () {
       //   changeFactureSelonCommande(item.num_fournisseur, typeId);
       // });
     } else {
-      console.log(typeId);
       
+    $("#demande_paiement_numeroCommande").on("change", async function () {
+        const numCdes = $(this).val() ;
+        console.log("Valeur tableau à envoyer :", numCdes);
+        let numCde;
+        if(numCdes.length == 0){
+          numCde = 0
+        } else {
+         numCde = numCdes.join(',');
+        }
+  
+
+console.log("Valeur string à envoyer :", numCdes);
+        try {
+          const montants = await fetchManager.get(`api/montant-commande/${numCde}`);
+          if(this.length != 0){
+            montantInput.value = montants[0].montantcde;
+          } else {
+            montantInput.value = '';
+          }
+        } catch (err) {
+          console.error("Erreur lors de la récupération des montants :", err);
+        }
+    });
+
+
       //  Récupérer les commandes du fournisseur après la sélection
       listeCommande(item.num_fournisseur, typeId);
+     
     }
   }
 
+ 
   // Activation sur le champ "Numéro Fournisseur"
   new AutoComplete({
     inputElement: numFrnInput,
@@ -199,6 +225,8 @@ document.addEventListener("DOMContentLoaded", function () {
     width: "100%",
   });
 
+ 
+
   async function changeCommandeSelonFacture(numFournisseur, typeId) {
     if (isUpdatingFacture) return; // évite le rebouclage
     isUpdatingCommande = true;
@@ -232,9 +260,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const facturesString = facturesCorrespondantes
     .map(f => f.Numero_Facture) // extrait chaque numéro
     .join(',');
-
+     if (numFacs.length === 0) {
+      montantInput.value = "";
+      
+     }
       const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
-console.log(montantFacture);
+    console.log(montantFacture);
 
       montantInput.value =  montantFacture[0] ;
     } catch (error) {
@@ -257,17 +288,17 @@ console.log(montantFacture);
       );
 
       // Filtrer les factures correspondant à au moins une facture sélectionnée
-      const commandeCorrespondantes = commandes.listeGcot.filter((f) =>
-        numCdes.includes(f.Numero_PO)
-      );
+      // const commandeCorrespondantes = commandes.listeGcot.filter((f) =>
+      //   numCdes.includes(f.Numero_PO)
+      // );
 
       // Extraire les Numero_PO uniques
-      const numerosFac = [
-        ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
-      ];
+      // const numerosFac = [
+      //   ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
+      // ];
 
-      recupFichier(commandeCorrespondantes);
-      console.log("Numero_facture à sélectionner :", numerosFac);
+      // recupFichier(commandeCorrespondantes);
+      // console.log("Numero_facture à sélectionner :", numerosFac);
 
       // Définir les valeurs sélectionnées directement
       $(numFactureInput).val(numerosFac).trigger("change");
