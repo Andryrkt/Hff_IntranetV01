@@ -127,6 +127,22 @@ class DemandePaiementModel extends Model
         return $this->retournerResultGcot04($sql);
     }
 
+    public function getNumCommande(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
+    {
+        $sql = " SELECT DISTINCT
+
+            GCOT_Facture_Ligne.Numero_PO as numerocde
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture in ({$numFactString})
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return array_column($this->retournerResultGcot04($sql), 'numerocde');
+    }
     
 
     public function findListeDoc($numeroDossier)
@@ -166,5 +182,13 @@ class DemandePaiementModel extends Model
         $sql = " SELECT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
 
         return $this->retournerResult28($sql);
+    }
+
+    public function getMontantCdeAvance( string $numCde){
+        $statement = " SELECT  sum(fcdl_pxach * fcdl_qte) as montantCde from frn_cdl where fcdl_numcde in ({$numCde})
+        ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
     }
 }

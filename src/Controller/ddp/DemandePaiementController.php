@@ -88,11 +88,17 @@ class DemandePaiementController extends Controller
             $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
             $data = $form->getData(); //recupération des donnnées
+            
+            $numCdes = $this->recuperationCdeFacEtNonFac($id);
+            $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
+            $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
+            $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
+            
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
             $nomDufichierCde = $this->recupCdeDw($data,$numDdp,1);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde, $numeroCommandes);
 
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
@@ -290,7 +296,7 @@ class DemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde, array $numerocde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
@@ -308,6 +314,7 @@ class DemandePaiementController extends Controller
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
+            ->setNumeroCommande($numerocde)
         ;
     }
 
