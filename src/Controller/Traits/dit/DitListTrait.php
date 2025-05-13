@@ -449,7 +449,8 @@ trait DitListTrait
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
+            'serviceAutoriserIds' => $serviceIds,
+            // 'InternetExterne' => 
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
     }

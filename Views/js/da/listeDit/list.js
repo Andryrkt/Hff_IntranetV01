@@ -100,11 +100,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
       fetchManager.post(endpoint, data).then((statut) => {
         console.log(statut);
+        const statutNormalisé = normaliserApostrophes(statut.statut);
+
         let url;
-        if (statut.statut == "ouvert") {
-          url = `${baseUrl}/demande-appro/new/${checkedValue}`;
-        } else {
+        if (statutNormalisé !== null) {
           url = `${baseUrl}/demande-appro/edit/${checkedValue}`;
+        } else {
+          url = `${baseUrl}/demande-appro/new/${checkedValue}`;
         }
         // let url = suivant
         //   .getAttribute("data-uri")
@@ -114,6 +116,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+function normaliserApostrophes(str) {
+  if (str) {
+    return str.replace(/[’‘]/g, "'"); // remplace les apostrophes typographiques par '
+  } else {
+    return null;
+  }
+}
 
 window.addEventListener("load", () => {
   displayOverlay(false);

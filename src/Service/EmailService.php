@@ -52,32 +52,41 @@ class EmailService
         }
     }
 
-    public function sendEmail($to, $cc = [],  $template, $variables = [])
+    public function sendEmail($to, $cc = [], $template, $variables = [], $attachments = [])
     {
         try {
-
-
-            // Create email content using the template
+            // Créer le contenu de l'email via le template
             $this->twigMailer->create($template, $variables);
 
-            // Set the recipient
-            $this->twigMailer->getPhpMailer()->addAddress($to);
+            // Obtenir l'instance de PHPMailer
+            $mailer = $this->twigMailer->getPhpMailer();
+
+            // Ajouter le destinataire
+            $mailer->addAddress($to);
+
+            // Ajouter les CC
             if ($cc !== null) {
                 foreach ($cc as $c) {
-                    $this->twigMailer->getPhpMailer()->addCC($c);
+                    $mailer->addCC($c);
                 }
             }
 
-            // Send the email
+            // Ajouter les pièces jointes
+            foreach ($attachments as $filePath => $fileName) {
+                $mailer->addAttachment($filePath, $fileName);
+            }
+
+            // Envoyer l'e-mail
             $this->twigMailer->send();
 
             return true;
         } catch (\Exception $e) {
-            // Log the error message or handle it as needed
+            // Gérer l'erreur
             dd('erreur: ' . $e->getMessage());
             return false;
         }
     }
+
 
     /**
      * Get the value of mailer

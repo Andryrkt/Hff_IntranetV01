@@ -4,6 +4,7 @@ namespace App\Form\da;
 
 use Symfony\Component\Form\AbstractType;
 use App\Entity\da\DemandeApproLRCollection;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -14,6 +15,10 @@ class DemandeApproLRCollectionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('estValidee', CheckboxType::class, [
+                'label' => 'Cocher pour valider et generer le bon d\'achat',
+                'required' => false,
+            ])
             ->add('observation', TextareaType::class, [
                 'label' => 'Observation',
                 'attr' => [

@@ -146,6 +146,25 @@ class DemandeApproL
      */
     private $estModifier = false;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="valide_par")
+     */
+    private string $validePar;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_version")
+     *
+     * @var integer | null
+     */
+    private ?int $numeroVersion = 0;
+
+    /**
+     * @ORM\Column(type="integer", name="edit")
+     *
+     * @var integer | null
+     */
+    private ?int $edit = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -630,6 +649,62 @@ class DemandeApproL
     public function setEstModifier($estModifier)
     {
         $this->estModifier = $estModifier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validePar
+     */
+    public function getValidePar()
+    {
+        return $this->validePar;
+    }
+
+    /**
+     * Set the value of validePar
+     *
+     * @return  self
+     */
+    public function setValidePar($validePar)
+    {
+        $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     *
+     * @return  integer
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @param  ?integer  $numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    public function getEdit()
+    {
+        return $this->edit;
+    }
+
+    public function setEdit($edit)
+    {
+        $this->edit = $edit;
 
         return $this;
     }

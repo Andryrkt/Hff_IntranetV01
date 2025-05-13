@@ -15,6 +15,8 @@ class DemandeApproLRCollection
 
     private $Observation;
 
+    private $estValidee = false;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -64,6 +66,18 @@ class DemandeApproLRCollection
     public function setObservation($Observation)
     {
         $this->Observation = $Observation;
+
+        return $this;
+    }
+
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
 
         return $this;
     }

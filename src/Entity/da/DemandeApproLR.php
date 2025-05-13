@@ -142,6 +142,11 @@ class DemandeApproLR
      */
     private ?string $codeFams2 = null;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="valide_par")
+     */
+    private string $validePar;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -600,6 +605,26 @@ class DemandeApproLR
     public function setCodeFams2($codeFams2)
     {
         $this->codeFams2 = $codeFams2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validePar
+     */ 
+    public function getValidePar()
+    {
+        return $this->validePar;
+    }
+
+    /**
+     * Set the value of validePar
+     *
+     * @return  self
+     */ 
+    public function setValidePar($validePar)
+    {
+        $this->validePar = $validePar;
 
         return $this;
     }
