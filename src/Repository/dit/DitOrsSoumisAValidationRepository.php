@@ -320,7 +320,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                     $expr->like('o.statut', ':refuse'),
                     $expr->like('o.statut', ':livre_part'),
                     $expr->like('o.statut', ':modif_client'),
-                    $expr->like('o.statut', ':modif_ca')
+                    $expr->like('o.statut', ':modif_ca'),
+                    $expr->like('o.statut', ':modif_dt')
                 )
             )
             ->setParameters([
@@ -331,6 +332,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'livre_part' => '%Livré partiellement%',
                 'modif_client' => '%Modification demandée par client%',
                 'modif_ca' => '%Modification demandée par CA%',
+                'modif_dt' => '%Modification demandée par DT%',
 
             ]);
 

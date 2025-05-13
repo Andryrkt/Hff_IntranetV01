@@ -56,13 +56,14 @@ class DitOrsSoumisAValidationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
-        $numOr = $numOrBaseDonner[0]['numor'];
 
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
+
+        $numOr = $numOrBaseDonner[0]['numor'];
 
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
@@ -154,6 +155,10 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
+        $numclient = $this->ditRepository->getNumclient($numOr);
+        $interneExterne = $this->ditRepository->getInterneExterne($numOr);
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
+        // dd($nbrNumcli, $interneExterne, $numclient);
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -164,7 +169,8 @@ class DitOrsSoumisAValidationController extends Controller
             'sansrefClient'         => empty($refClient),
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
-            'numOrFichier'          => $numOrNomFIchier <> $numOr
+            'numOrFichier'          => $numOrNomFIchier <> $numOr,
+            'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
         ];
     }
 
@@ -217,6 +223,10 @@ class DitOrsSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['numOrFichier']) {
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['numcliExiste']) {
+            $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } else {

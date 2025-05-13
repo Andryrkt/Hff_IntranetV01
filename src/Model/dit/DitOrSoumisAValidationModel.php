@@ -365,4 +365,18 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function numcliExiste($numcli)
+    {
+        $statement = " SELECT count(cbse_numcli) as numcli
+                        FROM cli_bse 
+                        WHERE cbse_numcli = '{$numcli}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numcli');
+    }
 }
