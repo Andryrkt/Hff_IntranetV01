@@ -252,27 +252,6 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                 ]
             )
 
-            ->add(
-                'pieceJoint03',
-                FileType::class,
-                [
-                    'label' => 'Pièce Jointe 03 (PDF)',
-                    'required' => false,
-                    'constraints' => [
-                        new File([
-                            'maxSize' => '5M',
-                            'mimeTypes' => [
-                                'application/pdf',
-                                // 'image/jpeg',
-                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                            ],
-                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ])
-                    ],
-                ]
-            )
-
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
