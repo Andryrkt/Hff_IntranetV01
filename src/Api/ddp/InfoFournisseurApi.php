@@ -120,6 +120,23 @@ class InfoFournisseurApi extends Controller
             echo json_encode($montants);
     }
 
+    /**
+     * @Route("/api/montant-commande/{numCde}", name="api_montant_commande")
+     */
+    public function montantCommande( string $numCde){
+    
+       $numcdeArray = explode(',',$numCde);
+       $numCdesString = TableauEnStringService::TableauEnString(',', $numcdeArray);
+        $montantCde = $this->demandePaiementModel->getMontantCdeAvance($numCdesString);
+
+        if($montantCde[0]['montantcde'] == null) {
+            $montantCde[0]['montantcde'] = 0.00;
+        }
+
+        header("Content-type:application/json");
+        echo json_encode($montantCde);
+    }
+
     private function changeStringToArray(array $input): array 
     {
         

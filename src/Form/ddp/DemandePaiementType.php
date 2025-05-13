@@ -91,7 +91,8 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                     'attr' => [
                         'class' => 'autocomplete',
                         'autocomplete' => 'off',
-                    ]
+                    ],
+                    
                 ]
             )
             ->add(
@@ -102,6 +103,10 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                     'choices'   =>  array_key_exists('data',$options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']): [],
                     'multiple'  => true,
                     'expanded'  => false,
+                    'attr'      => [
+                        'disabled' => $options['id_type'] == 2,
+                        'data-typeId' => $options['id_type']
+                    ]
                 ]
             )
             ->add(
@@ -123,16 +128,16 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                $form->add(
-                    'numeroCommande',
-                    ChoiceType::class,
-                    [
-                        'label'     => 'N° Commande *',
-                        'choices'   => $data['numeroCommande'],
-                        'multiple'  => true,
-                        'expanded'  => false,
-                    ]
-                );
+                // $form->add(
+                //     'numeroCommande',
+                //     ChoiceType::class,
+                //     [
+                //         'label'     => 'N° Commande *',
+                //         'choices'   => $data['numeroCommande'],
+                //         // 'multiple'  => false,
+                //         // 'expanded'  => false,
+                //     ]
+                // );
                 $form->add(
                     'numeroFacture',
                     ChoiceType::class,
