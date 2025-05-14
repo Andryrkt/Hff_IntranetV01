@@ -45,6 +45,7 @@ $config->setMetadataDriverImpl($driver);
 //Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
+$entityManager->getConfiguration()->setProxyDir(__DIR__ . '/var/cache/proxies');
 
 return $entityManager;
 // Configurez Doctrine pour utiliser l'AnnotationReader standard
