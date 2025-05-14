@@ -20,7 +20,7 @@ export function ajouterUneLigne(line, fields) {
     row,
     `<input type="radio" name="selectedRow_${line}" id="${radioId}" value="${
       line + "-" + rowIndex
-    }" onclick="toggleRadio(this)">`
+    }" onclick="toggleRadio(this)" checked>`
   );
   insertCellData(row, fields.fournisseur.value, "Center", color);
   insertCellData(row, fields.reference.value, "Center", color);
