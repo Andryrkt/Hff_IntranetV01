@@ -10,6 +10,7 @@ class DitFactureSoumisAValidationModel extends Model
 {
     use ConversionTrait;
 
+    
     public function recupTypeFacture($numFac)
     {
         $statement = "SELECT slor_typeor  
@@ -38,9 +39,8 @@ class DitFactureSoumisAValidationModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'slor_qterea');
     }
-
-    public function recupNumeroSoumission($numOr)
-    {
+    
+    public function recupNumeroSoumission($numOr) {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM facture_soumis_a_validation
                 WHERE numero_or = '" . $numOr . "'";

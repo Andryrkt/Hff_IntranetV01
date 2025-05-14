@@ -3,7 +3,7 @@
         'name' => 'lanto/hffintranet',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '7e9cf63736cf090d4ab7cae48d1e230f92077021',
+        'reference' => '14d4932fee3705d3237f9f18d7d8130bef9bebab',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -44,7 +44,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/collections',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'doctrine/common' => array(
             'pretty_version' => '3.4.4',
@@ -53,7 +53,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/common',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'doctrine/dbal' => array(
             'pretty_version' => '3.8.4',
@@ -98,7 +98,7 @@
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/instantiator',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'doctrine/lexer' => array(
             'pretty_version' => '2.1.1',
@@ -119,13 +119,13 @@
             'dev_requirement' => false,
         ),
         'doctrine/orm' => array(
-            'pretty_version' => '2.19.6',
-            'version' => '2.19.6.0',
-            'reference' => 'c1bb2ccf4b19c845f91ff7c4c01dc7cbba7f4073',
+            'pretty_version' => '2.20.3',
+            'version' => '2.20.3.0',
+            'reference' => '17d28b5c4cac212ca92730d9a26e32a0b1516126',
             'type' => 'library',
             'install_path' => __DIR__ . '/../doctrine/orm',
             'aliases' => array(),
-            'dev_requirement' => true,
+            'dev_requirement' => false,
         ),
         'doctrine/persistence' => array(
             'pretty_version' => '3.3.2',
@@ -319,7 +319,7 @@
         'lanto/hffintranet' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '7e9cf63736cf090d4ab7cae48d1e230f92077021',
+            'reference' => '14d4932fee3705d3237f9f18d7d8130bef9bebab',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
