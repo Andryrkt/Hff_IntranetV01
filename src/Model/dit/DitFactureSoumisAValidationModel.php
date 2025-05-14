@@ -10,6 +10,36 @@ class DitFactureSoumisAValidationModel extends Model
 {
     use ConversionTrait;
 
+    
+    public function recupTypeFacture($numFac)
+    {
+        $statement = "SELECT slor_typeor  
+                    FROM sav_lor 
+                    WHERE slor_numfac = '" . $numFac . "'
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'slor_typeor');
+    }
+
+    public function recupQterea($numFac)
+    {
+        $statement = "SELECT  slor_qterea 
+                    FROM sav_lor 
+                    WHERE slor_numfac = '" . $numFac . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'slor_qterea');
+    }
+    
     public function recupNumeroSoumission($numOr) {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM facture_soumis_a_validation

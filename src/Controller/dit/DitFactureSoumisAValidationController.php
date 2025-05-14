@@ -75,8 +75,18 @@ class DitFactureSoumisAValidationController extends Controller
 
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            $typeFacVente = [200, 201, 202, 203, 204, 205, 206, 207, 208, 209];
+            $parts = explode('_', $originalName);
+            if (isset($parts[1])) {
+                $numFac = $parts[1];
+            } else {
+                $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            }
+            $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
+            $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
 
-            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0) {
+            if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0 && !(in_array($typeFacture, $typeFacVente) && strpos($originalName, 'AVOIR') !== 0 && $qterea < 0)) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }

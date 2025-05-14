@@ -742,4 +742,26 @@ class DitRepository extends EntityRepository
             ->getSingleColumnResult()
         ;
     }
+
+    public function getNumclient($numOr)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroClient')
+            ->where('d.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    public function getInterneExterne($numOr)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.internetExterne')
+            ->where('d.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
 }
