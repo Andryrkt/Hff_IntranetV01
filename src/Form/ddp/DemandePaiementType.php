@@ -105,7 +105,6 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                     'expanded'  => false,
                     'attr'      => [
                         'disabled' => $options['id_type'] == 2,
-                        'data-typeId' => $options['id_type']
                     ]
                 ]
             )
@@ -124,20 +123,23 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                     ]
                 ]
             )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                // $form->add(
-                //     'numeroCommande',
-                //     ChoiceType::class,
-                //     [
-                //         'label'     => 'N° Commande *',
-                //         'choices'   => $data['numeroCommande'],
-                //         // 'multiple'  => false,
-                //         // 'expanded'  => false,
-                //     ]
-                // );
+                if($options['id_type'] == 1){
+                    $form->add(
+                    'numeroCommande',
+                    ChoiceType::class,
+                    [
+                        'label'     => 'N° Commande *',
+                        'choices'   => $data['numeroCommande'],
+                        'multiple'  => true,
+                        'expanded'  => false,
+                    ]
+                );
+                }
+                
                 $form->add(
                     'numeroFacture',
                     ChoiceType::class,

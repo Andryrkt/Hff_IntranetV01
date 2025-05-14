@@ -89,15 +89,18 @@ class EditDemandePaiementController extends Controller
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
-            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
-
-             $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
+            
+            $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
-
+            
+            if($id == 2) {
+                $data->setNumeroCommande($numeroCommandes);
+            }
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde, $numeroCommandes);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde);
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data, $numeroversion); // enregistrement des données dans la table demande_paiement_ligne
@@ -184,15 +187,17 @@ class EditDemandePaiementController extends Controller
         $numFrs = $data->getNumeroFournisseur();
         $numCde = $data->getNumeroCommande();
 
-        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
+        $numFactures = $data->getNumeroFacture();
 
-        $listeGcot = $this->demandePaiementModel->findListeGcot($numFrs, $numCdesString);
+        $numCdesString = TableauEnStringService::TableauEnString(',', $numCde);
+        $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
+
+        $numDossiers = array_column($this->demandePaiementModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
 
         $cheminDeFichiers = [];
-        foreach ($listeGcot as $value) {
-            $numDocDouane = $value['Numero_Dossier_Douane'];
+        foreach ($numDossiers as $value) {
+            $dossiers = $this->demandePaiementModel->findListeDoc($value);
 
-            $dossiers = $this->demandePaiementModel->findListeDoc($numDocDouane);
             foreach ($dossiers as  $dossier) {
                 $cheminDeFichiers[] = $dossier['Nom_Fichier'];
             }
@@ -380,7 +385,7 @@ class EditDemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde, array $numeroCommandes)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
@@ -396,8 +401,7 @@ class EditDemandePaiementController extends Controller
             ->setStatut('OUVERT')
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
-            ->setLesFichiers($nomDefichierFusionners)
-            ->setNumeroCommande($numeroCommandes)
+            ->setLesFichiers($nomDefichierFusionners)   
         ;
     }
     private function autoIncrement($num)

@@ -12,6 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
+  formaterNombre
 } from "../utils/formatNumberUtils.js";
 import { baseUrl } from "../utils/config.js";
 
@@ -264,12 +265,14 @@ console.log("Valeur string à envoyer :", numCdes);
       montantInput.value = "";
       
      }
-      const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
-    console.log(montantFacture);
 
-      montantInput.value =  montantFacture[0] ;
+     console.log(facturesCorrespondantes, facturesString);
+      const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
+    console.log(formaterNombre(montantFacture[0],' '));
+
+      montantInput.value =  formaterNombre(montantFacture[0],' ');
     } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
+      console.error("Erreur lors de la récupération du montant facture :", error);
     } finally {
       isUpdatingCommande = false;
     }

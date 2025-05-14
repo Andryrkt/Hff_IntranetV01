@@ -43,8 +43,9 @@
 					<th style="text-align: center;">N° Commande</th>
 					<th style="text-align: center;">Bénéficiaire</th>
 					<th style="text-align: center;">Montant</th>
+					<th style="text-align: center;">Devise</th>
 					<th style="text-align: center;">Mode de paiement</th>
-					<th style="text-align: center;">Suivi paiement</th>
+					{# <th style="text-align: center;">Suivi paiement</th> #}
 					<th style="text-align: center;">Utilisateur</th>
 				</tr>
 			</thead>
@@ -108,11 +109,10 @@
 							</ul>
 						</td>
 						<td style="text-align: center;">{{ item.beneficiaire}}</td>
-						<td>{{ item.montantAPayers |number_format(2, ',' ,'.') }}</td>
+						<td style="text-align: right;">{{ item.montantAPayers |number_format(2, ',' ,'.') }}</td>
+						<td style="text-align: center;">{{ item.devise}}</td>
 						<td style="text-align: center;">{{ item.modePaiement}}</td>
-						<td>
-							-
-						</td>
+						{# <td>-</td> #}
 						<td style="text-align: center;">{{ item.demandeur }}</td>
 					</tr>
 				{% endfor %}
@@ -127,4 +127,6 @@
 	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js" type="module"></script>
 	
 	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpListe.js" type="module"></script>
 {% endblock %}

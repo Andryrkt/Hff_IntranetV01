@@ -84,7 +84,7 @@ class DitController extends Controller
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
 
-            if (!in_array($pdfDemandeInterventions->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
+            if (!in_array((int)$pdfDemandeInterventions->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
                 //récupération des historique de materiel (informix)
                 $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
             } else {

@@ -96,10 +96,13 @@ class DemandePaiementController extends Controller
             
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
+            if($id == 2) {
+                $data->setNumeroCommande($numeroCommandes);
+            }
             $nomDufichierCde = $this->recupCdeDw($data,$numDdp,1);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde, $numeroCommandes);
-
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
+        
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
@@ -296,7 +299,7 @@ class DemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde, array $numerocde)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
@@ -314,8 +317,9 @@ class DemandePaiementController extends Controller
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
-            ->setNumeroCommande($numerocde)
+            
         ;
+        
     }
 
     /**

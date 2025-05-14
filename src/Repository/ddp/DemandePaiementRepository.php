@@ -87,16 +87,17 @@ class DemandePaiementRepository extends EntityRepository
         }
         if(!empty($criteria->getNumDdp())){
             $qb->andWhere('d.numeroDdp = :numeroDdp')
-                ->setParameter('typeDemandeId',$criteria->getNumDdp());
+                ->setParameter('numeroDdp',$criteria->getNumDdp());
         }
         if(!empty($criteria->getNumCommande())){
-            $qb->andWhere('d.numeroCommande = :numeroCommande')
-                ->setParameter('numeroCommande',$criteria->getNumCommande());
+            $qb->andWhere('d.numeroCommande LIKE :numeroCommande')
+                ->setParameter('numeroCommande','%'.$criteria->getNumCommande().'%');
         }
-        if(!empty($criteria->getNumFacture())){
-            $qb->andWhere('d.numeroFacture = :numeroFacture')
-                ->setParameter('numeroFacture',$criteria->getNumFacture());
+        if (!empty($criteria->getNumFacture())) {
+            $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
+               ->setParameter('numeroFacture', '%'.$criteria->getNumFacture().'%');
         }
+        
         if(!empty($criteria->getUtilisateur())){
             $qb->andWhere('d.demandeur = :demandeur')
                 ->setParameter('demandeur',$criteria->getUtilisateur());

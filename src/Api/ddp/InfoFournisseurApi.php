@@ -74,6 +74,7 @@ class InfoFournisseurApi extends Controller
         //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
          
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+
            $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             // dd($numCdesString);
@@ -111,7 +112,7 @@ class InfoFournisseurApi extends Controller
             $numFacString = TableauEnStringService::TableauEnString(',', $factureArray);
 
         $montants = $this->demandePaiementModel->getMontantFacGcot($numeroFournisseur, $numCdesString, $numFacString );
-       
+     
         if($montants[0] == null) {
             $montants[0] = 0.00;
         }
