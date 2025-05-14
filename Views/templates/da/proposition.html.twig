@@ -25,8 +25,8 @@
 					</div>
 
 					<div class="tab-content">
-						{% for DAL in data %}
-							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data|length }) }}
+						{% for DAL in data.DAL %}
+							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data.DAL|length }) }}
 						{% endfor %}
 					</div>
 				</div>

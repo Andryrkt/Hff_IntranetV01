@@ -67,6 +67,7 @@ class DaPropositionRefController extends Controller
         $numDa = $da->getNumeroDemandeAppro();
         $data = $da->getDAL();
 
+        $dataFiltered = $this->filtrerDal($da);
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
@@ -75,12 +76,25 @@ class DaPropositionRefController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
-            'data' => $data,
+            'data' => $dataFiltered,
             'id' => $id,
             'form' => $form->createView(),
             'observations' => $observations,
             'numDa' => $numDa,
         ]);
+    }
+
+    private function filtrerDal(DemandeAppro $das): DemandeAppro
+    {
+
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($das->getNumeroDemandeAppro());
+        // filtre une collection de versions selon le numero de version max
+        $dernieresVersions = $das->getDAL()->filter(function ($item) use ($numeroVersionMax) {
+            return $item->getNumeroVersion() == $numeroVersionMax;
+        });
+        $das->setDAL($dernieresVersions);
+
+        return $das;
     }
 
     private function traitementFormulaire($form, $data, Request $request, string $numDa, DemandeAppro $da)
