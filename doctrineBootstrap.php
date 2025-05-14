@@ -33,11 +33,18 @@ $dbParams = [
 $annotationReader = new AnnotationReader();
 $driver = new AnnotationDriver($annotationReader, $paths);
 
+// Configuration des proxies
+$proxyDir = __DIR__ . '/var/cache/proxies';
+if (!file_exists($proxyDir)) {
+    mkdir($proxyDir, 0777, true);
+}
 
 //Création de la configuration Doctrine
 $config = Setup::createConfiguration($isDevMode);
 $config->setMetadataDriverImpl($driver);
 
+$config->setProxyDir($proxyDir);
+$config->setAutoGenerateProxyClasses($isDevMode);
 //Ajout du logger SQL personnalisé
 //$config->setSQLLogger(new CustomSQLLogger());
 
@@ -45,7 +52,8 @@ $config->setMetadataDriverImpl($driver);
 //Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
-$entityManager->getConfiguration()->setProxyDir(__DIR__ . '/var/cache/proxies');
+
+// $entityManager->getConfiguration()->setProxyDir(__DIR__ . '/var/cache/proxies');
 
 return $entityManager;
 // Configurez Doctrine pour utiliser l'AnnotationReader standard
