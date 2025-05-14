@@ -56,15 +56,15 @@ class DitOrsSoumisAValidationController extends Controller
         $this->verifierSessionUtilisateur();
 
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
-
+        
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
-
+            
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
 
         $numOr = $numOrBaseDonner[0]['numor'];
-
+        
         $ditInsertionOrSoumis = new DitOrsSoumisAValidation();
         $ditInsertionOrSoumis
             ->setNumeroDit($numDit)
@@ -155,10 +155,10 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        $numclient = $this->ditRepository->getNumclient($numOr);
-        $interneExterne = $this->ditRepository->getInterneExterne($numOr);
-        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
-        // dd($nbrNumcli, $interneExterne, $numclient);
+        // $numclient = $this->ditRepository->getNumclient($numOr);
+        // $interneExterne = $this->ditRepository->getInterneExterne($numOr);
+        // $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
+
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -170,7 +170,7 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
+            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
         ];
     }
 
@@ -225,11 +225,13 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['numcliExiste']) {
-            $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
-            $okey = false;
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } else {
+        } 
+        // elseif ($conditionBloquage['numcliExiste']) {
+        //     $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
+        //     $okey = false;
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        // } 
+        else {
             $okey = true;
         }
         return $okey;
