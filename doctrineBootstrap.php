@@ -14,19 +14,19 @@ require_once __DIR__ . '/config/dotenv.php';
 // $dotenv->load();
 
 // Chemin vers les entités
-$paths = [__DIR__. "/src/Entity"];
+$paths = [__DIR__ . "/src/Entity"];
 // Mode de développement
 $isDevMode = true;
 
 // Configuration de la base de données
 $dbParams = [
     'driver'   => 'pdo_sqlsrv',
-    'host'     => $_ENV["DB_HOST"], 
+    'host'     => $_ENV["DB_HOST"],
     'port'     => '1433',
-    'user'     => $_ENV["DB_USERNAME"] ,
+    'user'     => $_ENV["DB_USERNAME"],
     'password' => $_ENV["DB_PASSWORD"],
     'dbname'   => $_ENV["DB_NAME"],
-    'options'  => [],    
+    'options'  => [],
 ];
 
 // Configuration du lecteur d'annotations
@@ -45,6 +45,7 @@ $config->setMetadataDriverImpl($driver);
 //Création de l'EntityManager
 $entityManager = EntityManager::create($dbParams, $config);
 
+$entityManager->getConfiguration()->setProxyDir(__DIR__ . '/var/cache/proxies');
 
 return $entityManager;
 // Configurez Doctrine pour utiliser l'AnnotationReader standard
