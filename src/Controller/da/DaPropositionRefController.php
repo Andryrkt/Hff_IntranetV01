@@ -67,7 +67,7 @@ class DaPropositionRefController extends Controller
         $numDa = $da->getNumeroDemandeAppro();
         $data = $da->getDAL();
 
-        $dataFiltered = $this->filtrerDal($da);
+        $daFiltered = $this->filtrerDal($da);
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
@@ -76,7 +76,7 @@ class DaPropositionRefController extends Controller
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
-            'data' => $dataFiltered,
+            'data' => $daFiltered,
             'id' => $id,
             'form' => $form->createView(),
             'observations' => $observations,

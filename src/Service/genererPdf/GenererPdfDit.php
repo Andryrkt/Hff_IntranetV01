@@ -24,7 +24,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath =  $_ENV['BASE_PATH_LONG'].'/Views/assets/logoHff.jpg';
+        $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -33,7 +33,7 @@ class GenererPdfDit extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention() , 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $dit->getNumeroDemandeIntervention(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
@@ -44,7 +44,7 @@ class GenererPdfDit extends GeneratePdf
         } else {
             $descriptionTypeDocument = ''; // Ou toute autre valeur par défaut appropriée
         }
-            $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
+        $pdf->cell(110, 6, $descriptionTypeDocument, 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
@@ -184,7 +184,7 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(0, 6, $dit->getMailClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
-        
+
         // $pdf->setAbsX(93);
         // $pdf->cell(17, 6, "N° tel :", 0, 'R', false, 0);
         // $pdf->cell(22, 6, $dit->getNumeroTel(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -310,12 +310,12 @@ class GenererPdfDit extends GeneratePdf
 
         //=================================================================================================
         /**DEUXIEME PAGE */
-        if(!in_array($dit->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,7675,7677,9863])) {
+        if (!in_array((int)$dit->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
             $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
         }
 
         // Obtention du chemin absolu du répertoire de travail
-        $documentRoot = $_ENV['BASE_PATH_FICHIER'].'/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $documentRoot = $_ENV['BASE_PATH_FICHIER'] . '/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
 
         $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
         $filePath = $documentRoot . '/' . $fileName . '.pdf';
@@ -329,22 +329,22 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Output($filePath, 'F');
     }
 
-    
-    private function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1) 
+
+    private function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1)
     {
         // Set font and text color
         $pdf->setFont($font, $fontStyle, $fontSize);
         $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
-    
+
         // Calculate text width
         $textWidth = $pdf->GetStringWidth($text);
-    
+
         // Add the text
         $pdf->Cell($textWidth, 6, $text, 0, 0, 'L');
-    
+
         // Set fill color for the line
         $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
-    
+
         // Calculate the remaining width for the line
         $remainingWidth = $totalWidth - $textWidth - $lineOffset;
 
@@ -356,11 +356,11 @@ class GenererPdfDit extends GeneratePdf
         if ($remainingWidth > 0) { // Only draw if there is space left for the line
             $pdf->Rect($lineStartX, $lineStartY, $remainingWidth, $lineHeight, 'F');
         }
-    
+
         // Move to the next line
         $pdf->Ln(6, true);
     }
-    
+
 
     private function affichageHistoriqueMateriel($pdf, $historiqueMateriel)
     {

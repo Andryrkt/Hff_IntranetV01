@@ -2,7 +2,12 @@ import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
 import { updateDropdown } from "../../utils/selectionHandler";
 
-export function autocompleteTheField(field, fieldName, numPage = null) {
+export function autocompleteTheField(
+  field,
+  fieldName,
+  numPage = null,
+  iscatalogue = null
+) {
   let baseId = field.id.replace("demande_appro_proposition", "");
 
   let reference = getField(field.id, fieldName, "reference");
@@ -30,6 +35,11 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
     codeFams1 = safeValue(famille.value);
   }
   const numPages = localStorage.getItem("currentTab");
+
+  // const isCatalogueInput = document.querySelector(`#catalogue_${numPages}`);
+
+  // console.log(isCatalogueInput);
+
   new AutoComplete({
     inputElement: field,
     suggestionContainer: suggestionContainer,
@@ -47,7 +57,8 @@ export function autocompleteTheField(field, fieldName, numPage = null) {
         designation,
         PU,
         getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2")
+        getField(field.id, fieldName, "codeFams2"),
+        iscatalogue
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => `${item.designation}`,
@@ -170,7 +181,8 @@ function handleValuesOfFields(
   designation,
   PU,
   famille,
-  sousFamille
+  sousFamille,
+  iscatalogue
 ) {
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
@@ -190,13 +202,17 @@ function handleValuesOfFields(
       "#container_codeFams2_" + numPage
     );
 
-    updateDropdown(
-      sousFamille,
-      `api/demande-appro/sous-famille/${famille.value}`,
-      "-- Choisir une sous-famille --",
-      spinnerElement,
-      containerElement,
-      item.codesousfamille
-    );
+    console.log(iscatalogue);
+
+    if (iscatalogue == "") {
+      updateDropdown(
+        sousFamille,
+        `api/demande-appro/sous-famille/${famille.value}`,
+        "-- Choisir une sous-famille --",
+        spinnerElement,
+        containerElement,
+        item.codesousfamille
+      );
+    }
   }
 }

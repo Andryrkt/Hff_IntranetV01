@@ -47,6 +47,7 @@
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 	<input type="hidden" name="artFams1_{{ currentPage }}" id="artFams1_{{ currentPage }}" value="{{ famille }}">
 	<input type="hidden" name="artFams2_{{ currentPage }}" id="artFams2_{{ currentPage }}" value="{{ sousFamille }}">
+	<input type="hidden" name="catalogue_{{ currentPage }}" id="catalogue_{{ currentPage }}" value="{{ article.catalogue }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
 	{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
@@ -108,12 +109,12 @@
 		<div class="row d-none">
 			<div class="col-12 col-md-3">
 				<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
-				<input type="text" id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" disabled>
+				<input type="text" id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select">
 			</div>
 			<div class="col-12 col-md-3">
 				<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
 					<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
-					<input type="text" id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" disabled>
+					<input type="text" id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select">
 				</div>
 			</div>
 		</div>
@@ -193,7 +194,7 @@
 			{% for DALR in article.demandeApproLR %}
 				<tr>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
-						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" onclick="toggleRadio(this)" {{ DALR.choix ? 'checked' : '' }}>
+						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>

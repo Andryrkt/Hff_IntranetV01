@@ -26,6 +26,7 @@ document.addEventListener("DOMContentLoaded", function () {
       reference.addEventListener("input", function () {
         reference.value = reference.value.toUpperCase();
       });
+
       autocompleteTheField(reference, "reference");
     });
   // Tous les champs "Fournisseur"
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fournisseur.addEventListener("input", function () {
         fournisseur.value = fournisseur.value.toUpperCase();
       });
+
       autocompleteTheField(fournisseur, "fournisseur");
     });
   // Tous les champs "Désignation"
@@ -44,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
       designation.addEventListener("input", function () {
         designation.value = designation.value.toUpperCase();
       });
+
       autocompleteTheField(designation, "designation");
     });
 
@@ -144,6 +147,7 @@ document.addEventListener("DOMContentLoaded", function () {
       reference: document.querySelector(
         `#demande_appro_proposition_reference_${numPage}`
       ),
+      isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
     };
   }
 
@@ -152,12 +156,14 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {int} numPage
    */
   function autocompleteTheFieldsPage(numPage) {
-    const { fournisseur, reference, designation } = recupInput(numPage);
-
+    const { fournisseur, reference, designation, isCatalogueInput } =
+      recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
     reset(fournisseur, reference, designation);
+    console.log(iscatalogue == "");
 
-    autocompleteTheField(designation, "designation", numPage);
-    autocompleteTheField(reference, "reference", numPage);
+    autocompleteTheField(designation, "designation", numPage, iscatalogue);
+    autocompleteTheField(reference, "reference", numPage, iscatalogue);
   }
 
   /**
@@ -184,7 +190,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   // Tous les boutons "Ajouter la référence"
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
-    addLine.addEventListener("click", () => ajouterReference(addLine.id));
+    const numPage = addLine.id.split("_").pop();
+    const { isCatalogueInput } = recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
+
+    addLine.addEventListener("click", () =>
+      ajouterReference(addLine.id, iscatalogue)
+    );
   });
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
@@ -196,3 +208,5 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+
