@@ -94,6 +94,9 @@
 							{% set ligne = loop.index %}
 							<div id="demande_appro_form_DAL_{{ ligne }}">
 								<div class="row g-3">
+									<div class="w-2">
+										<input type="radio" name="" id="">
+									</div>
 									<div class="w-15">
 										{{ form_widget(DAL.codeFams1, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
@@ -139,7 +142,7 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
-									<div class="w-23">
+									<div class="w-20">
 										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
 									<div class="d-none">

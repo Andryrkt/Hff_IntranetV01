@@ -68,6 +68,7 @@ class DaPropositionRefController extends Controller
         $data = $da->getDAL();
 
         $daFiltered = $this->filtrerDal($da);
+
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
@@ -92,7 +93,6 @@ class DaPropositionRefController extends Controller
         $dernieresVersions = $das->getDAL()->filter(function ($item) use ($numeroVersionMax) {
             return $item->getNumeroVersion() == $numeroVersionMax;
         });
-        $das->setDAL($dernieresVersions);
 
         return $das;
     }
@@ -107,12 +107,12 @@ class DaPropositionRefController extends Controller
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
-                $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa, $da);
+                $this->traitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa, $da);
             }
         }
     }
 
-    private function taitementPourBtnEnregistrer($dalrList, Request $request, $data, ?string $observation, string $numDa, DemandeAppro $da): void
+    private function traitementPourBtnEnregistrer($dalrList, Request $request, $data, ?string $observation, string $numDa, DemandeAppro $da): void
     {
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
@@ -175,7 +175,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => 'hasina.andrianadison@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
