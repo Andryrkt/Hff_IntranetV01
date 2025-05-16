@@ -4,7 +4,7 @@ namespace App\Repository\da;
 
 use Doctrine\ORM\EntityRepository;
 
-class DemandeApproLRepository extends EntityRepository 
+class DemandeApproLRepository extends EntityRepository
 {
     public function getNumeroVersionMax(string $numeroDemandeAppro)
     {
@@ -13,8 +13,8 @@ class DemandeApproLRepository extends EntityRepository
             ->where('dal.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numeroDemandeAppro)
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 }

@@ -26,8 +26,8 @@
 					</div>
 
 					<div class="tab-content">
-						{% for DAL in data.DAL %}
-							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data.DAL|length }) }}
+						{% for DAL in da.DAL %}
+							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: da.DAL|length }) }}
 						{% endfor %}
 					</div>
 				</div>
@@ -82,9 +82,7 @@
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/da/proposition/proposition.js" type="module"></script>
 
-	<script>
-		
-	</script>
+	<script></script>
 
 
 {% endblock %}

@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -63,21 +64,19 @@ class DaPropositionRefController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $da = $this->demandeApproRepository->find($id);
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
-        $data = $da->getDAL();
-
-        $daFiltered = $this->filtrerDal($da);
+        $dals = $da->getDAL();
 
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $data, $request, $numDa, $da);
+        $this->traitementFormulaire($form, $dals, $request, $numDa, $da);
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
-            'data' => $daFiltered,
+            'da' => $da,
             'id' => $id,
             'form' => $form->createView(),
             'observations' => $observations,
@@ -85,19 +84,8 @@ class DaPropositionRefController extends Controller
         ]);
     }
 
-    private function filtrerDal(DemandeAppro $das): DemandeAppro
-    {
 
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($das->getNumeroDemandeAppro());
-        // filtre une collection de versions selon le numero de version max
-        $dernieresVersions = $das->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax;
-        });
-
-        return $das;
-    }
-
-    private function traitementFormulaire($form, $data, Request $request, string $numDa, DemandeAppro $da)
+    private function traitementFormulaire($form, $dals, Request $request, string $numDa, DemandeAppro $da)
     {
         $form->handleRequest($request);
 
@@ -107,22 +95,24 @@ class DaPropositionRefController extends Controller
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
-                $this->traitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa, $da);
+                $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             }
         }
     }
 
-    private function traitementPourBtnEnregistrer($dalrList, Request $request, $data, ?string $observation, string $numDa, DemandeAppro $da): void
+    private function traitementPourBtnEnregistrer($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
     {
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
         $refs = $this->separationNbrPageLigne($selectedRefs);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
 
         if ($dalrList->isEmpty() && empty($refs)) {
             $notification = $this->notification('info', "Aucune modification n'a été effectuée");
         } else {
-            $this->enregistrementDb($data, $dalrList); // enregistrement des données dans la table demande_appro_LR
-            $this->duplicationDataDaL($data); // duplication des lignes de la table demande_appro_L
+            $this->enregistrementDb($dals, $dalrList); // enregistrement des données dans la table demande_appro_LR
+            $this->duplicationDataDaL($dals); // duplication des lignes de la table demande_appro_L
             if ($observation !== null) {
                 $this->insertionObservation($observation, $numDa); // enregistrement de l'observation dans la table da_observation
             }
@@ -134,19 +124,20 @@ class DaPropositionRefController extends Controller
 
         if (!empty($refs)) {
             // reset les ligne de la page courante
-            $this->resetChoix($refs, $data);
+            $this->resetChoix($refs, $dals);
 
             //modifier la colonne choix
-            $this->modifChoix($refs, $data);
+            $this->modifChoix($refs, $dals);
 
             //modification de la table demande_appro_L pour les lignes refs
-            $this->modificationTableDaL($refs, $data);
-        }
+            $this->modificationTableDaL($refs, $dals);
 
+            // modification de l'id de la relation demande_appro_L dans la table demande_appro_LR
+            // $this->modificationIdDALDansDALR($numDa, $numeroVersionMax);
+        }
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
         $numeroVersionMaxAvant = $numeroVersionMax - 1;
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
         $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
@@ -166,6 +157,31 @@ class DaPropositionRefController extends Controller
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
     }
+
+    /**
+     * Permet de modifier l'id de la relation demande_appro_L dans la table demande_appro_LR
+     *
+     * @param string $numDa
+     * @param integer $numeroVersionMax
+     * @return void
+     */
+    public function modificationIdDALDansDALR(string $numDa, int $numeroVersionMax): void
+    {
+        //recupération des dal du dernière version du numeroDa dans la table demande_appro_L
+        $dalsTrie = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+        //modification du colonne $demandeApproL dans le table demande_appro_LR
+        foreach ($dalsTrie as $dal) {
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            if (!empty($dalrs)) {
+                foreach ($dalrs as $dalr) {
+                    $dalr->setDemandeApproL($dal);
+                    self::$em->persist($dalr);
+                }
+            }
+        }
+        self::$em->flush();
+    }
+
 
     /** 
      * Fonctions pour envoyer un mail à la service Appro 
@@ -268,7 +284,7 @@ class DaPropositionRefController extends Controller
      */
     private function recupDataDaL(array $refs, $data): array
     {
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
         $dals = [];
         for ($i = 0; $i < count($refs); $i++) {
             $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
