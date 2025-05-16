@@ -29,7 +29,10 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 class DemandePaiementController extends Controller
 {
-  use DdpTrait;
+    use DdpTrait;
+
+    const STATUT_CREATION = 'Soumis à validation';
+
     private TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
@@ -88,21 +91,27 @@ class DemandePaiementController extends Controller
             $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
             $data = $form->getData(); //recupération des donnnées
-            
+
             $numCdes = $this->recuperationCdeFacEtNonFac($id);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
-            
+
+            /** TRAITEMENT AUTRE DOCUMENT */
+            if ($data->getPieceJoint03() != null) {
+                $data->setEstAutreDoc(true)
+                    ->setNomAutreDoc($data->getPieceJoint03()->getClientOriginalName())
+                ;
+            }
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
-            if($id == 2) {
+            if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
-            $nomDufichierCde = $this->recupCdeDw($data,$numDdp,1);
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
-        
+
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
             $this->EnregistrementBdDdpl($data); // enregistrement des données dans la table demande_paiement_ligne
@@ -115,6 +124,7 @@ class DemandePaiementController extends Controller
             }
 
             /** GENERATION DE PDF */
+            
             $nomPageDeGarde = $numDdp . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_1/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
@@ -132,7 +142,7 @@ class DemandePaiementController extends Controller
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
     }
-   
+
 
     private function enregistrementBdHistoriqueStatut(DemandePaiement $data): void
     {
@@ -313,13 +323,11 @@ class DemandePaiementController extends Controller
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setStatut('OUVERT')
+            ->setStatut(self::STATUT_CREATION)
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
-            
         ;
-        
     }
 
     /**

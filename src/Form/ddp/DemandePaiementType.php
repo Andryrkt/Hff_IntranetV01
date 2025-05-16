@@ -36,52 +36,75 @@ class DemandePaiementType extends AbstractType
     private DemandePaiementRepository $demandePaiementRepository;
     public function __construct()
     {
-        $this->em=Controller::getEntity();
+        $this->em = Controller::getEntity();
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
         $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
         $this->cdeFnrRepository = $this->em->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementModel = new DemandePaiementModel();
         $this->demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
-     
     }
-    private function numeroFac($numeroFournisseur, $typeId){
+
+    private function numeroFac($numeroFournisseur, $typeId)
+    {
         //   $numComandes = $this->demandePaiementRepository->getnumCde();
         //     $excludedCommands = $this->changeStringToArray($numComandes);
         // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
 
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-    
+
         $listeGcot = $this->demandePaiementModel->finListFacGcot($numeroFournisseur, $numCdesString);
-            return array_combine($listeGcot, $listeGcot);
+        return array_combine($listeGcot, $listeGcot);
     }
-    private function numeroCmd($numeroFournisseur, $typeId){
+
+    private function numeroCmd($numeroFournisseur, $typeId)
+    {
         //  $numComandes = $this->demandePaiementRepository->getnumCde();
         //     $excludedCommands = $this->changeStringToArray($numComandes);
         // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-$numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         return array_combine($numCdes, $numCdes);
     }
 
-    
-    private function changeStringToArray(array $input): array 
+
+    private function changeStringToArray(array $input): array
     {
-        
+
         $resultCde = [];
 
-            foreach ($input as $item) {
-                $decoded = json_decode($item, true); // transforme la string en tableau
-                if (is_array($decoded)) {
-                    $resultCde = array_merge($resultCde, $decoded);
-                }
+        foreach ($input as $item) {
+            $decoded = json_decode($item, true); // transforme la string en tableau
+            if (is_array($decoded)) {
+                $resultCde = array_merge($resultCde, $decoded);
             }
+        }
 
         return $resultCde;
     }
 
+    private function mode_paiement()
+    {
+        $modePaiement = $this->demandePaiementModel->getModePaiement();
+        return array_combine($modePaiement, $modePaiement);
+    }
+
+    private function devise()
+    {
+        $devisess = $this->demandePaiementModel->getDevise();
+
+        $devises = [
+            '' => '',
+        ];
+
+        foreach ($devisess as $devise) {
+            $devises[$devise['adevlib']] = $devise['adevcode'];
+        }
+
+        return $devises;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-       
         $builder
             ->add(
                 'numeroFournisseur',
@@ -92,15 +115,14 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                         'class' => 'autocomplete',
                         'autocomplete' => 'off',
                     ],
-                    
                 ]
             )
             ->add(
                 'numeroCommande',
                 ChoiceType::class,
                 [
-                    'label'     => 'N° Commande *',
-                    'choices'   =>  array_key_exists('data',$options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']): [],
+                    'label'     => 'N° Commande fournisseur *',
+                    'choices'   =>  array_key_exists('data', $options) ? $this->numeroCmd($options['data']->getNumeroFournisseur(), $options['id_type']) : [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
@@ -112,9 +134,9 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                 'numeroFacture',
                 ChoiceType::class,
                 [
-                    'label' => 'N° Facture *',
+                    'label' => 'N° Facture fournisseur *',
                     'required' => false,
-                    'choices'   => array_key_exists('data',$options) ? $this->numeroFac($options['data']->getNumeroFournisseur(), $options['id_type']): [],
+                    'choices'   => array_key_exists('data', $options) ? $this->numeroFac($options['data']->getNumeroFournisseur(), $options['id_type']) : [],
                     'multiple'  => true,
                     'expanded'  => false,
                     'attr'      => [
@@ -123,23 +145,23 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                     ]
                 ]
             )
-            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use($options) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                if($options['id_type'] == 1){
+                if ($options['id_type'] == 1) {
                     $form->add(
-                    'numeroCommande',
-                    ChoiceType::class,
-                    [
-                        'label'     => 'N° Commande *',
-                        'choices'   => $data['numeroCommande'],
-                        'multiple'  => true,
-                        'expanded'  => false,
-                    ]
-                );
+                        'numeroCommande',
+                        ChoiceType::class,
+                        [
+                            'label'     => 'N° Commande *',
+                            'choices'   => $data['numeroCommande'],
+                            'multiple'  => true,
+                            'expanded'  => false,
+                        ]
+                    );
                 }
-                
+
                 $form->add(
                     'numeroFacture',
                     ChoiceType::class,
@@ -192,29 +214,33 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
             )
             ->add(
                 'modePaiement',
-                TextType::class,
+                ChoiceType::class,
                 [
-                    'label' => 'Mode de paiement *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    'label'     => 'Mode de paiement *',
+                    'choices'   =>  $this->mode_paiement(),
+                    'multiple'  => false,
+                    'expanded'  => false,
+                    'data' => 'VIREMENT'
                 ]
             )
             ->add(
                 'devise',
-                TextType::class,
+                ChoiceType::class,
                 [
-                    'label' => 'Devise *',
-                    'attr' => [
-                        'readOnly' => true
-                    ]
+                    'label'     => 'Devise *',
+                    'choices'   =>  $this->devise(),
+                    'multiple'  => false,
+                    'expanded'  => false,
                 ]
             )
             ->add(
                 'montantAPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant à payer *'
+                    'label' => 'Montant à payer *',
+                    'attr' => [
+                        'readOnly' => true
+                    ]
                 ]
             )
             ->add(
@@ -243,7 +269,27 @@ $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
                 FileType::class,
                 [
                     'label' => 'Pièce Jointe 02 (PDF)',
-                    'required' => $options['id_type'] == 2,
+                    'required' => false,
+                    'constraints' => [
+                        new File([
+                            'maxSize' => '5M',
+                            'mimeTypes' => [
+                                'application/pdf',
+                                // 'image/jpeg',
+                                // 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                            ],
+                            'mimeTypesMessage' => 'Please upload a valid PDF file.',
+                        ])
+                    ],
+                ]
+            )
+            ->add(
+                'pieceJoint03',
+                FileType::class,
+                [
+                    'label' => 'Pièce Jointe 02 (PDF)',
+                    'required' => false,
                     'constraints' => [
                         new File([
                             'maxSize' => '5M',

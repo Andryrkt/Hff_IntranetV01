@@ -146,6 +146,7 @@ class DemandeAppro
      */
     private string $validePar;
 
+    private $numDossierDouane;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -626,6 +627,26 @@ class DemandeAppro
     public function setValidePar($validePar)
     {
         $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numDossierDouane
+     */ 
+    public function getNumDossierDouane()
+    {
+        return $this->numDossierDouane;
+    }
+
+    /**
+     * Set the value of numDossierDouane
+     *
+     * @return  self
+     */ 
+    public function setNumDossierDouane($numDossierDouane)
+    {
+        $this->numDossierDouane = $numDossierDouane;
 
         return $this;
     }

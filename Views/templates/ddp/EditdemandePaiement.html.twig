@@ -19,7 +19,7 @@
 							{% if id_type == 1 %}
 								Formulaire Demande de paiement à l’avance
 							{% else %}
-								Formulaire Demande de paiement après livraison
+								Formulaire Demande de paiement après arrivage
 							{% endif %}
 						</h3>
 					</div>
@@ -30,157 +30,166 @@
 				</div>
 				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
 				{{ form_errors(form)}}
-					<div class="row">
-						<div class="col-12 col-md-2">
-							{{ form_row(form.numeroFournisseur) }}
-							<div id="suggestion-num-fournisseur" class="suggestions-container"></div>
-							<div id="loader-num-fournisseur" class="spinner" style="display: none;">Chargement...</div>
-							{{ form_row(form.modePaiement)}}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numeroFournisseur) }}
+						<div id="suggestion-num-fournisseur" class="suggestions-container"></div>
+						<div id="loader-num-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+						{{ form_row(form.modePaiement)}}
 
-						</div>
-						<div class="col-12 col-md-4">
-							{{ form_row(form.beneficiaire)}}
-							<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
-							<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
-							{{ form_row(form.ribFournisseur) }}
-
-						</div>
-						<div class="col-12 col-md-3">
-							{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
-						</div>
-						<div class="col-12 col-md-3">
-							{{ form_row(form.contact)}}
-							{{ form_row(form.montantAPayer)}}
-						</div>
 					</div>
-					<div class="row">
-						<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
-
-						<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
-					</div>
-					<div class="row">
 					<div class="col-12 col-md-4">
-							{{ form_row(form.numeroFacture)}}
-						</div>
-						<div class="col-12 col-md-4">
-							{{ form_row(form.numeroCommande)}}
-							<div id="suggestion-num-commande" class="suggestions-container"></div>
-							<div id="loader" style="display: none;">Chargement...</div>
-						</div>
-						
-						<div class="col-12 col-md-4">
-						{# <p><b>Listes des fichiers</b></p> #}
-							<ul id="liste_fichiers" class="d-none"></ul> 
-							{# liste des fichiers #}
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-12 col-md-4">
-						{% if id_type == 1 %}
-								<p>Veuillez insérer
-									<strong>le proforma facture fournisseur *</strong>
-								</p>
-								{% else %}
-									<p>Veuillez insérer
-									<strong>le contrôle livraison *</strong>
-								</p>
-						{% endif %}
-							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
-						</div>
-						<div class="col-12 col-md-4"
-						
-							<p>Veuillez insérer
-									<strong>le RIB fournisseur *</strong>
-								</p>
-							{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
-						</div>
-						
-					</div>
+						{{ form_row(form.beneficiaire)}}
+						<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
+						<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
+						{{ form_row(form.ribFournisseur) }}
 
-					<div class="row">
-						
-						<!-- Debut affichage du tableau liste des factures-->
-						<div class="row d-none" id="tableau_facture">
-						<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
-				<tr>
-					<th>N° Facture</th>
-					<th>N° fournisseur</th>
-					<th>Nom fournisseur</th>
-					<th>N° Dossier</th>
-					<th>N° LTA</th>
-					<th>N° HAWB</th>
-					<th>N° PO</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for item in listeGcot %}	
-					<tr>
-					<td>{{item.Numero_Facture}}</td>
-					<td>{{item.Code_Fournisseur}}</td>
-					<td>{{item.Libelle_Fournisseur}}</td>
-					<td>{{item.Numero_Dossier_Douane}}</td>
-					<td>{{item.Numero_LTA}}</td>
-					<td>{{item.Numero_HAWB}}</td>
-					<td>{{item.Numero_PO}}</td>
-					</tr>
-				{% endfor %}
-					
-				</tbody>
-			</table>
-						
-					<div class="d-flex justify-content-end">
-										<button type="submit" class="btn bouton mt-2 ajout-overlay" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
-											<i class="fas fa-save"></i>
-											Enregistrer
-										</button>
 					</div>
-				{{ form_end(form) }}
+					<div class="col-12 col-md-3">
+						{{ macroForm.agence_service_change(form.agence, form.service, 'spinner-service', 'service-container')}}
+					</div>
+					<div class="col-12 col-md-3">
+						{{ form_row(form.contact)}}
+						{{ form_row(form.montantAPayer)}}
+					</div>
 				</div>
-						<div class="row d-none" id="tableau_dossier"></div>
+				<div class="row">
+					<div class="col-12 col-md-2">{{ form_row(form.devise)}}</div>
+
+					<div class="col-12 col-md-10">{{ form_row(form.motif)}}</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-4">
+						{{ form_row(form.numeroFacture)}}
 					</div>
+					<div class="col-12 col-md-4">
+						{{ form_row(form.numeroCommande)}}
+						<div id="suggestion-num-commande" class="suggestions-container"></div>
+						<div id="loader" style="display: none;">Chargement...</div>
+					</div>
+
+					<div
+						class="col-12 col-md-4">
+						{# <p><b>Listes des fichiers</b></p> #}
+						<ul id="liste_fichiers" class="d-none"></ul>
+						{# liste des fichiers #}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-4">
+						{% if id_type == 1 %}
+							<p>Veuillez insérer
+								<strong>le proforma facture fournisseur *</strong>
+							</p>
+						{% else %}
+							<p>Veuillez insérer
+								<strong>le contrôle livraison *</strong>
+							</p>
+						{% endif %}
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
+					</div>
+					<div class="col-12 col-md-4">
+						<p>
+							Veuillez insérer
+							<strong>
+								rib fournisseur</strong>
+						</p>
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '2', 'form': form, 'fieldName': 'pieceJoint02'} %}
+					</div>
+					<div class="col-12 col-md-4">
+						<p>
+							<strong>
+								Autre document
+							</strong>
+						</p>
+						{% include '/partials/_dropZoneFile.html.twig' with {'id': '3', 'form': form, 'fieldName': 'pieceJoint03'} %}
+					</div>
+				</div>
+				<div
+					class="row">
+					<!-- Debut affichage du tableau liste des factures-->
+					<div class="row d-none" id="tableau_facture">
+						<table class="table rounded table-plein-ecran">
+							<thead class="table-dark">
+								<tr>
+									<th>
+										facture</th>
+									<th>
+										fournisseur</th>
+									<th>
+										fournisseur</th>
+									<th>
+										dossier</th>
+									<th>
+										lta</th>
+									<th>
+										hawb</th>
+									<th>
+										po</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for item in listeGcot %}
+									<tr>
+										<td></td>
+										<td>{{item.Numero_Facture}}</td>
+										<td>{{item.Code_Fournisseur}}</td>
+										<td>{{item.Libelle_Fournisseur}}</td>
+										<td>{{item.Numero_Dossier_Douane}}</td>
+										<td>{{item.Numero_LTA}}</td>
+										<td>{{item.Numero_HAWB}}</td>
+										<td>{{item.Numero_PO}}</td>
+									</tr>
+								{% endfor %}
+
+							</tbody>
+						</table>
+
+						<div class="d-flex justify-content-end">
+							<button type="submit" class="btn bouton mt-2 ajout-overlay" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+								<i class="fas fa-save"></i>
+								Enregistrer
+							</button>
+						</div>
+						{{ form_end(form) }}
+					</div>
+					<div class="row d-none" id="tableau_dossier"></div>
+				</div>
 			</div>
-			
-
-
 			<div class="col-12 col-md-6">
-					<div id="file-viewer" class="mt-3">
-						<!-- Onglets -->
-						<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
-							<li class="nav-item" role="presentation">
-								<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">contrôle livraison</button>
-							</li>
-							{# <li class="nav-item" role="presentation">
-								<button class="nav-link active" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">contrôle livraison</button>
-							</li> #}
-							<li class="nav-item" role="presentation">
-								<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">RIB fournisseur</button>
-							</li>
-						</ul>
+				<div
+					id="file-viewer" class="mt-3">
+					<!-- Onglets -->
+					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
+						<li class="nav-item" role="presentation">
+							<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">contrôle livraison</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">RIB fournisseur</button>
+						</li>
+						<li class="nav-item" role="presentation">
+							<button class="nav-link" id="tab3-tab" data-bs-toggle="tab" data-bs-target="#tab3" type="button" role="tab">Autre Doc</button>
+						</li>
+					</ul>
 
-						<!-- Contenu des onglets -->
-						<div class="tab-content border border-top-0 p-3" id="pdfTabContent">
-							<div class="tab-pane fade show active" id="tab1" role="tabpanel">
-								<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
-							</div>
-							<div class="tab-pane fade show active" id="tab2"  role="tabpanel">
-								<embed id="pdf-embed-2" type="application/pdf" width="100%" height="500px">
-							</div>
-							{# <div class="tab-pane fade" id="tab3" role="tabpanel">
-								<embed id="pdf-embed-3" type="application/pdf" width="100%" height="500px">
-							</div> #}
+					<!-- Contenu des onglets -->
+					<div class="tab-content border border-top-0 p-3" id="pdfTabContent">
+						<div class="tab-pane fade show active" id="tab1" role="tabpanel">
+							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+						</div>
+						<div class="tab-pane fade" id="tab2" role="tabpanel">
+							<embed id="pdf-embed-2" type="application/pdf" width="100%" height="500px">
+						</div>
+						<div class="tab-pane fade" id="tab3" role="tabpanel">
+							<embed id="pdf-embed-3" type="application/pdf" width="100%" height="500px">
 						</div>
 					</div>
-				
+
+				</div>
 			</div>
-
-
 		</div>
 	</div>
-
-
 {% endblock %}
-
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/ddp/demandePaiement.js"></script>
 {% endblock %}

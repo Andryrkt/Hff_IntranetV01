@@ -49,7 +49,9 @@ export function handleFiles(
     const reader = new FileReader();
     reader.onload = function (e) {
       pdfEmbedElement.src = e.target.result;
-      pdfPreviewElement.style.display = "block";
+      if (pdfPreviewElement) {
+        pdfPreviewElement.style.display = "block";
+      }
     };
     reader.readAsDataURL(file);
 

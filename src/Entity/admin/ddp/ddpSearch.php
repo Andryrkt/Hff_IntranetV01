@@ -8,6 +8,9 @@ class DdpSearch{
     private $numCommande;
     private $numFacture;
     private $utilisateur;
+    private $dateDebut;
+    private $dateFin;
+    private $statut;
 
     /**
      * Get the value of agence
@@ -145,6 +148,66 @@ class DdpSearch{
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDebut
+     */ 
+    public function getDateDebut()
+    {
+        return $this->dateDebut;
+    }
+
+    /**
+     * Set the value of dateDebut
+     *
+     * @return  self
+     */ 
+    public function setDateDebut($dateDebut)
+    {
+        $this->dateDebut = $dateDebut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFin
+     */ 
+    public function getDateFin()
+    {
+        return $this->dateFin;
+    }
+
+    /**
+     * Set the value of dateFin
+     *
+     * @return  self
+     */ 
+    public function setDateFin($dateFin)
+    {
+        $this->dateFin = $dateFin;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statut
+     */ 
+    public function getStatut()
+    {
+        return $this->statut;
+    }
+
+    /**
+     * Set the value of statut
+     *
+     * @return  self
+     */ 
+    public function setStatut($statut)
+    {
+        $this->statut = $statut;
 
         return $this;
     }

@@ -134,11 +134,11 @@ class DemandePaiement
     private $numeroFacture = [];
 
     /**
-      * @ORM\Column(type="string", length=5, name="devise")
-      *
-      * @var [type]
-      */
-     private $devise;
+     * @ORM\Column(type="string", length=5, name="devise")
+     *
+     * @var [type]
+     */
+    private $devise;
 
     /**
      * @ORM\Column(type="string", length=100, name="statut_dossier_regul")
@@ -146,20 +146,30 @@ class DemandePaiement
      * @var string|null
      */
     private ?string $statutDossierRegul;
-    
+
     /**
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private ?int $numeroVersion = 0;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_autre_doc")
+     */
+    private $estAutreDoc = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="nom_autre_doc")
+     */
+    private ?string $nomAutreDoc;
+
     private string $montantAPayer = '0';
-    
 
-    private $pieceJoint01; // proforma facture fournisseur
 
-    private $pieceJoint02; //Contrôle livraison
+    private $pieceJoint01;
 
-    private $pieceJoint03; //rib fournisseur
+    private $pieceJoint02;
+
+    private $pieceJoint03;
 
     private $commandeFichier;
 
@@ -168,6 +178,8 @@ class DemandePaiement
     private $titreDeTransportFichier;
 
     private $lesFichiers;
+
+
 
 
 
@@ -754,7 +766,7 @@ class DemandePaiement
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -764,10 +776,51 @@ class DemandePaiement
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of estAutreDoc
+     */
+    public function getEstAutreDoc()
+    {
+        return $this->estAutreDoc;
+    }
+
+    /**
+     * Set the value of estAutreDoc
+     *
+     * @return  self
+     */
+    public function setEstAutreDoc($estAutreDoc)
+    {
+        $this->estAutreDoc = $estAutreDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomAutreDoc
+     */
+    public function getNomAutreDoc()
+    {
+        return $this->nomAutreDoc;
+    }
+
+    /**
+     * Set the value of nomAutreDoc
+     *
+     * @return  self
+     */
+    public function setNomAutreDoc($nomAutreDoc)
+    {
+        $this->nomAutreDoc = $nomAutreDoc;
 
         return $this;
     }
@@ -797,5 +850,4 @@ class DemandePaiement
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
     }
-
 }
