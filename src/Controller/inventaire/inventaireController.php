@@ -308,6 +308,7 @@ class InventaireController extends Controller
                 }
             }
             $sumNbrecartavecEcart =  ($sumNbrRefsansEcart / $sumNbrRef)*100;
+            $sumEcart =  ($sumNbrEcart/$sumNbrMontant)*100;
             $sum = [
                 'numero' => '',
                 'description' => '',
@@ -323,7 +324,7 @@ class InventaireController extends Controller
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
                 'pourcentage_ref_avec_ecart' => $sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
-                'pourcentage_ecart' => $sumNbrPourcentEcart,
+                'pourcentage_ecart' => $sumEcart,//$sumNbrPourcentEcart,
             ];
         }
         return [
