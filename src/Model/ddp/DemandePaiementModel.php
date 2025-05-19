@@ -50,6 +50,26 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getFournisseur()
+    {
+        $statement = "SELECT 
+                        FBSE_NUMFOU AS num_fournisseur,
+                        UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur
+                    FROM 
+                        FRN_BSE
+                    GROUP BY 
+                        FBSE_NUMFOU
+                    ORDER BY 
+                        nom_fournisseur 
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function findListeGcot(string $numeroFournisseur, string  $numCdesString): array
     {
         $sql = " SELECT  

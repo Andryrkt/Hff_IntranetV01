@@ -118,6 +118,11 @@ class DemandePaiementRepository extends EntityRepository
                 ->setParameter('dateFin', $criteria->getDateFin());
         }
 
+        if (!empty($criteria->getFournisseur())) {
+            $qb->andWhere('d.numeroFournisseur = :numFournisseur')
+                ->setParameter('numFournisseur', explode('-', $criteria->getFournisseur())[0]);
+        }
+
         // Tri
         $qb->orderBy('d.dateCreation', 'DESC');
         // $query = $qb->getQuery();

@@ -1,10 +1,7 @@
 import { FetchManager } from "../api/FetchManager.js";
 import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
-import {
-  AutoComplete,
-  MultiSelectAutoComplete,
-} from "../utils/AutoComplete.js";
+import { AutoComplete } from "../utils/AutoComplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 import { allowOnlyNumbers, limitInputLength } from "../utils/inputUtils.js";

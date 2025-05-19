@@ -159,6 +159,10 @@ class DdpSearchType extends AbstractType
                 'label' => 'Statut',
                 'required' => false
             ])
+            ->add('fournisseur', TextType::class, [
+                'label' => 'Fournisseur',
+                'required' => false
+            ])
         ;
     }
 

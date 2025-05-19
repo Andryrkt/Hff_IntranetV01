@@ -32,7 +32,7 @@ class DdpListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(DdpSearchType::class,$this->ddpSearch, [
+        $form = self::$validator->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
         ])->getForm();
         $form->handleRequest($request);
