@@ -209,4 +209,25 @@ window.addEventListener("load", () => {
   displayOverlay(false);
 });
 
+/**=============================================
+ * Desactive le bouton OK si la cage à cocher n'est pas cocher
+ *==============================================*/
+const cageACocherInput = document.querySelector(
+  "#demande_appro_lr_collection_estValidee"
+);
+const boutonOkInput = document.querySelector("#bouton_ok");
 
+// Fonction pour activer ou désactiver le bouton
+function verifierCaseCochee() {
+  if (cageACocherInput.checked) {
+    boutonOkInput.classList.remove("d-none");
+  } else {
+    boutonOkInput.classList.add("d-none");
+  }
+}
+
+// Initialiser l'état du bouton au chargement
+verifierCaseCochee();
+
+// Écouteur d'événement sur la case à cocher
+cageACocherInput.addEventListener("change", verifierCaseCochee);
