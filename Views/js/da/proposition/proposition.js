@@ -3,6 +3,7 @@ import { ajouterReference } from "./article";
 import { autocompleteTheField } from "./autocompletion";
 import { changeTab, showTab } from "./pageNavigation";
 import { updateDropdown } from "../../utils/selectionHandler";
+import { boutonRadio } from "./boutonRadio";
 
 document.addEventListener("DOMContentLoaded", function () {
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
@@ -231,3 +232,8 @@ verifierCaseCochee();
 
 // Écouteur d'événement sur la case à cocher
 cageACocherInput.addEventListener("change", verifierCaseCochee);
+
+/**=================================================================
+ * lorsqu'on clique sur le bouton radio et envoyer le  proposition
+ *==================================================================*/
+boutonRadio();

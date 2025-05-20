@@ -1,5 +1,6 @@
 export function boutonRadio() {
   const radioButtons = document.querySelectorAll('input[type="radio"]');
+  console.log(radioButtons);
 
   let lastCheckedRadio = null;
   let selectedValues = [];
@@ -24,7 +25,7 @@ export function boutonRadio() {
     });
 
     if (radio.checked) {
-      toggleRadio(this);
+      toggleRadio(radio);
     }
   });
 

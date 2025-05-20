@@ -21,6 +21,8 @@ class DaValidationController extends Controller
 {
     use lienGenerique;
 
+    private const ID_ATELIER = 3;
+
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
@@ -40,6 +42,51 @@ class DaValidationController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
+        $da = $this->modificationDesTable($numDa, $numeroVersionMax);
+
+        /** CREATION EXCEL */
+        $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
+
+        /** ENVOIE D'EMAIL */
+        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        if ($this->estUserDansServiceAtelier()) {
+            $this->envoyerMailAuxAppro([
+                'id'                => $da->getId(),
+                'numDa'             => $da->getNumeroDemandeAppro(),
+                'objet'             => $da->getObjetDal(),
+                'detail'            => $da->getDetailDal(),
+                'fileName'          => $nomEtChemin['fileName'],
+                'filePath'          => $nomEtChemin['filePath'],
+                'dalNouveau'        => $dalNouveau,
+                'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
+        } else {
+            $this->envoyerMailAuxAte([
+                'id'                => $da->getId(),
+                'numDa'             => $da->getNumeroDemandeAppro(),
+                'objet'             => $da->getObjetDal(),
+                'detail'            => $da->getDetailDal(),
+                'fileName'          => $nomEtChemin['fileName'],
+                'filePath'          => $nomEtChemin['filePath'],
+                'dalNouveau'        => $dalNouveau,
+                'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
+        }
+
+
+        /** NOTIFICATION */
+        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
+        $this->redirectToRoute("da_list");
+    }
+
+    private function estUserDansServiceAtelier(): bool
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(self::ID_ATELIER, $serviceIds);
+    }
+
+    private function modificationDesTable(string $numDa, int $numeroVersionMax): DemandeAppro
+    {
         /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         if ($da) {
@@ -79,7 +126,11 @@ class DaValidationController extends Controller
 
         self::$em->flush();
 
-        /** CREATION EXCEL */
+        return $da;
+    }
+
+    private function creationExcel(string $numDa, int $numeroVersionMax): array
+    {
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         // Convertir les entités en tableau de données
@@ -92,22 +143,10 @@ class DaValidationController extends Controller
         $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
         $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
 
-        /** ENVOIE D'EMAIL */
-        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        $this->envoyerMailAuxAte([
-            'id'                => $da->getId(),
-            'numDa'             => $da->getNumeroDemandeAppro(),
-            'objet'             => $da->getObjetDal(),
-            'detail'            => $da->getDetailDal(),
-            'fileName'          => $fileName,
-            'filePath'          => $filePath,
-            'dalNouveau'        => $dalNouveau,
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-
-        /** NOTIFICATION */
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
-        $this->redirectToRoute("da_list");
+        return [
+            'fileName' => $fileName,
+            'filePath' => $filePath
+        ];
     }
 
     private function transformationEnTableauAvecEntet($entities): array
@@ -127,7 +166,7 @@ class DaValidationController extends Controller
     }
 
     /** 
-     * Fonctions pour envoyer un mail à la service Appro 
+     * Fonctions pour envoyer un mail à la service Ate
      */
     private function envoyerMailAuxAte(array $tab)
     {
@@ -139,7 +178,33 @@ class DaValidationController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement",
+                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'APPRO",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
+            ],
+            'attachments' => [
+                $tab['filePath'] => $tab['fileName'],
+            ],
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables'], $content['attachments']);
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAppro(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'hasina.andrianadison@hff.mg',
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "validationDa",
+                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
             ],

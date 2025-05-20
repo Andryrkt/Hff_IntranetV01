@@ -46,13 +46,13 @@
 					{% for dal in item.DAL %}
 						<tr>
 							<td>
-								{% if serviceAppro %}
-									{{ item.numeroDemandeAppro }}
-								{% else %}
-									<a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank">
-										{{ item.numeroDemandeAppro }}
-									</a>
-								{% endif %}
+								{# {% if serviceAppro %} #}
+								{{ item.numeroDemandeAppro }}
+							{# {% else %} #}
+								{# <a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank"> #}
+								{# {{ item.numeroDemandeAppro }} #}
+								{# </a> #}
+								{# {% endif %} #}
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.demandeur }}</td>
@@ -66,13 +66,12 @@
 								<td>{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td>
-								{% if serviceAtelier %}
-									{{ dal.artDesi }}
-								{% else %}
-									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
-										{{ dal.artDesi }}
-									</a>
-								{% endif %}
+								{# {% if serviceAtelier %} #}
+								{# {{ dal.artDesi }} #}
+								{# {% else %} #}
+									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank"> {{ dal.artDesi }}
+								</a>
+								{# {% endif %} #}
 
 							</td>
 							<td>{{ dal.qteDem }}</td>
