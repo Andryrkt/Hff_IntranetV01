@@ -286,6 +286,54 @@ class DossierInterventionAtelierModel extends Model
         return $this->ConvertirEnUtf_8($tab);
     }
 
+    public function findDwBc($numDit)
+    {
+        $sql =" SELECT 
+            --BON DE COMMANDE CLIENT 
+            bcc.numero_bc AS numero_doc,
+            bcc.date_creation AS date_creation,
+            bcc.date_derniere_modification AS date_modification,
+            bcc.extension_fichier As extension_fichier,
+            bcc.total_page AS total_page,
+            bcc.taille_fichier AS taille_fichier,
+            bcc.path AS chemin
+
+            FROM DW_BC_Client bcc
+            WHERE bcc.numero_dit = '".$numDit."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findDwDev($numDit)
+    {
+        $sql =" SELECT 
+            --DEVIS 
+            dev.numero_devis AS numero_doc,
+            dev.date_creation AS date_creation,
+            dev.date_derniere_modification AS date_modification,
+            dev.extension_fichier As extension_fichier,
+            dev.total_page AS total_page,
+            dev.taille_fichier AS taille_fichier,
+            dev.path AS chemin
+
+            FROM DW_Devis dev
+            WHERE dev.numero_dit = '".$numDit."'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab =[];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
 
     public function findCheminDit($numDoc)
     {
