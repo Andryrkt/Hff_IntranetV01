@@ -172,6 +172,11 @@ class DemandePaiement
      */
     private $nomCdeClientExterneDoc = [];
 
+    /**
+     * @ORM\Column(type="json", name="numero_dossier_douane")
+     */
+    private $numeroDossierDouane = [];
+
     private string $montantAPayer = '0';
 
     private $pieceJoint01;
@@ -888,6 +893,26 @@ class DemandePaiement
     public function setNomCdeClientExterneDoc($nomCdeClientExterneDoc)
     {
         $this->nomCdeClientExterneDoc = $nomCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDossierDouane
+     */ 
+    public function getNumeroDossierDouane()
+    {
+        return $this->numeroDossierDouane;
+    }
+
+    /**
+     * Set the value of numeroDossierDouane
+     *
+     * @return  self
+     */ 
+    public function setNumeroDossierDouane($numeroDossierDouane)
+    {
+        $this->numeroDossierDouane = $numeroDossierDouane;
 
         return $this;
     }

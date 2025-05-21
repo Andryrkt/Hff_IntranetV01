@@ -202,7 +202,13 @@ class EditDemandePaiementController extends Controller
         return $donners;
     }
 
-    private function recupCheminFichierDistant(DemandePaiement $data): array
+    /**
+     * Récupération de numero de dossier de douane
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupNumDossierDouane(DemandePaiement $data): array
     {
         $numFrs = $data->getNumeroFournisseur();
         $numCde = $data->getNumeroCommande();
@@ -213,6 +219,19 @@ class EditDemandePaiementController extends Controller
         $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
 
         $numDossiers = array_column($this->demandePaiementModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
+
+        return $numDossiers;
+    }
+
+    /**
+     * Recupération des chemins des fichiers distant 192.168.0.15
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupCheminFichierDistant(DemandePaiement $data): array
+    {
+        $numDossiers = $this->recupNumDossierDouane($data);
 
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {
@@ -430,6 +449,7 @@ class EditDemandePaiementController extends Controller
     private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, int $numeroversion, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
+        $numDossierDouanne = $this->recupNumDossierDouane($data);
         $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
         $nomDefichierFusionners = array_merge($lesFichiers, $cheminDufichierCde);
         $data
@@ -444,6 +464,7 @@ class EditDemandePaiementController extends Controller
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
+            ->setNumeroDossierDouane($numDossierDouanne)
         ;
     }
     private function autoIncrement($num)

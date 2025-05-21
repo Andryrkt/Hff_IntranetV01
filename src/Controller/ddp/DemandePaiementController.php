@@ -129,13 +129,12 @@ class DemandePaiementController extends Controller
             $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
 
-            /** COPIER LES FICHIERS */
+            /** COPIER LES FICHIERS DISTANT 192.168.0.15 vers uplode/ddp/... */
             if ($id == 2) {
                 $this->copierFichierDistant($data, $numDdp);
             }
 
             /** GENERATION DE PDF */
-
             $nomPageDeGarde = $numDdp . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_1/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
@@ -344,9 +343,12 @@ class DemandePaiementController extends Controller
     private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
-        $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
 
+        $numDossierDouanne = $this->recupNumDossierDouane($data);
+
+        $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
         $nomDefichierFusionners = array_merge($lesFichiers, $cheminDufichierCde);
+
         $data
             ->setNumeroDdp($numDdp) // ajout du numero DDP dans l'entity DDP
             // ->setAgenceDebiter($data->getAgence()->getCodeAgence())
@@ -359,6 +361,7 @@ class DemandePaiementController extends Controller
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
+            ->setNumeroDossierDouane($numDossierDouanne)
         ;
     }
 
@@ -405,7 +408,13 @@ class DemandePaiementController extends Controller
         return $ensembleDesNomDeFichiers;
     }
 
-    private function recupCheminFichierDistant(DemandePaiement $data): array
+    /**
+     * Récupération de numero de dossier de douane
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupNumDossierDouane(DemandePaiement $data): array
     {
         $numFrs = $data->getNumeroFournisseur();
         $numCde = $data->getNumeroCommande();
@@ -416,6 +425,19 @@ class DemandePaiementController extends Controller
         $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
 
         $numDossiers = array_column($this->demandePaiementModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
+
+        return $numDossiers;
+    }
+
+    /**
+     * Recupération des chemins des fichiers distant 192.168.0.15
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupCheminFichierDistant(DemandePaiement $data): array
+    {
+        $numDossiers = $this->recupNumDossierDouane($data);
 
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {

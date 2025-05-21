@@ -135,3 +135,6 @@ ADD est_cde_client_externe_doc bit DEFAULT 0
 
 ALTER TABLE demande_paiement
 ADD nom_cde_client_externe_doc VARCHAR(max)
+
+ALTER TABLE demande_paiement
+ADD numero_dossier_douane VARCHAR(max)

@@ -149,6 +149,15 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', '', 12);
         $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($data->getLesFichiers())), 0, 'L', 0, 1); // TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
 
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Liste des dossiers de douane  :', 0, 1);
+        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des dossiers de douane ') + 1, $pdf->GetY() - 2.5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->MultiCell(0, 10, implode(";", $data->getNumeroDossierDouane()), 0, 'L', 0, 1);
+
         // génération de fichier: à changer plus tard
         $pdf->Output($cheminDeFichier, 'F');
     }
