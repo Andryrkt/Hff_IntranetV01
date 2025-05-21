@@ -77,8 +77,11 @@ class InfoFournisseurApi extends Controller
 
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-        // dd($numCdesString);
-        $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
+
+        $numFacs = $this->demandePaiementModel->getFactureNonReglee($numeroFournisseur);
+        $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
+
+        $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
 
         $data = [
             'numCdes' => $numCde,

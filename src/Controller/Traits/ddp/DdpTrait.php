@@ -7,27 +7,27 @@ trait DdpTrait
     private function recuperationCdeFacEtNonFac(int $typeId): array
     {
         $numCdeDws = $this->demandePaiementModel->getNumCdeDw();
-            $numCdes1 = [];
-            $numCdes2 = [];
-                foreach ($numCdeDws as $numCdeDw) {
-                    $numfactures = $this->demandePaiementModel->cdeFacOuNonFac($numCdeDw);
-                    if(!empty($numfactures)){
-                        $numCdes2[] = $numCdeDw;
-                    } else {
-                        $numCdes1[] = $numCdeDw;
-                    }
-                }
-            $numCdes = [];
-
-            if($typeId == 2) {
-                $numCdes = $numCdes2;
+        $numCdes1 = [];
+        $numCdes2 = [];
+        foreach ($numCdeDws as $numCdeDw) {
+            $numfactures = $this->demandePaiementModel->cdeFacOuNonFac($numCdeDw);
+            if (!empty($numfactures)) {
+                $numCdes2[] = $numCdeDw;
             } else {
-                $numCdes = $numCdes1;
+                $numCdes1[] = $numCdeDw;
             }
-            return $numCdes;
+        }
+        $numCdes = [];
+
+        if ($typeId == 2) {
+            $numCdes = $numCdes2;
+        } else {
+            $numCdes = $numCdes1;
+        }
+        return $numCdes;
     }
 
-     private function recupCdeDw($data,$numDdp,$numVersion):array
+    private function recupCdeDw($data, $numDdp, $numVersion): array
     {
         $pathAndCdes = [];
         foreach ($data->getNumeroCommande() as  $numcde) {
@@ -36,11 +36,11 @@ trait DdpTrait
 
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {
-            if($pathAndCde[0]['path'] != null) {
+            if ($pathAndCde[0]['path'] != null) {
                 $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
                 $nomFichierInitial = explode("/", $pathAndCde[0]['path'])[2];
 
-                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_'.$numVersion.'/' . $nomFichierInitial;
+                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_' . $numVersion . '/' . $nomFichierInitial;
                 copy($cheminDufichierInitial, $cheminDufichierDestinataire);
                 $nomDufichierCde[] =  $nomFichierInitial;
             }
