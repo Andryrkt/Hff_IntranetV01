@@ -97,12 +97,23 @@ class DemandePaiementController extends Controller
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
 
-            /** TRAITEMENT AUTRE DOCUMENT */
-            if ($data->getPieceJoint03() != null) {
+            /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
+            if ($data->getPieceJoint04() != null) {
                 $data->setEstAutreDoc(true)
-                    ->setNomAutreDoc($data->getPieceJoint03()->getClientOriginalName())
+                    ->setNomAutreDoc($data->getPieceJoint04()->getClientOriginalName())
                 ;
             }
+
+            $nomFichierBCs = [];
+            foreach ($data->getPieceJoint03() as $value) {
+                $nomFichierBCs[] = $value->getClientOriginalName();
+            }
+            if ($data->getPieceJoint03() != null) {
+                $data->setEstCdeClientExterneDoc(true)
+                    ->setNomCdeClientExterneDoc($nomFichierBCs)
+                ;
+            }
+
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
             if ($id == 2) {
@@ -124,7 +135,7 @@ class DemandePaiementController extends Controller
             }
 
             /** GENERATION DE PDF */
-            
+
             $nomPageDeGarde = $numDdp . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_New_1/' . $nomPageDeGarde;
             $this->generatePdfDdp->genererPDF($data, $cheminEtNom);
@@ -293,15 +304,36 @@ class DemandePaiementController extends Controller
     {
         $nomDesFichiers = [];
         $fieldPattern = '/^pieceJoint(\d{2})$/';
+
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|null $file */
+                /** @var UploadedFile|UploadedFile[]|null $file */
                 $file = $field->getData();
+
                 if ($file !== null) {
-                    $nomDeFichier = $file->getClientOriginalName(); //recuperer le nom de fichier
-                    // Appeler la méthode upload
-                    $this->traitementDeFichier->upload($file, $this->cheminDeBase . '/' . $numDdp . '_New_1', $nomDeFichier);
-                    $nomDesFichiers[] = $nomDeFichier;
+                    if (is_array($file)) {
+                        // Cas où c'est un tableau de fichiers
+                        foreach ($file as $singleFile) {
+                            if ($singleFile !== null) {
+                                $nomDeFichier = $singleFile->getClientOriginalName();
+                                $this->traitementDeFichier->upload(
+                                    $singleFile,
+                                    $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                    $nomDeFichier
+                                );
+                                $nomDesFichiers[] = $nomDeFichier;
+                            }
+                        }
+                    } else {
+                        // Cas où c'est un seul fichier
+                        $nomDeFichier = $file->getClientOriginalName();
+                        $this->traitementDeFichier->upload(
+                            $file,
+                            $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                            $nomDeFichier
+                        );
+                        $nomDesFichiers[] = $nomDeFichier;
+                    }
                 }
             }
         }

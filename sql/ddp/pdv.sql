@@ -129,3 +129,9 @@ ADD est_autre_doc bit DEFAULT 0
 
 ALTER TABLE demande_paiement
 ADD nom_autre_doc VARCHAR(255)
+
+ALTER TABLE demande_paiement
+ADD est_cde_client_externe_doc bit DEFAULT 0
+
+ALTER TABLE demande_paiement
+ADD nom_cde_client_externe_doc VARCHAR(max)

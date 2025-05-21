@@ -162,14 +162,25 @@ class DemandePaiement
      */
     private ?string $nomAutreDoc;
 
-    private string $montantAPayer = '0';
+    /**
+     * @ORM\Column(type="boolean", name="est_cde_client_externe_doc")
+     */
+    private $estCdeClientExterneDoc = false;
 
+    /**
+     * @ORM\Column(type="json", name="nom_cde_client_externe_doc")
+     */
+    private $nomCdeClientExterneDoc = [];
+
+    private string $montantAPayer = '0';
 
     private $pieceJoint01;
 
     private $pieceJoint02;
 
-    private $pieceJoint03;
+    private array $pieceJoint03 = [];
+
+    private $pieceJoint04;
 
     private $commandeFichier;
 
@@ -178,10 +189,6 @@ class DemandePaiement
     private $titreDeTransportFichier;
 
     private $lesFichiers;
-
-
-
-
 
     /**===========================================================================
      * GETTER & SETTER
@@ -741,6 +748,26 @@ class DemandePaiement
     }
 
     /**
+     * Get the value of pieceJoint04
+     */
+    public function getPieceJoint04()
+    {
+        return $this->pieceJoint04;
+    }
+
+    /**
+     * Set the value of pieceJoint04
+     *
+     * @return  self
+     */
+    public function setPieceJoint04($pieceJoint04)
+    {
+        $this->pieceJoint04 = $pieceJoint04;
+
+        return $this;
+    }
+
+    /**
      * Get the value of statutDossierRegul
      *
      * @return  string|null
@@ -825,6 +852,46 @@ class DemandePaiement
         return $this;
     }
 
+    /**
+     * Get the value of estCdeClientExterneDoc
+     */
+    public function getEstCdeClientExterneDoc()
+    {
+        return $this->estCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of estCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setEstCdeClientExterneDoc($estCdeClientExterneDoc)
+    {
+        $this->estCdeClientExterneDoc = $estCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomCdeClientExterneDoc
+     */
+    public function getNomCdeClientExterneDoc()
+    {
+        return $this->nomCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of nomCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setNomCdeClientExterneDoc($nomCdeClientExterneDoc)
+    {
+        $this->nomCdeClientExterneDoc = $nomCdeClientExterneDoc;
+
+        return $this;
+    }
+
     public function dupliquer(): self
     {
         $nouvelle = new self();
@@ -845,6 +912,7 @@ class DemandePaiement
         $nouvelle->pieceJoint01 = $this->pieceJoint01;
         $nouvelle->pieceJoint02 = $this->pieceJoint02;
         $nouvelle->pieceJoint03 = $this->pieceJoint03;
+        $nouvelle->pieceJoint04 = $this->pieceJoint04;
         $nouvelle->beneficiaire = $this->beneficiaire;
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;

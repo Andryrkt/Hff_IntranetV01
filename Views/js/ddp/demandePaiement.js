@@ -1,5 +1,8 @@
 import { FetchManager } from "../api/FetchManager.js";
-import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
+import {
+  initializeFileHandlersNouveau,
+  initializeFileHandlersMultiple,
+} from "../utils/file_upload_Utils.js";
 import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import { AutoComplete } from "../utils/AutoComplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
@@ -652,13 +655,16 @@ document.addEventListener("DOMContentLoaded", function () {
    * FICHIER
    * =============================*/
   const fileInput1 = document.querySelector("#demande_paiement_pieceJoint01");
-  initializeFileHandlers("1", fileInput1);
+  initializeFileHandlersNouveau("1", fileInput1);
 
   const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
-  initializeFileHandlers("2", fileInput2);
+  initializeFileHandlersNouveau("2", fileInput2);
 
   const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
-  initializeFileHandlers("3", fileInput3);
+  initializeFileHandlersMultiple("3", fileInput3);
+
+  const fileInput4 = document.querySelector("#demande_paiement_pieceJoint04");
+  initializeFileHandlersNouveau("4", fileInput2);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer
