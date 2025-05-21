@@ -97,6 +97,10 @@ class DemandePaiementRepository extends EntityRepository
             $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
                 ->setParameter('numeroFacture', '%' . $criteria->getNumFacture() . '%');
         }
+        if (!empty($criteria->getNumDossier())) {
+            $qb->andWhere('d.numeroDossierDouane LIKE :numeroDossier')
+                ->setParameter('numeroDossier', '%' . $criteria->getNumDossier() . '%');
+        }
 
         if (!empty($criteria->getUtilisateur())) {
             $qb->andWhere('d.demandeur = :demandeur')
@@ -109,12 +113,12 @@ class DemandePaiementRepository extends EntityRepository
         }
 
         if (!empty($criteria->getDateDebut())) {
-            $qb->andWhere('d.dateDemande >= :dateDebut')
+            $qb->andWhere('d.dateCreation >= :dateDebut')
                 ->setParameter('dateDebut', $criteria->getDateDebut());
         }
 
         if (!empty($criteria->getDateFin())) {
-            $qb->andWhere('d.dateDemande <= :dateFin')
+            $qb->andWhere('d.dateCreation <= :dateFin')
                 ->setParameter('dateFin', $criteria->getDateFin());
         }
 

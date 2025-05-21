@@ -138,6 +138,14 @@ class DdpSearchType extends AbstractType
                 ]
             )
             ->add(
+                'numDossier',
+                TextType::class,
+                [
+                    'label' => 'N° Dossier',
+                    'required' => false
+                ]
+            )
+            ->add(
                 'utilisateur',
                 TextType::class,
                 [
