@@ -47,6 +47,9 @@ class DaValidationController extends Controller
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
 
+        /** Ajout non fichier de reference zst */
+        $da->setNonFichierRefZst($nomEtChemin['fileName']);
+
         /** ENVOIE D'EMAIL */
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         if ($this->estUserDansServiceAtelier()) {

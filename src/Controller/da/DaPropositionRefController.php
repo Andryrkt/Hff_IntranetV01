@@ -20,7 +20,6 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -70,6 +69,8 @@ class DaPropositionRefController extends Controller
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
@@ -80,6 +81,7 @@ class DaPropositionRefController extends Controller
         self::$twig->display('da/proposition.html.twig', [
             'da' => $da,
             'id' => $id,
+            'dit_id' => $dit->getId(),
             'form' => $form->createView(),
             'observations' => $observations,
             'numDa' => $numDa,

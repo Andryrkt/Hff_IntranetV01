@@ -47,11 +47,10 @@
 						<tr>
 							<td>
 								{# {% if serviceAppro %} #}
-								{{ item.numeroDemandeAppro }}
-							{# {% else %} #}
-								{# <a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank"> #}
 								{# {{ item.numeroDemandeAppro }} #}
-								{# </a> #}
+								{# {% else %} #}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+								</a>
 								{# {% endif %} #}
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
