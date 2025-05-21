@@ -24,7 +24,6 @@ trait DdpTrait
             } else {
                 $numCdes = $numCdes1;
             }
-
             return $numCdes;
     }
 
@@ -37,14 +36,16 @@ trait DdpTrait
 
         $nomDufichierCde = [];
         foreach ($pathAndCdes as  $pathAndCde) {
+            if($pathAndCde[0]['path'] != null) {
+                $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
+                $nomFichierInitial = explode("/", $pathAndCde[0]['path'])[2];
 
-            $cheminDufichierInitial = $_ENV['BASE_PATH_FICHIER'] . "/" . $pathAndCde[0]['path'];
-            $nomFichierInitial = explode("/", $pathAndCde[0]['path'])[2];
-
-            $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_'.$numVersion.'/' . $nomFichierInitial;
-            copy($cheminDufichierInitial, $cheminDufichierDestinataire);
-            $nomDufichierCde[] =  $nomFichierInitial;
+                $cheminDufichierDestinataire = $this->cheminDeBase . '/' . $numDdp . '_New_'.$numVersion.'/' . $nomFichierInitial;
+                copy($cheminDufichierInitial, $cheminDufichierDestinataire);
+                $nomDufichierCde[] =  $nomFichierInitial;
+            }
         }
+
         return $nomDufichierCde;
     }
 }

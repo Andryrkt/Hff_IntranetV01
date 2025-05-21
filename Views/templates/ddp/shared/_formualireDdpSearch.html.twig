@@ -13,8 +13,7 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ form_row(form.Agence) }}
-						{{ form_row(form.service) }}
+						{{ macroForm.agence_service_change(form.Agence, form.service, 'spinner-service', 'service-container')}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.typeDemande) }}
@@ -26,6 +25,16 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.utilisateur) }}
+						{{ form_row(form.statut) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDebut) }}
+						{{ form_row(form.dateFin) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.fournisseur) }}
+						<div id="suggestion-fournisseur" class="suggestions-container"></div>
+						<div id="loader-fournisseur" class="spinner" style="display: none;">Chargement...</div>
 					</div>
 				</div>
 

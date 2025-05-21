@@ -1,0 +1,11 @@
+<div id="dropzone-{{ id }}" style="border: 2px dashed #ccc; padding: 50px; text-align: center; cursor: pointer;">
+	<i class="fa fa-cloud-upload upload-icon"></i>
+	<br>
+	Glissez et déposez vos fichiers PDF ici, ou cliquez pour sélectionner un ou plusieurs fichiers PDF.
+	<br>
+	<br>
+	<button type="button" id="upload-btn-{{ id }}" class="btn btn-primary mt-2">Sélectionner des fichiers</button>
+</div>
+
+{{ form_widget(form[fieldName], {'attr': {'style': 'display:none;', 'id': 'hidden-input-' ~ id}}) }}
+{{ form_errors(form[fieldName]) }}

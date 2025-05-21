@@ -30,7 +30,7 @@ class GeneratePdfDdp extends GeneratePdf
         // tête de page 
         $pdf->setY(5);
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->Cell(0, 8, 'Emetteur : '.$data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
+        $pdf->Cell(0, 8, 'Emetteur : ' . $data->getAdresseMailDemandeur(), 0, 1, 'R'); // TO DO: valeur de "Emetteur" (changer 'emetteur@hff.mg')
 
         $pdf->Image($logoPath, 5, 1, 40, 0, 'jpg');
 
@@ -50,8 +50,14 @@ class GeneratePdfDdp extends GeneratePdf
 
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 10, $data->getNumeroDdp() .'_'.$data->getNumeroVersion()
-         , 0, 1, 'R');  // TO DO: valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
+        $pdf->Cell(
+            0,
+            10,
+            $data->getNumeroDdp() . '_' . $data->getNumeroVersion(),
+            0,
+            1,
+            'R'
+        );  // TO DO: valeur de "NUMERO DOCUMENT" (changer 'DDP25019999'  + le version )
 
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell($pdf->GetStringWidth('DATE : '), 10, 'DATE : ', 0, 0);
@@ -66,7 +72,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->SetFont('helvetica', 'B', 12);
         $pdf->Cell(50, 10, 'N° commande ', 1, 0);
 
-        $pdf->SetFont('helvetica', '', 12);
+        $pdf->SetFont('helvetica', '', 9);
         $pdf->MultiCell($usable_width - 50, 10, implode(';', $data->getNumeroCommande()), 1, 1); // TO DO: valeur de "N° commande" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
@@ -96,7 +102,7 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Cell($usable_width - 50, 10, $data->getAgenceDebiter(), 1, 1); // TO DO: valeur de "Agence à débiter" (remplacer '' par sa valeur)
 
         $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(50, 10, 'Service à débiter ' , 1, 0);
+        $pdf->Cell(50, 10, 'Service à débiter ', 1, 0);
 
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell($usable_width - 50, 10, $data->getServiceDebiter(), 1, 1); // TO DO: valeur de "Service à débiter" (remplacer '' par sa valeur)
@@ -141,7 +147,16 @@ class GeneratePdfDdp extends GeneratePdf
         $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des pièces jointes') + 1, $pdf->GetY() - 2.5);
 
         $pdf->SetFont('helvetica', '', 12);
-        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($data->getLesFichiers())), 0, 'L', 0, 1);// TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+        $pdf->MultiCell(0, 10, implode(";", $this->removePdfExtension($data->getLesFichiers())), 0, 'L', 0, 1); // TO DO: valeur de "Liste des pièces jointes" (remplacer 'PJ1, PJ2, ...' par sa valeur)
+
+        $pdf->Ln(5);
+
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 10, 'Liste des dossiers de douane  :', 0, 1);
+        $pdf->Line($pdf->GetX() + 1, $pdf->GetY() - 2.5, $pdf->GetX() + $pdf->GetStringWidth('Liste des dossiers de douane ') + 1, $pdf->GetY() - 2.5);
+
+        $pdf->SetFont('helvetica', '', 12);
+        $pdf->MultiCell(0, 10, implode(";", $data->getNumeroDossierDouane()), 0, 'L', 0, 1);
 
         // génération de fichier: à changer plus tard
         $pdf->Output($cheminDeFichier, 'F');

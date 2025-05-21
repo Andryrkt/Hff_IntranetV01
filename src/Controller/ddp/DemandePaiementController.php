@@ -29,7 +29,10 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 class DemandePaiementController extends Controller
 {
-  use DdpTrait;
+    use DdpTrait;
+
+    const STATUT_CREATION = 'Soumis à validation';
+
     private TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
@@ -88,17 +91,37 @@ class DemandePaiementController extends Controller
             $numDdp = $this->autoINcriment('DDP'); // decrementation du numero DDP
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
             $data = $form->getData(); //recupération des donnnées
-            
+
             $numCdes = $this->recuperationCdeFacEtNonFac($id);
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
-            
+
+            /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
+            if ($data->getPieceJoint04() != null) {
+                $data->setEstAutreDoc(true)
+                    ->setNomAutreDoc($data->getPieceJoint04()->getClientOriginalName())
+                ;
+            }
+
+            if ($data->getPieceJoint03() != null || !empty($data->getPieceJoint03())) {
+                $nomFichierBCs = [];
+                foreach ($data->getPieceJoint03() as $value) {
+                    $nomFichierBCs[] = $value->getClientOriginalName();
+                }
+                $data->setEstCdeClientExterneDoc(true)
+                    ->setNomCdeClientExterneDoc($nomFichierBCs)
+                ;
+            }
+
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp);
-            $nomDufichierCde = $this->recupCdeDw($data,$numDdp,1);
+            if ($id == 2) {
+                $data->setNumeroCommande($numeroCommandes);
+            }
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1);
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
-            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde, $numeroCommandes);
+            $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
 
             /** ENREGISTREMENT DANS BD */
             $this->EnregistrementBdDdp($data); // enregistrement des données dans la table demande_paiement
@@ -106,7 +129,7 @@ class DemandePaiementController extends Controller
             $this->enregisterDdpF($data); // enregistrement des données dans la table doc_demande_paiement
             $this->enregistrementBdHistoriqueStatut($data); // enregistrement des données dans la table historique_statut_ddp
 
-            /** COPIER LES FICHIERS */
+            /** COPIER LES FICHIERS DISTANT 192.168.0.15 vers uplode/ddp/... */
             if ($id == 2) {
                 $this->copierFichierDistant($data, $numDdp);
             }
@@ -129,7 +152,7 @@ class DemandePaiementController extends Controller
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
         }
     }
-   
+
 
     private function enregistrementBdHistoriqueStatut(DemandePaiement $data): void
     {
@@ -280,15 +303,36 @@ class DemandePaiementController extends Controller
     {
         $nomDesFichiers = [];
         $fieldPattern = '/^pieceJoint(\d{2})$/';
+
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|null $file */
+                /** @var UploadedFile|UploadedFile[]|null $file */
                 $file = $field->getData();
+
                 if ($file !== null) {
-                    $nomDeFichier = $file->getClientOriginalName(); //recuperer le nom de fichier
-                    // Appeler la méthode upload
-                    $this->traitementDeFichier->upload($file, $this->cheminDeBase . '/' . $numDdp . '_New_1', $nomDeFichier);
-                    $nomDesFichiers[] = $nomDeFichier;
+                    if (is_array($file)) {
+                        // Cas où c'est un tableau de fichiers
+                        foreach ($file as $singleFile) {
+                            if ($singleFile !== null) {
+                                $nomDeFichier = $singleFile->getClientOriginalName();
+                                $this->traitementDeFichier->upload(
+                                    $singleFile,
+                                    $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                    $nomDeFichier
+                                );
+                                $nomDesFichiers[] = $nomDeFichier;
+                            }
+                        }
+                    } else {
+                        // Cas où c'est un seul fichier
+                        $nomDeFichier = $file->getClientOriginalName();
+                        $this->traitementDeFichier->upload(
+                            $file,
+                            $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                            $nomDeFichier
+                        );
+                        $nomDesFichiers[] = $nomDeFichier;
+                    }
                 }
             }
         }
@@ -296,12 +340,15 @@ class DemandePaiementController extends Controller
         return $nomDesFichiers;
     }
 
-    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde, array $numerocde)
+    private function ajoutDesInfoNecessaire(DemandePaiement $data, string $numDdp, int $id, array $nomDesFichiers, array $cheminDufichierCde)
     {
         $data = $this->ajoutTypeDemande($data, $id);
-        $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
 
+        $numDossierDouanne = $this->recupNumDossierDouane($data);
+
+        $lesFichiers = $this->ajoutDesFichiers($data, $nomDesFichiers);
         $nomDefichierFusionners = array_merge($lesFichiers, $cheminDufichierCde);
+
         $data
             ->setNumeroDdp($numDdp) // ajout du numero DDP dans l'entity DDP
             // ->setAgenceDebiter($data->getAgence()->getCodeAgence())
@@ -310,11 +357,11 @@ class DemandePaiementController extends Controller
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setStatut('OUVERT')
+            ->setStatut(self::STATUT_CREATION)
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
             ->setLesFichiers($nomDefichierFusionners)
-            ->setNumeroCommande($numerocde)
+            ->setNumeroDossierDouane($numDossierDouanne)
         ;
     }
 
@@ -361,7 +408,13 @@ class DemandePaiementController extends Controller
         return $ensembleDesNomDeFichiers;
     }
 
-    private function recupCheminFichierDistant(DemandePaiement $data): array
+    /**
+     * Récupération de numero de dossier de douane
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupNumDossierDouane(DemandePaiement $data): array
     {
         $numFrs = $data->getNumeroFournisseur();
         $numCde = $data->getNumeroCommande();
@@ -372,6 +425,19 @@ class DemandePaiementController extends Controller
         $numFactString = TableauEnStringService::TableauEnString(',', $numFactures);
 
         $numDossiers = array_column($this->demandePaiementModel->getNumDossierGcot($numFrs, $numCdesString, $numFactString), 'Numero_Dossier_Douane');
+
+        return $numDossiers;
+    }
+
+    /**
+     * Recupération des chemins des fichiers distant 192.168.0.15
+     *
+     * @param DemandePaiement $data
+     * @return array
+     */
+    private function recupCheminFichierDistant(DemandePaiement $data): array
+    {
+        $numDossiers = $this->recupNumDossierDouane($data);
 
         $cheminDeFichiers = [];
         foreach ($numDossiers as $value) {

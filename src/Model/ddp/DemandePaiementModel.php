@@ -11,7 +11,7 @@ class DemandePaiementModel extends Model
 
     public function recupInfoFournissseur()
     {
-        $statement=" SELECT 
+        $statement = " SELECT 
                     FBSE_NUMFOU AS num_fournisseur,
                     UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur,  -- Prend un seul nom fournisseur
                     MIN(fbse_devise) AS devise,                  -- Prend une seule devise
@@ -50,6 +50,26 @@ class DemandePaiementModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getFournisseur()
+    {
+        $statement = "SELECT 
+                        FBSE_NUMFOU AS num_fournisseur,
+                        UPPER(MIN(FBSE_NOMFOU)) AS nom_fournisseur
+                    FROM 
+                        FRN_BSE
+                    GROUP BY 
+                        FBSE_NUMFOU
+                    ORDER BY 
+                        nom_fournisseur 
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function findListeGcot(string $numeroFournisseur, string  $numCdesString): array
     {
         $sql = " SELECT  
@@ -73,26 +93,18 @@ class DemandePaiementModel extends Model
             ";
         return $this->retournerResultGcot04($sql);
     }
-    
+
     public function getMontantFacGcot(string $numeroFournisseur, string  $numCdesString, string $numfacture): array
     {
-        $sql = " SELECT  
-            SUM(Montant_Total_Facture) as montantfacture
-            from TRZT_Dossier_Douane
-            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
-            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
-            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
-            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numfacture})
-            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}' 
-            and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
-            ";
+        $sql = "SELECT sum(montant_fob) as montantfacture  from TRZT_Facture where Numero_Facture in ({$numfacture})";
+
         return array_column($this->retournerResultGcot04($sql), 'montantfacture');
     }
 
 
 
-    public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array{
+    public function finListFacGcot(string $numeroFournisseur, string  $numCdesString): array
+    {
         $sql = " SELECT  
           distinct 
             TRZT_Facture.Numero_Facture
@@ -107,7 +119,7 @@ class DemandePaiementModel extends Model
            
         ";
 
-        return array_column($this->retournerResultGcot04($sql),'Numero_Facture');
+        return array_column($this->retournerResultGcot04($sql), 'Numero_Facture');
     }
 
     public function getNumDossierGcot(string $numeroFournisseur, string  $numCdesString, string $numFactString): array
@@ -143,14 +155,14 @@ class DemandePaiementModel extends Model
             ";
         return array_column($this->retournerResultGcot04($sql), 'numerocde');
     }
-    
+
 
     public function findListeDoc($numeroDossier)
     {
-        $sql=" SELECT  Nom_Fichier, Date_Fichier, Numero_PO
+        $sql = " SELECT  Nom_Fichier, Date_Fichier, Numero_PO
             from GCOT_Gestion_Document
             where Numero_PO='{$numeroDossier}'
-            and (Nom_Fichier like '%\PDV%' or Nom_Fichier like '%\BOL%' or Nom_Fichier like '%\HAWB%')
+            and (Nom_Fichier like '%\PDV%' or Nom_Fichier like '%\LTA%' or Nom_Fichier like '%\HAWB%')
         ";
 
         return $this->retournerResultGcot04($sql);
@@ -171,24 +183,74 @@ class DemandePaiementModel extends Model
     public function getNumCdeDw()
     {
         $sql = " SELECT DISTINCT numero_cde as numcde
-                FROM DW_Commande 
+                FROM DW_Commande where path is not null
         ";
         return array_column($this->retournerResult28($sql), 'numcde');
     }
 
 
-    public function getPathDwCommande(string $numCde): array 
+    public function getPathDwCommande(string $numCde): array
     {
-        $sql = " SELECT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
+        $sql = " SELECT DISTINCT  path, numero_cde from DW_Commande where numero_cde='{$numCde}' and date_creation = (select max(date_creation) from DW_Commande where numero_cde='{$numCde}' )";
 
         return $this->retournerResult28($sql);
     }
 
-    public function getMontantCdeAvance( string $numCde){
+    public function getMontantCdeAvance(string $numCde)
+    {
         $statement = " SELECT  sum(fcdl_pxach * fcdl_qte) as montantCde from frn_cdl where fcdl_numcde in ({$numCde})
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getModePaiement()
+    {
+        $statement = " SELECT TRIM(atab_lib) as atablib 
+                        from agr_tab 
+                        where atab_nom='PAI'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_column($this->convertirEnUtf8($data), 'atablib');
+    }
+
+    public function getDevise()
+    {
+        $statement = " SELECT adev_code as adevcode, 
+                            TRIM(adev_lib)as adevlib 
+                        from agr_dev
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return $this->convertirEnUtf8($data);
+    }
+
+    /**
+     * Recupère le numero de dossier de douane
+     *
+     * @param string $numeroFournisseur
+     * @param string $numCdesString
+     * @return array retourne une ou plusieurs valeur
+     */
+    public function getNumDossierDouane(string $numeroFournisseur, string  $numCdesString, string $numFacture): array
+    {
+        $sql = " SELECT  DISTINCT
+
+                TRZT_Dossier_Douane.Numero_Dossier_Douane 
+
+                from TRZT_Dossier_Douane
+                LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+                LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+                LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+                where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+                and TRZT_Facture.Numero_Facture in ({$numFacture})
+                and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+                and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
+            ";
+        return $this->retournerResultGcot04($sql);
     }
 }
