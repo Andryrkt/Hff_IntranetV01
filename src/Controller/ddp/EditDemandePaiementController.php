@@ -31,6 +31,8 @@ class EditDemandePaiementController extends Controller
 {
     use DdpTrait;
 
+    const STATUT_MODIFICATION = 'mModification soumis à validation';
+
     private $cdeFnrRepository;
     private $demandePaiementModel;
     private string $cheminDeBase;
@@ -69,17 +71,18 @@ class EditDemandePaiementController extends Controller
         $demandePaiement = $demandePaiement->dupliquer();
         $id = $demandePaiement->getTypeDemandeId()->getId();
         $form = self::$validator->createBuilder(DemandePaiementType::class, $demandePaiement, ['id_type' => $id])->getForm();
-        $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement);
+        $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement, $id);
         $numeroFournisseur = $demandePaiement->getNumeroFournisseur();
         $listeGcot = $this->listGcot($numeroFournisseur, $id);
         self::$twig->display('ddp/EditdemandePaiement.html.twig', [
             'id_type' => $id,
             'form' => $form->createView(),
-            'listeGcot' => $listeGcot
+            'listeGcot' => $listeGcot,
+            'numDdp' => $numDdp
         ]);
     }
 
-    public function traitementFormulaire($form, $request, $numDdp, $demandePaiement)
+    public function traitementFormulaire($form, $request, $numDdp, $demandePaiement, $id)
     {
         $form->handleRequest($request);
 
@@ -89,16 +92,33 @@ class EditDemandePaiementController extends Controller
             $numeroversion = $this->autoIncrement($this->ddpRepository->findNumeroVersionMax($numDdp));
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
-            
+
             $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
-            
-            if($id == 2) {
+
+            if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
             $nomDufichierCde = $this->recupCdeDw($data, $numDdp, $numeroversion);
+            /** TRAITEMENT FICHIER  AUTRE DOCUMENT ET BC client externe / BC client magasin*/
+            if ($data->getPieceJoint04() != null) {
+                $data->setEstAutreDoc(true)
+                    ->setNomAutreDoc($data->getPieceJoint04()->getClientOriginalName())
+                ;
+            }
+
+
+            if ($data->getPieceJoint03() != null || !empty($data->getPieceJoint03())) {
+                $nomFichierBCs = [];
+                foreach ($data->getPieceJoint03() as $value) {
+                    $nomFichierBCs[] = $value->getClientOriginalName();
+                }
+                $data->setEstCdeClientExterneDoc(true)
+                    ->setNomCdeClientExterneDoc($nomFichierBCs)
+                ;
+            }
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $demandePaiement->getTypeDemandeId()->getId(), $nomDesFichiers, $numeroversion, $nomDufichierCde);
             /** ENREGISTREMENT DANS BD */
@@ -122,7 +142,7 @@ class EditDemandePaiementController extends Controller
             /** ENVOYER DANS DW */
             $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, $numeroversion);
             /** HISTORISATION */
-            $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);
+            $this->historiqueOperation->sendNotificationSoumission('Le document a été modifié avec succès', $numDdp, 'ddp_liste', true);
         }
     }
 
@@ -359,25 +379,47 @@ class EditDemandePaiementController extends Controller
 
         return $filePath;
     }
+
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
      *
      * @param [type] $form
      * @return array
      */
-    private function enregistrementFichier($form, $numDdp, $numeroversion): array
+    private function enregistrementFichier($form, $numDdp): array
     {
         $nomDesFichiers = [];
         $fieldPattern = '/^pieceJoint(\d{2})$/';
+
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|null $file */
+                /** @var UploadedFile|UploadedFile[]|null $file */
                 $file = $field->getData();
+
                 if ($file !== null) {
-                    $nomDeFichier = $file->getClientOriginalName(); //recuperer le nom de fichier
-                    // Appeler la méthode upload
-                    $this->traitementDeFichier->upload($file, $this->cheminDeBase . '/' . $numDdp . '_New_' . $numeroversion, $nomDeFichier);
-                    $nomDesFichiers[] = $nomDeFichier;
+                    if (is_array($file)) {
+                        // Cas où c'est un tableau de fichiers
+                        foreach ($file as $singleFile) {
+                            if ($singleFile !== null) {
+                                $nomDeFichier = $singleFile->getClientOriginalName();
+                                $this->traitementDeFichier->upload(
+                                    $singleFile,
+                                    $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                    $nomDeFichier
+                                );
+                                $nomDesFichiers[] = $nomDeFichier;
+                            }
+                        }
+                    } else {
+                        // Cas où c'est un seul fichier
+                        $nomDeFichier = $file->getClientOriginalName();
+                        $this->traitementDeFichier->upload(
+                            $file,
+                            $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                            $nomDeFichier
+                        );
+                        $nomDesFichiers[] = $nomDeFichier;
+                    }
                 }
             }
         }
@@ -398,10 +440,10 @@ class EditDemandePaiementController extends Controller
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setStatut('OUVERT')
+            ->setStatut(self::STATUT_MODIFICATION)
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))
-            ->setLesFichiers($nomDefichierFusionners)   
+            ->setLesFichiers($nomDefichierFusionners)
         ;
     }
     private function autoIncrement($num)

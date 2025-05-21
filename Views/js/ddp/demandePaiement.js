@@ -664,7 +664,7 @@ document.addEventListener("DOMContentLoaded", function () {
   initializeFileHandlersMultiple("3", fileInput3);
 
   const fileInput4 = document.querySelector("#demande_paiement_pieceJoint04");
-  initializeFileHandlersNouveau("4", fileInput2);
+  initializeFileHandlersNouveau("4", fileInput4);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer

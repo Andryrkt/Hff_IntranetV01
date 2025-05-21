@@ -104,11 +104,11 @@ class DemandePaiementController extends Controller
                 ;
             }
 
-            $nomFichierBCs = [];
-            foreach ($data->getPieceJoint03() as $value) {
-                $nomFichierBCs[] = $value->getClientOriginalName();
-            }
-            if ($data->getPieceJoint03() != null) {
+            if ($data->getPieceJoint03() != null || !empty($data->getPieceJoint03())) {
+                $nomFichierBCs = [];
+                foreach ($data->getPieceJoint03() as $value) {
+                    $nomFichierBCs[] = $value->getClientOriginalName();
+                }
                 $data->setEstCdeClientExterneDoc(true)
                     ->setNomCdeClientExterneDoc($nomFichierBCs)
                 ;
