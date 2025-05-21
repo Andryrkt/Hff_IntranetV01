@@ -336,7 +336,9 @@ class EditDemandePaiementController extends Controller
         // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
         $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
-        $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString);
+        $numFacs = $this->demandePaiementModel->getFactureNonReglee($numeroFournisseur);
+        $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);
+        $listeGcot = $this->demandePaiementModel->findListeGcot($numeroFournisseur, $numCdesString, $numFacString);
         return $listeGcot;
     }
 
