@@ -59,6 +59,7 @@ class DaDetailController extends Controller
             'idDit'             => $id,
             'numeroVersionMax'  => $numeroVersionMax,
             'numDa'             => $numDa,
+            'nomFichierRefZst' => $demandeAppro->getNonFichierRefZst()
         ]);
     }
 
