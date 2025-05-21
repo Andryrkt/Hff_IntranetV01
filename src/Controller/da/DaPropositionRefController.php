@@ -31,6 +31,8 @@ class DaPropositionRefController extends Controller
 
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'soumis à l’ATE';
+    private const DA_STATUT_SOUMIS_APPRO = 'soumis à l’appro';
+    private const DA_STATUT_VALIDE = 'Bon validé';
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -85,7 +87,8 @@ class DaPropositionRefController extends Controller
             'form' => $form->createView(),
             'observations' => $observations,
             'numDa' => $numDa,
-            'estAte' => $this->estUserDansServiceAtelier()
+            'estAte' => $this->estUserDansServiceAtelier(),
+            'nePeutPasModifier' => $this->nePeutPasModifier($da)
         ]);
     }
 
@@ -93,6 +96,11 @@ class DaPropositionRefController extends Controller
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_ATELIER, $serviceIds);
+    }
+
+    private function nePeutPasModifier($demandeAppro)
+    {
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == self::DA_STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $dals, Request $request, string $numDa, DemandeAppro $da)

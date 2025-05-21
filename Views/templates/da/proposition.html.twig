@@ -25,7 +25,7 @@
 						</h3>
 					</div>
 
-					<div class="d-flex justify-content-start {{ estAte ? '' : 'd-none'}}">
+					<div class="d-flex justify-content-start {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}">
 						<div>
 							<a href="{{ path("da_edit", {id: dit_id})}}" class="btn bouton mt-2 me-4" target="_blank">
 								Modifier la demande
@@ -46,7 +46,9 @@
 		<div id="child-prototype" style="display: none;">
 			{{ form_widget(form.DALR.vars.prototype)|raw }}
 		</div>
-		{{ form_row(form.observation)}}
+		<div class="{{ nePeutPasModifier ? 'd-none' : ''}}">
+			{{ form_row(form.observation)}}
+		</div>
 		<div class="d-flex justify-content-between mt-2">
 			<div>
 				<div class="">
@@ -56,13 +58,13 @@
 					</button>
 				</div>
 				<div>
-					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
+					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
 						Changement de choix proposition
 						<i class="fa-solid fa-square-arrow-up-right"></i>
 					</button>
 				</div>
 			</div>
-			<div class="d-flex justify-content-end">
+			<div class="d-flex justify-content-end {{ nePeutPasModifier ? 'd-none' : ''}}">
 				<div style="margin-right: 13px; margin-top: 13px;">
 					{{ form_row(form.estValidee)}}
 				</div>
