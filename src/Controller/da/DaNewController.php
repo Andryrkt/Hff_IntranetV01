@@ -103,12 +103,13 @@ class DaNewController extends Controller
                 self::$em->persist($DAL);
             }
 
+            /** Modifie la colonne dernière_id dans la table applications */
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
             $application->setDerniereId($demandeAppro->getNumeroDemandeAppro());
-
             self::$em->persist($application);
+
             self::$em->persist($demandeAppro);
-            // dd($demandeAppro->getObservation());
+
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro);
             }
@@ -117,9 +118,11 @@ class DaNewController extends Controller
 
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
-                'numDa'        => $demandeAppro->getNumeroDemandeAppro(),
+                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
+                'service'       => 'atelier',
+                'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
 
@@ -143,7 +146,7 @@ class DaNewController extends Controller
                 'statut'     => "newDa",
                 'subject'    => "{$tab['numDa']} - Nouvelle demande d'approvisionnement créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
