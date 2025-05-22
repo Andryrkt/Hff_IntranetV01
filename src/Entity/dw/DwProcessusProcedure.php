@@ -7,12 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dw\DwOrdreDeReparation;
 use App\Entity\dw\DwDemandeIntervention;
 use App\Entity\dw\DwRapportIntervention;
+use App\Repository\dw\DwProcessusProcedureRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=DwProcessusProcedureRepository::class)
  * @ORM\Table(name="DW_Processus_procedure")
  * @ORM\HasLifecycleCallbacks
  */
