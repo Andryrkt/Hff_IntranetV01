@@ -58,11 +58,11 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
+
         $this->sessionService->remove('firstCharge');
 
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
-
 
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
