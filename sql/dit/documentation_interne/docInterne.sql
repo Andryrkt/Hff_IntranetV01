@@ -11,7 +11,7 @@ CREATE TABLE DW_Processus_procedure (
     derniere_modification DATE,
     numero_version INT,
     code_service VARCHAR(3),
-    code_agence VARCHAR(2),
+    code_agence VARCHAR(3),
     statut VARCHAR(50),
     perimetre VARCHAR(50),
     mot_cle VARCHAR(1000),
