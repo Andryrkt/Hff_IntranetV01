@@ -12,7 +12,7 @@
 			Liste des documents
 		</h3>
 		{% include "/partials/_notification.html.twig" %}
-		{# {% include "/dw/shared/_formulaireRecherche.html.twig" %} #}
+		{% include "/dw/shared/_formulaireRechercheDocInterne.html.twig" %}
 		{# {% include "/dw/shared/_pagination.html.twig" %} #}
 	</div>
 
@@ -22,7 +22,6 @@
 			<thead class="table-dark">
 				<tr>
 					<th>Date</th>
-					<th>N° document</th>
 					<th>Type de document</th>
 					<th>Périmètre de diffusion</th>
 					<th>Nom du document</th>
@@ -36,7 +35,6 @@
 				{% for item in data %}
 					<tr>
 						<td>{{ item.dateDocument}}</td>
-						<td>{{ item.nomDocument}}</td>
 						<td>{{ item.typeDocument}}</td>
 						<td>{{ item.perimetre}}</td>
 						<td>{{ item.nomDocument}}</td>
