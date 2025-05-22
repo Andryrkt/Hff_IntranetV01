@@ -12,7 +12,7 @@ class GeneratePdf
     public function __construct()
     {
         $this->baseCheminDuFichier = $_ENV['BASE_PATH_FICHIER'] . '/';
-        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'].'/';
+        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
     }
 
     private function copyFile(string $sourcePath, string $destinationPath): void
@@ -46,8 +46,8 @@ class GeneratePdf
     // ORDRE DE REPARATION (OR)
     public function copyToDw($numeroVersion, $numeroOR, $suffix)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#'.$suffix.'.pdf';
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion .'#'.$suffix. '.pdf';
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'vor/oRValidation_' . $numeroOR . '-' . $numeroVersion . '#' . $suffix . '.pdf';
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -60,7 +60,7 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    
+
     public function copyToDwFacture($numeroVersion, $numeroDoc)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/validation_facture_client_' . $numeroDoc . '_' . $numeroVersion . '.pdf';
@@ -68,15 +68,14 @@ class GeneratePdf
         copy($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    
+
     public function copyToDwFactureFichier($numeroVersion, $numeroDoc, array $pathFichiers)
     {
-        for ($i=0; $i < count($pathFichiers); $i++) { 
-            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion .'_'.$i.'.pdf';
+        for ($i = 0; $i < count($pathFichiers); $i++) {
+            $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
             copy($cheminDestinationLocal, $cheminFichierDistant);
         }
-        
     }
 
     //Rapport d'intervention
@@ -107,14 +106,14 @@ class GeneratePdf
     }
 
     public function copyToDWFichierDevisSoumis($fileName)
-    {   
+    {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWFichierDevisSoumisVp($fileName)
-    {   
+    {
         $cheminFichierDistant = $this->baseCheminDocuware . 'VERIFICATION_PRIX/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/dev/fichiers/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
@@ -127,48 +126,48 @@ class GeneratePdf
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'dit/ac_bc/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
-    
+
     //commande fournisseur
     public function copyToDWCdeFnrSoumis($fileName)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'cde_fournisseur/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
 
     /** DEMANDE DE PAIEMENT */
-    public function copyToDwDdp(string $fileName)
+    public function copyToDwDdp(string $fileName, $numDdp, $numeroversion)
     {
-        $cheminFichierDistant = $this->baseCheminDocuware. 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/fichiers/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'ddp/' . $numDdp . '_New_' . $numeroversion . '/' . $fileName;
+        $cheminFichierDistant = $this->baseCheminDocuware . 'DEMANDE_DE_PAIEMENT/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-/**
- * Méthode pour ajouter un titre au PDF
- * 
- * @param TCPDF $pdf le pdf à générer
- * @param string $title le titre du pdf
- * @param string $font le style de la police pour le titre
- * @param string $style le font-weight du titre
- * @param int $size le font-size du titre
- * @param string $align l'alignement
- * @param int $lineBreak le retour à la ligne
- */
-protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
-{
-    $pdf->setFont($font, $style, $size);
+    /**
+     * Méthode pour ajouter un titre au PDF
+     * 
+     * @param TCPDF $pdf le pdf à générer
+     * @param string $title le titre du pdf
+     * @param string $font le style de la police pour le titre
+     * @param string $style le font-weight du titre
+     * @param int $size le font-size du titre
+     * @param string $align l'alignement
+     * @param int $lineBreak le retour à la ligne
+     */
+    protected function addTitle(TCPDF $pdf, string $title, string $font = 'helvetica', string $style = 'B', int $size = 10, string $align = 'L', int $lineBreak = 5)
+    {
+        $pdf->setFont($font, $style, $size);
 
-    // Calculer la largeur de la cellule en fonction de la page
-    $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
+        // Calculer la largeur de la cellule en fonction de la page
+        $pageWidth = $pdf->getPageWidth() - $pdf->getMargins()['left'] - $pdf->getMargins()['right'];
 
-    // Utiliser MultiCell pour gérer les titres longs
-    $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
+        // Utiliser MultiCell pour gérer les titres longs
+        $pdf->MultiCell($pageWidth, 6, $title, 0, $align, false, 1, '', '', true);
 
-    // Ajouter un espace après le titre
-    $pdf->Ln($lineBreak, true);
-}
+        // Ajouter un espace après le titre
+        $pdf->Ln($lineBreak, true);
+    }
 
     /** 
      * Méthode pour ajouter des détails (sommaire) au PDF

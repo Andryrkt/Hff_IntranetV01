@@ -54,8 +54,8 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
-        
-    
+
+
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
@@ -91,12 +91,12 @@ class DitFactureSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
 
-            $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
+            $this->ditFactureSoumiAValidation->setNumeroFact($numFac);
 
             $numFac = $this->ditFactureSoumiAValidation->getNumeroFact();
-            
+
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
-            
+
             // $numItv = $this->ditFactureSoumiAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor'], $numFac);
             // $numItvValide = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
 
@@ -117,12 +117,12 @@ class DitFactureSoumisAValidationController extends Controller
 
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
-            
+
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
                 $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
-            } elseif (!(int)$nbFact > 0 ) {
+            } elseif (!(int)$nbFact > 0) {
                 $message = "La facture ne correspond pas à l’OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
             }

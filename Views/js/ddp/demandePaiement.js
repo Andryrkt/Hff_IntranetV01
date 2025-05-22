@@ -1,10 +1,10 @@
 import { FetchManager } from "../api/FetchManager.js";
-import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
-import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import {
-  AutoComplete,
-  MultiSelectAutoComplete,
-} from "../utils/AutoComplete.js";
+  initializeFileHandlersNouveau,
+  initializeFileHandlersMultiple,
+} from "../utils/file_upload_Utils.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+import { AutoComplete } from "../utils/AutoComplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 import { allowOnlyNumbers, limitInputLength } from "../utils/inputUtils.js";
@@ -12,6 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
+  formaterNombre,
 } from "../utils/formatNumberUtils.js";
 import { baseUrl } from "../utils/config.js";
 
@@ -57,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     numFrnInput.value = item.num_fournisseur;
     beneficiaireInput.value = item.nom_fournisseur;
     deviseInput.value = item.devise;
-    modePaiementInput.value = item.mode_paiement;
+    // modePaiementInput.value = item.mode_paiement;
     ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
@@ -65,21 +66,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Récupérer les facture
     if (typeId == 2) {
-      listeFacture(item.num_fournisseur);
-      listeCommande2(item.num_fournisseur);
+      listeFacture(item.num_fournisseur, typeId);
+      listeCommande2(item.num_fournisseur, typeId);
       //  pour affichage de tableau de facture
-      updateCommandesFournisseur(item.num_fournisseur);
+      updateCommandesFournisseur(item.num_fournisseur, typeId);
 
       $("#demande_paiement_numeroFacture").on("change", () => {
-        changeCommandeSelonFacture(item.num_fournisseur);
+        changeCommandeSelonFacture(item.num_fournisseur, typeId);
       });
 
-      $("#demande_paiement_numeroCommande").on("change", () => {
-        changeFactureSelonCommande(item.num_fournisseur);
-      });
+      // $("#demande_paiement_numeroCommande").on("change", () => {
+      //   changeFactureSelonCommande(item.num_fournisseur, typeId);
+      // });
     } else {
+      $("#demande_paiement_numeroCommande").on("change", async function () {
+        const numCdes = $(this).val();
+        console.log("Valeur tableau à envoyer :", numCdes);
+        let numCde;
+        if (numCdes.length == 0) {
+          numCde = 0;
+        } else {
+          numCde = numCdes.join(",");
+        }
+
+        console.log("Valeur string à envoyer :", numCdes);
+        try {
+          const montants = await fetchManager.get(
+            `api/montant-commande/${numCde}`
+          );
+          if (this.length != 0) {
+            montantInput.value = montants[0].montantcde;
+          } else {
+            montantInput.value = "";
+          }
+        } catch (err) {
+          console.error("Erreur lors de la récupération des montants :", err);
+        }
+      });
+
       //  Récupérer les commandes du fournisseur après la sélection
-      listeCommande(item.num_fournisseur);
+      listeCommande(item.num_fournisseur, typeId);
     }
   }
 
@@ -107,10 +133,10 @@ document.addEventListener("DOMContentLoaded", function () {
    * numero commande
    *==========================*/
 
-  async function listeCommande(numFournisseur) {
+  async function listeCommande(numFournisseur, id_type) {
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${id_type}`
       );
 
       ajoutDesOptions(numCommandeInput, commandes.numCdes);
@@ -127,10 +153,10 @@ document.addEventListener("DOMContentLoaded", function () {
     width: "100%",
   });
 
-  async function listeCommande2(numFournisseur) {
+  async function listeCommande2(numFournisseur, id_type) {
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${id_type}`
       );
 
       const listeCommande = transformTab(commandes.listeGcot, "Numero_PO");
@@ -169,10 +195,12 @@ document.addEventListener("DOMContentLoaded", function () {
   /**================
    * numéro facture
    ==================*/
-  async function listeFacture(numFournisseur) {
+  async function listeFacture(numFournisseur, typeId) {
     try {
+      console.log(numFournisseur);
+
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       const listeFacture = transformTab(commandes.listeGcot, "Numero_Facture");
@@ -186,7 +214,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  /** permet du choix multiple */
+  /**
+   * permet du choix multiple */
   $("#demande_paiement_numeroFacture").select2({
     placeholder: "-- Choisir les factures --",
     allowClear: true,
@@ -194,7 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
     width: "100%",
   });
 
-  async function changeCommandeSelonFacture(numFournisseur) {
+  async function changeCommandeSelonFacture(numFournisseur, typeId) {
     if (isUpdatingFacture) return; // évite le rebouclage
     isUpdatingCommande = true;
 
@@ -203,7 +232,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       // Filtrer les factures correspondant à au moins une facture sélectionnée
@@ -222,14 +251,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Définir les valeurs sélectionnées directement
       $(numCommandeInput).val(numerosPO).trigger("change");
+
+      const facturesString = facturesCorrespondantes
+        .map((f) => f.Numero_Facture) // extrait chaque numéro
+        .join(",");
+      if (numFacs.length === 0) {
+        montantInput.value = "";
+      }
+
+      console.log(facturesCorrespondantes, facturesString);
+      const montantFacture = await fetchManager.get(
+        `api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`
+      );
+      console.log(formaterNombre(montantFacture[0], " "));
+
+      montantInput.value = formaterNombre(montantFacture[0], " ");
     } catch (error) {
-      console.error("Erreur lors de la récupération des commandes :", error);
+      console.error(
+        "Erreur lors de la récupération du montant facture :",
+        error
+      );
     } finally {
       isUpdatingCommande = false;
     }
   }
 
-  async function changeFactureSelonCommande(numFournisseur) {
+  async function changeFactureSelonCommande(numFournisseur, typeId) {
     if (isUpdatingCommande) return;
     isUpdatingFacture = true;
 
@@ -238,21 +285,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     try {
       const commandes = await fetchManager.get(
-        `api/num-cde-frn/${numFournisseur}`
+        `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
 
       // Filtrer les factures correspondant à au moins une facture sélectionnée
-      const commandeCorrespondantes = commandes.listeGcot.filter((f) =>
-        numCdes.includes(f.Numero_PO)
-      );
+      // const commandeCorrespondantes = commandes.listeGcot.filter((f) =>
+      //   numCdes.includes(f.Numero_PO)
+      // );
 
       // Extraire les Numero_PO uniques
-      const numerosFac = [
-        ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
-      ];
+      // const numerosFac = [
+      //   ...new Set(commandeCorrespondantes.map((f) => f.Numero_Facture)),
+      // ];
 
-      recupFichier(commandeCorrespondantes);
-      console.log("Numero_facture à sélectionner :", numerosFac);
+      // recupFichier(commandeCorrespondantes);
+      // console.log("Numero_facture à sélectionner :", numerosFac);
 
       // Définir les valeurs sélectionnées directement
       $(numFactureInput).val(numerosFac).trigger("change");
@@ -394,9 +441,9 @@ document.addEventListener("DOMContentLoaded", function () {
    * Permet d'afficher le tableau de facture
    * @param {string} numFournisseur
    */
-  async function updateCommandesFournisseur(numFournisseur) {
+  async function updateCommandesFournisseur(numFournisseur, typeId) {
     const commandes = await fetchManager.get(
-      `api/num-cde-frn/${numFournisseur}`
+      `api/num-cde-frn/${numFournisseur}/${typeId}`
     );
 
     const $tableauContainer = document.querySelector("#tableau_facture");
@@ -425,7 +472,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tableauComponent.mount("tableau_facture");
   }
 
-  //fonction qui permet de fuisionner
+  //fonction qui permet de fusionner les ligne du tableau facture
   function customRenderRow(row, index, data, columns) {
     const tr = document.createElement("tr");
     const columnsToMerge = [
@@ -608,13 +655,16 @@ document.addEventListener("DOMContentLoaded", function () {
    * FICHIER
    * =============================*/
   const fileInput1 = document.querySelector("#demande_paiement_pieceJoint01");
-  initializeFileHandlers("1", fileInput1);
+  initializeFileHandlersNouveau("1", fileInput1);
 
   const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
-  initializeFileHandlers("2", fileInput2);
+  initializeFileHandlersNouveau("2", fileInput2);
 
   const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
-  initializeFileHandlers("3", fileInput3);
+  initializeFileHandlersMultiple("3", fileInput3);
+
+  const fileInput4 = document.querySelector("#demande_paiement_pieceJoint04");
+  initializeFileHandlersNouveau("4", fileInput4);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer
@@ -695,32 +745,32 @@ document.addEventListener("DOMContentLoaded", function () {
    * TEST
    */
 
-  document.getElementById("tester").addEventListener("click", async () => {
-    const cheminRelatif = "DD0070A25/PDV_10236125.PDF";
-    const url = `/Hffintranet/api/recuperer-fichier?path=${encodeURIComponent(
-      cheminRelatif
-    )}`;
+  // document.getElementById("tester").addEventListener("click", async () => {
+  //   const cheminRelatif = "DD0070A25/PDV_10236125.PDF";
+  //   const url = `/Hffintranet/api/recuperer-fichier?path=${encodeURIComponent(
+  //     cheminRelatif
+  //   )}`;
 
-    try {
-      const response = await fetch(url);
-      const text = await response.text(); // récupération brute
-      const data = JSON.parse(text); // conversion en objet
+  //   try {
+  //     const response = await fetch(url);
+  //     const text = await response.text(); // récupération brute
+  //     const data = JSON.parse(text); // conversion en objet
 
-      if (data.success) {
-        alert(data.message);
+  //     if (data.success) {
+  //       alert(data.message);
 
-        // ⚠️ Windows uniquement, et fonctionne seulement si l'utilisateur a accès au chemin réseau
-        const cheminWindows = data.chemin.replace(/\\\\/g, "\\\\"); // sécurité, double échappement
-        const lienFile = `file://${cheminWindows.replace(/\\/g, "/")}`; // file:// + conversion en URL
+  //       // ⚠️ Windows uniquement, et fonctionne seulement si l'utilisateur a accès au chemin réseau
+  //       const cheminWindows = data.chemin.replace(/\\\\/g, "\\\\"); // sécurité, double échappement
+  //       const lienFile = `file://${cheminWindows.replace(/\\/g, "/")}`; // file:// + conversion en URL
 
-        // Ouvrir dans une nouvelle fenêtre ou onglet
-        window.open(lienFile, "_blank");
-      } else {
-        alert(data.message);
-      }
-    } catch (error) {
-      console.error("Erreur JSON ou réseau :", error);
-      alert("Erreur de communication avec le serveur.");
-    }
-  });
+  //       // Ouvrir dans une nouvelle fenêtre ou onglet
+  //       window.open(lienFile, "_blank");
+  //     } else {
+  //       alert(data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error("Erreur JSON ou réseau :", error);
+  //     alert("Erreur de communication avec le serveur.");
+  //   }
+  // });
 });

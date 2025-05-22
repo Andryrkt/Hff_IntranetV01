@@ -129,6 +129,25 @@ class DemandeAppro
 
     private ?DemandeIntervention $dit = null;
 
+    private $observation;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_email")
+     */
+    private ?string $statutEmail = '';
+
+    /**
+     * @ORM\Column(type="boolean", name="est_validee")
+     */
+    private $estValidee = false;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="valide_par")
+     */
+    private string $validePar;
+
+    private $numDossierDouane;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -487,6 +506,11 @@ class DemandeAppro
         }
     }
 
+    public function setDAL(Collection $collection): self
+    {
+        $this->DAL = $collection;
+        return $this;
+    }
     /**
      * Get the value of demandeur
      */
@@ -509,7 +533,7 @@ class DemandeAppro
 
     /**
      * Get the value of idMateriel
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -519,10 +543,110 @@ class DemandeAppro
      * Set the value of idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation()
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     *
+     * @return  self
+     */
+    public function setObservation($observation)
+    {
+        $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutEmail
+     */
+    public function getStatutEmail()
+    {
+        return $this->statutEmail;
+    }
+
+    /**
+     * Set the value of statutEmail
+     *
+     * @return  self
+     */
+    public function setStatutEmail($statutEmail)
+    {
+        $this->statutEmail = $statutEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estValidee
+     */
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    /**
+     * Set the value of estValidee
+     *
+     * @return  self
+     */
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validePar
+     */
+    public function getValidePar()
+    {
+        return $this->validePar;
+    }
+
+    /**
+     * Set the value of validePar
+     *
+     * @return  self
+     */
+    public function setValidePar($validePar)
+    {
+        $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numDossierDouane
+     */ 
+    public function getNumDossierDouane()
+    {
+        return $this->numDossierDouane;
+    }
+
+    /**
+     * Set the value of numDossierDouane
+     *
+     * @return  self
+     */ 
+    public function setNumDossierDouane($numDossierDouane)
+    {
+        $this->numDossierDouane = $numDossierDouane;
 
         return $this;
     }

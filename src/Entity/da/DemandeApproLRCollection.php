@@ -11,6 +11,15 @@ class DemandeApproLRCollection
 {
     private Collection $DALR;
 
+    private $Observation;
+
+    private $estValidee = false;
+
+    /**===========================================================================
+     * GETTER & SETTER
+     *
+     *==========================================================================*/
+
     public function __construct()
     {
         $this->DALR = new ArrayCollection();
@@ -36,6 +45,38 @@ class DemandeApproLRCollection
     public function setDALR(Collection $DALR): self
     {
         $this->DALR = $DALR;
+        return $this;
+    }
+
+    /**
+     * Get the value of Observation
+     */
+    public function getObservation()
+    {
+        return $this->Observation;
+    }
+
+    /**
+     * Set the value of Observation
+     *
+     * @return  self
+     */
+    public function setObservation($Observation)
+    {
+        $this->Observation = $Observation;
+
+        return $this;
+    }
+
+    public function getEstValidee()
+    {
+        return $this->estValidee;
+    }
+
+    public function setEstValidee($estValidee)
+    {
+        $this->estValidee = $estValidee;
+
         return $this;
     }
 }

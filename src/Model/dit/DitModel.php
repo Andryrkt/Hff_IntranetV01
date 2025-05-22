@@ -137,7 +137,8 @@ class DitModel extends Model
   // }
 
 
-    public function historiqueMateriel($idMateriel) {
+  public function historiqueMateriel($idMateriel)
+  {
 
     $statement = " SELECT
 

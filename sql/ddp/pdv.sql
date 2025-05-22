@@ -62,7 +62,7 @@ INSERT INTO type_demande
     (code_type_demande, libelle_type_demande, description)
 VALUES
     ('DPA', 'Demande de paiement à l''avance', null),
-    ('DPL', 'Demande de paiement après livraison', null)
+    ('DPL', 'Demande de paiement après arrivage', null)
 
 CREATE TABLE demande_paiement_ligne
 (
@@ -101,3 +101,40 @@ CREATE TABLE historique_statut_ddp
     date DATETIME2 (3),
     CONSTRAINT PK_historique_statut_ddp PRIMARY KEY (id)
 );
+
+
+ALTER TABLE document_demande_paiement
+ADD nom_dossier VARCHAR(255)
+
+ALTER TABLE document_demande_paiement
+ADD num_ddr VARCHAR(11)
+
+ALTER TABLE demande_paiement
+ADD statut_dossier_regul VARCHAR(100)
+
+ALTER TABLE demande_paiement
+ADD numeroVersion int
+
+ALTER TABLE demande_paiement_ligne
+ADD numeroVersion int
+
+ALTER TABLE document_demande_paiement
+ADD numeroVersion int
+
+ALTER TABLE demande_paiement
+ADD devis varchar(5)
+
+ALTER TABLE demande_paiement
+ADD est_autre_doc bit DEFAULT 0
+
+ALTER TABLE demande_paiement
+ADD nom_autre_doc VARCHAR(255)
+
+ALTER TABLE demande_paiement
+ADD est_cde_client_externe_doc bit DEFAULT 0
+
+ALTER TABLE demande_paiement
+ADD nom_cde_client_externe_doc VARCHAR(max)
+
+ALTER TABLE demande_paiement
+ADD numero_dossier_douane VARCHAR(max)

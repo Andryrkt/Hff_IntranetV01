@@ -161,9 +161,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-/**
+/** ====================================
  * MODAL TYPE DE DEMANDE Paiement
- */
+ *=======================================*/
 
 document.addEventListener("DOMContentLoaded", function () {
   const modalTypeDemande = document.getElementById("modalTypeDemande");

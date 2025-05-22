@@ -31,13 +31,14 @@ $config = Setup::createAnnotationMetadataConfiguration(
 );
 
 $config->setProxyNamespace('App\\Proxies');
-$config->setAutoGenerateProxyClasses(false); // en dev
+$config->setAutoGenerateProxyClasses(false); // en mode dev true / mode prod false
 
 
 // Configuration DB
 $dbParams = [
     'driver'   => 'pdo_sqlsrv',
     'host'     => $_ENV["DB_HOST"],
+    'port'     => '1433',
     'user'     => $_ENV["DB_USERNAME"],
     'password' => $_ENV["DB_PASSWORD"],
     'dbname'   => $_ENV["DB_NAME"],

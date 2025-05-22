@@ -65,7 +65,7 @@ class DemandePaiement
      *
      * @var string|null
      */
-    private ?string $motif ='';
+    private ?string $motif = '';
 
     /**
      * @ORM\Column(type="string", length=2, name="agence_a_debiter")
@@ -127,32 +127,73 @@ class DemandePaiement
      * @ORM\Column(type="json", name="numero_commande")
      */
     private $numeroCommande = [];
-    
+
     /**
      * @ORM\Column(type="json", name="numero_facture")
      */
     private $numeroFacture = [];
 
+    /**
+     * @ORM\Column(type="string", length=5, name="devise")
+     *
+     * @var [type]
+     */
+    private $devise;
 
-    private string $montantAPayer;
+    /**
+     * @ORM\Column(type="string", length=100, name="statut_dossier_regul")
+     *
+     * @var string|null
+     */
+    private ?string $statutDossierRegul;
 
-    private ?string $devise;
-    
-    private $pieceJoint01; // proforma facture fournisseur
+    /**
+     * @ORM\Column(type="integer", name="numeroVersion")
+     */
+    private ?int $numeroVersion = 0;
 
-    private $pieceJoint02; //Contrôle livraison
+    /**
+     * @ORM\Column(type="boolean", name="est_autre_doc")
+     */
+    private $estAutreDoc = false;
 
-    private $pieceJoint03; //rib fournisseur
-    
+    /**
+     * @ORM\Column(type="string", length=100, name="nom_autre_doc")
+     */
+    private ?string $nomAutreDoc;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_cde_client_externe_doc")
+     */
+    private $estCdeClientExterneDoc = false;
+
+    /**
+     * @ORM\Column(type="json", name="nom_cde_client_externe_doc")
+     */
+    private $nomCdeClientExterneDoc = [];
+
+    /**
+     * @ORM\Column(type="json", name="numero_dossier_douane")
+     */
+    private $numeroDossierDouane = [];
+
+    private string $montantAPayer = '0';
+
+    private $pieceJoint01;
+
+    private $pieceJoint02;
+
+    private array $pieceJoint03 = [];
+
+    private $pieceJoint04;
+
     private $commandeFichier;
-    
+
     private $factureFournisseurFichier;
-    
+
     private $titreDeTransportFichier;
-    
+
     private $lesFichiers;
-
-
 
     /**===========================================================================
      * GETTER & SETTER
@@ -161,7 +202,7 @@ class DemandePaiement
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -171,7 +212,7 @@ class DemandePaiement
      * Get the value of numero
      *
      * @return  string|null
-     */ 
+     */
     public function getNumeroDdp()
     {
         return $this->numeroDdp;
@@ -183,7 +224,7 @@ class DemandePaiement
      * @param  string|null  $numero
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDdp($numeroDdp)
     {
         $this->numeroDdp = $numeroDdp;
@@ -193,7 +234,7 @@ class DemandePaiement
 
     /**
      * Get the value of typeDemandeId
-     */ 
+     */
     public function getTypeDemandeId()
     {
         return $this->typeDemandeId;
@@ -203,7 +244,7 @@ class DemandePaiement
      * Set the value of typeDemandeId
      *
      * @return  self
-     */ 
+     */
     public function setTypeDemandeId($typeDemandeId)
     {
         $this->typeDemandeId = $typeDemandeId;
@@ -215,7 +256,7 @@ class DemandePaiement
      * Get the value of numeroFournisseur
      *
      * @return  string|null
-     */ 
+     */
     public function getNumeroFournisseur()
     {
         return $this->numeroFournisseur;
@@ -227,7 +268,7 @@ class DemandePaiement
      * @param  string|null  $numeroFournisseur
      *
      * @return  self
-     */ 
+     */
     public function setNumeroFournisseur($numeroFournisseur)
     {
         $this->numeroFournisseur = $numeroFournisseur;
@@ -239,7 +280,7 @@ class DemandePaiement
      * Get the value of ribFournisseur
      *
      * @return  string|null
-     */ 
+     */
     public function getRibFournisseur()
     {
         return $this->ribFournisseur;
@@ -251,7 +292,7 @@ class DemandePaiement
      * @param  string|null  $ribFournisseur
      *
      * @return  self
-     */ 
+     */
     public function setRibFournisseur($ribFournisseur)
     {
         $this->ribFournisseur = $ribFournisseur;
@@ -263,7 +304,7 @@ class DemandePaiement
      * Get the value of beneficiaire
      *
      * @return  string|null
-     */ 
+     */
     public function getBeneficiaire()
     {
         return $this->beneficiaire;
@@ -275,7 +316,7 @@ class DemandePaiement
      * @param  string|null  $beneficiaire
      *
      * @return  self
-     */ 
+     */
     public function setBeneficiaire($beneficiaire)
     {
         $this->beneficiaire = $beneficiaire;
@@ -287,7 +328,7 @@ class DemandePaiement
      * Get the value of motif
      *
      * @return  string|null
-     */ 
+     */
     public function getMotif()
     {
         return $this->motif;
@@ -299,7 +340,7 @@ class DemandePaiement
      * @param  string|null  $motif
      *
      * @return  self
-     */ 
+     */
     public function setMotif($motif)
     {
         $this->motif = $motif;
@@ -311,7 +352,7 @@ class DemandePaiement
      * Get the value of agenceDebiter
      *
      * @return  string|null
-     */ 
+     */
     public function getAgenceDebiter()
     {
         return $this->agenceDebiter;
@@ -323,7 +364,7 @@ class DemandePaiement
      * @param  string|null  $agenceDebiter
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebiter($agenceDebiter)
     {
         $this->agenceDebiter = $agenceDebiter;
@@ -335,7 +376,7 @@ class DemandePaiement
      * Get the value of serviceDebiter
      *
      * @return  string|null
-     */ 
+     */
     public function getServiceDebiter()
     {
         return $this->serviceDebiter;
@@ -347,7 +388,7 @@ class DemandePaiement
      * @param  string|null  $serviceDebiter
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebiter($serviceDebiter)
     {
         $this->serviceDebiter = $serviceDebiter;
@@ -359,7 +400,7 @@ class DemandePaiement
      * Get the value of statut
      *
      * @return  string|null
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -371,7 +412,7 @@ class DemandePaiement
      * @param  string|null  $statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
@@ -383,7 +424,7 @@ class DemandePaiement
      * Get the value of adresseMailDemandeur
      *
      * @return  string|null
-     */ 
+     */
     public function getAdresseMailDemandeur()
     {
         return $this->adresseMailDemandeur;
@@ -395,7 +436,7 @@ class DemandePaiement
      * @param  string|null  $adresseMailDemandeur
      *
      * @return  self
-     */ 
+     */
     public function setAdresseMailDemandeur($adresseMailDemandeur)
     {
         $this->adresseMailDemandeur = $adresseMailDemandeur;
@@ -407,7 +448,7 @@ class DemandePaiement
      * Get the value of demandeur
      *
      * @return  string|null
-     */ 
+     */
     public function getDemandeur()
     {
         return $this->demandeur;
@@ -419,7 +460,7 @@ class DemandePaiement
      * @param  string|null  $demandeur
      *
      * @return  self
-     */ 
+     */
     public function setDemandeur($demandeur)
     {
         $this->demandeur = $demandeur;
@@ -427,11 +468,11 @@ class DemandePaiement
         return $this;
     }
 
-    
+
 
     /**
      * Get the value of numeroCommande
-     */ 
+     */
     public function getNumeroCommande()
     {
         return $this->numeroCommande;
@@ -441,7 +482,7 @@ class DemandePaiement
      * Set the value of numeroCommande
      *
      * @return  self
-     */ 
+     */
     public function setNumeroCommande($numeroCommande)
     {
         $this->numeroCommande = $numeroCommande;
@@ -451,7 +492,7 @@ class DemandePaiement
 
     /**
      * Get the value of numeroFacture
-     */ 
+     */
     public function getNumeroFacture()
     {
         return $this->numeroFacture;
@@ -461,7 +502,7 @@ class DemandePaiement
      * Set the value of numeroFacture
      *
      * @return  self
-     */ 
+     */
     public function setNumeroFacture($numeroFacture)
     {
         $this->numeroFacture = $numeroFacture;
@@ -471,7 +512,7 @@ class DemandePaiement
 
     /**
      * Get the value of contact
-     */ 
+     */
     public function getContact()
     {
         return $this->contact;
@@ -481,7 +522,7 @@ class DemandePaiement
      * Set the value of contact
      *
      * @return  self
-     */ 
+     */
     public function setContact($contact)
     {
         $this->contact = $contact;
@@ -491,7 +532,7 @@ class DemandePaiement
 
     /**
      * Get the value of devise
-     */ 
+     */
     public function getDevise()
     {
         return $this->devise;
@@ -501,7 +542,7 @@ class DemandePaiement
      * Set the value of devise
      *
      * @return  self
-     */ 
+     */
     public function setDevise($devise)
     {
         $this->devise = $devise;
@@ -511,7 +552,7 @@ class DemandePaiement
 
     /**
      * Get the value of montantAPayer
-     */ 
+     */
     public function getMontantAPayer()
     {
         return $this->montantAPayer;
@@ -521,7 +562,7 @@ class DemandePaiement
      * Set the value of montantAPayer
      *
      * @return  self
-     */ 
+     */
     public function setMontantAPayer($montantAPayer)
     {
         $this->montantAPayer = $montantAPayer;
@@ -531,7 +572,7 @@ class DemandePaiement
 
     /**
      * Get the value of pieceJoint01
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -541,7 +582,7 @@ class DemandePaiement
      * Set the value of pieceJoint01
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -551,7 +592,7 @@ class DemandePaiement
 
     /**
      * Get the value of commandeFichier
-     */ 
+     */
     public function getCommandeFichier()
     {
         return $this->commandeFichier;
@@ -561,7 +602,7 @@ class DemandePaiement
      * Set the value of commandeFichier
      *
      * @return  self
-     */ 
+     */
     public function setCommandeFichier($commandeFichier)
     {
         $this->commandeFichier = $commandeFichier;
@@ -571,7 +612,7 @@ class DemandePaiement
 
     /**
      * Get the value of factureFournisseurFichier
-     */ 
+     */
     public function getFactureFournisseurFichier()
     {
         return $this->factureFournisseurFichier;
@@ -581,7 +622,7 @@ class DemandePaiement
      * Set the value of factureFournisseurFichier
      *
      * @return  self
-     */ 
+     */
     public function setFactureFournisseurFichier($factureFournisseurFichier)
     {
         $this->factureFournisseurFichier = $factureFournisseurFichier;
@@ -592,7 +633,7 @@ class DemandePaiement
 
     /**
      * Get the value of titreDeTransportFichier
-     */ 
+     */
     public function getTitreDeTransportFichier()
     {
         return $this->titreDeTransportFichier;
@@ -602,7 +643,7 @@ class DemandePaiement
      * Set the value of titreDeTransportFichier
      *
      * @return  self
-     */ 
+     */
     public function setTitreDeTransportFichier($titreDeTransportFichier)
     {
         $this->titreDeTransportFichier = $titreDeTransportFichier;
@@ -612,7 +653,7 @@ class DemandePaiement
 
     /**
      * Get the value of modePaiement
-     */ 
+     */
     public function getModePaiement()
     {
         return $this->modePaiement;
@@ -622,7 +663,7 @@ class DemandePaiement
      * Set the value of modePaiement
      *
      * @return  self
-     */ 
+     */
     public function setModePaiement($modePaiement)
     {
         $this->modePaiement = $modePaiement;
@@ -633,7 +674,7 @@ class DemandePaiement
 
     /**
      * Get the value of montantAPayers
-     */ 
+     */
     public function getMontantAPayers()
     {
         return $this->montantAPayers;
@@ -643,7 +684,7 @@ class DemandePaiement
      * Set the value of montantAPayers
      *
      * @return  self
-     */ 
+     */
     public function setMontantAPayers($montantAPayers)
     {
         $this->montantAPayers = $montantAPayers;
@@ -653,7 +694,7 @@ class DemandePaiement
 
     /**
      * Get the value of lesFichiers
-     */ 
+     */
     public function getLesFichiers()
     {
         return $this->lesFichiers;
@@ -663,7 +704,7 @@ class DemandePaiement
      * Set the value of lesFichiers
      *
      * @return  self
-     */ 
+     */
     public function setLesFichiers($lesFichiers)
     {
         $this->lesFichiers = $lesFichiers;
@@ -673,7 +714,7 @@ class DemandePaiement
 
     /**
      * Get the value of pieceJoint02
-     */ 
+     */
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
@@ -683,7 +724,7 @@ class DemandePaiement
      * Set the value of pieceJoint02
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint02($pieceJoint02)
     {
         $this->pieceJoint02 = $pieceJoint02;
@@ -693,7 +734,7 @@ class DemandePaiement
 
     /**
      * Get the value of pieceJoint03
-     */ 
+     */
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
@@ -703,11 +744,203 @@ class DemandePaiement
      * Set the value of pieceJoint03
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint03($pieceJoint03)
     {
         $this->pieceJoint03 = $pieceJoint03;
 
         return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint04
+     */
+    public function getPieceJoint04()
+    {
+        return $this->pieceJoint04;
+    }
+
+    /**
+     * Set the value of pieceJoint04
+     *
+     * @return  self
+     */
+    public function setPieceJoint04($pieceJoint04)
+    {
+        $this->pieceJoint04 = $pieceJoint04;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutDossierRegul
+     *
+     * @return  string|null
+     */
+    public function getStatutDossierRegul()
+    {
+        return $this->statutDossierRegul;
+    }
+
+    /**
+     * Set the value of statutDossierRegul
+     *
+     * @param  string|null  $statutDossierRegul
+     *
+     * @return  self
+     */
+    public function setStatutDossierRegul($statutDossierRegul)
+    {
+        $this->statutDossierRegul = $statutDossierRegul;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of estAutreDoc
+     */
+    public function getEstAutreDoc()
+    {
+        return $this->estAutreDoc;
+    }
+
+    /**
+     * Set the value of estAutreDoc
+     *
+     * @return  self
+     */
+    public function setEstAutreDoc($estAutreDoc)
+    {
+        $this->estAutreDoc = $estAutreDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomAutreDoc
+     */
+    public function getNomAutreDoc()
+    {
+        return $this->nomAutreDoc;
+    }
+
+    /**
+     * Set the value of nomAutreDoc
+     *
+     * @return  self
+     */
+    public function setNomAutreDoc($nomAutreDoc)
+    {
+        $this->nomAutreDoc = $nomAutreDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCdeClientExterneDoc
+     */
+    public function getEstCdeClientExterneDoc()
+    {
+        return $this->estCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of estCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setEstCdeClientExterneDoc($estCdeClientExterneDoc)
+    {
+        $this->estCdeClientExterneDoc = $estCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomCdeClientExterneDoc
+     */
+    public function getNomCdeClientExterneDoc()
+    {
+        return $this->nomCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of nomCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setNomCdeClientExterneDoc($nomCdeClientExterneDoc)
+    {
+        $this->nomCdeClientExterneDoc = $nomCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDossierDouane
+     */ 
+    public function getNumeroDossierDouane()
+    {
+        return $this->numeroDossierDouane;
+    }
+
+    /**
+     * Set the value of numeroDossierDouane
+     *
+     * @return  self
+     */ 
+    public function setNumeroDossierDouane($numeroDossierDouane)
+    {
+        $this->numeroDossierDouane = $numeroDossierDouane;
+
+        return $this;
+    }
+
+    public function dupliquer(): self
+    {
+        $nouvelle = new self();
+        $nouvelle->numeroDdp = $this->numeroDdp;
+        $nouvelle->numeroFournisseur = $this->numeroFournisseur;
+        $nouvelle->ribFournisseur = $this->ribFournisseur;
+        $nouvelle->motif = $this->motif;
+        $nouvelle->agenceDebiter = $this->agenceDebiter;
+        $nouvelle->serviceDebiter = $this->serviceDebiter;
+        $nouvelle->adresseMailDemandeur = $this->adresseMailDemandeur;
+        $nouvelle->demandeur = $this->demandeur;
+        $nouvelle->montantAPayers = $this->montantAPayers;
+        $nouvelle->montantAPayer = $this->montantAPayer;
+        $nouvelle->contact = $this->contact;
+        $nouvelle->numeroCommande = $this->numeroCommande;
+        $nouvelle->devise = $this->devise;
+        $nouvelle->numeroFacture = $this->numeroFacture;
+        $nouvelle->pieceJoint01 = $this->pieceJoint01;
+        $nouvelle->pieceJoint02 = $this->pieceJoint02;
+        $nouvelle->pieceJoint03 = $this->pieceJoint03;
+        $nouvelle->pieceJoint04 = $this->pieceJoint04;
+        $nouvelle->beneficiaire = $this->beneficiaire;
+        $nouvelle->modePaiement = $this->modePaiement;
+        $nouvelle->typeDemandeId  = $this->typeDemandeId;
+        return $nouvelle;
     }
 }

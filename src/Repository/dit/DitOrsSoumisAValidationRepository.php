@@ -11,9 +11,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
-        ->where('osv.numeroOR = :numOr')
-        ->setParameter('numOr', $numOr)
-        ->setMaxResults(1);
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->setMaxResults(1);
 
         try {
             $result = $qb->getQuery()->getOneOrNullResult();
@@ -70,7 +70,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $statut = ['Validé', 'Livré','Livré partiellement'];
+        $statut = ['Validé', 'Livré', 'Livré partiellement'];
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')
@@ -181,12 +181,12 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
-        ->select('MAX(osv.numeroVersion)')
-        ->where('osv.numeroOR = :numOr')
-        ->setParameter('numOr', $numOr)
-        ->getQuery()
-        ->getSingleScalarResult();
-        
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
         // Vérifier si un numeroVersion a été trouvé
         if ($numeroVersionMax === null) {
             return [
@@ -246,6 +246,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $montantValide;
     }
 
+    /**
+     * recupère tous les numéros OR Distincts
+     *
+     * @return void
+     */
     public function findNumOrAll()
     {
         $query = $this->createQueryBuilder('osv')
@@ -256,6 +261,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    /**
+     * Recupère tous les numéros ITV Distincts
+     *
+     * @return void
+     */
     public function findNumOrItvAll()
     {
         $query = $this->createQueryBuilder('osv')

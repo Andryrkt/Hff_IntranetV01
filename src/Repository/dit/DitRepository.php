@@ -41,6 +41,8 @@ class DitRepository extends EntityRepository
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
 
+
+
         if (!$options['boolean']) {
             $queryBuilder
                 ->andWhere(
@@ -72,8 +74,20 @@ class DitRepository extends EntityRepository
 
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        //  $sql = $queryBuilder->getQuery()->getSQL();
-        //  echo $sql;
+        // $sql = $queryBuilder->getQuery()->getSQL();
+        // echo $sql;
+
+        // $query = $queryBuilder->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
+
 
         // Récupérer le nombre de lignes par statut
         $statusCounts = $this->countByStatus($ditSearch, $options);

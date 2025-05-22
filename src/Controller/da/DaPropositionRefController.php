@@ -2,17 +2,24 @@
 
 namespace App\Controller\da;
 
+use DateTime;
 use App\Model\da\DaModel;
+use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DemandeApproLRCollectionType;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,9 +27,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionRefController extends Controller
 {
+    use lienGenerique;
+
+    private const DA_STATUT = 'soumis à l’ATE';
+    private const EDIT = 0;
+
     private DaModel $daModel;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DaObservation $daObservation;
+    private DaObservationRepository $daObservationRepository;
+    private DitRepository $ditRepository;
 
 
     public function __construct()
@@ -30,8 +46,13 @@ class DaPropositionRefController extends Controller
         parent::__construct();
 
         $this->daModel = new DaModel();
+
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daObservation = new DaObservation();
+        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -42,56 +63,42 @@ class DaPropositionRefController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(DemandeAppro::class)->find($id)->getDAL();
+        $da = $this->demandeApproRepository->find($id);
+        $numDa = $da->getNumeroDemandeAppro();
+        $data = $da->getDAL();
 
-        // foreach ($data as $key => $value) {
-        //     dump($value);
-        // }
-        // die('fin');
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $data, $request);
+        $this->traitementFormulaire($form, $data, $request, $numDa, $da);
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/proposition.html.twig', [
             'data' => $data,
             'id' => $id,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'observations' => $observations,
+            'numDa' => $numDa,
         ]);
     }
 
-    private function traitementFormulaire($form, $data, $request)
+    private function traitementFormulaire($form, $data, Request $request, string $numDa, DemandeAppro $da)
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
+            $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
-                $this->taitementPourBtnEnregistrer($dalrList, $request, $data);
-            } elseif ($request->request->has('bonAchat')) {
-
-                $dalrs = [];
-                foreach ($dalrList as $demandeApproLR) {
-                    $DAL = $this->filtreDal($data, $demandeApproLR);
-                    $dalrs[] = $this->ajoutDonnerDaLR($DAL, $demandeApproLR);
-                }
-
-                // Convertir les entités en tableau de données
-                $dataExel = $this->transformationEnTableauAvecEntet($dalrs);
-
-                //creation du fichier excel
-                $date = new DateTime();
-                $formattedDate = $date->format('Ymd_His');
-                $fileName = $dalrs[0]->getNumeroDemandeAppro() . '_' . $formattedDate . '.xlsx';
-                $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
-                $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
+                $this->taitementPourBtnEnregistrer($dalrList, $request, $data, $observation, $numDa, $da);
             }
         }
     }
 
-    private function taitementPourBtnEnregistrer($dalrList, $request, $data): void
+    private function taitementPourBtnEnregistrer($dalrList, Request $request, $data, ?string $observation, string $numDa, DemandeAppro $da): void
     {
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
@@ -100,8 +107,15 @@ class DaPropositionRefController extends Controller
         if ($dalrList->isEmpty() && empty($refs)) {
             $notification = $this->notification('info', "Aucune modification n'a été effectuée");
         } else {
-            $this->enregistrementDb($data, $dalrList);
-            $notification = $this->notification('success', "Votre demande a été enregistré avec succès");
+            $this->enregistrementDb($data, $dalrList); // enregistrement des données dans la table demande_appro_LR
+            $this->duplicationDataDaL($data); // duplication des lignes de la table demande_appro_L
+            if ($observation !== null) {
+                $this->insertionObservation($observation, $numDa); // enregistrement de l'observation dans la table da_observation
+            }
+            $this->modificationStatutDal($numDa); // modification du statut de la table demande_appro_L
+            $this->modificationStatutDa($numDa); // modification du statut de la table demande_appro
+
+            $notification = $this->notification('success', "La proposition a été soumis à l'atelier");
         }
 
         if (!empty($refs)) {
@@ -111,29 +125,100 @@ class DaPropositionRefController extends Controller
             //modifier la colonne choix
             $this->modifChoix($refs, $data);
 
-            //modification de la table demande_appro_L
+            //modification de la table demande_appro_L pour les lignes refs
             $this->modificationTableDaL($refs, $data);
         }
+
+
+        /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $numeroVersionMaxAvant = $numeroVersionMax - 1;
+        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+        $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
+
+        /** NOTIFICATION MAIL */
+        $this->envoyerMailAuxAte([
+            'id'            => $da->getId(),
+            'idDit'         => $dit->getId(),
+            'numDa'         => $da->getNumeroDemandeAppro(),
+            'objet'         => $da->getObjetDal(),
+            'detail'        => $da->getDetailDal(),
+            'dalAncien'     => $dalAncien,
+            'dalNouveau'    => $dalNouveau,
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
     }
 
-    private function transformationEnTableauAvecEntet($entities): array
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAte(array $tab)
     {
-        $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité'];
+        $email       = new EmailService;
 
-        foreach ($entities as $entity) {
-            $data[] = [
-                $entity->getArtConstp(),
-                $entity->getArtRefp(),
-                $entity->getQteDem(),
-            ];
+        $content = [
+            'to'        => 'hoby.ralahy@hff.mg',
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "propositionDa",
+                'subject'    => "{$tab['numDa']} - proposition demande d'approvisionnement  créee ",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/edit/" . $tab['idDit']),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+    }
+
+    private function modificationStatutDal(string $numDa): void
+    {
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        foreach ($dals as  $dal) {
+            $dal->setStatutDal(self::DA_STATUT);
+            $dal->setEdit(self::EDIT);
+            self::$em->persist($dal);
         }
 
-        return $data;
+        self::$em->flush();
     }
+
+
+    private function modificationStatutDa(string $numDa): void
+    {
+        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $da->setStatutDal(self::DA_STATUT);
+
+        self::$em->persist($da);
+        self::$em->flush();
+    }
+
+
+    private function insertionObservation(?string $observation, string $numDa): void
+    {
+        $daObservation = $this->recupDonnerDaObservation($observation, $numDa);
+
+        self::$em->persist($daObservation);
+
+        self::$em->flush();
+    }
+
+    private function recupDonnerDaObservation(?string $observation, string $numDa): DaObservation
+    {
+        return $this->daObservation
+            ->setNumDa($numDa)
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setObservation($observation)
+        ;
+    }
+
+
 
     private function modificationTableDaL(array $refs,  $data): void
     {
@@ -160,16 +245,57 @@ class DaPropositionRefController extends Controller
     }
 
 
-    private function recupDataDaL(array $refs,  $data)
+    /**
+     * recupération d'uen ou des lignes à modifier
+     *
+     * @param array $refs
+     * @param [type] $data
+     * @return array
+     */
+    private function recupDataDaL(array $refs, $data): array
     {
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
         $dals = [];
         for ($i = 0; $i < count($refs); $i++) {
-            $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
+            $dals[] = $this->demandeApproLRepository->findBy(['numeroLigne' => $refs[$i][0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
         }
 
         return $dals;
     }
-    private function recupDataDaLR(array $refs,  $data)
+
+    /**
+     * Dupliquer les lignes de la table demande_appro_L
+     *
+     * @param array $refs
+     * @param [type] $data
+     * @return array
+     */
+    private function duplicationDataDaL($data): void
+    {
+        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+
+        foreach ($dals as $dal) {
+            // On clone l'entité (copie en mémoire)
+            $newDal = clone $dal;
+            $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
+
+            // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
+            self::$em->persist($newDal);
+        }
+
+        self::$em->flush();
+    }
+
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
+    }
+
+    private function recupDataDaLR(array $refs,  $data): array
     {
         $dalrs = [];
         for ($i = 0; $i < count($refs); $i++) {

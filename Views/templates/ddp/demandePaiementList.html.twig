@@ -8,41 +8,46 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-	{% set role_ids = App.user.roleIds %}
-	{% set user_connecter = App.user.nom_utilisateur %}
-
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste des demandes de paiement
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-
-	</div>
-
 	<div
-		class="container-fluid">
-		<!-- DEBUT tableau -->
+		class="sticky-header-titre">
+		{# {% include "/partials/_loader.html.twig" %} #}
+		{% set role_ids = App.user.roleIds %}
+		{% set user_connecter = App.user.nom_utilisateur %}
+
+		<div class="container">
+			<h3 class="perso-titre">
+				Liste des demandes de paiement
+			</h3>
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/ddp/shared/_formualireDdpSearch.html.twig"%}
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="sticky-header-statut"></div>
 		<table class="table rounded table-plein-ecran">
-			<thead class="table-dark">
+			<thead class="table-dark position-sticky">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
 					</th>
-					<th>Statut DDP</th>
-					<th>N° demande</th>
-					<th>Type</th>
-					<th>Date</th>
-					<th>Motif</th>
-					<th>N° Commande</th>
-					<th>N° facture</th>
-					<th>Bénéficiaire</th>
-					<th>Agence débité</th>
-					<th>Service débité</th>
-					<th>Contact</th>
-					<th>Mode de paiement</th>
-					<th>Suivi paiement</th>
-					<th>Utilisateur</th>
+					<th style="text-align: center;">Agence débité</th>
+					<th style="text-align: center;">Service débité</th>
+					<th style="text-align: center;">N° demande</th>
+					<th style="text-align: center;">version</th>
+					<th style="text-align: center;">Type</th>
+					<th style="text-align: center;">Statut DDP</th>
+					<th style="text-align: center;">Statut dossier de régul</th>
+					<th style="text-align: center;">Date</th>
+					<th style="text-align: center;">Motif</th>
+					<th style="text-align: center;">N° facture</th>
+					<th style="text-align: center;">N° Commande</th>
+					<th style="text-align: center;">N° Dossier</th>
+					<th style="text-align: center;">Bénéficiaire</th>
+					<th style="text-align: center;">Montant</th>
+					<th style="text-align: center;">Devise</th>
+					<th style="text-align: center;">Mode de paiement</th>
+					{# <th style="text-align: center;">Suivi paiement</th> #}
+					<th style="text-align: center;">Utilisateur</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -54,27 +59,51 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								{% if item.typeDemandeId.id == 1 and item.statut == 'Payé' %}
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									{% if item.typeDemandeId.id == 1 and item.statut == 'Payé' %}
 										<li>
 											<a class="dropdown-item fw-bold" href="#">Dossier</a>
 										</li>
-									</ul>
-								{% endif %}
+									{% endif %}
+									{% if item.typeDemandeId.id == 1 %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("demande_regulation",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Dossier régularisation
+											</a>
+										</li>
+									{% endif %}
+									{% if item.statut matches '/Refusé/i' %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{path("edit_demande_paiement",{numDdp:item.numeroDdp,numVersion:item.numeroVersion})}}">Modifier
+											</a>
+										</li>
+									{% endif %}
+								</ul>
+
 							</div>
 						</td>
 						{# Fin Actions #}
-						<td class="text-center">
+						<td class="text-center" style="text-align: center;">{{ item.agencedebiter}}</td>
+						<td class="text-center" style="text-align: center;">{{ item.servicedebiter}}</td>
+						<td style="text-align: center;">{{ item.numeroDdp }}</td>
+						<td style="text-align: center;">{{ item.numeroVersion }}</td>
+						<td style="text-align: center;">{{ item.typeDemandeId.libelle}}</td>
+						<td class="text-center" style="text-align: center;">
 							<a href="#" data-bs-toggle="modal" data-bs-target="#listeStatut" id="statutInput" data-id="{{item.numeroDdp}}" data-bs-toggle="tooltip" title="historique des statuts">
 								{{ item.statut }}
 							</a>
 						</td>
-						<td>{{ item.numeroDdp }}</td>
-						<td>{{ item.typeDemandeId.libelle}}</td>
-						<td>
+						<td style="text-align: center;">{{ item.statutDossierRegul }}</td>
+						<td style="text-align: center;">
 							{{ item.dateCreation|date('d/m/Y')}}
 						</td>
 						<td>{{item.motif}}</td>
+						<td>
+							<ul>
+								{% for numFac in item.numeroFacture %}
+									<li>{{numFac}}</li>
+								{% endfor %}
+							</ul>
+						</td>
 						<td>
 							<ul>
 								{% for numCde in item.numeroCommande %}
@@ -84,20 +113,17 @@
 						</td>
 						<td>
 							<ul>
-								{% for numFac in item.numeroFacture %}
-									<li>{{numFac}}</li>
+								{% for numCde in item.numeroDossierDouane %}
+									<li>{{numCde}}</li>
 								{% endfor %}
 							</ul>
 						</td>
-						<td>{{ item.beneficiaire}}</td>
-						<td class="text-center">{{ item.agencedebiter}}</td>
-						<td class="text-center">{{ item.servicedebiter}}</td>
-						<td>{{ item.contact}}</td>
-						<td>{{ item.modePaiement}}</td>
-						<td>
-							-
-						</td>
-						<td>{{ item.demandeur }}</td>
+						<td style="text-align: center;">{{ item.beneficiaire}}</td>
+						<td style="text-align: right;">{{ item.montantAPayers |number_format(2, ',' ,'.') }}</td>
+						<td style="text-align: center;">{{ item.devise}}</td>
+						<td style="text-align: center;">{{ item.modePaiement}}</td>
+						{# <td>-</td> #}
+						<td style="text-align: center;">{{ item.demandeur }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
@@ -109,4 +135,8 @@
 {% endblock %}
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/ddp/ddpModalStatut.js" type="module"></script>
+
+	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+
+	<script src="{{ App.base_path }}/Views/js/ddp/ddpListe.js" type="module"></script>
 {% endblock %}
