@@ -15,9 +15,15 @@
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ tab.detail | raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">
+				{{ tab.observation | raw }}
+			</div>
 		</li>
 	</ul>
 </p>
-<div class="espace">
-	{{ tab.detail | raw }}
-</div>
