@@ -81,7 +81,7 @@ class DwProcessusProcedure
     private $codeService ;
 
     /**
-     * @ORM\Column(type="string", length=2, name="code_agence")
+     * @ORM\Column(type="string", length=3, name="code_agence")
      */
     private $codeAgence ;
 
