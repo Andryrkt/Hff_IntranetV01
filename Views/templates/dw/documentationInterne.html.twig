@@ -1,0 +1,59 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+    <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+{% endblock %}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+
+	<div class="container">
+		<h3 class="perso-titre">
+			Liste des documents
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{# {% include "/dw/shared/_formulaireRecherche.html.twig" %} #}
+		{# {% include "/dw/shared/_pagination.html.twig" %} #}
+	</div>
+
+
+	<div class="container-fluid">
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>Date</th>
+					<th>N° document</th>
+					<th>Type de document</th>
+					<th>Périmètre de diffusion</th>
+					<th>Nom du document</th>
+					<th>Processus lié</th>
+					<th>Responsable processus</th>
+					<th>N° de version</th>
+					<th>Date de version</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for item in data %}
+					<tr>
+						<td>{{ item.dateDocument}}</td>
+						<td>{{ item.nomDocument}}</td>
+						<td>{{ item.typeDocument}}</td>
+						<td>{{ item.perimetre}}</td>
+						<td>{{ item.nomDocument}}</td>
+						<td>{{ item.processusLie}}</td>
+						<td>{{ item.nomResponsable}}</td>
+						<td>{{ item.numeroVersion}}</td>
+						<td>{{ item.dateModification}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+	<!-- FIN tableau -->
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+{% endblock %}
