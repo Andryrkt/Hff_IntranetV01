@@ -90,7 +90,7 @@
 
 
 				<p>
-					Pour consulter les détails complets du demande, veuillez cliquer sur le bouton ci-dessous:
+					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
 					<a href="{{ action_url }}" class="button">Detail de la demande</a>
 				</p>
@@ -103,7 +103,7 @@
 				<p class="fw-bold">Cordialement,</p>
 			</div>
 
-			{{ include('da/email/shared/_footer.html.twig') }}
+			{{ include('da/email/shared/_footer.html.twig', {service:tab.service}) }}
 		</div>
 	</body>
 </html>

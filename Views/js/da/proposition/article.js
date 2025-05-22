@@ -1,6 +1,6 @@
 import { ajouterUneLigne } from "./dalr";
 
-export function ajouterReference(addLineId) {
+export function ajouterReference(addLineId, iscatalogue) {
   const line = addLineId.replace("add_line_", "");
 
   const fields = {
@@ -18,7 +18,7 @@ export function ajouterReference(addLineId) {
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
-    ajouterUneLigne(line, fields);
+    ajouterUneLigne(line, fields, iscatalogue);
   }
 }
 

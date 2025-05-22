@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let url;
         if (statutNormalisé !== null) {
-          url = `${baseUrl}/demande-appro/edit/${checkedValue}`;
+          url = `${baseUrl}/demande-appro/detail/${checkedValue}`;
         } else {
           url = `${baseUrl}/demande-appro/new/${checkedValue}`;
         }

@@ -11,7 +11,7 @@ export function changeTab(direction) {
 }
 
 export function showTab(bool = true) {
-  let currentTab = localStorage.getItem("currentTab");
+  let currentTab = localStorage.getItem("currentTab") || 1;
 
   let tab = document.getElementById(`tab_${currentTab}`);
 
