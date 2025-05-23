@@ -73,7 +73,9 @@ class InfoFournisseurApi extends Controller
         //     $excludedCommands = $this->changeStringToArray($numComandes);
         //     $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
 
-        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur);
+
 
         $numCde = array_map(fn($el) => ['label' => $el, 'value' => $el], $numCdes);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
