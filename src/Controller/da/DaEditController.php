@@ -182,7 +182,7 @@ class DaEditController extends Controller
 
 
             /** ENVOIE MAIL */
-            $this->mailPourAppro($demandeAppro);
+            $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
 
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
@@ -190,7 +190,7 @@ class DaEditController extends Controller
         }
     }
 
-    private function mailPourAppro($demandeAppro): void
+    private function mailPourAppro($demandeAppro, $observation): void
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
@@ -205,6 +205,8 @@ class DaEditController extends Controller
             'detail'        => $demandeAppro->getDetailDal(),
             'dalAncien'     => $dalAncien,
             'dalNouveau'    => $dalNouveau,
+            'observation'   => $observation,
+            'service'       => 'atelier',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
     }

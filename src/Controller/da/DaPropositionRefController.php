@@ -125,7 +125,7 @@ class DaPropositionRefController extends Controller
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
         $refs = $this->separationNbrPageLigne($selectedRefs);
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
 
         if ($dalrList->isEmpty() && empty($refs)) {
             $notification = $this->notification('danger', "Aucune modification n'a été effectuée");
@@ -145,6 +145,7 @@ class DaPropositionRefController extends Controller
 
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $numeroVersionMaxAvant = $numeroVersionMax - 1;
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
         $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
@@ -157,6 +158,7 @@ class DaPropositionRefController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalAncien'     => $dalAncien,
             'dalNouveau'    => $dalNouveau,
+            'service'       => 'atelier',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -171,7 +173,7 @@ class DaPropositionRefController extends Controller
         $refsString = $request->request->get('refs');
         $selectedRefs = $refsString ? explode(',', $refsString) : [];
         $refs = $this->separationNbrPageLigne($selectedRefs);
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
 
         if ($dalrList->isEmpty() && empty($refs)) {
             $notification = $this->notification('danger', "Aucune modification n'a été effectuée");
@@ -190,6 +192,7 @@ class DaPropositionRefController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa); //la position de cette ligne ne peut pas modifier (il faut mettre en haut ou en bas)
         $numeroVersionMaxAvant = $numeroVersionMax - 1;
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
         $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $da->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMaxAvant]);
@@ -202,6 +205,8 @@ class DaPropositionRefController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalAncien'     => $dalAncien,
             'dalNouveau'    => $dalNouveau,
+            'observation'   => $observation,
+            'service'       => 'appro',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
