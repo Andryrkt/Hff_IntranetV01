@@ -3,6 +3,7 @@
 namespace App\Controller\dw;
 
 use App\Controller\Controller;
+use App\Entity\dw\DocInternesearch;
 use App\Entity\dw\DwProcessusProcedure;
 use App\Form\dw\DocInterneSearchType;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,17 +16,35 @@ class DocumentationProcessusController extends Controller
      */
     public function documentationInterne(Request $request)
     {
-        $data = self::$em->getRepository(DwProcessusProcedure::class)->findAll();
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(DocInterneSearchType::class)->getForm();
+        $docInterneSearch = new DocInternesearch;
 
+        $form = self::$validator->createBuilder(DocInterneSearchType::class, $docInterneSearch, [
+            'method' => 'GET'
+        ])->getForm();
+        
         $form->handleRequest($request);
+        
+        if ($form->isSubmitted() && $form->isValid()) {
+            $docInterneSearch = $form->getData();
+        }
 
-        if ($form->isSubmitted() && $form->isValid()) {}
+        $criteria = [];
+        $criteria = $docInterneSearch->toArray();
+        $page = $request->query->getInt('page', 1);
+        $limit = 10;
+        
+        $paginationData = self::$em->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
 
         self::$twig->display('dw/documentationInterne.html.twig', [
             'form' => $form->createView(),
-            'data' => $data
+            'data' => $paginationData['data'],
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages'    => $paginationData['lastPage'],
+            'resultat'    => $paginationData['totalItems'],
+            'criteria'    => $criteria,
         ]);
     }
 }
