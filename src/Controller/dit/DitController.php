@@ -74,7 +74,7 @@ class DitController extends Controller
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
             }
-            
+
             $dits = $this->infoEntrerManuel($dit, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 

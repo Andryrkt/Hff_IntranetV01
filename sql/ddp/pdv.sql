@@ -122,7 +122,7 @@ ALTER TABLE document_demande_paiement
 ADD numeroVersion int
 
 ALTER TABLE demande_paiement
-ADD devis varchar(5)
+ADD devise varchar(5)
 
 ALTER TABLE demande_paiement
 ADD est_autre_doc bit DEFAULT 0

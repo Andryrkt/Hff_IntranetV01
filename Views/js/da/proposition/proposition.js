@@ -3,6 +3,7 @@ import { ajouterReference } from "./article";
 import { autocompleteTheField } from "./autocompletion";
 import { changeTab, showTab } from "./pageNavigation";
 import { updateDropdown } from "../../utils/selectionHandler";
+import { boutonRadio } from "./boutonRadio";
 
 document.addEventListener("DOMContentLoaded", function () {
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
@@ -26,6 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
       reference.addEventListener("input", function () {
         reference.value = reference.value.toUpperCase();
       });
+
       autocompleteTheField(reference, "reference");
     });
   // Tous les champs "Fournisseur"
@@ -35,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fournisseur.addEventListener("input", function () {
         fournisseur.value = fournisseur.value.toUpperCase();
       });
+
       autocompleteTheField(fournisseur, "fournisseur");
     });
   // Tous les champs "Désignation"
@@ -44,6 +47,7 @@ document.addEventListener("DOMContentLoaded", function () {
       designation.addEventListener("input", function () {
         designation.value = designation.value.toUpperCase();
       });
+
       autocompleteTheField(designation, "designation");
     });
 
@@ -144,6 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
       reference: document.querySelector(
         `#demande_appro_proposition_reference_${numPage}`
       ),
+      isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
     };
   }
 
@@ -152,12 +157,14 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {int} numPage
    */
   function autocompleteTheFieldsPage(numPage) {
-    const { fournisseur, reference, designation } = recupInput(numPage);
-
+    const { fournisseur, reference, designation, isCatalogueInput } =
+      recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
     reset(fournisseur, reference, designation);
+    console.log(iscatalogue == "");
 
-    autocompleteTheField(designation, "designation", numPage);
-    autocompleteTheField(reference, "reference", numPage);
+    autocompleteTheField(designation, "designation", numPage, iscatalogue);
+    autocompleteTheField(reference, "reference", numPage, iscatalogue);
   }
 
   /**
@@ -184,7 +191,13 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   // Tous les boutons "Ajouter la référence"
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
-    addLine.addEventListener("click", () => ajouterReference(addLine.id));
+    const numPage = addLine.id.split("_").pop();
+    const { isCatalogueInput } = recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
+
+    addLine.addEventListener("click", () =>
+      ajouterReference(addLine.id, iscatalogue)
+    );
   });
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
@@ -196,3 +209,31 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+/**=============================================
+ * Desactive le bouton OK si la cage à cocher n'est pas cocher
+ *==============================================*/
+const cageACocherInput = document.querySelector(
+  "#demande_appro_lr_collection_estValidee"
+);
+const boutonOkInput = document.querySelector("#bouton_ok");
+
+// Fonction pour activer ou désactiver le bouton
+function verifierCaseCochee() {
+  if (cageACocherInput.checked) {
+    boutonOkInput.classList.remove("d-none");
+  } else {
+    boutonOkInput.classList.add("d-none");
+  }
+}
+
+// Initialiser l'état du bouton au chargement
+verifierCaseCochee();
+
+// Écouteur d'événement sur la case à cocher
+cageACocherInput.addEventListener("change", verifierCaseCochee);
+
+/**=================================================================
+ * lorsqu'on clique sur le bouton radio et envoyer le  proposition
+ *==================================================================*/
+boutonRadio();

@@ -1,7 +1,8 @@
 import { replaceNameToNewIndex } from "../new/dal";
 import { formaterNombre } from "../../utils/formatNumberUtils";
+import { boutonRadio } from "./boutonRadio.js";
 
-export function ajouterUneLigne(line, fields) {
+export function ajouterUneLigne(line, fields, iscatalogue) {
   const tableBody = document.getElementById(`tableBody_${line}`);
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
@@ -20,7 +21,7 @@ export function ajouterUneLigne(line, fields) {
     row,
     `<input type="radio" name="selectedRow_${line}" id="${radioId}" value="${
       line + "-" + rowIndex
-    }" onclick="toggleRadio(this)">`
+    }" checked>`
   );
   insertCellData(row, fields.fournisseur.value, "Center", color);
   insertCellData(row, fields.reference.value, "Center", color);
@@ -39,9 +40,13 @@ export function ajouterUneLigne(line, fields) {
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
 
+  boutonRadio();
+
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
-    field.value = "";
+    if (iscatalogue != "1" || !field.id.includes("_codeFams")) {
+      field.value = "";
+    }
   });
 }
 

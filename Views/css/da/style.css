@@ -203,3 +203,9 @@ a.choix:hover {
     opacity: 1; /* La barre devient complètement opaque */
   }
 }
+
+.fichier_zst {
+  font-weight: bold;
+  color: #fbbb01;
+  background-color: #000;
+}
