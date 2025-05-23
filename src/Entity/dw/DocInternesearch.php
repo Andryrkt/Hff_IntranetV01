@@ -10,8 +10,9 @@ class DocInternesearch
     private $perimetre;
     private $processusLie;
     private $nomResponsable;
+    private $motCle;
 
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             "dateDocument" => $this->dateDocument,
@@ -20,20 +21,23 @@ class DocInternesearch
             "perimetre" => $this->perimetre,
             "processusLie" => $this->processusLie,
             "nomResponsable" => $this->nomResponsable,
+            "motCle" => $this->motCle
         ];
     }
 
     /**
      * Get the value of nomResponsable
      */
-    public function getNomResponsable() {
+    public function getNomResponsable()
+    {
         return $this->nomResponsable;
     }
 
     /**
      * Set the value of nomResponsable
      */
-    public function setNomResponsable($nomResponsable): self {
+    public function setNomResponsable($nomResponsable): self
+    {
         $this->nomResponsable = $nomResponsable;
         return $this;
     }
@@ -41,14 +45,16 @@ class DocInternesearch
     /**
      * Get the value of processusLie
      */
-    public function getProcessusLie() {
+    public function getProcessusLie()
+    {
         return $this->processusLie;
     }
 
     /**
      * Set the value of processusLie
      */
-    public function setProcessusLie($processusLie): self {
+    public function setProcessusLie($processusLie): self
+    {
         $this->processusLie = $processusLie;
         return $this;
     }
@@ -56,14 +62,16 @@ class DocInternesearch
     /**
      * Get the value of perimetre
      */
-    public function getPerimetre() {
+    public function getPerimetre()
+    {
         return $this->perimetre;
     }
 
     /**
      * Set the value of perimetre
      */
-    public function setPerimetre($perimetre): self {
+    public function setPerimetre($perimetre): self
+    {
         $this->perimetre = $perimetre;
         return $this;
     }
@@ -71,14 +79,16 @@ class DocInternesearch
     /**
      * Get the value of typeDocument
      */
-    public function getTypeDocument() {
+    public function getTypeDocument()
+    {
         return $this->typeDocument;
     }
 
     /**
      * Set the value of typeDocument
      */
-    public function setTypeDocument($typeDocument): self {
+    public function setTypeDocument($typeDocument): self
+    {
         $this->typeDocument = $typeDocument;
         return $this;
     }
@@ -86,14 +96,16 @@ class DocInternesearch
     /**
      * Get the value of nomDocument
      */
-    public function getNomDocument() {
+    public function getNomDocument()
+    {
         return $this->nomDocument;
     }
 
     /**
      * Set the value of nomDocument
      */
-    public function setNomDocument($nomDocument): self {
+    public function setNomDocument($nomDocument): self
+    {
         $this->nomDocument = $nomDocument;
         return $this;
     }
@@ -101,15 +113,37 @@ class DocInternesearch
     /**
      * Get the value of dateDocument
      */
-    public function getDateDocument() {
+    public function getDateDocument()
+    {
         return $this->dateDocument;
     }
 
     /**
      * Set the value of dateDocument
      */
-    public function setDateDocument($dateDocument): self {
+    public function setDateDocument($dateDocument): self
+    {
         $this->dateDocument = $dateDocument;
+        return $this;
+    }
+
+    /**
+     * Get the value of motCle
+     */
+    public function getMotCle()
+    {
+        return $this->motCle;
+    }
+
+    /**
+     * Set the value of motCle
+     *
+     * @return  self
+     */
+    public function setMotCle($motCle)
+    {
+        $this->motCle = $motCle;
+
         return $this;
     }
 }
