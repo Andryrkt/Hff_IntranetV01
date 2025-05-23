@@ -125,4 +125,13 @@ class DemandeApproRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function getNumDit()
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeDit')
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
 }

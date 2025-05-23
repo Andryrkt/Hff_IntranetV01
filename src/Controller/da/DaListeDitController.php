@@ -4,9 +4,11 @@ namespace App\Controller\da;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaListeDitTrait;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
 use App\Form\dit\DitSearchType;
+use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,6 +18,7 @@ class DaListeDitController extends Controller
     use DaListeDitTrait;
     private DitSearch $ditSearch;
     private DitRepository $ditRepository;
+    private DemandeApproRepository $daRepository;
 
     public function __construct()
     {
@@ -23,6 +26,7 @@ class DaListeDitController extends Controller
 
         $this->ditSearch = new DitSearch();
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
     }
 
     /**
