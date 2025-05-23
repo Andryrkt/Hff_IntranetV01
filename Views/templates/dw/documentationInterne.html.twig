@@ -34,14 +34,14 @@
 			<tbody>
 				{% for item in data %}
 					<tr>
-						<td>{{ item.dateDocument}}</td>
+						<td>{{ item.dateDocument | date('d/m/Y') }}</td>
 						<td>{{ item.typeDocument}}</td>
 						<td>{{ item.perimetre}}</td>
 						<td>{{ item.nomDocument}}</td>
 						<td>{{ item.processusLie}}</td>
 						<td>{{ item.nomResponsable}}</td>
 						<td>{{ item.numeroVersion}}</td>
-						<td>{{ item.dateModification}}</td>
+						<td>{{ item.dateModification | date('d/m/Y') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
