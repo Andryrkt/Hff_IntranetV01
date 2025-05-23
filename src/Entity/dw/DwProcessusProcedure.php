@@ -66,7 +66,7 @@ class DwProcessusProcedure
     private $emailResponsable ;
     
     /**
-     * @ORM\Column(type="datetime", name="derniere_modification")
+     * @ORM\Column(type="datetime", name="date_derniere_modification")
      */
     private $dateModification;
 
