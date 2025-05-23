@@ -22,6 +22,11 @@ class DwProcessusProcedureRepository extends EntityRepository
                 ->setParameter('nomDoc', '%' . $docInternesearch->getNomDocument() . '%');
         }
 
+        if (!empty($docInternesearch->getMotCle())) {
+            $queryBuilder->andWhere('d.motCle LIKE :motCle')
+                ->setParameter('motCle', '%' . $docInternesearch->getMotCle() . '%');
+        }
+
         if (!empty($docInternesearch->getTypeDocument())) {
             $queryBuilder->andWhere('d.typeDocument LIKE :typeDoc')
                 ->setParameter('typeDoc', '%' . $docInternesearch->getTypeDocument() . '%');

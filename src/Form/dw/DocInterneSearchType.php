@@ -36,12 +36,16 @@ class DocInterneSearchType extends AbstractType
                 'label'    => 'Responsable Processus',
                 'required' => false
             ])
+            ->add('motCle', TextType::class, [
+                'label'    => 'Mot clé',
+                'required' => false
+            ])
             ->add('dateDocument', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date de document',
                 'required' => false,
             ])
-            ;
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
