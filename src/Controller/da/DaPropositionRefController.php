@@ -263,7 +263,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "propositionDa",
                 'subject'    => "{$tab['numDa']} - proposition créee par l'Appro ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/proposition/" . $tab['id']),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
@@ -286,7 +286,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "chagementChoixAte",
                 'subject'    => "{$tab['numDa']} - changement de choix de proposition par l'ATE ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/proposition/" . $tab['id']),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

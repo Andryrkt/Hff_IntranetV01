@@ -242,7 +242,7 @@ class DaEditController extends Controller
                 'statut'     => "modificationDa",
                 'subject'    => "{$tab['numDa']} - modification demande d'approvisionnement ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list"),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

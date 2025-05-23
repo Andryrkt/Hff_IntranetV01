@@ -4,17 +4,18 @@ namespace App\Controller\da;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
+use App\Repository\da\DemandeApproLRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -30,6 +31,7 @@ class DaNewController extends Controller
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
 
 
     public function __construct()
@@ -38,6 +40,7 @@ class DaNewController extends Controller
         $this->daObservation = new DaObservation();
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
     }
 
     /**
@@ -87,11 +90,13 @@ class DaNewController extends Controller
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
+            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-            $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+            /** ajout de ligne de demande appro dans la table Demande_Appro_L */
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 $DAL
-                    ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
+                    ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(self::DA_STATUT)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -105,22 +110,29 @@ class DaNewController extends Controller
 
             /** Modifie la colonne dernière_id dans la table applications */
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
-            $application->setDerniereId($demandeAppro->getNumeroDemandeAppro());
+            $application->setDerniereId($numDa);
             self::$em->persist($application);
 
+            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);
 
+            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro);
             }
 
             self::$em->flush();
 
+            /** ENVOIE D'EMAIL */
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+            $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
-                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                'numDa'         => $numDa,
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
+                'dal'           => $dal,
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

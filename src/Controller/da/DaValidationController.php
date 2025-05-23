@@ -183,7 +183,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationDa",
                 'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'APPRO",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ],
             'attachments' => [
                 $tab['filePath'] => $tab['fileName'],
@@ -209,7 +209,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationDa",
                 'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ],
             'attachments' => [
                 $tab['filePath'] => $tab['fileName'],
