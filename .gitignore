@@ -1,4 +1,4 @@
-vendor
+vendor/
 /src/Service/TCPDF-main/
 /Views/tcpdf/
 /Upload/
