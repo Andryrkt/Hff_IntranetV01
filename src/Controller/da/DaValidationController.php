@@ -72,6 +72,8 @@ class DaValidationController extends Controller
                 'fileName'          => $nomEtChemin['fileName'],
                 'filePath'          => $nomEtChemin['filePath'],
                 'dalNouveau'        => $dalNouveau,
+                'service'           => 'appro',
+                'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
                 'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
         }
