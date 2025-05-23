@@ -35,6 +35,7 @@ CREATE TABLE document_a_telecharger_processus (
 	[id_update] [int] NULL,
 	[id_doc] [int] NULL,
 	[id_tiroir] [varchar](100) NULL,
+	[type_doc] [varchar](50) NULL,
 	[operation] [varchar](50) NULL
 ) ON [PRIMARY]
 GO
