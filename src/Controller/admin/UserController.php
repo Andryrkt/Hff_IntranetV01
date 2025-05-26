@@ -202,8 +202,6 @@ class UserController extends Controller
         // foreach ($user->getTikPlanningUser() as $planning) {
         //     self::$em->remove($planning);
         // }
-
-        // Appliquer les modifications en base
         self::$em->flush();
 
         // Supprimer l'utilisateur

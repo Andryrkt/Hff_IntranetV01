@@ -1,4 +1,4 @@
-/vendor/
+vendor
 /src/Service/TCPDF-main/
 /Views/tcpdf/
 /Upload/
@@ -16,3 +16,4 @@ Dossiers ORs
 react-app
 .vscode
 var
+composer.lock
