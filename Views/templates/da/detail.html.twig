@@ -63,7 +63,7 @@
 									{{ form_row(form.dit) }}
 								</div>
 								{{ form_row(form.objetDit) }}
-								{% if nomFichierRefZst is not null %}
+								{% if nomFichierRefZst is not null and estAte %}
 									<a class="fw-bold" href="/Upload/da/ba/{{nomFichierRefZst}}" download>Télécharger ici le fichier contenant les références ZST</a>
 								{% endif %}
 							</div>

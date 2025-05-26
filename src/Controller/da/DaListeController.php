@@ -158,4 +158,5 @@ class DaListeController extends Controller
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_APPRO, $serviceIds);
     }
+
 }
