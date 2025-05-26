@@ -1,0 +1,73 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as form %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+
+	<div class="container mb-3">
+		<h3 class="perso-titre">
+			Liste des commandes fournisseurs
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{# {% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %} #}
+		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+	</div>
+
+	<div class="container-fluid">
+		<table class="table table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th class="text-center">N° DA</th>
+					<th class="text-center">Achat direct</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">N° OR</th>
+					<th class="text-center">N° Fournisseur</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">N° Commande</th>
+					<th class="text-center">Statut</th>
+					<th class="text-center">Réference</th>
+					<th class="text-center">Désignation</th>
+					<th class="text-center">Qté demandée</th>
+					<th class="text-center">Qté en attente</th>
+					<th class="text-center">Qté Dispo (Qté à livrer)</th>
+					<th class="text-center">Qté livrée</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+                {% for item in data %}
+                    <tr>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                        <th class="text-center">{{ item }}</th>
+                    </tr>
+                {% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+{% endblock %}
