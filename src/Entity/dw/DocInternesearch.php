@@ -4,7 +4,8 @@ namespace App\Entity\dw;
 
 class DocInternesearch
 {
-    private $dateDocument;
+    private $dateDocumentDebut;
+    private $dateDocumentFin;
     private $nomDocument;
     private $typeDocument;
     private $perimetre;
@@ -15,7 +16,8 @@ class DocInternesearch
     public function toArray(): array
     {
         return [
-            "dateDocument" => $this->dateDocument,
+            "dateDocumentDebut" => $this->dateDocumentDebut,
+            "dateDocumentFin" => $this->dateDocumentFin,
             "nomDocument" => $this->nomDocument,
             "typeDocument" => $this->typeDocument,
             "perimetre" => $this->perimetre,
@@ -111,23 +113,6 @@ class DocInternesearch
     }
 
     /**
-     * Get the value of dateDocument
-     */
-    public function getDateDocument()
-    {
-        return $this->dateDocument;
-    }
-
-    /**
-     * Set the value of dateDocument
-     */
-    public function setDateDocument($dateDocument): self
-    {
-        $this->dateDocument = $dateDocument;
-        return $this;
-    }
-
-    /**
      * Get the value of motCle
      */
     public function getMotCle()
@@ -144,6 +129,40 @@ class DocInternesearch
     {
         $this->motCle = $motCle;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDocumentDebut
+     */
+    public function getDateDocumentDebut()
+    {
+        return $this->dateDocumentDebut;
+    }
+
+    /**
+     * Set the value of dateDocumentDebut
+     */
+    public function setDateDocumentDebut($dateDocumentDebut): self
+    {
+        $this->dateDocumentDebut = $dateDocumentDebut;
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDocumentFin
+     */
+    public function getDateDocumentFin()
+    {
+        return $this->dateDocumentFin;
+    }
+
+    /**
+     * Set the value of dateDocumentFin
+     */
+    public function setDateDocumentFin($dateDocumentFin): self
+    {
+        $this->dateDocumentFin = $dateDocumentFin;
         return $this;
     }
 }
