@@ -49,20 +49,21 @@ class DaValidationController extends Controller
 
         /** Ajout non fichier de reference zst */
         $da->setNonFichierRefZst($nomEtChemin['fileName']);
+        self::$em->flush();
 
         /** ENVOIE D'EMAIL */
         $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
         if ($this->estUserDansServiceAtelier()) {
-            $this->envoyerMailAuxAppro([
-                'id'                => $da->getId(),
-                'numDa'             => $da->getNumeroDemandeAppro(),
-                'objet'             => $da->getObjetDal(),
-                'detail'            => $da->getDetailDal(),
-                'fileName'          => $nomEtChemin['fileName'],
-                'filePath'          => $nomEtChemin['filePath'],
-                'dalNouveau'        => $dalNouveau,
-                'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            // $this->envoyerMailAuxAppro([
+            //     'id'                => $da->getId(),
+            //     'numDa'             => $da->getNumeroDemandeAppro(),
+            //     'objet'             => $da->getObjetDal(),
+            //     'detail'            => $da->getDetailDal(),
+            //     'fileName'          => $nomEtChemin['fileName'],
+            //     'filePath'          => $nomEtChemin['filePath'],
+            //     'dalNouveau'        => $dalNouveau,
+            //     'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            // ]);
         } else {
             $this->envoyerMailAuxAte([
                 'id'                => $da->getId(),
@@ -128,8 +129,6 @@ class DaValidationController extends Controller
                 }
             }
         }
-
-        self::$em->flush();
 
         return $da;
     }
