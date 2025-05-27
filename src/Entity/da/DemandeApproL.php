@@ -68,7 +68,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private ?string $artRefp;
+    private ?string $artRefp = '-';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -78,12 +78,12 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private ?string $artFams1;
+    private ?string $artFams1 = '-';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private ?string $artFams2;
+    private ?string $artFams2 = '-';
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
@@ -164,6 +164,16 @@ class DemandeApproL
      * @var integer | null
      */
     private ?int $edit = 0;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="prix_unitaire")
+     */
+    private ?string $prixUnitaire = '0';
+
+    /**
+     * @ORM\Column(type="string", length=50, name="numero_dit")
+     */
+    private ?string $numeroDit = '0';
 
     /**
      * @ORM\Column(type="boolean", name="deleted")
@@ -710,6 +720,46 @@ class DemandeApproL
     public function setEdit($edit)
     {
         $this->edit = $edit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prixUnitaire
+     */
+    public function getPrixUnitaire()
+    {
+        return $this->prixUnitaire;
+    }
+
+    /**
+     * Set the value of prixUnitaire
+     *
+     * @return  self
+     */
+    public function setPrixUnitaire($prixUnitaire)
+    {
+        $this->prixUnitaire = $prixUnitaire;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDit
+     */ 
+    public function getNumeroDit()
+    {
+        return $this->numeroDit;
+    }
+
+    /**
+     * Set the value of numeroDit
+     *
+     * @return  self
+     */ 
+    public function setNumeroDit($numeroDit)
+    {
+        $this->numeroDit = $numeroDit;
 
         return $this;
     }
