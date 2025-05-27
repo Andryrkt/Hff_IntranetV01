@@ -53,3 +53,6 @@ ADD prix_unitaire VARCHAR(100)
 
 ALTER TABLE Demande_Appro_L
 ADD numero_dit VARCHAR(50)
+
+ALTER TABLE Demande_Appro_L
+ADD deleted BIT DEFAULT 0;

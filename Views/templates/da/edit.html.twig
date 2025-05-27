@@ -139,7 +139,7 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
-									<div class="w-20">
+									<div class="w-23">
 										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier} }) }}
 									</div>
 									<div class="d-none">
@@ -196,9 +196,8 @@
 			</div>
 		</div>
 
-		<div id="materielInfos"></div>
 	</div>
-	<div class=" container-fluid">
+	<div class=" container-fluid mt-3">
 		<div class="card">
 			<div class="card-body">
 				<div class="row">
@@ -214,8 +213,6 @@
 			</div>
 		</div>
 	</div>
-
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>

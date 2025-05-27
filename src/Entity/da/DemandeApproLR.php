@@ -147,6 +147,11 @@ class DemandeApproLR
      */
     private string $validePar;
 
+    /**
+     * @ORM\Column(type="boolean", name="deleted")
+     */
+    private $deleted = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -611,7 +616,7 @@ class DemandeApproLR
 
     /**
      * Get the value of validePar
-     */ 
+     */
     public function getValidePar()
     {
         return $this->validePar;
@@ -621,10 +626,30 @@ class DemandeApproLR
      * Set the value of validePar
      *
      * @return  self
-     */ 
+     */
     public function setValidePar($validePar)
     {
         $this->validePar = $validePar;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @return  self
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

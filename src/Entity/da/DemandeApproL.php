@@ -175,6 +175,11 @@ class DemandeApproL
      */
     private ?string $numeroDit = '0';
 
+    /**
+     * @ORM\Column(type="boolean", name="deleted")
+     */
+    private $deleted = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -755,6 +760,26 @@ class DemandeApproL
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @return  self
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

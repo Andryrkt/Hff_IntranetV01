@@ -50,3 +50,7 @@ ALTER COLUMN art_fams2 varchar(50)
 
 ALTER TABLE Demande_Appro_L_R
 ADD valide_par VARCHAR(50)
+
+
+ALTER TABLE Demande_Appro_L_R
+ADD deleted BIT DEFAULT 0;
