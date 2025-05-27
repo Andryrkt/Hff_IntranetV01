@@ -11,6 +11,16 @@ export function eventOnFamille(line) {
   let spinnerElement = getTheField(line, 'codeFams2', 'spinner');
   let containerElement = getTheField(line, 'codeFams2', 'container');
 
+  console.log(
+    'famille',
+    famille,
+    sousFamille,
+    familleLibelle,
+    sousFamilleLibelle,
+    spinnerElement,
+    containerElement
+  );
+
   famille.addEventListener('change', function () {
     if (famille.value !== '') {
       updateDropdown(
