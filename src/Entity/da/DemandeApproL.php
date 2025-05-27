@@ -165,6 +165,11 @@ class DemandeApproL
      */
     private ?int $edit = 0;
 
+    /**
+     * @ORM\Column(type="boolean", name="deleted")
+     */
+    private $deleted = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -705,6 +710,26 @@ class DemandeApproL
     public function setEdit($edit)
     {
         $this->edit = $edit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @return  self
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
 
         return $this;
     }

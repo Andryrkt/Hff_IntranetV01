@@ -47,3 +47,6 @@ ADD numero_version INT DEFAULT 0
 
 ALTER TABLE Demande_Appro_L
 ADD edit INT DEFAULT 0
+
+ALTER TABLE Demande_Appro_L
+ADD deleted BIT DEFAULT 0;
