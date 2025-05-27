@@ -514,7 +514,7 @@ class DitModel extends Model
               AND slor_soc=seor_soc
               AND sitv_soc=seor_soc
           --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-          AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
+          --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS','LR6','LST')
           AND seor_numor = '" . $numOr . "'
           --AND SEOR_SUCC = '01'
           group by 1, 2, 3, 4, 5

@@ -12,6 +12,7 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Model\da\DaModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
@@ -32,6 +33,7 @@ class DaNewController extends Controller
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DaModel $daModel;
 
 
     public function __construct()
@@ -41,6 +43,7 @@ class DaNewController extends Controller
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->daModel = new DaModel();
     }
 
     /**
@@ -91,6 +94,7 @@ class DaNewController extends Controller
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
             $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $numDit = $demandeAppro->getNumeroDemandeDit();
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
             /** ajout de ligne de demande appro dans la table Demande_Appro_L */
@@ -100,6 +104,8 @@ class DaNewController extends Controller
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(self::DA_STATUT)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
+                    ->setNumeroDit($numDit)
                 ;
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
