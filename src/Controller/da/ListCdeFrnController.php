@@ -14,15 +14,19 @@ class ListCdeFrnController extends Controller
      **/
     public function listCdeFrn(Request $request)
     {
-        $data = [];
+        $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(CdeFrnListType::class)->getForm();
+        $form = self::$validator->createBuilder(CdeFrnListType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
 
         $form->handleRequest($request);
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
+
+        $data = [];
 
         self::$twig->display('da/list-cde-frn.html.twig', [
             'data' => $data,
