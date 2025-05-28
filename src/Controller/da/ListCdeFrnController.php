@@ -3,12 +3,25 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Form\da\CdeFrnListType;
+use App\Model\da\DaListeCdeFrnModel;
+use App\Service\TableauEnStringService;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListCdeFrnController extends Controller
 {
+    private DaListeCdeFrnModel $daListeCdeFrnModel;
+    private DemandeApproRepository $demandeApproRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+    }
     /** 
      * @Route(path="/demande-appro/liste-commande-fournisseurs", name="list_cde_frn") 
      **/
@@ -25,11 +38,18 @@ class ListCdeFrnController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-
-        $data = [];
+        $numDits = $this->demandeApproRepository->getNumDit();
+        $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
+        // dd($numDitString);
+        $datas = $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString);
+        foreach ($datas as $data) {
+            $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
+            ['num_da' => $numDa] + $data;
+        }
+        // dd($datas);
 
         self::$twig->display('da/list-cde-frn.html.twig', [
-            'data' => $data,
+            'data' => $datas,
             'form' => $form->createView(),
         ]);
     }
