@@ -82,7 +82,8 @@
 								<th class="w-10">Fournisseur</th>
 								<th class="w-10">Date fin souhaitée</th>
 								<th class="w-5">Quantité</th>
-								<th class="w-23">Commentaire</th>
+								<th class="w-20">Commentaire</th>
+								<th class="w-3">Fiche technique</th>
 								<th class="w-2">
 									<i class="fas fa-times fs-5"></i>
 								</th>
@@ -139,8 +140,11 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
-									<div class="w-23">
+									<div class="w-20">
 										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier } }) }}
+									</div>
+									<div class="w-3">
+										{{ form_widget(DAL.estFicheTechnique, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp, { 'attr': { 'disabled': peutModifier } }) }}
