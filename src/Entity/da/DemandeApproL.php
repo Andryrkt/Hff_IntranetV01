@@ -142,6 +142,11 @@ class DemandeApproL
     private $estValidee = false;
 
     /**
+     * @ORM\Column(type="boolean", name="est_fiche_technique")
+     */
+    private $estFicheTechnique = false;
+
+    /**
      * @ORM\Column(type="boolean", name="est_modifier")
      */
     private $estModifier = false;
@@ -746,7 +751,7 @@ class DemandeApproL
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -756,7 +761,7 @@ class DemandeApproL
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -780,6 +785,26 @@ class DemandeApproL
     public function setDeleted($deleted)
     {
         $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estFicheTechnique
+     */
+    public function getEstFicheTechnique()
+    {
+        return $this->estFicheTechnique;
+    }
+
+    /**
+     * Set the value of estFicheTechnique
+     *
+     * @return  self
+     */
+    public function setEstFicheTechnique($estFicheTechnique)
+    {
+        $this->estFicheTechnique = $estFicheTechnique;
 
         return $this;
     }
