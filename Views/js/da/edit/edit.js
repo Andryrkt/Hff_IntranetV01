@@ -19,6 +19,12 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById('myForm').submit();
     }
   });
+
+  document.querySelectorAll('.delete-DA').forEach((deleteButton) => {
+    deleteButton.addEventListener('click', function () {
+      deleteLigneDa(this);
+    });
+  });
 });
 
 window.addEventListener('load', () => {
@@ -33,8 +39,6 @@ function buildIndexFromLinesAndBindEvents() {
     if (match) {
       let index = parseInt(match[1]);
 
-      updateIdAndName(el, index);
-
       if (!isNaN(index) && index > maxIndex) {
         maxIndex = index;
       }
@@ -47,24 +51,20 @@ function buildIndexFromLinesAndBindEvents() {
   localStorage.setItem('index', maxIndex);
 }
 
-function updateIdAndName(inputs, newIndex) {
-  inputs
-    .querySelectorAll("[id^='demande_appro_form_DAL_']")
-    .forEach((input) => {
-      const oldId = input.id;
-      const idMatch = oldId.match(
-        /^demande_appro_form_DAL_(\d+)_([a-zA-Z0-9]+)$/
-      );
-      if (idMatch) {
-        const [, oldIndex, fieldName] = idMatch;
-
-        // Nouveau ID
-        const newId = `demande_appro_form_DAL_${newIndex}_${fieldName}`;
-        input.id = newId;
-
-        // Nouveau name
-        const newName = `demande_appro_form[DAL][${newIndex}][${fieldName}]`;
-        input.name = newName;
-      }
-    });
+function deleteLigneDa(button) {
+  if (
+    confirm(
+      'Êtes-vous sûr(e) de vouloir retirer cette ligne de demande d’achat ?'
+    )
+  ) {
+    let prototypeId = button.getAttribute('prototype-id');
+    let container = document.getElementById(
+      `demande_appro_form_DAL_${prototypeId}`
+    );
+    let deletedCheck = document.getElementById(
+      `demande_appro_form_DAL_${prototypeId}_deleted`
+    );
+    container.classList.add('d-none'); // cacher la ligne de DA
+    deletedCheck.checked = true; // cocher le champ deleted
+  }
 }

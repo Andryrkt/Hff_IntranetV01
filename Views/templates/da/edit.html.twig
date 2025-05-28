@@ -91,8 +91,7 @@
 						</thead>
 					</table>
 					<div id="children-container">
-						{% for DAL in form.DAL %}
-							{% set ligne = loop.index %}
+						{% for ligne, DAL in form.DAL %}
 							<div id="demande_appro_form_DAL_{{ ligne }}">
 								<div class="row g-3">
 									<div class="w-15">
@@ -172,7 +171,7 @@
 									</div>
 									<div class="w-2">
 										<a style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
-											<span title="Supprimer la ligne de DA" style="cursor: pointer; ">
+											<span class="delete-DA" prototype-id="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
 												<i class="fas fa-times fs-4"></i>
 											</span>
 										</a>

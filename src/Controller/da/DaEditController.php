@@ -268,12 +268,28 @@ class DaEditController extends Controller
         foreach ($demandeApproLs as $demandeApproL) {
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                // ->setNumeroLigne($demandeApproL->getNumeroLigne())
                 ->setStatutDal(self::DA_STATUT)
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)
             ; // Incrémenter le numéro de version
+            $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DA
+        }
+    }
+
+    /**
+     * Suppression logique des DALR correspondant au DAL $dal
+     *
+     * @param DemandeApproL $dal
+     * @return void
+     */
+    private function deleteDALR(DemandeApproL $dal)
+    {
+        if ($dal->getDeleted() === true) {
+            foreach ($dal->getDemandeApproLR() as $dalr) {
+                $dalr->setDeleted(true);
+                self::$em->persist($dalr);
+            }
         }
     }
 
