@@ -24,6 +24,7 @@ export function createFieldAndAppendTo(
     'artRefp',
     'numeroFournisseur',
     'estFicheTechnique',
+    'deleted',
   ].includes(fieldName);
 
   if (fieldName === 'dateFinSouhaite') {

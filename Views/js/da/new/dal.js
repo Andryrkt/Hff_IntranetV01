@@ -49,6 +49,7 @@ export function ajouterUneLigne() {
     ['d-none', 'artFams2'],
     ['d-none', 'numeroFournisseur'],
     ['d-none', 'catalogue'],
+    ['d-none', 'deleted'],
     ['d-none', 'numeroLigne'],
   ];
 

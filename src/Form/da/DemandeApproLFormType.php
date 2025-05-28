@@ -94,6 +94,10 @@ class DemandeApproLFormType extends AbstractType
                 'required' => false,
                 'label'    => false,
             ])
+            ->add('deleted', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
+            ])
             ->add('numeroLigne', TextType::class, [
                 'label' => false,
                 'required' => false,

@@ -89,7 +89,6 @@ class DaNewController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            dd($demandeAppro->getDAL());
             $demandeAppro
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
