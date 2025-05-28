@@ -3,11 +3,53 @@
 namespace App\Model\da;
 
 use App\Model\Model;
+use App\Model\Traits\ConditionModelTrait;
 
 class DaListeCdeFrnModel extends Model
 {
-    public function getInfoCdeFrn(string $numDitString): array
+    use ConditionModelTrait;
+
+    public function getInfoCdeFrn(string $numDitString, array $criteria): array
     {
+        //les conditions de filtre
+        $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
+        $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
+        $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'ref', $criteria);
+
+        if (!empty($criteria['numFrn'])) {
+            $numFrn = $criteria['numFrn'];
+            $numFournisseur = "AND CASE
+                    when slor_natcm = 'C' then (select fcde_numfou from frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_numfou from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END = $numFrn";
+        } else {
+            $numFournisseur = '';
+        }
+
+        if (!empty($criteria['frn'])) {
+            $nomFrn = $criteria['frn'];
+            $nomFournisseur = "AND CASE
+                    when slor_natcm = 'C' then (select distinct fbse_nomfou from frn_cde inner join frn_bse on fbse_numfou = fcde_numfou where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fbse_nomfou from frn_cde
+                                                inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf
+                                                inner join frn_bse on fbse_numfou = fcde_numfou)
+                END = $nomFrn";
+        } else {
+            $nomFournisseur = '';
+        }
+
+        if (!empty($criteria['numCde'])) {
+            $numCde = $criteria['numCde'];
+            $numCommande = "AND CASE
+                    when slor_natcm = 'C' then (select fcde_numcde from frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_numcde from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END = $numCde";
+        } else {
+            $numCommande = '';
+        }
+
+        //requête
         $statement = "SELECT
                 TRIM(seor_refdem) as num_dit,
                 slor_numor as num_or,
@@ -46,6 +88,13 @@ class DaListeCdeFrnModel extends Model
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
                 --and TRIM(seor_refdem) IN ($numDitString)
+                $numDit
+                $numOr
+                $designation
+                $referencePiece
+                $numFournisseur
+                $nomFournisseur
+                $numCommande
                 order by num_dit, num_or , num_fournisseur , nom_fournisseur , num_cde
         ";
 

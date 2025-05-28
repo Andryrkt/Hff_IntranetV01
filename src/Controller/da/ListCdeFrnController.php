@@ -41,7 +41,7 @@ class ListCdeFrnController extends Controller
         $numDits = $this->demandeApproRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
         // dd($numDitString);
-        $datas = $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString);
+        $datas = $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
         foreach ($datas as $data) {
             $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
             ['num_da' => $numDa] + $data;

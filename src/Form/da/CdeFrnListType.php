@@ -47,10 +47,6 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'n° Commande',
                 'required' => false
             ])
-            ->add('statut', TextType::class, [
-                'label' => 'Statut',
-                'required' => false
-            ])
             ->add('ref', TextType::class, [
                 'label' => 'Réference',
                 'required' => false

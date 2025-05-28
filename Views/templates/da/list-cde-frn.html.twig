@@ -23,9 +23,9 @@
 	</div>
 
 	<div class="container-fluid">
-		<div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+		<div class="table-responsive" style="max-height: 70vh; overflow-y: auto; ">
 			<table class="table table-plein-ecran">
-				<thead class="table-dark sticky-top">
+				<thead class="table-dark sticky-top z-2">
 					<tr>
 						<th class="text-center">N° DA</th>
 						<th class="text-center">Achat direct</th>
@@ -46,7 +46,7 @@
 					{% for item in data %}
 						<tr>
 							<th class="text-center">{{ item.num_da }}</th>
-							<th class="text-center"></th>
+							<th class="text-center">NON</th>
 							<th class="text-center">{{ item.num_dit }}</th>
 							<th class="text-center">{{ item.num_or }}</th>
 							<th class="text-center">{{ item.num_fournisseur }}</th>
@@ -69,5 +69,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js" type="module"></script>
 {% endblock %}
