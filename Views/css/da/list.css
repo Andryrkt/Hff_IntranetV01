@@ -169,7 +169,7 @@ tr.sub-separator > td {
 /* Style pour fixer l'en-tête du tableau */
 .table-plein-ecran thead tr {
   position: sticky;
-  /* top: 210px; Fixe en haut de la zone défilable */
+  /* top: 210px; /* Valeur défini en JS */
   z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
   background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
   color: white; /* Texte blanc pour correspondre au style "table-dark" */
