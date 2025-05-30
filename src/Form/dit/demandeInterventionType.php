@@ -49,6 +49,7 @@ class demandeInterventionType extends AbstractType
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
         'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
     ];
 
     const INTERNE_EXTERNE = [
@@ -113,7 +114,7 @@ class demandeInterventionType extends AbstractType
                 $data = $event->getData();
 
 
-                $agenceId = $data['agence']?? null;
+                $agenceId = $data['agence'] ?? null;
 
                 $services = [];
 
@@ -123,7 +124,7 @@ class demandeInterventionType extends AbstractType
                         $services = $agence->getServices();
                     }
                 }
-                
+
 
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur *',
@@ -310,7 +311,7 @@ class demandeInterventionType extends AbstractType
                 'numeroTel',
                 TelType::class,
                 [
-                    
+
                     'label' => 'N° téléphone (*EXTERNE)',
                     'required' => false,
                     'attr' => [
@@ -323,7 +324,7 @@ class demandeInterventionType extends AbstractType
                 'mailClient',
                 EmailType::class,
                 [
-                    
+
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
                     'attr' => [
@@ -341,7 +342,7 @@ class demandeInterventionType extends AbstractType
                 'attr' => [
                     'disabled' => true,
                     'class' => 'clientSousContrat'
-                    ]
+                ]
             ])
 
             ->add('datePrevueTravaux', DateType::class, [
@@ -444,7 +445,7 @@ class demandeInterventionType extends AbstractType
                     'label' => " Id Matériel *",
                     'required' => true,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ],
                     'constraints' => [
@@ -461,11 +462,11 @@ class demandeInterventionType extends AbstractType
                     'label' => " N° Parc",
                     'required' => false,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ]
                 ]
-                
+
             )
             ->add(
                 'numSerie',
@@ -474,7 +475,7 @@ class demandeInterventionType extends AbstractType
                     'label' => " N° Serie",
                     'required' => false,
                     'attr' => [
-                        'class' => 'noEntrer autocomplete', 
+                        'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ]
                 ]

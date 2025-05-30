@@ -1,4 +1,5 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
+import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
 const fetchManager = new FetchManager();
@@ -7,6 +8,11 @@ window.addEventListener("load", () => {
   displayOverlay(false);
 });
 
+document.addEventListener("DOMContentLoaded", function () {
+  mergeCellsRecursiveTable(2); // fusionne le tableau
+});
+
+/** =========================================================*/
 async function fetchFournisseurs() {
   return await fetchManager.get("api/numero-libelle-fournisseur");
 }
