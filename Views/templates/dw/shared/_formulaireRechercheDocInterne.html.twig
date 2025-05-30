@@ -1,7 +1,6 @@
-{% import "macroForm.html.twig" as macroForm %}
 <!-- DEBUT recherche -->
 {% set role_ids = App.user.roleIds %}
-<div class="accordion" id="accordionExample">
+<div class="accordion mb-2" id="accordionExample">
 	<div class="accordion-item">
 		<h2 class="accordion-header">
 			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
@@ -13,29 +12,23 @@
 				{{ form_start(form, {'method': 'GET'}) }}
 				<div class="row">
 					<div class="col-12 col-md-2">
-						{{ macroForm.agence_service_change(form.Agence, form.service, 'spinner-service', 'service-container')}}
+						{{ form_row(form.dateDocument) }}
+						{{ form_row(form.motCle) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.typeDemande) }}
-						{{ form_row(form.NumDdp) }}
+						{{form_row(form.nomDocument)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.numFacture) }}
-						{{ form_row(form.numCommande) }}
+						{{form_row(form.typeDocument)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.utilisateur) }}
-						{{ form_row(form.statut) }}
+						{{ form_row(form.perimetre) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.dateDebut) }}
-						{{ form_row(form.dateFin) }}
+						{{form_row(form.processusLie)}}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.fournisseur) }}
-						<div id="suggestion-fournisseur" class="suggestions-container"></div>
-						<div id="loader-fournisseur" class="spinner" style="display: none;">Chargement...</div>
-						{{ form_row(form.numDossier)}}
+						{{form_row(form.nomResponsable)}}
 					</div>
 				</div>
 

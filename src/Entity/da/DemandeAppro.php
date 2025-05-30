@@ -126,11 +126,6 @@ class DemandeAppro
      * @ORM\OneToMany(targetEntity=DemandeApproL::class, mappedBy="demandeAppro")
      */
     private Collection $DAL;
-
-    private ?DemandeIntervention $dit = null;
-
-    private $observation;
-
     /**
      * @ORM\Column(type="string", length=100, name="statut_email")
      */
@@ -145,6 +140,16 @@ class DemandeAppro
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private string $validePar;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fichier_reference_zst")
+     */
+    private ?string $nonFichierRefZst = null;
+
+
+    private ?DemandeIntervention $dit = null;
+
+    private $observation;
 
     private $numDossierDouane;
 
@@ -633,7 +638,7 @@ class DemandeAppro
 
     /**
      * Get the value of numDossierDouane
-     */ 
+     */
     public function getNumDossierDouane()
     {
         return $this->numDossierDouane;
@@ -643,10 +648,30 @@ class DemandeAppro
      * Set the value of numDossierDouane
      *
      * @return  self
-     */ 
+     */
     public function setNumDossierDouane($numDossierDouane)
     {
         $this->numDossierDouane = $numDossierDouane;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nonFichierRefZst
+     */
+    public function getNonFichierRefZst()
+    {
+        return $this->nonFichierRefZst;
+    }
+
+    /**
+     * Set the value of nonFichierRefZst
+     *
+     * @return  self
+     */
+    public function setNonFichierRefZst($nonFichierRefZst)
+    {
+        $this->nonFichierRefZst = $nonFichierRefZst;
 
         return $this;
     }
