@@ -56,3 +56,6 @@ ADD numero_dit VARCHAR(50)
 
 ALTER TABLE Demande_Appro_L
 ADD deleted BIT DEFAULT 0;
+
+ALTER TABLE Demande_Appro_L
+ADD est_fiche_technique BIT DEFAULT 0;

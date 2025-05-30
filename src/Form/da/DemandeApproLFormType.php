@@ -86,7 +86,15 @@ class DemandeApproLFormType extends AbstractType
                     'readonly' => true,
                 ]
             ])
+            ->add('estFicheTechnique', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
+            ])
             ->add('catalogue', CheckboxType::class, [
+                'required' => false,
+                'label'    => false,
+            ])
+            ->add('deleted', CheckboxType::class, [
                 'required' => false,
                 'label'    => false,
             ])

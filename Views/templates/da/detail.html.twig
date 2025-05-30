@@ -161,6 +161,9 @@
 										{{ form_widget(DAL.catalogue, { 'attr': { 'disabled': true} }) }}
 									</div>
 									<div class="d-none">
+										{{ form_widget(DAL.deleted, { 'attr': { 'disabled': peutModifier } }) }}
+									</div>
+									<div class="d-none">
 										{{ form_widget(DAL.numeroLigne, { 'attr': { 'disabled': true}, 'data': ligne}) }}
 									</div>
 								</div>

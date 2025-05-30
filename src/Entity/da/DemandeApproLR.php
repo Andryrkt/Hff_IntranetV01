@@ -152,6 +152,12 @@ class DemandeApproLR
      */
     private $deleted = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_fiche_technique")
+     */
+    private $estFicheTechnique = false;
+
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -650,6 +656,26 @@ class DemandeApproLR
     public function setDeleted($deleted)
     {
         $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estFicheTechnique
+     */
+    public function getEstFicheTechnique()
+    {
+        return $this->estFicheTechnique;
+    }
+
+    /**
+     * Set the value of estFicheTechnique
+     *
+     * @return  self
+     */
+    public function setEstFicheTechnique($estFicheTechnique)
+    {
+        $this->estFicheTechnique = $estFicheTechnique;
 
         return $this;
     }
