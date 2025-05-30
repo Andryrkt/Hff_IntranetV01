@@ -12,20 +12,20 @@
 {% endblock %}
 
 {% block content %}
-
-	<div class="container mb-3">
-		<h3 class="perso-titre">
-			Liste des commandes fournisseurs
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-		{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+	<div class="sticky-header-titre">
+		<div class="container mb-3">
+			<h3 class="perso-titre">
+				Liste des commandes fournisseurs
+			</h3>
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
+			{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+		</div>
 	</div>
-
 	<div class="container-fluid">
-		<div class="table-responsive" style="max-height: 70vh; overflow-y: auto; ">
+		<div class="table-responsive">
 			<table class="table table-plein-ecran">
-				<thead class="table-dark sticky-top z-2">
+				<thead class="table-dark">
 					<tr>
 						<th class="text-center">N° DA</th>
 						<th class="text-center">Achat direct</th>

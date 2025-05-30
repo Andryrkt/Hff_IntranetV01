@@ -135,3 +135,43 @@
   font-style: italic;
   padding: 10px;
 }
+
+/**===================================
+* Séparateurs pour les niveaux de la liste
+*--======================================/
+/* Bande pleine : utilisée uniquement pour le niveau racine */
+.separator-row td {
+  height: 4px;
+  background: #000;
+  padding: 0 !important;
+  border: none;
+}
+
+/* Trait fin pour les sous-niveaux (niveaux 2, 3, …)        */
+.sub-separator td,
+tr.sub-separator > td {
+  border-top: 2px solid #000; /* même couleur que la bande pleine */
+}
+
+/**==========================================
+* fixer l'en-tête du tableau et le titre
+==============================================*/
+/* Conteneur pour l'en-tête fixe */
+.sticky-header-titre {
+  position: sticky;
+  top: 0; /* Fixe au sommet de la page */
+  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+  padding-bottom: 10px;
+  /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+}
+
+/* Style pour fixer l'en-tête du tableau */
+.table-plein-ecran thead tr {
+  position: sticky;
+  /* top: 210px; Fixe en haut de la zone défilable */
+  z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
+  background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
+  color: white; /* Texte blanc pour correspondre au style "table-dark" */
+  padding: 10px;
+}
