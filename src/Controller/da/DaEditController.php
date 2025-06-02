@@ -11,10 +11,12 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -35,6 +37,7 @@ class DaEditController extends Controller
     private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $daLRepository;
+    private DemandeApproLRRepository $daLRRepository;
     private DaObservation $daObservation;
 
     public function __construct()
@@ -44,6 +47,7 @@ class DaEditController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->daLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->daObservation = new DaObservation();
     }
 
@@ -275,10 +279,11 @@ class DaEditController extends Controller
             $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DA
         }
+        die;
     }
 
     /**
-     * Suppression logique des DALR correspondant au DAL $dal
+     * Suppression physique des DALR correspondant au DAL $dal
      *
      * @param DemandeApproL $dal
      * @return void
@@ -286,8 +291,9 @@ class DaEditController extends Controller
     private function deleteDALR(DemandeApproL $dal)
     {
         if ($dal->getDeleted() === true) {
-            foreach ($dal->getDemandeApproLR() as $dalr) {
-                $dalr->setDeleted(true);
+            $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+            foreach ($dalrs as $dalr) {
+                self::$em->remove($dalr);
                 self::$em->persist($dalr);
             }
         }
