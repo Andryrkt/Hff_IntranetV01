@@ -18,6 +18,7 @@ use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -134,7 +135,7 @@ class DemandeApproL
     /**
      * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
      */
-    private $demandeApproLR;
+    private Collection $demandeApproLR;
 
     /**
      * @ORM\Column(type="boolean", name="est_validee")

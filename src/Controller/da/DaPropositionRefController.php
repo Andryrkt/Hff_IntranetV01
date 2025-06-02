@@ -686,6 +686,8 @@ class DaPropositionRefController extends Controller
             ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
         ;
 
+        $DAL->getDemandeApproLR()->add($demandeApproLR);
+
         return $demandeApproLR;
     }
 }
