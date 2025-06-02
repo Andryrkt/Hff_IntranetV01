@@ -12,9 +12,14 @@ class DwProcessusProcedureRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('d');
 
-        if (!empty($docInternesearch->getDateDocument())) {
-            $queryBuilder->andWhere('d.dateDocument = :dateDoc')
-                ->setParameter('dateDoc', $docInternesearch->getDateDocument());
+        if (!empty($docInternesearch->getDateDocumentDebut())) {
+            $queryBuilder->andWhere('d.dateDocument >= :dateDebut')
+                ->setParameter('dateDebut', $docInternesearch->getDateDocumentDebut());
+        }
+
+        if (!empty($docInternesearch->getDateDocumentFin())) {
+            $queryBuilder->andWhere('d.dateDocument <= :dateFin')
+                ->setParameter('dateFin', $docInternesearch->getDateDocumentFin());
         }
 
         if (!empty($docInternesearch->getNomDocument())) {

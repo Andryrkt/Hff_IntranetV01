@@ -21,27 +21,27 @@
 		<table class="table rounded table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th>Date</th>
-					<th>Type de document</th>
-					<th>Périmètre de diffusion</th>
+					<th class="text-center">Date de document</th>
 					<th>Nom du document</th>
-					<th>Processus lié</th>
-					<th>Responsable processus</th>
-					<th>N° de version</th>
-					<th>Date de version</th>
+					<th class="text-center">Type de document</th>
+					<th class="text-center">Périmètre de diffusion</th>
+					<th class="text-center">Processus lié</th>
+					<th class="text-center">Responsable processus</th>
+					<th class="text-center">N° de version</th>
+					<th class="text-center">Date de version</th>
 				</tr>
 			</thead>
 			<tbody>
 				{% for item in data %}
 					<tr>
-						<td>{{ item.dateDocument | date('d/m/Y') }}</td>
-						<td>{{ item.typeDocument}}</td>
-						<td>{{ item.perimetre}}</td>
+						<td class="text-center">{{ item.dateDocument | date('d/m/Y') }}</td>
 						<td><a target="_blank" href="/Upload/documentation/{{ item.idDocument }}.pdf">{{ item.nomDocument}}</a></td>
-						<td>{{ item.processusLie}}</td>
-						<td>{{ item.nomResponsable}}</td>
-						<td>{{ item.numeroVersion}}</td>
-						<td>{{ item.dateModification | date('d/m/Y') }}</td>
+						<td class="text-center">{{ item.typeDocument}}</td>
+						<td class="text-center">{{ item.perimetre}}</td>
+						<td class="text-center">{{ item.processusLie}}</td>
+						<td class="text-center">{{ item.nomResponsable}}</td>
+						<td class="text-center">{{ item.numeroVersion}}</td>
+						<td class="text-center">{{ item.dateModification | date('d/m/Y') }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>
