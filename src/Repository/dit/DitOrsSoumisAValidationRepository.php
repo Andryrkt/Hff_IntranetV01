@@ -340,4 +340,26 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return ((int) $matchingCount > 0) ? 'ne pas bloquer' : 'bloquer';
     }
+
+    public function getDateEtMontantOR($numOr)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $qb = $this->createQueryBuilder('osv');
+        $qb->select('osv.dateSoumission, SUM(osv.montantItv) AS totalMontant')
+            ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numOr' => $numOr,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->groupBy('osv.dateSoumission');;
+
+        return $qb->getQuery()->getResult();
+    }
 }

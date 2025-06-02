@@ -15,7 +15,6 @@ class DdpSearch
     private $dateFin;
     private $statut;
     private $fournisseur;
-    private $numDossier;
 
     /**
      * Get the value of agence
@@ -219,7 +218,7 @@ class DdpSearch
 
     /**
      * Get the value of fournisseur
-     */
+     */ 
     public function getFournisseur()
     {
         return $this->fournisseur;
@@ -229,30 +228,10 @@ class DdpSearch
      * Set the value of fournisseur
      *
      * @return  self
-     */
+     */ 
     public function setFournisseur($fournisseur)
     {
         $this->fournisseur = $fournisseur;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of numDossier
-     */ 
-    public function getNumDossier()
-    {
-        return $this->numDossier;
-    }
-
-    /**
-     * Set the value of numDossier
-     *
-     * @return  self
-     */ 
-    public function setNumDossier($numDossier)
-    {
-        $this->numDossier = $numDossier;
 
         return $this;
     }

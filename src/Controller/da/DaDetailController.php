@@ -19,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaDetailController extends Controller
 {
+    private const ID_ATELIER = 3;
+
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
@@ -59,7 +61,8 @@ class DaDetailController extends Controller
             'idDit'             => $id,
             'numeroVersionMax'  => $numeroVersionMax,
             'numDa'             => $numDa,
-            'nomFichierRefZst' => $demandeAppro->getNonFichierRefZst()
+            'nomFichierRefZst'  => $demandeAppro->getNonFichierRefZst(),
+            'estAte'            => $this->estUserDansServiceAtelier(),
         ]);
     }
 
@@ -75,5 +78,11 @@ class DaDetailController extends Controller
         $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
 
         return $demandeAppro;
+    }
+
+    private function estUserDansServiceAtelier()
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(self::ID_ATELIER, $serviceIds);
     }
 }

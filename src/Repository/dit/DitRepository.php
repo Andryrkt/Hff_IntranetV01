@@ -262,7 +262,8 @@ class DitRepository extends EntityRepository
         if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        } else {
+        } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
+
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
@@ -619,7 +620,7 @@ class DitRepository extends EntityRepository
     {
         return $this->createQueryBuilder('d')
             ->Where('d.numMigration = :numMigr')
-            ->setParameter('numMigr', 6)
+            ->setParameter('numMigr', 5)
             // ->andWhere('d.numeroDemandeIntervention = :numDit')
             // ->setParameter('numDit', 'DIT25010315')
             ->orderBy('d.numeroDemandeIntervention', 'ASC')
@@ -671,7 +672,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options, array $numDits)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -711,7 +712,9 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-
+        $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (:numDit)')
+            ->setParameter('numDit', $numDits)
+        ;
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 

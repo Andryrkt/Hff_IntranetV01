@@ -81,7 +81,8 @@
 								<th class="w-10">Fournisseur</th>
 								<th class="w-10">Date fin souhaitée</th>
 								<th class="w-5">Quantité</th>
-								<th class="w-23">Commentaire</th>
+								<th class="w-20">Commentaire</th>
+								<th class="w-3">Fiche technique</th>
 								<th class="w-2">
 									<i class="fas fa-times fs-5"></i>
 								</th>
@@ -138,8 +139,11 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem) }}
 									</div>
-									<div class="w-23">
+									<div class="w-20">
 										{{ form_widget(DAL.commentaire) }}
+									</div>
+									<div class="w-3">
+										{{ form_widget(DAL.estFicheTechnique) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp) }}
@@ -158,6 +162,9 @@
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.catalogue) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.deleted) }}
 									</div>
 									<div class="w-2">
 										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
@@ -190,10 +197,7 @@
 			</div>
 		</div>
 
-		<div id="materielInfos"></div>
 	</div>
-
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>

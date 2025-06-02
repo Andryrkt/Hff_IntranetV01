@@ -2,7 +2,7 @@
 	La demande d'APPROVISIONNEMENT n°
 	<b>{{ tab.numDa }}</b>
 	a été validée par
-	<b>{{ tab.userConnecter }}</b>.
+	<b>{{ tab.userConnecter }}</b>.{{tab.phraseValidation}}
 </p>
 <p>
 	<b>Détails de la demande:</b>
@@ -17,11 +17,14 @@
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ tab.detail | raw }}
+			</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Proposition</p>
+<p>Demande d'approvisionnement validée par l'appro</p>
 <table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
 	<thead style="background-color:#000; color:#fff;">
 		<tr>
