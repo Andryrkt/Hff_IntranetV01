@@ -13,6 +13,9 @@
 				class="navbar-nav ms-auto mb-2 mb-lg-0">
 				{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 				{% set role_ids = App.user.roleIds %}
+				<pre>
+					{{ dump(App.user) }}
+				</pre>
 				{# FIN Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 
 				{# DEBUT Affiche le menu "Dematerialisation"  #}
@@ -267,7 +270,7 @@
 										Liste inventaire détaillé</a>
 								</li>
 							{% endif %}
-							 <li>
+							<li>
 								<hr class="dropdown-divider">
 							</li>
 							{% if hasLCF %}
