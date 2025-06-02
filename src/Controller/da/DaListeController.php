@@ -127,7 +127,7 @@ class DaListeController extends Controller
             $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($da->getNumeroDemandeAppro());
             // filtre une collection de versions selon le numero de version max
             $dernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-                return $item->getNumeroVersion() == $numeroVersionMax;
+                return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
             $da->setDAL($dernieresVersions);
         }
@@ -158,5 +158,4 @@ class DaListeController extends Controller
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_APPRO, $serviceIds);
     }
-
 }
