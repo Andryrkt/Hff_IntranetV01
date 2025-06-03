@@ -27,3 +27,30 @@
 		</li>
 	</ul>
 </p>
+
+<hr>
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
+	<thead style="background-color:#ffc107;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Réference</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dal in tab.dal %}
+			<tr>
+				<td>{{dal.artFams1}}</td>
+				<td>{{dal.artFams2}}</td>
+				<td>{{dal.artDesi}}</td>
+				<td>{{dal.nomFournisseur}}</td>
+				<td>{{dal.artRefp}}</td>
+				<td>{{dal.commentaire}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<hr>

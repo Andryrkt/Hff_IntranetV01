@@ -174,7 +174,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(50, 6, $dit->getNumeroClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(90);
         $pdf->cell(15, 6, 'Nom :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $dit->getNomClient(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $nomClient = $dit->getNomClient();
+        if (mb_strlen($nomClient) > 40) {
+            $nomClient = mb_substr($nomClient, 0, 37) . '...';
+        }
+        $pdf->cell(0, 6, $nomClient, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->cell(25, 6, 'N° tel :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -229,7 +233,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->Ln(7, true);
 
         $pdf->cell(25, 6, 'Casier :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(40, 6, $dit->getCasier(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $casier = $dit->getCasier();
+        if (mb_strlen($casier) > 17) {
+            $casier = mb_substr($casier, 0, 15) . '...';
+        }
+        $pdf->cell(40, 6, $casier, 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(80);
         $pdf->cell(23, 6, 'Id Matériel :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->cell(20, 6, $dit->getIdMateriel(), 1, 0, '', false, '', 0, false, 'T', 'M');
@@ -310,7 +318,7 @@ class GenererPdfDit extends GeneratePdf
 
         //=================================================================================================
         /**DEUXIEME PAGE */
-        if(!in_array((int)$dit->getIdMateriel(),[14571,7669,7670,7671,7672,7673,7674,7675,7677,9863])) {
+        if (!in_array((int)$dit->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
             $this->affichageHistoriqueMateriel($pdf, $historiqueMateriel);
         }
 

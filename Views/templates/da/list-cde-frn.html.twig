@@ -1,0 +1,89 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as form %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class="container-fluid">
+		<div class="sticky-header-titre">
+			<div class="container mb-3">
+				<h3 class="perso-titre">
+					Liste des commandes fournisseurs
+				</h3>
+				{% include "/partials/_notification.html.twig" %}
+				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
+				{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+			</div>
+		</div>
+		<table class="table table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">N° DA</th>
+					<th class="text-center">Achat direct</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">N° OR</th>
+					<th class="text-center">N° Fournisseur</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">N° Commande</th>
+					<th class="text-center">Réference</th>
+					<th class="text-center">Désignation</th>
+					<th class="text-center">Qté demandée</th>
+					<th class="text-center">Qté en attente</th>
+					<th class="text-center">Qté Dispo (Qté à livrer)</th>
+					<th class="text-center">Qté livrée</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
+					<tr>
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										<a class="dropdown-item fw-bold" href="#">Soumission BC</a>
+									</li>
+									<li>
+										<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" id="">Soumission facture + BL</a>
+									</li>
+								</ul>
+							</div>
+						</td>
+						<td class="text-center">{{ item.num_da }}</td>
+						<td class="text-center">NON</td>
+						<td class="text-center">{{ item.num_dit }}</td>
+						<td class="text-center">{{ item.num_or }}</td>
+						<td class="text-center">{{ item.num_fournisseur }}</td>
+						<td class="text-center">{{ item.nom_fournisseur }}</td>
+						<td class="text-center">{{ item.num_cde }}</td>
+						<td class="text-center">{{ item.reference }}</td>
+						<td class="text-left">{{ item.designation }}</td>
+						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
+						<td class="text-center">{{ item.qte_reliquat == 0 ? '-': item.qte_reliquat }}</td>
+						<td class="text-center">{{ item.qte_a_livrer == 0 ? '-': item.qte_a_livrer }}</td>
+						<td class="text-center">{{ item.qte_livee == 0 ? '-': item.qte_livee }}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js" type="module"></script>
+{% endblock %}

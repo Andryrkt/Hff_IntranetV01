@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
+{% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
 {% endblock %}
@@ -65,12 +65,13 @@
 								<td>{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td>
-								{# {% if serviceAtelier %} #}
-								{# {{ dal.artDesi }} #}
-								{# {% else %} #}
-									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank"> {{ dal.artDesi }}
-								</a>
-								{# {% endif %} #}
+								{% if dal.statutDal == 'Bon validé' or (serviceAppro and dal.statutDal == 'soumis à l’ATE') or (serviceAtelier and dal.statutDal == 'soumis à l’appro') %}
+									{{ dal.artDesi }}
+								{% else %}
+									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+										{{ dal.artDesi }}
+									</a>
+								{% endif %}
 
 							</td>
 							<td>{{ dal.qteDem }}</td>

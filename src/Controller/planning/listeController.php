@@ -51,7 +51,8 @@ class ListeController extends Controller
             PlanningSearchType::class,
             $this->planningSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
+                'planningDetaille' => true,
             ]
         )->getForm();
 
@@ -72,11 +73,7 @@ class ListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('planning_search_criteria', $criteriaTAb);
 
-        // Récupère la page actuelle depuis la requête (par défaut : 1)
-        $page = $request->query->getInt('page', 1);
-        $limit = 50; // Nombre d'éléments par page
-
-        $data = ['data'=>[]];
+        $data = ['data' => []];
         $count = [];
         if ($request->query->get('action') !== 'oui') {
 
@@ -91,7 +88,7 @@ class ListeController extends Controller
                 $backString = '';
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
-            $data = $this->recupData($result, $criteriaTAb, $back);
+            $data = $this->recupData($result, $back);
             // dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
@@ -218,11 +215,11 @@ class ListeController extends Controller
 
 
 
-    public function recupData($result, $criteriaTAb, $back, $sendCmd = false, $excelBack = false)
-    { 
+    public function recupData($result, $back, $sendCmd = false, $excelBack = false)
+    {
         $data = [];
         $data_excel = [];
-    
+
         if (!empty($result)) {
             // dump($result);
             $qteCis = [];
@@ -230,9 +227,9 @@ class ListeController extends Controller
             $dateAllLigCIS = [];
             for ($i = 0; $i < count($result); $i++) {
                 $orItv = $result[$i]['orintv'];
-                if (in_array($orItv, $back) ) {
+                if (in_array($orItv, $back)) {
                     $result[$i]['backOrder'] = $excelBack === false ? 'back' : '';
-                }else{
+                } else {
                     $result[$i]['backOrder'] = $excelBack === false ? 'not' : '';
                 }
                 if (substr($result[$i]['numor'], 0, 1) == '5') {
@@ -380,24 +377,24 @@ class ListeController extends Controller
                     'casier' => $result[$i]['casier'],
                     'commentaire' => $result[$i]['commentaire'],
                     'numor_itv' => $result[$i]['numor'] . '-' . $result[$i]['itv'],
-                    'dateplanning' =>  (new DateTime($result[$i]['dateplanning']))->format('d/m/Y'),
+                    'dateplanning' => (new DateTime($result[$i]['dateplanning']))->format('d/m/Y'),
                     'cst' => $result[$i]['cst'],
                     'ref' => $result[$i]['ref'],
                     'desi' => $result[$i]['desi'],
-                    'qteres_or' => $result[$i]['qteres_or'] == 0 ? '':$result[$i]['qteres_or'] ,
-                    'qteall_or' => $result[$i]['qteall'] == 0 ? '':$result[$i]['qteall'] ,
-                    'qtereliquat' => $result[$i]['qtereliquat'] == 0 ? '':$result[$i]['qtereliquat'],
-                    'qteliv_or' => $result[$i]['qteliv'] == 0 ? '':$result[$i]['qteliv'] ,
+                    'qteres_or' => $result[$i]['qteres_or'] == 0 ? '' : $result[$i]['qteres_or'],
+                    'qteall_or' => $result[$i]['qteall'] == 0 ? '' : $result[$i]['qteall'],
+                    'qtereliquat' => $result[$i]['qtereliquat'] == 0 ? '' : $result[$i]['qtereliquat'],
+                    'qteliv_or' => $result[$i]['qteliv'] == 0 ? '' : $result[$i]['qteliv'],
                     'statutOR' => $statutDetail,
                     'datestatutOR' => $datestatutDetail,
-                    'ctr_marque' => $result[$i]['numcde_cis'] == 0 ? '' :$result[$i]['numcde_cis']  ,
+                    'ctr_marque' => $result[$i]['numcde_cis'] == 0 ? '' : $result[$i]['numcde_cis'],
                     'numerocmd' => $result[$i]['numerocdecis'],
                     'statut_ctrmq' => $result[$i]['statut_ctrmq'] . $result[$i]['statut_ctrmq_cis'],
-                    'numcis' => $result[$i]['numcisOR'] == 0 ? '' :$result[$i]['numcisOR']  ,
-                    'qteORlig_cis' => $result[$i]['qteORlig']== 0 ? '':$result[$i]['qteORlig']  ,
-                    'qtealllig_cis' => $result[$i]['qtealllig'] == 0 ? '':$result[$i]['qtealllig'],
-                    'qterlqlig_cis' => $result[$i]['qterlqlig'] == 0 ? '':$result[$i]['qterlqlig'] ,
-                    'qtelivlig_cis' => $result[$i]['qtelivlig'] == 0 ? '':$result[$i]['qtelivlig'],
+                    'numcis' => $result[$i]['numcisOR'] == 0 ? '' : $result[$i]['numcisOR'],
+                    'qteORlig_cis' => $result[$i]['qteORlig'] == 0 ? '' : $result[$i]['qteORlig'],
+                    'qtealllig_cis' => $result[$i]['qtealllig'] == 0 ? '' : $result[$i]['qtealllig'],
+                    'qterlqlig_cis' => $result[$i]['qterlqlig'] == 0 ? '' : $result[$i]['qterlqlig'],
+                    'qtelivlig_cis' => $result[$i]['qtelivlig'] == 0 ? '' : $result[$i]['qtelivlig'],
                     'statutCis' => $statutCisDetail,
                     'datestatutCis' => $datestatutCisDetail,
                     'Eta_ivato' =>  $dateEtaIvato == '01/01/1900' ? '' : $dateEtaIvato,
@@ -407,7 +404,7 @@ class ListeController extends Controller
                     'status_b' => $result[$i]['status_b'],
                     'Qte_Solde' => $result[$i]['qteSlode'],
                     'qte' => $result[$i]['qte'],
-                    'backorder' =>$result[$i]['backOrder'] 
+                    'backorder' => $result[$i]['backOrder']
                 ];
 
                 $row_excel = $row;
