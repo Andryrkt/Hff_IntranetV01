@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -110,7 +111,7 @@ class DaPropositionRefController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
-            dd($dalrList);
+            // dd($dalrList);
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
@@ -673,22 +674,64 @@ class DaPropositionRefController extends Controller
 
     private function ajoutDonnerDaLR($DAL, $demandeApproLR)
     {
-        $libelleSousFamille = $this->daModel->getLibelleSousFamille($demandeApproLR->getArtFams2(), $demandeApproLR->getArtFams1()); // changement de code sous famille en libelle sous famille
-        $libelleFamille = $this->daModel->getLibelleFamille($demandeApproLR->getArtFams1()); // changement de code famille en libelle famille
+        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigneDem(), $demandeApproLR->getNumLigneTableau());
 
-        $demandeApproLR
-            ->setDemandeApproL($DAL)
-            ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
-            ->setQteDem($DAL->getQteDem())
-            ->setArtConstp($DAL->getArtConstp())
-            ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1()) // ceci doit toujour avant le setArtFams1
-            ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
-            ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
-            ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
-        ;
+        $file = $demandeApproLR->getNomFicheTechnique();
 
-        $DAL->getDemandeApproLR()->add($demandeApproLR);
+        if ($demandeApproLR_Ancien) {
+            $this->uploadFile($file, $demandeApproLR_Ancien);
 
-        return $demandeApproLR;
+            $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
+
+            return $demandeApproLR_Ancien;
+        } else {
+            $libelleSousFamille = $this->daModel->getLibelleSousFamille($demandeApproLR->getArtFams2(), $demandeApproLR->getArtFams1()); // changement de code sous famille en libelle sous famille
+            $libelleFamille = $this->daModel->getLibelleFamille($demandeApproLR->getArtFams1()); // changement de code famille en libelle famille
+
+            $demandeApproLR
+                ->setDemandeApproL($DAL)
+                ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
+                ->setQteDem($DAL->getQteDem())
+                ->setArtConstp($DAL->getArtConstp())
+                ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1()) // ceci doit toujour avant le setArtFams1
+                ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
+                ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
+                ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
+            ;
+            $this->uploadFile($file, $demandeApproLR);
+
+            $DAL->getDemandeApproLR()->add($demandeApproLR);
+
+            return $demandeApproLR;
+        }
+    }
+
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     * (copier le fichier uploader dans une répertoire et le donner un nom)
+     */
+    private function uploadFile(UploadedFile $file, DemandeApproLR $dalr)
+    {
+        $fileName = sprintf(
+            'ft_%s.%s',
+            date("YmdHis"),
+            $file->getClientOriginalExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        $dalr->setNomFicheTechnique($fileName);
     }
 }
