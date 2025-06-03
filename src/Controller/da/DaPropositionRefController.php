@@ -350,6 +350,9 @@ class DaPropositionRefController extends Controller
         return $refs;
     }
 
+    /** 
+     * Modifie l'ancien choix de DAL en ligne de DALR sélectionnée
+     */
     private function modificationChoixEtligneDal($refs, $dals)
     {
         if (!empty($refs)) {
@@ -506,6 +509,7 @@ class DaPropositionRefController extends Controller
                 ->setEstModifier($dalrs[$i][0]->getChoix())
                 ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i][0]->getArtFams2() == NULL ? FALSE : TRUE)
                 ->setPrixUnitaire($this->daModel->getPrixUnitaire($dalrs[$i][0]->getArtRefp())[0])
+                ->setNomFicheTechnique($dalrs[$i][0]->getNomFicheTechnique())
             ;
             self::$em->persist($dals[$i][0]);
         }
