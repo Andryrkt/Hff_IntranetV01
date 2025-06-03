@@ -186,6 +186,11 @@ class DemandeApproL
      */
     private $deleted = false;
 
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fiche_technique")
+     */
+    private $nomFicheTechnique;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -807,6 +812,23 @@ class DemandeApproL
     {
         $this->estFicheTechnique = $estFicheTechnique;
 
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFicheTechnique
+     */
+    public function getNomFicheTechnique()
+    {
+        return $this->nomFicheTechnique;
+    }
+
+    /**
+     * Set the value of nomFicheTechnique
+     */
+    public function setNomFicheTechnique($nomFicheTechnique): self
+    {
+        $this->nomFicheTechnique = $nomFicheTechnique;
         return $this;
     }
 }

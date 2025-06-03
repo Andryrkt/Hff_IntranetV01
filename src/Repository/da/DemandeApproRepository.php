@@ -121,6 +121,7 @@ class DemandeApproRepository extends EntityRepository
             ->where('da.id = :id')
             // On filtre pour ne garder que les DAL avec le numéro de version max
             ->andWhere("dal.numeroVersion = ($subQuery)")
+            ->andWhere("dal.deleted = 0")
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult();

@@ -73,7 +73,7 @@ class DaDetailController extends Controller
         // filtre une collection de versions selon le numero de version max
 
         $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax;
+            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
         });
         $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
 
