@@ -37,7 +37,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   insertCellData(row, '1', 'center', color); // conditionnement TO DO
   insertCellData(row, fields.qteDispo.value, 'center', color);
   insertCellData(row, fields.motif.value, 'left', color);
-  if (estFicheTechnique) {
+  if (tableBody.rows[0].cells.length > 10) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
 
@@ -61,6 +61,13 @@ function insertCellData(row, $data, align = 'center', color = 'red') {
   cell.style.color = color;
 }
 
+function insertCellToRow(row, htmlContent, align = 'center', color = 'red') {
+  let cell = row.insertCell();
+  cell.style.textAlign = align;
+  cell.style.color = color;
+  cell.append(htmlContent);
+}
+
 function insertCellsFicheTechnique(
   row,
   color,
@@ -72,7 +79,9 @@ function insertCellsFicheTechnique(
   lienFicheTechnique.target = '_blank';
   lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
   lienFicheTechnique.textContent = '';
-  insertCellData(row, lienFicheTechnique, 'center', color);
+  console.log(lienFicheTechnique);
+
+  insertCellToRow(row, lienFicheTechnique, 'center', color);
 
   const addFile = document.createElement('a');
   addFile.href = '#';
@@ -93,7 +102,9 @@ function insertCellsFicheTechnique(
     );
     createFicheTechnique(nbrLine, numLigneTableau, inputFile);
   });
-  insertCellData(row, addFile, 'center', color);
+  console.log(addFile);
+
+  insertCellToRow(row, addFile, 'center', color);
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
@@ -156,6 +167,9 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
         ? replaceNameToNewIndex(element.name, newIndex)
         : element.name;
     });
+
+    ajouterValeur(prototype, 'numeroLigneDem', line); // numero de page
+    ajouterValeur(prototype, 'numLigneTableau', rowIndex); // numero de ligne du tableau
 
     container.append(prototype);
     // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file

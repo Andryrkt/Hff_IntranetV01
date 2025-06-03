@@ -110,6 +110,7 @@ class DaPropositionRefController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
+            dd($dalrList);
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
