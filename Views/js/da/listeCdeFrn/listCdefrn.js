@@ -92,7 +92,8 @@ window.addEventListener("resize", adjustStickyPositions);
  * Click droite sur le numero commande
  *===============================================================*/
 const menu = document.getElementById("menuContextuelGlobal");
-const hiddenInput = document.getElementById("da_soumission_commande_id");
+const hiddenInputCde = document.getElementById("da_soumission_commande_id");
+const hiddenInputDa = document.getElementById("da_soumission_da_id");
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -101,7 +102,9 @@ document.addEventListener("contextmenu", function (event) {
   event.preventDefault(); // Empêche le menu contextuel natif
 
   const commandeId = targetCell.dataset.commandeId;
-  hiddenInput.value = commandeId;
+  hiddenInputCde.value = commandeId;
+  const numDa = targetCell.dataset.numDa;
+  hiddenInputDa.value = numDa;
 
   menu.style.top = event.pageY + "px";
   menu.style.left = event.pageX + "px";

@@ -68,10 +68,9 @@
 						<td class="text-center">{{ item.num_or }}</td>
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
-						<td class="text-center commande-cellule commande" data-commande-id="{{ item.num_cde}}">
+						<td class="text-center commande-cellule commande" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
 							{{ item.num_cde }}
 						</td>
-
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>

@@ -25,7 +25,8 @@ class DaSoumissionType extends  AbstractType
                 'label' => 'dossier à soumettre',
                 'data' => true
             ])
-            ->add('commande_id', HiddenType::class);
+            ->add('commande_id', HiddenType::class)
+            ->add('da_id', HiddenType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)
