@@ -11,7 +11,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
+use Symfony\Component\Validator\Constraints\File;
 
 class DemandeApproLRFormType extends AbstractType
 {
@@ -69,6 +71,19 @@ class DemandeApproLRFormType extends AbstractType
             ->add('numLigneTableau', TextType::class, [
                 'label' => false,
                 'required' => false,
+            ])
+            ->add('nomFicheTechnique', FileType::class, [
+                'label' => false,
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/pdf'
+                        ],
+                        'mimeTypesMessage' => 'Veuillez envoyer un fichier valide (PDF ou image)',
+                    ])
+                ],
             ])
         ;
     }
