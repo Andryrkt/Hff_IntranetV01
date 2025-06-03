@@ -175,3 +175,25 @@ tr.sub-separator > td {
   color: white; /* Texte blanc pour correspondre au style "table-dark" */
   padding: 10px;
 }
+
+/**================================================
+* styles pour le menu contextuel de la numero de commande dans la liste cde frn
+*==================================================*/
+.commande {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: none !important;
+}
+.menu-contextuel-custom {
+  position: absolute;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  border-radius: 6px;
+  min-width: 220px;
+}
+
+.menu-contextuel-custom form {
+  margin: 0;
+}

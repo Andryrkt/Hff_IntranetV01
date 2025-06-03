@@ -16,9 +16,9 @@ class DaSoumissionBcController extends Controller
     }
 
     /**
-     * @Route("/soumission-bc/{numDa}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}", name="da_soumission_bc")
      */
-    public function index(string $numDa)
+    public function index(string $numCde)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
