@@ -182,7 +182,7 @@
 						<li class="nav-item dropdown"> <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 							Demande d'Appro</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							{% if 13 not in serv_auto_ids %}
+							{% if 16 not in serv_auto_ids %}
 								<li>
 									<a class="dropdown-item" href="{{ path('da_first_form') }}">Nouvelle Demande d'Appro</a>
 								</li>
@@ -190,9 +190,11 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('da_list') }}">Liste des demandes d'Appro</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('list_cde_frn') }}">Liste des commandes fournisseurs</a>
-							</li>
+							{% if 3 not in serv_auto_ids %}
+								<li>
+									<a class="dropdown-item" href="{{ path('list_cde_frn') }}">Liste des commandes fournisseurs</a>
+								</li>
+							{% endif %}
 						</ul>
 					</li>
 				{% endif %}
