@@ -20,7 +20,7 @@ class DaSoumissionBcRepository extends EntityRepository
         return $result !== null ? (int) $result : null;
     }
 
-    public function getStatut(string $numCde): ?string
+    public function getStatut(?string $numCde): ?string
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('dabc')
