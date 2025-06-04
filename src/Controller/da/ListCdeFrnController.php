@@ -3,10 +3,12 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\CdeFrnListType;
 use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
+use App\Repository\da\DaSoumissionBcRepository;
 use App\Service\TableauEnStringService;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,12 +18,14 @@ class ListCdeFrnController extends Controller
 {
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
     /** 
      * @Route(path="/demande-appro/liste-commande-fournisseurs", name="list_cde_frn") 
@@ -36,7 +40,7 @@ class ListCdeFrnController extends Controller
 
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $datas = $this->recuperationDonner($criteria);
-        $this->ajouterNumDa($datas);
+        $this->ajouterNumDaEtStatutBc($datas);
 
 
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
@@ -81,11 +85,15 @@ class ListCdeFrnController extends Controller
         return $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
     }
 
-    private function ajouterNumDa(array $datas): void
+    private function ajouterNumDaEtStatutBc(array $datas): void
     {
         foreach ($datas as $data) {
             $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
-            ['num_da' => $numDa] + $data;
+            $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
+            [
+                'num_da' => $numDa,
+                'statut_bc' => $statutBc == null ? '' : $statutBc,
+            ] + $data;
         }
     }
 
