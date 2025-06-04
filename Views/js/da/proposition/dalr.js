@@ -35,7 +35,8 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   );
   insertCellData(row, formaterNombre(total), 'right', color);
   insertCellData(row, '1', 'center', color); // conditionnement TO DO
-  insertCellData(row, fields.qteDispo.value, 'center', color);
+  let qteDispo = fields.qteDispo.value === '' ? '-' : fields.qteDispo.value;
+  insertCellData(row, qteDispo, 'center', color);
   insertCellData(row, fields.motif.value, 'left', color);
   if (tableBody.rows[0].cells.length > 10) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
