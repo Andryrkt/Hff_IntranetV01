@@ -26,18 +26,19 @@
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th>N° Demande</th>
-					<th>N° DIT</th>
-					<th>Demandeur</th>
-					<th>Date de demande</th>
+					<th class="text-center">N° Demande</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Demandeur</th>
+					<th class="text-center">Date de demande</th>
 					<th>Statut</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					<th>Réference</th>
 					<th>Désignation</th>
-					<th>Qté dem</th>
-					<th>Nbre Frn assigné</th>
-					<th>Date fin souhaitée</th>
+					<th class="text-center">Qté dem</th>
+					<th class="text-center">Nbr Frn assigné</th>
+					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Nbr Jour(s) dispo</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -74,9 +75,10 @@
 								{% endif %}
 
 							</td>
-							<td>{{ dal.qteDem }}</td>
-							<td>0</td>
-							<td>{{ dal.dateFinSouhaite | date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.qteDem }}</td>
+							<td class="text-center">0</td>
+							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 						</tr>
 					{% endfor %}
 				{% endfor %}

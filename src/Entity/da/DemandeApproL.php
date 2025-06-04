@@ -3,23 +3,11 @@
 namespace App\Entity\da;
 
 use DateTime;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\dom\Rmq;
-use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
-use App\Entity\Traits\AgenceServiceTrait;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeApproLRepository::class)
@@ -185,6 +173,13 @@ class DemandeApproL
      * @ORM\Column(type="boolean", name="deleted")
      */
     private $deleted = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fiche_technique")
+     */
+    private $nomFicheTechnique;
+
+    private $joursDispo;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -806,6 +801,43 @@ class DemandeApproL
     public function setEstFicheTechnique($estFicheTechnique)
     {
         $this->estFicheTechnique = $estFicheTechnique;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFicheTechnique
+     */
+    public function getNomFicheTechnique()
+    {
+        return $this->nomFicheTechnique;
+    }
+
+    /**
+     * Set the value of nomFicheTechnique
+     */
+    public function setNomFicheTechnique($nomFicheTechnique): self
+    {
+        $this->nomFicheTechnique = $nomFicheTechnique;
+        return $this;
+    }
+
+    /**
+     * Get the value of joursDispo
+     */
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set the value of joursDispo
+     *
+     * @return  self
+     */
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
 
         return $this;
     }

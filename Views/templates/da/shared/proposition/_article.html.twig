@@ -9,6 +9,7 @@
 {% set codeFamille = article.codeFams1 ?? '-' %}
 {% set codeSousFamille = article.codeFams2 ?? '-' %}
 {% set referencePiece = article.artRefp ?? '-' %}
+{% set ficheTechnique = article.estFicheTechnique ? 'OUI' : 'NON' %}
 
 <div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
 	<div class="h2 text-uppercase fw-bold position-absolute text-{{ catalogueCss }}" style="top:65px;right:30px;">{{ catalogueBool }}</div>
@@ -34,8 +35,11 @@
 		<div class="col-3 col-md-3">
 			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-7">
+		<div class="col-3 col-md-5">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
+		</div>
+		<div class="col-3 col-md-2">
+			{{ macroForm.affichage2('Fiche Technique', ficheTechnique, 'mb-2') }}
 		</div>
 		<div class="col-3 col-md-2">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
@@ -156,10 +160,10 @@
 							<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 						</div>
 					</div>
-				</div>
-				<div class="mb-2">
-					<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif (*)</label>
-					<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+					<div class="mb-2">
+						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif (*)</label>
+						<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+					</div>
 				</div>
 				<div class="mb-2 d-none">
 					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}">
@@ -189,11 +193,16 @@
 				<th>Conditionnement</th>
 				<th>Qté Dispo</th>
 				<th>Commentaire / motif</th>
+				{% if article.estFicheTechnique %}
+					<th>Fiche technique</th>
+					{% if not estAte %}
+					<th><i class="fas fa-paperclip"></i></th>
+					{% endif %}
+				{% endif %}
 			</tr>
 		</thead>
 
 		<tbody id="tableBody_{{ currentPage }}">
-
 			{% for DALR in article.demandeApproLR %}
 				<tr>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
@@ -207,8 +216,17 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.conditionnement }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
+					{% if article.estFicheTechnique %}
+					<td class="align-middle">
+						<a href="/Upload/da/fichiers/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
+					</td>
+					{% if not estAte %}
+					<td class="align-middle">
+						<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
+					</td>
+					{% endif %}
+					{% endif %}
 				</tr>
-
 			{% endfor %}
 		</tbody>
 	</table>

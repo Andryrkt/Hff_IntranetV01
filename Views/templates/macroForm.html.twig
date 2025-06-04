@@ -125,11 +125,6 @@
 </div>
 {% endmacro %}
 
-{% macro affichage2(label, class = "", value = "", id = "") %}
-<label for="" class="mt-2">{{label}}</label>
-<div class="d-flex align-items-center {{ class }} border border-secondary border-1 rounded px-1 pt-1 bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
-{% endmacro %}
-
 {% macro affichage3(label, class = "", value = "", id = "") %}
 <label for="" class="mt-2">{{label}}</label>
 <div class="d-flex align-items-center {{ class }} border border-secondary border-1 rounded bg-secondary-subtle fw-bold" style="min-height: 22px;" id="{{id}}">{{value}}</div>
@@ -146,7 +141,13 @@
 
 {% macro affichage2(label, value = "", class = "", id = "") %}
 	<label for="" class="mt-2">{{label}}</label>
-	<div class="d-flex align-items-center {{ class }} div-disabled fw-bold" id="{{id}}">
+	<div class="d-flex align-items-center {{ class }} div-disabled" id="{{id}}">
+		{{value}}
+	</div>
+{% endmacro %}
+
+{% macro affichageSimple(value = "", class = "", id = "") %}
+	<div class="d-flex align-items-center {{ class }} div-disabled" id="{{id}}">
 		{{value}}
 	</div>
 {% endmacro %}

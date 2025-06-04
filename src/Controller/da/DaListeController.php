@@ -13,6 +13,7 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -126,10 +127,19 @@ class DaListeController extends Controller
         foreach ($das as $da) {
             $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($da->getNumeroDemandeAppro());
             // filtre une collection de versions selon le numero de version max
-            $dernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-                return $item->getNumeroVersion() == $numeroVersionMax;
+            $dalDernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
+                return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
-            $da->setDAL($dernieresVersions);
+
+            foreach ($dalDernieresVersions as $dal) {
+                $dateFin = $dal->getDateFinSouhaite();
+                $aujourdhui = new DateTime('now');
+                $interval = $aujourdhui->diff($dateFin);
+                $days = ($aujourdhui > $dateFin ? -1 : 1) * $interval->days;
+                $dal->setJoursDispo($days);
+            }
+
+            $da->setDAL($dalDernieresVersions);
         }
 
 
@@ -158,5 +168,4 @@ class DaListeController extends Controller
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_APPRO, $serviceIds);
     }
-
 }
