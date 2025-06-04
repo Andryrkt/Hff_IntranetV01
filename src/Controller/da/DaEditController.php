@@ -279,7 +279,6 @@ class DaEditController extends Controller
             $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DA
         }
-        die;
     }
 
     /**

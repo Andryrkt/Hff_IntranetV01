@@ -35,6 +35,7 @@
 					<th>Sous-famille</th>
 					<th>Réference</th>
 					<th>Désignation</th>
+					<th class="text-center">Fiche technique</th>
 					<th class="text-center">Qté dem</th>
 					<th class="text-center">Nbr Frn assigné</th>
 					<th class="text-center">Date fin souhaitée</th>
@@ -75,6 +76,8 @@
 								{% endif %}
 
 							</td>
+							{% set ficheTechnique = dal.estFicheTechnique ? 'OUI' : 'NON' %}
+							<td class="text-center">{{ ficheTechnique }}</td>
 							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">0</td>
 							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
