@@ -5,6 +5,7 @@ namespace App\Controller\da;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\CdeFrnListType;
+use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Service\TableauEnStringService;
 use App\Repository\da\DemandeApproRepository;
@@ -33,24 +34,73 @@ class ListCdeFrnController extends Controller
             'method' => 'GET',
         ])->getForm();
 
+        $criteria = $this->traitementFormulaireRecherche($request, $form);
+        $datas = $this->recuperationDonner($criteria);
+        $this->ajouterNumDa($datas);
+
+
+        $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
+            'method' => 'GET',
+        ])->getForm();
+
+        $formSoumission->handleRequest($request);
+
+        if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
+            $soumission = $formSoumission->getData();
+
+            if ($soumission['soumission'] === true) {
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+            } else {
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+            }
+        }
+
+
+
+        self::$twig->display('da/list-cde-frn.html.twig', [
+            'data' => $datas,
+            'form' => $form->createView(),
+            'formSoumission' => $formSoumission->createView(),
+        ]);
+    }
+
+    private function traitementFormulaireRecherche(Request $request, $form): array
+    {
         $form->handleRequest($request);
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
+        return $criteria;
+    }
+
+    private function recuperationDonner(array $criteria): array
+    {
         $numDits = $this->demandeApproRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
-        // dd($numDitString);
-        $datas = $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+        return $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+    }
+
+    private function ajouterNumDa(array $datas): void
+    {
         foreach ($datas as $data) {
             $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
             ['num_da' => $numDa] + $data;
         }
-        // dd($datas);
+    }
 
-        self::$twig->display('da/list-cde-frn.html.twig', [
-            'data' => $datas,
-            'form' => $form->createView(),
-        ]);
+    private function traitementFormulaireSoumission(Request $request, $formSoumission): void
+    {
+        $formSoumission->handleRequest($request);
+
+        if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
+            $soumission = $formSoumission->getData();
+
+            if ($soumission['soumission'] === true) {
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+            } else {
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+            }
+        }
     }
 }

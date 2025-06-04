@@ -87,3 +87,33 @@ document
 // Exécutez le script une fois au chargement de la page
 window.addEventListener("DOMContentLoaded", adjustStickyPositions);
 window.addEventListener("resize", adjustStickyPositions);
+
+/**=============================================================
+ * Click droite sur le numero commande
+ *===============================================================*/
+const menu = document.getElementById("menuContextuelGlobal");
+const hiddenInputCde = document.getElementById("da_soumission_commande_id");
+const hiddenInputDa = document.getElementById("da_soumission_da_id");
+
+document.addEventListener("contextmenu", function (event) {
+  const targetCell = event.target.closest(".commande-cellule");
+  if (!targetCell) return; // Ne fait rien si ce n’est pas une cellule cible
+
+  event.preventDefault(); // Empêche le menu contextuel natif
+
+  const commandeId = targetCell.dataset.commandeId;
+  hiddenInputCde.value = commandeId;
+  const numDa = targetCell.dataset.numDa;
+  hiddenInputDa.value = numDa;
+
+  menu.style.top = event.pageY + "px";
+  menu.style.left = event.pageX + "px";
+  menu.style.display = "block";
+});
+
+// Fermer le menu si clic ailleurs
+document.addEventListener("click", function (event) {
+  if (!menu.contains(event.target)) {
+    menu.style.display = "none";
+  }
+});
