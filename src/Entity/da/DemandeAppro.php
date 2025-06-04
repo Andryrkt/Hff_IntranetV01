@@ -3,24 +3,14 @@
 namespace App\Entity\da;
 
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\dom\Rmq;
-use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
-use App\Entity\Traits\AgenceServiceTrait;
-use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeApproRepository::class)
@@ -372,6 +362,34 @@ class DemandeAppro
     public function setDateFinSouhaite($dateFinSouhaite): self
     {
         $this->dateFinSouhaite = $dateFinSouhaite;
+        return $this;
+    }
+
+    /**
+     * Définit la date de fin souhaitée automatiquement à 3 jours ouvrables à partir d'aujourd'hui.
+     *
+     * @return  self
+     */
+    public function setDateFinSouhaiteAutomatique()
+    {
+        $date = new DateTime();
+
+        // Compteur pour les jours ouvrables ajoutés
+        $joursOuvrablesAjoutes = 0;
+
+        // Ajouter des jours jusqu'à obtenir 3 jours ouvrables
+        while ($joursOuvrablesAjoutes < 3) {
+            // Ajouter un jour
+            $date->modify('+1 day');
+
+            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
+            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
+                $joursOuvrablesAjoutes++;
+            }
+        }
+
+        $this->setDateFinSouhaite($date);
+
         return $this;
     }
 

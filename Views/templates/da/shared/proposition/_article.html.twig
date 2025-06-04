@@ -195,7 +195,9 @@
 				<th>Commentaire / motif</th>
 				{% if article.estFicheTechnique %}
 					<th>Fiche technique</th>
+					{% if not estAte %}
 					<th><i class="fas fa-paperclip"></i></th>
+					{% endif %}
 				{% endif %}
 			</tr>
 		</thead>
@@ -216,14 +218,13 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 					{% if article.estFicheTechnique %}
 					<td class="align-middle">
-						<a href="#" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
+						<a href="/Upload/da/fichiers/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
 					</td>
+					{% if not estAte %}
 					<td class="align-middle">
 						<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
 					</td>
-					<td class="d-none">
-						<input type="file" accept=".pdf" class="input-ft" id="input_ft_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}">
-					</td>
+					{% endif %}
 					{% endif %}
 				</tr>
 			{% endfor %}
