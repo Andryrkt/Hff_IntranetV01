@@ -32,16 +32,20 @@
 		</div>
 	</div>
 	<div class="row">
+
+		{% if not estAte %}
 		<div class="col-3 col-md-3">
 			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-5">
+		{% endif %}
+
+		<div class="col-3 col-md-{{ estAte ? '6' : '5' }}">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-2">
+		<div class="col-3 col-md-{{ estAte ? '3' : '2' }}">
 			{{ macroForm.affichage2('Fiche Technique', ficheTechnique, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-2">
+		<div class="col-3 col-md-{{ estAte ? '3' : '2' }}">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
 		</div>
 	</div>
@@ -186,7 +190,9 @@
 			<tr>
 				<th>Choix</th>
 				<th>Fournisseur</th>
-				<th>Référence</th>
+				{% if not estAte %}
+				<th>Référence</th>									
+				{% endif %}
 				<th>Désignation</th>
 				<th>PU</th>
 				<th>Montant Total</th>
@@ -209,7 +215,9 @@
 						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
+					{% if not estAte %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
+					{% endif %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
