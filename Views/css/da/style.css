@@ -1,5 +1,11 @@
 .div-disabled {
   pointer-events: none;
+}
+.div-disabled-2 {
+  overflow: hidden;
+}
+.div-disabled,
+.div-disabled-2 {
   background-color: #e9ecef;
   border: 1px solid #d2d2d2;
   padding: 6px 7px 4px;
@@ -27,7 +33,8 @@ a.choix:hover {
   transform: scale(1.05);
 }
 
-#children-container .mt-3 {
+#children-container .mt-3,
+#children-container .mt-2 {
   width: 100%;
   height: 2px;
   background-color: rgba(0, 0, 0, 0.175);
