@@ -36,8 +36,9 @@
 					<th>Réference</th>
 					<th>Désignation</th>
 					<th class="text-center">Qté dem</th>
-					<th class="text-center">Nbre Frn assigné</th>
+					<th class="text-center">Nbr Frn assigné</th>
 					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Nbr Jour(s) dispo</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -76,7 +77,8 @@
 							</td>
 							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">0</td>
-							<td class="text-center">{{ dal.dateFinSouhaite | date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 						</tr>
 					{% endfor %}
 				{% endfor %}
