@@ -8,6 +8,7 @@ use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
+use App\Repository\da\DaSoumissionBcRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -22,6 +23,7 @@ class DaSoumissionBcController extends Controller
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
 
     public function __construct()
     {
@@ -31,6 +33,7 @@ class DaSoumissionBcController extends Controller
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionBc';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
+        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
 
     /**
@@ -69,36 +72,63 @@ class DaSoumissionBcController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionBc = $form->getData();
-            dd($soumissionBc);
-            /** ENREGISTREMENT DE FICHIER */
-            $nomDeFichier = $this->enregistrementFichier($form);
+            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde)) {
+                /** ENREGISTREMENT DE FICHIER */
+                $nomDeFichier = $this->enregistrementFichier($form);
 
-            /** AJOUT DES INFO NECESSAIRE */
-            $soumissionBc->setNumeroCde($numCde)
-                ->setUtilisateur($this->getUser()->getUsername())
-                ->setPieceJoint1($nomDeFichier)
-                ->setStatut(self::STATUT_SOUMISSION)
-            ;
+                /** AJOUT DES INFO NECESSAIRE */
+                $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+                $soumissionBc->setNumeroCde($numCde)
+                    ->setUtilisateur($this->getUser()->getUsername())
+                    ->setPieceJoint1($nomDeFichier)
+                    ->setStatut(self::STATUT_SOUMISSION)
+                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ;
 
-            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            self::$em->persist($soumissionBc);
-            self::$em->flush();
+                /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+                self::$em->persist($soumissionBc);
+                self::$em->flush();
 
-            /** COPIER DANS DW */
-            //TODO: A REVOIR
+                /** COPIER DANS DW */
+                //TODO: A REVOIR
 
-            /** HISTORISATION */
-            $this->historiqueOperation->sendNotificationSoumission('Le document est soumis pour validation', $numCde, 'list_cde_frn', true);
+                /** HISTORISATION */
+                $message = 'Le document est soumis pour validation';
+                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
+            }
         }
     }
 
     private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): array
     {
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
         return [
             'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
+            'statut' => $statut === self::STATUT_SOUMISSION,
         ];
+    }
+
+    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): bool
+    {
+        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde);
+        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $okey = false;
+
+        if ($conditions['nomDeFichier']) {
+            $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un BC";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['statut']) {
+            $message = "Echec lors de la soumission, un BC est déjà en cours de validation ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $okey = false;
+        } else {
+            $okey = true; // Aucune condition de blocage n'est remplie
+        }
+
+        return $okey;
     }
 
     /**
@@ -132,5 +162,13 @@ class DaSoumissionBcController extends Controller
         }
 
         return $nomDeFichie;
+    }
+
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
     }
 }
