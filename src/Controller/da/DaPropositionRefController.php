@@ -702,7 +702,10 @@ class DaPropositionRefController extends Controller
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
             ;
-            $this->uploadFile($file, $demandeApproLR);
+
+            if ($file) {
+                $this->uploadFile($file, $demandeApproLR);
+            }
 
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
