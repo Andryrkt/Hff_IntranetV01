@@ -1,7 +1,7 @@
-import { replaceNameToNewIndex } from '../new/dal';
-import { formaterNombre } from '../../utils/formatNumberUtils';
-import { boutonRadio } from './boutonRadio.js';
-import { generateCustomFilename } from '../../utils/dateUtils.js';
+import { replaceNameToNewIndex } from "../new/dal";
+import { formaterNombre } from "../../utils/formatNumberUtils";
+import { boutonRadio } from "./boutonRadio.js";
+import { generateCustomFilename } from "../../utils/dateUtils.js";
 
 export function ajouterUneLigne(line, fields, iscatalogue) {
   const tableBody = document.getElementById(`tableBody_${line}`);
@@ -9,36 +9,39 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
   const row = tableBody.insertRow();
   const rowIndex = tableBody.rows.length; // numero de ligne du tableau
-  console.log('Ligne ajoutée n°', rowIndex);
+  console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);
 
   // Insérer des données dans le tableau
   const radioId = `radio_${line}_${rowIndex}`;
 
   // Déterminer la couleur selon la condition
-  const color = prixUnitaire === 0 ? 'red' : '#000';
+  const color = prixUnitaire === 0 ? "red" : "#000";
 
   insertCellData(
     row,
     `<input type="radio" name="selectedRow_${line}" id="${radioId}" value="${
-      line + '-' + rowIndex
+      line + "-" + rowIndex
     }" checked>`
   );
-  insertCellData(row, fields.fournisseur.value, 'Center', color);
-  insertCellData(row, fields.reference.value, 'Center', color);
-  insertCellData(row, fields.designation.value, 'left', color);
+  insertCellData(row, fields.fournisseur.value, "Center", color);
+  insertCellData(row, fields.reference.value, "Center", color);
+  insertCellData(row, fields.designation.value, "left", color);
   insertCellData(
     row,
     formaterNombre(fields.prixUnitaire.value),
-    'right',
+    "right",
     color
   );
-  insertCellData(row, formaterNombre(total), 'right', color);
-  insertCellData(row, '1', 'center', color); // conditionnement TO DO
-  let qteDispo = fields.qteDispo.value === '' ? '-' : fields.qteDispo.value;
-  insertCellData(row, qteDispo, 'center', color);
-  insertCellData(row, fields.motif.value, 'left', color);
-  if (tableBody.rows[0].cells.length > 10) {
+  insertCellData(row, formaterNombre(total), "right", color);
+  insertCellData(row, "1", "center", color); // conditionnement TO DO
+  let qteDispo = fields.qteDispo.value === "" ? "-" : fields.qteDispo.value;
+  insertCellData(row, qteDispo, "center", color);
+  insertCellData(row, fields.motif.value, "left", color);
+
+  let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
+
+  if (nbrColonnes > 10) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
 
@@ -49,20 +52,20 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
 
   // Vider les valeurs dans les champs
   Object.values(fields).forEach((field) => {
-    if (iscatalogue != '1' || !field.id.includes('_codeFams')) {
-      field.value = '';
+    if (iscatalogue != "1" || !field.id.includes("_codeFams")) {
+      field.value = "";
     }
   });
 }
 
-function insertCellData(row, $data, align = 'center', color = 'red') {
+function insertCellData(row, $data, align = "center", color = "red") {
   let cell = row.insertCell();
   cell.innerHTML = $data;
   cell.style.textAlign = align;
   cell.style.color = color;
 }
 
-function insertCellToRow(row, htmlContent, align = 'center', color = 'red') {
+function insertCellToRow(row, htmlContent, align = "center", color = "red") {
   let cell = row.insertCell();
   cell.style.textAlign = align;
   cell.style.color = color;
@@ -75,27 +78,27 @@ function insertCellsFicheTechnique(
   numeroLigneDem,
   numLigneTableau
 ) {
-  const lienFicheTechnique = document.createElement('a');
-  lienFicheTechnique.href = '#';
-  lienFicheTechnique.target = '_blank';
+  const lienFicheTechnique = document.createElement("a");
+  lienFicheTechnique.href = "#";
+  lienFicheTechnique.target = "_blank";
   lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
-  lienFicheTechnique.textContent = '';
+  lienFicheTechnique.textContent = "";
   console.log(lienFicheTechnique);
 
-  insertCellToRow(row, lienFicheTechnique, 'center', color);
+  insertCellToRow(row, lienFicheTechnique, "center", color);
 
-  const addFile = document.createElement('a');
-  addFile.href = '#';
-  addFile.title = 'Joindre une fiche technique';
+  const addFile = document.createElement("a");
+  addFile.href = "#";
+  addFile.title = "Joindre une fiche technique";
   addFile.dataset.nbrLine = numeroLigneDem;
   addFile.dataset.nbrLineTable = numLigneTableau;
 
-  const icon = document.createElement('i');
-  icon.className = 'fas fa-paperclip';
+  const icon = document.createElement("i");
+  icon.className = "fas fa-paperclip";
 
   addFile.appendChild(icon);
 
-  addFile.addEventListener('click', function () {
+  addFile.addEventListener("click", function () {
     const nbrLine = addFile.dataset.nbrLine;
     const numLigneTableau = addFile.dataset.nbrLineTable;
     const inputFile = document.getElementById(
@@ -105,20 +108,20 @@ function insertCellsFicheTechnique(
   });
   console.log(addFile);
 
-  insertCellToRow(row, addFile, 'center', color);
+  insertCellToRow(row, addFile, "center", color);
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
   // let newIndex = Date.now();
   let newIndex = line + rowIndex;
   let prototype = document
-    .getElementById('child-prototype')
+    .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype
-  let container = document.getElementById('demande_appro_lr_collection_DALR'); // contenant du formulaire
-  container.style.display = 'none'; // ne pas afficher le contenant
+  let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
+  container.style.display = "none"; // ne pas afficher le contenant
 
   prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
-  prototype.querySelectorAll('[id], [name]').forEach(function (element) {
+  prototype.querySelectorAll("[id], [name]").forEach(function (element) {
     element.id = element.id
       ? replaceNameToNewIndex(element.id, newIndex)
       : element.id;
@@ -127,19 +130,19 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
       : element.name;
   });
 
-  ajouterValeur(prototype, 'numeroLigneDem', line); // numero de page
-  ajouterValeur(prototype, 'numeroFournisseur', fields.numeroFournisseur.value);
-  ajouterValeur(prototype, 'nomFournisseur', fields.fournisseur.value);
-  ajouterValeur(prototype, 'artRefp', fields.reference.value);
-  ajouterValeur(prototype, 'artDesi', fields.designation.value);
-  ajouterValeur(prototype, 'qteDispo', fields.qteDispo.value);
-  ajouterValeur(prototype, 'prixUnitaire', fields.prixUnitaire.value);
-  ajouterValeur(prototype, 'total', total);
-  ajouterValeur(prototype, 'conditionnement', '1'); // conditionnement TO DO
-  ajouterValeur(prototype, 'motif', fields.motif.value);
-  ajouterValeur(prototype, 'artFams1', fields.famille.value);
-  ajouterValeur(prototype, 'artFams2', fields.sousFamille.value);
-  ajouterValeur(prototype, 'numLigneTableau', rowIndex); // numero de ligne du tableau
+  ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+  ajouterValeur(prototype, "numeroFournisseur", fields.numeroFournisseur.value);
+  ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
+  ajouterValeur(prototype, "artRefp", fields.reference.value);
+  ajouterValeur(prototype, "artDesi", fields.designation.value);
+  ajouterValeur(prototype, "qteDispo", fields.qteDispo.value);
+  ajouterValeur(prototype, "prixUnitaire", fields.prixUnitaire.value);
+  ajouterValeur(prototype, "total", total);
+  ajouterValeur(prototype, "conditionnement", "1"); // conditionnement TO DO
+  ajouterValeur(prototype, "motif", fields.motif.value);
+  ajouterValeur(prototype, "artFams1", fields.famille.value);
+  ajouterValeur(prototype, "artFams2", fields.sousFamille.value);
+  ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
   container.append(prototype);
 }
@@ -150,17 +153,17 @@ function ajouterValeur(prototype, fieldId, value) {
 
 export function createFicheTechnique(line, rowIndex, inputFile) {
   if (!inputFile) {
-    console.log('input file inexistant');
+    console.log("input file inexistant");
 
     let newIndex = line + rowIndex;
     let prototype = document
-      .getElementById('child-prototype')
+      .getElementById("child-prototype")
       .firstElementChild.cloneNode(true); // Clonage du prototype
-    let container = document.getElementById('demande_appro_lr_collection_DALR'); // contenant du formulaire
-    container.style.display = 'none'; // ne pas afficher le contenant
+    let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
+    container.style.display = "none"; // ne pas afficher le contenant
 
     prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
-    prototype.querySelectorAll('[id], [name]').forEach(function (element) {
+    prototype.querySelectorAll("[id], [name]").forEach(function (element) {
       element.id = element.id
         ? replaceNameToNewIndex(element.id, newIndex)
         : element.id;
@@ -169,27 +172,27 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
         : element.name;
     });
 
-    ajouterValeur(prototype, 'numeroLigneDem', line); // numero de page
-    ajouterValeur(prototype, 'numLigneTableau', rowIndex); // numero de ligne du tableau
+    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
     container.append(prototype);
     // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file
     const inputFileInserted = prototype.querySelector('input[type="file"]');
 
     if (inputFileInserted) {
-      inputFileInserted.accept = '.pdf';
-      inputFileInserted.addEventListener('change', (e) =>
+      inputFileInserted.accept = ".pdf";
+      inputFileInserted.addEventListener("change", (e) =>
         onFileInputChange(e, line, rowIndex)
       );
       inputFileInserted.click();
     } else {
       console.warn(
-        'Le nouvel input file est introuvable dans le prototype cloné.'
+        "Le nouvel input file est introuvable dans le prototype cloné."
       );
     }
   } else {
-    inputFile.accept = '.pdf';
-    inputFile.addEventListener('change', (e) =>
+    inputFile.accept = ".pdf";
+    inputFile.addEventListener("change", (e) =>
       onFileInputChange(e, line, rowIndex)
     );
     inputFile.click();
@@ -197,7 +200,7 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
 }
 
 export function onFileInputChange(event, nbrLine, numLigneTableau) {
-  console.log('tong ato', nbrLine, numLigneTableau);
+  console.log("tong ato", nbrLine, numLigneTableau);
 
   const input = event.currentTarget;
 
@@ -214,6 +217,6 @@ export function onFileInputChange(event, nbrLine, numLigneTableau) {
   if (file && fileLink) {
     const fileURL = URL.createObjectURL(file);
     fileLink.href = fileURL;
-    fileLink.textContent = generateCustomFilename('ft');
+    fileLink.textContent = generateCustomFilename("ft");
   }
 }
