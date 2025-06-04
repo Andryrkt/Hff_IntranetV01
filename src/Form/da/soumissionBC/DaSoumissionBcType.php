@@ -24,7 +24,7 @@ class DaSoumissionBcType extends AbstractType
                 FileType::class,
                 [
                     'label' => 'Bc à soumettre',
-                    'required' => false,
+                    'required' => true,
                     'constraints' => [
                         new File([
                             'maxSize' => '5M',

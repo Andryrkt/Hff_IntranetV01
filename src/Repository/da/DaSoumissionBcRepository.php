@@ -4,4 +4,7 @@ namespace App\Repository\da;
 
 use Doctrine\ORM\EntityRepository;
 
-class DaSoumissionBcRepository extends EntityRepository {}
+class DaSoumissionBcRepository extends EntityRepository {
+    public function getStatut()
+    {}
+}

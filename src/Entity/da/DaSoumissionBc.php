@@ -3,6 +3,7 @@
 namespace App\Entity\da;
 
 use App\Entity\Traits\DateTrait;
+use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaSoumissionBcRepository;
 
 /**
@@ -24,27 +25,27 @@ class DaSoumissionBc
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
-    private string $numeroDemandeAppro;
+    private ?string $numeroDemandeAppro;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
-    private string $numeroDemandeDit;
+    private ?string $numeroDemandeDit;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private string $numeroOR;
+    private ?string $numeroOR;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
      */
-    private string $numeroCde;
+    private ?string $numeroCde;
 
     /**
      * @ORM\Column(type="string", length=100, name="statut")
      */
-    private string $statut;
+    private ?string $statut;
 
     /**
      * @ORM\Column(type="string", length=255, name="piece_joint1")
@@ -55,6 +56,11 @@ class DaSoumissionBc
      * @ORM\Column(type="string", length=255, name="utilisateur")
      */
     private $utilisateur;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_version")
+     */
+    private $numeroVersion;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -205,6 +211,18 @@ class DaSoumissionBc
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
+
+        return $this;
+    }
+
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    public function setNumeroVersion($numeroVersion): self
+    {
+        $this->numeroVersion = $numeroVersion;
 
         return $this;
     }
