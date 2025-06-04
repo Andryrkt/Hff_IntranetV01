@@ -517,6 +517,10 @@ class DemandeIntervention
      */
     private $dateAnnulation;
 
+    private $dateSoumissionOR;
+
+    private $montantTotalOR;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1623,6 +1627,46 @@ class DemandeIntervention
     public function setDateAnnulation($dateAnnulation)
     {
         $this->dateAnnulation = $dateAnnulation;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of dateSoumissionOR
+     */ 
+    public function getDateSoumissionOR()
+    {
+        return $this->dateSoumissionOR;
+    }
+
+    /**
+     * Set the value of dateSoumissionOR
+     *
+     * @return  self
+     */ 
+    public function setDateSoumissionOR($dateSoumissionOR)
+    {
+        $this->dateSoumissionOR = $dateSoumissionOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalOR
+     */ 
+    public function getMontantTotalOR()
+    {
+        return $this->montantTotalOR;
+    }
+
+    /**
+     * Set the value of montantTotalOR
+     *
+     * @return  self
+     */ 
+    public function setMontantTotalOR($montantTotalOR)
+    {
+        $this->montantTotalOR = $montantTotalOR;
 
         return $this;
     }

@@ -51,7 +51,8 @@ class ListeController extends Controller
             PlanningSearchType::class,
             $this->planningSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
+                'planningDetaille' => true,
             ]
         )->getForm();
 

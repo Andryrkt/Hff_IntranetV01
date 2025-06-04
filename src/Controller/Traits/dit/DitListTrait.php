@@ -560,7 +560,6 @@ trait DitListTrait
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
 
-
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
 
@@ -580,7 +579,24 @@ trait DitListTrait
         $this->ajoutMarqueCasierMateriel($paginationData['data']);
         $this->ajoutEstOrASoumis($paginationData['data'], $em);
 
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
         return $paginationData;
+    }
+
+    private function ajoutDateEtMontantOR($datas, $em)
+    {
+        foreach ($datas as $data) {
+            if (!empty($data->getNumeroOR()) && $data->getNumeroOR() !== 'NULL') {
+                $dateEtMontant = $em->getRepository(DitOrsSoumisAValidation::class)->getDateEtMontantOR($data->getNumeroOR());
+                if (!empty($dateEtMontant)) {
+                    $data
+                        ->setDateSoumissionOR($dateEtMontant[0]['dateSoumission'])
+                        ->setMontantTotalOR($dateEtMontant[0]['totalMontant'])
+                    ;
+                }
+            }
+        }
     }
 
     private function ajoutEstOrASoumis($paginationData, $em)

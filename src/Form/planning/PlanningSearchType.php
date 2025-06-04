@@ -141,12 +141,12 @@ class PlanningSearchType extends AbstractType
                                 ])
                 ->add('dateDebut', DateType::class, [
                     'widget' => 'single_text',
-                    'label' => 'Date Début',
+                    'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
                     'required' => false,
                 ])
                 ->add('dateFin', DateType::class, [
                     'widget' => 'single_text',
-                    'label' => 'Date Fin',
+                    'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
                     'required' => false,
                 ])
                 ->add('numOr', TextType::class, [
@@ -262,6 +262,7 @@ class PlanningSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => PlanningSearch::class,
+            'planningDetaille' => false,
         ]);
        
     }

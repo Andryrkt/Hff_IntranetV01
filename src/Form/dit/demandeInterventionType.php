@@ -49,6 +49,7 @@ class demandeInterventionType extends AbstractType
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
         'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
     ];
 
     const INTERNE_EXTERNE = [

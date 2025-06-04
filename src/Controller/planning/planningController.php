@@ -57,7 +57,8 @@ class PlanningController extends Controller
             PlanningSearchType::class,
             $this->planningSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
+                'planningDetaille' => false,
             ]
         )->getForm();
 

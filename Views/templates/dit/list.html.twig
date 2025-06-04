@@ -76,6 +76,8 @@
 					<th>Statut Devis</th>
 					<th>N° OR</th>
 					<th class="fw-bold">Statut OR</th>
+					<th>Montant Total OR</th>
+					<th>Date Soumission OR</th>
 					{# <th>Statut Livraison Pièces</th> #}
 					{# <th>Statut Achats Locaux</th> #}
 					<th>Statut facture</th>
@@ -190,6 +192,8 @@
 
 							{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
 							<td class="fw-bold ">{{ item.statutor}}</td>
+							<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
+							<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
 							{# <td>{{ item.statutachatpiece}}</td> #}
 							{# <td>{{ item.statutachatlocaux}}</td> #}
 							<td>
