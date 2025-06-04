@@ -720,7 +720,10 @@ class DaPropositionRefController extends Controller
     private function uploadFile(UploadedFile $file, DemandeApproLR $dalr)
     {
         $fileName = sprintf(
-            'ft_%s.%s',
+            'ft_%s_%s_%s_%s.%s',
+            $dalr->getNumeroDemandeAppro(),
+            $dalr->getNumeroLigneDem(),
+            $dalr->getNumLigneTableau(),
             date("YmdHis"),
             $file->getClientOriginalExtension()
         );
