@@ -67,7 +67,7 @@
 								<td>{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td>
-								{% if dal.statutDal == 'Bon validé' or (serviceAppro and dal.statutDal == 'soumis à l’ATE') or (serviceAtelier and dal.statutDal == 'soumis à l’appro') %}
+								{% if dal.statutDal == 'Bon validé' or (serviceAppro and (dal.statutDal == 'soumis à l’ATE' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'soumis à l’appro')%}
 									{{ dal.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
