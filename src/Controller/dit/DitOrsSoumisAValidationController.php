@@ -137,16 +137,12 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
     {
-
-        $interneExterne = $this->ditRepository->getInterneExterne($numOr);
-        if ($interneExterne === 'EXTERNE') {
-            $numclient = $this->ditRepository->getNumclient($numOr);
-            $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
-        }
+        $numclient = $this->ditRepository->getNumclient($numOr) == null ? "" : $this->ditRepository->getNumclient($numOr)[0]['numclient'];
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
 
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
-        $numOrNomFIchier = explode('_', $originalName)[1];
+        $numOrNomFIchier = array_key_exists(1, explode('_', $originalName)) ? explode('_', $originalName)[1] : '';
 
         $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
@@ -171,7 +167,6 @@ class DitOrsSoumisAValidationController extends Controller
         $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
 
 
-
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -184,8 +179,8 @@ class DitOrsSoumisAValidationController extends Controller
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
             'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
+            'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
-            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
         ];
     }
 
@@ -247,13 +242,11 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        }
-        // elseif ($conditionBloquage['numcliExiste']) {
-        //     $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
-        //     $okey = false;
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        else {
+        } elseif ($conditionBloquage['numcliExiste']) {
+            $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } else {
             $okey = true;
         }
         return $okey;
