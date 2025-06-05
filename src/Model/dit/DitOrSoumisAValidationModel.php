@@ -366,6 +366,21 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getNumcli($numOr)
+    {
+        $statement = " SELECT seor_numcli as numcli
+                    FROM sav_eor
+                    WHERE seor_numor = '$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numcli');
+    }
+
+
     public function numcliExiste($numcli)
     {
         $statement = " SELECT  

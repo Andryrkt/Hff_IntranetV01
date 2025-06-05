@@ -137,8 +137,9 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
     {
-        $numclient = $this->ditRepository->getNumclient($numOr) == null ? "" : $this->ditRepository->getNumclient($numOr)[0]['numclient'];
-        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
+        $numclient = $this->ditOrsoumisAValidationModel->getNumcli($numOr);
+        $numcli = empty($numclient) ? '' : $numclient[0];
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numcli);
 
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
