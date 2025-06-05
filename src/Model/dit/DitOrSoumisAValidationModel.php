@@ -368,9 +368,12 @@ class DitOrSoumisAValidationModel extends Model
 
     public function numcliExiste($numcli)
     {
-        $statement = " SELECT count(cbse_numcli) as numcli
-                        FROM cli_bse 
-                        WHERE cbse_numcli = '{$numcli}'
+        $statement = " SELECT  
+                case
+                    when count(*) = 1 then 'existe_bdd' else ''
+                end as numcli
+                from cli_bse
+                INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
         ";
 
         $result = $this->connect->executeQuery($statement);
