@@ -779,4 +779,15 @@ class DitRepository extends EntityRepository
             ->getSingleScalarResult()
         ;
     }
+
+    public function getStatutIdDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('s.id') // <-- un champ scalaire
+            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }

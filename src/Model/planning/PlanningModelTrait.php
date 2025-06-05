@@ -157,54 +157,56 @@ trait PlanningModelTrait
             }
      return  $vMonthStatutPlan;
     }
-    private function dateDebutMonthPlan($criteria){
+    private function dateDebutMonthPlan($criteria)
+  {
 
-      if(!empty($criteria->getDateDebut())){
-        $monthDatePlanifier = " CASE WHEN 
-                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+    if (!empty($criteria->getDateDebut())) {
+      $monthDatePlanifier = " CASE WHEN 
+                                     (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null 
                                 THEN
-                                    MONTH(DATE(sitv_datepla)  )
+                                    DATE(sitv_datepla)  
                                 ELSE
-                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
-                                END  "; 
-        $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) "; 
-        switch ($criteria->getPlan()){
-          case "PLANIFIE":
-          $vDateDMonthStatutPlan = " AND " .$monthDatePlanifier." >= '".$criteria->getDateDebut()->format("m")."'";
+                                     (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                                END  ";
+      $monthDateNonPlanifier =  "  DATE(sitv_datdeb)  ";
+      switch ($criteria->getPlan()) {
+        case "PLANIFIE":
+          $vDateDMonthStatutPlan = " AND " . $monthDatePlanifier . " >= '" . $criteria->getDateDebut()->format("m/d/Y") . "'";
           break;
-          case "NON_PLANIFIE":
-          $vDateDMonthStatutPlan = " AND " .$monthDateNonPlanifier ." >= '".$criteria->getDateDebut()->format("m")."'";
-          }
-      }else{
-        $vDateDMonthStatutPlan = null;
+        case "NON_PLANIFIE":
+          $vDateDMonthStatutPlan = " AND " . $monthDateNonPlanifier . " >= '" . $criteria->getDateDebut()->format("m/d/Y") . "'";
       }
-      return $vDateDMonthStatutPlan;
+    } else {
+      $vDateDMonthStatutPlan = null;
     }
-    private function dateFinMonthPlan($criteria){
+    return $vDateDMonthStatutPlan;
+  }
+  private function dateFinMonthPlan($criteria)
+  {
 
-      if(!empty($criteria->getDateFin())){
-        $monthDatePlanifier = " CASE WHEN 
-                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) ) is Null 
+    if (!empty($criteria->getDateFin())) {
+      $monthDatePlanifier = " CASE WHEN 
+                                    (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null 
                                 THEN
-                                    MONTH(DATE(sitv_datepla)  )
+                                    DATE(sitv_datepla)  
                                 ELSE
-                                    MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
-                                END  "; 
-        $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) "; 
-        switch ($criteria->getPlan()){
-          case "PLANIFIE":
-          $vDateFMonthStatutPlan = " AND " .$monthDatePlanifier." <= '".$criteria->getDateFin()->format("m")."'";
+                                     (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                                END  ";
+      $monthDateNonPlanifier =  " DATE(sitv_datdeb)  ";
+      switch ($criteria->getPlan()) {
+        case "PLANIFIE":
+          $vDateFMonthStatutPlan = " AND " . $monthDatePlanifier . " <= '" . $criteria->getDateFin()->format("m/d/Y") . "'";
           break;
-          case "NON_PLANIFIE":
-          $vDateFMonthStatutPlan = " AND ".$monthDateNonPlanifier ." <= '".$criteria->getDateFin()->format("m")."'";
-          }
-      }else{
-        $vDateFMonthStatutPlan = null;
+        case "NON_PLANIFIE":
+          $vDateFMonthStatutPlan = " AND " . $monthDateNonPlanifier . " <= '" . $criteria->getDateFin()->format("m/d/Y") . "'";
       }
-     
-      return $vDateFMonthStatutPlan;
+    } else {
+      $vDateFMonthStatutPlan = null;
     }
-    
+
+    return $vDateFMonthStatutPlan;
+  }
+
     private function interneExterne($criteria){
         switch ($criteria->getInterneExterne()){
             case "TOUS":

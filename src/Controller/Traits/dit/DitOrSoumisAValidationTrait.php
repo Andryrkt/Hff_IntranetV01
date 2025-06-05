@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\dit;
 
+use DateTime;
 use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
@@ -412,6 +413,19 @@ trait DitOrSoumisAValidationTrait
         return $aBlocker;
     }
 
+    private function datePlanningInferieurDateDuJour($numOr, $numDit): bool
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+
+        $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+        $dateDuJour = new DateTime('now');
+
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
+
+        return $datePlanning < $dateDuJour && (int)$nbrOrSoumis <= 0;
+    }
+    
     private function datePlanning($numOr)
     {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
