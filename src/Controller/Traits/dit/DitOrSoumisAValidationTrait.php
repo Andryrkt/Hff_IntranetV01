@@ -6,6 +6,7 @@ use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use DateTime;
 
 trait DitOrSoumisAValidationTrait
 {
@@ -410,6 +411,20 @@ trait DitOrSoumisAValidationTrait
         }
 
         return $aBlocker;
+    }
+
+    private function datePlanningInferieurDateDuJour($numOr, $numDit): bool
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+
+        $datePlanning = empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
+        $dateDuJour = new DateTime('now');
+
+        $statutId = $this->ditRepository->getStatutIdDit($numDit);
+
+
+        return $datePlanning < $dateDuJour && (int)$statutId !== 51;
     }
 
     private function datePlanning($numOr)

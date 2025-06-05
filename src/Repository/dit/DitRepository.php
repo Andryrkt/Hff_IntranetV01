@@ -762,13 +762,17 @@ class DitRepository extends EntityRepository
 
     public function getNumclient($numOr)
     {
-        return $this->createQueryBuilder('d')
-            ->select('d.numeroClient')
-            ->where('d.numeroOR = :numOr')
-            ->setParameter('numOr', $numOr)
-            ->getQuery()
-            ->getSingleScalarResult()
-        ;
+        try {
+            $numcli =  $this->createQueryBuilder('d')
+                ->select('d.numeroClient')
+                ->where('d.numeroOR = :numOr')
+                ->setParameter('numOr', $numOr)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $numcli = null; // ou une valeur par défaut
+        }
+        return $numcli;
     }
 
     public function getInterneExterne($numOr)
@@ -780,5 +784,16 @@ class DitRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+    }
+
+    public function getStatutIdDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('s.id') // <-- un champ scalaire
+            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }
