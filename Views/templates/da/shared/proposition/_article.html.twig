@@ -243,23 +243,19 @@
 	<div class="d-flex justify-content-between">
 		<div class="">
 			{% if totalPage > 1 %}
-				{% if currentPage > 1 %}
-					<button type="button" class="btn bouton mt-2 me-3 prevBtn">
-						<i class="fas fa-arrow-left"></i>
-						Précédent
-					</button>
-				{% endif %}
+				<button type="button" class="btn bouton mt-2 me-3 prevBtn">
+					<i class="fas fa-arrow-left"></i>
+					Précédent
+				</button>
 
-				{% if currentPage < totalPage %}
-					<button type="button" class="btn bouton mt-2 nextBtn">
-						Suivant
-						<i class="fas fa-arrow-right"></i>
-					</button>
-				{% endif %}
+				<button type="button" class="btn bouton mt-2 nextBtn">
+					Suivant
+					<i class="fas fa-arrow-right"></i>
+				</button>
 			{% endif %}
 		</div>
 		<div class="align-self-end">
-			<span class="fs-6">{{ currentPage }}/{{ totalPage }}</span>
+			<span class="fs-6"><span class="currentPage fs-6"></span>/{{ totalPage }}</span>
 		</div>
 	</div>
 </div>
