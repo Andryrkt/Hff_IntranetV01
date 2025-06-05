@@ -53,6 +53,12 @@ class DaListeCdeFrnModel extends Model
         $statement = "SELECT
                 TRIM(seor_refdem) as num_dit,
                 slor_numor as num_or,
+                CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                END  as datePlanning,
                 CASE
                     when slor_natcm = 'C' then (select fcde_numfou from frn_cde where fcde_numcde = slor_numcf)
                     when slor_natcm = 'L' then (select distinct fcde_numfou from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
@@ -83,6 +89,7 @@ class DaListeCdeFrnModel extends Model
                 slor_constp as constructeur
                 FROM sav_lor
                 INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                 WHERE
                 slor_constp = 'ZST' and slor_refp <> 'ST'
                 and slor_typlig = 'P'

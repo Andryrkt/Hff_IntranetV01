@@ -40,26 +40,16 @@ class ListCdeFrnController extends Controller
 
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $datas = $this->recuperationDonner($criteria);
-        $this->ajouterNumDaEtStatutBc($datas);
+        $datas = $this->ajouterNumDa($datas);
+        $datas = $this->ajoutStatutBc($datas);
+        // dd($datas);
 
 
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
 
-        $formSoumission->handleRequest($request);
-
-        if ($formSoumission->isSubmitted() && $formSoumission->isValid()) {
-            $soumission = $formSoumission->getData();
-
-            if ($soumission['soumission'] === true) {
-                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
-            } else {
-                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
-            }
-        }
-
-
+        $this->traitementFormulaireSoumission($request, $formSoumission);
 
         self::$twig->display('da/list-cde-frn.html.twig', [
             'data' => $datas,
@@ -85,16 +75,22 @@ class ListCdeFrnController extends Controller
         return $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
     }
 
-    private function ajouterNumDaEtStatutBc(array $datas): void
+    private function ajouterNumDa(array $datas)
     {
-        foreach ($datas as $data) {
+        foreach ($datas as $key => $data) {
             $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
-            $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
-            [
-                'num_da' => $numDa,
-                'statut_bc' => $statutBc == null ? '' : $statutBc,
-            ] + $data;
+            $datas[$key]['num_da'] = $numDa;
         }
+        return $datas;
+    }
+
+    private function ajoutStatutBc(array $datas)
+    {
+        foreach ($datas as $key => $data) {
+            $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
+            $datas[$key]['statut_bc'] = $statutBc;
+        }
+        return $datas;
     }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void

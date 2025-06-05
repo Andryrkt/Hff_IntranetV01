@@ -362,4 +362,14 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function getNbrOrSoumis(string $numOr)
+    {
+        return  $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
