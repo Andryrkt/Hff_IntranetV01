@@ -777,13 +777,17 @@ class DitRepository extends EntityRepository
 
     public function getInterneExterne($numOr)
     {
-        return $this->createQueryBuilder('d')
+        try {
+        $intExt =  $this->createQueryBuilder('d')
             ->select('d.internetExterne')
             ->where('d.numeroOR = :numOr')
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult()
         ;
+    } catch (\Doctrine\ORM\NoResultException $e) {
+        $intExt = null; // ou une valeur par défaut
+    }
     }
 
     public function getStatutIdDit(string $numDit)

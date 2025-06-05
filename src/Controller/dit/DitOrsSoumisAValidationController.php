@@ -183,9 +183,9 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr, $numDit),
+            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
-            'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
+            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
         ];
     }
 
