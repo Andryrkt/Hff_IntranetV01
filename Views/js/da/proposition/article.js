@@ -1,24 +1,24 @@
-import { ajouterUneLigne } from "./dalr";
+import { ajouterUneLigne } from './dalr';
 
-export function ajouterReference(addLineId) {
-  const line = addLineId.replace("add_line_", "");
+export function ajouterReference(addLineId, iscatalogue) {
+  const line = addLineId.replace('add_line_', '');
 
   const fields = {
-    fournisseur: getField("fournisseur", line),
-    numeroFournisseur: getField("numeroFournisseur", line),
-    reference: getField("reference", line),
-    designation: getField("designation", line),
-    prixUnitaire: getField("PU", line),
-    qteDispo: getField("qte_dispo", line),
-    motif: getField("motif", line),
-    famille: getField("codeFams1", line),
-    sousFamille: getField("codeFams2", line),
+    famille: getField('codeFams1', line),
+    sousFamille: getField('codeFams2', line),
+    reference: getField('reference', line),
+    designation: getField('designation', line),
+    fournisseur: getField('fournisseur', line),
+    qteDispo: getField('qte_dispo', line),
+    motif: getField('motif', line),
+    numeroFournisseur: getField('numeroFournisseur', line),
+    prixUnitaire: getField('PU', line),
   };
 
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
-    ajouterUneLigne(line, fields);
+    ajouterUneLigne(line, fields, iscatalogue);
   }
 }
 
@@ -29,7 +29,11 @@ function getField(fieldName, line) {
 }
 
 function handleFieldValue(field) {
-  if (field.value) {
+  /**
+   * field.id.includes('qte_dispo'): pour savoir que c'est le champ qté dispo
+   * Champ non requis
+   */
+  if (field.value || field.id.includes('qte_dispo')) {
     return false;
   } else {
     field.focus();

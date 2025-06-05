@@ -1,0 +1,51 @@
+<p>
+	La demande d'APPROVISIONNEMENT n°
+	<b>{{ tab.numDa }}</b>
+	a été validée par
+	<b>{{ tab.userConnecter }}</b>
+</p>
+<p>
+	<b>Détails de la demande:</b>
+	<ul>
+		<li>
+			<b>Numéro du DA :</b>
+			{{ tab.numDa }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ tab.objet }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ tab.detail | raw }}
+			</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<p>Demande d'approvisionnement validée par l'atelier</p>
+<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
+	<thead style="background-color:#000; color:#fff;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Réference</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for daln in tab.dalNouveau %}
+			<tr>
+				<td>{{daln.artFams1}}</td>
+				<td>{{daln.artFams2}}</td>
+				<td>{{daln.artDesi}}</td>
+				<td>{{daln.nomFournisseur}}</td>
+				<td>{{daln.artRefp}}</td>
+				<td>{{daln.commentaire}}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>

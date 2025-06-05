@@ -134,11 +134,11 @@ class DemandePaiement
     private $numeroFacture = [];
 
     /**
-      * @ORM\Column(type="string", length=5, name="devise")
-      *
-      * @var [type]
-      */
-     private $devise;
+     * @ORM\Column(type="string", length=5, name="devise")
+     *
+     * @var [type]
+     */
+    private $devise;
 
     /**
      * @ORM\Column(type="string", length=100, name="statut_dossier_regul")
@@ -146,20 +146,46 @@ class DemandePaiement
      * @var string|null
      */
     private ?string $statutDossierRegul;
-    
+
     /**
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private ?int $numeroVersion = 0;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_autre_doc")
+     */
+    private $estAutreDoc = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="nom_autre_doc")
+     */
+    private ?string $nomAutreDoc;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_cde_client_externe_doc")
+     */
+    private $estCdeClientExterneDoc = false;
+
+    /**
+     * @ORM\Column(type="json", name="nom_cde_client_externe_doc")
+     */
+    private $nomCdeClientExterneDoc = [];
+
+    /**
+     * @ORM\Column(type="json", name="numero_dossier_douane")
+     */
+    private $numeroDossierDouane = [];
+
     private string $montantAPayer = '0';
-    
 
-    private $pieceJoint01; // proforma facture fournisseur
+    private $pieceJoint01;
 
-    private $pieceJoint02; //Contrôle livraison
+    private $pieceJoint02;
 
-    private $pieceJoint03; //rib fournisseur
+    private array $pieceJoint03 = [];
+
+    private $pieceJoint04;
 
     private $commandeFichier;
 
@@ -168,8 +194,6 @@ class DemandePaiement
     private $titreDeTransportFichier;
 
     private $lesFichiers;
-
-
 
     /**===========================================================================
      * GETTER & SETTER
@@ -729,6 +753,26 @@ class DemandePaiement
     }
 
     /**
+     * Get the value of pieceJoint04
+     */
+    public function getPieceJoint04()
+    {
+        return $this->pieceJoint04;
+    }
+
+    /**
+     * Set the value of pieceJoint04
+     *
+     * @return  self
+     */
+    public function setPieceJoint04($pieceJoint04)
+    {
+        $this->pieceJoint04 = $pieceJoint04;
+
+        return $this;
+    }
+
+    /**
      * Get the value of statutDossierRegul
      *
      * @return  string|null
@@ -754,7 +798,7 @@ class DemandePaiement
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -764,10 +808,111 @@ class DemandePaiement
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of estAutreDoc
+     */
+    public function getEstAutreDoc()
+    {
+        return $this->estAutreDoc;
+    }
+
+    /**
+     * Set the value of estAutreDoc
+     *
+     * @return  self
+     */
+    public function setEstAutreDoc($estAutreDoc)
+    {
+        $this->estAutreDoc = $estAutreDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomAutreDoc
+     */
+    public function getNomAutreDoc()
+    {
+        return $this->nomAutreDoc;
+    }
+
+    /**
+     * Set the value of nomAutreDoc
+     *
+     * @return  self
+     */
+    public function setNomAutreDoc($nomAutreDoc)
+    {
+        $this->nomAutreDoc = $nomAutreDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCdeClientExterneDoc
+     */
+    public function getEstCdeClientExterneDoc()
+    {
+        return $this->estCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of estCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setEstCdeClientExterneDoc($estCdeClientExterneDoc)
+    {
+        $this->estCdeClientExterneDoc = $estCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomCdeClientExterneDoc
+     */
+    public function getNomCdeClientExterneDoc()
+    {
+        return $this->nomCdeClientExterneDoc;
+    }
+
+    /**
+     * Set the value of nomCdeClientExterneDoc
+     *
+     * @return  self
+     */
+    public function setNomCdeClientExterneDoc($nomCdeClientExterneDoc)
+    {
+        $this->nomCdeClientExterneDoc = $nomCdeClientExterneDoc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDossierDouane
+     */ 
+    public function getNumeroDossierDouane()
+    {
+        return $this->numeroDossierDouane;
+    }
+
+    /**
+     * Set the value of numeroDossierDouane
+     *
+     * @return  self
+     */ 
+    public function setNumeroDossierDouane($numeroDossierDouane)
+    {
+        $this->numeroDossierDouane = $numeroDossierDouane;
 
         return $this;
     }
@@ -792,10 +937,10 @@ class DemandePaiement
         $nouvelle->pieceJoint01 = $this->pieceJoint01;
         $nouvelle->pieceJoint02 = $this->pieceJoint02;
         $nouvelle->pieceJoint03 = $this->pieceJoint03;
+        $nouvelle->pieceJoint04 = $this->pieceJoint04;
         $nouvelle->beneficiaire = $this->beneficiaire;
         $nouvelle->modePaiement = $this->modePaiement;
         $nouvelle->typeDemandeId  = $this->typeDemandeId;
         return $nouvelle;
     }
-
 }

@@ -1,10 +1,13 @@
-import { displayOverlay } from "../../utils/spinnerUtils";
-import { ajouterReference } from "./article";
-import { autocompleteTheField } from "./autocompletion";
-import { changeTab, showTab } from "./pageNavigation";
-import { updateDropdown } from "../../utils/selectionHandler";
+import { displayOverlay } from '../../utils/spinnerUtils';
+import { ajouterReference } from './article';
+import { autocompleteTheField } from './autocompletion';
+import { changeTab, showTab } from './pageNavigation';
+import { updateDropdown } from '../../utils/selectionHandler';
+import { boutonRadio } from './boutonRadio';
+import { generateCustomFilename } from '../../utils/dateUtils';
+import { createFicheTechnique, onFileInputChange } from './dalr';
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener('DOMContentLoaded', function () {
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
 
   // const numPage = localStorage.getItem("currentTab");
@@ -15,43 +18,46 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .querySelectorAll('[id*="proposition_qte_dispo_"]')
     .forEach((qtedispo) => {
-      qtedispo.addEventListener("input", function () {
-        qtedispo.value = qtedispo.value.replace(/[^\d]/g, "");
+      qtedispo.addEventListener('input', function () {
+        qtedispo.value = qtedispo.value.replace(/[^\d]/g, '');
       });
     });
   // Tous les champs "Référence"
   document
     .querySelectorAll('[id*="proposition_reference_"]')
     .forEach((reference) => {
-      reference.addEventListener("input", function () {
+      reference.addEventListener('input', function () {
         reference.value = reference.value.toUpperCase();
       });
-      autocompleteTheField(reference, "reference");
+
+      autocompleteTheField(reference, 'reference');
     });
   // Tous les champs "Fournisseur"
   document
     .querySelectorAll('[id*="proposition_fournisseur_"]')
     .forEach((fournisseur) => {
-      fournisseur.addEventListener("input", function () {
+      fournisseur.addEventListener('input', function () {
         fournisseur.value = fournisseur.value.toUpperCase();
       });
-      autocompleteTheField(fournisseur, "fournisseur");
+
+      autocompleteTheField(fournisseur, 'fournisseur');
     });
   // Tous les champs "Désignation"
   document
     .querySelectorAll('[id*="proposition_designation_"]')
     .forEach((designation) => {
-      designation.addEventListener("input", function () {
+      designation.addEventListener('input', function () {
         designation.value = designation.value.toUpperCase();
       });
-      autocompleteTheField(designation, "designation");
+
+      autocompleteTheField(designation, 'designation');
     });
 
   // Tous les champs "Famille"
   document
     .querySelectorAll('[id*="proposition_codeFams1_"]')
     .forEach((familleInput) => {
-      const numPage = familleInput.id.split("_").pop();
+      const numPage = familleInput.id.split('_').pop();
 
       initialiserFamilleEtSousFamille(numPage, familleInput);
       gererChangementFamille(numPage, familleInput);
@@ -61,10 +67,10 @@ document.addEventListener("DOMContentLoaded", function () {
   document
     .querySelectorAll('[id*="proposition_codeFams2_"]')
     .forEach((sousFamille) => {
-      const numPage = sousFamille.id.split("_").pop();
+      const numPage = sousFamille.id.split('_').pop();
       const { fournisseur, reference, designation } = recupInput(numPage);
 
-      sousFamille.addEventListener("change", function () {
+      sousFamille.addEventListener('change', function () {
         reset(fournisseur, reference, designation);
 
         autocompleteTheFieldsPage(numPage);
@@ -81,13 +87,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (defaultFamille) {
       familleInput.value = defaultFamille;
-      familleInput.dispatchEvent(new Event("change"));
+      familleInput.dispatchEvent(new Event('change'));
     }
 
     if (sousFamilleInput && defaultSousFamille) {
       setTimeout(() => {
         sousFamilleInput.value = defaultSousFamille;
-        sousFamilleInput.dispatchEvent(new Event("change"));
+        sousFamilleInput.dispatchEvent(new Event('change'));
       }, 300);
     }
   }
@@ -102,19 +108,19 @@ document.addEventListener("DOMContentLoaded", function () {
       containerElement,
     } = recupInput(numPage);
 
-    familleInput.addEventListener("change", function () {
-      if (familleInput.value !== "") {
+    familleInput.addEventListener('change', function () {
+      if (familleInput.value !== '') {
         reset(fournisseur, reference, designation);
 
         updateDropdown(
           sousFamilleInput,
           `api/demande-appro/sous-famille/${familleInput.value}`,
-          "-- Choisir une sous-famille --",
+          '-- Choisir une sous-famille --',
           spinnerElement,
           containerElement
         );
       } else {
-        resetDropdown(sousFamilleInput, "-- Choisir une sous-famille --");
+        resetDropdown(sousFamilleInput, '-- Choisir une sous-famille --');
       }
     });
   }
@@ -144,6 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
       reference: document.querySelector(
         `#demande_appro_proposition_reference_${numPage}`
       ),
+      isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
     };
   }
 
@@ -152,12 +159,14 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {int} numPage
    */
   function autocompleteTheFieldsPage(numPage) {
-    const { fournisseur, reference, designation } = recupInput(numPage);
-
+    const { fournisseur, reference, designation, isCatalogueInput } =
+      recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
     reset(fournisseur, reference, designation);
+    console.log(iscatalogue == '');
 
-    autocompleteTheField(designation, "designation", numPage);
-    autocompleteTheField(reference, "reference", numPage);
+    autocompleteTheField(designation, 'designation', numPage, iscatalogue);
+    autocompleteTheField(reference, 'reference', numPage, iscatalogue);
   }
 
   /**
@@ -167,32 +176,81 @@ document.addEventListener("DOMContentLoaded", function () {
    * @param {*} designation
    */
   function reset(fournisseur, reference, designation) {
-    if (fournisseur) fournisseur.value = "";
-    if (reference) reference.value = "";
-    if (designation) designation.value = "";
+    if (fournisseur) fournisseur.value = '';
+    if (reference) reference.value = '';
+    if (designation) designation.value = '';
   }
 
   /** Boutons */
 
   // Tous les boutons "Précédent"
-  document.querySelectorAll(".prevBtn").forEach((prevBtn) => {
-    prevBtn.addEventListener("click", () => changeTab("prev"));
+  document.querySelectorAll('.prevBtn').forEach((prevBtn) => {
+    prevBtn.addEventListener('click', () => changeTab('prev'));
   });
   // Tous les boutons "Suivant"
-  document.querySelectorAll(".nextBtn").forEach((nextBtn) => {
-    nextBtn.addEventListener("click", () => changeTab("next"));
+  document.querySelectorAll('.nextBtn').forEach((nextBtn) => {
+    nextBtn.addEventListener('click', () => changeTab('next'));
   });
   // Tous les boutons "Ajouter la référence"
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
-    addLine.addEventListener("click", () => ajouterReference(addLine.id));
+    const numPage = addLine.id.split('_').pop();
+    const { isCatalogueInput } = recupInput(numPage);
+    let iscatalogue = isCatalogueInput.value;
+
+    addLine.addEventListener('click', () =>
+      ajouterReference(addLine.id, iscatalogue)
+    );
+  });
+  // Tous les boutons add-file (joindre une fiche technique)
+  document.querySelectorAll('.add-file').forEach((addFile) => {
+    addFile.addEventListener('click', function () {
+      const nbrLine = addFile.dataset.nbrLine;
+      const numLigneTableau = addFile.dataset.nbrLineTable;
+      const inputFile = document.getElementById(
+        `demande_appro_lr_collection_DALR_${nbrLine}${numLigneTableau}_nomFicheTechnique`
+      );
+      createFicheTechnique(nbrLine, numLigneTableau, inputFile);
+    });
   });
 
-  document.getElementById("myForm").addEventListener("submit", function (e) {
-    const prototype = document.getElementById("child-prototype");
+  // document.querySelectorAll('.input-ft').forEach((inputFile) => {
+  //   inputFile.addEventListener('change', (e) => onFileInputChange(e));
+  // });
+
+  document.getElementById('myForm').addEventListener('submit', function (e) {
+    const prototype = document.getElementById('child-prototype');
     if (prototype) prototype.remove();
   });
 });
 
-window.addEventListener("load", () => {
+window.addEventListener('load', () => {
   displayOverlay(false);
 });
+
+/**=============================================
+ * Desactive le bouton OK si la cage à cocher n'est pas cocher
+ *==============================================*/
+const cageACocherInput = document.querySelector(
+  '#demande_appro_lr_collection_estValidee'
+);
+const boutonOkInput = document.querySelector('#bouton_ok');
+
+// Fonction pour activer ou désactiver le bouton
+function verifierCaseCochee() {
+  if (cageACocherInput.checked) {
+    boutonOkInput.classList.remove('d-none');
+  } else {
+    boutonOkInput.classList.add('d-none');
+  }
+}
+
+// Initialiser l'état du bouton au chargement
+verifierCaseCochee();
+
+// Écouteur d'événement sur la case à cocher
+cageACocherInput.addEventListener('change', verifierCaseCochee);
+
+/**=================================================================
+ * lorsqu'on clique sur le bouton radio et envoyer le  proposition
+ *==================================================================*/
+boutonRadio();

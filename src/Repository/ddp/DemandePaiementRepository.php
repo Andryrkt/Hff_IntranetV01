@@ -34,17 +34,17 @@ class DemandePaiementRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
 
-            if ($data) {
-        return [
-            'numeroFournisseur' => $data['numeroFournisseur'],
-            'numeroCommande' => is_array($data['numeroCommande']) 
-                ? TableauEnStringService::TableauEnString(",", $data['numeroCommande']) 
-                : $data['numeroCommande']
-        ];
-    }
+        if ($data) {
+            return [
+                'numeroFournisseur' => $data['numeroFournisseur'],
+                'numeroCommande' => is_array($data['numeroCommande'])
+                    ? TableauEnStringService::TableauEnString(",", $data['numeroCommande'])
+                    : $data['numeroCommande']
+            ];
+        }
 
-    return null;
-            return $data;
+        return null;
+        return $data;
     }
 
     public function findNumeroVersionMax(string $numDdp)
@@ -54,8 +54,8 @@ class DemandePaiementRepository extends EntityRepository
             ->where('Ddp.numeroDdp = :numDdp')
             ->setParameter('numDdp', $numDdp)
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 
@@ -73,49 +73,68 @@ class DemandePaiementRepository extends EntityRepository
                 AND dp2.serviceDebiter = d.serviceDebiter
             )'
         );
-        if(!empty($criteria->getAgence())){
+        if (!empty($criteria->getAgence())) {
             $qb->andWhere('d.agenceDebiter = :agenceDebiter')
-                ->setParameter('agenceDebiter',$criteria->getAgence()->getCodeAgence());
+                ->setParameter('agenceDebiter', $criteria->getAgence()->getCodeAgence());
         }
-        if(!empty($criteria->getService())){
+        if (!empty($criteria->getService())) {
             $qb->andWhere('d.serviceDebiter = :serviceDebiter')
-                ->setParameter('serviceDebiter',$criteria->getService()->getCodeService());
+                ->setParameter('serviceDebiter', $criteria->getService()->getCodeService());
         }
-        if(!empty($criteria->getTypeDemande())){
+        if (!empty($criteria->getTypeDemande())) {
             $qb->andWhere('d.typeDemandeId = :typeDemandeId')
-                ->setParameter('typeDemandeId',$criteria->getTypeDemande()->getId());
+                ->setParameter('typeDemandeId', $criteria->getTypeDemande()->getId());
         }
-        if(!empty($criteria->getNumDdp())){
+        if (!empty($criteria->getNumDdp())) {
             $qb->andWhere('d.numeroDdp = :numeroDdp')
-                ->setParameter('numeroDdp',$criteria->getNumDdp());
+                ->setParameter('numeroDdp', $criteria->getNumDdp());
         }
-        if(!empty($criteria->getNumCommande())){
+        if (!empty($criteria->getNumCommande())) {
             $qb->andWhere('d.numeroCommande LIKE :numeroCommande')
-                ->setParameter('numeroCommande','%'.$criteria->getNumCommande().'%');
+                ->setParameter('numeroCommande', '%' . $criteria->getNumCommande() . '%');
         }
         if (!empty($criteria->getNumFacture())) {
             $qb->andWhere('d.numeroFacture LIKE :numeroFacture')
-               ->setParameter('numeroFacture', '%'.$criteria->getNumFacture().'%');
+                ->setParameter('numeroFacture', '%' . $criteria->getNumFacture() . '%');
         }
-        
-        if(!empty($criteria->getUtilisateur())){
+
+        if (!empty($criteria->getUtilisateur())) {
             $qb->andWhere('d.demandeur = :demandeur')
-                ->setParameter('demandeur',$criteria->getUtilisateur());
+                ->setParameter('demandeur', $criteria->getUtilisateur());
         }
-        
+
+        if (!empty($criteria->getStatut())) {
+            $qb->andWhere('d.statut = :statut')
+                ->setParameter('statut', $criteria->getStatut());
+        }
+
+        if (!empty($criteria->getDateDebut())) {
+            $qb->andWhere('d.dateDemande >= :dateDebut')
+                ->setParameter('dateDebut', $criteria->getDateDebut());
+        }
+
+        if (!empty($criteria->getDateFin())) {
+            $qb->andWhere('d.dateDemande <= :dateFin')
+                ->setParameter('dateFin', $criteria->getDateFin());
+        }
+
+        if (!empty($criteria->getFournisseur())) {
+            $qb->andWhere('d.numeroFournisseur = :numFournisseur')
+                ->setParameter('numFournisseur', explode('-', $criteria->getFournisseur())[0]);
+        }
 
         // Tri
         $qb->orderBy('d.dateCreation', 'DESC');
-// $query = $qb->getQuery();
-//         $sql = $query->getSQL();
-//         $params = $query->getParameters();
+        // $query = $qb->getQuery();
+        //         $sql = $query->getSQL();
+        //         $params = $query->getParameters();
 
-//         dump("SQL : " . $sql . "\n");
-//         foreach ($params as $param) {
-//             dump($param->getName());
-//             dump($param->getValue());
-//         }
-//         die();
+        //         dump("SQL : " . $sql . "\n");
+        //         foreach ($params as $param) {
+        //             dump($param->getName());
+        //             dump($param->getValue());
+        //         }
+        //         die();
         return $qb->getQuery()->getResult();
     }
 
@@ -131,10 +150,9 @@ class DemandePaiementRepository extends EntityRepository
     public function getnumCde()
     {
         return  $this->createQueryBuilder('d')
-                ->select('d.numeroCommande')
-                ->getQuery()
-                ->getSingleColumnResult()
-                ;
+            ->select('d.numeroCommande')
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
     }
-
 }

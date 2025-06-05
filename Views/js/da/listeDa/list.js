@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function () {
       localStorage.setItem("currentTab", numeroLigne);
     });
   });
-  mergeCellsTable(0);
+  mergeCellsTable(0); // fusionne le tableau
 });
 
 window.addEventListener("load", () => {

@@ -11,10 +11,12 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DemandeApproLR;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -35,6 +37,7 @@ class DaEditController extends Controller
     private DitRepository $ditRepository;
     private DaObservationRepository $daObservationRepository;
     private DemandeApproLRepository $daLRepository;
+    private DemandeApproLRRepository $daLRRepository;
     private DaObservation $daObservation;
 
     public function __construct()
@@ -44,6 +47,7 @@ class DaEditController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->daLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->daObservation = new DaObservation();
     }
 
@@ -149,7 +153,7 @@ class DaEditController extends Controller
         // filtre une collection de versions selon le numero de version max
 
         $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax;
+            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
         });
         $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
 
@@ -182,7 +186,7 @@ class DaEditController extends Controller
 
 
             /** ENVOIE MAIL */
-            $this->mailPourAppro($demandeAppro);
+            $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
 
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
@@ -190,7 +194,7 @@ class DaEditController extends Controller
         }
     }
 
-    private function mailPourAppro($demandeAppro): void
+    private function mailPourAppro($demandeAppro, $observation): void
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
@@ -205,6 +209,8 @@ class DaEditController extends Controller
             'detail'        => $demandeAppro->getDetailDal(),
             'dalAncien'     => $dalAncien,
             'dalNouveau'    => $dalNouveau,
+            'observation'   => $observation,
+            'service'       => 'atelier',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
@@ -242,7 +248,7 @@ class DaEditController extends Controller
                 'statut'     => "modificationDa",
                 'subject'    => "{$tab['numDa']} - modification demande d'approvisionnement ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/demande-appro/list"),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
@@ -266,12 +272,29 @@ class DaEditController extends Controller
         foreach ($demandeApproLs as $demandeApproL) {
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                // ->setNumeroLigne($demandeApproL->getNumeroLigne())
                 ->setStatutDal(self::DA_STATUT)
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)
             ; // Incrémenter le numéro de version
+            $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DA
+        }
+    }
+
+    /**
+     * Suppression physique des DALR correspondant au DAL $dal
+     *
+     * @param DemandeApproL $dal
+     * @return void
+     */
+    private function deleteDALR(DemandeApproL $dal)
+    {
+        if ($dal->getDeleted() === true) {
+            $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+            foreach ($dalrs as $dalr) {
+                self::$em->remove($dalr);
+                self::$em->persist($dalr);
+            }
         }
     }
 

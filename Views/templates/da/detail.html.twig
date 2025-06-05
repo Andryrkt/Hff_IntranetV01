@@ -1,0 +1,145 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class=" container-fluid">
+		<div class="card">
+			<div class="card-body">
+				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Détails Demande d'achat, n°
+							{{ demandeAppro.numeroDemandeAppro }}
+						</h3>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
+							{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
+							{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
+									{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
+									{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information Matériel / DIT') }}
+							<div class="row">
+								<div class="col-md-6 col-6">
+									{{ macroForm.affichage2('Id Matériel', demandeAppro.dit.idMateriel, 'mb-2') }}
+									{{ macroForm.affichage2('Série', numSerie, 'mb-2') }}
+								</div>
+								<div class="col-md-6 col-6">
+									{{ macroForm.affichage2('N° Parc', numParc, 'mb-2') }}
+									{{ macroForm.affichage2('N° DIT', demandeAppro.dit.numeroDemandeIntervention, 'mb-2') }}
+								</div>
+								<div class="col-md-12 col-12">
+									{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}
+								</div>
+								{% if nomFichierRefZst is not null and estAte %}
+									<a class="fw-bold" href="{{ App.base_path_fichier }}/da/ba/{{nomFichierRefZst}}" download>Télécharger ici le fichier contenant les références ZST</a>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+
+					<table class="table rounded table-plein-ecran mt-4">
+						<thead class="table-dark text-center">
+							<tr>
+								<th class="w-15">Famille</th>
+								<th class="w-10">Sous-famille</th>
+								<th class="w-20">Désignation</th>
+								<th class="w-10">Fournisseur</th>
+								<th class="w-10">Date fin souhaitée</th>
+								<th class="w-5">Quantité</th>
+								<th class="w-20">Commentaire</th>
+								<th class="w-10">Fiche technique</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="children-container">
+						{% for DAL in demandeAppro.DAL %}
+							{% set ligne = loop.index %}
+							<div id="demande_appro_form_DAL_{{ ligne }}">
+								<div class="row g-3">
+									<div class="w-15">
+										{{ macroForm.affichageSimple(DAL.artFams1 ?? '-', 'mb-2') }}
+									</div>
+									<div class="w-10">
+										{{ macroForm.affichageSimple(DAL.artFams2 ?? '-', 'mb-2') }}
+									</div>
+									<div class="w-20">
+										{{ macroForm.affichageSimple(DAL.artDesi, 'mb-2') }}
+									</div>
+									<div class="w-10">
+										{{ macroForm.affichageSimple(DAL.nomFournisseur, 'mb-2') }}
+									</div>
+									<div class="w-10">
+										{{ macroForm.affichageSimple(DAL.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+									</div>
+									<div class="w-5">
+										{{ macroForm.affichageSimple(DAL.qteDem, 'mb-2') }}
+									</div>
+									<div class="w-20">
+										{{ macroForm.affichageSimple(DAL.commentaire == '' ? '-' : DAL.commentaire, 'mb-2') }}
+									</div>
+                                    {% set lienFicheTechnique = DAL.nomFicheTechnique ? '<a href="'~ App.base_path_fichier ~'/da/fichiers/' ~ DAL.nomFicheTechnique ~ '" target="_blank">' ~ DAL.nomFicheTechnique ~ '</a>' : 'Fiche technique pas encore attachée' %}
+
+									{% set ficheTechnique = DAL.estFicheTechnique ? lienFicheTechnique : 'NON' %}
+									<div class="w-10">
+										{{ macroForm.affichageHTMLSimple(ficheTechnique, 'mb-2 div-disabled-2') }}
+									</div>
+								</div>
+								<div class="mt-2 mb-3"></div>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class=" container-fluid mt-3">
+		<div class="card">
+			<div class="card-body">
+				<div class="row">
+					<h3 class="fw-bold">Observations</h3>
+					{% for observation in observations %}
+						<p class="mb-0">
+							<b>{{observation.utilisateur}}</b>
+							<small>{{observation.dateCreation|date('d/m/Y H:i')}}</small>
+						</p>
+						<p>{{observation.observation}}</p>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>
+{% endblock %}

@@ -21,12 +21,14 @@
 					<div class="row">
 						<h3 class="perso-titre">
 							Validation et proposition
+							{{ numDa }}
 						</h3>
 					</div>
 
+
 					<div class="tab-content">
-						{% for DAL in data %}
-							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: data|length }) }}
+						{% for DAL in da.DAL %}
+							{{ include('da/shared/proposition/_article.html.twig', { article: DAL, totalPage: da.DAL|length }) }}
 						{% endfor %}
 					</div>
 				</div>
@@ -38,22 +40,40 @@
 		<div id="child-prototype" style="display: none;">
 			{{ form_widget(form.DALR.vars.prototype)|raw }}
 		</div>
-		{{ form_row(form.observation)}}
+		<div class="{{ nePeutPasModifier ? 'd-none' : ''}}">
+			{{ form_row(form.observation)}}
+		</div>
 		<div class="d-flex justify-content-between mt-2">
 			<div>
-				<button type="submit" class="btn bouton mt-2 me-4" id="envoyerSelections" name="enregistrer">
-					Envoyer proposition à l'ATE
-					<i class="fa-solid fa-square-arrow-up-right"></i>
-				</button>
-			</div>
-			<div class="d-flex justify-content-end">
-				<div style="margin-right: 13px; margin-top: 13px;">
-					{{ form_row(form.estValidee)}}
+				<div class="">
+					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte ? 'd-none' : ''}}" id="envoyerSelections" name="enregistrer">
+						Envoyer proposition à l'ATE
+						<i class="fa-solid fa-square-arrow-up-right"></i>
+					</button>
 				</div>
 				<div>
-					<a href="{{ path("da_validate", {numDa: numDa})}}" class="btn bouton mt-2 me-4">
-						Ok
+					<a href="{{ path("da_edit", {id: dit_id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+						Modifier la demande
 					</a>
+				</div>
+			</div>
+			<div>
+				<div>
+					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
+						Valider la proposition
+						<i class="fa-solid fa-square-arrow-up-right"></i>
+					</button>
+				</div>
+
+				<div class="d-flex justify-content-end {{ nePeutPasModifier or estAte ? 'd-none' : ''}}">
+					<div style="margin-right: 13px; margin-top: 13px;">
+						{{ form_row(form.estValidee)}}
+					</div>
+					<div>
+						<a href="{{ path("da_validate", {numDa: numDa})}}" class="btn bouton mt-2 me-4 d-none" id="bouton_ok">
+							Ok
+						</a>
+					</div>
 				</div>
 			</div>
 
@@ -80,34 +100,4 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/da/proposition/proposition.js" type="module"></script>
-
-	<script>
-		let lastCheckedRadio = null;
-let selectedValues = [];
-
-function toggleRadio(radio) {
-const valeur = radio.value;
-const prefix = valeur.split('-')[0];
-
-// if (lastCheckedRadio === radio) {
-// radio.checked = false;
-// lastCheckedRadio = null;
-// selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
-// } else {
-lastCheckedRadio = radio;
-selectedValues = selectedValues.filter(item => item.split('-')[0] !== prefix);
-selectedValues.push(valeur);
-// }
-
-console.log("Valeurs sélectionnées :", selectedValues);
-}
-
-// Avant soumission du formulaire
-document.getElementById('myForm').addEventListener('submit', function (e) { // Met à jour l’input caché avec les valeurs sélectionnées
-const hiddenInput = document.getElementById('refsHiddenInput');
-hiddenInput.value = selectedValues.join(','); // ex: "1-5,4-9"
-});
-	</script>
-
-
 {% endblock %}

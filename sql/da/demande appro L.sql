@@ -47,3 +47,18 @@ ADD numero_version INT DEFAULT 0
 
 ALTER TABLE Demande_Appro_L
 ADD edit INT DEFAULT 0
+
+ALTER TABLE Demande_Appro_L
+ADD prix_unitaire VARCHAR(100)
+
+ALTER TABLE Demande_Appro_L
+ADD numero_dit VARCHAR(50)
+
+ALTER TABLE Demande_Appro_L
+ADD deleted BIT DEFAULT 0;
+
+ALTER TABLE Demande_Appro_L
+ADD est_fiche_technique BIT DEFAULT 0;
+
+ALTER TABLE Demande_Appro_L
+ADD nom_fiche_technique VARCHAR(255);

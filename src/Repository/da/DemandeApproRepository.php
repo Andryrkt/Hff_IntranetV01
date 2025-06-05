@@ -2,6 +2,8 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
 
 class DemandeApproRepository extends EntityRepository
@@ -28,6 +30,12 @@ class DemandeApproRepository extends EntityRepository
         if (isset($criteria['demandeur'])) {
             $qb->andWhere("da.demandeur LIKE :demandeur")
                 ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
+        }
+
+        //filtre sur le statut
+        if (isset($criteria['statut'])) {
+            $qb->andWhere("da.statutDal LIKE :statut")
+                ->setParameter('statut', '%' . $criteria['statut'] . '%');
         }
 
         //Filtre sur l'id matériel
@@ -93,5 +101,49 @@ class DemandeApproRepository extends EntityRepository
             ->getOneOrNullResult();;
 
         return $result ? $result['statutDal'] : null;
+    }
+
+
+    public function findAvecDernieresDALetLR($id): ?DemandeAppro
+    {
+        // Sous-requête pour trouver le numéro de version max des DAL pour cette DA
+        $subQuery = $this->createQueryBuilder('dax')
+            ->select('MAX(dax2.numeroVersion)')
+            ->from(DemandeApproL::class, 'dax2')
+            ->where('dax2.numeroDemandeAppro = da.numeroDemandeAppro')
+            ->getDQL();
+
+        return $this->createQueryBuilder('da')
+            ->leftJoin('da.DAL', 'dal')
+            ->addSelect('dal')
+            ->leftJoin('dal.demandeApproLR', 'dalr')
+            ->addSelect('dalr')
+            ->where('da.id = :id')
+            // On filtre pour ne garder que les DAL avec le numéro de version max
+            ->andWhere("dal.numeroVersion = ($subQuery)")
+            ->andWhere("dal.deleted = 0")
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    public function getNumDit()
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeDit')
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
+
+    public function getNumDa($numDit)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeAppro')
+            ->where('da.numeroDemandeDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
     }
 }

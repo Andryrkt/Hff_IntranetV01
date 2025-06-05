@@ -34,3 +34,6 @@ ADD est_validee bit DEFAULT 0
 
 ALTER TABLE Demande_Appro
 ADD valide_par VARCHAR(50)
+
+ALTER TABLE Demande_Appro
+ADD nom_fichier_reference_zst VARCHAR(255)

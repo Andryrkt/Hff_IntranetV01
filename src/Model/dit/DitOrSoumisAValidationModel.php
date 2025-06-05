@@ -379,4 +379,27 @@ class DitOrSoumisAValidationModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'numcli');
     }
+
+    public function validationArticleZstDa($numOr)
+    {
+        $statement = " SELECT 
+                    --TRIM(isl.slor_constp) as contructeur, 
+                    ROUND(isl.slor_qterel) as quantite, 
+                    TRIM(isl.slor_refp) as reference, 
+                    isl.slor_pxnreel as montant
+                    from Informix.sav_lor isl 
+                    where slor_constp ='ZST' 
+                    and slor_soc ='HF' 
+                    and isl.slor_refp != 'ST'
+                    and isl.slor_numor ='$numOr'
+                    order by isl.slor_refp DESC
+                    -- and isl.slor_numor ='" . $numOr . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }

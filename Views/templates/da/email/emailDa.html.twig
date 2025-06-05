@@ -41,33 +41,33 @@
 				text-decoration: none;
 				border-radius: 5px;
 			}
-			.valide {
+			.validationAteDa {
 				background-color: #198754;
 			}
 			.refuse {
 				background-color: #dc3545;
 			}
-			.resolu {
+			.validationDa {
 				background-color: #d4edda;
 				color: #155724;
 			}
-			.cloture {
+			.modificationDa {
 				background-color: #0dcaf0;
 			} /* pas encore de template pour le body */
-			.planifie {
+			.newDa {
 				background-color: #ffc107;
 			}
-			.transfere {
+			.propositionDa {
 				background-color: #ffe8b3;
 				color: #663c00;
 			}
 			.suspendu {
 				background-color: #6c757d;
 			}
-			.valide,
+			.validationAteDa,
 			.refuse,
-			.cloture,
-			.planifie,
+			.modificationDa,
+			.newDa,
 			.suspendu {
 				color: #fff
 			}
@@ -90,7 +90,7 @@
 
 
 				<p>
-					Pour consulter les détails complets du demande, veuillez cliquer sur le bouton ci-dessous:
+					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
 					<a href="{{ action_url }}" class="button">Detail de la demande</a>
 				</p>
@@ -98,12 +98,12 @@
 					<span class="fw-bold">NB:</span>
 					Assurez-vous d’être connecté à
 					<a href="http://192.168.0.28/{{ App.base_path }}/">Hffintranet</a>
-					avant de cliquer sur le lien.
+					avant de cliquer sur le bouton.
 				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
 
-			{{ include('da/email/shared/_footer.html.twig') }}
+			{{ include('da/email/shared/_footer.html.twig', {service:tab.service}) }}
 		</div>
 	</body>
 </html>

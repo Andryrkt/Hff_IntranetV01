@@ -3,22 +3,11 @@
 namespace App\Entity\da;
 
 use DateTime;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\dom\Rmq;
-use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
-use App\Entity\Traits\AgenceServiceTrait;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\Traits\AgenceServiceEmetteurTrait;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproLRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeApproLRepository::class)
@@ -68,7 +57,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private ?string $artRefp;
+    private ?string $artRefp = '-';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -78,12 +67,12 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private ?string $artFams1;
+    private ?string $artFams1 = '-';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private ?string $artFams2;
+    private ?string $artFams2 = '-';
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
@@ -127,19 +116,24 @@ class DemandeApproL
 
     /**
      * @ORM\ManyToOne(targetEntity=DemandeAppro::class, inversedBy="DAL")
-     * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id")
+     * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id", nullable=false)
      */
-    private ?DemandeAppro $demandeAppro = null;
+    private ?DemandeAppro $demandeAppro;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeApproLR::class, mappedBy="demandeApproL")
      */
-    private $demandeApproLR;
+    private Collection $demandeApproLR;
 
     /**
      * @ORM\Column(type="boolean", name="est_validee")
      */
     private $estValidee = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_fiche_technique")
+     */
+    private $estFicheTechnique = false;
 
     /**
      * @ORM\Column(type="boolean", name="est_modifier")
@@ -164,6 +158,28 @@ class DemandeApproL
      * @var integer | null
      */
     private ?int $edit = 0;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="prix_unitaire")
+     */
+    private ?string $prixUnitaire = '0';
+
+    /**
+     * @ORM\Column(type="string", length=50, name="numero_dit")
+     */
+    private ?string $numeroDit = '0';
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted")
+     */
+    private $deleted = false;
+
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fiche_technique")
+     */
+    private $nomFicheTechnique;
+
+    private $joursDispo;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -705,6 +721,123 @@ class DemandeApproL
     public function setEdit($edit)
     {
         $this->edit = $edit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prixUnitaire
+     */
+    public function getPrixUnitaire()
+    {
+        return $this->prixUnitaire;
+    }
+
+    /**
+     * Set the value of prixUnitaire
+     *
+     * @return  self
+     */
+    public function setPrixUnitaire($prixUnitaire)
+    {
+        $this->prixUnitaire = $prixUnitaire;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDit
+     */
+    public function getNumeroDit()
+    {
+        return $this->numeroDit;
+    }
+
+    /**
+     * Set the value of numeroDit
+     *
+     * @return  self
+     */
+    public function setNumeroDit($numeroDit)
+    {
+        $this->numeroDit = $numeroDit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @return  self
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estFicheTechnique
+     */
+    public function getEstFicheTechnique()
+    {
+        return $this->estFicheTechnique;
+    }
+
+    /**
+     * Set the value of estFicheTechnique
+     *
+     * @return  self
+     */
+    public function setEstFicheTechnique($estFicheTechnique)
+    {
+        $this->estFicheTechnique = $estFicheTechnique;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFicheTechnique
+     */
+    public function getNomFicheTechnique()
+    {
+        return $this->nomFicheTechnique;
+    }
+
+    /**
+     * Set the value of nomFicheTechnique
+     */
+    public function setNomFicheTechnique($nomFicheTechnique): self
+    {
+        $this->nomFicheTechnique = $nomFicheTechnique;
+        return $this;
+    }
+
+    /**
+     * Get the value of joursDispo
+     */
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set the value of joursDispo
+     *
+     * @return  self
+     */
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
 
         return $this;
     }

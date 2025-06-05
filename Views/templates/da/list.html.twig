@@ -1,6 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
+{% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
 {% endblock %}
@@ -26,18 +26,20 @@
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th>N° Demande</th>
-					<th>N° DIT</th>
-					<th>Demandeur</th>
-					<th>Date de demande</th>
+					<th class="text-center">N° Demande</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Demandeur</th>
+					<th class="text-center">Date de demande</th>
 					<th>Statut</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					<th>Réference</th>
 					<th>Désignation</th>
-					<th>Qté dem</th>
-					<th>Nbre Frn assigné</th>
-					<th>Date fin souhaitée</th>
+					<th class="text-center">Fiche technique</th>
+					<th class="text-center">Qté dem</th>
+					<th class="text-center">Nbr Frn assigné</th>
+					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Nbr Jour(s) dispo</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -46,13 +48,12 @@
 					{% for dal in item.DAL %}
 						<tr>
 							<td>
-								{% if serviceAppro %}
-									{{ item.numeroDemandeAppro }}
-								{% else %}
-									<a href="{{ path('da_edit', { id : item.dit.id }) }}" target="_blank">
-										{{ item.numeroDemandeAppro }}
-									</a>
-								{% endif %}
+								{# {% if serviceAppro %} #}
+								{# {{ item.numeroDemandeAppro }} #}
+								{# {% else %} #}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+								</a>
+								{# {% endif %} #}
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.demandeur }}</td>
@@ -66,7 +67,7 @@
 								<td>{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td>
-								{% if serviceAtelier %}
+								{% if dal.statutDal == 'Bon validé' or (serviceAppro and (dal.statutDal == 'soumis à l’ATE' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'soumis à l’appro')%}
 									{{ dal.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
@@ -75,9 +76,12 @@
 								{% endif %}
 
 							</td>
-							<td>{{ dal.qteDem }}</td>
-							<td>0</td>
-							<td>{{ dal.dateFinSouhaite | date('d/m/Y') }}</td>
+							{% set ficheTechnique = dal.estFicheTechnique ? 'OUI' : 'NON' %}
+							<td class="text-center">{{ ficheTechnique }}</td>
+							<td class="text-center">{{ dal.qteDem }}</td>
+							<td class="text-center">0</td>
+							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 						</tr>
 					{% endfor %}
 				{% endfor %}

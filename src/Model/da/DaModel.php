@@ -90,7 +90,7 @@ class DaModel extends Model
 
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
-    
+
     public function getAllDesignation($codeFamille, $codeSousFamille)
     {
         $statement = "SELECT 
@@ -132,7 +132,22 @@ class DaModel extends Model
         return $data;
     }
 
-    
+    public function getPrixUnitaire($referencePiece)
+    {
+        $statement = "SELECT 
+            abse_pxstd as prix
+            FROM art_bse
+            WHERE abse_constp = 'ZST'
+            and abse_refp = '$referencePiece'
+            ";
 
-    
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        if (empty(array_column($data, 'prix'))) {
+            return ['0'];
+        }
+
+        return array_column($data, 'prix');
+    }
 }

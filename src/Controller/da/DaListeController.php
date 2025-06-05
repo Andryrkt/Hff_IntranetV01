@@ -6,11 +6,14 @@ use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
+use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -25,6 +28,7 @@ class DaListeController extends Controller
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DemandeApproLRepository $daLRepository;
+    private DemandeApproLRRepository $dalrRepository;
 
     public function __construct()
     {
@@ -33,6 +37,7 @@ class DaListeController extends Controller
         $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->dalrRepository = self::$em->getRepository(DemandeApproLR::class);
     }
 
     /**
@@ -54,22 +59,46 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
+
         $this->sessionService->remove('firstCharge');
 
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
 
-
         $this->ajoutInfoDit($das);
-        $dataFiltered  = $this->filtreDal($das);
+        $dasFiltered  = $this->filtreDal($das);
 
+        $this->modificationIdDALsDansDALRs($dasFiltered);
 
         self::$twig->display('da/list.html.twig', [
-            'data' => $dataFiltered,
+            'data' => $dasFiltered,
             'form' => $form->createView(),
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
             'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);
+    }
+
+    /**
+     * Permet de modifier l'id de la relation demande_appro_L dans la table demande_appro_LR
+     *
+     * @param array $dasFiltered
+     * 
+     * @return void
+     */
+    public function modificationIdDALsDansDALRs(array $dasFiltered): void
+    {
+        foreach ($dasFiltered as $da) {
+            foreach ($da->getDAL() as $dal) {
+                $dalrs = $this->dalrRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                if (!empty($dalrs)) {
+                    foreach ($dalrs as $dalr) {
+                        $dalr->setDemandeApproL($dal);
+                        self::$em->persist($dalr);
+                    }
+                }
+            }
+        }
+        self::$em->flush();
     }
 
     /**
@@ -98,10 +127,19 @@ class DaListeController extends Controller
         foreach ($das as $da) {
             $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($da->getNumeroDemandeAppro());
             // filtre une collection de versions selon le numero de version max
-            $dernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-                return $item->getNumeroVersion() == $numeroVersionMax;
+            $dalDernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
+                return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
-            $da->setDAL($dernieresVersions);
+
+            foreach ($dalDernieresVersions as $dal) {
+                $dateFin = $dal->getDateFinSouhaite();
+                $aujourdhui = new DateTime('now');
+                $interval = $aujourdhui->diff($dateFin);
+                $days = ($aujourdhui > $dateFin ? -1 : 1) * $interval->days;
+                $dal->setJoursDispo($days);
+            }
+
+            $da->setDAL($dalDernieresVersions);
         }
 
 

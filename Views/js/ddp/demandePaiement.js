@@ -1,10 +1,10 @@
 import { FetchManager } from "../api/FetchManager.js";
-import { initializeFileHandlers } from "../utils/file_upload_Utils.js";
-import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
 import {
-  AutoComplete,
-  MultiSelectAutoComplete,
-} from "../utils/AutoComplete.js";
+  initializeFileHandlersNouveau,
+  initializeFileHandlersMultiple,
+} from "../utils/file_upload_Utils.js";
+import { setupConfirmationButtons } from "../utils/ui/boutonConfirmUtils.js";
+import { AutoComplete } from "../utils/AutoComplete.js";
 import { TableauComponent } from "../Component/TableauComponent.js";
 import { enleverPartiesTexte } from "../utils/ui/stringUtils.js";
 import { allowOnlyNumbers, limitInputLength } from "../utils/inputUtils.js";
@@ -12,7 +12,7 @@ import {
   registerLocale,
   setLocale,
   formatNumberSpecial,
-  formaterNombre
+  formaterNombre,
 } from "../utils/formatNumberUtils.js";
 import { baseUrl } from "../utils/config.js";
 
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
     numFrnInput.value = item.num_fournisseur;
     beneficiaireInput.value = item.nom_fournisseur;
     deviseInput.value = item.devise;
-    modePaiementInput.value = item.mode_paiement;
+    // modePaiementInput.value = item.mode_paiement;
     ribFrnInput.value =
       item.rib && item.rib != 0 && item.rib.trim() !== "XXXXXXXXXXX"
         ? item.rib
@@ -79,39 +79,36 @@ document.addEventListener("DOMContentLoaded", function () {
       //   changeFactureSelonCommande(item.num_fournisseur, typeId);
       // });
     } else {
-      
-    $("#demande_paiement_numeroCommande").on("change", async function () {
-        const numCdes = $(this).val() ;
+      $("#demande_paiement_numeroCommande").on("change", async function () {
+        const numCdes = $(this).val();
         console.log("Valeur tableau à envoyer :", numCdes);
         let numCde;
-        if(numCdes.length == 0){
-          numCde = 0
+        if (numCdes.length == 0) {
+          numCde = 0;
         } else {
-         numCde = numCdes.join(',');
+          numCde = numCdes.join(",");
         }
-  
 
-console.log("Valeur string à envoyer :", numCdes);
+        console.log("Valeur string à envoyer :", numCdes);
         try {
-          const montants = await fetchManager.get(`api/montant-commande/${numCde}`);
-          if(this.length != 0){
+          const montants = await fetchManager.get(
+            `api/montant-commande/${numCde}`
+          );
+          if (this.length != 0) {
             montantInput.value = montants[0].montantcde;
           } else {
-            montantInput.value = '';
+            montantInput.value = "";
           }
         } catch (err) {
           console.error("Erreur lors de la récupération des montants :", err);
         }
-    });
-
+      });
 
       //  Récupérer les commandes du fournisseur après la sélection
       listeCommande(item.num_fournisseur, typeId);
-     
     }
   }
 
- 
   // Activation sur le champ "Numéro Fournisseur"
   new AutoComplete({
     inputElement: numFrnInput,
@@ -201,7 +198,7 @@ console.log("Valeur string à envoyer :", numCdes);
   async function listeFacture(numFournisseur, typeId) {
     try {
       console.log(numFournisseur);
-      
+
       const commandes = await fetchManager.get(
         `api/num-cde-frn/${numFournisseur}/${typeId}`
       );
@@ -225,8 +222,6 @@ console.log("Valeur string à envoyer :", numCdes);
     theme: "bootstrap",
     width: "100%",
   });
-
- 
 
   async function changeCommandeSelonFacture(numFournisseur, typeId) {
     if (isUpdatingFacture) return; // évite le rebouclage
@@ -257,22 +252,25 @@ console.log("Valeur string à envoyer :", numCdes);
       // Définir les valeurs sélectionnées directement
       $(numCommandeInput).val(numerosPO).trigger("change");
 
-
       const facturesString = facturesCorrespondantes
-    .map(f => f.Numero_Facture) // extrait chaque numéro
-    .join(',');
-     if (numFacs.length === 0) {
-      montantInput.value = "";
-      
-     }
+        .map((f) => f.Numero_Facture) // extrait chaque numéro
+        .join(",");
+      if (numFacs.length === 0) {
+        montantInput.value = "";
+      }
 
-     console.log(facturesCorrespondantes, facturesString);
-      const montantFacture = await fetchManager.get(`api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`);
-    console.log(formaterNombre(montantFacture[0],' '));
+      console.log(facturesCorrespondantes, facturesString);
+      const montantFacture = await fetchManager.get(
+        `api/montant-facture/${numFournisseur}/${facturesString}/${typeId}`
+      );
+      console.log(formaterNombre(montantFacture[0], " "));
 
-      montantInput.value =  formaterNombre(montantFacture[0],' ');
+      montantInput.value = formaterNombre(montantFacture[0], " ");
     } catch (error) {
-      console.error("Erreur lors de la récupération du montant facture :", error);
+      console.error(
+        "Erreur lors de la récupération du montant facture :",
+        error
+      );
     } finally {
       isUpdatingCommande = false;
     }
@@ -474,7 +472,7 @@ console.log("Valeur string à envoyer :", numCdes);
     tableauComponent.mount("tableau_facture");
   }
 
-  //fonction qui permet de fuisionner
+  //fonction qui permet de fusionner les ligne du tableau facture
   function customRenderRow(row, index, data, columns) {
     const tr = document.createElement("tr");
     const columnsToMerge = [
@@ -657,10 +655,16 @@ console.log("Valeur string à envoyer :", numCdes);
    * FICHIER
    * =============================*/
   const fileInput1 = document.querySelector("#demande_paiement_pieceJoint01");
-  initializeFileHandlers("1", fileInput1);
+  initializeFileHandlersNouveau("1", fileInput1);
 
   const fileInput2 = document.querySelector("#demande_paiement_pieceJoint02");
-  initializeFileHandlers("2", fileInput2);
+  initializeFileHandlersNouveau("2", fileInput2);
+
+  const fileInput3 = document.querySelector("#demande_paiement_pieceJoint03");
+  initializeFileHandlersMultiple("3", fileInput3);
+
+  const fileInput4 = document.querySelector("#demande_paiement_pieceJoint04");
+  initializeFileHandlersNouveau("4", fileInput4);
 
   /**==================================================
    * sweetalert pour le bouton Enregistrer
