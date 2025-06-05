@@ -68,7 +68,7 @@
 						<td class="text-center">NON</td>
 						<td class="text-center">{{ item.num_dit }}</td>
 						<td class="text-center">{{ item.num_or }}</td>
-						<td class="text-center">{{ item.dateplanning }}</td>
+						<td class="text-center">{{ item.dateplanning |date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}

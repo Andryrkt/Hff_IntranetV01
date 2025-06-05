@@ -137,6 +137,13 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
     {
+
+        $interneExterne = $this->ditRepository->getInterneExterne($numOr);
+        if ($interneExterne === 'EXTERNE') {
+            $numclient = $this->ditRepository->getNumclient($numOr);
+            $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
+        }
+
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
         $numOrNomFIchier = explode('_', $originalName)[1];
@@ -163,9 +170,7 @@ class DitOrsSoumisAValidationController extends Controller
         $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
         $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
 
-        // $numclient = $this->ditRepository->getNumclient($numOr);
-        // $interneExterne = $this->ditRepository->getInterneExterne($numOr);
-        // $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
+
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -178,8 +183,9 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas)
-            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
+            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr, $numDit),
+            'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
         ];
     }
 
@@ -233,6 +239,9 @@ class DitOrsSoumisAValidationController extends Controller
         } elseif ($conditionBloquage['numOrFichier']) {
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
+            $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['articleDas']) {
             $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
