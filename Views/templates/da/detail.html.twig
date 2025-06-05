@@ -70,58 +70,46 @@
 					<table class="table rounded table-plein-ecran mt-4">
 						<thead class="table-dark text-center">
 							<tr>
-								<th class="w-15">Famille</th>
-								<th class="w-10">Sous-famille</th>
-								<th class="w-20">Désignation</th>
-								<th class="w-10">Fournisseur</th>
-								<th class="w-10">Date fin souhaitée</th>
-								<th class="w-5">Quantité</th>
-								<th class="w-20">Commentaire</th>
-								<th class="w-10">Fiche technique</th>
+								<th class="text-start">Famille</th>
+								<th class="text-start">Sous-famille</th>
+								<th class="text-start">Désignation</th>
+								<th class="text-start">Fournisseur</th>
+								<th class="text-start">Date fin souhaitée</th>
+								<th class="text-start">Quantité</th>
+								<th class="text-start">Commentaire</th>
+								<th class="text-start">Fiche technique</th>
 							</tr>
 						</thead>
+						<tbody>
+							{% for DAL in demandeAppro.DAL %}
+								<tr>
+									<td>{{ DAL.artFams1 ?? '-' }}</td>
+									<td>{{ DAL.artFams2 ?? '-' }}</td>
+									<td>
+										<a href="#" data-bs-toggle="modal" data-bs-target="#modalDal{{ DAL.id }}">{{ DAL.artDesi }}</a>
+									</td>
+									<td>{{ DAL.nomFournisseur }}</td>
+									<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+									<td>{{ DAL.qteDem }}</td>
+									<td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
+									<td>
+										{% if DAL.estFicheTechnique %}
+											{% if DAL.nomFicheTechnique %}
+												<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
+											{% else %}
+												Fiche technique pas encore attachée
+											{% endif %}
+										{% else %}
+											NON
+										{% endif %}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
 					</table>
-					<div id="children-container">
-						{% for DAL in demandeAppro.DAL %}
-							{% set ligne = loop.index %}
-							<div id="demande_appro_form_DAL_{{ ligne }}">
-								<div class="row g-3">
-									<div class="w-15">
-										{{ macroForm.affichageSimple(DAL.artFams1 ?? '-', 'mb-2') }}
-									</div>
-									<div class="w-10">
-										{{ macroForm.affichageSimple(DAL.artFams2 ?? '-', 'mb-2') }}
-									</div>
-									<div class="w-20">
-										{{ macroForm.affichageSimple(DAL.artDesi, 'mb-2') }}
-									</div>
-									<div class="w-10">
-										{{ macroForm.affichageSimple(DAL.nomFournisseur, 'mb-2') }}
-									</div>
-									<div class="w-10">
-										{{ macroForm.affichageSimple(DAL.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
-									</div>
-									<div class="w-5">
-										{{ macroForm.affichageSimple(DAL.qteDem, 'mb-2') }}
-									</div>
-									<div class="w-20">
-										{{ macroForm.affichageSimple(DAL.commentaire == '' ? '-' : DAL.commentaire, 'mb-2') }}
-									</div>
-                                    {% set lienFicheTechnique = DAL.nomFicheTechnique ? '<a href="'~ App.base_path_fichier ~'/da/fichiers/' ~ DAL.nomFicheTechnique ~ '" target="_blank">' ~ DAL.nomFicheTechnique ~ '</a>' : 'Fiche technique pas encore attachée' %}
-
-									{% set ficheTechnique = DAL.estFicheTechnique ? lienFicheTechnique : 'NON' %}
-									<div class="w-10">
-										{{ macroForm.affichageHTMLSimple(ficheTechnique, 'mb-2 div-disabled-2') }}
-									</div>
-								</div>
-								<div class="mt-2 mb-3"></div>
-							</div>
-						{% endfor %}
-					</div>
 				</div>
 			</div>
 		</div>
-
 	</div>
 	<div class=" container-fluid mt-3">
 		<div class="card">
@@ -139,6 +127,9 @@
 			</div>
 		</div>
 	</div>
+	{% for DAL in demandeAppro.DAL %}
+		{{ include('da/shared/listeDA/_modalDal.html.twig', { DAL: DAL }) }}
+	{% endfor %}
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>

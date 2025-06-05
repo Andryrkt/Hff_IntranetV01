@@ -123,9 +123,9 @@ a.choix:hover {
 }
 
 [id*='demande_appro_form_DAL'][id*='estFicheTechnique'] {
-  width: 2.25em;
-  height: 2.25em;
-  border-radius: 0.5em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
 }
 
 /*
