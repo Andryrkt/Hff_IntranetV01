@@ -138,12 +138,16 @@ class DemandeApproRepository extends EntityRepository
 
     public function getNumDa($numDit)
     {
-        return $this->createQueryBuilder('da')
-            ->select('da.numeroDemandeAppro')
-            ->where('da.numeroDemandeDit = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleColumnResult()
-        ;
+        try {
+            $numDa =  $this->createQueryBuilder('da')
+                ->select('da.numeroDemandeAppro')
+                ->where('da.numeroDemandeDit = :numDit')
+                ->setParameter('numDit', $numDit)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $numDa = null; // ou une valeur par défaut
+        }
+        return $numDa;
     }
 }
