@@ -34,8 +34,8 @@ class DemandeApproRepository extends EntityRepository
 
         //filtre sur le statut
         if (isset($criteria['statut'])) {
-            $qb->andWhere("da.statutDal LIKE :statut")
-                ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            $qb->andWhere("da.statutDal =:statut")
+                ->setParameter('statut', $criteria['statut']);
         }
 
         //Filtre sur l'id matériel
@@ -101,6 +101,14 @@ class DemandeApproRepository extends EntityRepository
             ->getOneOrNullResult();;
 
         return $result ? $result['statutDal'] : null;
+    }
+
+    public function getDistinctColumn($column)
+    {
+        return $this->createQueryBuilder('da')
+            ->select("DISTINCT da.$column")
+            ->getQuery()
+            ->getResult();
     }
 
 

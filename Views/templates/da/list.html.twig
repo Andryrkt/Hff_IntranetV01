@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
 {% endblock %}
 
@@ -21,6 +22,14 @@
 		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
 	</div>
+
+	{# Statut de la DA #}
+	{% set styleStatut = {
+		'ZST non Validé': 'bg-or-non-valide fw-bold',
+		'soumis à l’appro': 'bg-demande-achat fw-bold',
+		'soumis à l’ATE': 'bg-proposition-achat fw-bold',
+		'Bon validé': 'bg-bon-achat-valide fw-bold',
+	} %}
 
 	<div class="container-fluid">
 		<table class="table table-plein-ecran">
@@ -46,7 +55,6 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
-
 					{% for dal in item.DAL %}
 						<tr>
 							<td>
@@ -60,7 +68,7 @@
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
-							<td>{{ dal.statutDal }}</td>
+							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
 							<td>{{ dal.artFams1 ?? '-' }}</td>
 							<td>{{ dal.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
