@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -13,15 +14,15 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @Route("/demande-appro")
  */
 class DaListeController extends Controller
 {
+    use DaTrait;
+
     private const ID_ATELIER = 3;
     private const ID_APPRO = 16;
 
@@ -131,21 +132,7 @@ class DaListeController extends Controller
                 return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
 
-            foreach ($dalDernieresVersions as $dal) {
-                // --- 1. Mettre les deux dates à minuit (00:00:00) ---
-                $dateFin     = clone $dal->getDateFinSouhaite(); // on clone pour ne pas modifier l'objet de l'entity
-                $dateFin->setTime(0, 0, 0);                      // Y-m-d 00:00:00
-
-                $aujourdhui  = new DateTime('today');            // 'today' crée déjà la date du jour à 00:00:00
-
-                // --- 2. Calculer la différence ---
-                $interval = $aujourdhui->diff($dateFin);         // toujours positif dans $interval->days
-                $days     = $interval->invert ? -$interval->days // invert = 1 si $dateFin est passée
-                    :  $interval->days;
-
-                // --- 3. Enregistrer ---
-                $dal->setJoursDispo($days);
-            }
+            $this->ajoutNbrJourRestant($dalDernieresVersions);
 
             $da->setDAL($dalDernieresVersions);
         }
@@ -154,7 +141,7 @@ class DaListeController extends Controller
         return $das;
     }
 
-
+    
 
 
     private function ajoutInfoDit(array $datas): void

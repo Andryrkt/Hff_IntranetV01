@@ -3,22 +3,28 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
 use App\Form\da\CdeFrnListType;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DaSoumissionBc;
 use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
-use App\Repository\da\DaSoumissionBcRepository;
+use App\Controller\Traits\da\DaTrait;
 use App\Service\TableauEnStringService;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListCdeFrnController extends Controller
 {
+    use DaTrait;
+
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
 
     public function __construct()
     {
@@ -26,7 +32,9 @@ class ListCdeFrnController extends Controller
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
     }
+
     /** 
      * @Route(path="/demande-appro/liste-commande-fournisseurs", name="list_cde_frn") 
      **/
@@ -42,6 +50,7 @@ class ListCdeFrnController extends Controller
         $datas = $this->recuperationDonner($criteria);
         $datas = $this->ajouterNumDa($datas);
         $datas = $this->ajoutStatutBc($datas);
+        $datas = $this->ajouterNbrJoursDispo($datas);
         // dd($datas);
 
 
@@ -89,6 +98,15 @@ class ListCdeFrnController extends Controller
         foreach ($datas as $key => $data) {
             $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
             $datas[$key]['statut_bc'] = $statutBc;
+        }
+        return $datas;
+    }
+
+    private function ajouterNbrJoursDispo(array $datas)
+    {
+        foreach ($datas as $key => $data) {
+            $nbrJoursDispo = $this->demandeApproLRepository->getJoursDispo($data['num_da'], $data['reference']);
+            $datas[$key]['jours_dispo'] = $nbrJoursDispo;
         }
         return $datas;
     }
