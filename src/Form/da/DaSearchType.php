@@ -5,12 +5,14 @@ namespace App\Form\da;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -18,6 +20,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 class DaSearchType extends  AbstractType
 {
     private $agenceRepository;
+    private $demandeApproRepository;
 
     private $em;
 
@@ -25,10 +28,14 @@ class DaSearchType extends  AbstractType
     {
         $this->em = Controller::getEntity();
         $this->agenceRepository = $this->em->getRepository(Agence::class);
+        $this->demandeApproRepository = $this->em->getRepository(DemandeAppro::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $choices = $this->demandeApproRepository->getDistinctColumn('statutDal');
+        $values = array_column($choices, 'statutDal');
+
         $builder
             ->add('numDit', TextType::class, [
                 'label' => 'n° DIT',
@@ -42,8 +49,10 @@ class DaSearchType extends  AbstractType
                 'label' => 'Demandeur',
                 'required' => false
             ])
-            ->add('statut', TextType::class, [
+            ->add('statut', ChoiceType::class, [
+                'placeholder' => '-- Choisir un statut --',
                 'label' => 'Statut',
+                'choices'  => array_combine($values, $values),
                 'required' => false
             ])
             ->add('idMateriel', TextType::class, [

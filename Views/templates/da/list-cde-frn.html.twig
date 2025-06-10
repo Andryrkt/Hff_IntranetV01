@@ -44,6 +44,7 @@
 					<th class="text-center">Qté en attente</th>
 					<th class="text-center">Qté Dispo (Qté à livrer)</th>
 					<th class="text-center">Qté livrée</th>
+					<th class="text-center">Nb jours dispo</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -80,13 +81,23 @@
 								{{ item.num_cde }}
 							</td>
 						{% endif %}
-						<td class="text-center">{{ item.statut_bc }}</td>
+
+						{% if item.statut_bc == 'BC validé' %}
+							<td class="text-center">
+								<a href="{{path('changement_statut_envoyer_fournisseur', {'numCde': item.num_cde, 'numDa':item.num_da})}}" class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1" title="changer statut en 'BC envoyé au fournisseur">
+									{{ item.statut_bc }}
+								</a>
+							</td>
+						{% else %}
+							<td class="text-center">{{ item.statut_bc }}</td>
+						{% endif %}
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
 						<td class="text-center">{{ item.qte_reliquat == 0 ? '-': item.qte_reliquat }}</td>
 						<td class="text-center">{{ item.qte_a_livrer == 0 ? '-': item.qte_a_livrer }}</td>
 						<td class="text-center">{{ item.qte_livee == 0 ? '-': item.qte_livee }}</td>
+						<td class="text-center">{{ item.jours_dispo == 0 ? '-': item.jours_dispo }}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

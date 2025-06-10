@@ -164,8 +164,8 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
+        // $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+        // $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
 
 
         return [
@@ -181,7 +181,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
             'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
-            'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            // 'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
     }
 
