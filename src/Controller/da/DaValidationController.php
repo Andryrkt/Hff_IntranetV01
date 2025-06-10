@@ -99,7 +99,7 @@ class DaValidationController extends Controller
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setStatutDal('Bon validé')
+                ->setStatutDal('Bon d’achats validé')
             ;
         }
 
@@ -111,7 +111,7 @@ class DaValidationController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal('Bon validé')
+                        ->setStatutDal('Bon d’achats validé')
                     ;
                 }
             }

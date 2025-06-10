@@ -31,9 +31,9 @@ class DaPropositionRefController extends Controller
     use lienGenerique;
 
     private const ID_ATELIER = 3;
-    private const DA_STATUT = 'soumis à l’ATE';
-    private const DA_STATUT_SOUMIS_APPRO = 'soumis à l’appro';
-    private const DA_STATUT_VALIDE = 'Bon validé';
+    private const DA_STATUT = 'Proposition achats';
+    private const DA_STATUT_SOUMIS_APPRO = 'Demande d’achats';
+    private const DA_STATUT_VALIDE = 'Bon d’achats validé';
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -200,7 +200,7 @@ class DaPropositionRefController extends Controller
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setStatutDal('Bon validé')
+                ->setStatutDal(self::DA_STATUT_VALIDE)
             ;
         }
 
@@ -212,7 +212,7 @@ class DaPropositionRefController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal('Bon validé')
+                        ->setStatutDal(self::DA_STATUT_VALIDE)
                     ;
                 }
             }

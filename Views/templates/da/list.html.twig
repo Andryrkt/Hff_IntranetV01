@@ -25,10 +25,10 @@
 
 	{# Statut de la DA #}
 	{% set styleStatut = {
-		'ZST non Validé': 'bg-or-non-valide fw-bold',
-		'soumis à l’appro': 'bg-demande-achat fw-bold',
-		'soumis à l’ATE': 'bg-proposition-achat fw-bold',
-		'Bon validé': 'bg-bon-achat-valide fw-bold',
+		'OR non validé': 'bg-or-non-valide fw-bold',
+		'Demande d’achats': 'bg-demande-achat fw-bold',
+		'Proposition achats': 'bg-proposition-achat fw-bold',
+		'Bon d’achats validé': 'bg-bon-achat-valide fw-bold',
 	} %}
 
 	<div class="container-fluid">
@@ -39,7 +39,7 @@
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
-					<th>Statut</th>
+					<th class="text-center">Statut</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
@@ -69,17 +69,17 @@
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
-							<td>{{ dal.artFams1 ?? '-' }}</td>
-							<td>{{ dal.artFams2 ?? '-' }}</td>
+							<td class="text-start">{{ dal.artFams1 ?? '-' }}</td>
+							<td class="text-start">{{ dal.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
 								{% if dal.estModifier %}
-									<td>{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
+									<td class="text-start">{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
 								{% else %}
-									<td>{{ dal.artRefp ?? '-' }}</td>
+									<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 								{% endif %}
 							{% endif %}
-							<td>
-								{% if dal.statutDal == 'Bon validé' or (serviceAppro and (dal.statutDal == 'soumis à l’ATE' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'soumis à l’appro')%}
+							<td class="text-start">
+								{% if dal.statutDal == 'Bon d’achats validé' or (serviceAppro and (dal.statutDal == 'Proposition achats' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'Demande d’achats')%}
 									{{ dal.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">

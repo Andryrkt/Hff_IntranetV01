@@ -132,8 +132,6 @@ class DaListeController extends Controller
                 return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
 
-            $this->ajoutNbrJourRestant($dalDernieresVersions);
-
             $da->setDAL($dalDernieresVersions);
         }
 
