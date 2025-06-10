@@ -5,6 +5,8 @@ import {
   createFams2AndAppendTo,
   createFieldAndAppendTo,
   createFieldAutocompleteAndAppendTo,
+  createFileContainerAndAppendTo,
+  createFileNamesLabelAndAppendTo,
   createRemoveButtonAndAppendTo,
   formatAllField,
   getTheField,
@@ -42,7 +44,8 @@ export function ajouterUneLigne() {
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
     ['w-20', 'commentaire'],
-    ['w-10', 'fileNames'],
+    ['w-1', 'fileNamesLabel'],
+    ['w-9', 'fileNamesContainer'],
     ['w-2', 'estFicheTechnique'],
     ['d-none', 'artConstp'],
     ['d-none', 'artRefp'],
@@ -52,6 +55,7 @@ export function ajouterUneLigne() {
     ['d-none', 'catalogue'],
     ['d-none', 'deleted'],
     ['d-none', 'numeroLigne'],
+    ['d-none', 'fileNames'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
@@ -59,6 +63,10 @@ export function ajouterUneLigne() {
       createFams2AndAppendTo(classe, prototype, row);
     } else if (fieldName === 'artDesi' || fieldName === 'nomFournisseur') {
       createFieldAutocompleteAndAppendTo(classe, prototype, fieldName, row);
+    } else if (fieldName === 'fileNamesContainer') {
+      createFileContainerAndAppendTo(classe, prototype, row);
+    } else if (fieldName === 'fileNamesLabel') {
+      createFileNamesLabelAndAppendTo(classe, prototype, row);
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }

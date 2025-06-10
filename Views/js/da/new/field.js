@@ -34,6 +34,8 @@ export function createFieldAndAppendTo(
     field.value = 'ZST';
   } else if (fieldName === 'numeroLigne') {
     field.value = localStorage.getItem('index');
+  } else if (fieldName === 'fileNames') {
+    field.addEventListener('change', (event) => onFileNamesInputChange(event));
   }
 
   // Append the field
@@ -96,6 +98,49 @@ export function createFams2AndAppendTo(className, prototype, parentField) {
   parentField.appendChild(field);
 }
 
+export function createFileContainerAndAppendTo(
+  className,
+  prototype,
+  parentField
+) {
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add(className);
+
+  fieldContainer.id = prototype
+    .querySelector(`[id*="fileNames"]`)
+    .id.replace('fileNames', 'fileNamesContainer'); // Génération de l'ID pour le conteneur
+
+  parentField.appendChild(fieldContainer);
+}
+
+export function createFileNamesLabelAndAppendTo(
+  className,
+  prototype,
+  parentField
+) {
+  // Création du conteneur principal
+  let fieldContainer = document.createElement('div');
+  fieldContainer.classList.add(className);
+
+  // Sélection de l'élément cible
+  let fieldFileNames = prototype.querySelector(`[id*="fileNames"]`);
+
+  let icon = document.createElement('i');
+  icon.classList.add('fas', 'fa-paperclip', 'text-primary');
+  icon.title = 'Mettre en pièces jointes un ou plusieur(s) fichier(s)';
+  icon.style.cursor = 'pointer';
+
+  icon.addEventListener('click', function () {
+    // Ouvrir le sélecteur de fichiers
+    fieldFileNames.click();
+  });
+
+  // Append the label and field to the container
+  fieldContainer.append(icon);
+  parentField.appendChild(fieldContainer);
+}
+
 export function createFieldAutocompleteAndAppendTo(
   className,
   prototype,
@@ -155,4 +200,27 @@ export function getTheField(
   prefixId = 'demande_appro_form_DAL'
 ) {
   return document.getElementById(`${prefixId}_${line}_${fieldName}`);
+}
+
+function onFileNamesInputChange(event) {
+  let inputFile = event.target; // input file field
+  let fieldContainer = document.getElementById(
+    inputFile.id.replace('fileNames', 'fileNamesContainer')
+  ); // Conteneur du champ de fichier correspondant
+
+  // Vérifier si un fichier a été sélectionné
+  if (inputFile.files.length > 0) {
+    let ul = document.createElement('ul');
+    for (let index = 0; index < inputFile.files.length; index++) {
+      const file = inputFile.files[index];
+      let li = document.createElement('li');
+      let a = document.createElement('a');
+      a.href = URL.createObjectURL(file);
+      a.textContent = file.name; // Afficher le nom du fichier
+      a.target = '_blank'; // Ouvrir le fichier dans un nouvel onglet
+      li.appendChild(a); // Ajouter le lien à l'élément de liste
+      ul.appendChild(li); // Ajouter l'élément de liste
+    }
+    fieldContainer.appendChild(ul); // Ajouter le lien au conteneur
+  }
 }
