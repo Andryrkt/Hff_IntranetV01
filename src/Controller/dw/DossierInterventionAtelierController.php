@@ -26,6 +26,7 @@ class DossierInterventionAtelierController extends Controller
 
         $dwModel = new DossierInterventionAtelierModel();
 
+        $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
             "idMateriel" => null,
             "typeIntervention" => "INTERNE",
@@ -42,9 +43,9 @@ class DossierInterventionAtelierController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
+            $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
         }
 
-        $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
 
         //dd($dwDits[0]->getOrdreDeReparation()->get);
 
