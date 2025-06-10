@@ -21,6 +21,7 @@ export function createFieldAndAppendTo(
     'commentaire',
     'catalogue',
     'numeroLigne',
+    'fileNames',
     'artRefp',
     'numeroFournisseur',
     'estFicheTechnique',

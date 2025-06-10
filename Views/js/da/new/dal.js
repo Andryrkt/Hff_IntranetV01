@@ -35,14 +35,15 @@ export function ajouterUneLigne() {
   row.classList.add('row', 'g-3');
 
   let fields = [
-    ['w-15', 'codeFams1'],
-    ['w-15', 'codeFams2'],
+    ['w-10', 'codeFams1'],
+    ['w-10', 'codeFams2'],
     ['w-20', 'artDesi'],
     ['w-10', 'nomFournisseur'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
     ['w-20', 'commentaire'],
-    ['w-3', 'estFicheTechnique'],
+    ['w-10', 'fileNames'],
+    ['w-2', 'estFicheTechnique'],
     ['d-none', 'artConstp'],
     ['d-none', 'artRefp'],
     ['d-none', 'artFams1'],
