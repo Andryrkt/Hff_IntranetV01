@@ -50,7 +50,7 @@ class ListCdeFrnController extends Controller
         $datas = $this->recuperationDonner($criteria);
         $datas = $this->ajouterNumDa($datas);
         $datas = $this->ajoutStatutBc($datas);
-        $datas = $this->ajouterNbrJoursDispo($datas);
+        // $datas = $this->ajouterNbrJoursDispo($datas);
         // dd($datas);
 
 
