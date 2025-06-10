@@ -374,11 +374,15 @@ class InventaireController extends Controller
                 if (!empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                        $data['data'][$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
+                        if (!array_key_exists(0, $qteCompte)) {
+                            $data['data'][$j]["qte_comptee_" . ($i + 1)] = "";
+                        } else {
+                            $data['data'][$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'] === "0" ? "" : $qteCompte[0]['qte_comptee'];
+                        }
                     }
-                    $countQtee1 += (int) $data['data'][$j]["qte_comptee_1"];
-                    $countQtee2 += (int) $data['data'][$j]["qte_comptee_2"];
-                    $countQtee3 += (int) $data['data'][$j]["qte_comptee_3"];
+                    $countQtee1 += array_key_exists($j, $data['data']) ? (int) $data['data'][$j]["qte_comptee_1"] : 0;
+                    $countQtee2 += array_key_exists($j, $data['data']) ? (int) $data['data'][$j]["qte_comptee_2"] : 0;
+                    $countQtee3 += array_key_exists($j, $data['data']) ? (int) $data['data'][$j]["qte_comptee_3"] : 0;
                 }
                 $countPMP   += (int) $data['data'][$j]["pmp"];
                 $countivent   += (int) $data['data'][$j]["montant_inventaire"];
@@ -430,7 +434,11 @@ class InventaireController extends Controller
                 if (!empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
                         $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
-                        $dataExcel[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                        if (!array_key_exists(0, $qteCompte)) {
+                            $dataExcel[$j]["qte_comptee_" . ($i + 1)] = "";
+                        } else {
+                            $dataExcel[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
+                        }
                     }
                 }
             }

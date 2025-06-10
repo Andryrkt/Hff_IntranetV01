@@ -359,11 +359,28 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getNumcli($numOr)
+    {
+        $statement = " SELECT seor_numcli as numcli
+                    FROM sav_eor
+                    WHERE seor_numor = '$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numcli');
+    }
+
     public function numcliExiste($numcli)
     {
-        $statement = " SELECT count(cbse_numcli) as numcli
-                        FROM cli_bse 
-                        WHERE cbse_numcli = '{$numcli}'
+        $statement = " SELECT  
+        case
+            when count(*) = 1 then 'existe_bdd' else ''
+        end as numcli
+        from cli_bse
+        INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
         ";
 
         $result = $this->connect->executeQuery($statement);

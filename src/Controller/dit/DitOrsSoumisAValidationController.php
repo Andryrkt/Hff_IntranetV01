@@ -132,6 +132,10 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
     {
+        $numclient = $this->ditOrsoumisAValidationModel->getNumcli($numOr);
+        $numcli = empty($numclient) ? '' : $numclient[0];
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numcli);
+
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
         $numOrNomFIchier = explode('_', $originalName)[1];
@@ -155,10 +159,6 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        // $numclient = $this->ditRepository->getNumclient($numOr);
-        // $interneExterne = $this->ditRepository->getInterneExterne($numOr);
-        // $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
-
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -170,8 +170,8 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr, $numDit)
-            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
+            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr, $numDit),
+            'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd'
         ];
     }
 
@@ -229,13 +229,11 @@ class DitOrsSoumisAValidationController extends Controller
         } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
             $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        }
-        // elseif ($conditionBloquage['numcliExiste']) {
-        //     $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
-        //     $okey = false;
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        else {
+        } elseif ($conditionBloquage['numcliExiste']) {
+            $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } else {
             $okey = true;
         }
         return $okey;

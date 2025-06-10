@@ -423,7 +423,7 @@ trait DitOrSoumisAValidationTrait
 
         $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
 
-        return $datePlanning < $dateDuJour && (int)$nbrOrSoumis <= 0;
+        return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
     }
     
     private function datePlanning($numOr)
