@@ -21,6 +21,8 @@ class ListCdeFrnController extends Controller
 {
     use DaTrait;
 
+    const STATUT_ENVOYE_FOURNISSEUR = ' BC envoyé au fournisseur';
+
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
@@ -124,5 +126,44 @@ class ListCdeFrnController extends Controller
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
             }
         }
+    }
+
+    /**
+     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{numDa}", name="changement_statut_envoyer_fournisseur")
+     *
+     * @return void
+     */
+    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $numDa = '')
+    {
+        $this->verifierSessionUtilisateur();
+
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
+        // modification de statut dal
+        $dal = $this->demandeApproLRepository->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        if ($dal) {
+            $dal->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
+            self::$em->persist($dal);
+            self::$em->flush();
+        }
+
+        // modification de statut da
+        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        if ($dal) {
+            $dal->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
+            self::$em->persist($da);
+            self::$em->flush();
+        }
+
+        // modification de statut soumission bc
+        $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numeroVersionMax]);
+        if ($soumissionBc) {
+            $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
+            self::$em->persist($soumissionBc);
+            self::$em->flush();
+        }
+
+        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
+        $this->redirectToRoute("da_list");
     }
 }

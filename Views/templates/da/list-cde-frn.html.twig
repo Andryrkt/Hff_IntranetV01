@@ -80,7 +80,13 @@
 								{{ item.num_cde }}
 							</td>
 						{% endif %}
-						<td class="text-center">{{ item.statut_bc }}</td>
+						{% if item.statut_bc == 'BC validé' %}
+							<a href="{{path('changement_statut_envoyer_fournisseur', {'numCde': item.num_cde, 'numDa':item.num_da})}}" class="text-decoration-none text-dark">
+								<td class="text-center">{{ item.statut_bc }}</td>
+							</a>
+						{% else %}
+							<td class="text-center">{{ item.statut_bc }}</td>
+						{% endif %}
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>

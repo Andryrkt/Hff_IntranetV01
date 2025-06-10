@@ -83,7 +83,7 @@ class DaSoumissionBcController extends Controller
                     ->setPieceJoint1($nomDeFichier)
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                ;
+                ; //TODO: A AJOUTER le numero Da, numero OR,...
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 self::$em->persist($soumissionBc);
