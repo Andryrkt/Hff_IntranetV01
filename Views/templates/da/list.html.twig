@@ -39,7 +39,7 @@
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
-					<th>Statut</th>
+					<th class="text-center">Statut</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
@@ -69,16 +69,16 @@
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
-							<td>{{ dal.artFams1 ?? '-' }}</td>
-							<td>{{ dal.artFams2 ?? '-' }}</td>
+							<td class="text-start">{{ dal.artFams1 ?? '-' }}</td>
+							<td class="text-start">{{ dal.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
 								{% if dal.estModifier %}
-									<td>{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
+									<td class="text-start">{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
 								{% else %}
-									<td>{{ dal.artRefp ?? '-' }}</td>
+									<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 								{% endif %}
 							{% endif %}
-							<td>
+							<td class="text-start">
 								{% if dal.statutDal == 'Bon validé' or (serviceAppro and (dal.statutDal == 'soumis à l’ATE' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'soumis à l’appro')%}
 									{{ dal.artDesi }}
 								{% else %}

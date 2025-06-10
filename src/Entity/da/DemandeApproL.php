@@ -179,7 +179,12 @@ class DemandeApproL
      */
     private $nomFicheTechnique;
 
-    private $joursDispo;
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     *
+     * @var integer | null
+     */
+    private ?int $joursDispo;
 
     /**==============================================================================
      * GETTERS & SETTERS

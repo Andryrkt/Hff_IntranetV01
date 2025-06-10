@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -24,6 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaEditController extends Controller
 {
+    use DemandeApproTrait;
     use lienGenerique;
 
     private const ID_ATELIER = 3;
@@ -270,11 +272,15 @@ class DaEditController extends Controller
 
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         foreach ($demandeApproLs as $demandeApproL) {
+            /** 
+             * @var DemandeApproL $demandeApproL
+             */
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
                 ->setStatutDal(self::DA_STATUT)
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)
+                ->setJoursDispo($this->getJoursRestants($demandeApproL))
             ; // Incrémenter le numéro de version
             $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DA
