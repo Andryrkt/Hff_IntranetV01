@@ -79,7 +79,7 @@ class DossierInterventionAtelierSearchType extends AbstractType
                 'label' => 'Désignation',
                 'required' => false
             ])
-            ->add('numeroDevisRattache', TextType::class, [
+            ->add('numDev', TextType::class, [
                 'label' => 'N° Devis Rattaché',
                 'required' => false
             ])

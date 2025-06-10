@@ -57,6 +57,7 @@ class DossierInterventionAtelierModel extends Model
 
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
         $numeroOr = $this->conditionLike('ord.numero_or', 'numOr', $criteria);
+        $numeroDev = $this->conditionLike('dd.numero_devis', 'numDev', $criteria);
         $designation = $this->conditionLike('dit.designation_materiel', 'designation', $criteria);
         $idMateriel = $this->conditionLike('dit.id_materiel', 'idMateriel', $criteria);
         $numParc = $this->conditionLike('dit.numero_parc', 'numParc', $criteria);
@@ -77,7 +78,10 @@ class DossierInterventionAtelierModel extends Model
             FROM DW_Demande_Intervention dit
             LEFT JOIN DW_Ordre_De_Reparation ord 
             ON dit.numero_dit = ord.numero_dit 
+            LEFT JOIN DW_Devis dd
+            ON dit.numero_dit = dd.numero_dit 
             $typeIntervention
+            $numeroDev
             $numeroDit
             $numeroOr
             $designation
