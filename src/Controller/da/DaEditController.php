@@ -29,8 +29,8 @@ class DaEditController extends Controller
     use lienGenerique;
 
     private const ID_ATELIER = 3;
-    private const DA_STATUT = 'soumis à l’appro';
-    private const DA_STATUT_VALIDE = 'Bon validé';
+    private const DA_STATUT = 'Demande d’achats';
+    private const DA_STATUT_VALIDE = 'Bon d’achats validé';
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;

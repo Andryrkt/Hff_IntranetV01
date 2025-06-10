@@ -27,7 +27,7 @@ class DaNewController extends Controller
     use DemandeApproTrait;
     use lienGenerique;
 
-    private const DA_STATUT = 'soumis à l’appro';
+    private const DA_STATUT = 'Demande d’achats';
 
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
