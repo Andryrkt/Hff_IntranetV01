@@ -21,7 +21,7 @@ class ListCdeFrnController extends Controller
 {
     use DaTrait;
 
-    const STATUT_ENVOYE_FOURNISSEUR = ' BC envoyé au fournisseur';
+    const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
 
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
@@ -52,7 +52,7 @@ class ListCdeFrnController extends Controller
         $datas = $this->recuperationDonner($criteria);
         $datas = $this->ajouterNumDa($datas);
         $datas = $this->ajoutStatutBc($datas);
-        // $datas = $this->ajouterNbrJoursDispo($datas);
+        $datas = $this->ajouterNbrJoursDispo($datas);
         // dd($datas);
 
 
@@ -123,7 +123,7 @@ class ListCdeFrnController extends Controller
             if ($soumission['soumission'] === true) {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
             } else {
-                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id']]);
             }
         }
     }
@@ -149,14 +149,15 @@ class ListCdeFrnController extends Controller
 
         // modification de statut da
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        if ($dal) {
-            $dal->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
+        if ($da) {
+            $da->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
             self::$em->persist($da);
             self::$em->flush();
         }
 
         // modification de statut soumission bc
-        $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numeroVersionMax]);
+        $numVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+        $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMax]);
         if ($soumissionBc) {
             $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
             self::$em->persist($soumissionBc);
@@ -164,6 +165,6 @@ class ListCdeFrnController extends Controller
         }
 
         $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_cde_frn");
     }
 }

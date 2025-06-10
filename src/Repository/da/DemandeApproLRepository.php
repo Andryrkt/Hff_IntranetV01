@@ -52,7 +52,11 @@ class DemandeApproLRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return $this->createQueryBuilder('dal')
+        if ($numeroVersionMax === null) {
+            return 0; // ou une valeur par défaut, selon vos besoins
+        }
+
+        $nbrJour =  $this->createQueryBuilder('dal')
             ->select('dal.joursDispo')
             ->where('dal.numeroDemandeAppro = :numDa')
             ->andWhere('dal.numeroVersion = :numVersion')
@@ -61,8 +65,10 @@ class DemandeApproLRepository extends EntityRepository
                 'numDa' => $numeroDemandeAppro,
                 'numVersion' => $numeroVersionMax,
                 'ref' => $reference
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
+            ]);
+
+        $result  = $nbrJour->getQuery()->getSingleScalarResult();
+
+        return $result !== null ? (int) $result : 0;
     }
 }
