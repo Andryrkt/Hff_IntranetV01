@@ -93,7 +93,8 @@ class EditDemandePaiementController extends Controller
             /** ENREGISTREMENT DU FICHIER */
             $nomDesFichiers = $this->enregistrementFichier($form, $numDdp, $numeroversion);
 
-            $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
+            // $numCdes = $this->recuperationCdeFacEtNonFac($demandePaiement->getTypeDemandeId()->getId());
+            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
@@ -334,7 +335,8 @@ class EditDemandePaiementController extends Controller
         // $numComandes = $this->ddpRepository->getnumCde();
         // $excludedCommands = $this->changeStringToArray($numComandes);
         // $numCdes = $this->cdeFnrRepository->findNumCommandeValideNonAnnuler($numeroFournisseur, $typeId, $excludedCommands);
-        $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        // $numCdes = $this->recuperationCdeFacEtNonFac($typeId);
+        $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($numeroFournisseur);
         $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
         $numFacs = $this->demandePaiementModel->getFactureNonReglee($numeroFournisseur);
         $numFacString = TableauEnStringService::TableauEnString(',', $numFacs);

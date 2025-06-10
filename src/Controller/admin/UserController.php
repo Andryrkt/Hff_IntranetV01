@@ -118,6 +118,7 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(User::class)->find($id);
+        
         // Conversion de l'utilisateur en objet s'il est en tableau
         $user = $this->arrayToObjet($user);
 
@@ -202,9 +203,6 @@ class UserController extends Controller
         // foreach ($user->getTikPlanningUser() as $planning) {
         //     self::$em->remove($planning);
         // }
-
-        // Appliquer les modifications en base
-        self::$em->flush();
 
         // Supprimer l'utilisateur
         self::$em->remove($user);
