@@ -123,61 +123,58 @@ class PlanningSearchType extends AbstractType
                 'placeholder' => False
             ])
 
-            ->add('facture', ChoiceType::class, [
-                'label' => 'Facturation',
-                'required' => true,
-                'choices' => self::FACTURE,
-                'attr' => ['class' => 'facture'],
-                'data' => 'ENCOURS'
-            ])
-            ->add('plan', ChoiceType::class, [
-                'label' => 'Planification',
-                'required' => true,
-                'choices' => self::PLANIFIER,
-                'attr' => ['class' => 'plan'],
-                'data' => 'PLANIFIE'
-            ])
-            ->add('dateDebut', DateType::class, [
-                'widget' => 'single_text',
-                'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
-                'required' => false,
-            ])
-            ->add('dateFin', DateType::class, [
-                'widget' => 'single_text',
-                'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
-                'required' => false,
-            ])
-            ->add('numOr', TextType::class, [
-                'label' => "N° OR",
-                'required' => false
-            ])
-            ->add('numSerie', TextType::class, [
-                'label' => "N° Série",
-                'required' => false
-            ])
-            ->add('idMat', TextType::class, [
-                'label' => "Id Matériel",
-                'required' => false
-            ])
-            ->add('numParc', TextType::class, [
-                'label' => "N° Parc",
-                'required' => false
-            ])
-            ->add('casier', TextType::class, [
-                'label' => "Casier",
-                'required' => false
-            ])
-            ->add('agenceDebite', ChoiceType::class, [
-                'label' => 'Agence Débiteur',
-                'required' => false,
-                'choices' => $agenceDebite,
-                'placeholder' => " -- Choisir une agence --",
-
-            ])
-            ->add(
-                'section',
-                ChoiceType::class,
-                [
+                ->add('facture', ChoiceType::class,[
+                    'label' => 'Facturation',
+                    'required' => true,
+                    'choices' => self::FACTURE,
+                    'attr' => ['class'=> 'facture'],
+                    'data' => 'ENCOURS'
+                ])
+                ->add('plan',ChoiceType::class,[
+                    'label' => 'Planification',
+                    'required' => true,
+                    'choices' => self::PLANIFIER,
+                    'attr' => ['class'=> 'plan'],
+                    'data' => 'PLANIFIE'
+                                ])
+                ->add('dateDebut', DateType::class, [
+                    'widget' => 'single_text',
+                    'label' => $options['planningDetaille'] ? 'Date Début Planning' : 'Date Début',
+                    'required' => false,
+                ])
+                ->add('dateFin', DateType::class, [
+                    'widget' => 'single_text',
+                    'label' => $options['planningDetaille'] ? 'Date Fin Planning' : 'Date Fin',
+                    'required' => false,
+                ])
+                ->add('numOr', TextType::class, [
+                    'label' => "N° OR",
+                    'required' => false
+                ])
+                ->add('numSerie', TextType::class, [
+                    'label' => "N° Série",
+                    'required' => false
+                ])
+                ->add('idMat', TextType::class, [
+                    'label' => "Id Matériel",
+                    'required' => false
+                ])
+                ->add('numParc', TextType::class, [
+                    'label' => "N° Parc",
+                    'required' => false
+                ])
+                ->add('casier', TextType::class, [
+                    'label' => "Casier",
+                    'required' => false
+                ])
+                ->add('agenceDebite', ChoiceType::class,[
+                    'label' =>'Agence Débiteur',
+                    'required' =>false,
+                    'choices' => $agenceDebite ,
+                    'placeholder' => " -- Choisir une agence --",
+                    
+                ])
+                ->add('section',ChoiceType::class,[
                     'label' => 'Section',
                     'required' => false,
                     'choices' => $section,
