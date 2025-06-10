@@ -22,22 +22,24 @@ class DossierInterventionAtelierSearchType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-    
+
         $builder
-    
+
             ->add('idMateriel', NumberType::class, [
                 'label' => 'Id Materiel',
                 'required' => false,
             ])
-            ->add('typeIntervention', 
-            ChoiceType::class, 
-            [
-                'label' => "Type intervention",
-                'choices' => self::INTERNE_EXTERNE,
-                'placeholder' => '-- Choisir --',
-                'required' => false,
-                'data' => 'INTERNE'
-            ])
+            ->add(
+                'typeIntervention',
+                ChoiceType::class,
+                [
+                    'label' => "Type intervention",
+                    'choices' => self::INTERNE_EXTERNE,
+                    'placeholder' => '-- Choisir --',
+                    'required' => false,
+                    'data' => 'INTERNE'
+                ]
+            )
             ->add('dateDebut', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date Demande Début',
@@ -57,21 +59,31 @@ class DossierInterventionAtelierSearchType extends AbstractType
                 'required' => false
             ])
 
-            ->add('numDit', TextType::class,
-            [
-                'label' => 'N° DIT',
-                'required' => false
-            ])
-            ->add('numOr', NumberType::class,
-            [
-                'label' => 'N° Or',
-                'required' => false
-            ])
+            ->add(
+                'numDit',
+                TextType::class,
+                [
+                    'label' => 'N° DIT',
+                    'required' => false
+                ]
+            )
+            ->add(
+                'numOr',
+                NumberType::class,
+                [
+                    'label' => 'N° Or',
+                    'required' => false
+                ]
+            )
             ->add('designation', TextType::class, [
                 'label' => 'Désignation',
                 'required' => false
             ])
-            ;
+            ->add('numeroDevisRattache', TextType::class, [
+                'label' => 'N° Devis Rattaché',
+                'required' => false
+            ])
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
