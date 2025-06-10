@@ -3,56 +3,56 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
-use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DaSoumissionFacBl;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Form\da\soumissionBC\DaSoumissionFacBlType;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 
 /**
  * @Route("/demande-appro")
  */
-class DaSoumissionBcController extends Controller
+class DaSoumissionFacBlController extends Controller
 {
     const STATUT_SOUMISSION = 'Soumis à validation';
 
-    private  DaSoumissionBc $daSoumissionBc;
+    private  DaSoumissionFacBl $daSoumissionFacBl;
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->daSoumissionBc = new DaSoumissionBc();
+        $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionBc';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionFacBl';
+        $this->historiqueOperation      = new HistoriqueOperationDaFacBlService();
+        $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}", name="da_soumission_bc")
+     * @Route("/soumission-FacBl/{numCde}", name="da_soumission_FacBl")
      */
     public function index(string $numCde, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->daSoumissionBc->setNumeroCde($numCde);
+        $this->daSoumissionFacBl->setNumeroCde($numCde);
 
-        $form = self::$validator->createBuilder(DaSoumissionBcType::class, $this->daSoumissionBc, [
+        $form = self::$validator->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
             'method' => 'POST',
         ])->getForm();
 
         $this->traitementFormulaire($request, $numCde, $form);
 
-        self::$twig->display('da/soumissionBc.html.twig', [
+        self::$twig->display('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
             'numCde' => $numCde,
         ]);
@@ -71,14 +71,14 @@ class DaSoumissionBcController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $soumissionBc = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde)) {
+            $soumissionFacBl = $form->getData();
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichier = $this->enregistrementFichier($form);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-                $soumissionBc->setNumeroCde($numCde)
+                $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);
+                $soumissionFacBl->setNumeroCde($numCde)
                     ->setUtilisateur($this->getUser()->getUsername())
                     ->setPieceJoint1($nomDeFichier)
                     ->setStatut(self::STATUT_SOUMISSION)
@@ -86,7 +86,7 @@ class DaSoumissionBcController extends Controller
                 ; //TODO: A AJOUTER le numero Da, numero OR,...
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                self::$em->persist($soumissionBc);
+                self::$em->persist($soumissionFacBl);
                 self::$em->flush();
 
                 /** COPIER DANS DW */
@@ -99,10 +99,10 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): array
+    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, string $numCde): array
     {
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
-        $statut = $this->daSoumissionBcRepository->getStatut($numCde);
+        $nomdeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+        $statut = $this->daSoumissionFacBlRepository->getStatut($numCde);
 
         return [
             'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
@@ -110,18 +110,18 @@ class DaSoumissionBcController extends Controller
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, string $numCde): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde);
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $conditions = $this->conditionDeBlocage($soumissionFacBl, $numCde);
+        $nomdeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
-            $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un BC";
+            $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un FacBl";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
             $okey = false;
         } elseif ($conditions['statut']) {
-            $message = "Echec lors de la soumission, un BC est déjà en cours de validation ";
+            $message = "Echec lors de la soumission, un FacBl est déjà en cours de validation ";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
             $okey = false;
         } else {

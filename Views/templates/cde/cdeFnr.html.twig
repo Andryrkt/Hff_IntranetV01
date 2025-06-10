@@ -20,49 +20,22 @@
 				</div>
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 				{{ form_errors(form)}}
-				<div class="row">
-					<div class="col-12 col-md-3">
-						{{ form_row(form.codeFournisseur)}}
-						{{ form_errors(form.codeFournisseur)}}
-						<div id="suggestion-num-fournisseur" class="suggestions"></div>
-						<div id="loader-num-fournisseurt" class="spinner" style="display: none;"></div>
-					</div>
-					<div class="col-12 col-md-3">
-						{{ form_row(form.libelleFournisseur)}}
-						{{ form_errors(form.libelleFournisseur)}}
-						<div id="suggestion-nom-fournisseur" class="suggestions"></div>
-						<div id="loader-nom-fournisseur" class="spinner" style="display: none;"></div>
-					</div>
-					<div class="col-12 col-md-3">
-						{{ form_row(form.numCdeFournisseur)}}
-						{{ form_errors(form.numCdeFournisseur)}}
-						<div id="suggestion-num-cde" class="suggestions"></div>
-						<div id="loader-num-cde" class="spinner" style="display: none;">Chargement ...</div>
-					</div>
-					<div class="col-12 col-md-3">
-						<small id="erreur-num-cde" class="text-danger"></small>
-					</div>
-				</div>
 
 				<div class="row">
 
 					<div class="col-12 col-md-3">
 						<p>Veuillez insérer
-							<strong>le commande à valider *</strong>
+							<strong>la commande à valider *</strong>
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						<div class="d-flex justify-content-start">
-							<button type="submit" class="btn bouton mt-2 ajout-overlay " id="bouton-cde-fnr" data-confirmation data-form="#myForm" disabled>
+							<button type="submit" class="btn bouton mt-2 ajout-overlay " id="bouton-cde-fnr" data-confirmation data-form="#myForm">
 								<i class="fas fa-save"></i>
 								Enregistrer
 							</button>
 						</div>
 					</div>
 					<div class="col-12 col-md-9">
-						<h3 class="perso-titre">Information sur la commande à soumettre</h3>
-						<div class="row" id="tableau_cde_frn">
-							{% include "/partials/_overlayPetite.html.twig" %}
-						</div>
 						<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
 							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
 						</div>

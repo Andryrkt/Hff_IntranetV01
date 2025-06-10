@@ -41,4 +41,34 @@ class DemandeApproLRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getJoursDispo(?string $numeroDemandeAppro, string $reference)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('dal')
+            ->select('MAX(dal.numeroVersion)')
+            ->where('dal.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($numeroVersionMax === null) {
+            return 0; // ou une valeur par défaut, selon vos besoins
+        }
+
+        $nbrJour =  $this->createQueryBuilder('dal')
+            ->select('dal.joursDispo')
+            ->where('dal.numeroDemandeAppro = :numDa')
+            ->andWhere('dal.numeroVersion = :numVersion')
+            ->andWhere('dal.artRefp = :ref')
+            ->setParameters([
+                'numDa' => $numeroDemandeAppro,
+                'numVersion' => $numeroVersionMax,
+                'ref' => $reference
+            ]);
+
+        $result  = $nbrJour->getQuery()->getSingleScalarResult();
+
+        return $result !== null ? (int) $result : 0;
+    }
 }
