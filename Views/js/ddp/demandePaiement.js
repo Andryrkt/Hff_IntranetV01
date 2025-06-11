@@ -37,6 +37,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const numFactureInput = document.querySelector(
     "#demande_paiement_numeroFacture"
   );
+  const montantInput = document.querySelector(
+    "#demande_paiement_montantAPayer"
+  );
   const typeId = numFactureInput.dataset.typeid;
 
   let isUpdatingCommande = false;
@@ -195,9 +198,57 @@ document.addEventListener("DOMContentLoaded", function () {
   /**================
    * numéro facture
    ==================*/
+   function afficherSpinner(containerSelector = "body") {
+    // Création du style de l'animation si non déjà présent
+    if (!document.getElementById("spinner-style")) {
+      const style = document.createElement("style");
+      style.id = "spinner-style";
+      style.innerHTML = `
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+  
+    // Création dynamique du spinner
+    const spinner = document.createElement("div");
+    spinner.id = "spinner";
+    spinner.style.display = "flex";
+    spinner.style.justifyContent = "center";
+    spinner.style.alignItems = "center";
+    spinner.style.margin = "1em 0";
+  
+    spinner.innerHTML = `
+      <div style="
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+      "></div>
+    `;
+  
+    const container = document.querySelector(containerSelector) || document.body;
+    container.appendChild(spinner);
+  }
+
+  function supprimerSpinner() {
+    const spinner = document.getElementById("spinner");
+    if (spinner) spinner.remove();
+  }
+  
+  
   async function listeFacture(numFournisseur, typeId) {
     try {
       console.log(numFournisseur);
+      // afficherSpinner(numFactureInput);
+
+      numFactureInput.innerHTML= "";
+      numCommandeInput.innerHTML= "";
+      montantInput.value=0;
 
       const commandes = await fetchManager.get(
         `api/num-cde-frn/${numFournisseur}/${typeId}`
@@ -211,7 +262,10 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(commandes.listeGcot);
     } catch (error) {
       console.error("Erreur lors de la récupération des commandes :", error);
-    }
+    } 
+    // finally {
+    //   supprimerSpinner();
+    // }
   }
 
   /**
@@ -229,7 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const numFacs = $("#demande_paiement_numeroFacture").val(); // tableau de factures sélectionnées
     console.log("Factures sélectionnées :", numFacs);
-
     try {
       const commandes = await fetchManager.get(
         `api/num-cde-frn/${numFournisseur}/${typeId}`
@@ -256,7 +309,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .map((f) => f.Numero_Facture) // extrait chaque numéro
         .join(",");
       if (numFacs.length === 0) {
-        montantInput.value = "";
+        montantInput.value = 0;
       }
 
       console.log(facturesCorrespondantes, facturesString);
@@ -730,9 +783,7 @@ document.addEventListener("DOMContentLoaded", function () {
   /**==========================================
    * blockage  d'ecriture du champ MONTANT
    *=============================================*/
-  const montantInput = document.querySelector(
-    "#demande_paiement_montantAPayer"
-  );
+  
   // allowOnlyNumbers(montantInput);
   registerLocale("fr-custom", { delimiters: { thousands: " ", decimal: "," } }); // Enregistrer une locale personnalisée "fr-custom"
   setLocale("fr-custom"); // Utiliser la locale personnalisée

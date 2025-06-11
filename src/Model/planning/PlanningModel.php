@@ -219,7 +219,7 @@ class PlanningModel extends Model
 		                order by 10  ";
 
 
-//  dump($statement);
+    // dump($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
@@ -260,7 +260,7 @@ class PlanningModel extends Model
                   
       ";
 
-// dump($statement);
+    // dump($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
@@ -888,21 +888,21 @@ class PlanningModel extends Model
   /**
    * liste planning
    */
-  public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
-  { 
+  public function recupMatListeTous($criteria, string $lesOrValides, string $back, $touslesOrSoumis)
+  {
     if ($criteria->getOrBackOrder() == true) {
       // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
     } else {
       if (!empty($lesOrValides)) {
         if ($criteria->getOrNonValiderDw() == true) {
           // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
-          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
-        }else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $touslesOrSoumis . "') ";
+        } else {
           // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-          } 
-    } else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        }
+      } else {
         // $vOrvalDw = " AND seor_numor in ('')";
         $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
       }
@@ -1244,27 +1244,27 @@ END AS Status_B
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
       order by 10,14 
   ";
-     dd($statement);
+    //  dd($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
     return $resultat;
   }
-  public function recupMatListeTousCount($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
-  { 
+  public function recupMatListeTousCount($criteria, string $lesOrValides, string $back, $touslesOrSoumis)
+  {
     if ($criteria->getOrBackOrder() == true) {
       // $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
     } else {
       if (!empty($lesOrValides)) {
         if ($criteria->getOrNonValiderDw() == true) {
           // $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
-          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$touslesOrSoumis."') ";
-        }else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $touslesOrSoumis . "') ";
+        } else {
           // $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-          } 
-    } else {
+          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        }
+      } else {
         // $vOrvalDw = " AND seor_numor in ('')";
         $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
       }
@@ -1523,7 +1523,7 @@ TRIM('COMPLET NON LIVRE')
 		                order by 10,14  ";
 
 
-// dd($statement);
+    // dd($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);

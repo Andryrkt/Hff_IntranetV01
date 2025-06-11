@@ -137,9 +137,13 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
     {
+        $numclient = $this->ditOrsoumisAValidationModel->getNumcli($numOr);
+        $numcli = empty($numclient) ? '' : $numclient[0];
+        $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numcli);
+
         $ditInsertionOrSoumis->setNumeroOR($numOr);
 
-        $numOrNomFIchier = explode('_', $originalName)[1];
+        $numOrNomFIchier = array_key_exists(1, explode('_', $originalName)) ? explode('_', $originalName)[1] : '';
 
         $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
@@ -160,12 +164,9 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
+        // $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+        // $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
 
-        // $numclient = $this->ditRepository->getNumclient($numOr);
-        // $interneExterne = $this->ditRepository->getInterneExterne($numOr);
-        // $nbrNumcli = $this->ditOrsoumisAValidationModel->numcliExiste($numclient);
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -178,8 +179,9 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas)
-            // 'numcliExiste'          => (int)$nbrNumcli[0] == 0 && $interneExterne == 'EXTERNE',
+            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
+            'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
+            // 'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
     }
 
@@ -234,17 +236,18 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
+            $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } elseif ($conditionBloquage['articleDas']) {
             $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        }
-        // elseif ($conditionBloquage['numcliExiste']) {
-        //     $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
-        //     $okey = false;
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        // } 
-        else {
+        } elseif ($conditionBloquage['numcliExiste']) {
+            $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } else {
             $okey = true;
         }
         return $okey;

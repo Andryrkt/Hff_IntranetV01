@@ -1,25 +1,29 @@
 <?php
 
-namespace App\Form\cde;
+namespace App\Form\da\soumissionBC;
 
+use App\Entity\da\DaSoumissionFacBl;
 use Symfony\Component\Form\AbstractType;
-use App\Entity\cde\CdefnrSoumisAValidation;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
-class CdeFnrSoumisAValidationType extends AbstractType
+class DaSoumissionFacBlType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('numeroCde', TextType::class, [
+                'label' => 'Numéro Commande',
+                'attr' => ['disabled' => true]
+            ])
             ->add(
-                'pieceJoint01',
+                'pieceJoint1',
                 FileType::class,
                 [
-                    'label' => 'Bon de commande (PDF) *',
+                    'label' => 'Bc à soumettre',
                     'required' => true,
                     'constraints' => [
                         new File([
@@ -34,13 +38,14 @@ class CdeFnrSoumisAValidationType extends AbstractType
                         ])
                     ],
                 ]
-            );
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => CdefnrSoumisAValidation::class,
+            'data_class' => DaSoumissionFacBl::class,
         ]);
     }
 }

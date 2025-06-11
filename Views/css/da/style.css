@@ -12,6 +12,12 @@
   border-radius: 5px;
 }
 
+.btn.disabled {
+  pointer-events: none;
+  background-color: #f1d67a !important;
+  color: #5c5c5c !important;
+}
+
 .h-90 {
   height: 90px !important;
   align-items: unset !important;
@@ -123,9 +129,9 @@ a.choix:hover {
 }
 
 [id*='demande_appro_form_DAL'][id*='estFicheTechnique'] {
-  width: 2.25em;
-  height: 2.25em;
-  border-radius: 0.5em;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
 }
 
 /*
@@ -225,4 +231,18 @@ a.choix:hover {
   font-weight: bold;
   color: #fbbb01;
   background-color: #000;
+}
+
+/* Pour les statuts de la DA */
+.bg-or-non-valide {
+  background-color: #00ffff !important;
+}
+.bg-demande-achat {
+  background-color: #ffff00 !important;
+}
+.bg-proposition-achat {
+  background-color: #d9d9d9 !important;
+}
+.bg-bon-achat-valide {
+  background-color: #a9d08e !important;
 }

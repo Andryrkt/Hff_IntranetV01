@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -13,15 +14,15 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use DateTime;
 use Symfony\Component\Routing\Annotation\Route;
-use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @Route("/demande-appro")
  */
 class DaListeController extends Controller
 {
+    use DaTrait;
+
     private const ID_ATELIER = 3;
     private const ID_APPRO = 16;
 
@@ -131,14 +132,6 @@ class DaListeController extends Controller
                 return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
 
-            foreach ($dalDernieresVersions as $dal) {
-                $dateFin = $dal->getDateFinSouhaite();
-                $aujourdhui = new DateTime('now');
-                $interval = $aujourdhui->diff($dateFin);
-                $days = ($aujourdhui > $dateFin ? -1 : 1) * $interval->days;
-                $dal->setJoursDispo($days);
-            }
-
             $da->setDAL($dalDernieresVersions);
         }
 
@@ -146,7 +139,7 @@ class DaListeController extends Controller
         return $das;
     }
 
-
+    
 
 
     private function ajoutInfoDit(array $datas): void

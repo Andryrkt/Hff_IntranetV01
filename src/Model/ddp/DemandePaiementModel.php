@@ -85,8 +85,8 @@ class DemandePaiementModel extends Model
             LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
             LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
             where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
-            and TRZT_Facture.Numero_Facture in ({$numFacString})
-            --and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and TRZT_Facture.Numero_Facture not in ({$numFacString})
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
             and GCOT_Facture_Ligne.Numero_PO in ({$numCdesString})
             group by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
             order by TRZT_Dossier_Douane.Code_Fournisseur, TRZT_Dossier_Douane.Libelle_Fournisseur,TRZT_Dossier_Douane.Numero_Dossier_Douane, TRZT_Dossier_Douane.Numero_LTA, TRZT_Dossier_Douane.Numero_HAWB,TRZT_Facture.Numero_Facture, GCOT_Facture_Ligne.Numero_PO
@@ -255,14 +255,25 @@ class DemandePaiementModel extends Model
 
     public function getFactureNonReglee(string $numeroFournisseur)
     {
-        $statement = " SELECT 'PDV_'||''|| tecr_nopiec as facture_non_lettree
+        $statement = " SELECT 'PDV_'||''||trim(tecr_nopiec) as facture_non_lettree
                         FROM trs_ecr 
-                        WHERE tecr_lettre is null
-                        and tecr_nocpp = '{$numeroFournisseur}'
+                        WHERE tecr_nocpp = '{$numeroFournisseur}'
                         and tecr_codjou = 'Achmag'
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         return array_column($this->convertirEnUtf8($data), 'facture_non_lettree');
+    }
+
+    public function getCommandeReceptionnee(string $numeroFournisseur)
+    {
+        $statement=" SELECT distinct fllf_numcde as commande_receptionnee from frn_llf
+                    inner join frn_liv on fliv_numliv = fllf_numliv and fliv_soc = fllf_soc and fliv_succ = fllf_succ and fliv_soc = 'HF'
+                    where fliv_numfou = '{$numeroFournisseur}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        return array_column($this->convertirEnUtf8($data), 'commande_receptionnee');
     }
 }

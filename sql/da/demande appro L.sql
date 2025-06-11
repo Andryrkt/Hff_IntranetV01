@@ -62,3 +62,6 @@ ADD est_fiche_technique BIT DEFAULT 0;
 
 ALTER TABLE Demande_Appro_L
 ADD nom_fiche_technique VARCHAR(255);
+
+ALTER TABLE Demande_Appro_L
+ADD jours_dispo int;

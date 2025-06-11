@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -13,7 +14,6 @@ use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Model\da\DaModel;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
@@ -24,10 +24,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewController extends Controller
 {
-
+    use DemandeApproTrait;
     use lienGenerique;
 
-    private const DA_STATUT = 'soumis à l’appro';
+    private const DA_STATUT = 'Demande d’achats';
 
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
@@ -74,8 +74,6 @@ class DaNewController extends Controller
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro);
 
-
-
         self::$twig->display('da/new.html.twig', [
             'form' => $form->createView(),
         ]);
@@ -99,6 +97,9 @@ class DaNewController extends Controller
 
             /** ajout de ligne de demande appro dans la table Demande_Appro_L */
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
+                /** 
+                 * @var DemandeApproL $DAL
+                 */
                 $DAL
                     ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
@@ -106,6 +107,7 @@ class DaNewController extends Controller
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
                     ->setNumeroDit($numDit)
+                    ->setJoursDispo($this->getJoursRestants($DAL))
                 ;
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);

@@ -1,13 +1,13 @@
 import { displayOverlay } from '../../utils/spinnerUtils';
 import { ajouterReference } from './article';
 import { autocompleteTheField } from './autocompletion';
-import { changeTab, showTab } from './pageNavigation';
+import { changeTab, initialiserIdTabs, showTab } from './pageNavigation';
 import { updateDropdown } from '../../utils/selectionHandler';
 import { boutonRadio } from './boutonRadio';
-import { generateCustomFilename } from '../../utils/dateUtils';
-import { createFicheTechnique, onFileInputChange } from './dalr';
+import { createFicheTechnique } from './dalr';
 
 document.addEventListener('DOMContentLoaded', function () {
+  initialiserIdTabs(); // initialiser les ID des onglets pour la navigation
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
 
   // const numPage = localStorage.getItem("currentTab");
@@ -212,10 +212,6 @@ document.addEventListener('DOMContentLoaded', function () {
       createFicheTechnique(nbrLine, numLigneTableau, inputFile);
     });
   });
-
-  // document.querySelectorAll('.input-ft').forEach((inputFile) => {
-  //   inputFile.addEventListener('change', (e) => onFileInputChange(e));
-  // });
 
   document.getElementById('myForm').addEventListener('submit', function (e) {
     const prototype = document.getElementById('child-prototype');

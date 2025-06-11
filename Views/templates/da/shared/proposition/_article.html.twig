@@ -9,7 +9,7 @@
 {% set codeFamille = article.codeFams1 ?? '-' %}
 {% set codeSousFamille = article.codeFams2 ?? '-' %}
 {% set referencePiece = article.artRefp ?? '-' %}
-{% set ficheTechnique = article.estFicheTechnique ? 'OUI' : 'NON' %}
+{% set ficheTechnique = '<input type="checkbox" class="form-check-input" disabled' ~ (dal.estFicheTechnique ? ' checked' : '') ~ '>' %}
 
 <div class="tab-pane fade" id="tab_{{ currentPage }}" role="tabpanel">
 	<div class="h2 text-uppercase fw-bold position-absolute text-{{ catalogueCss }}" style="top:65px;right:30px;">{{ catalogueBool }}</div>
@@ -32,16 +32,21 @@
 		</div>
 	</div>
 	<div class="row">
+
+		{% if not estAte %}
 		<div class="col-3 col-md-3">
 			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-5">
+		{% endif %}
+
+		<div class="col-3 col-md-{{ estAte ? '6' : '5' }}">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-2">
-			{{ macroForm.affichage2('Fiche Technique', ficheTechnique, 'mb-2') }}
+		<div class="col-3 col-md-{{ estAte ? '3' : '2' }}">
+			<label class="mt-2">Fiche technique </label>
+			{{ macroForm.affichageHTMLSimple(ficheTechnique, 'mb-2 div-disabled-2') }}
 		</div>
-		<div class="col-3 col-md-2">
+		<div class="col-3 col-md-{{ estAte ? '3' : '2' }}">
 			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
 		</div>
 	</div>
@@ -186,7 +191,9 @@
 			<tr>
 				<th>Choix</th>
 				<th>Fournisseur</th>
-				<th>Référence</th>
+				{% if not estAte %}
+				<th>Référence</th>									
+				{% endif %}
 				<th>Désignation</th>
 				<th>PU</th>
 				<th>Montant Total</th>
@@ -209,7 +216,9 @@
 						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
+					{% if not estAte %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
+					{% endif %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.total | number_format(2, ',', '.')}}</td>
@@ -234,23 +243,19 @@
 	<div class="d-flex justify-content-between">
 		<div class="">
 			{% if totalPage > 1 %}
-				{% if currentPage > 1 %}
-					<button type="button" class="btn bouton mt-2 me-3 prevBtn">
-						<i class="fas fa-arrow-left"></i>
-						Précédent
-					</button>
-				{% endif %}
+				<button type="button" class="btn bouton mt-2 me-3 prevBtn">
+					<i class="fas fa-arrow-left"></i>
+					Précédent
+				</button>
 
-				{% if currentPage < totalPage %}
-					<button type="button" class="btn bouton mt-2 nextBtn">
-						Suivant
-						<i class="fas fa-arrow-right"></i>
-					</button>
-				{% endif %}
+				<button type="button" class="btn bouton mt-2 nextBtn">
+					Suivant
+					<i class="fas fa-arrow-right"></i>
+				</button>
 			{% endif %}
 		</div>
 		<div class="align-self-end">
-			<span class="fs-6">{{ currentPage }}/{{ totalPage }}</span>
+			<span class="fs-6"><span class="currentPage fs-6"></span>/{{ totalPage }}</span>
 		</div>
 	</div>
 </div>

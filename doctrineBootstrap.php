@@ -11,7 +11,7 @@ require_once __DIR__ . '/config/dotenv.php';
 
 // Configuration
 $paths = [__DIR__ . "/src/Entity"];
-$isDevMode = true;
+$isDevMode = false;
 
 // Dossier des proxies
 $proxyDir = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/var/cache/proxies');
@@ -31,7 +31,7 @@ $config = Setup::createAnnotationMetadataConfiguration(
 );
 
 $config->setProxyNamespace('App\\Proxies');
-$config->setAutoGenerateProxyClasses(true); // en mode dev true / mode prod false
+$config->setAutoGenerateProxyClasses(false); // en mode dev true / mode prod false
 
 
 // Configuration DB

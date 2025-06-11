@@ -34,8 +34,8 @@ class DemandeApproRepository extends EntityRepository
 
         //filtre sur le statut
         if (isset($criteria['statut'])) {
-            $qb->andWhere("da.statutDal LIKE :statut")
-                ->setParameter('statut', '%' . $criteria['statut'] . '%');
+            $qb->andWhere("da.statutDal =:statut")
+                ->setParameter('statut', $criteria['statut']);
         }
 
         //Filtre sur l'id matériel
@@ -103,6 +103,14 @@ class DemandeApproRepository extends EntityRepository
         return $result ? $result['statutDal'] : null;
     }
 
+    public function getDistinctColumn($column)
+    {
+        return $this->createQueryBuilder('da')
+            ->select("DISTINCT da.$column")
+            ->getQuery()
+            ->getResult();
+    }
+
 
     public function findAvecDernieresDALetLR($id): ?DemandeAppro
     {
@@ -138,12 +146,16 @@ class DemandeApproRepository extends EntityRepository
 
     public function getNumDa($numDit)
     {
-        return $this->createQueryBuilder('da')
-            ->select('da.numeroDemandeAppro')
-            ->where('da.numeroDemandeDit = :numDit')
-            ->setParameter('numDit', $numDit)
-            ->getQuery()
-            ->getSingleColumnResult()
-        ;
+        try {
+            $numDa =  $this->createQueryBuilder('da')
+                ->select('da.numeroDemandeAppro')
+                ->where('da.numeroDemandeDit = :numDit')
+                ->setParameter('numDit', $numDit)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $numDa = null; // ou une valeur par défaut
+        }
+        return $numDa;
     }
 }

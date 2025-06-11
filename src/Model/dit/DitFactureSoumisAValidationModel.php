@@ -90,9 +90,9 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                         AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
-                    AND slor_numor = '" . $numOR . "'
+                slor_numor = '" . $numOR . "'
                     AND slor_numfac = '" . $numFact . "'
+                    --AND sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST') 
                 GROUP BY
                     slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv
                 ORDER BY
