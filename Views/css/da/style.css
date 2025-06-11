@@ -49,6 +49,10 @@ a.choix:hover {
   border: none;
 }
 
+.w-1 {
+  width: 1% !important;
+}
+
 .w-2 {
   width: 2% !important;
 }
@@ -59,6 +63,10 @@ a.choix:hover {
 
 .w-5 {
   width: 5% !important;
+}
+
+.w-9 {
+  width: 9% !important;
 }
 
 .w-10 {
