@@ -91,7 +91,7 @@ class CdefnrSoumisAValidationController extends Controller
 
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';
-                $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
+                $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'cde_fournisseur', true);
             }
         }
     }

@@ -17,6 +17,7 @@
 							Soumission Commande Fournisseur
 						</h3>
 					</div>
+					{% include "/partials/_notification.html.twig" %}
 				</div>
 				{{ form_start(form, { 'attr': { 'id': 'myForm', 'enctype': 'multipart/form-data'} }) }}
 				{{ form_errors(form)}}
