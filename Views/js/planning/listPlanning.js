@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
               dateStatutCIS = '';
             }
 
-            if (detail.numor && detail.numor.startsWith('5') || detail.numor && detail.numor.startsWith('4')) {
+            if (detail.numor && detail.numor.startsWith('5') || detail.numor && detail.numor.startsWith('4') || detail.numor && detail.numor.startsWith('3')) {
               // Affichage
               let row = `<tr>
                         <td>${detail.numor}</td> 

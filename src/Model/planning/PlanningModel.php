@@ -194,8 +194,7 @@ class PlanningModel extends Model
                     AND (sitv_typitv = sec.atab_code AND sec.atab_nom = 'TYI')
                     AND (seor_ope = ope.atab_code AND ope.atab_nom = 'OPE')
                     $vStatutFacture
-                   -- AND mmat_marqmat NOT like 'z%' AND mmat_marqmat NOT like 'Z%'
-                    AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS', 'LR6', 'LST')
+                 
                     AND (seor_nummat = mmat_nummat)
                    -- AND slor_constp NOT like '%ZDI%'
                     
@@ -1016,7 +1015,7 @@ CASE
         INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
                                AND B.sitv_interv = A.slor_nogrp / 100 
         WHERE A.slor_numor = C.slor_numor
-    ) = (
+    ) != (
         SELECT SUM(A.slor_qteres)
         FROM sav_lor AS A
         INNER JOIN sav_itv AS B ON A.slor_numor = B.sitv_numor 
@@ -1245,7 +1244,7 @@ END AS Status_B
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
       order by 10,14 
   ";
-    //  dd($statement);
+     dd($statement);
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
