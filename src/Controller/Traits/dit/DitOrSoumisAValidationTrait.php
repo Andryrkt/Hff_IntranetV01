@@ -413,7 +413,7 @@ trait DitOrSoumisAValidationTrait
         return $aBlocker;
     }
 
-    private function datePlanningInferieurDateDuJour($numOr, $numDit): bool
+    private function datePlanningInferieurDateDuJour($numOr): bool
     {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
         $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
