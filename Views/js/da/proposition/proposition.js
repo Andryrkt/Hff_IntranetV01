@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', function () {
   initialiserIdTabs(); // initialiser les ID des onglets pour la navigation
   showTab(); // afficher la page d'article sélectionné par l'utilisateur
 
-  // const numPage = localStorage.getItem("currentTab");
-
   /** Champs */
 
   // Tous les champs "Qté Dispo"
