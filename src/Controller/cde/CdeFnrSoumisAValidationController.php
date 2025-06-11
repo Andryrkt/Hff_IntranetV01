@@ -52,7 +52,7 @@ class CdefnrSoumisAValidationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-
+            dd($data);
             $originalName = $data->getPieceJoint01()->getClientOriginalName();
             $numCdeFournisseur = array_key_exists(0, explode('_', $originalName)) ? explode('_', $originalName)[0] : '';
             $originalNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
