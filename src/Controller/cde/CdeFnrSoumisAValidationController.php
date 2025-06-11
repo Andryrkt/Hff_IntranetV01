@@ -99,7 +99,7 @@ class CdefnrSoumisAValidationController extends Controller
     private function conditionDeBlockage(string $originalName, string $numCdeFournisseur): array
     {
         $statutCdeFrn = $this->cdeFnrRepository->findStatut($numCdeFournisseur);
-        $statut = ['Soumis à validation', 'Validé', 'en cours de validation', 'Refusé'];
+        $statut = ['Soumis à validation', 'Validé', 'en cours de validation'];
         return [
             'nomFichier'      => !$this->verifierFormatFichier($originalName),
             'conditionStatut' => in_array($statutCdeFrn, $statut),
