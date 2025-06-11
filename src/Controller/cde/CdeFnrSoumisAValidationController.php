@@ -32,44 +32,48 @@ class CdefnrSoumisAValidationController extends Controller
     /**
      * @Route("/cde-fournisseur", name="cde_fournisseur")
      */
-    public function cdeFournisseur (Request $request)
+    public function cdeFournisseur(Request $request)
     {
         $this->verifierSessionUtilisateur();
 
-        $form= self::$validator->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
+        $form = self::$validator->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
 
         $this->traitementFormulaire($request, $form);
 
         self::$twig->display('cde/cdeFnr.html.twig', [
-            //'fournisseurs' => $fournisseurs
             'form' => $form->createView(),
         ]);
     }
 
     private function traitementFormulaire(Request $request, $form): void
     {
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+            dd($data);
+            $originalName = $data->getPieceJoint01()->getClientOriginalName();
+            $numCdeFournisseur = array_key_exists(0, explode('_', $originalName)) ? explode('_', $originalName)[0] : '';
+            $originalNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
+            $codeFournisseur = array_key_exists(1, explode('_', $originalNameWithoutExt)) ? explode('_', $originalNameWithoutExt)[1] : '';
 
-            $blockages = $this->conditionDeBlockage($form, $data);
-            
-            if ($this->blockageSoumissionCdeFnr($blockages, $data)) {
-                $cdeFournisseur = $this->ajoutDonnerEntity($data);
-            
+            $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur,  $codeFournisseur);
+
+            if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
+                $cdeFournisseur = $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
+
                 //Enregistrement du fichier
-                $numFnrCde = $data->getCodeFournisseur().'_'.$data->getNumCdeFournisseur();
+                $numFnrCde = $numCdeFournisseur . '_' . $codeFournisseur;
                 $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
-                
+
                 //envoyer le ficher dans docuware
                 $genererPdfCdeFnr = new GenererPdfCdeFnr();
                 $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
-    
+
                 //ajout des données dan sla base de donnée
                 $this->ajoutDonnerDansDb($cdeFournisseur);
-    
+
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
@@ -77,33 +81,60 @@ class CdefnrSoumisAValidationController extends Controller
         }
     }
 
-    private function conditionDeBlockage( FormInterface $form, CdefnrSoumisAValidation $data): array 
+    private function conditionDeBlockage(string $originalName, string $numCdeFournisseur, string $codeFournisseur): array
     {
-        $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
-        $statut = $this->cdeFnrRepository->findStatut($data->getNumCdeFournisseur());
-
+        $statutCdeFrn = $this->cdeFnrRepository->findStatut($numCdeFournisseur);
+        $statut = ['Soumis à validation', 'Validé', 'en cours de validation', 'Refusé'];
         return [
-            'numFnrEgale' => strpos($originalName, $data->getCodeFournisseur()) !== false,
-            'numCdeFnrEgale' => strpos($originalName, $data->getNumCdeFournisseur()) !== false,
-            'conditionStatut' => $statut === "Soumis à validation" || $statut === "Validé",
+            'nomFichier'      => !$this->verifierFormatFichier($originalName),
+            'conditionStatut' => in_array($statutCdeFrn, $statut),
         ];
     }
 
-    private function blockageSoumissionCdeFnr($blockages, $data): bool
+    private function blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName): bool
     {
-        if (!$blockages['numFnrEgale']) {
-            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un numero fournisseur ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $data->getCodeFournisseur(), 'profil_acceuil');
-        } elseif (!$blockages['numCdeFnrEgale']) {
-            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier soumis a été renommé ou ne correspond pas à un cde fournisseur ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
-        } elseif ($blockages['conditionStatut']) {
-            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$data->getNumCdeFournisseur()} est déjà en cours de validation ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $data->getNumCdeFournisseur(), 'profil_acceuil');
-        } 
-        else {
+        if ($blockages['conditionStatut']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCdeFournisseur, 'profil_acceuil');
+        } elseif ($blockages['nomFichier']) {
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier '{$originalName}' soumis a été renommé";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCdeFournisseur, 'profil_acceuil');
+        } else {
             return true;
         }
+    }
+
+    /**
+     * permet de vérifier le format du nom du fichier
+     *
+     * @param string $nomFichier
+     * @return void
+     */
+    private function verifierFormatFichier(string $nomFichier): bool
+    {
+        // Pattern: ^ = début de chaîne
+        //          [a-zA-Z0-9]+ = un ou plusieurs caractères alphanumériques (numeroCde)
+        //          _ = underscore
+        //          [a-zA-Z0-9]+ = un ou plusieurs caractères alphanumériques (numeroFRN)
+        //          \.pdf$ = extension .pdf à la fin
+        return preg_match('/^[a-zA-Z0-9]+_[a-zA-Z0-9]+\.pdf$/i', $nomFichier) === 1;
+    }
+
+    /**
+     * permet de vérifier si une chaîne de caractères contient tous les mots donnés
+     *
+     * @param string $chaine
+     * @param [type] ...$mots
+     * @return bool
+     */
+    private function contientTousLesMots(string $chaine, ...$mots): bool
+    {
+        foreach ($mots as $mot) {
+            if (strpos($chaine, $mot) === false) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private function autoIncrement($num)
@@ -114,46 +145,29 @@ class CdefnrSoumisAValidationController extends Controller
         return $num + 1;
     }
 
-    private function ajoutDonnerEntity(CdefnrSoumisAValidation $data)
+    private function ajoutDonnerEntity(string $numCdeFournisseur, string $codeFournisseur): CdefnrSoumisAValidation
     {
+        $numeroVersionMax = $this->cdeFnrRepository->findNumeroVersionMax($numCdeFournisseur);
 
-        $numeroVersionMax = $this->cdeFnrRepository->findNumeroVersionMax($data->getNumCdeFournisseur());
-        $cdeFournisseur = $this->cdeFnrModel->recupListeInitialCdeFrn($data->getCodeFournisseur(), $data->getNumCdeFournisseur());
-        $nbFacture = $this->cdeFnrModel->facOUNonFacEtValide($data->getCodeFournisseur(), $data->getNumCdeFournisseur());
-
-            $dateCommande = new \DateTime($cdeFournisseur[0]['date_cde']);
-            $prixTTc = $cdeFournisseur[0]['prix_cde_ttc'];
-            $deviseCommande = $cdeFournisseur[0]['devise_cde'];
-            $cdeFournisseur = new CdefnrSoumisAValidation();
-
-            if((int)$nbFacture[0] > 0) {
-                $cdeFournisseur->setEstFacture(true);
-            } 
-
-            return $cdeFournisseur
-                ->setCodeFournisseur($data->getCodeFournisseur())
-                ->setNumCdeFournisseur($data->getNumCdeFournisseur())
-                ->setLibelleFournisseur($data->getLibelleFournisseur())
-                ->setDateHeureSoumission(new \DateTime())
-                ->setStatut('Soumis à validation')
-                ->setNumVersion($this->autoIncrement($numeroVersionMax))
-                ->setDateCommande($dateCommande)
-                ->setMontantCommande($prixTTc)
-                ->setDeviseCommande($deviseCommande)
-            ;
-
-            
+        $cdeFournisseur = new CdefnrSoumisAValidation();
+        return $cdeFournisseur
+            ->setDateHeureSoumission(new \DateTime())
+            ->setStatut('Soumis à validation')
+            ->setNumVersion($this->autoIncrement($numeroVersionMax))
+            ->setNumCdeFournisseur($numCdeFournisseur)
+            ->setCodeFournisseur($codeFournisseur)
+        ;
     }
 
     private function ajoutDonnerDansDb($cdeFournisseur)
     {
         self::$em->persist($cdeFournisseur);
-            self::$em->flush();
+        self::$em->flush();
     }
 
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)
     {
-        $chemin = $_ENV['BASE_PATH_FICHIER'].'/cde_fournisseur/';
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/';
         $fileUploader = new FileUploaderService($chemin);
         $options = [
             'prefix' => 'cdefrn',

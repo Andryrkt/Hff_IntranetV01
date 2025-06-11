@@ -580,6 +580,8 @@ trait DitListTrait
 
         $this->ajoutDateEtMontantOR($paginationData['data'], $em);
 
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
         // dd($paginationData['data']);
         return $paginationData;
     }

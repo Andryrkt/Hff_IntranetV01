@@ -96,14 +96,7 @@ class DitOrSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        AND sitv_servcrt IN (
-            'ATE',
-            'FOR',
-            'GAR',
-            'MAN',
-            'CSP',
-            'MAS'
-        )
+        --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
         AND seor_numor = '" . $numOr . "'
         --AND SEOR_SUCC = '01'
         group by
@@ -380,15 +373,14 @@ class DitOrSoumisAValidationModel extends Model
         return array_column($this->convertirEnUtf8($data), 'numcli');
     }
 
-
     public function numcliExiste($numcli)
     {
         $statement = " SELECT  
-                case
-                    when count(*) = 1 then 'existe_bdd' else ''
-                end as numcli
-                from cli_bse
-                INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
+        case
+            when count(*) = 1 then 'existe_bdd' else ''
+        end as numcli
+        from cli_bse
+        INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
         ";
 
         $result = $this->connect->executeQuery($statement);

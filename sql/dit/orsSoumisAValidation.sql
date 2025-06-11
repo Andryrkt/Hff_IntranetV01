@@ -130,14 +130,7 @@ WHERE
     AND sitv_interv = slor_nogrp / 100
 
 AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-AND sitv_servcrt IN (
-    'ATE',
-    'FOR',
-    'GAR',
-    'MAN',
-    'CSP',
-    'MAS'
-)
+--AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
 --AND seor_numor IN (16406341,16406354)
 --AND SEOR_SUCC = '01'
 group by

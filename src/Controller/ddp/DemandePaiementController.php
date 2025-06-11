@@ -92,7 +92,8 @@ class DemandePaiementController extends Controller
             $this->modificationDernierIdApp($numDdp); //modification de la dernière numero DDP
             $data = $form->getData(); //recupération des donnnées
 
-            $numCdes = $this->recuperationCdeFacEtNonFac($id);
+            // $numCdes = $this->recuperationCdeFacEtNonFac($id);
+            $numCdes = $this->demandePaiementModel->getCommandeReceptionnee($data->getNumeroFournisseur());
             $numCdesString = TableauEnStringService::TableauEnString(',', $numCdes);
             $numFacString = TableauEnStringService::TableauEnString(',', $data->getNumeroFacture());
             $numeroCommandes = $this->demandePaiementModel->getNumCommande($data->getNumeroFournisseur(), $numCdesString, $numFacString);
@@ -119,7 +120,7 @@ class DemandePaiementController extends Controller
             if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
-            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1);
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1);//recupération de fichier cde dans DW
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
 
@@ -146,7 +147,7 @@ class DemandePaiementController extends Controller
             $this->traitementDeFichier->fusionFichers($tousLesFichersAvecChemin, $cheminEtNom);
 
             /** ENVOYER DANS DW */
-            $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, '1');
+            // $this->generatePdfDdp->copyToDwDdp($nomPageDeGarde, $numDdp, '1');
 
             /** HISTORISATION */
             $this->historiqueOperation->sendNotificationSoumission('Le document a été généré avec succès', $numDdp, 'ddp_liste', true);

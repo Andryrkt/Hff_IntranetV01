@@ -2,11 +2,11 @@
 
 namespace App\Controller\Traits\dit;
 
+use DateTime;
 use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use DateTime;
 
 trait DitOrSoumisAValidationTrait
 {
