@@ -7,7 +7,6 @@ use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use DateTime;
 
 trait DitOrSoumisAValidationTrait
 {
@@ -426,7 +425,7 @@ trait DitOrSoumisAValidationTrait
 
         return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
     }
-    
+
     private function datePlanning($numOr)
     {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
