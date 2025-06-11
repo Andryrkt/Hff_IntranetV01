@@ -1,4 +1,4 @@
-WXWHENALTER TABLE Demande_ordre_mission
+TABLE Demande_ordre_mission
 ADD agence_emetteur_id INT
 ALTER TABLE Demande_ordre_mission
 ADD service_emetteur_id INT
@@ -37,7 +37,7 @@ SET
         WHEN Code_AgenceService_Sage = 'AC16' THEN '7'
         WHEN Code_AgenceService_Sage = 'AG11' THEN '8'
         WHEN Code_AgenceService_Sage = 'BB21' THEN '9'
-        WHEN Code_AgenceService_Sage = 'BC11' THEN '10'
+        WHEN Code_AgenceService_Sage = 'BC11' THEN '74'
         WHEN Code_AgenceService_Sage = 'BC15' THEN '11'
         WHEN Code_AgenceService_Sage = 'CB21' THEN '12'
         WHEN Code_AgenceService_Sage = 'CC11' THEN '13'

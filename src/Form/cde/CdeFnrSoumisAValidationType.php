@@ -15,31 +15,8 @@ class CdeFnrSoumisAValidationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('codeFournisseur', TextType::class, [
-                'label' => 'Numéro fournisseur *',
-                'required' => true,
-                'attr' => [
-                    'class' => 'autocomplete',
-                    'autocomplete' => 'off',
-                ]
-            ])
-            ->add('libelleFournisseur', TextType::class, [
-                'label' => 'Nom fournisseur *',
-                'required' => true,
-                'attr' => [
-                    'class' => 'autocomplete',
-                    'autocomplete' => 'off',
-                ]
-            ])
-            ->add('numCdeFournisseur', TextType::class, [
-                'label' => 'Numéro commande *',
-                'required' => true,
-                'attr' => [
-                    'class' => 'autocomplete',
-                    'autocomplete' => 'off',
-                ]
-            ])
-            ->add('pieceJoint01',
+            ->add(
+                'pieceJoint01',
                 FileType::class,
                 [
                     'label' => 'Bon de commande (PDF) *',
@@ -56,10 +33,10 @@ class CdeFnrSoumisAValidationType extends AbstractType
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
                         ])
                     ],
-            ])
-        ;
+                ]
+            );
     }
-    
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

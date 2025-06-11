@@ -111,10 +111,14 @@ class MutationFormType extends AbstractType
                 EntityType::class,
                 [
                     'label'         => 'Catégorie professionnelle',
+                    'placeholder'   => '-- Choisir une catégorie professionnelle --',
                     'class'         => Catg::class,
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
-                        return $catg->createQueryBuilder('c')->where('c.id <> 5')->orderBy('c.description', 'ASC');
+                        return $catg->createQueryBuilder('c')
+                                    ->where('c.id NOT IN (:excluded)')
+                                    ->setParameter('excluded', [5, 6, 7])
+                                    ->orderBy('c.description', 'ASC');
                     }
                 ]
             )
@@ -142,7 +146,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date fin / Frais d\'installation',
+                    'label'  => 'Date fin de frais d\'installation',
                 ]
             )
             ->add(
@@ -272,6 +276,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Motif Autre dépense 2',
+                    'attr'        => ['class' => 'disabled'],
                     'required'    => false,
                     'constraints' => [
                         new Length([
@@ -289,6 +294,7 @@ class MutationFormType extends AbstractType
                 [
                     'label'    => 'Montant (Autre Dépense 2)',
                     'required' => false,
+                    'attr'        => ['class' => 'disabled'],
                 ]
             )
             ->add(
@@ -306,7 +312,7 @@ class MutationFormType extends AbstractType
                 'totalGeneralPayer',
                 TextType::class,
                 [
-                    'label' => 'Montant Total',
+                    'label' => 'Montant Total (Autres dépenses + Indemnité)',
                     'attr'  => [
                         'readonly' => true,
                         'class'    => 'readonly',
@@ -317,9 +323,11 @@ class MutationFormType extends AbstractType
                 'modePaiementLabel',
                 ChoiceType::class,
                 [
-                    'mapped' => false,
-                    'label'   => 'Mode paiement',
-                    'choices' => self::MODE_PAYEMENT
+                    'mapped'      => false,
+                    'label'       => 'Mode paiement',
+                    'choices'     => self::MODE_PAYEMENT,
+                    'placeholder' => '-- Choisir une mode de paiement --',
+                    'data'        => 'MOBILE MONEY',
                 ]
             )
             ->add(

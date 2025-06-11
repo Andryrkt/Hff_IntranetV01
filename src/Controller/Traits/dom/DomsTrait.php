@@ -3,6 +3,7 @@
 namespace App\Controller\Traits\dom;
 
 use DateTime;
+use Exception;
 use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
@@ -98,66 +99,6 @@ trait DomsTrait
     }
 
 
-    // /**
-    //  * TRAITEMENT DES FICHIER UPLOAD
-    //  *(copier le fichier uploder dans une repertoire et le donner un nom)
-    //  * @param [type] $form
-    //  * @param [type] $dits
-    //  * @param [type] $nomFichier
-    //  * @return void
-    //  */
-    // private function uplodeFile($form, $dom, $nomFichier, &$pdfFiles)
-    // {
-
-    //     /** @var UploadedFile $file */
-    //     $file = $form->get($nomFichier)->getData();
-
-    //     if ($file) {
-    //         $errorCode = $file->getError();
-    //         if ($errorCode !== UPLOAD_ERR_OK) {
-    //             throw new \Exception('Erreur lors du téléchargement du fichier : ' . $errorCode);
-    //         }
-
-
-    //         $fileName = $dom->getNumeroOrdreMission() . '_0' . substr($nomFichier, -1, 1) . '.' . $file->getClientOriginalExtension();
-    //         $fileDossier = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
-
-    //         $file->move($fileDossier, $fileName);
-
-    //         // Ajouter à la liste des fichiers PDF si c'est un PDF
-    //         if ($file->getClientOriginalExtension() === 'pdf') {
-    //             $pdfFiles[] = $fileDossier . $fileName;
-    //         }
-
-    //         $setPieceJoint = 'set' . ucfirst($nomFichier);
-    //         $dom->$setPieceJoint($fileName);
-    //     }
-
-    // }
-
-
-    // private function envoiePieceJoint($form, $dom, $fusionPdf)
-    // {
-
-    //     $pdfFiles = [];
-
-    //     for ($i=1; $i < 2; $i++) { 
-    //         $nom = "pieceJoint{$i}";
-    //         if($form->get($nom)->getData() !== null){
-    //             $this->uplodeFile($form, $dom, $nom, $pdfFiles);
-    //         }
-    //     }
-    //     //ajouter le nom du pdf crée par dit en avant du tableau
-    //     array_unshift($pdfFiles, $_ENV['BASE_PATH_FICHIER'].'/dom/' . $dom->getNumeroOrdreMission(). '_' .  $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf');
-
-    //     // Nom du fichier PDF fusionné
-    //     $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/dom/' . $dom->getNumeroOrdreMission(). '_' . $dom->getAgenceEmetteurId()->getCodeAgence() . $dom->getServiceEmetteurId()->getCodeService(). '.pdf';
-
-    //     // Appeler la fonction pour fusionner les fichiers PDF
-    //     if (!empty($pdfFiles)) {
-    //         $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
-    //     }
-    // }
 
     /**
      * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
@@ -202,7 +143,7 @@ trait DomsTrait
         );
 
         // Définir le répertoire de destination
-        $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/dom/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -241,8 +182,8 @@ trait DomsTrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/dom/%s_%s%s.pdf',
-            rtrim($_SERVER['DOCUMENT_ROOT'], '/'),
+            '%s/dom/%s_%s%s.pdf',
+            $_ENV['BASE_PATH_FICHIER'],
             $dom->getNumeroOrdreMission(),
             $dom->getAgenceEmetteurId()->getCodeAgence(),
             $dom->getServiceEmetteurId()->getCodeService()
@@ -278,10 +219,54 @@ trait DomsTrait
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
 
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
+    }
 
     private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em, $user)
     {

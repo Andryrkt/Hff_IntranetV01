@@ -118,6 +118,7 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(User::class)->find($id);
+        
         // Conversion de l'utilisateur en objet s'il est en tableau
         $user = $this->arrayToObjet($user);
 
@@ -153,65 +154,62 @@ class UserController extends Controller
     }
 
     /**
- * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
- *
- * @return void
- */
-public function delete($id)
-{
-    // Vérification de la session utilisateur
-    $this->verifierSessionUtilisateur();
+     * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
+     *
+     * @return void
+     */
+    public function delete($id)
+    {
+        // Vérification de la session utilisateur
+        $this->verifierSessionUtilisateur();
 
-    // Récupération de l'utilisateur
-    $user = self::$em->getRepository(User::class)->find($id);
+        // Récupération de l'utilisateur
+        $user = self::$em->getRepository(User::class)->find($id);
 
 
-    // Supprimer les relations manuellement avant suppression
-    foreach ($user->getRoles() as $role) {
-        $user->removeRole($role);
+        // Supprimer les relations manuellement avant suppression
+        foreach ($user->getRoles() as $role) {
+            $user->removeRole($role);
+        }
+
+        foreach ($user->getApplications() as $application) {
+            $user->removeApplication($application);
+        }
+
+        foreach ($user->getAgencesAutorisees() as $agence) {
+            $user->removeAgenceAutorise($agence);
+        }
+
+        foreach ($user->getServiceAutoriser() as $service) {
+            $user->removeServiceAutoriser($service);
+        }
+
+        foreach ($user->getPermissions() as $permission) {
+            $user->removePermission($permission);
+        }
+
+        foreach ($user->getUserLoggers() as $logger) {
+            self::$em->remove($logger);
+        }
+
+        // foreach ($user->getCommentaireDitOrs() as $commentaire) {
+        //     self::$em->remove($commentaire);
+        // }
+
+        // foreach ($user->getSupportInfoUser() as $support) {
+        //     self::$em->remove($support);
+        // }
+
+        // foreach ($user->getTikPlanningUser() as $planning) {
+        //     self::$em->remove($planning);
+        // }
+
+        // Supprimer l'utilisateur
+        self::$em->remove($user);
+        self::$em->flush();
+
+        return $this->redirectToRoute("utilisateur_index");
     }
-
-    foreach ($user->getApplications() as $application) {
-        $user->removeApplication($application);
-    }
-
-    foreach ($user->getAgencesAutorisees() as $agence) {
-        $user->removeAgenceAutorise($agence);
-    }
-
-    foreach ($user->getServiceAutoriser() as $service) {
-        $user->removeServiceAutoriser($service);
-    }
-
-    foreach ($user->getPermissions() as $permission) {
-        $user->removePermission($permission);
-    }
-
-    foreach ($user->getUserLoggers() as $logger) {
-        self::$em->remove($logger);
-    }
-
-    // foreach ($user->getCommentaireDitOrs() as $commentaire) {
-    //     self::$em->remove($commentaire);
-    // }
-
-    // foreach ($user->getSupportInfoUser() as $support) {
-    //     self::$em->remove($support);
-    // }
-
-    // foreach ($user->getTikPlanningUser() as $planning) {
-    //     self::$em->remove($planning);
-    // }
-
-    // Appliquer les modifications en base
-    self::$em->flush();
-
-    // Supprimer l'utilisateur
-    self::$em->remove($user);
-    self::$em->flush();
-
-    return $this->redirectToRoute("utilisateur_index");
-}
 
 
     /**

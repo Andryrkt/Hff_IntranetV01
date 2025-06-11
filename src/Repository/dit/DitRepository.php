@@ -41,6 +41,8 @@ class DitRepository extends EntityRepository
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
 
+
+
         if (!$options['boolean']) {
             $queryBuilder
                 ->andWhere(
@@ -72,8 +74,20 @@ class DitRepository extends EntityRepository
 
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        //  $sql = $queryBuilder->getQuery()->getSQL();
-        //  echo $sql;
+        // $sql = $queryBuilder->getQuery()->getSQL();
+        // echo $sql;
+
+        // $query = $queryBuilder->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
+
 
         // Récupérer le nombre de lignes par statut
         $statusCounts = $this->countByStatus($ditSearch, $options);
@@ -94,7 +108,7 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.idStatutDemande', 's')
             ->andWhere('d.numeroDemandeIntervention = :numDit')
             ->setParameter('numDit', $numDit);
-        
+
         return $queryBuilder->getQuery()->getResult();
     }
 
@@ -248,7 +262,8 @@ class DitRepository extends EntityRepository
         if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        } else {
+        } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
+
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
@@ -356,13 +371,13 @@ class DitRepository extends EntityRepository
     //     }
     // }
 
-private function applySection($queryBuilder, DitSearch $ditSearch)
-{
-    // Filtrer selon la section affectée
-    $sectionAffectee = $ditSearch->getSectionAffectee();
-    if (!empty($sectionAffectee)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+    private function applySection($queryBuilder, DitSearch $ditSearch)
+    {
+        // Filtrer selon la section affectée
+        $sectionAffectee = $ditSearch->getSectionAffectee();
+        if (!empty($sectionAffectee)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $index => $groupe) {
                 $phraseConstruite = $groupe . $sectionAffectee;
@@ -376,11 +391,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             $queryBuilder->andWhere($orX);
         }
 
-    //filtre selon le section support 1
-    $sectionSupport1 = $ditSearch->getSectionSupport1();
-    if (!empty($sectionSupport1)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+        //filtre selon le section support 1
+        $sectionSupport1 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport1)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport1;
@@ -391,26 +406,26 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             $queryBuilder->andWhere($orX);
         }
 
-     //filtre selon le section support 2
-    $sectionSupport2 = $ditSearch->getSectionSupport2();
-    if (!empty($sectionSupport2)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
-        
-        foreach ($groupes as $groupe) {
-            $phraseConstruite = $groupe. $sectionSupport2;
-            $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
-            $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
-        }
-        
-        $queryBuilder->andWhere($orX);
-    }
+        //filtre selon le section support 2
+        $sectionSupport2 = $ditSearch->getSectionSupport2();
+        if (!empty($sectionSupport2)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
-      //filtre selon le section support 3
-    $sectionSupport3 = $ditSearch->getSectionSupport1();
-    if (!empty($sectionSupport3)) {
-        $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
-        $orX = $queryBuilder->expr()->orX();
+            foreach ($groupes as $groupe) {
+                $phraseConstruite = $groupe . $sectionSupport2;
+                $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
+                $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
+            }
+
+            $queryBuilder->andWhere($orX);
+        }
+
+        //filtre selon le section support 3
+        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        if (!empty($sectionSupport3)) {
+            $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
+            $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
                 $phraseConstruite = $groupe . $sectionSupport3;
@@ -440,56 +455,56 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     public function findSectionSupport1()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport1')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport1')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
 
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport2')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport2')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport2');
     }
 
     public function findSectionSupport3()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport3')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionSupport3')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport3');
     }
 
     public function findSectionAffectee()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionAffectee')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
+            ->select('DISTINCT d.sectionAffectee')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionAffectee');
     }
 
@@ -521,22 +536,22 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
 
     /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
-{
-    $nombrePiecesJointes = $this->createQueryBuilder('d')
-        ->select(
-            "SUM(
+    {
+        $nombrePiecesJointes = $this->createQueryBuilder('d')
+            ->select(
+                "SUM(
                 (CASE WHEN d.pieceJoint01 IS NOT NULL AND d.pieceJoint01 != '' THEN 1 ELSE 0 END) + 
                 (CASE WHEN d.pieceJoint02 IS NOT NULL AND d.pieceJoint02 != '' THEN 1 ELSE 0 END) + 
                 (CASE WHEN d.pieceJoint03 IS NOT NULL AND d.pieceJoint03 != '' THEN 1 ELSE 0 END)
             ) AS nombrePiecesJointes"
-        )
-        ->where('d.numeroDemandeIntervention = :numDit')
-        ->setParameter('numDit', $numDit)
-        ->getQuery()
-        ->getSingleScalarResult();
+            )
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
 
-    return (int) $nombrePiecesJointes;
-}
+        return (int) $nombrePiecesJointes;
+    }
 
 
 
@@ -605,7 +620,7 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     {
         return $this->createQueryBuilder('d')
             ->Where('d.numMigration = :numMigr')
-            ->setParameter('numMigr', 4)
+            ->setParameter('numMigr', 5)
             // ->andWhere('d.numeroDemandeIntervention = :numDit')
             // ->setParameter('numDit', 'DIT25010315')
             ->orderBy('d.numeroDemandeIntervention', 'ASC')
@@ -618,11 +633,11 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
     public function findInterneExterne($numDit)
     {
         return $this->createQueryBuilder('d')
-        ->select('d.internetExterne')
-        ->where('d.numeroDemandeIntervention = :numDit')
-        ->setParameter('numDit', $numDit)
-        ->getQuery()
-        ->getSingleScalarResult()
+            ->select('d.internetExterne')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 
@@ -635,5 +650,165 @@ private function applySection($queryBuilder, DitSearch $ditSearch)
             ->getQuery()
             ->getSingleScalarResult()
         ;
+    }
+
+    public function findNumeroOrDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    /**
+     * FONCTION Pour récupérer les donnée filtrer  pour demande d'approvisionnement
+     *
+     * @param integer $page
+     * @param integer $limit
+     * @param DitSearch $ditSearch
+     * @param array $options
+     * @return void
+     */
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options, array $numDits)
+    {
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.typeDocument', 'td')
+            ->leftJoin('d.idNiveauUrgence', 'nu')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->where('d.sectionAffectee <> :sectionAffectee')
+            ->setParameter('sectionAffectee', '');
+
+        $this->applyStatusFilter($queryBuilder, $ditSearch);
+
+        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+
+        $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
+
+        // section affect et support section
+        $this->applySection($queryBuilder, $ditSearch);
+
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+
+        if (!$options['boolean']) {
+            $queryBuilder
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteurId = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $options['codeAgence'])
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
+        $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (:numDit)')
+            ->setParameter('numDit', $numDits)
+        ;
+        $queryBuilder->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
+
+        $queryBuilder->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+        ;
+
+        $paginator = new DoctrinePaginator($queryBuilder->getQuery());
+
+        $totalItems = count($paginator);
+        $lastPage = ceil($totalItems / $limit);
+        //  $sql = $queryBuilder->getQuery()->getSQL();
+        //  echo $sql;
+
+        // Récupérer le nombre de lignes par statut
+        $statusCounts = $this->countByStatus($ditSearch, $options);
+        //return $queryBuilder->getQuery()->getResult();
+        return [
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+            'statusCounts' => $statusCounts,
+        ];
+    }
+
+    public function getNumDitAAnnuler()
+    {
+        $dateNow = new \DateTime(); // maintenant
+        $dateYesterday = (clone $dateNow)->modify('-1 day'); // 1 jour avant
+
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroDemandeIntervention')
+            ->where('d.aAnnuler = :aAnnuler')
+            ->andWhere('d.dateAnnulation BETWEEN :yesterday AND :now')
+            ->setParameters([
+                'aAnnuler' => 1,
+                'yesterday' => $dateYesterday,
+                'now' => $dateNow,
+            ])
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
+
+    public function getNumclient($numOr)
+    {
+        try {
+            $numcli =  $this->createQueryBuilder('d')
+                ->select('d.numeroClient')
+                ->where('d.numeroOR = :numOr')
+                ->setParameter('numOr', $numOr)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $numcli = null; // ou une valeur par défaut
+        }
+        return $numcli;
+    }
+
+    public function getInterneExterne($numOr)
+    {
+        try {
+            $intExt =  $this->createQueryBuilder('d')
+                ->select('d.internetExterne')
+                ->where('d.numeroOR = :numOr')
+                ->setParameter('numOr', $numOr)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $intExt = null; // ou une valeur par défaut
+        }
+        return $intExt;
+    }
+
+    public function getStatutIdDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('s.id') // <-- un champ scalaire
+            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getStatutIdDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('s.id') // <-- un champ scalaire
+            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

@@ -9,7 +9,7 @@ use App\Model\Traits\ConversionModel;
 class Model
 {
     use ConversionModel;
-    
+
     protected $connexion;
     protected $connect;
     protected $sqlServer;
@@ -20,7 +20,6 @@ class Model
 
     public function __construct()
     {
-
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();
@@ -86,40 +85,41 @@ class Model
         return $Date_system;
     }
 
-    public function has_permission($nomUtilisateur, $permission_name) {
-    
+    public function has_permission($nomUtilisateur, $permission_name)
+    {
+
         // Définir la requête SQL
         $query = "SELECT COUNT(*) as nombre FROM users
         JOIN roles ON users.role_id = roles.id
         JOIN role_permissions ON roles.id = role_permissions.role_id
         JOIN permissions ON role_permissions.permission_id = permissions.id
         WHERE users.nom_utilisateur = ? AND permissions.permission_name = ?";
-        
+
         // Préparer la requête
         $stmt = odbc_prepare($this->connexion->getConnexion(), $query);
-        
+
         if (!$stmt) {
             // Gérer les erreurs de préparation
             echo "Query preparation failed: " . odbc_errormsg($this->connexion->getConnexion());
             odbc_close($this->connexion->getConnexion());
             return false;
         }
-    
+
         // Exécuter la requête avec les paramètres
         $params = array($nomUtilisateur, $permission_name);
         $result = odbc_execute($stmt, $params);
-        
+
         if (!$result) {
             // Gérer les erreurs d'exécution
             echo "Query execution failed: " . odbc_errormsg($this->connexion->getConnexion());
             odbc_close($this->connexion->getConnexion());
             return false;
         }
-    
+
         // Récupérer le résultat
         $row = odbc_fetch_array($stmt);
         odbc_close($this->connexion->getConnexion());
-        
+
         return $row['nombre'] > 0;  // Le COUNT(*) est retourné sans nom de colonne spécifique
     }
 
@@ -150,7 +150,7 @@ class Model
         $statement = $this->connexion->query($sql);
         $data = [];
         while ($tabType = odbc_fetch_array($statement)) {
-        $data[] = $tabType;
+            $data[] = $tabType;
         }
         return $data;
     }
@@ -160,7 +160,7 @@ class Model
         $statement = $this->connexion04Gcot->query($sql);
         $data = [];
         while ($tabType = odbc_fetch_array($statement)) {
-        $data[] = $tabType;
+            $data[] = $tabType;
         }
         return $data;
     }
@@ -170,7 +170,7 @@ class Model
         $statement = $this->connexion04->query($sql);
         $data = [];
         while ($tabType = odbc_fetch_array($statement)) {
-        $data[] = $tabType;
+            $data[] = $tabType;
         }
         return $data;
     }

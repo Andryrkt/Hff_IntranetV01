@@ -1,1 +1,1 @@
-export const baseUrl = '/Hffintranet';
+export const baseUrl = "/Hffintranet";

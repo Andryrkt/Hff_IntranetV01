@@ -1,75 +1,81 @@
 /*liste inventaire ligne*/
 SELECT
-    ainvi_numinv_mait as numero_inv,
-    ainvi_date as ouvert_le,
-    TRIM(ainvi_comment) as description,
-    (
-        select
-            Count(distinct astp_casier)
-        from
-            art_invp,
-            art_stp
-        WHERE
-            ainvp_soc = ainvi_soc
-            AND ainvp_succ = ainvi_succ
-            AND ainvp_numinv = ainvi_numinv
-            AND ainvp_stktheo <> 0
-            AND astp_succ = ainvp_succ
-            AND astp_constp = ainvp_constp
-            AND astp_refp = ainvp_refp
-    ) as nbre_casier,
-    count(ainvp_refp) as nbre_ref,
-    ROUND(sum(ainvp_stktheo)) as qte_comptee,
+    ainvi.ainvi_numinv_mait AS numero_inv,
+    ainvi.ainvi_date AS ouvert_le,
+    TRIM(ainvi.ainvi_comment) AS description,
+    (SELECT COUNT(DISTINCT astp.astp_casier) FROM art_invp invp
+    INNER JOIN art_stp astp ON astp.astp_succ = invp.ainvp_succ
+    AND astp.astp_constp = invp.ainvp_constp
+    AND astp.astp_refp = invp.ainvp_refp
+    WHERE invp.ainvp_soc = ainvi.ainvi_soc
+    AND invp.ainvp_succ = ainvi.ainvi_succ
+    AND invp.ainvp_numinv = ainvi.ainvi_numinv
+    AND invp.ainvp_stktheo <> 0
+    ) AS nbre_casier,
+    COUNT(s.ainvp_refp) AS nbre_ref,
+    ROUND(SUM(s.ainvp_stktheo)) AS qte_comptee,
     CASE
-        WHEN (
-            select
-                Count(ainvp_refp)
-            from
-                art_invp
-            WHERE
-                ainvp_soc = ainvi_soc
-                AND ainvp_succ = ainvi_succ
-                AND ainvp_numinv = ainvi_numinv
-                AND ainvp_ecart <> 0
+     WHEN (SELECT  COUNT(*) FROM art_invp
+            WHERE ainvp_soc = ainvi.ainvi_soc
+            AND ainvp_succ = ainvi.ainvi_succ
+            AND ainvp_numinv = ainvi.ainvi_numinv
+            AND ainvp_ecart <> 0
         ) = 0
-        AND (
-            select
-                Count(ainvp_refp)
-            from
-                art_invp
-            WHERE
-                ainvp_soc = ainvi_soc
-                AND ainvp_succ = ainvi_succ
-                AND ainvp_numinv = ainvi_numinv
-                AND ainvp_ctrlok = 0
-                AND ainvp_nbordereau > 0
-        ) = 0 THEN 'Soldé'
-        ELSE decode (ainvi_cloture, 'O', 'Clôturé', 'Encours')
-    END as statut,
-    trunc (sum(ainvp_prix * ainvp_stktheo)) as Montant
+    AND (SELECT COUNT(*) FROM art_invp
+         WHERE ainvp_soc = ainvi.ainvi_soc
+         AND ainvp_succ = ainvi.ainvi_succ
+         AND ainvp_numinv = ainvi.ainvi_numinv
+         AND ainvp_ctrlok = 0
+         AND ainvp_nbordereau > 0
+        ) = 0 THEN
+    'SOLDE'
+    ELSE (SELECT DECODE (ainvi_cloture, 'O', 'CLOTURE', 'ENCOURS') FROM
+          art_invi WHERE ainvi_numinv = ( SELECT MAX(ainvi_numinv) FROM  art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait)        
+        )
+    END AS statut,
+    TRUNC (SUM(s.ainvp_prix * s.ainvp_stktheo), 0) AS Montant,
+    (SELECT MAX(DATE (ladm_date)) FROM log_art_invi A 
+    JOIN log_adm b ON A.ladm_id = b.ladm_id
+     WHERE A.ainvi_soc = ainvi.ainvi_soc
+     AND A.ainvi_numinv = ( SELECT  MAX(ainvi_numinv) FROM art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait )
+     AND A.ainvi_cloture = 'O'
+    ) AS date_clo
+    
 FROM
-    art_invi
-    INNER JOIN art_invp ON ainvp_numinv = ainvi_numinv_mait
+    art_invi ainvi
+    INNER JOIN art_invp s ON s.ainvp_numinv = ainvi.ainvi_numinv_mait
 WHERE
-    ainvi_soc = 'HF'
-    AND ainvi_sequence = 1
+    ainvi.ainvi_soc = 'HF'
+    AND ainvi.ainvi_numinv_mait = 1916
+    AND ainvi.ainvi_sequence = 1
     AND (
-        ainvp_stktheo <> 0
-        or (ainvp_ecart <> 0)
+        s.ainvp_stktheo <> 0
+        OR s.ainvp_ecart <> 0
     )
-    AND ainvi_succ IN ('01')
-    AND ainvi_date >= TO_DATE ('2025-02-01', '%Y-%m-%d')
-    AND ainvi_date <= TO_DATE ('2025-02-26', '%Y-%m-%d')
-group by
-    ainvi_numinv_mait,
-    ainvi_date,
-    ainvi_comment,
-    ainvi_cloture,
+    AND ainvi.ainvi_comment NOT LIKE 'KPI STOCK%'
+    AND ainvi.ainvi_succ IN (
+        '01',
+        '02',
+        '10',
+        '20',
+        '30',
+        '40',
+        '50',
+        '60',
+        '92'
+    )
+    AND ainvi.ainvi_date >= TO_DATE ('2024-03-13', '%Y-%m-%d')
+GROUP BY
+    ainvi.ainvi_numinv_mait,
+    ainvi.ainvi_date,
+    ainvi.ainvi_comment,
+    ainvi.ainvi_cloture,
     nbre_casier,
-    statut
-order by
-    ainvi_numinv_mait desc
-    /* details inventaire*/
+    statut,
+    date_clo
+ORDER BY
+    ainvi.ainvi_numinv_mait DESC;
+/* details inventaire*/
 SELECT
     ainvp_datecpt as dateInv,
     ainvp_soc as soc,

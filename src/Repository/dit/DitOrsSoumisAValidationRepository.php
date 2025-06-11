@@ -11,9 +11,9 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
-        ->where('osv.numeroOR = :numOr')
-        ->setParameter('numOr', $numOr)
-        ->setMaxResults(1);
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->setMaxResults(1);
 
         try {
             $result = $qb->getQuery()->getOneOrNullResult();
@@ -36,6 +36,18 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    public function findNumOrValide()
+    {
+        $query = $this->createQueryBuilder('osv')
+            ->select("DISTINCT osv.numeroOR AS numeroOR")
+            ->where('osv.statut IN (:statut)')
+            ->setParameter('statut', ['Validé', 'Livré', 'Livré partiellement'])
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return $query;
+    }
+
     public function findNbrItv($numOr)
     {
         $nbrItv = $this->createQueryBuilder('osv')
@@ -48,7 +60,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $nbrItv ? $nbrItv : 0;
     }
 
-    public function findNumItvValide($numOr)
+    public function findNumItvValide($numOr): array
     {
         // Étape 1 : Récupérer le numeroVersion maximum
         $numeroVersionMax = $this->createQueryBuilder('osv')
@@ -58,7 +70,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        $statut = ['Validé', 'Livré','Livré partiellement'];
+        $statut = ['Validé', 'Livré', 'Livré partiellement'];
 
         // Étape 2 : Utiliser le numeroVersionMax pour récupérer le numero d'intervention
         $nbrItv = $this->createQueryBuilder('osv')
@@ -175,22 +187,40 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le statut
+        // Vérifier si un numeroVersion a été trouvé
+        if ($numeroVersionMax === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucune version trouvée pour le numeroOR {$numOr}."
+            ];
+        }
+        // dd($numOr, $numItv, (int)$numeroVersionMax);
+
+        // Étape 2 : Utiliser le numeroVersionMax pour récupérer le montant valide
         $montantValide = $this->createQueryBuilder('osv')
             ->select('osv.montantItv')
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
             ->andWhere('osv.numeroItv = :numItv')
             ->setParameters([
-                'numeroVersionMax' => $numeroVersionMax,
+                'numeroVersionMax' => (int)$numeroVersionMax,
                 'numOr' => $numOr,
                 'numItv' => $numItv,
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult();
+
+        // Vérifier si un montant a été trouvé
+        if ($montantValide === null) {
+            return [
+                "statut" => "echec",
+                "message" => "Aucun montant valide trouvé pour le numeroOR {$numOr} et le numeroItv {$numItv}."
+            ];
+        }
 
         return $montantValide;
     }
+
 
     public function findOrSoumisValid($numOr)
     {
@@ -216,6 +246,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $montantValide;
     }
 
+    /**
+     * recupère tous les numéros OR Distincts
+     *
+     * @return void
+     */
     public function findNumOrAll()
     {
         $query = $this->createQueryBuilder('osv')
@@ -226,6 +261,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $query;
     }
 
+    /**
+     * Recupère tous les numéros ITV Distincts
+     *
+     * @return void
+     */
     public function findNumOrItvAll()
     {
         $query = $this->createQueryBuilder('osv')
@@ -234,5 +274,102 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getSingleColumnResult();
 
         return $query;
+    }
+
+    /**
+     * cette méthode permet de vérifier si un OR doit être bloqué ou non
+     * tous les statuts qui contiennent "Validé", "Refusé", "Livré partiellement", "Modification demandée par client", "Modification demandée par CA" ne sont pas bloqués
+     *
+     * @param string $numOr
+     * @return void
+     */
+    public function getblocageStatut(string $numOr): string
+    {
+        $qb = $this->createQueryBuilder('o');
+
+        // Étape 1 : Vérifier l'existence
+        $count = $qb
+            ->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ((int) $count === 0) {
+            return 'ne pas bloquer';
+        }
+
+        // Étape 2 : Récupérer la version max
+        $maxVersion = $this->createQueryBuilder('o')
+            ->select('MAX(o.numeroVersion)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        // Étape 3 : Vérifier les statuts avec like()
+        $expr = $this->getEntityManager()->getExpressionBuilder();
+
+        $qb = $this->createQueryBuilder('o');
+        $qb->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->andWhere('o.numeroVersion = :maxVersion')
+            ->andWhere(
+                $expr->orX(
+                    $expr->like('o.statut', ':valide'),
+                    $expr->like('o.statut', ':refuse'),
+                    $expr->like('o.statut', ':livre_part'),
+                    $expr->like('o.statut', ':modif_client'),
+                    $expr->like('o.statut', ':modif_ca'),
+                    $expr->like('o.statut', ':modif_dt')
+                )
+            )
+            ->setParameters([
+                'numOr' => $numOr,
+                'maxVersion' => $maxVersion,
+                'valide' => '%Validé%',
+                'refuse' => '%Refusé%',
+                'livre_part' => '%Livré partiellement%',
+                'modif_client' => '%Modification demandée par client%',
+                'modif_ca' => '%Modification demandée par CA%',
+                'modif_dt' => '%Modification demandée par DT%',
+
+            ]);
+
+        $matchingCount = $qb->getQuery()->getSingleScalarResult();
+
+        return ((int) $matchingCount > 0) ? 'ne pas bloquer' : 'bloquer';
+    }
+
+    public function getDateEtMontantOR($numOr)
+    {
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        $qb = $this->createQueryBuilder('osv');
+        $qb->select('osv.dateSoumission, SUM(osv.montantItv) AS totalMontant')
+            ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numOr' => $numOr,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->groupBy('osv.dateSoumission');;
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getNbrOrSoumis(string $numOr)
+    {
+        return  $this->createQueryBuilder('o')
+            ->select('COUNT(o.id)')
+            ->where('o.numeroOR = :numOr')
+            ->setParameter('numOr', $numOr)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

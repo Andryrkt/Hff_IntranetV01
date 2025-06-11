@@ -34,12 +34,14 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 0, 'C');
                 $pdf->SetFont('pdfatimesbi', '', 12);
                 $pdf->Cell(0, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
+
                 $pdf->SetTextColor(...$couleurTitre);
                 $pdf->setX($pdf->GetX() + 35);
                 $pdf->Cell(0, 10, 'Agence/Service débiteur : ' . $tab['codeServiceDebitteur'] . '-' . $tab['serviceDebitteur'], 0, 0, 'C');
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->setX($w50 + 10);
                 $pdf->Cell(0, 10, $tab['NumDom'], 0, 1, 'R');
+
 
                 $pdf->setTextColor(...$couleurTitre);
                 $pdf->Cell(12, 10, 'Type : ', 0, 0);
@@ -207,7 +209,16 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->setTextColor(0, 0, 0); // Noir
                 $pdf->Cell(80, 10, $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
-                $pdf->setY(230);
+                /** Ligne de NB sur les montants */
+                $NB_1 = $tab['Idemn_depl'] === '0' ? '' : 'Montant total à payer = ' . $tab['totalIdemn'] . ' - (' . $tab['Idemn_depl'] . '*' . $tab['NbJ'] . ') = ' . $tab['AllMontant'];
+                $NB_2 = $tab['Idemn_depl'] === '0' ? '' : $tab['Idemn_depl'] . " étant l'indemnité journalière reçue mensuellement du fait que l'agent se trouve sur un site";
+                $pdf->setY(227);
+                $pdf->SetFont('helvetica', 'B', 10);
+                $pdf->Cell(0, 0, $NB_1, 0, 1);
+                $pdf->Cell(0, 0, $NB_2, 0, 1);
+
+                /** Mode de paiement */
+                $pdf->SetFont('pdfatimesbi', '', 12);
                 $pdf->setTextColor(...$couleurTitre);
                 $pdf->Cell(35, 10, 'Mode de paiement: ', 0, 0);
                 $pdf->setTextColor(0, 0, 0); // Noir
@@ -215,7 +226,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->setX($w50 + 20);
                 $pdf->Cell($w50, 10, $tab['mode'], 0, 1);
 
-                // génération de fichier
+                /** Génération de fichier */
                 $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/dom/';
                 $pdf->Output($Dossier . $tab['NumDom'] . '_' . $tab['codeAg_serv'] . '.pdf', 'F');
         }

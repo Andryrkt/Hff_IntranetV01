@@ -87,11 +87,11 @@ class DitRiSoumisAValidationController extends Controller
 
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } elseif ($estSoumis) {
-                $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
+                $message = "Erreur lors de la soumission RI, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
 
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } elseif ($existe) {
-                $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
+                $message = "Erreur lors de la soumission RI, car certaines interventions n'ont pas encore été validées dans DocuWare.";
 
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             } else {
@@ -116,7 +116,7 @@ class DitRiSoumisAValidationController extends Controller
                     if ($file) { // Vérification si le fichier existe
                         try {
                             $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
-                            $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/vri/';
+                            $fileDossier = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
 
                             // Créer une copie temporaire du fichier
                             $tempFile = tempnam(sys_get_temp_dir(), 'upload_');

@@ -9,15 +9,39 @@ use Doctrine\ORM\EntityRepository;
 class PermissionRepository extends EntityRepository
 {
 
-    // Ajoutez des méthodes personnalisées ici
-    public function findByExampleField($value)
+
+    public function getPermissionGroupe($userId, $permissionName)
     {
-        return $this->createQueryBuilder('m')
-            ->andWhere('m.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('m.id', 'ASC')
+        return $this->createQueryBuilder('p')
+            ->select('1')
+            ->leftJoin('p.roles', 'r')
+            ->leftJoin('r.users', 'u')
+            ->where('u.id = :userId')
+            ->andWhere('p.permissionName = :permissionName')
+            ->setParameters([
+                'userId' => $userId,
+                'permissionName' => $permissionName
+            ])
+            ->setMaxResults(1)
             ->getQuery()
-            ->getResult()
+            ->getOneOrNullResult()
+        ;
+    }
+
+    public function getPermissionUser($userId, $permissionName)
+    {
+        return $this->createQueryBuilder('p')
+            ->select('1')
+            ->join('p.users', 'u')
+            ->where('u.id = :userId')
+            ->andWhere('p.permissionName = :permissionName')
+            ->setParameters([
+                'userId' => $userId,
+                'permissionName' => $permissionName
+            ])
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
         ;
     }
 }

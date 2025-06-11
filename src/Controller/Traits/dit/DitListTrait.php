@@ -183,18 +183,18 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
-                
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
-                if (!empty($numSerieParc)) {
-                    $numSerie = $numSerieParc[0]['num_serie'];
-                    $numParc = $numSerieParc[0]['num_parc'];
-                    $data[$i]->setNumSerie($numSerie);
-                    $data[$i]->setNumParc($numParc);
-                } else {
-                    $data[$i]->setNumSerie('');
-                    $data[$i]->setNumParc('');
-                }
+
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    if (!empty($numSerieParc)) {
+                        $numSerie = $numSerieParc[0]['num_serie'];
+                        $numParc = $numSerieParc[0]['num_parc'];
+                        $data[$i]->setNumSerie($numSerie);
+                        $data[$i]->setNumParc($numParc);
+                    } else {
+                        $data[$i]->setNumSerie('');
+                        $data[$i]->setNumParc('');
+                    }
                 }
             }
         }
@@ -205,29 +205,30 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
-                if (!empty($marqueCasier)) {
-                    $marque = $marqueCasier[0]['marque'];
-                    $casier = $marqueCasier[0]['casier'];
-                    $data[$i]->setMarque($marque);
-                    $data[$i]->setCasier($casier);
-                } else {
-                    $data[$i]->setMarque('');
-                    $data[$i]->setCasier('');
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                    if (!empty($marqueCasier)) {
+                        $marque = $marqueCasier[0]['marque'];
+                        $casier = $marqueCasier[0]['casier'];
+                        $data[$i]->setMarque($marque);
+                        $data[$i]->setCasier($casier);
+                    } else {
+                        $data[$i]->setMarque('');
+                        $data[$i]->setCasier('');
+                    }
                 }
-            }
             }
         }
     }
 
-    private function ajoutStatutAchatPiece($data){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
-         
+    private function ajoutStatutAchatPiece($data)
+    {
+        for ($i = 0; $i < count($data); $i++) {
+
             if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
 
-                if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
-                    
+                if (!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+
                     foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
@@ -267,8 +268,9 @@ trait DitListTrait
         }
     }
 
-    private function ajoutNbrPj($data, $em){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
+    private function ajoutNbrPj($data, $em)
+    {
+        for ($i = 0; $i < count($data); $i++) {
             $nbrJr = $em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention());
             $data[$i]->setNbrPj($nbrJr);
         }
@@ -447,7 +449,8 @@ trait DitListTrait
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
+            'serviceAutoriserIds' => $serviceIds,
+            // 'InternetExterne' => 
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
     }
@@ -506,7 +509,7 @@ trait DitListTrait
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
 
         foreach ($entities as $entity) {
             $data[] = [
@@ -556,18 +559,16 @@ trait DitListTrait
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
-        
 
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
-        
+
         //ajout nombre de pièce joint
         $this->ajoutNbrPj($paginationData['data'], $em);
-      
+
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
-        
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
@@ -577,7 +578,27 @@ trait DitListTrait
         $this->ajoutMarqueCasierMateriel($paginationData['data']);
         $this->ajoutEstOrASoumis($paginationData['data'], $em);
 
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
+        // dd($paginationData['data']);
         return $paginationData;
+    }
+
+    private function ajoutDateEtMontantOR($datas, $em)
+    {
+        foreach ($datas as $data) {
+            if (!empty($data->getNumeroOR()) && $data->getNumeroOR() !== 'NULL') {
+                $dateEtMontant = $em->getRepository(DitOrsSoumisAValidation::class)->getDateEtMontantOR($data->getNumeroOR());
+                if (!empty($dateEtMontant)) {
+                    $data
+                        ->setDateSoumissionOR($dateEtMontant[0]['dateSoumission'])
+                        ->setMontantTotalOR($dateEtMontant[0]['totalMontant'])
+                    ;
+                }
+            }
+        }
     }
 
     private function ajoutEstOrASoumis($paginationData, $em)
@@ -591,21 +612,19 @@ trait DitListTrait
 
             if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
-            }  elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
+            } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);
-            } 
-            elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+            } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
-            } 
+            }
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
             // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57 ) {
+            elseif ($value->getIdStatutDemande()->getId() === 57) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
                 $value->setEstOrASoumi(true);
-            }
-            else {
+            } else {
                 $value->setEstOrASoumi(false);
             }
         }

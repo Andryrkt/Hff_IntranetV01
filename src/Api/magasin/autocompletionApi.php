@@ -3,8 +3,10 @@
 namespace App\Api\magasin;
 
 use App\Controller\Controller;
+use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
+
 
 class AutocompletionApi extends Controller
 {
@@ -47,5 +49,19 @@ class AutocompletionApi extends Controller
         header("Content-type:application/json");
 
         echo json_encode($refPieces);
+    }
+    /**
+     * @Route("/frs-non-place-fetch")
+     *
+     * @return void
+     */
+    public function autocompletionFrs()
+    {
+        $frsNonPlace = new ListeCdeFrnNonPlacerModel();
+        $data = $frsNonPlace->fournisseurIrum();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data);
     }
 }

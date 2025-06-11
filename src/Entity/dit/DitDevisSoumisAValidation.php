@@ -104,6 +104,11 @@ class DitDevisSoumisAValidation
      */
     private $natureOperation;
 
+    /**
+     * @ORM\Column(type="string", length=5)
+     */
+    private $type;
+
     private $pieceJoint01;
 
     private $pieceJoint02;
@@ -133,8 +138,14 @@ class DitDevisSoumisAValidation
     /**
      * @ORM\Column(type="float", scale="2")
      */
-    private ?float $montantVente=0.00;
+    private ?float $montantVente = 0.00;
 
+    /**
+     * @ORM\Column(type="integer")
+     *
+     * @var integer
+     */
+    private int $nombreLignePiece = 0;
     /** ========================================================================================== 
      * GETTERS & SETTERS
      *==========================================================================================*/
@@ -400,7 +411,7 @@ class DitDevisSoumisAValidation
 
     /**
      * Get the value of montantForfait
-     */ 
+     */
     public function getMontantForfait()
     {
         return $this->montantForfait;
@@ -410,7 +421,7 @@ class DitDevisSoumisAValidation
      * Set the value of montantForfait
      *
      * @return  self
-     */ 
+     */
     public function setMontantForfait($montantForfait)
     {
         $this->montantForfait = $montantForfait;
@@ -460,7 +471,7 @@ class DitDevisSoumisAValidation
 
     /**
      * Get the value of natureOperation
-     */ 
+     */
     public function getNatureOperation()
     {
         return $this->natureOperation;
@@ -470,14 +481,14 @@ class DitDevisSoumisAValidation
      * Set the value of natureOperation
      *
      * @return  self
-     */ 
+     */
     public function setNatureOperation($natureOperation)
     {
         $this->natureOperation = $natureOperation;
 
         return $this;
     }
-    
+
     /**
      * Get the value of file
      */
@@ -563,7 +574,7 @@ class DitDevisSoumisAValidation
 
     /**
      * Get the value of nomClient
-     */ 
+     */
     public function getNomClient()
     {
         return $this->nomClient;
@@ -573,7 +584,7 @@ class DitDevisSoumisAValidation
      * Set the value of nomClient
      *
      * @return  self
-     */ 
+     */
     public function setNomClient($nomClient)
     {
         $this->nomClient = $nomClient;
@@ -581,9 +592,9 @@ class DitDevisSoumisAValidation
         return $this;
     }
 
-     /**
+    /**
      * Get the value of numeroClient
-     */ 
+     */
     public function getNumeroClient()
     {
         return $this->numeroClient;
@@ -593,7 +604,7 @@ class DitDevisSoumisAValidation
      * Set the value of numeroClient
      *
      * @return  self
-     */ 
+     */
     public function setNumeroClient($numeroClient)
     {
         $this->numeroClient = $numeroClient;
@@ -603,7 +614,7 @@ class DitDevisSoumisAValidation
 
     /**
      * Get the value of objetDit
-     */ 
+     */
     public function getObjetDit()
     {
         return $this->objetDit;
@@ -613,7 +624,7 @@ class DitDevisSoumisAValidation
      * Set the value of objetDit
      *
      * @return  self
-     */ 
+     */
     public function setObjetDit($objetDit)
     {
         $this->objetDit = $objetDit;
@@ -625,7 +636,7 @@ class DitDevisSoumisAValidation
      * Get the value of devisVenteOuForfait
      *
      * @return  string
-     */ 
+     */
     public function getDevisVenteOuForfait()
     {
         return $this->devisVenteOuForfait;
@@ -637,18 +648,18 @@ class DitDevisSoumisAValidation
      * @param  string  $devisVenteOuForfait
      *
      * @return  self
-     */ 
+     */
     public function setDevisVenteOuForfait(string $devisVenteOuForfait)
     {
         $this->devisVenteOuForfait = $devisVenteOuForfait;
 
         return $this;
     }
-    
+
 
     /**
      * Get the value of devise
-     */ 
+     */
     public function getDevise()
     {
         return $this->devise;
@@ -658,7 +669,7 @@ class DitDevisSoumisAValidation
      * Set the value of devise
      *
      * @return  self
-     */ 
+     */
     public function setDevise($devise)
     {
         $this->devise = $devise;
@@ -668,7 +679,7 @@ class DitDevisSoumisAValidation
 
     /**
      * Get the value of montantVente
-     */ 
+     */
     public function getMontantVente()
     {
         return $this->montantVente;
@@ -678,10 +689,31 @@ class DitDevisSoumisAValidation
      * Set the value of montantVente
      *
      * @return  self
-     */ 
+     */
     public function setMontantVente($montantVente)
     {
         $this->montantVente = $montantVente;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of type
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
 
         return $this;
     }
@@ -690,5 +722,30 @@ class DitDevisSoumisAValidation
     public function estEgalParNumero(DitDevisSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
+    }
+
+
+    /**
+     * Get the value of nombreLignePiece
+     *
+     * @return  integer
+     */
+    public function getNombreLignePiece()
+    {
+        return $this->nombreLignePiece;
+    }
+
+    /**
+     * Set the value of nombreLignePiece
+     *
+     * @param  integer  $nombreLignePiece
+     *
+     * @return  self
+     */
+    public function setNombreLignePiece($nombreLignePiece)
+    {
+        $this->nombreLignePiece = $nombreLignePiece;
+
+        return $this;
     }
 }

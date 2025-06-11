@@ -2,6 +2,8 @@
 
 namespace App\Controller\Traits\dit;
 
+use DateTime;
+use Exception;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -39,7 +41,7 @@ trait DitOrSoumisAValidationTrait
         // Générer un nom de fichier sécurisé et unique
 
         $fileName = sprintf(
-            'orValidation_%s-%s_%02d#%s.%s',
+            'oRValidation_%s-%s_%02d#%s.%s',
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $index,
@@ -48,7 +50,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
@@ -81,12 +83,13 @@ trait DitOrSoumisAValidationTrait
 
         // Ajouter le fichier PDF principal en tête du tableau
         $mainPdf = sprintf(
-            '%s/Upload/vor/orValidation_%s-%s#%s.pdf',
-            $_SERVER['DOCUMENT_ROOT'],
+            '%s/vor/oRValidation_%s-%s#%s.pdf',
+            $_ENV['BASE_PATH_FICHIER'],
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $suffix
         );
+
 
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
@@ -120,8 +123,53 @@ trait DitOrSoumisAValidationTrait
 
         // Appeler la fonction pour fusionner les fichiers PDF
         if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 
     private function autoIncrement($num)
@@ -365,15 +413,29 @@ trait DitOrSoumisAValidationTrait
         return $aBlocker;
     }
 
-    private function datePlanning($numOr)
-    { 
+    private function datePlanningInferieurDateDuJour($numOr, $numDit): bool
+    {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
         $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-    
+
+        $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+        $dateDuJour = new DateTime('now');
+
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
+
+        return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
+    }
+
+    private function datePlanning($numOr)
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [

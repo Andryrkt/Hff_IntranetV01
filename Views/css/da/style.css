@@ -1,0 +1,248 @@
+.div-disabled {
+  pointer-events: none;
+}
+.div-disabled-2 {
+  overflow: hidden;
+}
+.div-disabled,
+.div-disabled-2 {
+  background-color: #e9ecef;
+  border: 1px solid #d2d2d2;
+  padding: 6px 7px 4px;
+  border-radius: 5px;
+}
+
+.btn.disabled {
+  pointer-events: none;
+  background-color: #f1d67a !important;
+  color: #5c5c5c !important;
+}
+
+.h-90 {
+  height: 90px !important;
+  align-items: unset !important;
+}
+
+a.choix {
+  width: 300px;
+  background: #fbbb01;
+  margin: 15px auto;
+  padding: 15px;
+  text-decoration: none;
+  color: #000;
+  display: block;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+a.choix:hover {
+  background: #f8a900;
+  transform: scale(1.05);
+}
+
+#children-container .mt-3,
+#children-container .mt-2 {
+  width: 100%;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.175);
+  border-radius: 2px;
+  margin-bottom: 0px;
+  border: none;
+}
+
+.w-2 {
+  width: 2% !important;
+}
+
+.w-3 {
+  width: 3% !important;
+}
+
+.w-5 {
+  width: 5% !important;
+}
+
+.w-10 {
+  width: 10% !important;
+}
+
+.w-15 {
+  width: 15% !important;
+}
+
+.w-20 {
+  width: 20% !important;
+}
+
+.w-23 {
+  width: 23% !important;
+}
+
+[id*='tableBody'] td {
+  text-align: center;
+}
+
+/**
+ * Pour le loader dans le suggestion-container
+ */
+.loader-points {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+  color: #fff;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite alternate;
+}
+
+@keyframes animloader {
+  0% {
+    box-shadow: -15px -12px, -5px 0, 5px 0, 15px 0;
+  }
+  33% {
+    box-shadow: -15px 0px, -5px -12px, 5px 0, 15px 0;
+  }
+  66% {
+    box-shadow: -15px 0px, -5px 0, 5px -12px, 15px 0;
+  }
+  100% {
+    box-shadow: -15px 0, -5px 0, 5px 0, 15px -12px;
+  }
+}
+
+[id*='spinner_container_']:not([id*='nomFournisseur']) {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+  width: 40%; /* Assure que la liste occupe toute la largeur du champ */
+  margin-top: 5px;
+  padding: 10px;
+}
+
+[id*='spinner_container_'] .text-overlay {
+  font-size: 14px;
+  color: white;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+[id*='demande_appro_form_DAL'][id*='estFicheTechnique'] {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
+}
+
+/*
+* pour le spiner
+*/
+.spinner-load {
+  margin-bottom: 2rem !important;
+  margin-left: 15px;
+  position: relative;
+  width: 10px; /* Taille totale du spinner */
+  height: 10px;
+}
+
+.spinner-load div {
+  position: absolute;
+  width: 3px; /* Largeur des barres */
+  height: 8px; /* Hauteur des barres */
+  background: #000; /* Couleur par défaut */
+  border-radius: 3px; /* Coins arrondis pour les barres */
+  transform-origin: center 15px; /* Point autour duquel les barres tournent */
+  animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
+}
+
+/* Positionnement des barres autour du cercle */
+.spinner-load div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+
+.spinner-load div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+
+.spinner-load div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+
+.spinner-load div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+
+.spinner-load div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+
+.spinner-load div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+
+.spinner-load div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+
+.spinner-load div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+
+.spinner-load div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+
+.spinner-load div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+
+.spinner-load div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+
+.spinner-load div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+
+/* Animation de disparition progressive */
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0.1; /* Les barres commencent et terminent pâles */
+  }
+  50% {
+    opacity: 1; /* La barre devient complètement opaque */
+  }
+}
+
+.fichier_zst {
+  font-weight: bold;
+  color: #fbbb01;
+  background-color: #000;
+}
+
+/* Pour les statuts de la DA */
+.bg-or-non-valide {
+  background-color: #00ffff !important;
+}
+.bg-demande-achat {
+  background-color: #ffff00 !important;
+}
+.bg-proposition-achat {
+  background-color: #d9d9d9 !important;
+}
+.bg-bon-achat-valide {
+  background-color: #a9d08e !important;
+}

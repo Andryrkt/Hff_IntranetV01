@@ -4,7 +4,6 @@ namespace App\Service\genererPdf;
 
 use IntlDateFormatter;
 use App\Entity\dit\AcSoumis;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfAcSoumis extends GeneratePdf
@@ -108,7 +107,7 @@ class GenererPdfAcSoumis extends GeneratePdf
             Devis : ' . $acSoumis->getNumeroDevis() . ' (' . $acSoumis->getNumeroDit() . ') du ' . $acSoumis->getDateDevis()->format('d/m/Y') . '<br>
             Montant HT : ' . $this->formatNumberGeneral($acSoumis->getMontantDevis(), ' ', '.', 2) . ' ' . $acSoumis->getDevise() . '. <br>
             Nous confirmons que votre commande a été enregistrée.<br><br>
-            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email à ' . $acSoumis->getEmailContactHff() . ' ou par téléphone au ' . $acSoumis->getTelephoneContactHff() . '.<br><br>
+            Pour toute question ou demande d\'information complémentaire concernant votre commande ou les travaux à réaliser, nous restons à votre disposition. Vous pouvez nous contacter par email  ' . $acSoumis->getEmailContactHff() . ' ou par téléphone  ' . $acSoumis->getTelephoneContactHff() . '.<br><br>
             Nous vous remercions pour votre confiance et restons à votre service pour toute autre demande.<br><br>
             Dans l\'attente, nous vous prions d\'agréer, Madame, Monsieur, l\'expression de nos salutations distinguées.<br>
         </p>

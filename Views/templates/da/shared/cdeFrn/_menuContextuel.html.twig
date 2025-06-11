@@ -1,0 +1,15 @@
+<div id="menuContextuelGlobal" class="menu-contextuel-custom" style="display: none;">
+	{{ form_start(formSoumission, {'method': 'GET'}) }}
+	<div class="p-2">
+		{{ form_row(formSoumission.soumission) }}
+		{# <input type="hidden" name="commande_id" id="hiddenCommandeId"/> #}
+		{{ form_row(formSoumission.commande_id) }}
+		{{ form_row(formSoumission.da_id) }}
+		<div class="d-flex justify-content-end">
+			<button class="btn btn-sm btn-warning fw-bold" type="submit">
+				soumettre
+			</button>
+		</div>
+	</div>
+	{{ form_end(formSoumission) }}
+</div>
