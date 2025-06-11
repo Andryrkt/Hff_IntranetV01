@@ -17,6 +17,7 @@ use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -109,6 +110,7 @@ class DaNewController extends Controller
                     ->setNumeroDit($numDit)
                     ->setJoursDispo($this->getJoursRestants($DAL))
                 ;
+                $this->traitementFichiers($DAL); // traitement des fichiers uploadés pour chaque ligne DAL
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("da_list");
@@ -212,5 +214,58 @@ class DaNewController extends Controller
             ->setStatutDal(self::DA_STATUT)
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
+    }
+
+    /** 
+     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de la demande appro (DAL)
+     */
+    private function traitementFichiers(DemandeApproL $dal)
+    {
+        $fileNames = [];
+        $files = $dal->getFileNames();
+        if ($files !== null) {
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadFile($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
+    }
+
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     * (copier le fichier uploader dans une répertoire et le donner un nom)
+     */
+    private function uploadFile(UploadedFile $file, DemandeApproL $dal, int $i)
+    {
+        $fileName = sprintf(
+            'pj_%s_%s_%s.%s',
+            $dal->getNumeroDemandeAppro(),
+            $dal->getNumeroLigne(),
+            $i,
+            $file->getClientOriginalExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        return $fileName;
     }
 }
