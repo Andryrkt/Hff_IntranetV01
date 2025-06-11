@@ -2,15 +2,18 @@
 
 namespace App\Controller\cde;
 
+use Exception;
 use App\Controller\Controller;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Service\fichier\FileUploaderService;
+use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GenererPdfCdeFnr;
 use App\Form\cde\CdeFnrSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\cde\CdefnrSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
 
@@ -19,6 +22,7 @@ class CdefnrSoumisAValidationController extends Controller
     private CdefnrSoumisAValidationModel $cdeFnrModel;
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
+    private TraitementDeFichier $traitementDeFichier;
 
     public function __construct()
     {
@@ -26,6 +30,7 @@ class CdefnrSoumisAValidationController extends Controller
         $this->cdeFnrModel = new CdefnrSoumisAValidationModel();
         $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
         $this->historiqueOperation = new HistoriqueOperationCDEFNRService();
+        $this->traitementDeFichier = new TraitementDeFichier();
     }
 
 
@@ -52,7 +57,6 @@ class CdefnrSoumisAValidationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            dd($data);
             $originalName = $data->getPieceJoint01()->getClientOriginalName();
             $numCdeFournisseur = array_key_exists(0, explode('_', $originalName)) ? explode('_', $originalName)[0] : '';
             $originalNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
@@ -66,7 +70,18 @@ class CdefnrSoumisAValidationController extends Controller
                 //Enregistrement du fichier
                 $numFnrCde = $numCdeFournisseur . '_' . $codeFournisseur;
                 $fileName = $this->enregistrementFichier($form, $numFnrCde, $cdeFournisseur->getNumVersion());
-
+                $fileNameJoints = $this->enregistreFichierJoint($form);
+                array_unshift($fileNameJoints, $fileName);
+                $cheminAvecNomFichier = array_map(
+                    function ($file) {
+                        return $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $file;
+                    },
+                    $fileNameJoints
+                );
+                $fichierConverties = $this->ConvertirLesPdf($cheminAvecNomFichier);
+                //fusion des fichiers
+                $cheminEtNomFichier = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/' . $fileName;
+                $this->traitementDeFichier->fusionFichers($fichierConverties, $cheminEtNomFichier);
                 //envoyer le ficher dans docuware
                 $genererPdfCdeFnr = new GenererPdfCdeFnr();
                 $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
@@ -176,10 +191,89 @@ class CdefnrSoumisAValidationController extends Controller
             'numeroVersion' => $numeroVersion,
             'mainFirstPage' => false,
             'pathFichier' => '',
-            'isIndex' => false
+            'isIndex' => false,
+            'fieldPattern' => '/^pieceJoint01$/',
         ];
         $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
         return $fileName;
+    }
+
+    /**
+     * Enregistrement des fichiers téléchagrer dans le dossier de destination
+     *
+     * @param [type] $form
+     * @return array
+     */
+    private function enregistreFichierJoint($form): array
+    {
+        $nomDesFichiers = [];
+        $chemin = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/';
+
+        $file = $form->get('pieceJoint02')->getData();
+
+
+        foreach ($file as $singleFile) {
+            if (is_array($singleFile)) {
+                $singleFile = $singleFile[0]; // ou traiter chaque fichier du sous-tableau
+            }
+
+            if ($singleFile instanceof UploadedFile) {
+                $nomDeFichier = $singleFile->getClientOriginalName();
+                $this->traitementDeFichier->upload(
+                    $singleFile,
+                    $chemin,
+                    $nomDeFichier
+                );
+                $nomDesFichiers[] = $nomDeFichier;
+            }
+        }
+
+
+        return $nomDesFichiers;
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+        return $tousLesFichiers;
+    }
+
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 }

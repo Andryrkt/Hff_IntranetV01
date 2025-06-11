@@ -45,7 +45,7 @@ class CdeFnrSoumisAValidationType extends AbstractType
                     'required' => false,
                     'multiple' => true,
                     'data_class' => null,
-                    'mapped' => true, // Indique que ce champ ne doit pas être lié à l'entité
+                    'mapped' => false, // Indique que ce champ ne doit pas être lié à l'entité
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
                     ],

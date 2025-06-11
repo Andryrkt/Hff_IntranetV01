@@ -122,6 +122,7 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
   fileInput.addEventListener("change", function () {
     mergeFiles(this.files);
     renderFiles(fileStore, fileList);
+    updateInputFiles();
   });
 
   dropzone.addEventListener("dragover", function (e) {
@@ -141,6 +142,7 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
     e.stopPropagation();
     mergeFiles(e.dataTransfer.files);
     renderFiles(fileStore, fileList);
+    updateInputFiles();
     this.style.backgroundColor = "#ffffff";
   });
 
@@ -151,6 +153,12 @@ export function initializeFileHandlersMultiple(idSuffix, fileInpute) {
         fileStore.push(f);
       }
     }
+  }
+
+  function updateInputFiles() {
+    const dataTransfer = new DataTransfer();
+    fileStore.forEach((file) => dataTransfer.items.add(file));
+    fileInput.files = dataTransfer.files;
   }
 }
 
