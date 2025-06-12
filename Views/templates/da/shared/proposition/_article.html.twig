@@ -32,7 +32,6 @@
 		</div>
 	</div>
 	<div class="row">
-
 		{% if not estAte %}
 		<div class="col-3 col-md-3">
 			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
@@ -42,25 +41,52 @@
 		<div class="col-3 col-md-{{ estAte ? '6' : '3' }}">
 			{{ macroForm.affichage2('Désignation', article.artDesi, 'mb-2') }}
 		</div>
-		<div class="col-3 col-md-3">
-			<div class="row">
-				<div class="col-6 col-md-6">
-					{{ macroForm.affichage2('Prix Unitaire', article.prixUnitaire | number_format(2, ',', '.'), 'mb-2') }}
-				</div>
-				<div class="col-6 col-md-6">
-					{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
-				</div>
+		<div class="col-2 col-md-2">
+			{{ macroForm.affichage2('Prix Unitaire', article.prixUnitaire | number_format(2, ',', '.'), 'mb-2') }}
+		</div>
+		<div class="col-2 col-md-2">
+			{{ macroForm.affichage2('Qté demandée', article.qteDem, 'mb-2') }}
+		</div>
+		<div class="col-2 col-md-2">
+			{{ macroForm.affichage2('Montant total', (article.prixUnitaire * article.qteDem) | number_format(2, ',', '.'), 'mb-2') }}
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-12 col-md-6">
+			<label class="mt-2">Pièces jointes</label>
+			<div class="d-flex align-items-center mb-2 div-disabled-2">
+				{% if article.fileNames|length > 0 %}
+					<ul class="mb-0 px-3">
+						{% for file in article.fileNames %}
+							<li>
+								<a href="{{ App.base_path_fichier }}/da/fichiers/{{ file }}" target="_blank">{{ file }}</a>
+							</li>
+						{% endfor %}
+					</ul>
+				{% else %}
+					Aucune pièce jointe
+				{% endif %}
 			</div>
 		</div>
-		<div class="col-3 col-md-3">
-			<div class="row">
-				<div class="col-6 col-md-6">
-					{{ macroForm.affichage2('Montant total', (article.prixUnitaire * article.qteDem) | number_format(2, ',', '.'), 'mb-2') }}
-				</div>
-				<div class="col-6 col-md-6">
-					<label class="mt-2">Fiche technique </label>
-					{{ macroForm.affichageHTMLSimple(ficheTechnique, 'mb-2 div-disabled-2') }}
-				</div>
+		<div class="col-4 col-md-4">
+			<label class="mt-2">
+				Fiche technique
+				{% if not estAte and article.estFicheTechnique %}
+					<a href="#">
+						<i class="fas fa-paperclip"></i>
+					</a>
+				{% endif %} 
+			</label>
+			<div class="d-flex align-items-center mb-2 div-disabled-2">
+				{% if article.estFicheTechnique %}
+					{% if article.nomFicheTechnique %}
+					<a href="{{ App.base_path_fichier }}/da/fichiers/{{ article.nomFicheTechnique }}" target="_blank">{{ article.nomFicheTechnique }}</a>
+					{% else %}
+						Pas encore de fiche technique attachée
+					{% endif %}
+				{% else %}
+					<i class="fa fa-times text-danger"></i>
+				{% endif %}
 			</div>
 		</div>
 	</div>

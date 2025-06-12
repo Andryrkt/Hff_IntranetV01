@@ -70,6 +70,7 @@ class DaListeController extends Controller
         $dasFiltered  = $this->filtreDal($das);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
+        $this->modificationDateRestant($dasFiltered);
 
         self::$twig->display('da/list.html.twig', [
             'data' => $dasFiltered,
@@ -99,6 +100,21 @@ class DaListeController extends Controller
                 }
             }
         }
+        self::$em->flush();
+    }
+
+    /** 
+     * Permet de calculer le nombre de jours restants pour chaque DAL
+     */
+    private function modificationDateRestant($dasFiltered)
+    {
+        foreach ($dasFiltered as $da) {
+            $this->ajoutNbrJourRestant($da->getDAL());
+            foreach ($da->getDAL() as $dal) {
+                self::$em->persist($dal);
+            }
+        }
+
         self::$em->flush();
     }
 
@@ -138,9 +154,6 @@ class DaListeController extends Controller
 
         return $das;
     }
-
-    
-
 
     private function ajoutInfoDit(array $datas): void
     {
