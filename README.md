@@ -17,6 +17,15 @@
 session.gc_maxlifetime = 3600
 
 ## à chaque deployement executé ceci
+
 ```Bash
 vendor/bin/doctrine orm:generate-proxies
+```
+
+## ajouter ceci si on vient de le deploier
+
+fichier config.js
+
+```Bash
+export const baseUrl = "/Hffintranet";
 ```
