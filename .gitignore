@@ -17,4 +17,4 @@ react-app
 .vscode
 composer.lock
 var
-/Views/js/utils/config.js
+Views/js/utils/config.js
