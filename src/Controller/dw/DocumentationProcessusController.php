@@ -39,10 +39,10 @@ class DocumentationProcessusController extends Controller
         $paginationData = self::$em->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
 
         self::$twig->display('dw/documentationInterne.html.twig', [
-            'form'        => $form->createView(),
-            'data'        => $paginationData['data'],
+            'form' => $form->createView(),
+            'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],
-            'totalPages'  => $paginationData['lastPage'],
+            'totalPages'    => $paginationData['lastPage'],
             'resultat'    => $paginationData['totalItems'],
             'criteria'    => $criteria,
         ]);
