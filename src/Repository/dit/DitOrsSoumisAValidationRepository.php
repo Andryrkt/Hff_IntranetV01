@@ -283,7 +283,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
      * @param string $numOr
      * @return void
      */
-    public function getblocageStatut(string $numOr): string
+    public function getblocageStatut(string $numOr, string $numDit): string
     {
         $qb = $this->createQueryBuilder('o');
 
@@ -291,7 +291,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $count = $qb
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
-            ->setParameter('numOr', $numOr)
+            ->andWhere('o.numeroDit = :numDit')
+            ->setParameters([
+                'numOr' => $numOr,
+                'numDit' => $numDit
+            ])
             ->getQuery()
             ->getSingleScalarResult();
 

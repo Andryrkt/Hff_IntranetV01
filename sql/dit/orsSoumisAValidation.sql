@@ -1,4 +1,5 @@
-CREATE TABLE ors_soumis_a_validation (
+CREATE TABLE ors_soumis_a_validation
+(
     id INT IDENTITY (1, 1),
     numeroOR VARCHAR(8),
     numeroItv INT,
@@ -15,7 +16,18 @@ CREATE TABLE ors_soumis_a_validation (
     heureSoumission VARCHAR(5) CONSTRAINT PK_ors_soumis_a_validation PRIMARY KEY (id)
 );
 
-CREATE TABLE type_document (
+ALTER TABLE ors_soumis_a_validation
+ADD numeroDIT VARCHAR(11);
+
+-- remplir la colonne numeroDIT avec les données de la table demande_intervention
+UPDATE ors_soumis_a_validation
+SET numeroDIT = di.numero_demande_dit
+FROM ors_soumis_a_validation
+    JOIN demande_intervention AS di
+    ON ors_soumis_a_validation.numeroOR = di.numero_or;
+
+CREATE TABLE type_document
+(
     id INT IDENTITY (1, 1),
     typeDocument VARCHAR(50),
     date_creation DATE,
@@ -25,7 +37,8 @@ CREATE TABLE type_document (
 
 ALTER TABLE type_document ADD libelle_document VARCHAR(255)
 
-CREATE TABLE type_operation (
+CREATE TABLE type_operation
+(
     id INT IDENTITY (1, 1),
     typeOperation VARCHAR(50),
     date_creation DATE,
@@ -33,7 +46,8 @@ CREATE TABLE type_operation (
     CONSTRAINT PK_type_operation PRIMARY KEY (id)
 );
 
-CREATE TABLE historique_operation_document (
+CREATE TABLE historique_operation_document
+(
     id INT IDENTITY (1, 1),
     numeroDocument VARCHAR(50),
     dateOperation DATETIME DEFAULT GETDATE (),
@@ -66,7 +80,7 @@ select
         END
     ) MONTANT_ITV,
 
-Sum(
+    Sum(
     CASE
         WHEN slor_typlig = 'P'
         AND slor_constp NOT like 'Z%'
@@ -79,7 +93,7 @@ Sum(
     END
 ) AS MONTANT_PIECE,
 
-Sum(
+    Sum(
     CASE
         WHEN slor_typlig = 'M' THEN slor_qterea
     END * CASE
@@ -88,7 +102,7 @@ Sum(
     END
 ) AS MONTANT_MO,
 
-Sum(
+    Sum(
     CASE
         WHEN slor_constp = 'ZST' THEN (
             slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
@@ -99,7 +113,7 @@ Sum(
     END
 ) AS MONTANT_ACHATS_LOCAUX,
 
-Sum(
+    Sum(
     CASE
         WHEN slor_constp <> 'ZST'
         AND slor_constp like 'Z%' THEN slor_qterea
@@ -109,7 +123,7 @@ Sum(
     END
 ) AS MONTANT_DIVERS,
 
-Sum(
+    Sum(
     CASE
         WHEN slor_typlig = 'P'
         AND slor_constp NOT like 'Z%'
@@ -129,7 +143,7 @@ WHERE
     AND sitv_numor = slor_numor
     AND sitv_interv = slor_nogrp / 100
 
-AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
+    AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
 --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
 --AND seor_numor IN (16406341,16406354)
 --AND SEOR_SUCC = '01'
@@ -150,14 +164,16 @@ ADD heure_creation TIME,
 heure_modification TIME;
 
 INSERT INTO
-    type_operation (
-        typeOperation,
-        date_creation,
-        heure_creation,
-        date_modification,
-        heure_modification
+    type_operation
+    (
+    typeOperation,
+    date_creation,
+    heure_creation,
+    date_modification,
+    heure_modification
     )
-VALUES (
+VALUES
+    (
         'SOUMISSION',
         CONVERT(DATE, GETDATE ()),
         CONVERT(TIME, GETDATE ()),
@@ -208,7 +224,8 @@ DROP CONSTRAINT DF__historiqu__dateO__345EC57D;
 
 ALTER TABLE historique_operation_document ADD heure_operation TIME
 
-CREATE TABLE or_soumis_validation_historique (
+CREATE TABLE or_soumis_validation_historique
+(
     orsSoumisAValidation_id INT,
     historique_Operation_Doc_id INT,
     CONSTRAINT PK_or_soumis_validation_historique PRIMARY KEY (

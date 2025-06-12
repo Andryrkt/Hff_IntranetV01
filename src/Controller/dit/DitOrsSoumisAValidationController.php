@@ -160,7 +160,7 @@ class DitOrsSoumisAValidationController extends Controller
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
 
         // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
-        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr);
+        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr, $numDit);
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
