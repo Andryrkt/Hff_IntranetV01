@@ -99,7 +99,7 @@ class CdefnrSoumisAValidationController extends Controller
     private function conditionDeBlockage(string $originalName, string $numCdeFournisseur): array
     {
         $statutCdeFrn = $this->cdeFnrRepository->findStatut($numCdeFournisseur);
-        $statut = ['Soumis à validation', 'Validé', 'en cours de validation', 'Refusé'];
+        $statut = ['Soumis à validation', 'Validé', 'A valider PM', 'Validation DG'];
         return [
             'nomFichier'      => !$this->verifierFormatFichier($originalName),
             'conditionStatut' => in_array($statutCdeFrn, $statut),
@@ -109,7 +109,7 @@ class CdefnrSoumisAValidationController extends Controller
     private function blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName): bool
     {
         if ($blockages['conditionStatut']) {
-            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ";
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ou valié par DG";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCdeFournisseur, 'profil_acceuil');
         } elseif ($blockages['nomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier '{$originalName}' soumis a été renommé";
