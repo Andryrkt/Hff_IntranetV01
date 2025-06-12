@@ -57,7 +57,10 @@
 				{% for item in data %}
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
-						{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+						{% if dal.demandeApproLR|length > 0 %}
+							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
+						{% endif %}
 						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
 
 						<tr>
