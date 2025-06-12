@@ -106,10 +106,12 @@ class DitDevisSoumisAValidationController extends Controller
         }
 
         $nbrPieceInformix = $this->ditDevisSoumisAValidationModel->recupNbrPieceMagasin($numDevis)[0]['nbligne'];
-        if ($nbrPieceInformix === null) {
-            $nbrPieceInformix = 0;
-        }
+        $nbrPieceInformix === null ? $nbrPieceInformix = 0 : $nbrPieceInformix;
         $nbrPieceSqlServ = $this->devisRepository->findNbrPieceMagasin($numDevis);
+
+        $montantINformix = $this->ditDevisSoumisAValidationModel->getMontantItv($numDevis)[0]['montant_itv'];
+        $montantINformix === null ? $montantINformix = 0 : $montantINformix;
+        $montantSqlServer = $this->devisRepository->findMontantItv($numDevis);
 
         $statutDevis = $this->devisRepository->findDernierStatutDevis($numDevis);
         $condition = [
@@ -126,13 +128,13 @@ class DitDevisSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
-        if($type === 'VP') {
+        if ($type === 'VP') {
             /** suite à la demande de mianta devis avec piece magasin mais pas de nouvelle ligne */
             // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il y a  de pièce magasin et pas de nouvelle ligne
             //     $message = " Merci de passer le devis à validation à l'atelier ";
             //     $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             // } else
-             if(in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) { // statut devi prix réfuseé magasin et pas de nouvelle ligne
+            if (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ && (abs((float)$montantINformix - (float)$montantSqlServer) < PHP_FLOAT_EPSILON)) { // statut devi prix réfuseé magasin, pas de nouvelle ligne et les montants ne change pas
                 $message = " Le prix a été déjà vérifié ... Veuillez soumettre à validation à l'atelier";
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index');
             } elseif ($nbSotrieMagasin[0]['nbr_sortie_magasin'] === "0") { // il n'y a pas de pièce magasin
