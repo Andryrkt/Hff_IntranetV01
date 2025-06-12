@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-	<link rel="stylesheet" href="/Hffintranet/Views/css/list.css">
-	<link rel="stylesheet" href="/Hffintranet/Views/css/dw/dw.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css">
 {% endblock %}
 
 {% block nav %}
@@ -34,7 +34,6 @@
 					</thead>
 					<tbody>
 						{% for item in data %}
-
 							{% set extension = item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower %}
 							{% set icon = '<i class="fas fa-file fs-4"></i>' %}
 							{% set icons = {
@@ -52,7 +51,7 @@
 
 							{% set numeroVersion = item.numero_version ? item.numero_version :'-'%}
 
-							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}">
+							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}" data-chemin="{{item.chemin}}">
 								<td>{{icon|raw}}</td>
 								<td>{{item.nomDoc}}</td>
 								<td>{{item.numero_doc}}</td>
@@ -88,4 +87,4 @@
 </div>
 
 
-<script src="/Hffintranet/Views/js/dw/dwIntervAteAvecDit.js" type="module"></script>{% endblock %}{% block javascript %}{% endblock %}
+<script src="{{ App.base_path }}/Views/js/dw/dwIntervAteAvecDit.js" type="module"></script>{% endblock %}{% block javascript %}{% endblock %}

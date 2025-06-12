@@ -93,29 +93,26 @@ label {
 }
 
 /* Overlay */
-#loading-overlay {
+#loading-overlays {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.7);
-  display: flex;
+  display: none; /* Assure que l'élément est caché au départ */
   flex-direction: column;
   row-gap: 20px;
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  visibility: visible; /* Overlay visible par défaut */
-  opacity: 1;
-  transition: visibility 0s, opacity 0.5s ease;
 }
 
 /* Caché : avec une transition */
-#loading-overlay.hidden {
+/* #loading-overlay.hidden {
   visibility: hidden;
   opacity: 0;
-}
+} */
 
 /* Spinner */
 /* .spinner-overlay {
@@ -139,34 +136,66 @@ label {
   font-size: large;
 }
 
-.spinner-overlay {
+.little-spinner-overlay,
+.little-spinner-overlay::after {
+  width: 25px;
+  height: 25px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after {
   width: 48px;
   height: 48px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after,
+.little-spinner-overlay,
+.little-spinner-overlay::after {
   border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.spinner-overlay,
+.little-spinner-overlay {
   display: inline-block;
   border-top: 4px solid #fff;
   border-right: 4px solid transparent;
-  box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
-.spinner-overlay::after {
+
+.spinner-overlay::after,
+.little-spinner-overlay::after {
   content: '';
-  box-sizing: border-box;
   position: absolute;
   left: 0;
   top: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
   border-left: 4px solid #d6a105;
   border-bottom: 4px solid transparent;
   animation: rotation 0.5s linear infinite reverse;
 }
+
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
   }
   100% {
     transform: rotate(360deg);
+  }
+}
+
+/* Animation pour un effet fluide */
+.toast.show {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

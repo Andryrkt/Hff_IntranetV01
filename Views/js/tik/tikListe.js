@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-service-emetteur',
       container: '#service-emetteur-container',
-      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      fetchUrl: (value) => `agence-fetch/${value}`,
       placeholder: ' -- Choisir un service -- ',
     },
     {
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-service-debiteur',
       container: '#service-debiteur-container',
-      fetchUrl: (value) => `/Hffintranet/agence-fetch/${value}`,
+      fetchUrl: (value) => `agence-fetch/${value}`,
       placeholder: ' -- Choisir un service -- ',
     },
     {
@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '.autres-categories',
       spinner: '#spinner-sous-categorie',
       container: '#sous-categorie-container',
-      fetchUrl: (value) => `/Hffintranet/api/sous-categorie-fetch/${value}`,
+      fetchUrl: (value) => `api/sous-categorie-fetch/${value}`,
       placeholder: ' -- Choisir une sous-catégorie -- ',
     },
     {
@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
       thirdInput: '',
       spinner: '#spinner-autres-categories',
       container: '#autres-categories-container',
-      fetchUrl: (value) => `/Hffintranet/api/autres-categorie-fetch/${value}`,
+      fetchUrl: (value) => `api/autres-categorie-fetch/${value}`,
       placeholder: ' -- Choisir une autre catégorie -- ',
     },
   ];
@@ -83,21 +83,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Sélection de toutes les cellules concernées
   document.querySelectorAll('.comment-link').forEach((link) => {
-    let originalText = link.innerHTML; // Texte original incluant les balises HTML comme <br>
+    let textTemp = link.innerHTML; // Texte original incluant les balises HTML comme <br>
 
     // Vérifier si le texte dépasse la limite
-    if (originalText.length > maxChars) {
+    if (textTemp.length > maxChars) {
       // Tronquer le texte à la limite de caractères
-      let truncatedText = originalText.substring(0, maxChars) + '...';
-
-      link.innerHTML = truncatedText;
-    } else {
-      const lineBreakIndex = originalText.indexOf('<br>');
-
-      // Si un retour à la ligne est trouvé, tronquer à ce point
-      if (lineBreakIndex !== -1) {
-        link.innerHTML = originalText.substring(0, lineBreakIndex) + '...';
-      }
+      textTemp = textTemp.substring(0, maxChars) + '...';
     }
+    const lineBreakIndex = textTemp.indexOf('&lt;'); // signe <
+    textTemp = textTemp.replace('&lt;', '');
+
+    // Si un retour à la ligne est trouvé, tronquer à ce point
+    if (lineBreakIndex !== -1) {
+      textTemp = textTemp.substring(0, lineBreakIndex) + '...';
+    }
+    link.innerHTML = textTemp;
   });
 });

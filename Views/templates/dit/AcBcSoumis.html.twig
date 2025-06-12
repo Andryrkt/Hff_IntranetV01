@@ -1,9 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-<link href="/Hffintranet/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
-<link href="/Hffintranet/Views/css/dit/acBcSoumis.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/dit/acBcSoumis.css" rel="stylesheet"/>
 {% endblock%}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -17,7 +17,7 @@
 					<div class="row">
 						<div class="col-12 col-md-11">
 							<h3 class="perso-titre">
-								SOUMISSION AC et BC
+								SOUMISSION BC
 							</h3>
 
 						</div>
@@ -30,14 +30,14 @@
 					<div class="row">
 						<div class="col-12 col-md-6">
 							<div class="row">
-								<div class="col-12 col-md-4">
+								<div class="col-12 col-md-3">
 									{{ form_row(form.dateCreation)}}
 									{{ form_errors(form.dateCreation)}}
 
 									{{ form_row(form.telephoneContactHff)}}
 									{{ form_errors(form.telephoneContactHff)}}
 								</div>
-								<div class="col-12 col-md-4">
+								<div class="col-12 col-md-5">
 									{{ form_row(form.numeroDevis)}}
 									{{ form_errors(form.numeroDevis)}}
 
@@ -133,5 +133,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="/Hffintranet/Views/js/dit/AcBcSoumis.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/AcBcSoumis.js"></script>
 {% endblock %}

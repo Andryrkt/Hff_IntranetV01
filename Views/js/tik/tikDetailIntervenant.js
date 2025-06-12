@@ -2,16 +2,12 @@ import { handleActionClick } from './tikFormHandler.js';
 
 import {
   validateField,
+  validateFieldDate,
   validateFormBeforeSubmit,
-  disableForm,
 } from '../utils/formUtils.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
-    disableForm('formTik');
-  } else {
-    handleActionClick('planifier');
-  }
+  handleActionClick('debut', 'formTik');
 
   // Boutons d'action
   const buttons = [
@@ -22,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   buttons.forEach(({ id, action }) => {
     const btn = document.querySelector(id);
-    btn?.addEventListener('click', () => handleActionClick(action));
+    btn?.addEventListener('click', () => handleActionClick(action, 'formTik'));
   });
 
   // champs Intervenant et Date de planning
@@ -32,10 +28,10 @@ document.addEventListener('DOMContentLoaded', function () {
   );
   const dateFinPlanning = document.querySelector('#detail_tik_dateFinPlanning');
 
-  const transfererBtn = document.getElementById('#btn_transferer');
+  const transfererBtn = document.getElementById('btn_transferer');
 
   // gestion du cas où l'intervenant n'est pas valide
-  tikIntervenant.addEventListener('change', () =>
+  tikIntervenant?.addEventListener('change', () =>
     validateField(
       true,
       tikIntervenant.value,
@@ -46,11 +42,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // gestion de cas où la date de planning est invalide
   [dateDebutPlanning, dateFinPlanning].forEach((date) => {
-    date.addEventListener('change', () =>
-      validateField(
+    date?.addEventListener('change', () =>
+      validateFieldDate(
         true,
         dateDebutPlanning.value,
-        (val) => new Date(val) <= new Date(dateFinPlanning.value),
+        dateFinPlanning.value,
         document.querySelector('.error-message-date')
       )
     );
@@ -60,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const myForm = document.getElementById('formTik');
 
   // Bloquer le formulaire si champ invalide
-  myForm.addEventListener('submit', (event) => {
+  myForm?.addEventListener('submit', (event) => {
     let buttonName = event.submitter.name;
     console.log(buttonName);
 
@@ -73,10 +69,10 @@ document.addEventListener('DOMContentLoaded', function () {
           document.querySelector('.error-message-intervenant')
         ),
       () =>
-        validateField(
+        validateFieldDate(
           buttonName === 'planifier',
           dateDebutPlanning.value,
-          (val) => new Date(val) <= new Date(dateFinPlanning.value),
+          dateFinPlanning.value,
           document.querySelector('.error-message-date')
         ),
     ]);

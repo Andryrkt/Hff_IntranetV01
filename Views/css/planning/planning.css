@@ -1,57 +1,56 @@
 .dossierDit:disabled {
-    background-color: #ccc; /* Couleur de fond grisée */
-    color: #666; /* Couleur du texte grisée */
-    border: 1px solid #aaa; /* Bordure grisée */
-    cursor: not-allowed; /* Curseur qui indique que l'action est impossible */
-    opacity: 0.7; /* Légèrement transparent pour un effet visuel */
+  background-color: #ccc; /* Couleur de fond grisée */
+  color: #666; /* Couleur du texte grisée */
+  border: 1px solid #aaa; /* Bordure grisée */
+  cursor: not-allowed; /* Curseur qui indique que l'action est impossible */
+  opacity: 0.7; /* Légèrement transparent pour un effet visuel */
 }
 
-
 .modal-dialog.custom-width {
-    max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+  max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
 }
 
 /* Conteneur pour l'en-tête fixe */
 .sticky-header-titre {
-    position: sticky;
-    top: 0; /* Fixe au sommet de la page */
-    z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
-    background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
-    padding-bottom: 10px;
-    /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
-  }
+  position: sticky;
+  top: 0; /* Fixe au sommet de la page */
+  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+  padding-bottom: 10px;
+  /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+}
 
-  .sticky-header-statut {
-    position: sticky;
-    top: 109px; /* Fixe au sommet de la page */
-    z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
-    background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
-    padding-bottom: 10px;
-    /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
-  }
-  
-  /* Conteneur pour rendre le tableau défilable */
-  .table-container {
-    max-height: 500px; /* Hauteur maximale du tableau */
-    overflow-y: auto; /* Défilement vertical */
-  }
-  
-  /* Style pour fixer l'en-tête du tableau */
-  .table-plein-ecran thead tr {
-    position: sticky;
-    top: 210px; /* Fixe en haut de la zone défilable */
-    z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
-    background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
-    color: white; /* Texte blanc pour correspondre au style "table-dark" */
-    padding: 10px;
-  }
-  .spinner-border {
-    width: 2rem;
-    height: 2rem;
-    margin: 10px auto;
-    display: block;
-  }
-  
-  .spinner-border.text-primary {
-    color: #ffee00;
-  }
+.sticky-header-statut {
+  position: sticky;
+  top: 109px; /* Fixe au sommet de la page */
+  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+  padding-bottom: 10px;
+  /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+}
+
+/* Conteneur pour rendre le tableau défilable */
+.table-container {
+  max-height: 500px; /* Hauteur maximale du tableau */
+  overflow-y: auto; /* Défilement vertical */
+}
+
+/* Style pour fixer l'en-tête du tableau */
+.table-plein-ecran thead tr {
+  position: sticky;
+  top: 210px; /* Fixe en haut de la zone défilable */
+  z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
+  background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
+  color: white; /* Texte blanc pour correspondre au style "table-dark" */
+  padding: 10px;
+}
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
+  margin: 10px auto;
+  display: block;
+}
+
+.spinner-border.text-primary {
+  color: #ffee00;
+}

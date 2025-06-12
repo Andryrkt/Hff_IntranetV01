@@ -6,16 +6,35 @@ use Doctrine\ORM\EntityRepository;
 
 class CdefnrSoumisAValidationRepository extends EntityRepository 
 {
-    public function findNumeroVersionMax($numCde)
+    public function findNumeroVersionMax(string $numCde)
     {
-        $numeroVersionMax = $this->createQueryBuilder('cfr')
-            ->select('MAX(cfr.numVersion)')
-            ->where('cfr.numCdeFournisseur = :numCdeFournisseur')
+        $numeroVersionMax = $this->createQueryBuilder('cde')
+            ->select('MAX(cde.numVersion)')
+            ->where('cde.numCdeFournisseur = :numCdeFournisseur')
             ->setParameter('numCdeFournisseur', $numCde)
             ->getQuery()
             ->getSingleScalarResult(); 
     
         return $numeroVersionMax;
+    }
+
+    public function findStatut(string $numCde): ?string
+    {
+        try {
+            return $this->createQueryBuilder('cde')
+                ->select('cde.statut')
+                ->where('cde.numCdeFournisseur = :numCdeFournisseur')
+                ->andWhere('cde.numVersion = (
+                    SELECT MAX(cde2.numVersion) 
+                    FROM App\Entity\cde\CdefnrSoumisAValidation cde2 
+                    WHERE cde2.numCdeFournisseur = :numCdeFournisseur
+                )')
+                ->setParameter('numCdeFournisseur', $numCde)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException|\Doctrine\ORM\NonUniqueResultException $e) {
+            return null;
+        }
     }
 
     /**
@@ -24,7 +43,7 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
      * @param string $numeroFournisseur
      * @return void
      */
-    public function findNumCommandeValideNonAnnuler(string $numeroFournisseur)
+   public function findNumCommandeValideNonAnnuler(string $numeroFournisseur, int $typeId, array $excludedCommands = [])
     {
         $qb = $this->createQueryBuilder('cfr');
 
@@ -35,16 +54,20 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->andWhere('sub.codeFournisseur = :numFrn')
             ->getDQL();
 
-        return $qb->select('cfr.numCdeFournisseur')
+        $qb->select('cfr.numCdeFournisseur')
             ->where('cfr.codeFournisseur = :numFrn')
             ->andWhere('cfr.numVersion = (' . $subQuery . ')')
             ->andWhere('cfr.statut = :statut')
-            ->setParameters([
-                'numFrn' => $numeroFournisseur,
-                'statut' => 'Validé',
-            ])
-            ->getQuery()
-            ->getSingleColumnResult();
-    }
+            ->andWhere('cfr.estFacture = :fac')
+            ->setParameter('numFrn', $numeroFournisseur)
+            ->setParameter('statut', 'Validé')
+            ->setParameter('fac', $typeId == 2 ? 1 : 0);
 
+        if (!empty($excludedCommands)) {
+            $qb->andWhere($qb->expr()->notIn('cfr.numCdeFournisseur', ':excluded'))
+            ->setParameter('excluded', $excludedCommands);
+        }
+
+        return $qb->getQuery()->getSingleColumnResult();
+    }
 }

@@ -42,7 +42,7 @@ class DitCdeSoumisAValidationController extends Controller
     private function enregistrementFichier($form)
     {
         $file = $form->get('pieceJoint01')->getData();
-        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/cde';
+        $chemin = $_ENV['BASE_PATH_FICHIER'].'/cde';
         $fileUploader = new FileUploaderService($chemin);
         if ($file) {
             $prefix = 'cde_';

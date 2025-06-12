@@ -45,7 +45,7 @@ class Societte
     private $demandeInterventions;
 
     /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes")
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes", orphanRemoval=true)
      */
     private $users;
 

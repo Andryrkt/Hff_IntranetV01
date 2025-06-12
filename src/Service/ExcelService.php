@@ -31,7 +31,35 @@ class ExcelService
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="donnees.xlsx"');
         $writer = new Xlsx($spreadsheet);
-            $writer->save('php://output');
+        $writer->save('php://output');
+    }
+
+    public function createSpreadsheetEnregistrer(array $data, string $filePath)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Ajouter des données
+        foreach ($data as $rowIndex => $row) {
+            foreach ($row as $colIndex => $value) {
+                $sheet->setCellValueByColumnAndRow($colIndex + 1, $rowIndex + 1, $value);
+            }
+        }
+
+        // Définir le chemin et nom du fichier à enregistrer
+        // $filename = 'donnees_' . date('Ymd_His') . '.xlsx';
+        // $filePath = __DIR__ . '/exports/' . $filename; // Assure-toi que le dossier 'exports/' existe et est accessible en écriture
+
+        // Créer le dossier si nécessaire
+        if (!file_exists(dirname($filePath))) {
+            mkdir(dirname($filePath), 0777, true);
+        }
+
+        // Sauvegarder le fichier sur le disque
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($filePath);
+
+        return $filePath; // Tu peux retourner le chemin pour le réutiliser (par ex. pour un lien de téléchargement)
     }
 
     public function createSpreadsheetMode(array $data, $startCell = 'A1')
@@ -42,7 +70,7 @@ class ExcelService
         // Initialiser l'index de ligne et de colonne
         [$startColumn, $startRow] = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::coordinateFromString($startCell);
         $startColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($startColumn);
-        
+
         // Ajouter des données en partant de la cellule spécifique
         foreach ($data as $rowIndex => $row) {
             foreach ($row as $colIndex => $value) {

@@ -1,7 +1,246 @@
+/* Overlay */
+#loading-spinner-overlay {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  row-gap: 20px;
+  z-index: 9999;
+  visibility: visible; /* Overlay visible par défaut */
+  opacity: 1;
+  transition: visibility 0s, opacity 0.5s ease;
+}
+
+.bouton {
+  background-color: #fbbb01;
+  color: black;
+  font-weight: bold;
+  padding: 10px 20px; /* Ajout d'un peu de padding pour un meilleur visuel */
+  border: none; /* Optionnel : pour retirer une bordure si tu en as une */
+  cursor: pointer; /* Optionnel : change le curseur pour indiquer que c'est un bouton */
+  transition: background-color 0.3s, transform 0.2s; /* Ajout d'une transition douce */
+}
+
+.bouton:hover {
+  background-color: #fdcb4d; /* Change la couleur de fond au survol */
+  transform: scale(1.05); /* Légère augmentation de la taille du bouton */
+}
+
+.enteteAccordion {
+  background-color: #fbbb01 !important;
+  color: #212529 !important;
+  font-size: 0.75rem !important;
+}
+
+.position-sticky.sticky-header {
+  z-index: 2;
+  background-color: #f8f9fa;
+  top: 0;
+}
+
+.fc a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.fc-button {
+  cursor: pointer;
+}
+
+.fc-col-header-cell-cushion {
+  font-size: medium;
+  text-transform: capitalize;
+}
+
+.fc-toolbar-title {
+  text-transform: capitalize;
+  font-weight: bold;
+  font-size: 2rem !important;
+}
+
+/* Style global pour FullCalendar */
+.fc {
+  font-family: 'Arial', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Animation du spinner */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Global styling */
 #calendar {
-    margin: 20px auto;
-    padding: 20px;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff; /* Fond blanc */
+  color: #212529; /* Texte sombre (presque noir) */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  padding: 30px;
+  width: 90%; /* Limite la largeur */
+  margin: 30px auto;
+}
+
+.fc-prev-button,
+.fc-next-button,
+.fc-today-button {
+  background-color: #212529; /* Boutons sombres */
+  color: #fff; /* Texte blanc */
+  border-radius: 5px;
+}
+
+.fc-prev-button:hover,
+.fc-next-button:hover,
+.fc-today-button:hover {
+  background-color: #fadf8e; /* Changement de couleur au survol */
+  color: #212529; /* Texte sombre */
+}
+
+/* Title (month/year) */
+.fc-header-title {
+  color: #016801;
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #fff; /* Titre en blanc */
+}
+
+/* Day grid month view (dayGridMonth) */
+.fc-day-header {
+  background-color: #212529; /* Fond sombre pour les entêtes de jours */
+  color: #fff; /* Texte blanc */
+  font-size: 1.1em;
+  text-transform: uppercase; /* Mettre en majuscule les jours */
+  padding: 10px 0;
+}
+
+.fc-day {
+  background-color: #fff;
+  border: 1px solid #ddd; /* Légères bordures */
+  color: #212529; /* Texte sombre */
+  cursor: pointer;
+}
+
+.fc-day-number {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.fc-daygrid-event-harness {
+  cursor: pointer;
+}
+
+tbody .fc-day:hover {
+  background-color: #ffdc2826; /* Fond jaune poussin au survol */
+  color: #212529; /* Texte sombre */
+}
+
+/* Event styles */
+.fc-event {
+  background-color: #fbbb01; /* Couleur des événements */
+  color: #212529; /* Texte sombre pour les événements */
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 0.9em;
+}
+
+.fc-timegrid-event-harness .fc-event.planning-ticket,
+.fc-daygrid-event-harness .fc-event.planning-ticket {
+  color: #212529;
+  background-color: #009b00;
+  border-color: #016801;
+}
+
+.fc-timegrid-event-harness .fc-event.planning-ticket:hover,
+.fc-daygrid-event-harness .fc-event.planning-ticket:hover {
+  color: #14191f;
+  background-color: #00b600;
+}
+
+.fc-event:hover {
+  background-color: #e0a800; /* Changement de fond au survol */
+  color: #fff; /* Texte blanc au survol */
+}
+
+.fc-event:hover .fc-list-event-time {
+  color: #212529;
+}
+
+/* Time grid views (timeGridWeek, timeGridDay) */
+.fc-time-grid .fc-slot {
+  background-color: #f7f7f7; /* Fond légèrement gris pour les créneaux horaires */
+  border-top: 1px solid #ddd; /* Ligne de séparation */
+}
+
+.fc-time-grid .fc-time {
+  color: #888; /* Couleur douce pour l'heure */
+}
+
+/* List view (listMonth) */
+.fc-list-view {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.fc-list-event {
+  border-left: 5px solid #fbbb01; /* Bande jaune pour chaque événement */
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+.fc-list-event:hover {
+  background-color: #f7f7f7; /* Fond légèrement plus clair au survol */
+}
+
+.fc-list-event-title {
+  font-weight: bold;
+  color: #212529; /* Titre de l'événement sombre */
+}
+
+/* Today’s date highlight */
+.fc-today {
+  background-color: #fbbb01; /* Fond jaune pour aujourd'hui */
+  color: #212529; /* Texte sombre */
+  font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #calendar {
+    width: 95%; /* Prendre plus de place sur les petits écrans */
+  }
+
+  .fc-header-toolbar {
+    padding: 8px;
+  }
+
+  .fc-header-title {
+    font-size: 1.2em;
+  }
+
+  .fc-day-number {
+    font-size: 1em;
+  }
 }

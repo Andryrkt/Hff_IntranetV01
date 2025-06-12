@@ -1,3 +1,10 @@
+import { baseUrl } from "./utils/config";
+
+import { FetchManager } from "./api/FetchManager";
+import { afficherToast } from "./utils/toastUtils";
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 // const loader = document.querySelector(".loader");
 
 // window.addEventListener("load", () => {
@@ -13,7 +20,7 @@ const chronoText = document.getElementById("chrono-text");
 const chronoContainer = document.querySelector(".chrono-container");
 const chronoProgress = document.querySelector(".chrono-progress");
 
-if (location.pathname === "/Hffintranet/") {
+if (location.pathname === `${baseUrl}/`) {
   chronoContainer.classList.add("d-none");
 }
 
@@ -49,7 +56,9 @@ function updateChrono() {
   // Rediriger à la fin
   if (timeRemaining <= 0) {
     clearInterval(timer);
-    window.location.href = "/Hffintranet/logout";
+    window.location.href = `${baseUrl}/logout`;
+  } else if (timeRemaining <= 15) {
+    afficherToast("erreur", `Votre session va expiré dans ${timeRemaining} s.`);
   }
 }
 
@@ -73,7 +82,7 @@ function resetTimeout() {
 
   // Définir un nouveau timeout pour la déconnexion
   timeout = setTimeout(function () {
-    window.location.href = "/Hffintranet/logout"; // URL de déconnexion
+    window.location.href = `${baseUrl}/logout`; // URL de déconnexion
   }, 900000); // 15 minutes
 }
 
@@ -101,7 +110,7 @@ function checkSessionExpiration() {
   const now = Date.now();
 
   if (lastActive && now - lastActive > 900000) {
-    window.location.href = "/Hffintranet/logout"; // Rediriger vers la déconnexion
+    window.location.href = `${baseUrl}/logout`; // Rediriger vers la déconnexion
   }
 }
 
@@ -141,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 /**
- * POUR LE TOOLTIP
+ * modal pour la déconnexion
  */
 document.addEventListener("DOMContentLoaded", function () {
   var tooltipTriggerList = [].slice.call(
@@ -152,19 +161,20 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-/**
+/** ====================================
  * MODAL TYPE DE DEMANDE Paiement
- */
+ *=======================================*/
 
 document.addEventListener("DOMContentLoaded", function () {
-  document
-    .getElementById("modalTypeDemande")
-    .addEventListener("click", function (event) {
+  const modalTypeDemande = document.getElementById("modalTypeDemande");
+  if (modalTypeDemande) {
+    modalTypeDemande.addEventListener("click", function (event) {
       event.preventDefault();
-      const overlay = document.getElementById("loading-overlay");
+      const overlay = document.getElementById("loading-overlays");
       overlay.classList.remove("hidden");
-      fetch("/Hffintranet/api/form-type-demande") // L'URL de votre route Symfony
-        .then((response) => response.text())
+      const url = "api/form-type-demande"; // L'URL de votre route Symfony
+      fetchManager
+        .get(url, "text")
         .then((html) => {
           document.getElementById("modalContent").innerHTML = html;
           new bootstrap.Modal(document.getElementById("formModal")).show();
@@ -190,32 +200,10 @@ document.addEventListener("DOMContentLoaded", function () {
               });
 
               if (jsonData.typeDemande === "1") {
-                window.location.href = `/Hffintranet/demande-paiement/${jsonData.typeDemande}`;
+                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
               } else if (jsonData.typeDemande === "2") {
-                window.location.href = `/Hffintranet/demande-paiement/${jsonData.typeDemande}`;
+                window.location.href = `${baseUrl}/demande-paiement/${jsonData.typeDemande}`;
               }
-
-              // fetch("/Hffintranet/form-type-demande", {
-              //   method: "POST",
-              //   headers: {
-              //     "Content-Type": "application/json",
-              //     "X-Requested-With": "XMLHttpRequest", // Indiquer à Symfony que c'est une requête AJAX
-              //   },
-              //   body: JSON.stringify(jsonData),
-              // })
-              //   .then((response) => response.json())
-              //   .then((data) => {
-              //     console.log(data);
-
-              //     if (data.redirect_url) {
-              //       window.location.href = data.redirect_url; // Redirection vers l'URL donnée par le backend
-              //     } else {
-              //       alert("Aucune redirection spécifiée.");
-              //     }
-              //   })
-              //   .catch((error) =>
-              //     console.error("Erreur lors de la soumission:", error)
-              //   );
             });
         })
         .catch((error) =>
@@ -225,6 +213,7 @@ document.addEventListener("DOMContentLoaded", function () {
           overlay.classList.add("hidden");
         });
     });
+  }
 });
 
 /** OVERLAY */

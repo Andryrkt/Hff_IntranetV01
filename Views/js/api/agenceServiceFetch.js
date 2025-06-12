@@ -1,9 +1,9 @@
-import { FetchManager } from "./FetchManager.js";
-import { updateServiceOptions } from "../utils/ui/uiAgenceServiceUtils.js";
-import { toggleSpinner } from "../utils/ui/uiSpinnerUtils.js";
+import { FetchManager } from './FetchManager.js';
+import { updateServiceOptions } from '../utils/ui/uiAgenceServiceUtils.js';
+import { toggleSpinner } from '../utils/ui/uiSpinnerUtils.js';
 
 // Instanciation de FetchManager avec la base URL
-const fetchManager = new FetchManager("/Hffintranet");
+const fetchManager = new FetchManager();
 
 /**
  * Fonction pour récupérer les données de l'agence et mettre à jour les options de service.
@@ -27,6 +27,6 @@ export function fetchDataAgenceService(
       console.log(services);
       updateServiceOptions(services, serviceInput);
     })
-    .catch((error) => console.error("Error:", error))
+    .catch((error) => console.error('Error:', error))
     .finally(() => toggleSpinner(spinner, container, false));
 }

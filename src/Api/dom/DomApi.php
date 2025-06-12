@@ -2,21 +2,24 @@
 
 namespace App\Api\dom;
 
+use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Controller\Controller;
+use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\mutation\Mutation;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DomApi extends Controller
 {
     use FormatageTrait;
-    
+
     /**
      * @Route("/categorie-fetch/{id}", name="fetch_categorie", methods={"GET"})
      * 
@@ -26,29 +29,30 @@ class DomApi extends Controller
      * @return void
      */
     public function categoriefetch(int $id)
-    {   $this->SessionStart();
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($_SESSION['user']);
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $_SESSION['user']);
+    {
+        $userId = $this->sessionService->get('user_id');
+        $user = self::$em->getRepository(User::class)->find($userId);
+
         $sousTypedocument = self::$em->getRepository(SousTypeDocument::class)->find($id);
-        if($CodeServiceofCours[0]['agence_ips'] === '50'){
+
+        if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-        
         } else {
             $rmq = self::$em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
         }
-    
+
         $criteria = [
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq
         ];
 
-        
+
         $catg = self::$em->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
 
 
         header("Content-type:application/json");
 
-        echo json_encode($catg);
+        echo json_encode($catg);;
     }
 
 
@@ -71,13 +75,14 @@ class DomApi extends Controller
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
-    public function agence($id) {
+    public function agence($id)
+    {
         $agence = self::$em->getRepository(Agence::class)->find($id);
-    
+
         $service = $agence->getServices();
 
         //   $services = $service->getValues();
-            $services = [];
+        $services = [];
         foreach ($service as $key => $value) {
             $services[] = [
                 'value' => $value->getId(),
@@ -112,7 +117,7 @@ class DomApi extends Controller
         $montant = self::$em->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
 
         $montant = $this->formatNumber($montant);
- 
+
         header("Content-type:application/json");
 
         echo json_encode(['montant' => $montant]);
@@ -124,11 +129,13 @@ class DomApi extends Controller
      * @param [type] $matricule
      * @return void
      */
-    public function personnelFetch($matricule){
+    public function personnelFetch($matricule)
+    {
         $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
-        
+        $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
+            'telephone' => $numTel
         ];
 
         header("Content-type:application/json");

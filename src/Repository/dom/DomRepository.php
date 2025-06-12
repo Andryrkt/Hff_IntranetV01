@@ -8,7 +8,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DomRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch , array $options)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -69,10 +69,10 @@ class DomRepository extends EntityRepository
 
         if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
-           $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-           $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                           ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-       } 
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        }
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
@@ -92,7 +92,7 @@ class DomRepository extends EntityRepository
         ];
     }
 
-    public function findAndFilteredExcel( $domSearch, array $options)
+    public function findAndFilteredExcel($domSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -150,22 +150,22 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
-        
+
         if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
-           $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
-           $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                           ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-       } 
+            $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
+            $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        }
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC');
-            
+
 
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function findPaginatedAndFilteredAnnuler(int $page = 1, int $limit = 10, DomSearch $domSearch , array $options)
+    public function findPaginatedAndFilteredAnnuler(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options)
     {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.sousTypeDocument', 'td')
@@ -225,13 +225,13 @@ class DomRepository extends EntityRepository
 
 
         if (!$options['boolean']) {
-             //ceci est figer pour les utilisateur autre que l'administrateur
+            //ceci est figer pour les utilisateur autre que l'administrateur
             $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
             $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
-        } 
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+        }
 
-        
+
 
         // Ordre et pagination
         $queryBuilder->orderBy('d.numeroOrdreMission', 'DESC')
@@ -270,5 +270,4 @@ class DomRepository extends EntityRepository
 
         return $numTel;
     }
-
 }

@@ -5,6 +5,8 @@ namespace App\Controller\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -36,10 +38,14 @@ class ModificationTikController extends Controller
         $serviceRepository = self::$em->getRepository(Service::class);
         $agenceEmetteur = $agenceRepository->find($supportInfo->getAgenceEmetteurId())->getCodeAgence() . ' ' . $agenceRepository->find($supportInfo->getAgenceEmetteurId())->getLibelleAgence();
         $serviceEmetteur = $serviceRepository->find($supportInfo->getServiceEmetteurId())->getCodeService() . ' ' . $serviceRepository->find($supportInfo->getServiceEmetteurId())->getLibelleService();
-        $supportInfo->setAgenceEmetteur($agenceEmetteur);
-        $supportInfo->setServiceEmetteur($serviceEmetteur);
-        $supportInfo->setAgence($agenceRepository->find($supportInfo->getAgenceDebiteurId()));
-        $supportInfo->setService($serviceRepository->find($supportInfo->getServiceDebiteurId()));
+        $statutOuvert = self::$em->getRepository(StatutDemande::class)->find('58');
+        $supportInfo
+            ->setAgenceEmetteur($agenceEmetteur)
+            ->setServiceEmetteur($serviceEmetteur)
+            ->setAgence($agenceRepository->find($supportInfo->getAgenceDebiteurId()))
+            ->setService($serviceRepository->find($supportInfo->getServiceDebiteurId()))
+            ->setIdStatutDemande($statutOuvert)
+        ;
 
         //fichier
         $fichiers = $supportInfo->getFileNames();
@@ -53,6 +59,8 @@ class ModificationTikController extends Controller
             //envoi les donnée dans la base de donnée
             self::$em->persist($supportInfo);
             self::$em->flush();
+
+            $this->historiqueStatut($supportInfo, $statutOuvert);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
@@ -95,5 +103,17 @@ class ModificationTikController extends Controller
         }
 
         return false;
+    }
+
+    private function historiqueStatut($supportInfo, $statut)
+    {
+        $tikStatut = new TkiStatutTicketInformatique();
+        $tikStatut
+            ->setNumeroTicket($supportInfo->getNumeroTicket())
+            ->setCodeStatut($statut->getCodeStatut())
+            ->setIdStatutDemande($statut)
+        ;
+        self::$em->persist($tikStatut);
+        self::$em->flush();
     }
 }

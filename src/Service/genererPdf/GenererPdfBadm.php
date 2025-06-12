@@ -2,8 +2,9 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Traits\FormatageTrait;
 use TCPDF;
+use App\Service\GlobalVariablesService;
+use App\Controller\Traits\FormatageTrait;
 
 class GenererPdfBadm extends GeneratePdf
 {
@@ -23,7 +24,7 @@ class GenererPdfBadm extends GeneratePdf
 
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
-        $logoPath = $_SERVER['DOCUMENT_ROOT'] . '/Hffintranet/Views/assets/henrifraise.jpg';
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henrifraise.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
         //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -280,7 +281,7 @@ class GenererPdfBadm extends GeneratePdf
         //     $this->AjoutImage($pdf, $tab);
         // }
 
-        $Dossier = $_SERVER['DOCUMENT_ROOT'] . '/Upload/bdm/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
 
         //$pdf->Output('exemple.pdf', 'I');

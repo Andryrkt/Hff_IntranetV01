@@ -1,0 +1,72 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets%}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/ddp/demandePaiement.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/ddp/dossierRegul.css" rel="stylesheet"/>
+
+{% endblock %}
+{% import "macroForm.html.twig" as macroForm %}
+{% block content %}
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12 col-md-6">
+                <div class="row">
+					<div class="col-12 col-md-11">
+						<h3 class="perso-titre">
+								Formulaire de Dossier de régularisation
+						</h3>
+					</div>
+
+					<div class=" col-12 col-md-1">
+						<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning" style="text-decoration: none;color:black">Retour</a>
+					</div>
+				</div>
+				{{ form_start(form, {'attr': {'id': 'myForm'}}) }}
+				{{ form_errors(form)}}
+					<div class="col-12 col-md-4">
+								<p>Veuillez insérer
+									<strong>le contrôle livraison</strong>
+								</p>
+							{% include '/partials/_dropZoneFile.html.twig' with { 'id': '1','form': form, 'fieldName': 'pieceJoint01'} %}
+						</div>
+					<div class="d-flex justify-content-end">
+										<button type="submit" class="btn bouton mt-2 ajout-overlay" data-confirmation data-form="#myForm" data-confirmation-message="Confirmez-vous l'envoi ?" data-confirmation-text="Vous êtes en train de soumettre une demande de paiement à validation dans DocuWare" data-warning-message="Merci de ne pas fermer la page pendant le traitement.">
+											<i class="fas fa-save"></i>
+											Enregistrer
+										</button>
+					</div>
+				{{ form_end(form) }}
+
+                <div class="row">
+					<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
+						<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+					</div>
+				</div>
+			</div>
+
+            <div class="col-12 col-md-6">
+           <div class="tabs">
+                {% for dossier, docs in groupes %}
+                    <button class="{{ loop.first ? 'active' : '' }}" data-tab="tab{{ loop.index }}">{{ dossier }}</button>
+                {% endfor %}
+            </div>
+
+            {% for dossier, docs in groupes %}
+			
+                <div id="tab{{ loop.index }}" class="tab-content {{ loop.first ? 'active' : '' }}">
+                    {% for doc in docs %}
+                    <h3>{{doc.nomFichier}}</h3>
+                        <iframe src="{{ '/Upload_PRE_PROD/ddp/' ~ doc.numeroDdp ~ '_Regul/' ~ doc.nomDossier ~ '/' ~ doc.nomFichier }}" frameborder="0"></iframe>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+		</div>
+	</div>
+
+
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/ddp/ddpDossierRegul.js"></script>
+{% endblock %}

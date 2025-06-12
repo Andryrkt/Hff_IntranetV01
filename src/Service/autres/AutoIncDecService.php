@@ -14,8 +14,8 @@ class AutoIncDecService
     {
         $this->em = Controller::getEntity();
     }
-    
-     /**
+
+    /**
      * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
      */
     protected function autoINcriment(string $nomDemande)
@@ -26,7 +26,7 @@ class AutoIncDecService
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-        
+
         $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
 
         //var_dump($Max_Num);
@@ -51,7 +51,7 @@ class AutoIncDecService
 
         return $Result_Num;
     }
-    
+
     /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
      *
@@ -67,9 +67,9 @@ class AutoIncDecService
         $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
-       
-            //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
-            
+
+        //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
+
         if ($nomDemande === 'DIT') {
             $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
         } else {

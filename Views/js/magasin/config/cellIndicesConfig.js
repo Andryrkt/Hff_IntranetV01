@@ -41,3 +41,25 @@ export const cellIndicesCisALivrer = {
   agServDebit: 7, // Agences et service debiteur
   interventionNumber: 8, // N° Intv
 };
+
+export const cellIndicesListePlanning = {
+  agenceService: 0,
+  marque: 1,
+  model: 2,
+  id: 3,
+  numSerie: 4,
+  numParc: 5,
+  casier: 6,
+  commentaire: 7,
+  orItv: 8,
+};
+
+export const cellIndicesLcfng = {
+  docNumber: 1, // N° DOC
+  docDate:2, // Date du doc
+  docType: 3, // Type de doc
+  ditNumber: 4, // N° DIT
+  agServEmet: 5, //Agence et service emeteur
+  agServDebit: 6, // Agences et service debiteur
+  interventionNumber: 7, // N° Intv
+};

@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/dom/secondForm.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block content %}
@@ -236,5 +236,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="/Hffintranet/Views/js/dom/secondForm.js"></script>
+	<script src="{{ App.base_path }}/Views/js/dom/secondForm.js" type="module"></script>
 {% endblock %}

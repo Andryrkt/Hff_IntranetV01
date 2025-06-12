@@ -1,3 +1,8 @@
+import { FetchManager } from "../api/FetchManager";
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 document.addEventListener("DOMContentLoaded", (event) => {
   /**
    *  changer le service destinataire et le casier destiantaire
@@ -15,9 +20,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const agenceDebiteur = agenceDebiteurInput.value;
 
     //MISE EN PLACE DU SERVICE DESTINATAIRE
-    let url = `/Hffintranet/service-fetch/${agenceDebiteur}`;
-    fetch(url)
-      .then((response) => response.json())
+    let url = `service-fetch/${agenceDebiteur}`;
+    fetchManager
+      .get(url)
       .then((services) => {
         console.log(services);
         serviceDebiteurInput.disabled = false;
@@ -44,9 +49,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .catch((error) => console.error("Error:", error));
 
     //MISE EN PLACE DU CASIER DESTINATAIRE
-    let urlCasier = `/Hffintranet/casier-fetch/${agenceDebiteur}`;
-    fetch(urlCasier)
-      .then((response) => response.json())
+    let urlCasier = `casier-fetch/${agenceDebiteur}`;
+    fetchManager
+      .get(urlCasier)
       .then((casiers) => {
         console.log(casiers);
 

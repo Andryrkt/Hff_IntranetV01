@@ -22,7 +22,7 @@
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
 						{{ form_widget(form.niveauUrgence) }}
 						{{ form_row(form.statut) }}
-						{{ form_row(form.nomIntervenant) }}
+						{{ form_row(form.nomIntervenant, { attr: { disabled: not autorisation.autoriserIntervenant and not autorisation.autoriserValidateur }}) }}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebut) }}

@@ -1,7 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link href="/Hffintranet/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
+<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
 {% endblock%}
 
 {% import "macroForm.html.twig" as formMacro %}
@@ -129,5 +129,5 @@
 
 
     {% block javascript %}
-    <script type="module" src="/Hffintranet/Views/js/badm/secondForm.js"></script>
+    <script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js"></script>
     {% endblock %}

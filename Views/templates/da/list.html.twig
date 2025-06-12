@@ -1,0 +1,111 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+{% endblock %}
+
+{% import "macroForm.html.twig" as form %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+
+	<div class="container mb-3">
+		<h3 class="perso-titre">
+			Liste des demandes d'achat
+		</h3>
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+	</div>
+
+	{# Statut de la DA #}
+	{% set styleStatut = {
+		'OR non validé': 'bg-or-non-valide fw-bold',
+		'Demande d’achats': 'bg-demande-achat fw-bold',
+		'Proposition achats': 'bg-proposition-achat fw-bold',
+		'Bon d’achats validé': 'bg-bon-achat-valide fw-bold',
+	} %}
+
+	<div class="container-fluid">
+		<table class="table table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th class="text-center">N° Demande</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Demandeur</th>
+					<th class="text-center">Date de demande</th>
+					<th class="text-center">Statut</th>
+					<th>Famille</th>
+					<th>Sous-famille</th>
+					{% if not serviceAtelier %}
+					<th>Réference</th>
+					{% endif %}
+					<th>Désignation</th>
+					<th class="text-center">Fiche technique</th>
+					<th class="text-center">Qté dem</th>
+					<th class="text-center">Nbr Frn assigné</th>
+					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Nbr Jour(s) dispo</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in data %}
+					{% for dal in item.DAL %}
+						<tr>
+							<td>
+								{# {% if serviceAppro %} #}
+								{# {{ item.numeroDemandeAppro }} #}
+								{# {% else %} #}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+								</a>
+								{# {% endif %} #}
+							</td>
+							<td>{{ item.numeroDemandeDit }}</td>
+							<td>{{ item.demandeur }}</td>
+							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
+							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="text-start">{{ dal.artFams1 ?? '-' }}</td>
+							<td class="text-start">{{ dal.artFams2 ?? '-' }}</td>
+							{% if not serviceAtelier %}
+								{% if dal.estModifier %}
+									<td class="text-start">{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
+								{% else %}
+									<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
+								{% endif %}
+							{% endif %}
+							<td class="text-start">
+								{% if dal.statutDal == 'Bon d’achats validé' or (serviceAppro and (dal.statutDal == 'Proposition achats' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'Demande d’achats')%}
+									{{ dal.artDesi }}
+								{% else %}
+									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
+										{{ dal.artDesi }}
+									</a>
+								{% endif %}
+
+							</td>
+							{% set ficheTechnique = dal.estFicheTechnique ? 'OUI' : 'NON' %}
+							<td class="text-center">
+								<input type="checkbox" disabled="disabled" class="form-check-input" {% if dal.estFicheTechnique %} checked {% endif %}>
+							</td>
+							<td class="text-center">{{ dal.qteDem }}</td>
+							<td class="text-center">0</td>
+							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
+						</tr>
+					{% endfor %}
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+{% endblock %}

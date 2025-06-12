@@ -17,7 +17,8 @@ class  DocDansDwType extends AbstractType
         'OR' => 'OR',
         'RI' => 'RI',
         'FACTURE' => 'FACTURE',
-        'DEVIS' => 'DEVIS',
+        'DEVIS - Vérification de prix' => 'DEVIS-VP',
+        'DEVIS - Validation atelier' => 'DEVIS-VA',
         'BC' => 'BC'
     ];
 

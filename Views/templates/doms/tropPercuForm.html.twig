@@ -1,0 +1,239 @@
+{% extends "baseTemplate.html.twig" %}
+
+
+{% block title %}
+	Fiche Ordre
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+
+
+	<div class="container mb-4">
+		<div class="card p-2">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-12 col-md-11">
+						<h3 class="perso-titre">Nouvelle demande d'ordre de mission</h3>
+					</div>
+					<div class="col-12 col-md-1">
+						<div class="tablinks p-2 btn btn-outline-warning ">
+							<a href="{{ path("dom_first_form")}}" style="text-decoration: none;color:black; font-weight: bold;">Retour</a>
+						</div>
+					</div>
+				</div>
+
+				<input type="hidden" id="oldDateDebut" value="{{criteria.oldDateDebut}}">
+				<input type="hidden" id="oldDateFin" value="{{criteria.oldDateFin}}">
+				<input type="hidden" id="oldNombreJour" value="{{criteria.oldNombreJour}}">
+				<input type="hidden" id="nombreJourTropPercu" value="{{criteria.nombreJourTropPercu}}">
+
+				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
+
+
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDemande)}}
+					</div>
+				</div>
+
+				<div class="row">
+					<div
+						class="col-12 col-md-6">
+
+						<!-- DEBUT Debiteur selecte -->
+						<label for="" class="col-4  fw-bold">Agence service débiteur</label>
+
+						<div class="row">
+							<div class="col-6">
+								{{ form_row(form.agence)}}
+							</div>
+							<div class="col-6 ">
+								{{ form_row(form.service)}}
+							</div>
+						</div>
+					</div>
+					<!-- FIN Debiteur selecte -->
+
+					<!--DEBUT emetteur select -->
+					<div class="col-12 col-md-6">
+						<label for="" class="col-4  fw-bold">Agence service émetteur</label>
+						<!-- extern (temporaire) -->
+						<div class="row">
+							<div class="col-4 ">
+								{{ form_row(form.agenceEmetteurId)}}
+							</div>
+							<div class="col-4 ">
+								{{ form_row(form.serviceEmetteurId)}}
+							</div>
+						</div>
+					</div>
+					<!-- FIN émetteur select -->
+				</div>
+
+
+				<div class="row">
+					<div class="col-12 col-md-6">
+						{{ form_row(form.sousTypeDocument)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-6" id="categ">
+						{{ form_row(form.categorie)}}
+					</div>
+					<!---->
+					{# <div class="col-12 col-md-6" id="MUTARENTAL"></div> #}
+					<div class="col-12 col-md-6" id="SITE">
+						{{ form_row(form.site)}}
+					</div>
+					<!---->
+				</div>
+
+
+				<div id="form-container">
+					<div class="row" id="Interne">
+						{% if is_temporaire == "PERMANENT" %}
+							<div class="col-12 col-md-6">
+								{{ form_row(form.matricule) }}
+
+								{{ form_row(form.prenom, {'attr': {'id': 'dom_form2_prenom_1'}}) }}
+							</div>
+							<div class="col-12 col-md-6">
+
+								{{ form_row(form.nom, {'attr': {'id': 'dom_form2_nom_1'}}) }}
+							</div>
+						{% endif %}
+					</div>
+
+					{% if is_temporaire == "TEMPORAIRE" %}
+						<div class="row">
+							<div class="col-12 col-md-4">
+
+								{{ form_row(form.nom, {'attr': {'id': 'dom_form2_nom_2'}}) }}
+							</div>
+							<div class="col-12 col-md-4">
+
+								{{ form_row(form.prenom, {'attr': {'id': 'dom_form2_prenom_2'}}) }}
+							</div>
+							<div class="col-12 col-md-4">
+								{{ form_row(form.cin) }}
+							</div>
+						</div>
+					{% endif %}
+				</div>
+
+
+				<div class="row">
+					<div class="col-12 col-md-6">
+						{{ form_row(form.dateDebut, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.dateFin, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.nombreJour, {'attr' : { 'class' : 'text_end'}})}}
+						{{ form_row(form.client)}}
+					</div>
+					<div class="col-12 col-md-6">
+						{{ form_row(form.heureDebut, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.heureFin, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.motifDeplacement)}}
+						{{ form_row(form.fiche)}}
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12">
+						{{ form_row(form.lieuIntervention)}}
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-12 col-md-6">
+						{{ form_row(form.vehiculeSociete)}}
+						{{ form_row(form.idemnityDepl)}}
+					</div>
+					<div class="col-12 col-md-6">
+						{{ form_row(form.numVehicule)}}
+						{{ form_row(form.totalIndemniteDeplacement)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.devis)}}
+					</div>
+					<div class="col-12 col-md">
+						{{ form_row(form.indemniteForfaitaire)}}
+					</div>
+					<div class="col-12 col-md">
+						{{ form_row(form.supplementJournaliere)}}
+					</div>
+
+					<div class="col-12 col-md">
+						{{ form_row(form.totalIndemniteForfaitaire)}}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12 col-md-6">
+						{{ form_row(form.motifAutresDepense1, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.motifAutresDepense2, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.motifAutresDepense3, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.totalAutresDepenses)}}
+					</div>
+					<div class="col-12 col-md-6">
+						{{ form_row(form.autresDepense1, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.autresDepense2, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.autresDepense3, {'attr': { 'class' : 'border_orange'}})}}
+						{{ form_row(form.totalGeneralPayer)}}
+					</div>
+				</div>
+
+				<div class="row d-none">
+					<div class="col">
+						<h4 style="text-align: center;">Mode de paiement</h4>
+					</div>
+				</div>
+				<div class="row d-none">
+					<div class="col-12 col-md-6">
+						{{ form_row(form.modePayement)}}
+					</div>
+					<div class="col-12 col-md-6">
+						{{ form_row(form.mode)}}
+					</div>
+				</div>
+
+				<div class="row" id="label_PJ">
+					<div class="col">
+						<h4 style="text-align: center;">Pièce Jointe</h4>
+					</div>
+				</div>
+				<div class="row" id="PJ">
+					<div class="col-12 col-md-6">
+
+						{{ form_row(form.pieceJoint01)}}
+					</div>
+					<div class="col-12 col-md-6">
+
+						{{ form_row(form.pieceJoint02) }}
+					</div>
+
+				</div>
+				<div class="row">
+					<div class="mt-2 ">
+						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
+							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold ajout-overlay" data-bs-toggle="tooltip">
+								<i class="fa fa-print"></i>
+								Envoyer
+							</button>
+						</a>
+					</div>
+				</div>
+
+				{{ form_end(form)}}
+
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/dom/tropPercuForm.js" type="module"></script>
+{% endblock %}

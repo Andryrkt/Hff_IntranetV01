@@ -1,17 +1,11 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import { disableForm } from '../utils/formUtils.js';
-
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
 import { updateDropdown } from '../utils/selectionHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
-    disableForm('formTik');
-  } else {
-    handleActionClick('valider');
-  }
+  handleActionClick('valider', 'formTik');
 
   // Boutons d'action
   const buttons = [
@@ -22,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   buttons.forEach(({ id, action }) => {
     const btn = document.querySelector(id);
-    btn?.addEventListener('click', () => handleActionClick(action));
+    btn?.addEventListener('click', () => handleActionClick(action, 'formTik'));
   });
 
   // catégorie, sous-catégorie et autre catégorie
@@ -45,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Mise à jour des sous-catégories
   categorieInput?.addEventListener('change', function () {
     if (categorieInput.value !== '') {
-      const url = `/Hffintranet/api/sous-categorie-fetch/${categorieInput.value}`;
+      const url = `api/sous-categorie-fetch/${categorieInput.value}`;
       updateDropdown(
         sousCategorieInput,
         url,
@@ -62,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
   // Mise à jour des autres catégories
   sousCategorieInput?.addEventListener('change', function () {
     if (sousCategorieInput.value !== '') {
-      const url = `/Hffintranet/api/autres-categorie-fetch/${sousCategorieInput.value}`;
+      const url = `api/autres-categorie-fetch/${sousCategorieInput.value}`;
       updateDropdown(
         autreCategorieInput,
         url,

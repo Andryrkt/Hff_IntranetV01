@@ -48,6 +48,8 @@ class demandeInterventionType extends AbstractType
         'ATE TMV' => 'ATE TMV',
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
     ];
 
     const INTERNE_EXTERNE = [
@@ -100,7 +102,10 @@ class demandeInterventionType extends AbstractType
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
                         //'data' => $options['data']->getService(),
-                        'attr' => ['class' => 'serviceDebiteur']
+                        'attr' => [
+                            'class' => 'serviceDebiteur',
+                            'disabled' => empty($services),
+                        ]
                     ]
                 );
             })
@@ -109,15 +114,17 @@ class demandeInterventionType extends AbstractType
                 $data = $event->getData();
 
 
-                $agenceId = $data['agence'];
+                $agenceId = $data['agence'] ?? null;
 
-                $agence = $this->agenceRepository->find($agenceId);
-                if($agence === null){
-                    $services = [];
-                } else {
-                    $services = $agence->getServices();
+                $services = [];
+
+                if ($agenceId) {
+                    $agence = $this->agenceRepository->find($agenceId);
+                    if ($agence) {
+                        $services = $agence->getServices();
+                    }
                 }
-                
+
 
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur *',
@@ -277,11 +284,12 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Nom du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
+                        'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -290,11 +298,12 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Numéro du client (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
+                        'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => '/Hffintranet/autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
                     ]
                 ]
             )
@@ -302,10 +311,12 @@ class demandeInterventionType extends AbstractType
                 'numeroTel',
                 TelType::class,
                 [
+
                     'label' => 'N° téléphone (*EXTERNE)',
-                    'required' => true,
+                    'required' => false,
                     'attr' => [
-                        'class' => 'numTel noEntrer'
+                        'disabled' => true,
+                        'class' => 'numTel'
                     ]
                 ]
             )
@@ -313,11 +324,26 @@ class demandeInterventionType extends AbstractType
                 'mailClient',
                 EmailType::class,
                 [
+
                     'label' => "E-mail du client (*EXTERNE)",
                     'required' => false,
-                    'attr' => ['class' => 'clientSousContrat'],
+                    'attr' => [
+                        'class' => 'mailClient',
+                        'disabled' => true,
+                    ],
                 ]
             )
+            ->add('clientSousContrat', ChoiceType::class, [
+                'label' => 'Client sous contrat',
+                'choices' => self::OUI_NON,
+                'placeholder' => false,
+                'required' => false,
+                'data' => 'NON',
+                'attr' => [
+                    'disabled' => true,
+                    'class' => 'clientSousContrat'
+                ]
+            ])
 
             ->add('datePrevueTravaux', DateType::class, [
                 'widget' => 'single_text',
@@ -418,7 +444,15 @@ class demandeInterventionType extends AbstractType
                 [
                     'label' => " Id Matériel *",
                     'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete',
+                        'autocomplete' => 'off',
+                    ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
+                        ]),
+                    ],
                 ]
             )
             ->add(
@@ -426,17 +460,24 @@ class demandeInterventionType extends AbstractType
                 TextType::class,
                 [
                     'label' => " N° Parc",
-                    'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete',
+                        'autocomplete' => 'off',
+                    ]
                 ]
+
             )
             ->add(
                 'numSerie',
                 TextType::class,
                 [
                     'label' => " N° Serie",
-                    'required' => true,
-                    'attr' => ['class' => 'noEntrer']
+                    'required' => false,
+                    'attr' => [
+                        'class' => 'noEntrer autocomplete',
+                        'autocomplete' => 'off',
+                    ]
                 ]
             )
             ->add(

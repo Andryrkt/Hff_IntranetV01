@@ -16,7 +16,7 @@ class DataDitApi extends Controller
     {
         $paginationData = self::$em->getRepository(DemandeIntervention::class)->findAll();
 
-        dd($paginationData);
+        // dd($paginationData);
 
         header("Content-type:application/json");
 

@@ -1,32 +1,25 @@
-const Encore = require("@symfony/webpack-encore");
+const path = require("path");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
-Encore.setOutputPath("public/build/")
-  .setPublicPath("/build")
-  .addEntry("app", "./assets/app.js")
-  .addStyleEntry("global", "./assets/css/global.scss")
-
-  .copyFiles({
-    from: "./assets/images",
-    to: "images/[path][name].[ext]", // Les images seront copiées avec un hash dans leur nom
-  })
-  .configureImageRule({
-    type: "asset",
-    maxSize: 4 * 1024, // 4 KB
-  })
-  .enableSingleRuntimeChunk()
-  .cleanupOutputBeforeBuild()
-  .enableBuildNotifications()
-  .enableSourceMaps(!Encore.isProduction())
-  .enableVersioning(Encore.isProduction())
-  .configureBabel(() => {}, {
-    useBuiltIns: "usage",
-    corejs: 3,
-  })
-  .enableSassLoader((options) => {
-    options.sassOptions = {
-      outputStyle: "expanded",
-    };
-  })
-  .enablePostCssLoader();
-
-module.exports = Encore.getWebpackConfig();
+module.exports = {
+  mode: "development", // ou production pour la mise en prod
+  entry: "./assets/js/app.js",
+  output: {
+    filename: "app.js",
+    path: path.resolve(__dirname, "Public/build"),
+    publicPath: "/Hffintranet/Public/build/",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(png|jpg|gif|svg|woff2?|eot|ttf|otf)$/i,
+        type: "asset/resource",
+      },
+    ],
+  },
+  plugins: [new CleanWebpackPlugin()],
+};

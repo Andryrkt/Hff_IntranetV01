@@ -9,7 +9,7 @@ use App\Model\Traits\ConversionModel;
 
 
 class MagasinListeOrLivrerModel extends Model
-{ 
+{
     use ConversionModel;
     use FormatageTrait;
     use ConditionModelTrait;
@@ -24,7 +24,7 @@ class MagasinListeOrLivrerModel extends Model
                         where seor_usr = ausr_num
                         and ausr_ope = atab_code 
                         and atab_nom = 'OPE'
-                        and seor_numor='".$numOr."'
+                        and seor_numor='" . $numOr . "'
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -40,10 +40,10 @@ class MagasinListeOrLivrerModel extends Model
                             min(ska_d_start) as datePlanning1
                         from skw 
                         inner join ska on ska.skw_id = skw.skw_id 
-                        where ofh_id ='".$numOr."'
+                        where ofh_id ='" . $numOr . "'
                         group by ofh_id 
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -57,10 +57,10 @@ class MagasinListeOrLivrerModel extends Model
                             min(sitv_datepla) as datePlanning2 
 
                         from sav_itv 
-                        where sitv_numor = '".$numOr."'
+                        where sitv_numor = '" . $numOr . "'
                         group by sitv_numor
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -82,8 +82,8 @@ class MagasinListeOrLivrerModel extends Model
                             $piece
                             --and slor_succ in ('01', '50')
                             --AND seor_serv ='SAV'
-                            and slor_numor in ('".$numOrValide."')
-                            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                            and slor_numor in ('" . $numOrValide . "')
+                            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                             GROUP BY 1
                             HAVING 
                                 sum(CASE 
@@ -115,8 +115,8 @@ class MagasinListeOrLivrerModel extends Model
                             $piece
                             --and slor_succ in ('01', '50')
                             --AND seor_serv ='SAV'
-                        and slor_numor in ('".$numOrValide."')
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        and slor_numor in ('" . $numOrValide . "')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 
                             sum(CASE 
@@ -126,7 +126,7 @@ class MagasinListeOrLivrerModel extends Model
                             --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -150,8 +150,8 @@ class MagasinListeOrLivrerModel extends Model
                             --AND slor_constp NOT IN ('LUB')
                             --and slor_succ in ('01', '50')
                             --AND seor_serv ='SAV'
-                        and slor_numor in ('".$numOrValide."')
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$numOrValideItv."')
+                        and slor_numor in ('" . $numOrValide . "')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $numOrValideItv . "')
                         GROUP BY 1
                         HAVING 
                             sum(CASE 
@@ -169,21 +169,21 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupereListeMaterielValider( array $criteria = [], array $lesOrSelonCondition)
+    public function recupereListeMaterielValider(array $criteria = [], array $lesOrSelonCondition)
     {
-        //les condeition de filtre
-        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
-        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
-        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
-        $dateDebut = $this->conditionDateSigne( 'slor_datec', 'dateDebut', $criteria, '>=');
-        $dateFin = $this->conditionDateSigne( 'slor_datec', 'dateFin', $criteria, '<=');
-        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        //les conditions de filtre
+        $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece', $criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur', $criteria);
+        $dateDebut = $this->conditionDateSigne('slor_datec', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne('slor_datec', 'dateFin', $criteria, '<=');
+        $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
         $piece = $this->conditionPiece('pieces', $criteria);
-        $agence = $this->conditionAgenceService("slor_succdeb", 'agence',$criteria);
-        $service = $this->conditionAgenceService("slor_servdeb", 'service',$criteria);
+        $agence = $this->conditionAgenceService("slor_succdeb", 'agence', $criteria);
+        $service = $this->conditionAgenceService("slor_servdeb", 'service', $criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
-        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon',$lesOrSelonCondition, $criteria);
+        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon', $lesOrSelonCondition, $criteria);
 
         //requête
         $statement = " SELECT 
@@ -229,7 +229,7 @@ class MagasinListeOrLivrerModel extends Model
                         --and slor_succ in ('01', '50')
                         and seor_serv ='SAV'
                         and seor_typeor not in('950', '501')
-                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
+                        and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $lesOrSelonCondition['numOrValideString'] . "')
                         $agenceUser
                         $piece
                         $orCompletNom
@@ -285,20 +285,20 @@ class MagasinListeOrLivrerModel extends Model
 
 
     public function recupNumOr($criteria = [])
-    {   
-        if(!empty($criteria['niveauUrgence'])){
+    {
+        if (!empty($criteria['niveauUrgence'])) {
             $niveauUrgence = " and id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }
 
-        if(!empty($criteria['numDit'])){
-            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] ."'";
+        if (!empty($criteria['numDit'])) {
+            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] . "'";
         } else {
             $numDit = null;
         }
 
-        if(!empty($criteria['numOr'])){
+        if (!empty($criteria['numOr'])) {
             $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
@@ -327,7 +327,7 @@ class MagasinListeOrLivrerModel extends Model
 
 
     public function recupereAutocompletionDesignation($designations)
-    {      
+    {
         $statement = "SELECT DISTINCT
             
             trim(slor_desi) as designationi
@@ -355,7 +355,7 @@ class MagasinListeOrLivrerModel extends Model
 
     public function recuperAutocompletionRefPiece($refPiece)
     {
-        $statement ="SELECT 
+        $statement = "SELECT 
             
             trim(slor_refp) as referencePiece
            
@@ -401,7 +401,7 @@ class MagasinListeOrLivrerModel extends Model
                         FROM sav_lor
                         WHERE slor_servdeb||'-'||(select trim(atab_lib) from agr_tab where atab_nom = 'SER' and atab_code = slor_servdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
+                        AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '" . $agence . "'
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -410,15 +410,15 @@ class MagasinListeOrLivrerModel extends Model
 
         $dataUtf8 = $this->convertirEnUtf8($data);
 
-        return array_map(function($item) {
-       
+        return array_map(function ($item) {
+
             return [
-                "value" => $item['service'], 
+                "value" => $item['service'],
                 "text"  => $item['service']
             ];
         }, $dataUtf8);
     }
-    
+
 
     public function agenceUser()
     {

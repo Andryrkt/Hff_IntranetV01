@@ -35,11 +35,11 @@ class TikSearchType extends AbstractType
     private $categoriesRepository;
 
     public function __construct()
-   {
+    {
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
         $this->sousCategorieRepository = Controller::getEntity()->getRepository(TkiSousCategorie::class);
         $this->categoriesRepository = Controller::getEntity()->getRepository(TkiCategorie::class);
-   }
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -76,8 +76,8 @@ class TikSearchType extends AbstractType
                 ],
                 'query_builder' => function (StatutDemandeRepository $er) {
                     return $er->createQueryBuilder('s')
-                                ->where('s.codeApp = :codeApp')
-                                ->setParameter('codeApp', 'TKI');
+                        ->where('s.codeApp = :codeApp')
+                        ->setParameter('codeApp', 'TKI');
                 },
             ])
             ->add('niveauUrgence', EntityType::class, [
@@ -96,13 +96,13 @@ class TikSearchType extends AbstractType
                 'class'        => User::class,
                 'choice_label' => 'nom_utilisateur',
                 'required' => false,
-                'query_builder' => function(UserRepository $userRepository) {
+                'query_builder' => function (UserRepository $userRepository) {
                     return $userRepository
-                    ->createQueryBuilder('u')
-                    ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
-                    ->where('r.id = :roleId')  // Filtre sur l'id du rôle
-                    ->setParameter('roleId', 8) 
-                    ->orderBy('u.nom_utilisateur', 'ASC');
+                        ->createQueryBuilder('u')
+                        ->innerJoin('u.roles', 'r')  // Jointure avec la table 'roles'
+                        ->where('r.id = :roleId')  // Filtre sur l'id du rôle
+                        ->setParameter('roleId', 8)
+                        ->orderBy('u.nom_utilisateur', 'ASC');
                 }
             ])
             ->add('agenceEmetteur', EntityType::class, [
@@ -113,21 +113,21 @@ class TikSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => [ 
+                'attr' => [
                     'class' => 'agenceEmetteur',
                     'disabled' => !$options['data']->getAutoriser()
-                    ]
+                ]
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) use($options){
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if ($data && $data->getAgenceEmetteur()) {
                     $services = $data->getAgenceEmetteur()->getServices();
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceEmetteur', EntityType::class, [
                     'label' => "Service Emetteur",
                     'class' => Service::class,
@@ -137,23 +137,23 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 
+                    'attr' => [
                         'class' => 'serviceEmetteur',
                         'disabled' => !$options['data']->getAutoriser()
-                        ]
+                    ]
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) use($options) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if (isset($data['agenceEmetteur']) && $data['agenceEmetteur']) {
                     $agenceId = $data['agenceEmetteur'];
                     $agence = $this->agenceRepository->find($agenceId);
-            
+
                     if ($agence) {
                         $services = $agence->getServices();
                     } else {
@@ -162,7 +162,7 @@ class TikSearchType extends AbstractType
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceEmetteur', EntityType::class, [
                     'label' => "Service Emetteur",
                     'class' => Service::class,
@@ -172,13 +172,13 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 
+                    'attr' => [
                         'class' => 'serviceEmetteur',
                         'disabled' => $options['data']->getAutoriser()
-                        ]
+                    ]
                 ]);
             })
             ->add('agenceDebiteur', EntityType::class, [
@@ -189,18 +189,18 @@ class TikSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => [ 'class' => 'agenceDebiteur']
+                'attr' => ['class' => 'agenceDebiteur']
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if ($data && $data->getAgenceDebiteur()) {
                     $services = $data->getAgenceDebiteur()->getServices();
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceDebiteur', EntityType::class, [
                     'label' => "Service Debiteur",
                     'class' => Service::class,
@@ -210,20 +210,20 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur']
                 ]);
             })
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-            
+
                 if (isset($data['agenceDebiteur']) && $data['agenceDebiteur']) {
                     $agenceId = $data['agenceDebiteur'];
                     $agence = $this->agenceRepository->find($agenceId);
-            
+
                     if ($agence) {
                         $services = $agence->getServices();
                     } else {
@@ -232,7 +232,7 @@ class TikSearchType extends AbstractType
                 } else {
                     $services = [];
                 }
-            
+
                 $form->add('serviceDebiteur', EntityType::class, [
                     'label' => "Service Debiteur",
                     'class' => Service::class,
@@ -242,10 +242,10 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une service--',
                     'choices' => $services,
                     'required' => false,
-                    'query_builder' => function(ServiceRepository $serviceRepository) {
+                    'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => [ 'class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur']
                 ]);
             })
 
@@ -255,22 +255,22 @@ class TikSearchType extends AbstractType
                 'choice_label' => 'description',
                 'placeholder' => '-- Choisir une categorie--',
                 'required' => false,
-                'query_builder' => function(EntityRepository $tkiCategorie) {
+                'query_builder' => function (EntityRepository $tkiCategorie) {
                     return $tkiCategorie->createQueryBuilder('c')->orderBy('c.description', 'ASC');
                 },
                 'attr' => ['class' => 'categorie']
             ])
-            ->addEventListener(FormEvents::PRE_SET_DATA, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-                
+
                 $sousCategorie = [];
                 if ($data && $data->getCategorie()) {
                     $sousCategorie = $data->getCategorie()->getSousCategories();
                 }
-            
+
                 $autresCategories = [];
-                if($data && $data->getSousCategorie()) {
+                if ($data && $data->getSousCategorie()) {
                     $autresCategories = $data->getSousCategorie()->getAutresCategories();
                 }
 
@@ -281,7 +281,7 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une sous categorie--',
                     'required' => false,
                     'choices' => $sousCategorie,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
                     },
                     'attr' => ['class' => 'sous-categorie']
@@ -294,36 +294,36 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une autre categorie--',
                     'required' => false,
                     'choices' => $autresCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
                     },
                     'attr' => ['class' => 'autres-categories']
                 ]);
             })
 
-            ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event) {
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 //souscategorie
                 $sousCategories = [];
-                    if (isset($data['categorie']) && $data['categorie']) {
-                        $categorieId = $data['categorie'];
-                        $categorie = $this->categoriesRepository->find($categorieId);
-                
-                        if ($categorie) {
-                            $sousCategories = $categorie->getSousCategories();
-                        } 
-                    }
+                if (isset($data['categorie']) && $data['categorie']) {
+                    $categorieId = $data['categorie'];
+                    $categorie = $this->categoriesRepository->find($categorieId);
 
-                    //autrecategorie
+                    if ($categorie) {
+                        $sousCategories = $categorie->getSousCategories();
+                    }
+                }
+
+                //autrecategorie
                 $autresCategories = [];
                 if (isset($data['sousCategorie']) && $data['sousCategorie']) {
                     $sousCategorieId = $data['sousCategorie'];
                     $sousCategorie = $this->sousCategorieRepository->find($sousCategorieId);
-            
+
                     if ($categorie) {
                         $autresCategories = $sousCategorie->getAutresCategories();
-                    } 
+                    }
                 }
 
                 $form->add('sousCategorie', EntityType::class, [
@@ -333,7 +333,7 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une sous categorie--',
                     'required' => false,
                     'choices' => $sousCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('sc')->orderBy('sc.description', 'ASC');
                     },
                     'attr' => ['class' => 'sous-categorie']
@@ -346,14 +346,13 @@ class TikSearchType extends AbstractType
                     'placeholder' => '-- Choisir une autre categorie--',
                     'required' => false,
                     'choices' => $autresCategories,
-                    'query_builder' => function(EntityRepository $tkiCategorie) {
+                    'query_builder' => function (EntityRepository $tkiCategorie) {
                         return $tkiCategorie->createQueryBuilder('ac')->orderBy('ac.description', 'ASC');
                     },
                     'attr' => ['class' => 'autres-categories']
                 ]);
             })
         ;
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -363,4 +362,3 @@ class TikSearchType extends AbstractType
         ]);
     }
 }
-?>

@@ -23,7 +23,7 @@ class AcSoumisType extends AbstractType
     {
         $builder
             ->add('nomClient', TextType::class, [
-                'label' => 'Nom client *',
+                'label' => 'Client *',
                 'required' => true,
                 'attr' => [
                     'class' => 'autocomplete',
@@ -117,23 +117,25 @@ class AcSoumisType extends AbstractType
                 'label' => 'Montant devis',
                 'data' => $this->formatNumber($options['data']->getMontantDevis()),
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => false
                 ]
             ])
-            ->add('emailContactHff', TextType::class,
+            ->add('emailContactHff', TextareaType::class,
             [
                 'label' => 'Adresse email contact HFF',
-                'data' => $options['data']->getEmailContactHff(),
+                'data' => $options['data']->getEmailContactHff()?: 'L\'adresse email du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => true,
+                    'class' => $options['data']->getEmailContactHff() ? '' : 'text-danger'
                 ]
             ])
-            ->add('telephoneContactHff', TextType::class,
+            ->add('telephoneContactHff', TextareaType::class,
             [
                 'label' => 'N° téléphone contact HFF',
-                'data' => $options['data']->getTelephoneContactHff(),
+                'data' => $options['data']->getTelephoneContactHff()?: 'Le téléphone du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
-                    'disabled' => true
+                    'disabled' => true,
+                    'class' => $options['data']->getTelephoneContactHff() ? '' : 'text-danger'
                 ]
             ])
         ;

@@ -112,7 +112,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=100, name="Client")
      */
-    private ?string $client = null;
+    private string $client = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="Numero_OR",nullable=true)
@@ -373,6 +373,13 @@ class Dom
         return $this->id;
     }
 
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
 
     public function getNumeroOrdreMission(): string
     {
@@ -545,7 +552,7 @@ class Dom
         return $this->nombreJour;
     }
 
-    public function setNombreJour(string $nombreJour): self
+    public function setNombreJour(?string $nombreJour): self
     {
         $this->nombreJour = $nombreJour;
 
@@ -969,7 +976,7 @@ class Dom
         return $this->categorie;
     }
 
-    public function setCategorie(?Catg $categorie): self
+    public function setCategorie($categorie): self
     {
         $this->categorie = $categorie;
 

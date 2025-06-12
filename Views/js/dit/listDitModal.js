@@ -1,3 +1,8 @@
+import { FetchManager } from "../api/FetchManager";
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
+
 /** SECTION AFFECTER MODAL */
 const sectionAffecteeModal = document.getElementById("sectionAffectee");
 
@@ -11,13 +16,8 @@ sectionAffecteeModal.addEventListener("show.bs.modal", function (event) {
   dataContentAffecter.style.display = "none";
 
   // Fetch request to get the data
-  fetch(`/Hffintranet/section-affectee-modal-fetch/${id}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
+  fetchManager
+    .get(`section-affectee-modal-fetch/${id}`)
     .then((data) => {
       const tableBody = document.getElementById("AffecteeTableBody");
       tableBody.innerHTML = ""; // Clear previous data
@@ -90,13 +90,8 @@ facturationModalInput.addEventListener("show.bs.modal", function (event) {
   dataContentfacture.style.display = "none";
 
   // Fetch request to get the data
-  fetch(`/Hffintranet/facturation-fetch/${id}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
+  fetchManager
+    .get(`facturation-fetch/${id}`)
     .then((data) => {
       const tableBody = document.getElementById("facturationBody");
       tableBody.innerHTML = ""; // Clear previous data
@@ -159,19 +154,14 @@ riModalInput.addEventListener("show.bs.modal", function (event) {
   // Afficher le spinner et masquer le contenu des données
   loadingri.style.display = "block";
   dataContentri.style.display = "none";
+  console.log(id);
 
   // Fetch request to get the data
-  fetch(`/Hffintranet/ri-fetch/${id}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
+  fetchManager
+    .get(`ri-fetch/${id}`)
     .then((data) => {
       const tableBody = document.getElementById("riBody");
       tableBody.innerHTML = ""; // Clear previous data
-      console.log(data);
 
       if (data.length > 0) {
         // Générer les lignes du tableau en fonction des données

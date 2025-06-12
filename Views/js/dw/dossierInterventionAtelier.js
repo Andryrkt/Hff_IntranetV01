@@ -4,6 +4,10 @@ import {
   afficherFichier,
   couleurDefondClick,
 } from "./utils.js";
+import { FetchManager } from "../api/FetchManager.js";
+
+// Instanciation de FetchManager avec la base URL
+const fetchManager = new FetchManager();
 
 document.addEventListener("DOMContentLoaded", function () {
   // Sélectionne toutes les lignes du premier tableau
@@ -25,19 +29,9 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log(numeroDit);
 
       // Appelle l'API via AJAX pour récupérer les détails
-      const url = `/Hffintranet/dw-fetch/${numeroDit}`;
-      fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Erreur HTTP " + response.status);
-          }
-          return response.json();
-        })
+      const url = `dw-fetch/${numeroDit}`;
+      fetchManager
+        .get(url)
         .then((data) => {
           console.log(data);
           // Masque le spinner une fois les données chargées

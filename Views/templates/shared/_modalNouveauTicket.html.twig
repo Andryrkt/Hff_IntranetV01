@@ -1,0 +1,32 @@
+<!-- Modal Bootstrap pour la confirmation -->
+<div class="modal fade" id="newTikModal" tabindex="-1" aria-labelledby="newTikModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title m-auto fw-bold" id="modalReouvertLabel">
+					<i class="fas fa-exclamation-triangle text-warning"></i>
+					Accès refusé
+				</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body" style="font-size: 0.85rem;">
+				<p>Vous ne pouvez pas encore créer de nouveau ticket.</p>
+				<p>
+					<b>Raison :</b>
+					Vous avez encore des tickets résolus mais non clôturés.
+				</p>
+				<p>
+					<b>Nombre de ticket(s) résolu(s) non clôturé(s) :</b>
+					{{ App.ticketing.nbrTicketResolu }}
+				</p>
+				<p>
+					<b>Indication :</b>
+					Veuillez d'abord clôturer ces tickets dans la liste des tickets.
+				</p>
+			</div>
+			<div class="modal-footer">
+				<a type="button" class="btn bouton" href="{{ path("liste_tik_index") }}">Liste Ticket</a>
+			</div>
+		</div>
+	</div>
+</div>

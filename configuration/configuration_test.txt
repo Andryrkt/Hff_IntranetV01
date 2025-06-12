@@ -1,0 +1,32 @@
+#connexion à la bas ede donnée sqlServer
+DB_DNS_SQLSERV=HFF_INTRANET_V01_TEST_TEST
+DB_USERNAME_SQLSERV=sa
+DB_PASSWORD_SQLSERV=Hff@sql2024
+
+# connexion à la base de donnée sqlServer dans Dote4
+DB_DNS_SQLSERV_4=HFF_INTRANET_V04_TEST
+DB_USERNAME_SQLSERV_4=sa
+DB_PASSWORD_SQLSERV_4=catkpi
+
+#connexion à la base de donnée sqlServer dans Dot4 GCOT
+DB_DNS_SQLSERV_4_GCOT=HFF_GCOT64
+DB_USERNAME_SQLSERV_4=sa
+DB_PASSWORD_SQLSERV_4=catkpi
+
+#connexion à la base de donnée Informix
+DB_DNS_INFORMIX=IPS_HFFPROD_TEST
+DB_USERNAME_INFORMIX=informix
+DB_PASSWORD_INFORMIX=informix
+
+#connexion à la bas ede donnée sqlServer sans ODBC
+DB_NAME=HFF_INTRANET_TEST_TEST
+DB_PASSWORD=Hff@sql2024
+DB_USERNAME=sa
+DB_HOST=192.168.0.28
+
+#Chemin de base
+BASE_PATH_LONG=C:/wamp64/www/Hffintranet_PRE_PROD
+BASE_PATH_COURT=/Hffintranet_PRE_PROD
+BASE_PATH_FICHIER=C:/wamp64/www/Upload_PRE_PROD
+BASE_PATH_DOCUWARE=C:/DOCUWARE_PRE_PROD
+BASE_PATH_LOG=C:/wamp64/www/Hffintranet_PRE_PROD/var

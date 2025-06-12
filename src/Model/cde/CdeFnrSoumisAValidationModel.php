@@ -131,4 +131,84 @@ class CdefnrSoumisAValidationModel extends Model
 
             return $this->convertirEnUtf8($data);
     }
+
+    public function recupListeCdeFrn(string $numCde04)
+    {
+        $statement = " SELECT
+                fcde_numcde AS num_cde, 
+                fcde_date AS date_cde,
+                fcde_numfou AS num_fournisseur,
+                fcde_lib AS libelle_cde, 
+                fcde_ttc AS prix_cde_ttc,
+                TRUNC(fcdl_qte) AS nbr_piece,
+                fcde_devise AS devise_cde,
+                fcde_typcde AS type_cde,
+                fcdl_constp AS constructeur,
+                TRIM(fcdl_refp) AS ref_piece
+
+                FROM frn_cde
+	            JOIN frn_cdl ON fcde_numcde = fcdl_numcde and fcdl_soc = 'HF' and fcde_succ =fcdl_succ
+                WHERE fcde_soc = 'HF'
+                and fcde_succ = '01' and fcde_serv = 'NEG'
+                and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_numcde in ({$numCde04})
+                and fcde_mtn <> 0
+                order by fcde_date desc
+        ";
+
+            $result = $this->connect->executeQuery($statement);
+
+            $data = $this->connect->fetchResults($result);
+
+            return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNumCdeFrn(string $numCde04)
+    {
+        $statement = " SELECT
+                fcde_numcde AS num_cde,
+                fcde_numfou AS num_fournisseur
+
+                FROM frn_cde
+                WHERE fcde_soc = 'HF'
+                and fcde_succ = '01' and fcde_serv = 'NEG'
+                and fcde_numcde not in (select fllf_numcde from frn_llf where fllf_soc = fcde_soc and fllf_succ = fcde_succ)
+                and fcde_numcde in ({$numCde04})
+                and fcde_mtn <> 0
+                order by fcde_date desc
+        ";
+
+            $result = $this->connect->executeQuery($statement);
+
+            $data = $this->connect->fetchResults($result);
+
+            return $this->convertirEnUtf8($data);
+    }
+
+    public function findsCde04()
+    {
+        $sqls = " SELECT Cust_ref from Ces_magasin where Eta_ivato = '1900-01-01' and Eta_magasin = '1900-01-01' ";
+
+        return array_column($this->retournerResult04($sqls),'Cust_ref');
+    }
+
+
+    public function facOUNonFacEtValide(string $numeroFournisseur, string  $numCde)
+    {
+        $sql = "SELECT  
+          
+            count(TRZT_Facture.Numero_Facture) as nbfac
+
+            from TRZT_Dossier_Douane
+            LEFT JOIN TRZT_Facture on TRZT_Dossier_Douane.Numero_Dossier_Douane = TRZT_Facture.Numero_Dossier_Douane
+            LEFT JOIN GCOT_Facture on TRZT_Facture.Numero_Facture = GCOT_Facture.Numero_Facture
+            LEFT JOIN GCOT_Facture_Ligne on GCOT_Facture.ID_GCOT_Facture = GCOT_Facture_Ligne.ID_GCOT_Facture
+            where TRZT_Dossier_Douane.Numero_Dossier_Douane like '%' 
+            and TRZT_Facture.Numero_Facture like ('PDV_%')
+            and TRZT_Dossier_Douane.Code_Fournisseur = '{$numeroFournisseur}'
+            and GCOT_Facture_Ligne.Numero_PO  = '{$numCde}'
+        ";
+
+        return array_column($this->retournerResultGcot04($sql), 'nbfac');
+    }
 }
