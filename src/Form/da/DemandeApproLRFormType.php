@@ -81,7 +81,7 @@ class DemandeApproLRFormType extends AbstractType
                         'mimeTypes' => [
                             'application/pdf'
                         ],
-                        'mimeTypesMessage' => 'Veuillez envoyer un fichier valide (PDF ou image)',
+                        'mimeTypesMessage' => 'Veuillez envoyer un fichier valide PDF',
                     ])
                 ],
             ])
