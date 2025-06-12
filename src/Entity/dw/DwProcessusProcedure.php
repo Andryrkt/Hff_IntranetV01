@@ -7,12 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dw\DwOrdreDeReparation;
 use App\Entity\dw\DwDemandeIntervention;
 use App\Entity\dw\DwRapportIntervention;
+use App\Repository\dw\DwProcessusProcedureRepository;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 
-
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=DwProcessusProcedureRepository::class)
  * @ORM\Table(name="DW_Processus_procedure")
  * @ORM\HasLifecycleCallbacks
  */
@@ -66,7 +66,7 @@ class DwProcessusProcedure
     private $emailResponsable;
 
     /**
-     * @ORM\Column(type="datetime", name="derniere_modification")
+     * @ORM\Column(type="datetime", name="date_derniere_modification")
      */
     private $dateModification;
 
@@ -81,7 +81,7 @@ class DwProcessusProcedure
     private $codeService;
 
     /**
-     * @ORM\Column(type="string", length=2, name="code_agence")
+     * @ORM\Column(type="string", length=3, name="code_agence")
      */
     private $codeAgence;
 
