@@ -7,11 +7,13 @@ use Doctrine\ORM\EntityRepository;
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
 
-    public function existsNumOr($numOr): bool
+    public function existsNumOrEtDit(?string $numOr, string $numDit): bool
     {
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroDit = :numDit')
+            ->setParameter('numDit', $numDit)
             ->setParameter('numOr', $numOr)
             ->setMaxResults(1);
 
