@@ -58,11 +58,11 @@ class CdefnrSoumisAValidationController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $originalName = $data->getPieceJoint01()->getClientOriginalName();
-            $numCdeFournisseur = array_key_exists(0, explode('_', $originalName)) ? explode('_', $originalName)[0] : '';
+            $codeFournisseur = array_key_exists(0, explode('_', $originalName)) ? explode('_', $originalName)[0] : '';
             $originalNameWithoutExt = pathinfo($originalName, PATHINFO_FILENAME);
-            $codeFournisseur = array_key_exists(1, explode('_', $originalNameWithoutExt)) ? explode('_', $originalNameWithoutExt)[1] : '';
+            $numCdeFournisseur = array_key_exists(1, explode('_', $originalNameWithoutExt)) ? explode('_', $originalNameWithoutExt)[1] : '';
 
-            $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur,  $codeFournisseur);
+            $blockages = $this->conditionDeBlockage($originalName, $numCdeFournisseur);
 
             if ($this->blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName)) {
                 $cdeFournisseur = $this->ajoutDonnerEntity($numCdeFournisseur, $codeFournisseur);
@@ -91,15 +91,15 @@ class CdefnrSoumisAValidationController extends Controller
 
                 //historisation de l'operation
                 $message = 'La commade fournisseur a été soumis avec succès';
-                $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'profil_acceuil', true);
+                $this->historiqueOperation->sendNotificationCreation($message, $numFnrCde, 'cde_fournisseur', true);
             }
         }
     }
 
-    private function conditionDeBlockage(string $originalName, string $numCdeFournisseur, string $codeFournisseur): array
+    private function conditionDeBlockage(string $originalName, string $numCdeFournisseur): array
     {
         $statutCdeFrn = $this->cdeFnrRepository->findStatut($numCdeFournisseur);
-        $statut = ['Soumis à validation', 'Validé', 'en cours de validation', 'Refusé'];
+        $statut = ['Soumis à validation', 'Validé', 'A valider PM', 'Validation DG'];
         return [
             'nomFichier'      => !$this->verifierFormatFichier($originalName),
             'conditionStatut' => in_array($statutCdeFrn, $statut),
@@ -109,7 +109,7 @@ class CdefnrSoumisAValidationController extends Controller
     private function blockageSoumissionCdeFnr($blockages, $numCdeFournisseur, $originalName): bool
     {
         if ($blockages['conditionStatut']) {
-            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ";
+            $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . La commande {$numCdeFournisseur} est déjà en cours de validation ou valié par DG";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCdeFournisseur, 'profil_acceuil');
         } elseif ($blockages['nomFichier']) {
             $message = " Erreur lors de la soumission, Impossible de soumettre le cde fournisseur . . . Le fichier '{$originalName}' soumis a été renommé";
