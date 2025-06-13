@@ -87,15 +87,20 @@ class DaNewController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            /** 
+             * @var DemandeAppro $demandeAppro
+             */
+            $demandeAppro = $form->getData();
             $demandeAppro
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
+
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $numDit = $demandeAppro->getNumeroDemandeDit();
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
+            $formDAL = $form->get('DAL');
             /** ajout de ligne de demande appro dans la table Demande_Appro_L */
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 /** 
@@ -110,7 +115,7 @@ class DaNewController extends Controller
                     ->setNumeroDit($numDit)
                     ->setJoursDispo($this->getJoursRestants($DAL))
                 ;
-                $this->traitementFichiers($DAL); // traitement des fichiers uploadés pour chaque ligne DAL
+                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("da_list");
@@ -219,10 +224,9 @@ class DaNewController extends Controller
     /** 
      * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de la demande appro (DAL)
      */
-    private function traitementFichiers(DemandeApproL $dal)
+    private function traitementFichiers(DemandeApproL $dal, $files): void
     {
         $fileNames = [];
-        $files = $dal->getFileNames();
         if ($files !== null) {
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
