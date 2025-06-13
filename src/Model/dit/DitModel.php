@@ -268,7 +268,7 @@ class DitModel extends Model
         mmat_nummat as num_matricule
         from mat_mat
         where  MMAT_ETSTOCK in ('ST','AT', '--')
-        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE')
+        and trim(MMAT_AFFECT) in ('IMM','LCD', 'SDO', 'VTE', 'CAS')
         " . $conditionNumParc . "
         " . $conditionNumSerie . "
         ";
