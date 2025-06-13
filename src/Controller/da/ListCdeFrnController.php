@@ -11,11 +11,13 @@ use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
 use App\Service\TableauEnStringService;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 class ListCdeFrnController extends Controller
 {
@@ -27,6 +29,7 @@ class ListCdeFrnController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
@@ -35,6 +38,7 @@ class ListCdeFrnController extends Controller
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /** 
@@ -50,9 +54,6 @@ class ListCdeFrnController extends Controller
 
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $datas = $this->recuperationDonner($criteria);
-        $datas = $this->ajouterNumDa($datas);
-        $datas = $this->ajoutStatutBc($datas);
-        $datas = $this->ajouterNbrJoursDispo($datas);
         // dd($datas);
 
 
@@ -83,7 +84,17 @@ class ListCdeFrnController extends Controller
     {
         $numDits = $this->demandeApproRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
-        return $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+
+        $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
+        $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
+        
+        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+
+        $datas = $this->ajouterNumDa($datas);
+        $datas = $this->ajoutStatutBc($datas);
+        $datas = $this->ajouterNbrJoursDispo($datas);
+
+        return $datas;
     }
 
     private function ajouterNumDa(array $datas)

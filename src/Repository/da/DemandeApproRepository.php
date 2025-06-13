@@ -139,6 +139,8 @@ class DemandeApproRepository extends EntityRepository
     {
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
+            ->where('da.statutDal = :statut')
+            ->setParameter('statut', DemandeAppro::STATUT_VALIDE)
             ->getQuery()
             ->getSingleColumnResult()
         ;
