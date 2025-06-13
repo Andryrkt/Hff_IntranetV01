@@ -68,6 +68,40 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupDatePlanning12($numOr)
+    {
+        $statement = " SELECT  
+                            min(ska_d_start) as datePlanning1
+                        from skw 
+                        inner join ska on ska.skw_id = skw.skw_id 
+                        where ofh_id ='" . $numOr . "'
+                        group by ofh_id 
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupDatePlanning22($numOr)
+    {
+        $statement = " SELECT
+                            min(sitv_datepla) as datePlanning2 
+                        from sav_itv 
+                        where sitv_numor = '" . $numOr . "'
+                        and sitv_pos = 'EC'
+                        group by sitv_numor
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupOrLivrerComplet($numOrValideItv, $numOrValide, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);

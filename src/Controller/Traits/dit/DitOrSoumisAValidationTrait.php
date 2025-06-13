@@ -336,8 +336,9 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
     {
+
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
         foreach ($orSoumisValidationModel as $orSoumis) {
@@ -359,6 +360,7 @@ trait DitOrSoumisAValidationTrait
                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNumeroDit($numDit)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -415,14 +417,14 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning12($numOr);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning22($numOr);
+        // dump($datePlannig1, $datePlannig2);
         $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
         $dateDuJour = new DateTime('now');
-
+        // dump($datePlanning, $dateDuJour);
         $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
-
+        // dd($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0);
         return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
     }
 
