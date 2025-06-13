@@ -87,8 +87,10 @@ class ListCdeFrnController extends Controller
 
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
         $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
+        $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
+        $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
         
-        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
         $datas = $this->ajouterNumDa($datas);
         $datas = $this->ajoutStatutBc($datas);

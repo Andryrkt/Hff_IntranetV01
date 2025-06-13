@@ -89,7 +89,7 @@
 								</a>
 							</td>
 						{% else %}
-							<td class="text-center">{{ item.statut_bc }}</td>
+							<td class="text-center">{{ item.statut_bc | default('à générer') }}</td>
 						{% endif %}
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>

@@ -118,7 +118,7 @@ class AcBcSoumisController extends Controller
 
             /** Envoie des information du bc dans le table bc_soumis */
             $bcSoumis->setNomFichier($nomFichier);
-            // $this->envoieBcDansBd($bcSoumis);
+            $this->envoieBcDansBd($bcSoumis);
 
             $message = 'Le bon de commande et l\'accusé de reception  ont été soumis avec succès';
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
