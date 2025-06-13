@@ -58,6 +58,7 @@ class DaDetailController extends Controller
 			'observations'      => $observations,
 			'numSerie'          => $dataModel[0]['num_serie'],
 			'numParc'           => $dataModel[0]['num_parc'],
+			'dit'               => $dit,
 			// 'idDit'             => $id,
 			// 'numeroVersionMax'  => $numeroVersionMax,
 			// 'numDa'             => $numDa,
