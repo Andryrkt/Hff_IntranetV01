@@ -22,7 +22,9 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-
+    /**
+     * @ORM\Column(type="string", length=11, name="numeroDIT")
+     */
     private ?string $numeroDit = null;
 
     /**
@@ -519,7 +521,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -529,7 +531,7 @@ class DitOrsSoumisAValidation
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;

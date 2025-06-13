@@ -35,7 +35,7 @@
 				{% for item in data %}
 					<tr>
 						<td class="text-center">{{ item.dateDocument | date('d/m/Y') }}</td>
-						<td><a target="_blank" href="/Upload/documentation/{{ item.idDocument }}.pdf">{{ item.nomDocument}}</a></td>
+						<td><a target="_blank" href="{{ App.base_path_fichier }}/documentation/{{ item.idDocument }}.pdf">{{ item.nomDocument}}</a></td>
 						<td class="text-center">{{ item.typeDocument}}</td>
 						<td class="text-center">{{ item.perimetre}}</td>
 						<td class="text-center">{{ item.processusLie}}</td>

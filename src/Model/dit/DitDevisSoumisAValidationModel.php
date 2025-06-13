@@ -9,13 +9,13 @@ use App\Service\GlobalVariablesService;
 class DitDevisSoumisAValidationModel extends Model
 {
     use ConversionModel;
-    
+
     public function recupNumeroClient(string $numDevis)
     {
         $statement = " SELECT seor_numcli as numero_client
                         FROM sav_eor
                         WHERE seor_serv = 'DEV'
-                        AND seor_numor = '".$numDevis."'
+                        AND seor_numor = '" . $numDevis . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -30,7 +30,7 @@ class DitDevisSoumisAValidationModel extends Model
         $statement = " SELECT TRIM(seor_nomcli) as nom_client
                         FROM sav_eor
                         WHERE seor_serv = 'DEV'
-                        AND seor_numor = '".$numDevis."'
+                        AND seor_numor = '" . $numDevis . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -44,7 +44,7 @@ class DitDevisSoumisAValidationModel extends Model
     {
         $statement = "SELECT  seor_numor  as numDevis
                 from sav_eor
-                where seor_refdem = '".$numDit."'
+                where seor_refdem = '" . $numDit . "'
                 AND seor_serv = 'DEV'
                 ";
 
@@ -61,8 +61,8 @@ class DitDevisSoumisAValidationModel extends Model
             count(slor.slor_constp) as nbr_achat_locaux 
             from sav_lor slor
             INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (".GlobalVariablesService::get('achat_locaux').")
-            and seor.seor_numor = '".$numDevis."'
+            where slor.slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")
+            and seor.seor_numor = '" . $numDevis . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -78,7 +78,7 @@ class DitDevisSoumisAValidationModel extends Model
                     COUNT(slor.slor_constp) AS nbr_sortie_magasin
                 FROM sav_lor slor
                 INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-                WHERE slor.slor_constp IN (".GlobalVariablesService::get('pieces_magasin').")
+                WHERE slor.slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
                 AND slor.slor_typlig = 'P'
                 AND seor.seor_numor = '$numDevis'
             ";
@@ -95,23 +95,23 @@ class DitDevisSoumisAValidationModel extends Model
         $statement = " SELECT
             CASE
                 WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
-                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
                 THEN TRIM('CP')
             
                 WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
-                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
                 THEN TRIM('C')
 
                 WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
-                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
                 THEN TRIM('N')
 
                 WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
-                AND COUNT(CASE WHEN slor_constp IN (".GlobalVariablesService::get('pieceMagasinSansCat').") THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
                 THEN TRIM('P')
             END AS retour
         FROM sav_lor
-        WHERE slor_numor = '".$numDevis."'
+        WHERE slor_numor = '" . $numDevis . "'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -121,7 +121,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    
+
     /**
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
@@ -154,7 +154,7 @@ class DitDevisSoumisAValidationModel extends Model
             ) as MONTANT_ITV,  
             Sum(
                 CASE
-                    WHEN slor_typlig = 'P' AND slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
+                    WHEN slor_typlig = 'P' AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") 
                     THEN (nvl(slor_qterel, 0) + nvl(slor_qterea, 0) + nvl(slor_qteres, 0) + nvl(slor_qtewait, 0) - nvl(slor_qrec, 0))
                 END 
                 * 
@@ -174,7 +174,7 @@ class DitDevisSoumisAValidationModel extends Model
                 END
                 ) AS MONTANT_MO,  Sum(
                     CASE
-                        WHEN slor_constp in (".GlobalVariablesService::get('achat_locaux').") THEN (
+                        WHEN slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ") THEN (
                             slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
                         )
                     END 
@@ -199,7 +199,7 @@ class DitDevisSoumisAValidationModel extends Model
                     CASE
                         WHEN 
                             slor_typlig = 'P'
-                            AND slor_constp in (".GlobalVariablesService::get('lub').")
+                            AND slor_constp in (" . GlobalVariablesService::get('lub') . ")
                         THEN (nvl (slor_qterel, 0) + nvl (slor_qterea, 0) + nvl (slor_qteres, 0) + nvl (slor_qtewait, 0) - nvl (slor_qrec, 0))
                     END 
                     * 
@@ -300,7 +300,7 @@ class DitDevisSoumisAValidationModel extends Model
         $statement = " SELECT trim(seor_refdem) as num_dit
                     FROM sav_eor 
                     where seor_serv='DEV'
-                    AND seor_numor = '".$numDevis."' 
+                    AND seor_numor = '" . $numDevis . "' 
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -315,7 +315,7 @@ class DitDevisSoumisAValidationModel extends Model
         $statement = " SELECT sitv_succdeb as serv_debiteur
                         FROM sav_itv sitv 
                         inner join sav_eor seor on sitv.sitv_numor = seor.seor_numor and seor.seor_serv ='DEV'
-                        WHERE seor.seor_numor = '".$numDevis."'
+                        WHERE seor.seor_numor = '" . $numDevis . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -325,7 +325,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupInfoPieceClient(string $numDevis) 
+    public function recupInfoPieceClient(string $numDevis)
     {
         $statement = " SELECT 
                         trim(slor_refp) as ref_piece,
@@ -333,7 +333,7 @@ class DitDevisSoumisAValidationModel extends Model
                         slor_numcli as num_client,
                         slor_numor as num_devis
                         FROM sav_lor
-                        WHERE slor_numor = '".$numDevis."'
+                        WHERE slor_numor = '" . $numDevis . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -361,11 +361,11 @@ class DitDevisSoumisAValidationModel extends Model
                     FROM sav_lor
                     inner join sav_eor 
                     on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='HF'
-                    WHERE slor_refp = '".$infoPieceClient['ref_piece'] ."'
-                    and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                    WHERE slor_refp = '" . $infoPieceClient['ref_piece'] . "'
+                    and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
                     and seor_serv = 'SAV'
                     and slor_pos in('CP','FC') 
-                    and slor_numcli = '".$infoPieceClient['num_client']."'
+                    and slor_numcli = '" . $infoPieceClient['num_client'] . "'
                     ORDER BY slor_datel DESC
         ";
 
@@ -381,13 +381,47 @@ class DitDevisSoumisAValidationModel extends Model
         $statement = "SELECT SUM(slor_nolign)  as nbLigne
                         from sav_lor 
                         where slor_numor='{$numDevis}' 
-                        and slor_constp in (".GlobalVariablesService::get('pieces_magasin').")
+                        and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
                     ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);           
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getMontantItv(string $numDevis)
+    {
+        $statement = " SELECT 
+                    Sum(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_qterea
+                        END 
+                        * 
+                        CASE
+                            WHEN slor_typlig = 'P' THEN slor_pxnreel
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') THEN slor_pxnreel
+                        END
+                    ) as montant_itv
+                        FROM sav_eor, sav_lor, sav_itv
+                        WHERE 
+                seor_numor = slor_numor
+                AND seor_serv = 'DEV'
+                AND sitv_numor = slor_numor
+                AND sitv_interv = slor_nogrp / 100
+                AND seor_soc = 'HF'
+                AND slor_soc = seor_soc
+                AND sitv_soc = seor_soc
+                AND sitv_pos NOT IN ('FC', 'FE', 'CP', 'ST')
+                AND seor_numor = ({$numDevis})
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
     }
 }
