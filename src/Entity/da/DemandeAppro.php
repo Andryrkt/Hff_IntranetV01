@@ -21,6 +21,8 @@ class DemandeAppro
 {
     use DateTrait;
 
+    public const STATUT_VALIDE = 'Bon d’achats validé';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
