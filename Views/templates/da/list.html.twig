@@ -57,7 +57,10 @@
 				{% for item in data %}
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
-						{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+						{% if dal.demandeApproLR|length > 0 %}
+							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
+						{% endif %}
 						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
 
 						<tr>
@@ -88,9 +91,12 @@
 								{% endif %}
 
 							</td>
-							{% set ficheTechnique = dal.estFicheTechnique ? 'OUI' : 'NON' %}
 							<td class="text-center">
-								<input type="checkbox" disabled="disabled" class="form-check-input" {% if dal.estFicheTechnique %} checked {% endif %}>
+								{% if dal.estFicheTechnique %}
+									<i class="fas fa-check text-success"></i>
+								{% else %}
+									<i class="fas fa-xmark text-danger"></i>
+								{% endif %}
 							</td>
 							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">0</td>

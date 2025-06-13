@@ -202,7 +202,7 @@ export function getTheField(
   return document.getElementById(`${prefixId}_${line}_${fieldName}`);
 }
 
-function onFileNamesInputChange(event) {
+export function onFileNamesInputChange(event) {
   let inputFile = event.target; // input file field
   let fieldContainer = document.getElementById(
     inputFile.id.replace('fileNames', 'fileNamesContainer')
@@ -210,7 +210,11 @@ function onFileNamesInputChange(event) {
 
   // Vérifier si un fichier a été sélectionné
   if (inputFile.files.length > 0) {
+    // Vider le conteneur avant d'ajouter les nouveaux liens
+    fieldContainer.innerHTML = ''; // Vider le conteneur
+
     let ul = document.createElement('ul');
+    ul.classList.add('ps-3', 'mb-0'); // Ajouter des classes pour le style
     for (let index = 0; index < inputFile.files.length; index++) {
       const file = inputFile.files[index];
       let li = document.createElement('li');
