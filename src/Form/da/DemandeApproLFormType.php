@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -112,17 +113,21 @@ class DemandeApproLFormType extends AbstractType
                     'required'   => false,
                     'multiple'   => true,
                     'data_class' => null,
-                    // 'mapped'     => false, // Indique que ce champ ne doit pas être lié à l'entité
+                    'mapped'     => false, // Indique que ce champ ne doit pas être lié à l'entité
                     'constraints' => [
-                        new File([
-                            'maxSize' => '5M',
-                            'mimeTypes' => [
-                                'application/pdf',
-                                'image/*', // Permettre les images
-                            ],
-                            'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF, DOCX, DOC ou image).',
-                        ]),
-                    ],
+                        new All([
+                            'constraints' => [
+                                new File([
+                                    'maxSize' => '5M',
+                                    'mimeTypes' => [
+                                        'application/pdf',
+                                        'image/*',
+                                    ],
+                                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF, image).',
+                                ])
+                            ]
+                        ])
+                    ]
                 ]
             )
         ;

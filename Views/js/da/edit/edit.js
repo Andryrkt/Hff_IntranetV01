@@ -16,8 +16,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
   document
     .querySelectorAll('[id^="demande_appro_form_DAL_"][id$="_fileNames"]')
-    .forEach((el) => {
-      el.addEventListener('change', (event) => onFileNamesInputChange(event));
+    .forEach((inputFile) => {
+      inputFile.accept = '.pdf, image/*'; // Accepter les fichiers PDF et images
+      inputFile.addEventListener('change', (event) =>
+        onFileNamesInputChange(event)
+      );
     });
 
   document

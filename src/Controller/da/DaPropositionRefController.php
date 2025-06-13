@@ -84,7 +84,7 @@ class DaPropositionRefController extends Controller
         self::$twig->display('da/proposition.html.twig', [
             'da' => $da,
             'id' => $id,
-            'dit_id' => $dit->getId(),
+            'dit' => $dit,
             'form' => $form->createView(),
             'observations' => $observations,
             'numDa' => $numDa,
