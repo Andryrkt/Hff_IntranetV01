@@ -144,7 +144,7 @@
 									<div class="w-20">
 										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
-									<div class="w-1">
+									<div class="w-1" style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
 										<i class="fas fa-paperclip text-primary trombone-add-pj" title="Mettre en pièces jointes un ou plusieur(s) fichier(s)" style="cursor: pointer;"></i>
 									</div>
 									<div class="w-9" id="demande_appro_form_DAL_{{ ligne }}_fileNamesContainer">
