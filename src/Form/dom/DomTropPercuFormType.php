@@ -129,6 +129,7 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Catégorie :',
+                    'required' => false,
                     'row_attr' => [
                         'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                     ],
@@ -142,6 +143,7 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Site:',
+                    'required' => false,
                     'attr' => [
                         'class' => 'disabled',
                     ],
@@ -153,6 +155,7 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Indeminté forfaitaire journalière(s)',
+                    'required' => false,
                     'attr' => [
                         'class' => 'disabled',
                     ],
@@ -367,6 +370,7 @@ class DomTropPercuFormType extends AbstractType
                 TextType::class,
                 [
                     'label' => "Total de l'indemnite forfaitaire",
+                    'required' => false,
                     'data' => $dom->getTotalIndemniteForfaitaire(),
                     'attr' => [
                         'class' => 'disabled',
