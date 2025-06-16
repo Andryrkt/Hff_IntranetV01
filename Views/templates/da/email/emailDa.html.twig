@@ -64,6 +64,10 @@
 			.suspendu {
 				background-color: #6c757d;
 			}
+			.demandeDeverouillage {
+				background-color: #b3d7ff;
+				color: #004085;
+			}
 			.validationAteDa,
 			.refuse,
 			.modificationDa,
@@ -87,7 +91,6 @@
 				<p>Bonjour,</p>
 
 				{% include 'da/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
-
 
 				<p>
 					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
