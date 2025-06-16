@@ -21,9 +21,6 @@
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
 				<div class="my-3 d-flex flex-row">
-					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
-						<small>TOUT AFFICHER |</small>
-					</div>
 					<div role="button" tabindex="0" id="tout-livre">
 						<i class="fa-solid fa-circle text-success"></i>
 						<small class="text-success">Tout livré |</small>
@@ -47,9 +44,6 @@
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
-					<th>
-						<i class="fas fa-ellipsis-vertical"></i>
-					</th>
 					<th class="text-center">N° DA</th>
 					<th class="text-center">Achat direct</th>
 					<th class="text-center">N° DIT</th>
@@ -90,21 +84,6 @@
 					{% endif %}
 
 					<tr>
-						<td class="align-middle" style="padding: 0px">
-							<div class="dropdown">
-								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-									<i class="fas fa-ellipsis-vertical"></i>
-								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-									<li>
-										<a class="dropdown-item fw-bold" href="#">Soumission BC</a>
-									</li>
-									<li>
-										<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" id="">Soumission facture + BL</a>
-									</li>
-								</ul>
-							</div>
-						</td>
 						<td class="text-center">{{ item.num_da }}</td>
 						<td class="text-center">NON</td>
 						<td class="text-center">{{ item.num_dit }}</td>
@@ -114,11 +93,15 @@
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}
 							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
+
 								{{ item.num_cde }}
+
 							</td>
 						{% else %}
 							<td class="text-center {{ classe }}">
+
 								{{ item.num_cde }}
+
 							</td>
 						{% endif %}
 
