@@ -145,6 +145,11 @@ class DemandeAppro
 
     private $numDossierDouane;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
+     */
+    private DaHistoriqueDemandeModifDA $historiqueDemandeModifDA;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -692,6 +697,26 @@ class DemandeAppro
     public function setNonFichierRefZst($nonFichierRefZst)
     {
         $this->nonFichierRefZst = $nonFichierRefZst;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of historiqueDemandeModifDA
+     */
+    public function getHistoriqueDemandeModifDA()
+    {
+        return $this->historiqueDemandeModifDA;
+    }
+
+    /**
+     * Set the value of historiqueDemandeModifDA
+     *
+     * @return  self
+     */
+    public function setHistoriqueDemandeModifDA($historiqueDemandeModifDA)
+    {
+        $this->historiqueDemandeModifDA = $historiqueDemandeModifDA;
 
         return $this;
     }
