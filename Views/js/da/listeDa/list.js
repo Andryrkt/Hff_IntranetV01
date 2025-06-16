@@ -47,10 +47,12 @@ document.addEventListener('DOMContentLoaded', function () {
   deverouillageModal.addEventListener('show.bs.modal', function (event) {
     const triggerButton = event.relatedTarget; // ← voici le bouton qui a ouvert le modal
     const numeroDA = triggerButton.dataset.numeroDa; // Récupération du numéro de DA depuis l'attribut data-numero-da
+    const idDA = triggerButton.dataset.idDa; // Récupération de l'ID de DA depuis l'attribut data-id-da
     deverouillageModal.querySelector(
       '#demandeDeverouillageModalLabel'
     ).textContent = `Demande de déverrouillage pour la DA n° ${numeroDA}`; // Mettre à jour le titre du modal avec le numéro de DA
     const form = deverouillageModal.querySelector('form');
+    form.querySelector('#historique_modif_da_idDa').value = idDA; // Mettre à jour l'ID de DA dans le formulaire
     form.querySelector('textarea').value = ''; // Réinitialiser le champ de texte
   });
 
