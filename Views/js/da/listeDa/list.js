@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function () {
     allowOnlyNumbers(idMaterielInput)
   );
 
-  /**==================================================
-   * Configuration sur le modal et le form dans le modal
-   *===================================================*/
+  /**==========================================================================================
+   * Configuration sur le modal et le form dans le modal pour la demande de déverrouillage
+   *===========================================================================================*/
   const deverouillageModal = document.getElementById(
     'demandeDeverouillageModal'
   );
@@ -71,6 +71,28 @@ document.addEventListener('DOMContentLoaded', function () {
         this.submit(); // Soumet le formulaire si nécessaire
       }
     });
+
+  /**==================================================
+   * Configuration du modal de confirmation
+   *===================================================*/
+  const confirmationModal = document.getElementById('confirmationModal');
+  const modalConfirmation = new bootstrap.Modal(confirmationModal);
+
+  confirmationModal.addEventListener('show.bs.modal', function (event) {
+    const triggerButton = event.relatedTarget; // ← le bouton qui a ouvert le modal
+    const numeroDA = triggerButton.dataset.numeroDa; // Récupération du numéro de DA depuis l'attribut data-numero-da
+    const idDA = triggerButton.dataset.idDa; // Récupération de l'ID de DA depuis l'attribut data-id-da
+    confirmationModal.querySelectorAll('numda').forEach((element) => {
+      element.textContent = numeroDA; // Mettre à jour le numéro de DA dans le modal
+    });
+    confirmationModal
+      .querySelector('#confirmActionBtn')
+      .addEventListener('click', function () {
+        // Logique pour traiter la confirmation
+        window.location.href = `/demande-appro/deverrouiller-da/${idDA}`; // Redirection vers l'URL de déverrouillage
+        modalConfirmation.hide(); // Ferme le modal après traitement
+      });
+  });
 });
 
 window.addEventListener('load', () => {

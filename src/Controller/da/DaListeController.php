@@ -78,7 +78,6 @@ class DaListeController extends Controller
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
 
-
         $this->initialiserHistorique($historiqueModifDA);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
@@ -92,6 +91,43 @@ class DaListeController extends Controller
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
             'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);
+    }
+
+    /** 
+     * @Route("/deverrouiller-da/{idDa}", name="da_deverrouiller_da")
+     */
+    public function deverouillerDa(int $idDa)
+    {
+        // verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $demandeAppro = $this->daRepository->find($idDa);
+        if (!$demandeAppro) {
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'La demande d\'approvisionnement n\'existe pas.']);
+            return $this->redirectToRoute('da_list');
+        } else {
+            // if ($demandeAppro->getEstVerrouillee() == false) {
+            //     $this->sessionService->set('notification', ['type' => 'warning', 'message' => 'La demande d\'approvisionnement n\'est pas verrouillée.']);
+            //     return $this->redirectToRoute('da_list');
+            // }
+
+            if (!$this->estUserDansServiceAppro()) {
+                $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Vous n\'êtes pas autorisé à déverrouiller cette demande.']);
+                return $this->redirectToRoute('da_list');
+            }
+
+            // $demandeAppro->setEstVerrouillee(false);
+            // self::$em->persist($demandeAppro);
+            // self::$em->flush();
+
+            $this->envoyerMailAuxAte([
+                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
+                'userConnecter' => $this->getUser()->getNomUtilisateur(),
+            ]);
+
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande d\'approvisionnement a été déverrouillée avec succès.']);
+            return $this->redirectToRoute('da_list');
+        }
     }
 
     /**
@@ -237,8 +273,8 @@ class DaListeController extends Controller
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
-                'statut'     => "propositionDa",
-                'subject'    => "{$tab['numDa']} - proposition créee par l'Appro ",
+                'statut'     => "confirmationDeverrouillage",
+                'subject'    => "{$tab['numDa']} - demande déverouillée par l'Appro ",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
             ]
