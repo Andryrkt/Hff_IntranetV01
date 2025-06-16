@@ -1,9 +1,10 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as form %}
@@ -35,11 +36,14 @@
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
 					<th class="text-center">N° Demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
-					<th class="text-center">Statut</th>
+					<th class="text-center">Statut DA</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
@@ -64,6 +68,26 @@
 						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
 
 						<tr>
+							{# Début Action #}
+							<td class="align-middle" style="padding: 0px">
+								<div class="dropdown">
+									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="fas fa-ellipsis-vertical"></i>
+									</button>
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% if serviceAtelier %}
+										<li>
+											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}">Demander le déverrouillage</a>
+										</li>
+										{% elseif serviceAppro %}
+										<li>
+											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}">Déverouiller la demande</a>
+										</li>
+										{% endif %}
+									</ul>
+								</div>
+							</td>
+							{# Fin Actions #}
 							<td>
 								{# {% if serviceAppro %} #}
 								{# {{ item.numeroDemandeAppro }} #}
@@ -108,8 +132,11 @@
 			</tbody>
 		</table>
 	</div>
-
 	<!-- FIN tableau -->
+
+	{# body modal #}
+	{% include "/da/shared/listeDA/_modalConfirmation.html.twig" %}
+	{% include "/da/shared/listeDA/_modalDemandeDeverouillage.html.twig" %}
 {% endblock %}
 
 {% block javascript %}

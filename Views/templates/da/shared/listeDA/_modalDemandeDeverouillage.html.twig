@@ -1,0 +1,20 @@
+<!-- Modal de déverouillage -->
+<div class="modal fade" id="demandeDeverouillageModal" tabindex="-1" aria-labelledby="demandeDeverouillageModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold m-auto" id="demandeDeverouillageModalLabel"></h5>
+        <button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      {{ form_start(formHistorique) }}
+      <div class="modal-body">
+        <p class="mb-3">Veuillez sasir le motif de déverouillage de la demande s'il vous plaît</p>
+        {{ form_row(formHistorique.motif) }}
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn bouton mt-2">Envoyer <i class="ms-2 fas fa-paper-plane"></i></button>
+      </div>
+			{{ form_end(formHistorique) }}
+    </div>
+  </div>
+</div>
