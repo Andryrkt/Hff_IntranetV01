@@ -5,6 +5,7 @@ namespace App\Controller\da;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -16,6 +17,7 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Service\EmailService;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -23,6 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaListeController extends Controller
 {
+    use lienGenerique;
     use DaTrait;
 
     private const ID_ATELIER = 3;
@@ -80,15 +83,7 @@ class DaListeController extends Controller
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
 
-        $formHistorique->handleRequest($request);
-        if ($formHistorique->isSubmitted() && $formHistorique->isValid()) {
-            $historiqueModifDA = $formHistorique->getData();
-            // $historique->setDemandeAppro($this->daRepository->findOneBy(['numeroDemandeAppro' => $historique->getNumDa()]));
-            // self::$em->persist($historique);
-            // self::$em->flush();
-
-            // $this->addFlash('success', 'Historique de la demande d\'approvisionnement ajouté avec succès.');
-        }
+        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         self::$twig->display('da/list.html.twig', [
             'data' => $dasFiltered,
@@ -198,5 +193,79 @@ class DaListeController extends Controller
     {
         $historique
             ->setDemandeur($this->getUser()->getNomUtilisateur());
+    }
+
+    private function traitementFormulaireDeverouillage($form, $request)
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $historiqueModifDA = $form->getData();
+            $idDa = $form->get('idDa')->getData();
+
+            /** @var DemandeAppro $demandeAppro */
+            $demandeAppro = $this->daRepository->find($idDa);
+
+            /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
+            $historiqueModifDA
+                ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+                ->setDemandeAppro($demandeAppro)
+            ;
+
+            self::$em->persist($historiqueModifDA);
+            self::$em->flush();
+
+            $this->envoyerMailAuxAppro([
+                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
+                'motif' => $historiqueModifDA->getMotif(),
+                'userConnecter' => $this->getUser()->getNomUtilisateur(),
+            ]);
+
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
+        }
+    }
+
+
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAte(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
+            'cc'        => [],
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "propositionDa",
+                'subject'    => "{$tab['numDa']} - proposition créee par l'Appro ",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail à la service Appro 
+     */
+    private function envoyerMailAuxAppro(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
+            'cc'        => [],
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "demandeDeverouillage",
+                'subject'    => "{$tab['numDa']} - demande de déverouillage par l'ATE ",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }
