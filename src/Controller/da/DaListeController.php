@@ -64,26 +64,6 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
-        $this->initialiserHistorique($historiqueModifDA);
-
-        $formHistorique = self::$validator->createBuilder(
-            HistoriqueModifDaType::class,
-            $historiqueModifDA,
-            [
-                'method' => 'POST',
-            ]
-        )->getForm();
-
-        $formHistorique->handleRequest($request);
-        if ($formHistorique->isSubmitted() && $formHistorique->isValid()) {
-            $historiqueModifDA = $formHistorique->getData();
-            // $historique->setDemandeAppro($this->daRepository->findOneBy(['numeroDemandeAppro' => $historique->getNumDa()]));
-            // self::$em->persist($historique);
-            // self::$em->flush();
-
-            // $this->addFlash('success', 'Historique de la demande d\'approvisionnement ajouté avec succès.');
-        }
-
         $this->sessionService->remove('firstCharge');
 
         $das = $this->daRepository->findDaData($criteria);
@@ -95,9 +75,25 @@ class DaListeController extends Controller
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
 
+
+        $this->initialiserHistorique($historiqueModifDA);
+
+        $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
+
+        $formHistorique->handleRequest($request);
+        if ($formHistorique->isSubmitted() && $formHistorique->isValid()) {
+            $historiqueModifDA = $formHistorique->getData();
+            // $historique->setDemandeAppro($this->daRepository->findOneBy(['numeroDemandeAppro' => $historique->getNumDa()]));
+            // self::$em->persist($historique);
+            // self::$em->flush();
+
+            // $this->addFlash('success', 'Historique de la demande d\'approvisionnement ajouté avec succès.');
+        }
+
         self::$twig->display('da/list.html.twig', [
             'data' => $dasFiltered,
             'form' => $form->createView(),
+            'formHistorique' => $formHistorique->createView(),
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
             'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);

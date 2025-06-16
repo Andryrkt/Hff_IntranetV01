@@ -148,7 +148,7 @@ class DemandeAppro
     /**
      * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
      */
-    private DaHistoriqueDemandeModifDA $historiqueDemandeModifDA;
+    private $historiqueDemandeModifDA;
 
     /**===========================================================================
      * GETTER & SETTER
