@@ -8,7 +8,8 @@ use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Form\da\soumissionBC\DaSoumissionFacBlType;
+use App\Form\da\DaSoumissionFacBlType;
+use App\Service\genererPdf\GenererPdfDa;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 
@@ -24,6 +25,7 @@ class DaSoumissionFacBlController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
+    private GenererPdfDa $genererPdfDa;
 
     public function __construct()
     {
@@ -34,6 +36,7 @@ class DaSoumissionFacBlController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionFacBl';
         $this->historiqueOperation      = new HistoriqueOperationDaFacBlService();
         $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
+        $this->genererPdfDa = new GenererPdfDa();
     }
 
     /**
@@ -90,7 +93,7 @@ class DaSoumissionFacBlController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                //TODO: A REVOIR
+                $this->genererPdfDa->copyToDWFacBlDa($nomDeFichier);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

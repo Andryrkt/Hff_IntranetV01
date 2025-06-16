@@ -4,11 +4,12 @@ namespace App\Controller\da;
 
 use App\Controller\Controller;
 use App\Entity\da\DaSoumissionBc;
+use App\Service\genererPdf\GenererPdfDa;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Repository\da\DaSoumissionBcRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -24,6 +25,7 @@ class DaSoumissionBcController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private GenererPdfDa $genererPdfDa;
 
     public function __construct()
     {
@@ -34,6 +36,7 @@ class DaSoumissionBcController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionBc';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->genererPdfDa = new GenererPdfDa();
     }
 
     /**
@@ -90,7 +93,7 @@ class DaSoumissionBcController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                //TODO: A REVOIR
+                $this->genererPdfDa->copyToDWBcDa($nomDeFichier);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

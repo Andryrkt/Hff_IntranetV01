@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\da\soumissionBC;
+namespace App\Form\da;
 
 use App\Entity\da\DaSoumissionFacBl;
 use Symfony\Component\Form\AbstractType;

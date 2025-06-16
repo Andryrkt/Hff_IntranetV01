@@ -28,7 +28,7 @@
 					</div>
 					<div class="col-12 col-md-3">
 						<p>Veuillez insérer
-							<strong>le bon de commande à valider *</strong>
+							<strong>la facture et le bon de livraison à valider *</strong>
 						</p>
 						{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint1'} %}
 					</div>
@@ -67,5 +67,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/soumissionBC/soumiBc.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/soumission/soumiFacBl.js" type="module"></script>
 {% endblock %}
