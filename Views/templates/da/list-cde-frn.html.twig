@@ -14,15 +14,36 @@
 {% block content %}
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
-			<div class="container mb-3">
+			<div class="mb-3 container">
 				<h3 class="perso-titre">
 					Liste des commandes fournisseurs
 				</h3>
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-				{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+				<div class="my-3 d-flex flex-row">
+					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+						<small>TOUT AFFICHER |</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+				</div>
 			</div>
 		</div>
+
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
@@ -49,6 +70,25 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set classe = '' %}
+					{% set qteCdm = item.qte_dem | default(0) * 1 %}
+					{% set qteLiv = item.qte_livee | default(0) * 1 %}
+					{% set qteAll = item.qte_a_livrer | default(0) * 1 %}
+
+					{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+						{# Tout livré #}
+						{% set classe = 'tout-livre bg-success text-white' %}
+					{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+						{# Partiellement livré #}
+						{% set classe = 'partiellement-livre bg-warning text-white' %}
+					{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+						{# Partiellement dispo #}
+						{% set classe = 'partiellement-dispo bg-info text-white' %}
+					{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+						{# complet non livré #}
+						{% set classe = 'complet-non-livre bg-primary text-white' %}
+					{% endif %}
+
 					<tr>
 						<td class="align-middle" style="padding: 0px">
 							<div class="dropdown">
@@ -73,24 +113,16 @@
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}
-							<td class="text-center commande-cellule commande" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
+							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
 								{{ item.num_cde }}
 							</td>
 						{% else %}
-							<td class="text-center ">
+							<td class="text-center {{ classe }}">
 								{{ item.num_cde }}
 							</td>
 						{% endif %}
 
-						{% if item.statut_bc == 'BC validé' %}
-							<td class="text-center">
-								<a href="{{path('changement_statut_envoyer_fournisseur', {'numCde': item.num_cde, 'numDa':item.num_da})}}" class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1" title="changer statut en 'BC envoyé au fournisseur">
-									{{ item.statut_bc }}
-								</a>
-							</td>
-						{% else %}
-							<td class="text-center">{{ item.statut_bc | default('à générer') }}</td>
-						{% endif %}
+						<td class="text-center">{{ item.statut_bc | default('à générer') }}</td>
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>

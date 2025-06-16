@@ -1,6 +1,7 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
+import { filterRowsByColumn } from "../../utils/filtre.js";
 import { FetchManager } from "../../api/FetchManager.js";
 const fetchManager = new FetchManager();
 
@@ -115,5 +116,28 @@ document.addEventListener("contextmenu", function (event) {
 document.addEventListener("click", function (event) {
   if (!menu.contains(event.target)) {
     menu.style.display = "none";
+  }
+});
+
+/**==================================================
+ * FILTRE SELON STATUT
+ *===================================================*/
+document.addEventListener("DOMContentLoaded", function () {
+  const buttons = {
+    "tout-livre": "tout-livre",
+    "partiellement-livre": "partiellement-livre",
+    "partiellement-dispo": "partiellement-dispo",
+    "complet-non-livre": "complet-non-livre",
+    "tout-afficher": null, // Tout afficher n'a pas de classe spécifique
+  };
+
+  // Ajoute un gestionnaire d'événement pour chaque bouton
+  for (const [buttonId, filterClass] of Object.entries(buttons)) {
+    const button = document.getElementById(buttonId);
+    console.log(button);
+
+    if (button) {
+      button.addEventListener("click", () => filterRowsByColumn(filterClass));
+    }
   }
 });
