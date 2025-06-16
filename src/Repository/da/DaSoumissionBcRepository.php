@@ -48,4 +48,20 @@ class DaSoumissionBcRepository extends EntityRepository
 
         return $statut;
     }
+
+    public function bcExists(?string $numCde): bool
+    {
+        $qb = $this->createQueryBuilder('dabc');
+        $qb->select('1')
+            ->where('dabc.numeroCde = :numCde')
+            ->setParameter('numCde', $numCde)
+            ->setMaxResults(1);
+
+        try {
+            $result = $qb->getQuery()->getOneOrNullResult();
+            return $result !== null;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
 }

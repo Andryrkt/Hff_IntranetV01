@@ -89,12 +89,14 @@ class ListCdeFrnController extends Controller
         $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
         $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
         $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
-        
+
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
         $datas = $this->ajouterNumDa($datas);
         $datas = $this->ajoutStatutBc($datas);
         $datas = $this->ajouterNbrJoursDispo($datas);
+
+
 
         return $datas;
     }
@@ -111,9 +113,18 @@ class ListCdeFrnController extends Controller
     private function ajoutStatutBc(array $datas)
     {
         foreach ($datas as $key => $data) {
-            $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
-            $datas[$key]['statut_bc'] = $statutBc;
+            if ($data['position_cde'] == 'TE') {
+                $datas[$key]['statut_bc'] = 'à éditer';
+            } elseif ($data['position_cde'] == 'ED' && !$this->daSoumissionBcRepository->bcExists($data['num_cde'])) {
+                $datas[$key]['statut_bc'] = 'à soumettre à validation';
+            } elseif ($data['position_cde'] == 'ED' && $this->daSoumissionBcRepository->getStatut($data['num_cde']) == 'Validé') {
+                $datas[$key]['statut_bc'] = 'à envoyer au fournisseur';
+            } else {
+                $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
+                $datas[$key]['statut_bc'] = $statutBc;
+            }
         }
+
         return $datas;
     }
 
