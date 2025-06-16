@@ -5,11 +5,13 @@ namespace App\Controller\da;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Form\da\HistoriqueModifDaType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -49,6 +51,8 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        $historiqueModifDA = new DaHistoriqueDemandeModifDA();
+
         $form = self::$validator->createBuilder(DaSearchType::class, null, [
             'method' => 'GET',
         ])->getForm();
@@ -60,6 +64,25 @@ class DaListeController extends Controller
             $criteria = $form->getData();
         }
 
+        $this->initialiserHistorique($historiqueModifDA);
+
+        $formHistorique = self::$validator->createBuilder(
+            HistoriqueModifDaType::class,
+            $historiqueModifDA,
+            [
+                'method' => 'POST',
+            ]
+        )->getForm();
+
+        $formHistorique->handleRequest($request);
+        if ($formHistorique->isSubmitted() && $formHistorique->isValid()) {
+            $historiqueModifDA = $formHistorique->getData();
+            // $historique->setDemandeAppro($this->daRepository->findOneBy(['numeroDemandeAppro' => $historique->getNumDa()]));
+            // self::$em->persist($historique);
+            // self::$em->flush();
+
+            // $this->addFlash('success', 'Historique de la demande d\'approvisionnement ajouté avec succès.');
+        }
 
         $this->sessionService->remove('firstCharge');
 
@@ -173,5 +196,11 @@ class DaListeController extends Controller
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_APPRO, $serviceIds);
+    }
+
+    private function initialiserHistorique(DaHistoriqueDemandeModifDA $historique)
+    {
+        $historique
+            ->setDemandeur($this->getUser()->getNomUtilisateur());
     }
 }
