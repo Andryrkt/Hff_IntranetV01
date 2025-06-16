@@ -620,7 +620,7 @@ class DitRepository extends EntityRepository
     {
         return $this->createQueryBuilder('d')
             ->Where('d.numMigration = :numMigr')
-            ->setParameter('numMigr', 5)
+            ->setParameter('numMigr', 7)
             // ->andWhere('d.numeroDemandeIntervention = :numDit')
             // ->setParameter('numDit', 'DIT25010315')
             ->orderBy('d.numeroDemandeIntervention', 'ASC')
