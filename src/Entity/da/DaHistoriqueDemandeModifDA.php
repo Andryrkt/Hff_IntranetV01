@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="da_historique_demande_modif_da")
+ * @ORM\Table(name="historique_demande_modif_DA")
  * @ORM\HasLifecycleCallbacks
  */
 class DaHistoriqueDemandeModifDA
