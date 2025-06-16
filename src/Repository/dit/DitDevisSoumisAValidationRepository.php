@@ -342,8 +342,9 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             return 0;
         }
 
-        return $this->createQueryBuilder('dsv')
-            ->select('DISTINCT dsv.montantItv')
+        // Calculer la somme du montantItv pour la version maximale
+        $sommeMontantItv = $this->createQueryBuilder('dsv')
+            ->select('SUM(dsv.montantItv)')
             ->where('dsv.numeroDevis = :numDevis')
             ->andWhere('dsv.numeroVersion = :numVersion')
             ->setParameters([
@@ -351,6 +352,8 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 'numDevis' => $numDevis
             ])
             ->getQuery()
-            ->getSingleScalarResult();;
+            ->getSingleScalarResult();
+
+        return $sommeMontantItv ?? 0;
     }
 }
