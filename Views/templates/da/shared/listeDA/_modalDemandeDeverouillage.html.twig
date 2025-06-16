@@ -9,6 +9,7 @@
       {{ form_start(formHistorique) }}
       <div class="modal-body">
         <p class="mb-3">Veuillez sasir le motif de déverouillage de la demande s'il vous plaît</p>
+        {{ form_row(formHistorique.idDa) }}
         {{ form_row(formHistorique.motif) }}
       </div>
       <div class="modal-footer">
