@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.setItem('currentTab', numeroLigne);
     });
   });
-  mergeCellsTable(0); // fusionne le tableau
+  mergeCellsTable(1); // fusionne le tableau en fonction de la colonne DA
 });
 
 window.addEventListener('load', () => {
