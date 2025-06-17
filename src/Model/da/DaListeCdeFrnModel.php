@@ -86,7 +86,8 @@ class DaListeCdeFrnModel extends Model
                 END as num_liv,
                 slor_natcm,
                 slor_nolign as numero_ligne,
-                slor_constp as constructeur
+                slor_constp as constructeur,
+                (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) as position_cde
                 
                 FROM sav_lor
                 INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
