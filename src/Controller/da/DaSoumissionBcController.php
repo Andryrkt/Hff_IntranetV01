@@ -40,9 +40,9 @@ class DaSoumissionBcController extends Controller
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}/{numDa}", name="da_soumission_bc")
      */
-    public function index(string $numCde, Request $request)
+    public function index(string $numCde, string $numDa, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -53,7 +53,7 @@ class DaSoumissionBcController extends Controller
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa);
 
         self::$twig->display('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -69,7 +69,7 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa): void
     {
         $form->handleRequest($request);
 
@@ -86,6 +86,7 @@ class DaSoumissionBcController extends Controller
                     ->setPieceJoint1($nomDeFichier)
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setNumeroDemandeAppro($numDa)
                 ; //TODO: A AJOUTER le numero Da, numero OR,...
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
