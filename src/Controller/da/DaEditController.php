@@ -72,7 +72,6 @@ class DaEditController extends Controller
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
-
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $demandeAppro);
@@ -187,7 +186,6 @@ class DaEditController extends Controller
                 $this->insertionObservation($demandeAppro);
             }
 
-
             /** ENVOIE MAIL */
             $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
 
@@ -301,12 +299,10 @@ class DaEditController extends Controller
      */
     private function deleteDALR(DemandeApproL $dal)
     {
-        if ($dal->getDeleted() === true) {
-            $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
-            foreach ($dalrs as $dalr) {
-                self::$em->remove($dalr);
-                self::$em->persist($dalr);
-            }
+        $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        foreach ($dalrs as $dalr) {
+            self::$em->remove($dalr);
+            self::$em->persist($dalr);
         }
     }
 
