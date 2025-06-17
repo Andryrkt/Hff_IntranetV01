@@ -42,7 +42,7 @@ class DaPropositionRefController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaObservation $daObservation;
-    private  $daObservationRepository;
+    private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
 
 
