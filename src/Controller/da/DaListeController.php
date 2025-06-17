@@ -2,24 +2,29 @@
 
 namespace App\Controller\da;
 
+use App\Model\da\DaModel;
 use App\Form\da\DaSearchType;
+use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\lienGenerique;
-use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
+use App\Controller\Traits\da\DaTrait;
 use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Form\da\HistoriqueModifDaType;
-use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Service\EmailService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 
 /**
  * @Route("/demande-appro")
@@ -38,6 +43,9 @@ class DaListeController extends Controller
     private DemandeApproLRepository $daLRepository;
     private DemandeApproLRRepository $dalrRepository;
     private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
+    private DaModel $daModel;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
@@ -48,6 +56,9 @@ class DaListeController extends Controller
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->dalrRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->historiqueModifDARepository = self::$em->getRepository(DaHistoriqueDemandeModifDA::class);
+        $this->daModel = new DaModel();
+        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -375,5 +386,33 @@ class DaListeController extends Controller
 
         self::$em->persist($da);
         self::$em->flush();
+    }
+
+    private function statutBc(string $ref, string $numDit, string $numCde)
+    {
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
+
+        $statutDa = $this->daRepository->getStatut($numDit);
+
+        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
+
+        $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
+
+        $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
+
+        $statut_bc = '';
+        if ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
+            $statut_bc = 'à générer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
+            $statut_bc = 'à éditer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
+            $statut_bc = 'à soumettre à validation';
+        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
+            $statut_bc = 'à envoyer au fournisseur';
+        } else {
+            $statut_bc = $statutBc;
+        }
+
+        return $statut_bc;
     }
 }
