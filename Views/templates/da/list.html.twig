@@ -61,6 +61,7 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
@@ -81,7 +82,7 @@
 										<li>
 											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
 										</li>
-										{% elseif serviceAppro %}
+										{% elseif aDeverouiller %}
 										<li>
 											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
 										</li>
@@ -90,11 +91,11 @@
 								</div>
 							</td>
 							{# Fin Actions #}
-							<td>
+							<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
 								{# {% if serviceAppro %} #}
 								{# {{ item.numeroDemandeAppro }} #}
 								{# {% else %} #}
-									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}"> {{ item.numeroDemandeAppro }}
 								</a>
 								{# {% endif %} #}
 							</td>
