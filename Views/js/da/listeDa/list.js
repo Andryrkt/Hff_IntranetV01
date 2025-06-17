@@ -3,6 +3,7 @@ import { mergeCellsTable } from './tableHandler';
 import { configAgenceService } from '../../dit/config/listDitConfig.js';
 import { handleAgenceChange } from '../../dit/fonctionUtils/fonctionListDit.js';
 import { allowOnlyNumbers } from '../../magasin/utils/inputUtils.js';
+import { baseUrl } from '../../utils/config.js';
 
 document.addEventListener('DOMContentLoaded', function () {
   const designations = document.querySelectorAll('.designation-btn');
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function () {
       .querySelector('#confirmActionBtn')
       .addEventListener('click', function () {
         // Logique pour traiter la confirmation
-        window.location.href = `/demande-appro/deverrouiller-da/${idDA}`; // Redirection vers l'URL de déverrouillage
+        window.location.href = `${baseUrl}/demande-appro/deverrouiller-da/${idDA}`; // Redirection vers l'URL de déverrouillage
         modalConfirmation.hide(); // Ferme le modal après traitement
       });
   });

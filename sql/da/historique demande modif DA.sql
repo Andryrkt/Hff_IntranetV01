@@ -6,5 +6,6 @@ CREATE TABLE historique_demande_modif_DA (
     demande_appro_id int not null,
     date_creation DATETIME2(0),
     date_modification DATETIME2(0),
+    est_deverouillee bit DEFAULT 0,
     CONSTRAINT PK_historique_demande_modif_DA PRIMARY KEY (id)
 );
