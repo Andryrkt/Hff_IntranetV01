@@ -49,7 +49,7 @@
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
-					<th>Réference</th>
+						<th>Réference</th>
 					{% endif %}
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
@@ -65,7 +65,8 @@
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
-							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
+							{# Le premier dalr avec choix = true #}
 							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
 						{% endif %}
 						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
@@ -79,13 +80,13 @@
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										{% if serviceAtelier %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
-										</li>
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
+											</li>
 										{% elseif aDeverouiller %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
-										</li>
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
+											</li>
 										{% endif %}
 									</ul>
 								</div>
@@ -104,7 +105,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
 							<td class="text-start">{{ item.dit.statutOr }}</td>
-							<td class="text-start"></td>
+							<td class="text-start">{{item.statutbc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}

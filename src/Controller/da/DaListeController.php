@@ -90,6 +90,7 @@ class DaListeController extends Controller
 
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
+        $this->ajoutStatutBc($dasFiltered);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
@@ -227,6 +228,47 @@ class DaListeController extends Controller
 
 
         return $das;
+    }
+
+    private function ajoutStatutBc($dasFiltereds): void
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDAL() as $dal) {
+                $statutBc = $this->statutBc($dal->getArtRefp(), $dasFiltered->getNumeroDemandeDit());
+                $dal->setStatutBc($statutBc);
+            }
+        }
+    }
+
+    private function statutBc(string $ref, string $numDit)
+    {
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
+
+        $statutDa = $this->daRepository->getStatut($numDit);
+
+        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
+        $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
+        $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
+
+        $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
+
+
+        $statut_bc = '';
+        if (!array_key_exists(0, $situationCde)) {
+            $statut_bc = $statutBc;
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
+            $statut_bc = 'à générer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
+            $statut_bc = 'à éditer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
+            $statut_bc = 'à soumettre à validation';
+        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
+            $statut_bc = 'à envoyer au fournisseur';
+        } else {
+            $statut_bc = $statutBc;
+        }
+
+        return $statut_bc;
     }
 
     private function ajoutInfoDit(array $datas): void
@@ -386,33 +428,5 @@ class DaListeController extends Controller
 
         self::$em->persist($da);
         self::$em->flush();
-    }
-
-    private function statutBc(string $ref, string $numDit, string $numCde)
-    {
-        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
-
-        $statutDa = $this->daRepository->getStatut($numDit);
-
-        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
-
-        $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
-
-        $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
-
-        $statut_bc = '';
-        if ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
-            $statut_bc = 'à générer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
-            $statut_bc = 'à éditer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
-            $statut_bc = 'à soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
-            $statut_bc = 'à envoyer au fournisseur';
-        } else {
-            $statut_bc = $statutBc;
-        }
-
-        return $statut_bc;
     }
 }

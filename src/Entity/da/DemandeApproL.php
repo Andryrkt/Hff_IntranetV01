@@ -191,6 +191,8 @@ class DemandeApproL
      */
     private $fileNames = [];
 
+    private $statutBc;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -868,6 +870,26 @@ class DemandeApproL
     public function setFileNames($fileNames)
     {
         $this->fileNames = $fileNames;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */ 
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */ 
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
 
         return $this;
     }
