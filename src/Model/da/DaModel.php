@@ -151,4 +151,37 @@ class DaModel extends Model
 
         return array_column($data, 'prix');
     }
+
+    public function getSituationCde(string $ref, string $numDit)
+    {
+        $statement = " SELECT DISTINCT
+                slor_natcm,
+                slor_refp,
+                seor_refdem,
+                CASE
+                    when slor_natcm = 'C' then (select fcde_numcde from Informix.frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_numcde from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END as num_cde,
+                CASE
+                    when slor_natcm = 'C' then (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_posc from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END as position_bc           
+                FROM Informix.sav_lor
+                INNER JOIN Informix.sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN Informix.sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
+                WHERE
+                slor_constp = 'ZST' 
+                and slor_refp <> 'ST'
+                and slor_typlig = 'P'
+                and slor_natcm in ('C', 'L')
+                and slor_refp not like ('PREST%')
+                and slor_refp = '$ref'
+                and seor_refdem = '$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
 }

@@ -12,6 +12,7 @@ use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
 use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\da\DaModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -23,13 +24,14 @@ class ListCdeFrnController extends Controller
 {
     use DaTrait;
 
-    const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
+    private const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
 
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaModel $daModel;
 
     public function __construct()
     {
@@ -39,6 +41,7 @@ class ListCdeFrnController extends Controller
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daModel = new DaModel();
     }
 
     /** 
@@ -96,8 +99,6 @@ class ListCdeFrnController extends Controller
         $datas = $this->ajoutStatutBc($datas);
         $datas = $this->ajouterNbrJoursDispo($datas);
 
-
-
         return $datas;
     }
 
@@ -113,20 +114,13 @@ class ListCdeFrnController extends Controller
     private function ajoutStatutBc(array $datas)
     {
         foreach ($datas as $key => $data) {
-            if ($data['position_cde'] == 'TE') {
-                $datas[$key]['statut_bc'] = 'à éditer';
-            } elseif ($data['position_cde'] == 'ED' && !$this->daSoumissionBcRepository->bcExists($data['num_cde'])) {
-                $datas[$key]['statut_bc'] = 'à soumettre à validation';
-            } elseif ($data['position_cde'] == 'ED' && $this->daSoumissionBcRepository->getStatut($data['num_cde']) == 'Validé') {
-                $datas[$key]['statut_bc'] = 'à envoyer au fournisseur';
-            } else {
-                $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
-                $datas[$key]['statut_bc'] = $statutBc;
-            }
-        }
 
+            $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
+            $data[$key]['statut_bc'] = $statutBc;
+        }
         return $datas;
     }
+
 
     private function ajouterNbrJoursDispo(array $datas)
     {
