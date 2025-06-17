@@ -3,10 +3,11 @@
 namespace App\Entity\da;
 
 use App\Entity\Traits\DateTrait;
+use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=DaHistoriqueDemandeModifDARepository::class)
  * @ORM\Table(name="historique_demande_modif_DA")
  * @ORM\HasLifecycleCallbacks
  */
@@ -41,6 +42,15 @@ class DaHistoriqueDemandeModifDA
      * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id", nullable=false)
      */
     private ?DemandeAppro $demandeAppro;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_deverouillee")
+     */
+    private $estDeverouillee = false;
+
+    /**===========================================================================
+     * GETTER & SETTER
+     *============================================================================*/
 
     /**
      * Get the value of id
@@ -138,6 +148,26 @@ class DaHistoriqueDemandeModifDA
     public function setDemandeAppro($demandeAppro)
     {
         $this->demandeAppro = $demandeAppro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDeverouillee
+     */
+    public function getEstDeverouillee()
+    {
+        return $this->estDeverouillee;
+    }
+
+    /**
+     * Set the value of estDeverouillee
+     *
+     * @return  self
+     */
+    public function setEstDeverouillee($estDeverouillee)
+    {
+        $this->estDeverouillee = $estDeverouillee;
 
         return $this;
     }

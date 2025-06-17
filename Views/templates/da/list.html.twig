@@ -44,6 +44,8 @@
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
 					<th class="text-center">Statut DA</th>
+					<th class="text-center">Statut OR</th>
+					<th class="text-center">Statut BC</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
@@ -59,6 +61,7 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
@@ -77,22 +80,22 @@
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										{% if serviceAtelier %}
 										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage</a>
+											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
 										</li>
-										{% elseif serviceAppro %}
+										{% elseif aDeverouiller %}
 										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la demande</a>
+											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
 										</li>
 										{% endif %}
 									</ul>
 								</div>
 							</td>
 							{# Fin Actions #}
-							<td>
+							<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
 								{# {% if serviceAppro %} #}
 								{# {{ item.numeroDemandeAppro }} #}
 								{# {% else %} #}
-									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}"> {{ item.numeroDemandeAppro }}
 								</a>
 								{# {% endif %} #}
 							</td>
@@ -100,6 +103,8 @@
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="text-start">{{ item.dit.statutOr }}</td>
+							<td class="text-start"></td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}

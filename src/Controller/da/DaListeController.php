@@ -13,6 +13,7 @@ use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Form\da\HistoriqueModifDaType;
+use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -30,11 +31,13 @@ class DaListeController extends Controller
 
     private const ID_ATELIER = 3;
     private const ID_APPRO = 16;
+    private const DA_STATUT_SOUMIS_ATE = 'Proposition achats';
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DemandeApproLRepository $daLRepository;
     private DemandeApproLRRepository $dalrRepository;
+    private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
 
     public function __construct()
     {
@@ -44,6 +47,7 @@ class DaListeController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->dalrRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->historiqueModifDARepository = self::$em->getRepository(DaHistoriqueDemandeModifDA::class);
     }
 
     /**
@@ -55,6 +59,7 @@ class DaListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
+        $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         $form = self::$validator->createBuilder(DaSearchType::class, null, [
             'method' => 'GET',
@@ -86,6 +91,7 @@ class DaListeController extends Controller
 
         self::$twig->display('da/list.html.twig', [
             'data' => $dasFiltered,
+            'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
             'form' => $form->createView(),
             'formHistorique' => $formHistorique->createView(),
             'serviceAtelier' => $this->estUserDansServiceAtelier(),
@@ -100,25 +106,32 @@ class DaListeController extends Controller
     {
         // verification si user connecter
         $this->verifierSessionUtilisateur();
-
         $demandeAppro = $this->daRepository->find($idDa);
+        /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
+        $historiqueModifDA = $this->historiqueModifDARepository->findOneBy(['demandeAppro' => $demandeAppro]);
+
         if (!$demandeAppro) {
             $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'La demande d\'approvisionnement n\'existe pas.']);
             return $this->redirectToRoute('da_list');
+        } else if (!$historiqueModifDA) {
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Aucune demande de déverrouillage n\'a été faite pour cette DA.']);
+            return $this->redirectToRoute('da_list');
+        } else if ($historiqueModifDA->getEstDeverouillee()) {
+            $this->sessionService->set('notification', ['type' => 'warning', 'message' => 'La demande d\'approvisionnement est déjà déverrouillée.']);
+            return $this->redirectToRoute('da_list');
         } else {
-            // if ($demandeAppro->getEstVerrouillee() == false) {
-            //     $this->sessionService->set('notification', ['type' => 'warning', 'message' => 'La demande d\'approvisionnement n\'est pas verrouillée.']);
-            //     return $this->redirectToRoute('da_list');
-            // }
-
             if (!$this->estUserDansServiceAppro()) {
                 $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Vous n\'êtes pas autorisé à déverrouiller cette demande.']);
                 return $this->redirectToRoute('da_list');
             }
 
-            // $demandeAppro->setEstVerrouillee(false);
-            // self::$em->persist($demandeAppro);
-            // self::$em->flush();
+            $this->duplicationDataDaL($demandeAppro->getDAL()->toArray());
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro());
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro());
+
+            $historiqueModifDA->setEstDeverouillee(true); // Marquer la demande comme déverrouillée
+            self::$em->persist($historiqueModifDA);
+            self::$em->flush();
 
             $this->envoyerMailAuxAte([
                 'numDa' => $demandeAppro->getNumeroDemandeAppro(),
@@ -235,28 +248,36 @@ class DaListeController extends Controller
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $historiqueModifDA = $form->getData();
             $idDa = $form->get('idDa')->getData();
 
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $this->daRepository->find($idDa);
 
-            /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
-            $historiqueModifDA
-                ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-                ->setDemandeAppro($demandeAppro)
-            ;
+            $historiqueModifDA = $this->historiqueModifDARepository->findOneBy(['demandeAppro' => $demandeAppro]);
 
-            self::$em->persist($historiqueModifDA);
-            self::$em->flush();
+            if ($historiqueModifDA) {
+                $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Echec de la demande: une demande de déverouillage a déjà été envoyé sur cette DA.']);
+                return $this->redirectToRoute('da_list');
+            } else {
+                /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
+                $historiqueModifDA = $form->getData();
+                $historiqueModifDA
+                    ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+                    ->setDemandeAppro($demandeAppro)
+                ;
 
-            $this->envoyerMailAuxAppro([
-                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
-                'motif' => $historiqueModifDA->getMotif(),
-                'userConnecter' => $this->getUser()->getNomUtilisateur(),
-            ]);
+                self::$em->persist($historiqueModifDA);
+                self::$em->flush();
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
+                $this->envoyerMailAuxAppro([
+                    'numDa' => $demandeAppro->getNumeroDemandeAppro(),
+                    'motif' => $historiqueModifDA->getMotif(),
+                    'userConnecter' => $this->getUser()->getNomUtilisateur(),
+                ]);
+
+                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
+                return $this->redirectToRoute('da_list');
+            }
         }
     }
 
@@ -303,5 +324,56 @@ class DaListeController extends Controller
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+    }
+
+
+    /**
+     * Dupliquer les lignes de la table demande_appro_L
+     */
+    private function duplicationDataDaL($data): void
+    {
+        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
+        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+
+        foreach ($dals as $dal) {
+            // On clone l'entité (copie en mémoire)
+            $newDal = clone $dal;
+            $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
+
+            // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
+            self::$em->persist($newDal);
+        }
+
+        self::$em->flush();
+    }
+
+    private function autoIncrement(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
+    }
+
+    private function modificationStatutDal(string $numDa): void
+    {
+        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        foreach ($dals as  $dal) {
+            $dal->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+            self::$em->persist($dal);
+        }
+
+        self::$em->flush();
+    }
+
+    private function modificationStatutDa(string $numDa): void
+    {
+        $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $da->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+
+        self::$em->persist($da);
+        self::$em->flush();
     }
 }
