@@ -14,14 +14,20 @@
 				<div class="row">
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
-						{{ form_row(form.statut)}}
+						{{ form_row(form.statutDA)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
+						<div class="d-none">
+							{{ form_row(form.statutOR)}}
+						</div>
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.numDa) }}
+						<div class="d-none">
+							{{ form_row(form.statutBC)}}
+						</div>
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.idMateriel)}}

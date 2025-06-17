@@ -44,6 +44,8 @@
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
 					<th class="text-center">Statut DA</th>
+					<th class="text-center">Statut OR</th>
+					<th class="text-center">Statut BC</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
@@ -100,6 +102,8 @@
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="text-start">{{ item.dit.statutOr }}</td>
+							<td class="text-start"></td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}

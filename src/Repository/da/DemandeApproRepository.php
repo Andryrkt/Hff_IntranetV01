@@ -32,8 +32,8 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
         }
 
-        //filtre sur le statut
-        if (isset($criteria['statut'])) {
+        //filtre sur le statut de DA
+        if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
                 ->setParameter('statut', $criteria['statut']);
         }
