@@ -19,7 +19,6 @@ use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
 
 class CdefnrSoumisAValidationController extends Controller
 {
-    private CdefnrSoumisAValidationModel $cdeFnrModel;
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
     private TraitementDeFichier $traitementDeFichier;
@@ -27,7 +26,6 @@ class CdefnrSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->cdeFnrModel = new CdefnrSoumisAValidationModel();
         $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
         $this->historiqueOperation = new HistoriqueOperationCDEFNRService();
         $this->traitementDeFichier = new TraitementDeFichier();
@@ -86,7 +84,7 @@ class CdefnrSoumisAValidationController extends Controller
                 $genererPdfCdeFnr = new GenererPdfCdeFnr();
                 $genererPdfCdeFnr->copyToDWCdeFnrSoumis($fileName);
 
-                //ajout des données dan sla base de donnée
+                //ajout des données dans la base de donnée
                 $this->ajoutDonnerDansDb($cdeFournisseur);
 
                 //historisation de l'operation
