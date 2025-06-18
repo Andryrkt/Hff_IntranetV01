@@ -9,13 +9,17 @@ trait ConditionModelTrait
     private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
     {
         if (!empty($criteria[$indexCriteria])) {
-            $condition = " AND {$colonneBase} LIKE '%" . (string)$criteria[$indexCriteria] . "%'";
+            // Échappe les quotes simples pour Informix en les doublant
+            $valeur = str_replace("'", "''", (string)$criteria[$indexCriteria]);
+
+            $condition = " AND {$colonneBase} LIKE '%{$valeur}%'";
         } else {
             $condition = "";
         }
 
         return $condition;
     }
+
     private function conditionEgal(string $colonneBase, string $indexCriteria, $criteria)
     {
         if (!empty($criteria[$indexCriteria])) {
@@ -357,7 +361,7 @@ trait ConditionModelTrait
                                     else 'Vente'
                                 end as obs
 
-                                from frn_cde, neg_lig, outer hff_ctrmarq_agence_". $vinstant . "
+                                from frn_cde, neg_lig, outer hff_ctrmarq_agence_" . $vinstant . "
                                 where fcde_soc = 'HF' and fcde_succ = '01' and fcde_serv = 'NEG'
                                 and fcde_posl = '--'
                                 and (nlig_soc = fcde_soc and nlig_numcf = fcde_numcde)

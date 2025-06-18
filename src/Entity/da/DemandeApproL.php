@@ -193,6 +193,9 @@ class DemandeApproL
 
     private $statutBc;
 
+    private $qteLivee;
+    private $qteALivrer;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -876,7 +879,7 @@ class DemandeApproL
 
     /**
      * Get the value of statutBc
-     */ 
+     */
     public function getStatutBc()
     {
         return $this->statutBc;
@@ -886,10 +889,50 @@ class DemandeApproL
      * Set the value of statutBc
      *
      * @return  self
-     */ 
+     */
     public function setStatutBc($statutBc)
     {
         $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteLivee
+     */ 
+    public function getQteLivee()
+    {
+        return $this->qteLivee;
+    }
+
+    /**
+     * Set the value of qteLivee
+     *
+     * @return  self
+     */ 
+    public function setQteLivee($qteLivee)
+    {
+        $this->qteLivee = $qteLivee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteALivrer
+     */ 
+    public function getQteALivrer()
+    {
+        return $this->qteALivrer;
+    }
+
+    /**
+     * Set the value of qteALivrer
+     *
+     * @return  self
+     */ 
+    public function setQteALivrer($qteALivrer)
+    {
+        $this->qteALivrer = $qteALivrer;
 
         return $this;
     }

@@ -109,7 +109,6 @@ class DaListeCdeFrnModel extends Model
                 $numCommande
                 order by num_dit, num_or , num_fournisseur , nom_fournisseur , num_cde
         ";
-
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

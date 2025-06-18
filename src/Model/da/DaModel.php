@@ -184,4 +184,33 @@ class DaModel extends Model
 
         return $data;
     }
+
+    public function getEvolutionQte(string $numDit)
+    {
+        $statement = " SELECT
+                TRIM(seor_refdem) as num_dit,
+                ROUND(CASE
+                    when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                END) as qte_dem,
+                ROUND(slor_qterel) as qte_reliquat,
+                ROUND(slor_qteres) as qte_a_livrer,
+                ROUND(slor_qterea) as qte_livee
+
+                FROM sav_lor
+                INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
+                WHERE
+                slor_constp = 'ZST' 
+                and slor_refp <> 'ST'
+                and slor_typlig = 'P'
+                and slor_natcm in ('C', 'L')
+                and slor_refp not like ('PREST%')
+                and seor_refdem='$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
 }

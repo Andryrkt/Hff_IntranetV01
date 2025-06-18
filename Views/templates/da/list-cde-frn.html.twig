@@ -93,15 +93,11 @@
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}
 							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
-
 								{{ item.num_cde }}
-
 							</td>
 						{% else %}
 							<td class="text-center {{ classe }}">
-
 								{{ item.num_cde }}
-
 							</td>
 						{% endif %}
 

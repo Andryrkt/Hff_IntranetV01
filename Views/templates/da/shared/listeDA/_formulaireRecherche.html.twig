@@ -54,12 +54,31 @@
 		</div>
 	</div>
 	{% if serviceAppro %}
-	<div class="container">
-		<div class="my-3 d-flex flex-row">
-			<div>
-				<small class="bg-danger text-white p-1">DAPXXXXXXXX</small> :  DA à déverrouiller
+		<div class="container">
+			<div class="my-3 d-flex  justify-content-between">
+				<div class="d-flex flex-row">
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+				</div>
+				<div class="d-flex flex-row">
+					<small class="bg-danger text-white p-1">DAPXXXXXXXX</small>
+					:  DA à déverrouiller
+				</div>
 			</div>
 		</div>
-	</div>
 	{% endif %}
 </div>

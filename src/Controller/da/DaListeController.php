@@ -91,6 +91,7 @@ class DaListeController extends Controller
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
         $this->ajoutStatutBc($dasFiltered);
+        $this->ajoutQte($dasFiltered);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
@@ -236,6 +237,19 @@ class DaListeController extends Controller
             foreach ($dasFiltered->getDAL() as $dal) {
                 $statutBc = $this->statutBc($dal->getArtRefp(), $dasFiltered->getNumeroDemandeDit());
                 $dal->setStatutBc($statutBc);
+            }
+        }
+    }
+
+    private function ajoutQte($dasFiltereds)
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDAL() as $dal) {
+                $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
+                if (array_key_exists(0, $qte)) {
+                    $dal->setQteLivee($qte[0]['qte_a_livrer']);
+                    $dal->setQteALivrer($qte[0]['qte_livee']);
+                }
             }
         }
     }

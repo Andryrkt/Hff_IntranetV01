@@ -61,6 +61,25 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set classe = '' %}
+					{% set qteCdm = item.qteDem | default(0) * 1 %}
+					{% set qteLiv = item.qteLivee | default(0) * 1 %}
+					{% set qteAll = item.qteALivrer | default(0) * 1 %}
+
+					{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+						{# Tout livré #}
+						{% set classe = 'tout-livre bg-success text-white' %}
+					{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+						{# Partiellement livré #}
+						{% set classe = 'partiellement-livre bg-warning text-white' %}
+					{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+						{# Partiellement dispo #}
+						{% set classe = 'partiellement-dispo bg-info text-white' %}
+					{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+						{# complet non livré #}
+						{% set classe = 'complet-non-livre bg-primary text-white' %}
+					{% endif %}
+
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
@@ -105,7 +124,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
 							<td class="text-start">{{ item.dit.statutOr }}</td>
-							<td class="text-start">{{item.statutbc}}</td>
+							<td class="text-start {{classe}}">{{item.statutbc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
@@ -119,7 +138,6 @@
 										{{ dalAffiche.artDesi }}
 									</a>
 								{% endif %}
-
 							</td>
 							<td class="text-center">
 								{% if dal.estFicheTechnique %}
