@@ -184,4 +184,18 @@ class DaModel extends Model
 
         return $data;
     }
+
+    public function getAllConstructeur(string $numDit)
+    {
+        $statement = "SELECT DISTINCT slor_constp as constructeur
+            FROM sav_lor
+            INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+            where seor_refdem = '$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'constructeur');
+    }
 }

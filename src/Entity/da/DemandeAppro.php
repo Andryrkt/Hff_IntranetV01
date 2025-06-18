@@ -138,6 +138,10 @@ class DemandeAppro
      */
     private ?string $nonFichierRefZst = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
+     */
+    private $historiqueDemandeModifDA;
 
     private ?DemandeIntervention $dit = null;
 
@@ -145,10 +149,7 @@ class DemandeAppro
 
     private $numDossierDouane;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
-     */
-    private $historiqueDemandeModifDA;
+    private bool $demandeDeverouillage = false;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -717,6 +718,26 @@ class DemandeAppro
     public function setHistoriqueDemandeModifDA($historiqueDemandeModifDA)
     {
         $this->historiqueDemandeModifDA = $historiqueDemandeModifDA;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeDeverouillage
+     */
+    public function getDemandeDeverouillage()
+    {
+        return $this->demandeDeverouillage;
+    }
+
+    /**
+     * Set the value of demandeDeverouillage
+     *
+     * @return  self
+     */
+    public function setDemandeDeverouillage($demandeDeverouillage)
+    {
+        $this->demandeDeverouillage = $demandeDeverouillage;
 
         return $this;
     }
