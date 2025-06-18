@@ -53,7 +53,6 @@
 			</div>
 		</div>
 	</div>
-	{% if serviceAppro %}
 		<div class="container">
 			<div class="my-3 d-flex  justify-content-between">
 				<div class="d-flex flex-row">
@@ -74,11 +73,12 @@
 						<small class="text-primary">Complet non livré |</small>
 					</div>
 				</div>
+			{% if serviceAppro %}
 				<div class="d-flex flex-row">
 					<small class="bg-danger text-white p-1">DAPXXXXXXXX</small>
 					:  DA à déverrouiller
 				</div>
+			{% endif %}
 			</div>
 		</div>
-	{% endif %}
 </div>
