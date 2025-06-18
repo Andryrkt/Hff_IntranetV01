@@ -164,9 +164,9 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        // $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        // $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
-
+        $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+        $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
+// dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -181,7 +181,7 @@ class DitOrsSoumisAValidationController extends Controller
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
             // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
-            // 'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
     }
 
@@ -334,7 +334,7 @@ class DitOrsSoumisAValidationController extends Controller
         foreach ($a as $item) {
             $found = false;
             foreach ($b as $key => $value) {
-                if ($item === $value) {
+                if ($item == $value) {
                     $found = true;
                     unset($b[$key]);
                     break;

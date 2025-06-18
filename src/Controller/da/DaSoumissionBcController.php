@@ -109,7 +109,7 @@ class DaSoumissionBcController extends Controller
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
         return [
-            'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
+            'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === self::STATUT_SOUMISSION,
         ];
     }

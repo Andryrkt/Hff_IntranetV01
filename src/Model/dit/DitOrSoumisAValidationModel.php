@@ -400,7 +400,7 @@ class DitOrSoumisAValidationModel extends Model
                     from Informix.sav_lor isl 
                     where slor_constp ='ZST' 
                     and slor_soc ='HF' 
-                    and isl.slor_refp != 'ST'
+                    --and isl.slor_refp != 'ST'
                     and isl.slor_numor ='$numOr'
                     order by isl.slor_refp DESC
                     -- and isl.slor_numor ='" . $numOr . "'

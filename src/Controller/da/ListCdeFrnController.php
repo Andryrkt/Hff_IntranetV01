@@ -85,7 +85,7 @@ class ListCdeFrnController extends Controller
 
     private function recuperationDonner(array $criteria): array
     {
-        $numDits = $this->demandeApproRepository->getNumDit();
+        $numDits = $this->demandeApproRepository->getAllNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
 
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
@@ -116,8 +116,9 @@ class ListCdeFrnController extends Controller
         foreach ($datas as $key => $data) {
 
             $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
-            $data[$key]['statut_bc'] = $statutBc;
+            $datas[$key]['statut_bc'] = $statutBc;
         }
+        
         return $datas;
     }
 

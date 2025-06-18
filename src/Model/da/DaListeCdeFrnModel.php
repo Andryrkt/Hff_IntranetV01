@@ -94,9 +94,7 @@ class DaListeCdeFrnModel extends Model
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                 WHERE
                 slor_constp = 'ZST' 
-                and slor_refp <> 'ST'
                 and slor_typlig = 'P'
-                and slor_natcm in ('C', 'L')
                 and slor_refp not like ('PREST%')
                 and TRIM(seor_refdem) IN ($numDitString)
                 and slor_numor IN ($numOrString)
@@ -109,6 +107,7 @@ class DaListeCdeFrnModel extends Model
                 $numCommande
                 order by num_dit, num_or , num_fournisseur , nom_fournisseur , num_cde
         ";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

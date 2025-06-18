@@ -92,7 +92,7 @@
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}
-							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}">
+							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}" data-statut-bc="{{item.statut_bc}}">
 								{{ item.num_cde }}
 							</td>
 						{% else %}
@@ -101,7 +101,7 @@
 							</td>
 						{% endif %}
 
-						<td class="text-center">{{ item.statut_bc | default('à générer') }}</td>
+						<td class="text-center fw-bold">{{ item.statut_bc}}</td>
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
@@ -116,7 +116,6 @@
 	</div>
 
 	<!-- FIN tableau -->
-
 	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
 
 

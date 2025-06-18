@@ -2,6 +2,7 @@ import { displayOverlay } from "../../utils/spinnerUtils";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
+import { baseUrl } from "../../utils/config";
 const fetchManager = new FetchManager();
 
 window.addEventListener("load", () => {
@@ -13,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
-    { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8, 9], insertSeparator: true },
+    { pivotIndex: 3, columns: [0, 1, 2, 3, 4], insertSeparator: true },
+    { pivotIndex: 5, columns: [5, 6], insertSeparator: true },
+    { pivotIndex: 7, columns: [7, 8], insertSeparator: true },
   ]);
 });
 
@@ -94,6 +95,7 @@ window.addEventListener("resize", adjustStickyPositions);
 const menu = document.getElementById("menuContextuelGlobal");
 const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
+const statutAffiche = document.getElementById("statut-affiche");
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -103,13 +105,35 @@ document.addEventListener("contextmenu", function (event) {
 
   const commandeId = targetCell.dataset.commandeId;
   hiddenInputCde.value = commandeId;
+
   const numDa = targetCell.dataset.numDa;
   hiddenInputDa.value = numDa;
+
+  const statutBc = targetCell.dataset.statutBc;
+console.log(statutBc);
+  if (statutBc === 'BC envoyé au fournisseur') {
+    statutAffiche.innerHTML = `
+      <p title="cliquer pour confirmer l'envoi"
+         class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+         BC envoyé au fournisseur
+      </p>`;
+  } else if (statutBc === 'A envoyer au fournisseur') {
+    // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
+    const url = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}`;
+
+    statutAffiche.innerHTML = `
+      <a href="${url}"
+         class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1"
+         title="cliquer pour confirmer l'envoi">
+         BC à envoyer au fournisseur
+      </a>`;
+  }
 
   menu.style.top = event.pageY + "px";
   menu.style.left = event.pageX + "px";
   menu.style.display = "block";
 });
+
 
 // Fermer le menu si clic ailleurs
 document.addEventListener("click", function (event) {

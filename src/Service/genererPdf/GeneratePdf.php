@@ -148,7 +148,7 @@ class GeneratePdf
     public function copyToDWBcDa($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/soumissionBc' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/soumissionBc/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -156,7 +156,7 @@ class GeneratePdf
     public function copyToDWFacBlDa($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/soumissionFacBl' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/soumissionFacBl/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

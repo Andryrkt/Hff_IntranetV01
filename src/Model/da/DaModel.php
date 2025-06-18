@@ -171,9 +171,7 @@ class DaModel extends Model
                 INNER JOIN Informix.sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                 WHERE
                 slor_constp = 'ZST' 
-                and slor_refp <> 'ST'
                 and slor_typlig = 'P'
-                and slor_natcm in ('C', 'L')
                 and slor_refp not like ('PREST%')
                 and slor_refp = '$ref'
                 and seor_refdem = '$numDit'
@@ -215,9 +213,7 @@ class DaModel extends Model
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                 WHERE
                 slor_constp = 'ZST' 
-                and slor_refp <> 'ST'
                 and slor_typlig = 'P'
-                and slor_natcm in ('C', 'L')
                 and slor_refp not like ('PREST%')
                 and seor_refdem='$numDit'
         ";

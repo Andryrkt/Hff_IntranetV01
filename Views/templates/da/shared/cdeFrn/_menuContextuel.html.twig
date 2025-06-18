@@ -1,13 +1,6 @@
 <div id="menuContextuelGlobal" class="menu-contextuel-custom" style="display: none;">
-	{% if item.statut_bc == 'BC envoyé au fournisseur' %}
-		<p title="clicker pour confirmer l'envoie" class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
-			BC envoyé au fournisseur
-		</p>
-	{% elseif item.statut_bc == 'BC à envoyé au fournisseur' %}
-		<a href="{{path('changement_statut_envoyer_fournisseur', {'numCde': item.num_cde, 'numDa':item.num_da})}}" class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1" title="clicker pour confirmer l'envoie">
-			BC à envoyé au fournisseur
-		</a>
-	{% endif %}
+	<span id="statut-affiche" ></span>
+
 
 	{{ form_start(formSoumission, {'method': 'GET'}) }}
 	<div class="p-2">
