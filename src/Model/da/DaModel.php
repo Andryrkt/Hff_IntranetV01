@@ -152,7 +152,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(string $ref, string $numDit)
+    public function getSituationCde(?string $ref = '', string $numDit)
     {
         $statement = " SELECT DISTINCT
                 slor_natcm,

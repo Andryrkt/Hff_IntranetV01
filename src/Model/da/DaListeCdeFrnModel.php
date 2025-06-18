@@ -98,8 +98,8 @@ class DaListeCdeFrnModel extends Model
                 and slor_typlig = 'P'
                 and slor_natcm in ('C', 'L')
                 and slor_refp not like ('PREST%')
-                --and TRIM(seor_refdem) IN ($numDitString)
-                --and slor_numor IN ($numOrString)
+                and TRIM(seor_refdem) IN ($numDitString)
+                and slor_numor IN ($numOrString)
                 $numDit
                 $numOr
                 $designation

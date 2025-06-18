@@ -272,7 +272,7 @@ class DaListeController extends Controller
         }
     }
 
-    private function statutBc(string $ref, string $numDit)
+    private function statutBc(?string $ref, string $numDit)
     {
         $situationCde = $this->daModel->getSituationCde($ref, $numDit);
 
@@ -375,7 +375,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -397,7 +397,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'nomenjanahary.randrianantenaina@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
