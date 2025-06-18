@@ -257,12 +257,13 @@ class DaPropositionRefController extends Controller
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité'];
+        $data[] = ['constructeur', 'reference', 'designation', 'quantité'];
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getArtConstp(),
                 $entity->getArtRefp(),
+                $entity->getArtDesi(),
                 $entity->getQteDem(),
             ];
         }
