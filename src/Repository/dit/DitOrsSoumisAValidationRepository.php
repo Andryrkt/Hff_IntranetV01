@@ -389,7 +389,12 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
-        return  $this->createQueryBuilder('osv')
+        if ($numeroVersionMax === null) {
+            return null;
+        }
+
+        // Étape 2 : Récupérer le statut
+        $result = $this->createQueryBuilder('osv')
             ->select('DISTINCT osv.statut')
             ->where('osv.numeroDit = :numDit')
             ->andWhere('osv.numeroVersion = :numeroVersionMax')
@@ -398,6 +403,8 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
                 'numeroVersionMax' => $numeroVersionMax
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getOneOrNullResult(); // retourne un tableau associatif ou null
+
+        return $result['statut'] ?? null;
     }
 }

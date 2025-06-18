@@ -49,7 +49,7 @@
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
-					<th>Réference</th>
+						<th>Réference</th>
 					{% endif %}
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
@@ -67,7 +67,8 @@
 					{% for dal in item.DAL %}
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
-							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %} {# Le premier dalr avec choix = true #}
+							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
+							{# Le premier dalr avec choix = true #}
 							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
 						{% endif %}
 						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
@@ -108,7 +109,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
 							<td class="text-start">{{ item.dit.statutOr }}</td>
-							<td class="text-start"></td>
+							<td class="text-start">{{item.statutbc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}

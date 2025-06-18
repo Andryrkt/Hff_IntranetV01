@@ -32,7 +32,6 @@ trait DaTrait
         $situationCde = $this->daModel->getSituationCde($ref, $numDit);
 
         $statutDa = $this->demandeApproRepository->getStatut($numDit);
-
         $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
 
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
@@ -40,7 +39,9 @@ trait DaTrait
         $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
 
         $statut_bc = '';
-        if ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
+        if (!array_key_exists(0, $situationCde)) {
+            $statut_bc = $statutBc;
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
             $statut_bc = 'à générer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
             $statut_bc = 'à éditer';

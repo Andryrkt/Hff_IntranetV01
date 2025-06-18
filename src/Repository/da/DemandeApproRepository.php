@@ -94,7 +94,7 @@ class DemandeApproRepository extends EntityRepository
     public function getStatut($numDit)
     {
         $result = $this->createQueryBuilder('da')
-            ->select('da.statutDal')
+            ->select('DISTINCT da.statutDal')
             ->where('da.numeroDemandeDit = :numDit')
             ->setParameter('numDit', $numDit)
             ->getQuery()
