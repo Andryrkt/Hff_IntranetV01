@@ -128,7 +128,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
 							<td class="text-start fw-bold">{{ item.dit.statutOr }}</td>
-							<td class="text-start fw-bold {{classe}}">{{item.statutbc}}</td>
+							<td class="text-start fw-bold {{classe}}">{{dal.statutBc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
