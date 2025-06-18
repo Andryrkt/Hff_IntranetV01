@@ -85,7 +85,7 @@ class ListCdeFrnController extends Controller
 
     private function recuperationDonner(array $criteria): array
     {
-        $numDits = $this->demandeApproRepository->getAllNumDit();
+        $numDits = $this->demandeApproRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
 
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
@@ -118,7 +118,7 @@ class ListCdeFrnController extends Controller
             $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
             $datas[$key]['statut_bc'] = $statutBc;
         }
-        
+
         return $datas;
     }
 
@@ -155,24 +155,6 @@ class ListCdeFrnController extends Controller
     public function changementStatutEnvoyerFournisseur(string $numCde = '', string $numDa = '')
     {
         $this->verifierSessionUtilisateur();
-
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-
-        // modification de statut dal
-        $dal = $this->demandeApproLRepository->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        if ($dal) {
-            $dal->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
-            self::$em->persist($dal);
-            self::$em->flush();
-        }
-
-        // modification de statut da
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        if ($da) {
-            $da->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
-            self::$em->persist($da);
-            self::$em->flush();
-        }
 
         // modification de statut soumission bc
         $numVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);

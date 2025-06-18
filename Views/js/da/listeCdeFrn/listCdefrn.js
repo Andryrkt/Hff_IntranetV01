@@ -110,14 +110,14 @@ document.addEventListener("contextmenu", function (event) {
   hiddenInputDa.value = numDa;
 
   const statutBc = targetCell.dataset.statutBc;
-console.log(statutBc);
-  if (statutBc === 'BC envoyé au fournisseur') {
+
+  if (statutBc === "BC envoyé au fournisseur") {
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
       </p>`;
-  } else if (statutBc === 'A envoyer au fournisseur') {
+  } else if (statutBc === "A envoyer au fournisseur") {
     // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
     const url = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}`;
 
@@ -133,7 +133,6 @@ console.log(statutBc);
   menu.style.left = event.pageX + "px";
   menu.style.display = "block";
 });
-
 
 // Fermer le menu si clic ailleurs
 document.addEventListener("click", function (event) {

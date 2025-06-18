@@ -91,7 +91,7 @@
 						<td class="text-center">{{ item.dateplanning |date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
-						{% if item.num_cde %}
+						{% if item.num_cde and item.statut_bc =='A envoyé au fournisseur' %}
 							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}" data-statut-bc="{{item.statut_bc}}">
 								{{ item.num_cde }}
 							</td>
