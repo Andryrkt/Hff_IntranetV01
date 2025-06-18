@@ -3,6 +3,7 @@
 namespace App\Repository\dit;
 
 use App\Entity\dit\DitSearch;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -712,9 +713,17 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-        $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (:numDit)')
-            ->setParameter('numDit', $numDits)
-        ;
+        $placeholders = [];
+        foreach ($numDits as $index => $value) {
+            $placeholder = ':numDit' . $index;
+            $placeholders[] = $placeholder;
+            $queryBuilder->setParameter($placeholder, $value);
+        }
+
+        if (!empty($placeholders)) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (' . implode(', ', $placeholders) . ')');
+        }
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 

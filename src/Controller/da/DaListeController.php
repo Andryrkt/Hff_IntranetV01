@@ -95,7 +95,7 @@ class DaListeController extends Controller
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
-
+        $this->demandeDeverouillageDA($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
@@ -103,12 +103,12 @@ class DaListeController extends Controller
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         self::$twig->display('da/list.html.twig', [
-            'data' => $dasFiltered,
+            'data'                   => $dasFiltered,
+            'form'                   => $form->createView(),
+            'formHistorique'         => $formHistorique->createView(),
+            'serviceAtelier'         => $this->estUserDansServiceAtelier(),
+            'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
-            'form' => $form->createView(),
-            'formHistorique' => $formHistorique->createView(),
-            'serviceAtelier' => $this->estUserDansServiceAtelier(),
-            'serviceAppro' => $this->estUserDansServiceAppro(),
         ]);
     }
 
@@ -192,6 +192,24 @@ class DaListeController extends Controller
         }
 
         self::$em->flush();
+    }
+
+    /** 
+     */
+    private function demandeDeverouillageDA($dasFiltered)
+    {
+        /** @var DemandeAppro $da */
+        foreach ($dasFiltered as $da) {
+            $dit = $da->getDit();
+            $statutOr = $dit->getStatutOr();
+            $constructeurs = $this->daModel->getAllConstructeur($dit->getNumeroDemandeIntervention());
+
+            if (in_array($statutOr, ['Refusé client interne', 'Refusé chef atelier'])) { // statut de l'or: refusé / non validé
+                if (in_array('ZST', $constructeurs)) { // l'OR est munie d'articles ZST.
+                    $da->setDemandeDeverouillage(true);
+                }
+            }
+        }
     }
 
     /**
