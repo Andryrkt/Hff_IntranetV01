@@ -62,28 +62,28 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
-					{% set classe = '' %}
-					{% set qteCdm = item.qteDem | default(0) * 1 %}
-					{% set qteLiv = item.qteLivee | default(0) * 1 %}
-					{% set qteAll = item.qteALivrer | default(0) * 1 %}
 
-					{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
-						{# Tout livré #}
-						{% set classe = 'tout-livre bg-success text-white' %}
-					{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
-						{# Partiellement livré #}
-						{% set classe = 'partiellement-livre bg-warning text-white' %}
-					{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
-						{# Partiellement dispo #}
-						{% set classe = 'partiellement-dispo bg-info text-white' %}
-					{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
-						{# complet non livré #}
-						{% set classe = 'complet-non-livre bg-primary text-white' %}
-					{% endif %}
 
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
 					{% for dal in item.DAL %}
+						{% set classe = '' %}
+						{% set qteCdm = dal.qteDem | default(0) * 1 %}
+						{% set qteLiv = dal.qteLivee | default(0) * 1 %}
+						{% set qteAll = dal.qteALivrer | default(0) * 1 %}
+						{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+							{# Tout livré #}
+							{% set classe = 'tout-livre bg-success text-white' %}
+						{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+							{# Partiellement livré #}
+							{% set classe = 'partiellement-livre bg-warning text-white' %}
+						{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+							{# Partiellement dispo #}
+							{% set classe = 'partiellement-dispo bg-info text-white' %}
+						{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+							{# complet non livré #}
+							{% set classe = 'complet-non-livre bg-primary text-white' %}
+						{% endif %}
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
 							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
@@ -99,19 +99,19 @@
 									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
-										{% if demandeDeverouiller %}
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
-										</li>
-									</ul>
-										{% elseif aDeverouiller %}
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a href="#" class="dropdown-item fw-bold"  data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
-										</li>
-									</ul>
-										{% endif %}
+									{% if demandeDeverouiller %}
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
+											</li>
+										</ul>
+									{% elseif aDeverouiller %}
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
+											</li>
+										</ul>
+									{% endif %}
 								</div>
 							</td>
 							{# Fin Actions #}
