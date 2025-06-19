@@ -36,7 +36,45 @@ export function ajouterReference(addLineId) {
     if (!fields.prixUnitaire.value) {
       fields.prixUnitaire.focus();
     } else {
-      initializeFields(fields, line); // initialiser les valeurs dans les champs
+      console.log('fields.famille.value', fields.famille.value);
+      console.log('fields.sousFamille.value', fields.sousFamille.value);
+      console.log('fields.reference.value', fields.reference.value);
+      console.log('fields.designation.value', fields.designation.value);
+      console.log('fields.fournisseur.value', fields.fournisseur.value);
+      console.log(
+        'fields.numeroFournisseur.value',
+        fields.numeroFournisseur.value
+      );
+      console.log('fields.qteDispo.value', fields.qteDispo.value);
+      console.log('fields.motif.value', fields.motif.value);
+
+      fields.famille.value =
+        fields.famille.value == '-'
+          ? getValueField(`artFams1_${line}`)
+          : fields.famille.value;
+      fields.sousFamille.value =
+        fields.sousFamille.value == '-'
+          ? getValueField(`artFams2_${line}`)
+          : fields.sousFamille.value;
+      fields.reference.value =
+        fields.reference.value == ''
+          ? getValueField(`artRefp_${line}`)
+          : fields.reference.value;
+      fields.designation.value =
+        fields.designation.value == ''
+          ? getValueField(`artDesi_${line}`)
+          : fields.designation.value;
+      fields.fournisseur.value =
+        fields.fournisseur.value == ''
+          ? getValueField(`nomFournisseur_${line}`)
+          : fields.fournisseur.value;
+      fields.numeroFournisseur.value =
+        fields.numeroFournisseur.value == ''
+          ? getValueField(`numeroFournisseur_${line}`)
+          : fields.numeroFournisseur.value;
+      fields.qteDispo.value =
+        fields.qteDispo.value == '' ? '-' : fields.qteDispo.value;
+      fields.motif.value = fields.motif.value == '' ? '*' : fields.motif.value;
       if (divValidation) {
         divValidation.remove(); // On supprime le div de validation s'il existe
         // divValidation.classList.add('d-none'); // On le cache
