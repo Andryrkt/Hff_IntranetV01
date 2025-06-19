@@ -138,6 +138,7 @@ class InventaireController extends Controller
             'numero' => 'Numéro',
             'description' => 'Description',
             'ouvert' => 'Ouvert le',
+            'dateClo'=>'clôturer le',
             'nbr_casier' => ' Nbr casier',
             'nbr_ref' => 'Nbr Ref',
             'qte_comptee' => 'Qté comptée',
