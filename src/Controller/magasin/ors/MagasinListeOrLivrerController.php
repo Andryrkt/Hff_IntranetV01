@@ -139,8 +139,9 @@ class MagasinListeOrLivrerController extends Controller
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
             $numeroOr = $data[$i]['numeroor'];
+            $numItv = $data[$i]['numinterv'];
             $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numeroOr, $numItv);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
 
             if (!empty($datePlannig1)) {
