@@ -336,7 +336,7 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
     {
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
@@ -359,6 +359,7 @@ trait DitOrSoumisAValidationTrait
                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNumeroDit($numDit)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau

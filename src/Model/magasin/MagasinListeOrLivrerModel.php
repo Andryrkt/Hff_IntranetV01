@@ -68,6 +68,41 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupDatePlanningOR1($numOr)
+    {
+        $statement = " SELECT  
+                            min(ska_d_start) as datePlanning1
+                        from skw 
+                        inner join ska on ska.skw_id = skw.skw_id 
+                        where ofh_id ='" . $numOr . "'
+                        group by ofh_id 
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupDatePlanningOR2($numOr, $numItv)
+    {
+        $statement = " SELECT
+                            min(sitv_datepla) as datePlanning2 
+
+                        from sav_itv 
+                        where sitv_numor = '$numOr'
+                        and sitv_interv = '$numItv'
+                        group by sitv_numor
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupOrLivrerComplet($numOrValideItv, $numOrValide, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);
@@ -427,7 +462,7 @@ class MagasinListeOrLivrerModel extends Model
                         FROM sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        AND slor_succdeb IN ('01','50')
+                        --AND slor_succdeb IN ('01','80','50')
                     ";
 
         $result = $this->connect->executeQuery($statement);

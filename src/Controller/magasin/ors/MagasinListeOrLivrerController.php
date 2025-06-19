@@ -139,8 +139,9 @@ class MagasinListeOrLivrerController extends Controller
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
             $numeroOr = $data[$i]['numeroor'];
+            $numItv = $data[$i]['numinterv'];
             $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numeroOr, $numItv);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
 
             if (!empty($datePlannig1)) {
@@ -160,8 +161,8 @@ class MagasinListeOrLivrerController extends Controller
                 $idMateriel = $ditRepository->getIdMateriel();
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
                 $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] = $marqueCasier[0]['marque'];
-                $data[$i]['casier'] = $marqueCasier[0]['casier'];
+                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
+                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }
