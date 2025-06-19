@@ -35,7 +35,7 @@ class DemandeApproRepository extends EntityRepository
         //filtre sur le statut de DA
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
-                ->setParameter('statut', $criteria['statut']);
+                ->setParameter('statut', $criteria['statutDA']);
         }
 
         //Filtre sur l'id matériel
