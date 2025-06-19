@@ -135,6 +135,12 @@ document.addEventListener("contextmenu", function (event) {
          BC à envoyer au fournisseur
       </a>`;
     //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  } else if (statutBc == "A soumettre à validation") {
+    statutAffiche.style.display = "none";
+
+    //desactive le formulaire
     Array.from(form.elements).forEach((el) => (el.disabled = false)); // Désactive tous les champs du formulaire
     form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
   } else {
