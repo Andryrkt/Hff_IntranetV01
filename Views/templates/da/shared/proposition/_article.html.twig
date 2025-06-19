@@ -181,6 +181,10 @@
 					<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
 					<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 				</div>
+				<div class="mb-2 d-none">
+					<label for="demande_appro_proposition_PU_{{ currentPage }}" class="form-label mb-0">Prix Unitaire (*)</label>
+					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+				</div>
 			</div>
 			<div class="col-9 col-md-9">
 				<div class="row">
@@ -209,9 +213,6 @@
 						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif (*)</label>
 						<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 					</div>
-				</div>
-				<div class="mb-2 d-none">
-					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}">
 				</div>
 				<div class="mb-2 d-none">
 					<input type="text" id="demande_appro_proposition_numeroFournisseur_{{ currentPage }}">

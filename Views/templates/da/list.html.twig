@@ -105,11 +105,16 @@
 												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
 											</li>
 										</ul>
-									{% elseif aDeverouiller %}
+									{% elseif serviceAppro %}
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a class="dropdown-item fw-bold" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeDit})}}">Dossier DIT</a>
+											</li>
+											{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
 											<li>
 												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
 											</li>
+											{% endif %}
 										</ul>
 									{% endif %}
 								</div>
