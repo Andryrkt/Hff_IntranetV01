@@ -96,6 +96,7 @@ const menu = document.getElementById("menuContextuelGlobal");
 const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
 const statutAffiche = document.getElementById("statut-affiche");
+const form = document.forms["da_soumission"];
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -110,14 +111,20 @@ document.addEventListener("contextmenu", function (event) {
   hiddenInputDa.value = numDa;
 
   const statutBc = targetCell.dataset.statutBc;
+  console.log(statutBc);
 
-  if (statutBc === "BC envoyé au fournisseur") {
+  if (statutBc == "BC envoyé au fournisseur") {
+    statutAffiche.style.display = "block";
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
       </p>`;
-  } else if (statutBc === "A envoyer au fournisseur") {
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  } else if (statutBc == "A envoyer au fournisseur") {
+    statutAffiche.style.display = "block";
     // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
     const url = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}`;
 
@@ -127,6 +134,21 @@ document.addEventListener("contextmenu", function (event) {
          title="cliquer pour confirmer l'envoi">
          BC à envoyer au fournisseur
       </a>`;
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  } else if (statutBc == "A soumettre à validation") {
+    statutAffiche.style.display = "none";
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  } else {
+    statutAffiche.style.display = "none";
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
   }
 
   menu.style.top = event.pageY + "px";

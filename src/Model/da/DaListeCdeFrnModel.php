@@ -98,6 +98,7 @@ class DaListeCdeFrnModel extends Model
                 and slor_refp not like ('PREST%')
                 and TRIM(seor_refdem) IN ($numDitString)
                 and slor_numor IN ($numOrString)
+                and (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) NOT IN ('FC', 'FA', 'CP')
                 $numDit
                 $numOr
                 $designation

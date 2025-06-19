@@ -236,10 +236,10 @@ class DaPropositionRefController extends Controller
 
     private function creationExcel(string $numDa, int $numeroVersionMax): array
     {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
+        //recupération des donnée
+        $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
         // Convertir les entités en tableau de données
-        $dataExel = $this->transformationEnTableauAvecEntet($dals);
+        $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
 
         //creation du fichier excel
         $date = new DateTime();
@@ -254,6 +254,27 @@ class DaPropositionRefController extends Controller
         ];
     }
 
+    public function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
+    {
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        $donnerExcels = [];
+        foreach ($dals as $dal) {
+            $donnerExcel = $dal;
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            if (!empty($dalrs)) {
+                foreach ($dalrs as $dalr) {
+                    if ($dalr->getChoix()) {
+                        $donnerExcel = $dalr;
+                    }
+                }
+            }
+            $donnerExcels[] = $donnerExcel;
+        }
+
+        return $donnerExcels;
+    }
+
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
@@ -265,8 +286,8 @@ class DaPropositionRefController extends Controller
                 $entity->getArtRefp(),
                 $entity->getQteDem(),
                 '',
-                $entity->getArtDesi(),
-                $entity->getPrixUnitaire(),
+                $entity->getArtRefp() == 'ST' ? $entity->getArtDesi() : '',
+                $entity->getArtRefp() == 'ST' ? $entity->getPrixUnitaire() : '',
             ];
         }
 

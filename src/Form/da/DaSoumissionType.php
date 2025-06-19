@@ -16,13 +16,13 @@ class DaSoumissionType extends  AbstractType
         $builder
             ->add('soumission', ChoiceType::class, [
                 'choices'  => [
-                    'Soumission BC' => true,
-                    'Soumission facture + BL' => false,
+                    'BC' => true,
+                    'Facture + BL' => false,
                 ],
                 'expanded' => true, // pour afficher des boutons radio
                 'multiple' => false, // un seul choix possible
                 'required' => true,
-                'label' => 'dossier à soumettre',
+                'label' => 'Document à soumettre',
                 'data' => true
             ])
             ->add('commande_id', HiddenType::class)
