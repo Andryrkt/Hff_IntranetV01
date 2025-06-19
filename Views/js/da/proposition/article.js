@@ -19,6 +19,7 @@ export function ajouterReference(addLineId) {
   };
 
   const divValidation = document.getElementById(`validationButtons`);
+  const envoyerSelections = document.getElementById(`envoyerSelections`);
   if (iscatalogue == 1) {
     const nePasAjouter = Object.values(fields).some(handleFieldValue);
     if (!nePasAjouter) {
@@ -26,25 +27,22 @@ export function ajouterReference(addLineId) {
         divValidation.remove(); // On supprime le div de validation s'il existe
         // divValidation.classList.add('d-none'); // On le cache
       }
+      if (envoyerSelections) {
+        envoyerSelections.classList.remove('d-none'); // On l'affiche
+      }
       ajouterUneLigne(line, fields, iscatalogue);
     }
   } else {
     if (!fields.prixUnitaire.value) {
       fields.prixUnitaire.focus();
     } else {
-      fields.famille.value = getValueField(`artFams1_${line}`);
-      fields.sousFamille.value = getValueField(`artFams2_${line}`);
-      fields.reference.value = getValueField(`artRefp_${line}`);
-      fields.designation.value = getValueField(`artDesi_${line}`);
-      fields.fournisseur.value = getValueField(`nomFournisseur_${line}`);
-      fields.numeroFournisseur.value = getValueField(
-        `numeroFournisseur_${line}`
-      );
-      fields.qteDispo.value = '-';
-      fields.motif.value = '*';
+      initializeFields(fields, line); // initialiser les valeurs dans les champs
       if (divValidation) {
         divValidation.remove(); // On supprime le div de validation s'il existe
         // divValidation.classList.add('d-none'); // On le cache
+      }
+      if (envoyerSelections) {
+        envoyerSelections.classList.remove('d-none'); // On l'affiche
       }
       ajouterUneLigne(line, fields, iscatalogue);
     }
@@ -74,15 +72,6 @@ function getValueField(fieldName) {
   return document.getElementById(fieldName).value;
 }
 
-function handleFieldValueForNonCatalogue(field) {
-  if (field.id.includes('PU') && !field) {
-    field.focus();
-    return true;
-  } else {
-    return false;
-  }
-}
-
 /**
  * Permet de récupérer les éléments HTML liés à une page/index spécifique
  * @param {string|number} numPage
@@ -108,4 +97,22 @@ function recupInput(numPage) {
     ),
     isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
   };
+}
+
+function initializeFields(fields, line) {
+  const mappings = {
+    famille: `artFams1_${line}`,
+    sousFamille: `artFams2_${line}`,
+    reference: `artRefp_${line}`,
+    designation: `artDesi_${line}`,
+    fournisseur: `nomFournisseur_${line}`,
+    numeroFournisseur: `numeroFournisseur_${line}`,
+  };
+
+  for (const [key, fieldId] of Object.entries(mappings)) {
+    fields[key].value = fields[key].value ?? getValueField(fieldId);
+  }
+
+  fields.qteDispo.value = fields.qteDispo.value ?? '-';
+  fields.motif.value = fields.motif.value ?? '*';
 }
