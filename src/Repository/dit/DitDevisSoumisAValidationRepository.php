@@ -328,32 +328,33 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
     public function findMontantItv(string $numDevis)
-    {
-        // Récupérer le numéro de version maximal pour le devis donné
-        $numeroVersionMax = $this->createQueryBuilder('dsv')
-            ->select('MAX(dsv.numeroVersion)')
-            ->where('dsv.numeroDevis = :numDevis')
-            ->setParameter('numDevis', $numDevis)
-            ->getQuery()
-            ->getSingleScalarResult();
+{
+    // Récupérer le numéro de version maximal pour le devis donné
+    $numeroVersionMax = $this->createQueryBuilder('dsv')
+        ->select('MAX(dsv.numeroVersion)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis)
+        ->getQuery()
+        ->getSingleScalarResult();
 
-        // Si aucun numéro de version trouvé, retourner 0
-        if ($numeroVersionMax === null) {
-            return 0;
-        }
-
-        // Calculer la somme du montantItv pour la version maximale
-        $sommeMontantItv = $this->createQueryBuilder('dsv')
-            ->select('SUM(dsv.montantItv)')
-            ->where('dsv.numeroDevis = :numDevis')
-            ->andWhere('dsv.numeroVersion = :numVersion')
-            ->setParameters([
-                'numVersion' => $numeroVersionMax,
-                'numDevis' => $numDevis
-            ])
-            ->getQuery()
-            ->getSingleScalarResult();
-
-        return $sommeMontantItv ?? 0;
+    // Si aucun numéro de version trouvé, retourner 0
+    if ($numeroVersionMax === null) {
+        return 0;
     }
+
+    // Calculer la somme du montantItv pour la version maximale
+    $sommeMontantItv = $this->createQueryBuilder('dsv')
+        ->select('SUM(dsv.montantItv)')
+        ->where('dsv.numeroDevis = :numDevis')
+        ->andWhere('dsv.numeroVersion = :numVersion')
+        ->setParameters([
+            'numVersion' => $numeroVersionMax,
+            'numDevis' => $numDevis
+        ])
+        ->getQuery()
+        ->getSingleScalarResult();
+
+    return $sommeMontantItv ?? 0;
+}
+
 }
