@@ -31,13 +31,15 @@ export function ajouterReference(addLineId) {
   } else {
     if (!fields.prixUnitaire.value) {
       fields.prixUnitaire.focus();
-      ajouterUneLigne(line, fields, iscatalogue);
     } else {
       fields.famille.value = getValueField(`artFams1_${line}`);
       fields.sousFamille.value = getValueField(`artFams2_${line}`);
       fields.reference.value = getValueField(`artRefp_${line}`);
       fields.designation.value = getValueField(`artDesi_${line}`);
       fields.fournisseur.value = getValueField(`nomFournisseur_${line}`);
+      fields.numeroFournisseur.value = getValueField(
+        `numeroFournisseur_${line}`
+      );
       fields.qteDispo.value = '-';
       fields.motif.value = '*';
       if (divValidation) {
