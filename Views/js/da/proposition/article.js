@@ -1,7 +1,10 @@
 import { ajouterUneLigne } from './dalr';
 
-export function ajouterReference(addLineId, iscatalogue) {
+export function ajouterReference(addLineId) {
   const line = addLineId.replace('add_line_', '');
+  const numPage = addLineId.split('_').pop();
+  const { isCatalogueInput } = recupInput(numPage);
+  let iscatalogue = isCatalogueInput.value;
 
   const fields = {
     famille: getField('codeFams1', line),
@@ -15,15 +18,22 @@ export function ajouterReference(addLineId, iscatalogue) {
     prixUnitaire: getField('PU', line),
   };
 
-  const nePasAjouter = Object.values(fields).some(handleFieldValue);
-
-  if (!nePasAjouter) {
-    const divValidation = document.getElementById(`validationButtons`);
-    if (divValidation) {
-      divValidation.remove(); // On supprime le div de validation s'il existe
-      // divValidation.classList.add('d-none'); // On le cache
+  if (iscatalogue == 1) {
+    const nePasAjouter = Object.values(fields).some(handleFieldValue);
+    if (!nePasAjouter) {
+      const divValidation = document.getElementById(`validationButtons`);
+      if (divValidation) {
+        divValidation.remove(); // On supprime le div de validation s'il existe
+        // divValidation.classList.add('d-none'); // On le cache
+      }
+      ajouterUneLigne(line, fields, iscatalogue);
     }
-    ajouterUneLigne(line, fields, iscatalogue);
+  } else {
+    if (!fields.prixUnitaire.value) {
+      fields.prixUnitaire.focus();
+    } else {
+      console.log('ato');
+    }
   }
 }
 
@@ -44,4 +54,40 @@ function handleFieldValue(field) {
     field.focus();
     return true;
   }
+}
+
+function handleFieldValueForNonCatalogue(field) {
+  if (field.id.includes('PU') && !field) {
+    field.focus();
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/**
+ * Permet de récupérer les éléments HTML liés à une page/index spécifique
+ * @param {string|number} numPage
+ * @returns {object} - Un objet contenant tous les éléments utiles
+ */
+function recupInput(numPage) {
+  return {
+    sousFamilleInput: document.querySelector(
+      `#demande_appro_proposition_codeFams2_${numPage}`
+    ),
+    codeFamilleInput: document.querySelector(`#codeFams1_${numPage}`),
+    codeSousFamilleInput: document.querySelector(`#codeFams2_${numPage}`),
+    spinnerElement: document.querySelector(`#spinner_codeFams2_${numPage}`),
+    containerElement: document.querySelector(`#container_codeFams2_${numPage}`),
+    designation: document.querySelector(
+      `#demande_appro_proposition_designation_${numPage}`
+    ),
+    fournisseur: document.querySelector(
+      `#demande_appro_proposition_fournisseur_${numPage}`
+    ),
+    reference: document.querySelector(
+      `#demande_appro_proposition_reference_${numPage}`
+    ),
+    isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
+  };
 }
