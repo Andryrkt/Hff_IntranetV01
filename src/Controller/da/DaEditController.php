@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -70,7 +71,6 @@ class DaEditController extends Controller
         }
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
-
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
@@ -181,11 +181,10 @@ class DaEditController extends Controller
 
             $demandeAppro = $form->getData();
 
-            $this->modificationDa($demandeAppro);
+            $this->modificationDa($demandeAppro, $form->get('DAL'));
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro);
             }
-
 
             /** ENVOIE MAIL */
             $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
@@ -243,7 +242,7 @@ class DaEditController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -259,22 +258,25 @@ class DaEditController extends Controller
     }
 
 
-    private function modificationDa(DemandeAppro $demandeAppro): void
+    private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
     {
         self::$em->persist($demandeAppro); // on persiste la DA
-        $this->modificationDAL($demandeAppro);
+        $this->modificationDAL($demandeAppro, $formDAL);
         self::$em->flush(); // on enregistre les modifications
     }
 
-    private function modificationDAL($demandeAppro)
+    private function modificationDAL($demandeAppro, $formDAL): void
     {
-        $demandeApproLs = $demandeAppro->getDAL();
-
         $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        foreach ($demandeApproLs as $demandeApproL) {
+        foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
+             * 
+             * On récupère les données du formulaire DAL
              */
+            $demandeApproL = $subFormDAL->getData();
+            $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
                 ->setStatutDal(self::DA_STATUT)
@@ -282,8 +284,10 @@ class DaEditController extends Controller
                 ->setNumeroVersion($numeroVersionMax)
                 ->setJoursDispo($this->getJoursRestants($demandeApproL))
             ; // Incrémenter le numéro de version
+            $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
+
             $this->deleteDALR($demandeApproL);
-            self::$em->persist($demandeApproL); // on persiste la DA
+            self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }
 
@@ -295,12 +299,10 @@ class DaEditController extends Controller
      */
     private function deleteDALR(DemandeApproL $dal)
     {
-        if ($dal->getDeleted() === true) {
-            $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
-            foreach ($dalrs as $dalr) {
-                self::$em->remove($dalr);
-                self::$em->persist($dalr);
-            }
+        $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        foreach ($dalrs as $dalr) {
+            self::$em->remove($dalr);
+            self::$em->persist($dalr);
         }
     }
 
@@ -310,5 +312,57 @@ class DaEditController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
+    }
+
+    /** 
+     * Traitement des fichiers
+     */
+    private function traitementFichiers(DemandeApproL $dal, $files)
+    {
+        if ($files !== []) {
+            $fileNames = [];
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadFile($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+            $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
+        }
+    }
+
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     * (copier le fichier uploader dans une répertoire et le donner un nom)
+     */
+    private function uploadFile(UploadedFile $file, DemandeApproL $dal, int $i)
+    {
+        $fileName = sprintf(
+            'pj_%s_%s_%s.%s',
+            $dal->getNumeroDemandeAppro(),
+            $dal->getNumeroLigne(),
+            $i,
+            $file->getClientOriginalExtension()
+        );
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+
+        return $fileName;
     }
 }

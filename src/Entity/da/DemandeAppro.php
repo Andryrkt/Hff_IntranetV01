@@ -21,6 +21,8 @@ class DemandeAppro
 {
     use DateTrait;
 
+    public const STATUT_VALIDE = 'Bon d’achats validé';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -136,12 +138,18 @@ class DemandeAppro
      */
     private ?string $nonFichierRefZst = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
+     */
+    private $historiqueDemandeModifDA;
 
     private ?DemandeIntervention $dit = null;
 
     private $observation;
 
     private $numDossierDouane;
+
+    private bool $demandeDeverouillage = false;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -690,6 +698,46 @@ class DemandeAppro
     public function setNonFichierRefZst($nonFichierRefZst)
     {
         $this->nonFichierRefZst = $nonFichierRefZst;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of historiqueDemandeModifDA
+     */
+    public function getHistoriqueDemandeModifDA()
+    {
+        return $this->historiqueDemandeModifDA;
+    }
+
+    /**
+     * Set the value of historiqueDemandeModifDA
+     *
+     * @return  self
+     */
+    public function setHistoriqueDemandeModifDA($historiqueDemandeModifDA)
+    {
+        $this->historiqueDemandeModifDA = $historiqueDemandeModifDA;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeDeverouillage
+     */
+    public function getDemandeDeverouillage()
+    {
+        return $this->demandeDeverouillage;
+    }
+
+    /**
+     * Set the value of demandeDeverouillage
+     *
+     * @return  self
+     */
+    public function setDemandeDeverouillage($demandeDeverouillage)
+    {
+        $this->demandeDeverouillage = $demandeDeverouillage;
 
         return $this;
     }

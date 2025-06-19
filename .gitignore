@@ -1,4 +1,4 @@
-vendor/
+vendor
 /src/Service/TCPDF-main/
 /Views/tcpdf/
 /Upload/
@@ -17,3 +17,4 @@ react-app
 .vscode
 composer.lock
 var
+Views/js/utils/config.js

@@ -21,7 +21,7 @@
 					<div class="row">
 						<h3 class="perso-titre">
 							Validation et proposition
-							{{ numDa }}
+							{{ numDa }} : {{ dit.idNiveauUrgence.description }}
 						</h3>
 					</div>
 
@@ -52,12 +52,12 @@
 					</button>
 				</div>
 				<div>
-					<a href="{{ path("da_edit", {id: dit_id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+					<a href="{{ path("da_edit", {id: dit.id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 						Modifier la demande
 					</a>
 				</div>
 			</div>
-			<div>
+			<div id="validationButtons">
 				<div>
 					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
 						Valider la proposition

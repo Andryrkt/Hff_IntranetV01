@@ -64,6 +64,14 @@
 			.suspendu {
 				background-color: #6c757d;
 			}
+			.demandeDeverouillage {
+				background-color: #b3d7ff;
+				color: #004085;
+			}
+			.confirmationDeverrouillage {
+				background-color: #d1ecf1; /* Bleu clair neutre */
+				color: #0c5460;
+			}
 			.validationAteDa,
 			.refuse,
 			.modificationDa,
@@ -88,11 +96,10 @@
 
 				{% include 'da/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
 
-
 				<p>
 					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
-					<a href="{{ action_url }}" class="button">Detail de la demande</a>
+					<a href="{{ action_url }}" class="button">Détail de la demande</a>
 				</p>
 				<p>
 					<span class="fw-bold">NB:</span>

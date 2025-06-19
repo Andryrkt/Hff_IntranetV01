@@ -42,7 +42,7 @@ class DaPropositionRefController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaObservation $daObservation;
-    private  $daObservationRepository;
+    private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
 
 
@@ -84,7 +84,7 @@ class DaPropositionRefController extends Controller
         self::$twig->display('da/proposition.html.twig', [
             'da' => $da,
             'id' => $id,
-            'dit_id' => $dit->getId(),
+            'dit' => $dit,
             'form' => $form->createView(),
             'observations' => $observations,
             'numDa' => $numDa,
@@ -257,13 +257,16 @@ class DaPropositionRefController extends Controller
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité'];
+        $data[] = ['constructeur', 'reference', 'quantité', '', 'designation', 'PU'];
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getArtConstp(),
                 $entity->getArtRefp(),
                 $entity->getQteDem(),
+                '',
+                $entity->getArtDesi(),
+                $entity->getPrixUnitaire(),
             ];
         }
 
@@ -391,7 +394,6 @@ class DaPropositionRefController extends Controller
         self::$em->flush();
     }
 
-
     /** 
      * Fonctions pour envoyer un mail à la service Appro 
      */
@@ -400,7 +402,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -423,7 +425,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -498,18 +500,18 @@ class DaPropositionRefController extends Controller
 
         for ($i = 0; $i < count($dals); $i++) {
             $dals[$i][0]
-                ->setQteDispo($dalrs[$i][0]->getQteDispo())
-                ->setArtRefp($dalrs[$i][0]->getArtRefp() == '' ? NULL : $dalrs[$i][0]->getArtRefp())
-                ->setArtFams1($dalrs[$i][0]->getArtFams1() == '' ? NULL : $dalrs[$i][0]->getArtFams1())
-                ->setArtFams2($dalrs[$i][0]->getArtFams2() == '' ? NULL : $dalrs[$i][0]->getArtFams2())
-                ->setArtDesi($dalrs[$i][0]->getArtDesi() == '' ? NULL : $dalrs[$i][0]->getArtDesi())
-                ->setCodeFams1($dalrs[$i][0]->getCodeFams1() == '' ? NULL : $dalrs[$i][0]->getCodeFams1())
-                ->setCodeFams2($dalrs[$i][0]->getCodeFams2() == '' ? NULL : $dalrs[$i][0]->getCodeFams2())
+                // ->setQteDispo($dalrs[$i][0]->getQteDispo())
+                // ->setArtRefp($dalrs[$i][0]->getArtRefp() == '' ? NULL : $dalrs[$i][0]->getArtRefp())
+                // ->setArtFams1($dalrs[$i][0]->getArtFams1() == '' ? NULL : $dalrs[$i][0]->getArtFams1())
+                // ->setArtFams2($dalrs[$i][0]->getArtFams2() == '' ? NULL : $dalrs[$i][0]->getArtFams2())
+                // ->setArtDesi($dalrs[$i][0]->getArtDesi() == '' ? NULL : $dalrs[$i][0]->getArtDesi())
+                // ->setCodeFams1($dalrs[$i][0]->getCodeFams1() == '' ? NULL : $dalrs[$i][0]->getCodeFams1())
+                // ->setCodeFams2($dalrs[$i][0]->getCodeFams2() == '' ? NULL : $dalrs[$i][0]->getCodeFams2())
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
-                ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i][0]->getArtFams2() == NULL ? FALSE : TRUE)
-                ->setPrixUnitaire($this->daModel->getPrixUnitaire($dalrs[$i][0]->getArtRefp())[0])
-                ->setNomFicheTechnique($dalrs[$i][0]->getNomFicheTechnique())
+                // ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i][0]->getArtFams2() == NULL ? FALSE : TRUE)
+                // ->setPrixUnitaire($this->daModel->getPrixUnitaire($dalrs[$i][0]->getArtRefp())[0])
+                // ->setNomFicheTechnique($dalrs[$i][0]->getNomFicheTechnique())
             ;
             self::$em->persist($dals[$i][0]);
         }

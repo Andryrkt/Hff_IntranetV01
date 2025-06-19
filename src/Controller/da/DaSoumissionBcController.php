@@ -4,11 +4,12 @@ namespace App\Controller\da;
 
 use App\Controller\Controller;
 use App\Entity\da\DaSoumissionBc;
+use App\Service\genererPdf\GenererPdfDa;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Repository\da\DaSoumissionBcRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -24,6 +25,7 @@ class DaSoumissionBcController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
+    private GenererPdfDa $genererPdfDa;
 
     public function __construct()
     {
@@ -34,12 +36,13 @@ class DaSoumissionBcController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionBc';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->genererPdfDa = new GenererPdfDa();
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}/{numDa}", name="da_soumission_bc")
      */
-    public function index(string $numCde, Request $request)
+    public function index(string $numCde, string $numDa, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -50,7 +53,7 @@ class DaSoumissionBcController extends Controller
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa);
 
         self::$twig->display('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -66,7 +69,7 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa): void
     {
         $form->handleRequest($request);
 
@@ -83,6 +86,7 @@ class DaSoumissionBcController extends Controller
                     ->setPieceJoint1($nomDeFichier)
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setNumeroDemandeAppro($numDa)
                 ; //TODO: A AJOUTER le numero Da, numero OR,...
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
@@ -90,7 +94,7 @@ class DaSoumissionBcController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                //TODO: A REVOIR
+                $this->genererPdfDa->copyToDWBcDa($nomDeFichier);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -105,7 +109,7 @@ class DaSoumissionBcController extends Controller
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
         return [
-            'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
+            'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === self::STATUT_SOUMISSION,
         ];
     }

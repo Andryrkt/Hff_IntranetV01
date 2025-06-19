@@ -104,7 +104,8 @@ class DaModel extends Model
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
-            WHERE abse_constp = 'ZST'";
+            WHERE abse_constp = 'ZST'
+            AND fbse_numfou in ('6001537','6001625')";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
             if ($codeSousFamille !== '-') {
@@ -149,5 +150,77 @@ class DaModel extends Model
         }
 
         return array_column($data, 'prix');
+    }
+
+    public function getSituationCde(?string $ref = '', string $numDit)
+    {
+        $statement = " SELECT DISTINCT
+                slor_natcm,
+                slor_refp,
+                seor_refdem,
+                CASE
+                    when slor_natcm = 'C' then (select fcde_numcde from Informix.frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_numcde from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END as num_cde,
+                CASE
+                    when slor_natcm = 'C' then (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_posc from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END as position_bc           
+                FROM Informix.sav_lor
+                INNER JOIN Informix.sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN Informix.sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
+                WHERE
+                slor_constp = 'ZST' 
+                and slor_typlig = 'P'
+                and slor_refp not like ('PREST%')
+                and slor_refp = '$ref'
+                and seor_refdem = '$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getAllConstructeur(string $numDit)
+    {
+        $statement = "SELECT DISTINCT slor_constp as constructeur
+            FROM sav_lor
+            INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+            where seor_refdem = '$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'constructeur');
+    }
+
+    public function getEvolutionQte(string $numDit)
+    {
+        $statement = " SELECT
+                TRIM(seor_refdem) as num_dit,
+                ROUND(CASE
+                    when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
+                END) as qte_dem,
+                ROUND(slor_qterel) as qte_reliquat,
+                ROUND(slor_qteres) as qte_a_livrer,
+                ROUND(slor_qterea) as qte_livee
+
+                FROM sav_lor
+                INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
+                WHERE
+                slor_constp = 'ZST' 
+                and slor_typlig = 'P'
+                and slor_refp not like ('PREST%')
+                and seor_refdem='$numDit'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
     }
 }

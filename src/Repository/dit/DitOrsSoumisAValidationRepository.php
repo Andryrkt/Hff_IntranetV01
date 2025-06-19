@@ -7,11 +7,13 @@ use Doctrine\ORM\EntityRepository;
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
 
-    public function existsNumOr($numOr): bool
+    public function existsNumOrEtDit(?string $numOr, string $numDit): bool
     {
         $qb = $this->createQueryBuilder('osv');
         $qb->select('1')
             ->where('osv.numeroOR = :numOr')
+            ->andWhere('osv.numeroDit = :numDit')
+            ->setParameter('numDit', $numDit)
             ->setParameter('numOr', $numOr)
             ->setMaxResults(1);
 
@@ -283,7 +285,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
      * @param string $numOr
      * @return void
      */
-    public function getblocageStatut(string $numOr): string
+    public function getblocageStatut(string $numOr, string $numDit): string
     {
         $qb = $this->createQueryBuilder('o');
 
@@ -291,7 +293,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $count = $qb
             ->select('COUNT(o.id)')
             ->where('o.numeroOR = :numOr')
-            ->setParameter('numOr', $numOr)
+            ->andWhere('o.numeroDit = :numDit')
+            ->setParameters([
+                'numOr' => $numOr,
+                'numDit' => $numDit
+            ])
             ->getQuery()
             ->getSingleScalarResult();
 
@@ -371,5 +377,34 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->setParameter('numOr', $numOr)
             ->getQuery()
             ->getSingleScalarResult();
+    }
+
+    public function getStatut(string $numDit)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($numeroVersionMax === null) {
+            return null;
+        }
+
+        // Étape 2 : Récupérer le statut
+        $result = $this->createQueryBuilder('osv')
+            ->select('DISTINCT osv.statut')
+            ->where('osv.numeroDit = :numDit')
+            ->andWhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numDit' => $numDit,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->getQuery()
+            ->getOneOrNullResult(); // retourne un tableau associatif ou null
+
+        return $result['statut'] ?? null;
     }
 }

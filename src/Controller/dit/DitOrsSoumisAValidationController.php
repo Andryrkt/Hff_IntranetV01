@@ -98,7 +98,7 @@ class DitOrsSoumisAValidationController extends Controller
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 //dump($orSoumisValidationModel);
-                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
+                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
                 // dd($orSoumisValidataion);
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
@@ -160,13 +160,13 @@ class DitOrsSoumisAValidationController extends Controller
         $refClient = $this->ditOrsoumisAValidationModel->recupRefClient($ditInsertionOrSoumis->getNumeroOR());
 
         // $situationOrSoumis = $this->ditOrsoumisAValidationModel->recupBlockageStatut($numOr);
-        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr);
+        $situationOrSoumis = $this->orRepository->getblocageStatut($numOr, $numDit);
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        // $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        // $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
-
+        $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+        $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
+// dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -179,9 +179,9 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
+            // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
-            // 'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
     }
 
@@ -236,10 +236,12 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
-            $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['articleDas']) {
+        }
+        // elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
+        //     $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        // } 
+        elseif ($conditionBloquage['articleDas']) {
             $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
@@ -332,7 +334,7 @@ class DitOrsSoumisAValidationController extends Controller
         foreach ($a as $item) {
             $found = false;
             foreach ($b as $key => $value) {
-                if ($item === $value) {
+                if ($item == $value) {
                     $found = true;
                     unset($b[$key]);
                     break;

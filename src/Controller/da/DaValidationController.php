@@ -156,13 +156,16 @@ class DaValidationController extends Controller
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité'];
+        $data[] = ['constructeur', 'reference', 'quantité', '', 'designation', 'PU'];
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getArtConstp(),
                 $entity->getArtRefp(),
                 $entity->getQteDem(),
+                '',
+                $entity->getArtDesi(),
+                $entity->getPrixUnitaire(),
             ];
         }
 
@@ -177,7 +180,7 @@ class DaValidationController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -203,7 +206,7 @@ class DaValidationController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hasina.andrianadison@hff.mg',
+            'to'        => 'hoby.ralahy@hff.mg',
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [

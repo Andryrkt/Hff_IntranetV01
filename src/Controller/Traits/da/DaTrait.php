@@ -7,6 +7,7 @@ use DateTime;
 
 trait DaTrait
 {
+
     private function ajoutNbrJourRestant($dalDernieresVersions)
     {
         foreach ($dalDernieresVersions as $dal) {
@@ -24,5 +25,32 @@ trait DaTrait
             // --- 3. Enregistrer ---
             $dal->setJoursDispo($days);
         }
+    }
+
+    private function statutBc(?string $ref, string $numDit, ?string $numCde)
+    {
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
+        $statutDa = $this->demandeApproRepository->getStatut($numDit);
+        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
+
+        $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
+
+        $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
+        $statut_bc = '';
+        if (!array_key_exists(0, $situationCde)) {
+            $statut_bc = $statutBc;
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
+            $statut_bc = 'A générer';
+        } elseif ((int)$situationCde[0]['num_cde'] <> '' && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
+            $statut_bc = 'A éditer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
+            $statut_bc = 'A soumettre à validation';
+        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
+            $statut_bc = 'A envoyer au fournisseur';
+        } else {
+            $statut_bc = $statutBc;
+        }
+
+        return $statut_bc;
     }
 }

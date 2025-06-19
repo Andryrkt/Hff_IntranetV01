@@ -9,7 +9,7 @@ class DaListeCdeFrnModel extends Model
 {
     use ConditionModelTrait;
 
-    public function getInfoCdeFrn(string $numDitString, array $criteria): array
+    public function getInfoCdeFrn(array $criteria, string $numDitString, string $numOrString): array
     {
         //les conditions de filtre
         $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
@@ -86,15 +86,18 @@ class DaListeCdeFrnModel extends Model
                 END as num_liv,
                 slor_natcm,
                 slor_nolign as numero_ligne,
-                slor_constp as constructeur
+                slor_constp as constructeur,
+                (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) as position_cde
+                
                 FROM sav_lor
                 INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
                 INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
                 WHERE
-                slor_constp = 'ZST' and slor_refp <> 'ST'
+                slor_constp = 'ZST' 
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
-                --and TRIM(seor_refdem) IN ($numDitString)
+                and TRIM(seor_refdem) IN ($numDitString)
+                and slor_numor IN ($numOrString)
                 $numDit
                 $numOr
                 $designation
@@ -109,5 +112,19 @@ class DaListeCdeFrnModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data;
+    }
+
+    public function getNumOrValideZst(string $numOrString)
+    {
+        $statement = " SELECT DISTINCT slor_numor as num_or
+                    from Informix.sav_lor 
+                    where slor_constp ='ZST' 
+                    and slor_numor in ($numOrString)
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return array_column($data, 'num_or');
     }
 }

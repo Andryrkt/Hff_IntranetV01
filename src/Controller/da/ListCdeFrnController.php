@@ -11,22 +11,27 @@ use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
 use App\Service\TableauEnStringService;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\da\DaModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 class ListCdeFrnController extends Controller
 {
     use DaTrait;
 
-    const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
+    private const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
 
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaModel $daModel;
 
     public function __construct()
     {
@@ -35,6 +40,8 @@ class ListCdeFrnController extends Controller
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daModel = new DaModel();
     }
 
     /** 
@@ -50,9 +57,6 @@ class ListCdeFrnController extends Controller
 
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $datas = $this->recuperationDonner($criteria);
-        $datas = $this->ajouterNumDa($datas);
-        $datas = $this->ajoutStatutBc($datas);
-        $datas = $this->ajouterNbrJoursDispo($datas);
         // dd($datas);
 
 
@@ -83,7 +87,19 @@ class ListCdeFrnController extends Controller
     {
         $numDits = $this->demandeApproRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
-        return $this->daListeCdeFrnModel->getInfoCdeFrn($numDitString, $criteria);
+
+        $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
+        $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
+        $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
+        $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
+
+        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
+
+        $datas = $this->ajouterNumDa($datas);
+        $datas = $this->ajoutStatutBc($datas);
+        $datas = $this->ajouterNbrJoursDispo($datas);
+
+        return $datas;
     }
 
     private function ajouterNumDa(array $datas)
@@ -98,11 +114,14 @@ class ListCdeFrnController extends Controller
     private function ajoutStatutBc(array $datas)
     {
         foreach ($datas as $key => $data) {
-            $statutBc = $this->daSoumissionBcRepository->getStatut($data['num_cde']);
+
+            $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
             $datas[$key]['statut_bc'] = $statutBc;
         }
+
         return $datas;
     }
+
 
     private function ajouterNbrJoursDispo(array $datas)
     {
@@ -121,9 +140,9 @@ class ListCdeFrnController extends Controller
             $soumission = $formSoumission->getData();
 
             if ($soumission['soumission'] === true) {
-                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id']]);
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id']]);
             } else {
-                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id']]);
+                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id']]);
             }
         }
     }
@@ -136,24 +155,6 @@ class ListCdeFrnController extends Controller
     public function changementStatutEnvoyerFournisseur(string $numCde = '', string $numDa = '')
     {
         $this->verifierSessionUtilisateur();
-
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-
-        // modification de statut dal
-        $dal = $this->demandeApproLRepository->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        if ($dal) {
-            $dal->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
-            self::$em->persist($dal);
-            self::$em->flush();
-        }
-
-        // modification de statut da
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        if ($da) {
-            $da->setStatutDal(self::STATUT_ENVOYE_FOURNISSEUR);
-            self::$em->persist($da);
-            self::$em->flush();
-        }
 
         // modification de statut soumission bc
         $numVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);

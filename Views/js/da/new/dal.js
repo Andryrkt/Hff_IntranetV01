@@ -5,6 +5,8 @@ import {
   createFams2AndAppendTo,
   createFieldAndAppendTo,
   createFieldAutocompleteAndAppendTo,
+  createFileContainerAndAppendTo,
+  createFileNamesLabelAndAppendTo,
   createRemoveButtonAndAppendTo,
   formatAllField,
   getTheField,
@@ -35,14 +37,16 @@ export function ajouterUneLigne() {
   row.classList.add('row', 'g-3');
 
   let fields = [
-    ['w-15', 'codeFams1'],
-    ['w-15', 'codeFams2'],
+    ['w-10', 'codeFams1'],
+    ['w-10', 'codeFams2'],
     ['w-20', 'artDesi'],
     ['w-10', 'nomFournisseur'],
     ['w-10', 'dateFinSouhaite'],
     ['w-5', 'qteDem'],
     ['w-20', 'commentaire'],
-    ['w-3', 'estFicheTechnique'],
+    ['w-1', 'fileNamesLabel'],
+    ['w-9', 'fileNamesContainer'],
+    ['w-2', 'estFicheTechnique'],
     ['d-none', 'artConstp'],
     ['d-none', 'artRefp'],
     ['d-none', 'artFams1'],
@@ -51,6 +55,7 @@ export function ajouterUneLigne() {
     ['d-none', 'catalogue'],
     ['d-none', 'deleted'],
     ['d-none', 'numeroLigne'],
+    ['d-none', 'fileNames'],
   ];
 
   fields.forEach(function ([classe, fieldName]) {
@@ -58,6 +63,10 @@ export function ajouterUneLigne() {
       createFams2AndAppendTo(classe, prototype, row);
     } else if (fieldName === 'artDesi' || fieldName === 'nomFournisseur') {
       createFieldAutocompleteAndAppendTo(classe, prototype, fieldName, row);
+    } else if (fieldName === 'fileNamesContainer') {
+      createFileContainerAndAppendTo(classe, prototype, row);
+    } else if (fieldName === 'fileNamesLabel') {
+      createFileNamesLabelAndAppendTo(classe, prototype, row); // icône trombone + contenant des pièces jointes
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }

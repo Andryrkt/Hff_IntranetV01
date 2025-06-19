@@ -24,7 +24,7 @@ SET
         WHEN LEFT(agence_service_emmeteur, 2) = '92' THEN '11'
         ELSE '0'
     END
-    WHERE num_migr=4;
+    WHERE num_migr=7;
 
 UPDATE demande_intervention
 SET
@@ -77,11 +77,99 @@ SET
         WHEN RIGHT(agence_service_emmeteur, 3) = 'LSC' THEN '46'
         ELSE '0'
     END
-    WHERE num_migr=4;
+    WHERE num_migr=7;
 
 
+
+    
+
+
+
+UPDATE demande_intervention
+SET
+    agence_debiteur_id = CASE
+        WHEN LEFT(agence_service_debiteur, 2) = '01' THEN '1'
+        WHEN LEFT(agence_service_debiteur, 2) = '02' THEN '2'
+        WHEN LEFT(agence_service_debiteur, 2) = '20' THEN '3'
+        WHEN LEFT(agence_service_debiteur, 2) = '30' THEN '4'
+        WHEN LEFT(agence_service_debiteur, 2) = '40' THEN '5'
+        WHEN LEFT(agence_service_debiteur, 2) = '50' THEN '6'
+        WHEN LEFT(agence_service_debiteur, 2) = '60' THEN '7'
+        WHEN LEFT(agence_service_debiteur, 2) = '80' THEN '8'
+        WHEN LEFT(agence_service_debiteur, 2) = '90' THEN '9'
+        WHEN LEFT(agence_service_debiteur, 2) = '91' THEN '10'
+        WHEN LEFT(agence_service_debiteur, 2) = '92' THEN '11'
+        ELSE '0'
+    END
+    WHERE num_migr=7;
+
+UPDATE demande_intervention
+SET
+    service_debiteur_id = CASE
+        WHEN RIGHT(agence_service_debiteur, 3) = 'NEG' THEN '1'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'COM' THEN '2'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'ATE' THEN '3'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'CSP' THEN '4'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'GAR' THEN '5'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'FOR' THEN '6'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'ASS' THEN '7'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'MAN' THEN '8'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LCD' THEN '9'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'DIR' THEN '10'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'FIN' THEN '11'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'PER' THEN '12'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'INF' THEN '13'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'IMM' THEN '14'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TRA' THEN '15'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'APP' THEN '16'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'UMP' THEN '17'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'ENG' THEN '19'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'VAN' THEN '20'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'GIR' THEN '21'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'THO' THEN '22'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TSI' THEN '23'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LTV' THEN '24'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LFD' THEN '25'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LBV' THEN '26'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'MAH' THEN '27'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'NOS' THEN '28'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TUL' THEN '29'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'AMB' THEN '30'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'FLE' THEN '31'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TSD' THEN '32'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'VAT' THEN '33'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'BLK' THEN '34'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'ENG' THEN '35'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'MAS' THEN '36'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'MAP' THEN '37'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'ADM' THEN '38'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'APP' THEN '39'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LEV' THEN '40'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LR6' THEN '41'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LST' THEN '42'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LCJ' THEN '43'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'TSI' THEN '44'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'SLR' THEN '45'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LGR' THEN '46'
+        WHEN RIGHT(agence_service_debiteur, 3) = 'LSC' THEN '47'
+        ELSE '0'
+    END
+    WHERE num_migr=7;
 
     UPDATE demande_intervention
+SET mail_demandeur = CASE 
+    WHEN utilisateur_demandeur = 'h.noro' THEN  'norolalao.harimanana@hff.mg'
+    WHEN utilisateur_demandeur = 'n.tsanta' THEN  'fara.nanjatiavina@hff.mg'
+    WHEN utilisateur_demandeur = 'n.tsanta1' THEN  'fara.nanjatiavina@hff.mg'
+    WHEN utilisateur_demandeur = 's.steph' THEN  'stephanie.santantriniaina@hff.mg'
+    WHEN utilisateur_demandeur = 'h.tojo' THEN  'haingoniaina.tojonirina@hff.mg'
+ELSE '-'
+END
+WHERE num_migr=7
+ 
+
+
+ UPDATE demande_intervention
 SET mail_demandeur = CASE 
     WHEN utilisateur_demandeur = 'aina' THEN  'aina.rajaonarivelo@hff.mg'
     WHEN utilisateur_demandeur = 'ambroise' THEN  'ambroise.rakotoarisoa@hff.mg'
@@ -135,4 +223,3 @@ SET mail_demandeur = CASE
     ELSE '-'
 END
 WHERE num_migr=4
-

@@ -1,9 +1,10 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 {% endblock %}
 
 {% import "macroForm.html.twig" as form %}
@@ -35,15 +36,20 @@
 		<table class="table table-plein-ecran">
 			<thead class="table-dark">
 				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
 					<th class="text-center">N° Demande</th>
 					<th class="text-center">N° DIT</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
-					<th class="text-center">Statut</th>
+					<th class="text-center">Statut DA</th>
+					<th class="text-center">Statut OR</th>
+					<th class="text-center">Statut BC</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
 					{% if not serviceAtelier %}
-					<th>Réference</th>
+						<th>Réference</th>
 					{% endif %}
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
@@ -55,13 +61,65 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in data %}
+					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
+
+
+					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
+
 					{% for dal in item.DAL %}
+						{% set classe = '' %}
+						{% set qteCdm = dal.qteDem | default(0) * 1 %}
+						{% set qteLiv = dal.qteLivee | default(0) * 1 %}
+						{% set qteAll = dal.qteALivrer | default(0) * 1 %}
+						{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
+							{# Tout livré #}
+							{% set classe = 'tout-livre bg-success text-white' %}
+						{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
+							{# Partiellement livré #}
+							{% set classe = 'partiellement-livre bg-warning text-white' %}
+						{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
+							{# Partiellement dispo #}
+							{% set classe = 'partiellement-dispo bg-info text-white' %}
+						{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
+							{# complet non livré #}
+							{% set classe = 'complet-non-livre bg-primary text-white' %}
+						{% endif %}
+						{% set dalAffiche = dal %}
+						{% if dal.demandeApproLR|length > 0 %}
+							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
+							{# Le premier dalr avec choix = true #}
+							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
+						{% endif %}
+						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
+
 						<tr>
-							<td>
+							{# Début Action #}
+							<td class="align-middle" style="padding: 0px">
+								<div class="dropdown">
+									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+										<i class="fas fa-ellipsis-vertical"></i>
+									</button>
+									{% if demandeDeverouiller %}
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
+											</li>
+										</ul>
+									{% elseif aDeverouiller %}
+										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
+											</li>
+										</ul>
+									{% endif %}
+								</div>
+							</td>
+							{# Fin Actions #}
+							<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
 								{# {% if serviceAppro %} #}
 								{# {{ item.numeroDemandeAppro }} #}
 								{# {% else %} #}
-									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank"> {{ item.numeroDemandeAppro }}
+									<a href="{{ path('da_detail', { id : item.dit.id }) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}"> {{ item.numeroDemandeAppro }}
 								</a>
 								{# {% endif %} #}
 							</td>
@@ -69,28 +127,28 @@
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
-							<td class="text-start">{{ dal.artFams1 ?? '-' }}</td>
-							<td class="text-start">{{ dal.artFams2 ?? '-' }}</td>
+							<td class="text-start fw-bold">{{ item.dit.statutOr }}</td>
+							<td class="text-start fw-bold {{classe}}">{{dal.statutBc}}</td>
+							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
+							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
-								{% if dal.estModifier %}
-									<td class="text-start">{{ dal.artRefp and dal.artRefp != '-'? dal.artRefp ~ '*' : '-' }}</td>
-								{% else %}
-									<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
-								{% endif %}
+								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
 							{% endif %}
-							<td class="text-start">
+							<td class="text-start {{ designationStyle }}">
 								{% if dal.statutDal == 'Bon d’achats validé' or (serviceAppro and (dal.statutDal == 'Proposition achats' or dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'Demande d’achats')%}
-									{{ dal.artDesi }}
+									{{ dalAffiche.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
-										{{ dal.artDesi }}
+										{{ dalAffiche.artDesi }}
 									</a>
 								{% endif %}
-
 							</td>
-							{% set ficheTechnique = dal.estFicheTechnique ? 'OUI' : 'NON' %}
 							<td class="text-center">
-								<input type="checkbox" disabled="disabled" class="form-check-input" {% if dal.estFicheTechnique %} checked {% endif %}>
+								{% if dal.estFicheTechnique %}
+									<i class="fas fa-check text-success"></i>
+								{% else %}
+									<i class="fas fa-xmark text-danger"></i>
+								{% endif %}
 							</td>
 							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">0</td>
@@ -102,8 +160,11 @@
 			</tbody>
 		</table>
 	</div>
-
 	<!-- FIN tableau -->
+
+	{# body modal #}
+	{% include "/da/shared/listeDA/_modalConfirmation.html.twig" %}
+	{% include "/da/shared/listeDA/_modalDemandeDeverouillage.html.twig" %}
 {% endblock %}
 
 {% block javascript %}

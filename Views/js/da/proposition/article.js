@@ -18,6 +18,11 @@ export function ajouterReference(addLineId, iscatalogue) {
   const nePasAjouter = Object.values(fields).some(handleFieldValue);
 
   if (!nePasAjouter) {
+    const divValidation = document.getElementById(`validationButtons`);
+    if (divValidation) {
+      divValidation.remove(); // On supprime le div de validation s'il existe
+      // divValidation.classList.add('d-none'); // On le cache
+    }
     ajouterUneLigne(line, fields, iscatalogue);
   }
 }

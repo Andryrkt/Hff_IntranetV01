@@ -186,6 +186,16 @@ class DemandeApproL
      */
     private ?int $joursDispo;
 
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
+
+    private $statutBc;
+
+    private $qteLivee;
+    private $qteALivrer;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -843,6 +853,86 @@ class DemandeApproL
     public function setJoursDispo($joursDispo)
     {
         $this->joursDispo = $joursDispo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteLivee
+     */ 
+    public function getQteLivee()
+    {
+        return $this->qteLivee;
+    }
+
+    /**
+     * Set the value of qteLivee
+     *
+     * @return  self
+     */ 
+    public function setQteLivee($qteLivee)
+    {
+        $this->qteLivee = $qteLivee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteALivrer
+     */ 
+    public function getQteALivrer()
+    {
+        return $this->qteALivrer;
+    }
+
+    /**
+     * Set the value of qteALivrer
+     *
+     * @return  self
+     */ 
+    public function setQteALivrer($qteALivrer)
+    {
+        $this->qteALivrer = $qteALivrer;
 
         return $this;
     }

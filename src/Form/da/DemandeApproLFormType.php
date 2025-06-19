@@ -8,9 +8,12 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DemandeApproLFormType extends AbstractType
@@ -102,6 +105,31 @@ class DemandeApproLFormType extends AbstractType
                 'label' => false,
                 'required' => false,
             ])
+            ->add(
+                'fileNames',
+                FileType::class,
+                [
+                    'label'      => false,
+                    'required'   => false,
+                    'multiple'   => true,
+                    'data_class' => null,
+                    'mapped'     => false, // Indique que ce champ ne doit pas être lié à l'entité
+                    'constraints' => [
+                        new All([
+                            'constraints' => [
+                                new File([
+                                    'maxSize' => '5M',
+                                    'mimeTypes' => [
+                                        'application/pdf',
+                                        'image/*',
+                                    ],
+                                    'mimeTypesMessage' => 'Veuillez télécharger un fichier valide (PDF, image).',
+                                ])
+                            ]
+                        ])
+                    ]
+                ]
+            )
         ;
     }
 

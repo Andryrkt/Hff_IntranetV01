@@ -1,10 +1,27 @@
 import { displayOverlay } from '../../utils/spinnerUtils';
 import { ajouterUneLigne, autocompleteTheFields } from '../new/dal';
 import { eventOnFamille } from '../new/event';
-import { formatAllField } from '../new/field';
+import { formatAllField, onFileNamesInputChange } from '../new/field';
 
 document.addEventListener('DOMContentLoaded', function () {
   buildIndexFromLinesAndBindEvents();
+
+  document.querySelectorAll('.trombone-add-pj').forEach((el) => {
+    el.addEventListener('click', function () {
+      this.closest('.DAL-container') // le plus proche conteneur de la ligne DA
+        .querySelector('input[type="file"]') // trouver l'input file dans ce conteneur
+        .click();
+    });
+  });
+
+  document
+    .querySelectorAll('[id^="demande_appro_form_DAL_"][id$="_fileNames"]')
+    .forEach((inputFile) => {
+      inputFile.accept = '.pdf, image/*'; // Accepter les fichiers PDF et images
+      inputFile.addEventListener('change', (event) =>
+        onFileNamesInputChange(event)
+      );
+    });
 
   document
     .getElementById('add-child')

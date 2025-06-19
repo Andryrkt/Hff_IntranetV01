@@ -20,7 +20,7 @@
 					<div class="row">
 						<h3 class="perso-titre">
 							Détails Demande d'achat, n°
-							{{ demandeAppro.numeroDemandeAppro }}
+							{{ demandeAppro.numeroDemandeAppro }} : {{ dit.idNiveauUrgence.description }}
 						</h3>
 					</div>
 
@@ -61,7 +61,7 @@
 									{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}
 								</div>
 								{% if nomFichierRefZst is not null and estAte %}
-									<a class="fw-bold" href="{{ App.base_path_fichier }}/da/ba/{{nomFichierRefZst}}" download>Télécharger ici le fichier contenant les références ZST</a>
+									<a class="fw-bold" href="{{ App.base_path_fichier }}/da/ba/{{nomFichierRefZst}}" download>Télécharger le bon d'achat</a>
 								{% endif %}
 							</div>
 						</div>
@@ -77,6 +77,7 @@
 								<th class="text-start">Date fin souhaitée</th>
 								<th class="text-start">Quantité</th>
 								<th class="text-start">Commentaire</th>
+								<th class="text-start">Pièces jointes</th>
 								<th class="text-start">Fiche technique</th>
 							</tr>
 						</thead>
@@ -92,6 +93,19 @@
 									<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
 									<td>{{ DAL.qteDem }}</td>
 									<td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
+									<td>
+									{% if DAL.fileNames|length > 0 %}
+										<ul class="mb-0 px-0">
+											{% for file in DAL.fileNames %}
+												<li>
+													<a href="{{ App.base_path_fichier }}/da/fichiers/{{ file }}" target="_blank">{{ file }}</a>
+												</li>
+											{% endfor %}
+										</ul>
+									{% else %}
+										Aucune pièce jointe
+									{% endif %}
+									</td>
 									<td>
 										{% if DAL.estFicheTechnique %}
 											{% if DAL.nomFicheTechnique %}
