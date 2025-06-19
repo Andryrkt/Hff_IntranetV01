@@ -50,7 +50,7 @@ class MagasinListeOrLivrerController extends Controller
         //FIN AUTORISATION
 
         if ($autoriser) {
-            $agenceUser = null;
+            $agenceUser = "''";
         } else {
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
