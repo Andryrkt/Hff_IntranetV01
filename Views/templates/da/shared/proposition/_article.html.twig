@@ -97,6 +97,9 @@
 	<input type="hidden" name="artFams1_{{ currentPage }}" id="artFams1_{{ currentPage }}" value="{{ famille }}">
 	<input type="hidden" name="artFams2_{{ currentPage }}" id="artFams2_{{ currentPage }}" value="{{ sousFamille }}">
 	<input type="hidden" name="catalogue_{{ currentPage }}" id="catalogue_{{ currentPage }}" value="{{ article.catalogue ? 1 : 0 }}">
+	<input type="hidden" name="artRefp_{{ currentPage }}" id="artRefp_{{ currentPage }}" value="{{ article.artRefp }}">
+	<input type="hidden" name="artDesi_{{ currentPage }}" id="artDesi_{{ currentPage }}" value="{{ article.artDesi }}">
+	<input type="hidden" name="nomFournisseur_{{ currentPage }}" id="nomFournisseur_{{ currentPage }}" value="{{ article.nomFournisseur }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
 	<div class="{{ estAte ? 'd-none' : ''}}">

@@ -18,10 +18,10 @@ export function ajouterReference(addLineId) {
     prixUnitaire: getField('PU', line),
   };
 
+  const divValidation = document.getElementById(`validationButtons`);
   if (iscatalogue == 1) {
     const nePasAjouter = Object.values(fields).some(handleFieldValue);
     if (!nePasAjouter) {
-      const divValidation = document.getElementById(`validationButtons`);
       if (divValidation) {
         divValidation.remove(); // On supprime le div de validation s'il existe
         // divValidation.classList.add('d-none'); // On le cache
@@ -31,8 +31,20 @@ export function ajouterReference(addLineId) {
   } else {
     if (!fields.prixUnitaire.value) {
       fields.prixUnitaire.focus();
+      ajouterUneLigne(line, fields, iscatalogue);
     } else {
-      console.log('ato');
+      fields.famille.value = getValueField(`artFams1_${line}`);
+      fields.sousFamille.value = getValueField(`artFams2_${line}`);
+      fields.reference.value = getValueField(`artRefp_${line}`);
+      fields.designation.value = getValueField(`artDesi_${line}`);
+      fields.fournisseur.value = getValueField(`nomFournisseur_${line}`);
+      fields.qteDispo.value = '-';
+      fields.motif.value = '*';
+      if (divValidation) {
+        divValidation.remove(); // On supprime le div de validation s'il existe
+        // divValidation.classList.add('d-none'); // On le cache
+      }
+      ajouterUneLigne(line, fields, iscatalogue);
     }
   }
 }
@@ -54,6 +66,10 @@ function handleFieldValue(field) {
     field.focus();
     return true;
   }
+}
+
+function getValueField(fieldName) {
+  return document.getElementById(fieldName).value;
 }
 
 function handleFieldValueForNonCatalogue(field) {
