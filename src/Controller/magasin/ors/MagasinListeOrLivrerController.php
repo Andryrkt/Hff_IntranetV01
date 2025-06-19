@@ -8,14 +8,15 @@ ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 class MagasinListeOrLivrerController extends Controller
 {
@@ -41,7 +42,8 @@ class MagasinListeOrLivrerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
@@ -50,7 +52,7 @@ class MagasinListeOrLivrerController extends Controller
         if ($autoriser) {
             $agenceUser = null;
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() . '-' . $agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
         $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
