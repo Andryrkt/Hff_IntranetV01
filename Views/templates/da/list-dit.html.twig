@@ -4,6 +4,7 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
+	<link href="{{ App.base_path }}/Views/css/signin.css" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -110,6 +111,20 @@
 			<i class="fas fa-arrow-right"></i>
 		</button>
 	</div>
+	{% if data is empty %}
+	<div class="container">
+		<div class="justify-content-center">
+			<div class="notice">
+				<span class="notice-icon">
+					<i class="fas fa-info-circle"></i>
+				</span>
+				<div class="notice-content">
+					Veuillez effectuer une recherche afin d’afficher les données disponibles. 
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
 </div>
 
 	<!-- FIN tableau -->
