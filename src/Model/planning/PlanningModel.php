@@ -758,7 +758,7 @@ class PlanningModel extends Model
                   $nivUrg
             ORDER  BY  numero_or
                   ";
-
+// dd($sql);
     $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
