@@ -155,7 +155,8 @@ trait ConditionModelTrait
     private function conditionAgenceUser(string $indexCriteria, array $criteria): string
     {
         if (!empty($criteria[$indexCriteria])) {
-            $agenceUser = " AND slor_succ = '" . explode('-', $criteria[$indexCriteria])[0] . "'";
+            $value = strpos($criteria[$indexCriteria], '-') !== false ? explode('-', $criteria[$indexCriteria])[0] : $criteria[$indexCriteria];
+            $agenceUser = " AND slor_succ in ($value)";
         } else {
             $agenceUser = "";
         }

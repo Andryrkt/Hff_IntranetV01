@@ -96,14 +96,18 @@
 	<input type="hidden" name="codeFams2_{{ currentPage }}" id="codeFams2_{{ currentPage }}" value="{{ codeSousFamille }}">
 	<input type="hidden" name="artFams1_{{ currentPage }}" id="artFams1_{{ currentPage }}" value="{{ famille }}">
 	<input type="hidden" name="artFams2_{{ currentPage }}" id="artFams2_{{ currentPage }}" value="{{ sousFamille }}">
-	<input type="hidden" name="catalogue_{{ currentPage }}" id="catalogue_{{ currentPage }}" value="{{ article.catalogue }}">
+	<input type="hidden" name="catalogue_{{ currentPage }}" id="catalogue_{{ currentPage }}" value="{{ article.catalogue ? 1 : 0 }}">
+	<input type="hidden" name="artRefp_{{ currentPage }}" id="artRefp_{{ currentPage }}" value="{{ article.artRefp }}">
+	<input type="hidden" name="artDesi_{{ currentPage }}" id="artDesi_{{ currentPage }}" value="{{ article.artDesi }}">
+	<input type="hidden" name="nomFournisseur_{{ currentPage }}" id="nomFournisseur_{{ currentPage }}" value="{{ article.nomFournisseur }}">
+	<input type="hidden" name="numeroFournisseur_{{ currentPage }}" id="numeroFournisseur_{{ currentPage }}" value="{{ article.numeroFournisseur }}">
 
 	{{ macroForm.sousTitre('Proposition d’une référence') }}
 	<div class="{{ estAte ? 'd-none' : ''}}">
 		{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
 			<div class="row">
 				<div class="col-12 col-md-3">
-					<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille (*)</label>
+					<label for="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-label mb-0">Famille</label>
 					<select id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="form-select" {{ estAte ? 'disabled':''}}>
 						<option value="-">-- Choisir une famille --</option>
 						<option value="AOA">ACCESSOIRE ET OUTIL AUTOMOBILE</option>
@@ -145,7 +149,7 @@
 						</div>
 					</div>
 					<div id="container_codeFams2_{{ currentPage }}" class="mb-2">
-						<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille (*)</label>
+						<label for="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-label mb-0">Sous-famille</label>
 						<select id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="form-select" {{ estAte ? 'disabled':''}}>
 							<option value="-">-- Choisir une sous-famille --</option>
 						</select>
@@ -172,7 +176,7 @@
 		<div class="row">
 			<div class="col-3 col-md-3">
 				<div class="mb-2">
-					<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence (*)</label>
+					<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence {{ article.catalogue ? '(*)' : ''}} </label>
 					<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 					<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
 					<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
@@ -181,12 +185,16 @@
 					<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
 					<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 				</div>
+				<div class="mb-2 {{ article.catalogue ? 'd-none' : ''}} ">
+					<label for="demande_appro_proposition_PU_{{ currentPage }}" class="form-label mb-0">Prix Unitaire (*)</label>
+					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+				</div>
 			</div>
 			<div class="col-9 col-md-9">
 				<div class="row">
 					<div class="col-8 col-md-8">
 						<div class="mb-2">
-							<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation (*)</label>
+							<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation {{ article.catalogue ? '(*)' : ''}}</label>
 							<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 							<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
@@ -199,19 +207,16 @@
 					</div>
 					<div class="col-4 col-md-4">
 						<div class="mb-2">
-							<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur (*)</label>
+							<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur {{ article.catalogue ? '(*)' : ''}}</label>
 							<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 							<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 						</div>
 					</div>
 					<div class="mb-2">
-						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif (*)</label>
+						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif {{ article.catalogue ? '(*)' : ''}}</label>
 						<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 					</div>
-				</div>
-				<div class="mb-2 d-none">
-					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}">
 				</div>
 				<div class="mb-2 d-none">
 					<input type="text" id="demande_appro_proposition_numeroFournisseur_{{ currentPage }}">

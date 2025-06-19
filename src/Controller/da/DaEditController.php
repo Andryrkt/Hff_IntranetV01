@@ -302,7 +302,6 @@ class DaEditController extends Controller
         $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
             self::$em->remove($dalr);
-            self::$em->persist($dalr);
         }
     }
 

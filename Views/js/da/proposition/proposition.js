@@ -191,13 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   // Tous les boutons "Ajouter la référence"
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
-    const numPage = addLine.id.split('_').pop();
-    const { isCatalogueInput } = recupInput(numPage);
-    let iscatalogue = isCatalogueInput.value;
-
-    addLine.addEventListener('click', () =>
-      ajouterReference(addLine.id, iscatalogue)
-    );
+    addLine.addEventListener('click', () => ajouterReference(addLine.id));
   });
   // Tous les boutons add-file (joindre une fiche technique)
   document.querySelectorAll('.add-file').forEach((addFile) => {
