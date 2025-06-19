@@ -186,8 +186,8 @@ class DaValidationController extends Controller
                 $entity->getArtRefp(),
                 $entity->getQteDem(),
                 '',
-                $entity->getArtDesi(),
-                $entity->getPrixUnitaire(),
+                $entity->getArtRefp() == 'ST' ? $entity->getArtDesi() : '',
+                $entity->getArtRefp() == 'ST' ? $entity->getPrixUnitaire() : '',
             ];
         }
 
