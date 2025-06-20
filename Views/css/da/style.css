@@ -254,6 +254,9 @@ a.choix:hover {
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
 }
-.bg-orange {
-  background-color: #fbbd08 !important;
+.mise-en-evidence,
+.mise-en-evidence a {
+  color: orange !important;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }

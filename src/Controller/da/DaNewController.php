@@ -28,8 +28,6 @@ class DaNewController extends Controller
     use DemandeApproTrait;
     use lienGenerique;
 
-    private const DA_STATUT = 'Demande d’achats';
-
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
@@ -109,7 +107,7 @@ class DaNewController extends Controller
                 $DAL
                     ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(self::DA_STATUT)
+                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
                     ->setNumeroDit($numDit)
@@ -166,7 +164,7 @@ class DaNewController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_APPRO,
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -216,7 +214,7 @@ class DaNewController extends Controller
             ->setServiceEmetteur($dit->getServiceEmetteurId())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal(self::DA_STATUT)
+            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
     }

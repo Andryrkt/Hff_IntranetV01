@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Entity\da\DemandeAppro;
 use DateTime;
 
 
@@ -39,7 +40,7 @@ trait DaTrait
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
-        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
             $statut_bc = 'A générer';
         } elseif ((int)$situationCde[0]['num_cde'] <> '' && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
             $statut_bc = 'A éditer';
@@ -52,5 +53,26 @@ trait DaTrait
         }
 
         return $statut_bc;
+    }
+
+    private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
+    {
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        $donnerExcels = [];
+        foreach ($dals as $dal) {
+            $donnerExcel = $dal;
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            if (!empty($dalrs)) {
+                foreach ($dalrs as $dalr) {
+                    if ($dalr->getChoix()) {
+                        $donnerExcel = $dalr;
+                    }
+                }
+            }
+            $donnerExcels[] = $donnerExcel;
+        }
+
+        return $donnerExcels;
     }
 }

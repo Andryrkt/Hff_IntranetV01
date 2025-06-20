@@ -6,6 +6,7 @@ use DateTime;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -28,12 +29,10 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionRefController extends Controller
 {
+    use DaTrait;
     use lienGenerique;
 
     private const ID_ATELIER = 3;
-    private const DA_STATUT = 'Proposition achats';
-    private const DA_STATUT_SOUMIS_APPRO = 'Demande d’achats';
-    private const DA_STATUT_VALIDE = 'Bon d’achats validé';
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -101,7 +100,7 @@ class DaPropositionRefController extends Controller
 
     private function nePeutPasModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == self::DA_STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -122,6 +121,9 @@ class DaPropositionRefController extends Controller
         }
     }
 
+    /** 
+     * Traitement pour le cas où c'est l'atelier qui a validé la demande
+     */
     private function traitementPourBtnValider(Request $request, $dals, $numDa, $dalrList, $observation, $da)
     {
         /** MODIFICATION de choix de reference */
@@ -134,21 +136,31 @@ class DaPropositionRefController extends Controller
         );
 
         /** VALIDATION DU PROPOSITION PAR L'ATE */
-        $this->validerProposition($numDa);
+        $nomEtChemin = $this->validerProposition($numDa);
 
-        /** ENVOIE D'EMAIL à l'APPRO pour le changement des références et la validation des propositions */
-        $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
-        $this->envoyerMailAuxAppro([
+        /** ENVOIE D'EMAIL pour le changement des références et la validation des propositions */
+        $this->envoyerMailValidationAuxAppro([
             'id'            => $da->getId(),
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
-            // 'dalAncien'     => $nouvAncienDal['dalAncien'],
-            'dalNouveau'    => $nouvAncienDal['dalNouveau'],
+            'dalNouveau'    => $this->getNouveauDal($numDa),
             'service'       => 'atelier',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
+        $this->envoyerMailValidationAuxAte([
+            'id'                => $da->getId(),
+            'numDa'             => $da->getNumeroDemandeAppro(),
+            'objet'             => $da->getObjetDal(),
+            'detail'            => $da->getDetailDal(),
+            'fileName'          => $nomEtChemin['fileName'],
+            'filePath'          => $nomEtChemin['filePath'],
+            'dalNouveau'        => $this->getNouveauDal($numDa),
+            'service'           => 'atelier',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
@@ -178,7 +190,7 @@ class DaPropositionRefController extends Controller
         return $notification;
     }
 
-    private function validerProposition(string $numDa): void
+    private function validerProposition(string $numDa)
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
@@ -190,6 +202,8 @@ class DaPropositionRefController extends Controller
         /** Ajout non fichier de reference zst */
         $da->setNonFichierRefZst($nomEtChemin['fileName']);
         self::$em->flush();
+
+        return $nomEtChemin;
     }
 
     private function modificationDesTable(string $numDa, int $numeroVersionMax): DemandeAppro
@@ -200,7 +214,7 @@ class DaPropositionRefController extends Controller
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setStatutDal(self::DA_STATUT_VALIDE)
+                ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }
 
@@ -212,7 +226,7 @@ class DaPropositionRefController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal(self::DA_STATUT_VALIDE)
+                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
             }
@@ -252,27 +266,6 @@ class DaPropositionRefController extends Controller
             'fileName' => $fileName,
             'filePath' => $filePath
         ];
-    }
-
-    public function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
-    {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
-        $donnerExcels = [];
-        foreach ($dals as $dal) {
-            $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
-            if (!empty($dalrs)) {
-                foreach ($dalrs as $dalr) {
-                    if ($dalr->getChoix()) {
-                        $donnerExcel = $dalr;
-                    }
-                }
-            }
-            $donnerExcels[] = $donnerExcel;
-        }
-
-        return $donnerExcels;
     }
 
     private function transformationEnTableauAvecEntet($entities): array
@@ -315,7 +308,7 @@ class DaPropositionRefController extends Controller
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
         $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
-        $this->envoyerMailAuxAte([
+        $this->envoyerMailPropositionAuxAte([
             'id'            => $da->getId(),
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
@@ -329,6 +322,13 @@ class DaPropositionRefController extends Controller
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
+    }
+
+    private function getNouveauDal($numDa)
+    {
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        return $dalNouveau;
     }
 
     private function nouveauEtAncienDal(DemandeAppro $da, string $numDa): array
@@ -416,19 +416,19 @@ class DaPropositionRefController extends Controller
     }
 
     /** 
-     * Fonctions pour envoyer un mail à la service Appro 
+     * Fonctions pour envoyer un mail des propositions à la service Appro 
      */
-    private function envoyerMailAuxAte(array $tab)
+    private function envoyerMailPropositionAuxAte(array $tab)
     {
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_ATELIER,
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "propositionDa",
-                'subject'    => "{$tab['numDa']} - proposition créee par l'Appro ",
+                'subject'    => "{$tab['numDa']} - Proposition créee par l'Appro ",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
             ]
@@ -439,19 +439,45 @@ class DaPropositionRefController extends Controller
     }
 
     /** 
-     * Fonctions pour envoyer un mail à la service Appro 
+     * Fonctions pour envoyer un mail de validation à la service Ate
      */
-    private function envoyerMailAuxAppro(array $tab)
+    private function envoyerMailValidationAuxAte(array $tab)
     {
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_ATELIER,
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "validationDa",
+                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+            ],
+            'attachments' => [
+                $tab['filePath'] => $tab['fileName'],
+            ],
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables'], $content['attachments']);
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail de validation à la service Appro 
+     */
+    private function envoyerMailValidationAuxAppro(array $tab)
+    {
+        $email       = new EmailService;
+
+        $content = [
+            'to'        => DemandeAppro::MAIL_APPRO,
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationAteDa",
-                'subject'    => "{$tab['numDa']} - validation des propositions par l'ATE ",
+                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
             ]
@@ -489,7 +515,7 @@ class DaPropositionRefController extends Controller
         if ($this->estUserDansServiceAtelier()) {
             $statut = self::DA_STATUT_CHANGE_CHOIX_ATE;
         } else {
-            $statut = self::DA_STATUT;
+            $statut = DemandeAppro::STATUT_SOUMIS_ATE;
         }
         return $statut;
     }

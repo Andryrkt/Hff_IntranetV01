@@ -90,7 +90,8 @@
 							{# Le premier dalr avec choix = true #}
 							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
 						{% endif %}
-						{% set designationStyle = dal.estModifier ? 'bg-orange' : '' %}
+
+						{% set designationStyle = dalAffiche is same as dal ? '' : 'mise-en-evidence' %}
 
 						<tr>
 							{# Début Action #}

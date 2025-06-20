@@ -187,7 +187,7 @@
 				</div>
 				<div class="mb-2 {{ article.catalogue ? 'd-none' : ''}} ">
 					<label for="demande_appro_proposition_PU_{{ currentPage }}" class="form-label mb-0">Prix Unitaire (*)</label>
-					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}} data-catalogue="{{ article.catalogue ? 1 : 0 }}">
 				</div>
 			</div>
 			<div class="col-9 col-md-9">
