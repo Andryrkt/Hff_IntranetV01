@@ -12,6 +12,7 @@ use App\Controller\Traits\lienGenerique;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -38,11 +39,12 @@ class DaValidationController extends Controller
     /**
      * @Route("/validate/{numDa}", name="da_validate")
      */
-    public function validate(string $numDa)
+    public function validate(string $numDa, Request $request)
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $prixUnitaire = $request->get('PU'); // obtenir les PU envoyé par requête
 
-        $da = $this->modificationDesTable($numDa, $numeroVersionMax);
+        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
@@ -91,7 +93,7 @@ class DaValidationController extends Controller
         return in_array(self::ID_ATELIER, $serviceIds);
     }
 
-    private function modificationDesTable(string $numDa, int $numeroVersionMax): DemandeAppro
+    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire): DemandeAppro
     {
         /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
@@ -113,6 +115,10 @@ class DaValidationController extends Controller
                         ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal('Bon d’achats validé')
                     ;
+                    // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
+                    if (!empty($prixUnitaire) && array_key_exists($item->getNumeroLigne(), $prixUnitaire)) {
+                        $item->setPrixUnitaire($prixUnitaire[$item->getNumeroLigne()]);
+                    }
                 }
             }
         }
