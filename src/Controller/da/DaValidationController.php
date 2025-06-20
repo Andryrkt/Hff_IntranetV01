@@ -5,6 +5,7 @@ namespace App\Controller\da;
 use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -20,6 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaValidationController extends Controller
 {
+    use DaTrait;
     use lienGenerique;
 
     private const ID_ATELIER = 3;
@@ -158,27 +160,6 @@ class DaValidationController extends Controller
             'fileName' => $fileName,
             'filePath' => $filePath
         ];
-    }
-
-    public function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
-    {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
-        $donnerExcels = [];
-        foreach ($dals as $dal) {
-            $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
-            if (!empty($dalrs)) {
-                foreach ($dalrs as $dalr) {
-                    if ($dalr->getChoix()) {
-                        $donnerExcel = $dalr;
-                    }
-                }
-            }
-            $donnerExcels[] = $donnerExcel;
-        }
-
-        return $donnerExcels;
     }
 
     private function transformationEnTableauAvecEntet($entities): array

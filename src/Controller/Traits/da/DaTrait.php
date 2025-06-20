@@ -54,4 +54,25 @@ trait DaTrait
 
         return $statut_bc;
     }
+
+    private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
+    {
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        $donnerExcels = [];
+        foreach ($dals as $dal) {
+            $donnerExcel = $dal;
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            if (!empty($dalrs)) {
+                foreach ($dalrs as $dalr) {
+                    if ($dalr->getChoix()) {
+                        $donnerExcel = $dalr;
+                    }
+                }
+            }
+            $donnerExcels[] = $donnerExcel;
+        }
+
+        return $donnerExcels;
+    }
 }

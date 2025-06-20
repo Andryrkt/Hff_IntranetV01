@@ -6,6 +6,7 @@ use DateTime;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -28,6 +29,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionRefController extends Controller
 {
+    use DaTrait;
     use lienGenerique;
 
     private const ID_ATELIER = 3;
@@ -137,14 +139,14 @@ class DaPropositionRefController extends Controller
         $this->validerProposition($numDa);
 
         /** ENVOIE D'EMAIL à l'APPRO pour le changement des références et la validation des propositions */
-        $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
+        // $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
         $this->envoyerMailAuxAppro([
             'id'            => $da->getId(),
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
             // 'dalAncien'     => $nouvAncienDal['dalAncien'],
-            'dalNouveau'    => $nouvAncienDal['dalNouveau'],
+            'dalNouveau'    => $this->getNouveauDal($numDa),
             'service'       => 'atelier',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
@@ -254,27 +256,6 @@ class DaPropositionRefController extends Controller
         ];
     }
 
-    public function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
-    {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
-        $donnerExcels = [];
-        foreach ($dals as $dal) {
-            $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
-            if (!empty($dalrs)) {
-                foreach ($dalrs as $dalr) {
-                    if ($dalr->getChoix()) {
-                        $donnerExcel = $dalr;
-                    }
-                }
-            }
-            $donnerExcels[] = $donnerExcel;
-        }
-
-        return $donnerExcels;
-    }
-
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
@@ -329,6 +310,13 @@ class DaPropositionRefController extends Controller
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("da_list");
+    }
+
+    private function getNouveauDal($numDa)
+    {
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        return $dalNouveau;
     }
 
     private function nouveauEtAncienDal(DemandeAppro $da, string $numDa): array
