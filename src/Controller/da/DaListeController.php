@@ -36,7 +36,6 @@ class DaListeController extends Controller
 
     private const ID_ATELIER = 3;
     private const ID_APPRO = 16;
-    private const DA_STATUT_SOUMIS_ATE = 'Proposition achats';
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
@@ -446,7 +445,7 @@ class DaListeController extends Controller
         $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+            $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
             self::$em->persist($dal);
         }
 
@@ -456,7 +455,7 @@ class DaListeController extends Controller
     private function modificationStatutDa(string $numDa): void
     {
         $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+        $da->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
 
         self::$em->persist($da);
         self::$em->flush();

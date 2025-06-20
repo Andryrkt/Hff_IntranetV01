@@ -31,7 +31,6 @@ class DaPropositionRefController extends Controller
     use lienGenerique;
 
     private const ID_ATELIER = 3;
-    private const DA_STATUT = 'Proposition achats';
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -487,7 +486,7 @@ class DaPropositionRefController extends Controller
         if ($this->estUserDansServiceAtelier()) {
             $statut = self::DA_STATUT_CHANGE_CHOIX_ATE;
         } else {
-            $statut = self::DA_STATUT;
+            $statut = DemandeAppro::STATUT_SOUMIS_ATE;
         }
         return $statut;
     }
