@@ -412,4 +412,31 @@ class DitOrSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function getTypeLigne($numOr)
+    {
+        $statement = " SELECT slor_typlig as type_lig
+        from sav_lor 
+        where slor_numor='$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'type_lig');
+    }
+
+    public function getNumItv($numOr)
+    {
+        $statement = " SELECT sitv_interv  as num_itv
+                    from sav_itv
+                    where sitv_numor='$numOr'
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'num_itv');
+    }
 }

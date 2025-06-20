@@ -417,15 +417,24 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning12($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning22($numOr);
-        // dump($datePlannig1, $datePlannig2);
-        $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
-        $dateDuJour = new DateTime('now');
-        // dump($datePlanning, $dateDuJour);
+        //première soumission
         $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
-        // dd($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0);
-        return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
+        $typeLigs = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr);
+        if ((int)$nbrOrSoumis <= 0 && in_array('P', $typeLigs)) {
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
     }
 
     private function datePlanning($numOr, $numItv)
