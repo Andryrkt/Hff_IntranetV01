@@ -164,7 +164,7 @@ class DaNewController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_APPRO,
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [

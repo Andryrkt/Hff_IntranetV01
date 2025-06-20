@@ -374,7 +374,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_ATELIER,
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -396,7 +396,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_APPRO,
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
