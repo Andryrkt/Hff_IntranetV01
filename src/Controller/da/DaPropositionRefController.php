@@ -32,7 +32,6 @@ class DaPropositionRefController extends Controller
 
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'Proposition achats';
-    private const DA_STATUT_SOUMIS_APPRO = 'Demande d’achats';
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -100,7 +99,7 @@ class DaPropositionRefController extends Controller
 
     private function nePeutPasModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $dals, Request $request, string $numDa, DemandeAppro $da)

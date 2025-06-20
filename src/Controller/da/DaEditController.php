@@ -30,7 +30,6 @@ class DaEditController extends Controller
     use lienGenerique;
 
     private const ID_ATELIER = 3;
-    private const DA_STATUT = 'Demande d’achats';
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
@@ -163,7 +162,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function estUserDansServiceAtelier()
@@ -278,7 +277,7 @@ class DaEditController extends Controller
 
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                ->setStatutDal(self::DA_STATUT)
+                ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)
                 ->setJoursDispo($this->getJoursRestants($demandeApproL))
