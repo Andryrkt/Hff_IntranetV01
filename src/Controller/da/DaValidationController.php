@@ -42,7 +42,7 @@ class DaValidationController extends Controller
     public function validate(string $numDa, Request $request)
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $prixUnitaire = $request->get('PU'); // obtenir les PU envoyé par requête
+        $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
         $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire);
 
