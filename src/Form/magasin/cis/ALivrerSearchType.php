@@ -46,8 +46,9 @@ class ALivrerSearchtype extends AbstractType
         return array_combine($this->magasinModel->agence(), $this->magasinModel->agence());
     }
 
-    private function agenceUser(){
-        return array_combine($this->magasinModel->agenceUser(), $this->magasinModel->agenceUser());
+    private function agenceAutoriserUser(string $codeAgence)
+    {
+        return array_combine($this->magasinModel->agenceUser($codeAgence), $this->magasinModel->agenceUser($codeAgence));
     }
     
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -149,12 +150,8 @@ class ALivrerSearchtype extends AbstractType
             ->add('agenceUser', ChoiceType::class, [
                 'label' => 'Agence Emetteur',
                 'required' => false,
-                'choices' => $this->agenceUser() ?? [],
-                'placeholder' => ' -- choisir agence --',
-                'data' => $options['data']['agenceUser'] ?? null,
-                'attr' => [
-                    'disabled' => !$options['data']['autoriser'],
-                ],
+                'choices' => $this->agenceAutoriserUser($options['data']['agenceUser']) ?? [],
+                'placeholder' => ' -- Choisir une agence --',
             ])
             
             ->add('agenceUserHidden', HiddenType::class, [
@@ -163,10 +160,9 @@ class ALivrerSearchtype extends AbstractType
             
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
                 $data = $event->getData();
-                if(!$options['data']['autoriser']){
-                $data['agenceUser'] = $data['agenceUserHidden'] ?? $data['agenceUser'];
+
+                $data['agenceUser'] =  $data['agenceUser'];
                 $event->setData($data);
-                }
             })
 
             ->add('orCompletNon',

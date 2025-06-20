@@ -195,7 +195,7 @@ class MagasinListeOrALivrerSearchType extends AbstractType
 
                 $data['agenceUser'] =  $data['agenceUser'];
                 $event->setData($data);
-            });;
+            });
     }
 
     public function configureOptions(OptionsResolver $resolver)
