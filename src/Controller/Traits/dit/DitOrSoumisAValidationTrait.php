@@ -236,7 +236,7 @@ trait DitOrSoumisAValidationTrait
             $recapAvantApres[] = [
                 'itv' => $itv,
                 'libelleItv' => $libelleItv,
-                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR()),
+                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv),
                 'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
@@ -428,10 +428,10 @@ trait DitOrSoumisAValidationTrait
         return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
     }
 
-    private function datePlanning($numOr)
+    private function datePlanning($numOr, $numItv)
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
 
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
