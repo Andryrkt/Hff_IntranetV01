@@ -119,6 +119,9 @@ class DaPropositionRefController extends Controller
         }
     }
 
+    /** 
+     * Traitement pour le cas où c'est l'atelier qui a validé la demande
+     */
     private function traitementPourBtnValider(Request $request, $dals, $numDa, $dalrList, $observation, $da)
     {
         /** MODIFICATION de choix de reference */

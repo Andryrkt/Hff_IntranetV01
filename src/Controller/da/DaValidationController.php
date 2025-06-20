@@ -54,7 +54,7 @@ class DaValidationController extends Controller
         self::$em->flush();
 
         /** ENVOIE D'EMAIL */
-        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
         if ($this->estUserDansServiceAtelier()) {
             // $this->envoyerMailAuxAppro([
             //     'id'                => $da->getId(),
