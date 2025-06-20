@@ -101,7 +101,7 @@ class DaValidationController extends Controller
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setStatutDal('Bon d’achats validé')
+                ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }
 
@@ -113,7 +113,7 @@ class DaValidationController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal('Bon d’achats validé')
+                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
                     if (!empty($prixUnitaire) && array_key_exists($item->getNumeroLigne(), $prixUnitaire)) {

@@ -31,7 +31,6 @@ class DaEditController extends Controller
 
     private const ID_ATELIER = 3;
     private const DA_STATUT = 'Demande d’achats';
-    private const DA_STATUT_VALIDE = 'Bon d’achats validé';
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
@@ -164,7 +163,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT || $demandeAppro->getStatutDal() == self::DA_STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == self::DA_STATUT || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function estUserDansServiceAtelier()
