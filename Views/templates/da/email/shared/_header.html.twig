@@ -13,7 +13,12 @@
 		{% elseif statut == 'modificationDa' %}
 			MODIFICATION
 		{% elseif statut == 'validationAteDa' %}
-			VALIDÉE PAR L'ATE
+			VALIDÉE PAR L'
+			{% if tab.service is same as 'atelier' %}
+				ATELIER
+			{% elseif tab.service is same as 'appro' %}
+				APPRO
+			{% endif %}
 		{% elseif statut == 'demandeDeverouillage' %}
 			DEMANDE DE DÉVERROUILLAGE
 		{% elseif statut == 'confirmationDeverrouillage' %}
