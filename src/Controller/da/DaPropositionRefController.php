@@ -307,14 +307,12 @@ class DaPropositionRefController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
         $this->envoyerMailPropositionAuxAte([
             'id'            => $da->getId(),
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
-            'dalAncien'     => $nouvAncienDal['dalAncien'],
-            'dalNouveau'    => $nouvAncienDal['dalNouveau'],
+            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
