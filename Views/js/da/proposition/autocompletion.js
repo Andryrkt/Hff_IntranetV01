@@ -99,6 +99,7 @@ function onBlurEvents(found, designation, numPage) {
       } else {
         field.classList.add('text-danger');
         if (field.id.includes(`PU_${numPage}`)) {
+          field.disabled = false;
           field.value = 0;
         }
         if (field.id.includes(`numeroFournisseur_${numPage}`)) {
@@ -202,6 +203,7 @@ function handleValuesOfFields(
     fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
     designation.value = item.designation;
+    PU.disabled = true;
     PU.value = item.prix;
     famille.value = item.codefamille;
     const numPage = localStorage.getItem('currentTab');
@@ -211,8 +213,6 @@ function handleValuesOfFields(
     const containerElement = document.querySelector(
       '#container_codeFams2_' + numPage
     );
-
-    console.log(iscatalogue);
 
     if (iscatalogue == '') {
       updateDropdown(
