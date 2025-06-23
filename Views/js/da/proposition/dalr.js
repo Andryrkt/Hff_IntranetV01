@@ -7,7 +7,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   const tableBody = document.getElementById(`tableBody_${line}`);
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
-  const row = tableBody.insertRow();
+  const row = tableBody.insertRow(0);
   const rowIndex = tableBody.rows.length; // numero de ligne du tableau
   console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);

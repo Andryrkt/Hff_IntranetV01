@@ -197,3 +197,10 @@ tr.sub-separator > td {
 .menu-contextuel-custom form {
   margin: 0;
 }
+
+/*================================================
+*Largeur du modal niveau d'urgence 
+================================================*/
+.modal-dialog.custom-width {
+  max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}

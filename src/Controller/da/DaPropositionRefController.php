@@ -307,14 +307,12 @@ class DaPropositionRefController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $nouvAncienDal = $this->nouveauEtAncienDal($da,  $numDa);
         $this->envoyerMailPropositionAuxAte([
             'id'            => $da->getId(),
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
-            'dalAncien'     => $nouvAncienDal['dalAncien'],
-            'dalNouveau'    => $nouvAncienDal['dalNouveau'],
+            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -451,7 +449,7 @@ class DaPropositionRefController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
+                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'ATELIER",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ],
@@ -477,7 +475,7 @@ class DaPropositionRefController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationAteDa",
-                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'ATE",
+                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'ATELIER",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
             ]
@@ -763,22 +761,21 @@ class DaPropositionRefController extends Controller
     }
 
     /**
-     * TRAITEMENT DES FICHIER UPLOAD
+     * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
      * (copier le fichier uploader dans une répertoire et le donner un nom)
      */
     private function uploadFile(UploadedFile $file, DemandeApproLR $dalr)
     {
         $fileName = sprintf(
-            'ft_%s_%s_%s_%s.%s',
-            $dalr->getNumeroDemandeAppro(),
+            'FT_%s_%s_%s.%s',
+            date("YmdHis"),
             $dalr->getNumeroLigneDem(),
             $dalr->getNumLigneTableau(),
-            date("YmdHis"),
             $file->getClientOriginalExtension()
-        );
+        ); // Exemple: FT_20250623121403_2_4.pdf
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/' . $dalr->getNumeroDemandeAppro() . '/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true)) {

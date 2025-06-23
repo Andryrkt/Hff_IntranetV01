@@ -47,12 +47,14 @@
 					<th class="text-center">N° DA</th>
 					<th class="text-center">Achat direct</th>
 					<th class="text-center">N° DIT</th>
+					<th class="text-center">Niv. Urgence</th>
 					<th class="text-center">N° OR</th>
 					<th class="text-center">Date planning OR</th>
 					<th class="text-center">N° Fournisseur</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">N° Commande</th>
 					<th class="text-center">Statut BC</th>
+					<th class="text-center">Date fin souhaité</th>
 					<th class="text-center">Réference</th>
 					<th class="text-center">Désignation</th>
 					<th class="text-center">Qté demandée</th>
@@ -87,6 +89,7 @@
 						<td class="text-center">{{ item.num_da }}</td>
 						<td class="text-center">NON</td>
 						<td class="text-center">{{ item.num_dit }}</td>
+						<td class="text-center">{{ item.niv_urg }}</td>
 						<td class="text-center">{{ item.num_or }}</td>
 						<td class="text-center">{{ item.dateplanning |date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.num_fournisseur }}</td>
@@ -102,6 +105,7 @@
 						{% endif %}
 
 						<td class="text-center fw-bold">{{ item.statut_bc}}</td>
+						<td class="text-center">{{ item.date_fin_souhaite | date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
 						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
@@ -117,6 +121,7 @@
 
 	<!-- FIN tableau -->
 	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 
 
 {% endblock %}

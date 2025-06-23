@@ -18,6 +18,7 @@ class DemandeApproLRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
+
     public function getQteRefPu(string $numDit)
     {
         // Étape 1 : Récupérer le numeroVersion maximum

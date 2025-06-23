@@ -27,11 +27,9 @@
 		</li>
 	</ul>
 </p>
-
-
 <hr>
 <p>Proposition de l'Appro</p>
-<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
+<table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
 			<th>Famille</th>
@@ -44,19 +42,20 @@
 	<tbody>
 		{% for dala in tab.dalAncien %}
 			<tr>
-				<td>{{dala.artFams1}}</td>
-				<td>{{dala.artFams2}}</td>
-				<td>{{dala.artDesi}}</td>
-				<td>{{dala.nomFournisseur}}</td>
-				<td>{{dala.commentaire}}</td>
+				<td>{{ dala.artFams1 ?? '-'}}</td>
+				<td>{{ dala.artFams2 ?? '-'}}</td>
+				<td>{{ dala.artDesi }}</td>
+				<td>{{ dala.nomFournisseur }}</td>
+				<td>{{ dala.commentaire }}</td>
 			</tr>
 		{% endfor %}
 	</tbody>
 </table>
+<br>
 <hr>
-<p>demande modifier par l'atelier</p>
-<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
-	<thead style="background-color:#000; color:#fff;">
+<p>Demande modifiée par l'atelier</p>
+<table>
+	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
 			<th>Famille</th>
 			<th>Sous famille</th>
@@ -68,14 +67,14 @@
 	<tbody>
 		{% for daln in tab.dalNouveau %}
 			<tr>
-				<td>{{daln.artFams1}}</td>
-				<td>{{daln.artFams2}}</td>
-				<td>{{daln.artDesi}}</td>
-				<td>{{daln.nomFournisseur}}</td>
-				<td>{{daln.commentaire}}</td>
+				<td>{{ daln.artFams1 ?? '-'}}</td>
+				<td>{{ daln.artFams2 ?? '-'}}</td>
+				<td>{{ daln.artDesi }}</td>
+				<td>{{ daln.nomFournisseur }}</td>
+				<td>{{ daln.commentaire }}</td>
 			</tr>
 		{% endfor %}
 	</tbody>
 </table>
-
+<br>
 <hr>

@@ -7,6 +7,8 @@ ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Controller\Traits\da\DaTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
@@ -15,12 +17,14 @@ use App\Form\dit\DitOrsSoumisAValidationType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Entity\da\DemandeAppro;
+use App\Repository\da\DemandeApproRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
@@ -28,6 +32,7 @@ class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;
     use DitOrSoumisAValidationTrait;
+    use DaTrait;
 
     private MagasinListeOrLivrerModel $magasinListOrLivrerModel;
     private HistoriqueOperationService $historiqueOperation;
@@ -36,6 +41,9 @@ class DitOrsSoumisAValidationController extends Controller
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $orRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+    private DemandeApproRepository $demandeApproRepository;
+
 
     public function __construct()
     {
@@ -47,6 +55,8 @@ class DitOrsSoumisAValidationController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->orRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
     }
 
     /**
@@ -163,9 +173,21 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
-        // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
+        $numDa = $this->demandeApproRepository->getNumDa($numDit);
+        if ($numDa) {
+            $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+            $daValiders = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+            $referenceDas = array_map(function ($item) {
+                return [
+                    "quantite" => $item->getQteDem(),
+                    "reference" => $item->getArtRefp(),
+                    "montant" => $item->getPrixUnitaire(),
+                    "designation" => $item->getArtDesi()
+                ];
+            }, $daValiders);
+            // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
+        }
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,

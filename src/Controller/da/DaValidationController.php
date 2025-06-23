@@ -191,7 +191,7 @@ class DaValidationController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'APPRO",
+                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ],
@@ -217,7 +217,7 @@ class DaValidationController extends Controller
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
                 'statut'     => "validationAteDa",
-                'subject'    => "{$tab['numDa']} - Validation du demande d'approvisionnement par l'APPRO",
+                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
             ]

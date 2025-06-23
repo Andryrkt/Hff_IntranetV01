@@ -19,8 +19,9 @@
 				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
+							<span class="urgency-level">{{ dit.idNiveauUrgence.description }}</span>
 							Détails Demande d'achat, n°
-							{{ demandeAppro.numeroDemandeAppro }} : {{ dit.idNiveauUrgence.description }}
+							{{ demandeAppro.numeroDemandeAppro }}
 						</h3>
 					</div>
 
@@ -75,7 +76,8 @@
 								<th class="text-start">Désignation</th>
 								<th class="text-start">Fournisseur</th>
 								<th class="text-start">Date fin souhaitée</th>
-								<th class="text-start">Quantité</th>
+								<th class="text-center">Prix Unitaire</th>
+								<th class="text-center">Quantité</th>
 								<th class="text-start">Commentaire</th>
 								<th class="text-start">Pièces jointes</th>
 								<th class="text-start">Fiche technique</th>
@@ -91,14 +93,15 @@
 									</td>
 									<td>{{ DAL.nomFournisseur }}</td>
 									<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
-									<td>{{ DAL.qteDem }}</td>
+									<td class="format-mtt text-end">{{ DAL.prixUnitaire }}</td>
+									<td class="text-center">{{ DAL.qteDem }}</td>
 									<td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
 									<td>
 									{% if DAL.fileNames|length > 0 %}
 										<ul class="mb-0 px-0">
 											{% for file in DAL.fileNames %}
 												<li>
-													<a href="{{ App.base_path_fichier }}/da/fichiers/{{ file }}" target="_blank">{{ file }}</a>
+													<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
 												</li>
 											{% endfor %}
 										</ul>
@@ -109,7 +112,7 @@
 									<td>
 										{% if DAL.estFicheTechnique %}
 											{% if DAL.nomFicheTechnique %}
-												<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
+												<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.numeroDemandeAppro }}/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
 											{% else %}
 												Fiche technique pas encore attachée
 											{% endif %}
@@ -146,5 +149,5 @@
 	{% endfor %}
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/detail/detail.js" type="module"></script>
 {% endblock %}
