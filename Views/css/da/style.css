@@ -85,7 +85,7 @@ a.choix:hover {
   width: 23% !important;
 }
 
-[id*='tableBody'] td {
+[id*="tableBody"] td {
   text-align: center;
 }
 
@@ -118,7 +118,7 @@ a.choix:hover {
   }
 }
 
-[id*='spinner_container_']:not([id*='nomFournisseur']) {
+[id*="spinner_container_"]:not([id*="nomFournisseur"]) {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
@@ -129,14 +129,14 @@ a.choix:hover {
   padding: 10px;
 }
 
-[id*='spinner_container_'] .text-overlay {
+[id*="spinner_container_"] .text-overlay {
   font-size: 14px;
   color: white;
   margin-right: 10px;
   display: inline-block;
 }
 
-[id*='demande_appro_form_DAL'][id*='estFicheTechnique'] {
+[id*="demande_appro_form_DAL"][id*="estFicheTechnique"] {
   width: 1.5em;
   height: 1.5em;
   border-radius: 0.3em;
@@ -259,4 +259,11 @@ a.choix:hover {
   color: orange !important;
   font-weight: bold;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.urgency-level {
+  font-size: 2rem !important;
+  position: absolute;
+  left: 30px;
+  top: 20px;
 }
