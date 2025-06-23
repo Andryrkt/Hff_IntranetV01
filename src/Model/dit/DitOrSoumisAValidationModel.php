@@ -396,7 +396,8 @@ class DitOrSoumisAValidationModel extends Model
                     --TRIM(isl.slor_constp) as contructeur, 
                     ROUND(isl.slor_qterel) as quantite, 
                     TRIM(isl.slor_refp) as reference, 
-                    isl.slor_pxnreel as montant
+                    isl.slor_pxnreel as montant,
+                    TRIM(isl.slor_desi) as designation
                     from Informix.sav_lor isl 
                     where slor_constp ='ZST' 
                     and slor_soc ='HF' 
