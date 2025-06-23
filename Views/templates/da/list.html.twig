@@ -25,11 +25,24 @@
 	</div>
 
 	{# Statut de la DA #}
-	{% set styleStatut = {
-		'OR non validé': 'bg-or-non-valide fw-bold',
+	{% set styleStatutDA = {
 		'Demande d’achats': 'bg-demande-achat fw-bold',
 		'Proposition achats': 'bg-proposition-achat fw-bold',
 		'Bon d’achats validé': 'bg-bon-achat-valide fw-bold',
+	} %}
+
+	{% set styleStatutOR = {
+		'Refusé chef atelier': 'bg-or-non-valide fw-bold',
+		'Refusé client interne': 'bg-or-non-valide fw-bold',
+		'Validé': 'bg-danger fw-bold',
+	} %}
+
+	{% set styleStatutBC = {
+		'A générer': 'bg-bc-a-generer fw-bold',
+		'A éditer': 'bg-bc-a-editer fw-bold',
+		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
+		'Validé': 'bg-bc-valide fw-bold',
+		'Non validé': 'bg-bc-non-valide fw-bold',
 	} %}
 
 	<div class="container-fluid">
@@ -84,6 +97,7 @@
 							{# complet non livré #}
 							{% set classe = 'complet-non-livre bg-primary text-white' %}
 						{% endif %}
+
 						{% set dalAffiche = dal %}
 						{% if dal.demandeApproLR|length > 0 %}
 							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
@@ -133,9 +147,9 @@
 							<td>{{ item.dit.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
-							<td class="{{ styleStatut[dal.statutDal] }}">{{ dal.statutDal }}</td>
-							<td class="text-start fw-bold">{{ item.dit.statutOr }}</td>
-							<td class="text-start fw-bold {{classe}}">{{dal.statutBc}}</td>
+							<td class="{{ styleStatutDA[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }}">{{ item.dit.statutOr }}</td>
+							<td class="text-start {{ styleStatutBC[dal.statutBc] }}">{{dal.statutBc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							{% if not serviceAtelier %}
@@ -157,7 +171,7 @@
 									<i class="fas fa-xmark text-danger"></i>
 								{% endif %}
 							</td>
-							<td class="text-center">{{ dal.qteDem }}</td>
+							<td class="text-center {{classe}}">{{ dal.qteDem }}</td>
 							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
 							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 						</tr>
