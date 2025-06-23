@@ -9,6 +9,7 @@ use App\Entity\admin\dit\WorNiveauUrgence;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
@@ -88,6 +89,26 @@ class CdeFrnListType extends  AbstractType
                     'required' => false,
                 ]
             )
+            ->add('dateDebutOR', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date début planning OR',
+                'required' => false,
+            ])
+            ->add('dateFinOR', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date fin planning OR',
+                'required' => false,
+            ])
+            ->add('dateDebutDAL', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date début fin souhaité',
+                'required' => false,
+            ])
+            ->add('dateFinDAL', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date fin fin souhaité',
+                'required' => false,
+            ])
         ;
     }
 

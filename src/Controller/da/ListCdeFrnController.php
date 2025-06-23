@@ -147,6 +147,23 @@ class ListCdeFrnController extends Controller
             }));
         }
 
+        //Filtre sur la date de debut date fin souhaité
+        if (!empty($criteria['dateDebutDAL'])) {
+            $filtreDateDebutFinSouhaite = $criteria['dateDebutDAL']->format('Y-m-d');
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreDateDebutFinSouhaite) {
+                return isset($item['date_fin_souhaite']) && $item['date_fin_souhaite'] <= $filtreDateDebutFinSouhaite;
+            }));
+        }
+        //Filtre sur la date de fin date fin souhaité
+        if (!empty($criteria['dateFinDAL'])) {
+            $filtreDateFinFinSouhaite = $criteria['dateFinDAL']->format('Y-m-d');
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreDateFinFinSouhaite) {
+                return isset($item['date_fin_souhaite']) && $item['date_fin_souhaite'] <= $filtreDateFinFinSouhaite;
+            }));
+        }
+
         return $datas;
     }
 
