@@ -2,14 +2,19 @@
 
 namespace App\Controller\da;
 
+use Exception;
 use App\Controller\Controller;
 use App\Entity\da\DaSoumissionBc;
+use App\Entity\da\DemandeAppro;
+use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
+use App\Repository\da\DemandeApproRepository;
+use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -26,6 +31,8 @@ class DaSoumissionBcController extends Controller
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private GenererPdfDa $genererPdfDa;
+    private DemandeApproRepository $demandeApproRepository;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -33,10 +40,12 @@ class DaSoumissionBcController extends Controller
 
         $this->daSoumissionBc = new DaSoumissionBc();
         $this->traitementDeFichier = new TraitementDeFichier();
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionBc';
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->genererPdfDa = new GenererPdfDa();
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -77,24 +86,33 @@ class DaSoumissionBcController extends Controller
             $soumissionBc = $form->getData();
             if ($this->verifierConditionDeBlocage($soumissionBc, $numCde)) {
                 /** ENREGISTREMENT DE FICHIER */
-                $nomDeFichier = $this->enregistrementFichier($form);
+                $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+
+                /** FUSION DES PDF */
+                $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+                $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $this->cheminDeBase . $numDa . '/' . 'BC_' . $numCde . '.pdf');
 
                 /** AJOUT DES INFO NECESSAIRE */
                 $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+                $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+                $numOr = $this->ditRepository->getNumOr($numDit);
                 $soumissionBc->setNumeroCde($numCde)
-                    ->setUtilisateur($this->getUser()->getUsername())
-                    ->setPieceJoint1($nomDeFichier)
+                    ->setUtilisateur($this->getUser()->getNomUtilisateur())
+                    ->setPieceJoint1($nomDeFichiers[0])
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setNumeroDemandeAppro($numDa)
-                ; //TODO: A AJOUTER le numero Da, numero OR,...
+                    ->setNumeroDemandeDit($numDit)
+                    ->setNumeroOR($numOr)
+                ;
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 self::$em->persist($soumissionBc);
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                $this->genererPdfDa->copyToDWBcDa($nomDeFichier);
+                $this->genererPdfDa->copyToDWBcDa('BC_' . $numCde . '.pdf', $numDa);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -141,31 +159,54 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return array
      */
-    private function enregistrementFichier($form): string
+    private function enregistrementFichier($form, $numCde, $numDa): array
     {
         $fieldPattern = '/^pieceJoint(\d{1})$/';
-        $nomDeFichie = '';
-        foreach ($form->all() as $fieldName => $field) {
+        $nomDesFichiers = [];
+        $compteur = 1; // Pour l’indexation automatique
 
+        foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
                 /** @var UploadedFile|UploadedFile[]|null $file */
                 $file = $field->getData();
 
                 if ($file !== null) {
+                    $fichiers = is_array($file) ? $file : [$file];
 
-                    // Cas où c'est un seul fichier
-                    $nomDeFichier = $file->getClientOriginalName();
-                    $this->traitementDeFichier->upload(
-                        $file,
-                        $this->cheminDeBase,
-                        $nomDeFichier
-                    );
-                    $nomDeFichie = $nomDeFichier;
+                    foreach ($fichiers as $singleFile) {
+                        if ($singleFile !== null) {
+                            $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
+                            $nomDeFichier = sprintf('BC_%s-%04d.%s', $numCde, $compteur, $extension);
+
+                            $this->traitementDeFichier->upload(
+                                $singleFile,
+                                $this->cheminDeBase . '/' . $numDa,
+                                $nomDeFichier
+                            );
+
+                            $nomDesFichiers[] = $nomDeFichier;
+                            $compteur++;
+                        }
+                    }
                 }
             }
         }
 
-        return $nomDeFichie;
+        return $nomDesFichiers;
+    }
+
+    /**
+     * Ajout de prefix pour chaque element du tableau files
+     *
+     * @param array $files
+     * @param string $prefix
+     * @return array
+     */
+    private function addPrefixToElementArray(array $files, string $prefix): array
+    {
+        return array_map(function ($file) use ($prefix) {
+            return $prefix . $file;
+        }, $files);
     }
 
     private function autoIncrement(?int $num): int
@@ -174,5 +215,49 @@ class DaSoumissionBcController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+        return $tousLesFichiers;
+    }
+
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 }
