@@ -17,7 +17,8 @@
 								<th class="text-start">Sous-famille</th>
 								<th class="text-start">Désignation</th>
 								<th class="text-start">Fournisseur</th>
-								<th class="text-start">Quantité dispo</th>
+								<th class="text-center">Prix Unitaire</th>
+								<th class="text-center">Quantité dispo</th>
 								<th class="text-start">Commentaire / motif</th>
 								<th class="text-start">Fiche technique</th>
 							</tr>
@@ -30,7 +31,8 @@
 										<td class="text-start">{{ item.artFams2 ?? '-' }}</td>
 										<td class="text-start">{{ item.artDesi }}</td>
 										<td class="text-start">{{ item.nomFournisseur }}</td>
-										<td class="text-start">{{ item.qteDispo ?? '-' }}</td>
+										<td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
+										<td class="text-center">{{ item.qteDispo ?? '-' }}</td>
 										<td class="text-start">{{ item.motif }}</td>
 										<td class="text-start">
 											{% if DAL.estFicheTechnique %}

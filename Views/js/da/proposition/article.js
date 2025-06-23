@@ -1,21 +1,21 @@
-import { ajouterUneLigne } from './dalr';
+import { ajouterUneLigne } from "./dalr";
 
 export function ajouterReference(addLineId) {
-  const line = addLineId.replace('add_line_', '');
-  const numPage = addLineId.split('_').pop();
+  const line = addLineId.replace("add_line_", "");
+  const numPage = addLineId.split("_").pop();
   const { isCatalogueInput } = recupInput(numPage);
   let iscatalogue = isCatalogueInput.value;
 
   const fields = {
-    famille: getField('codeFams1', line),
-    sousFamille: getField('codeFams2', line),
-    reference: getField('reference', line),
-    designation: getField('designation', line),
-    fournisseur: getField('fournisseur', line),
-    qteDispo: getField('qte_dispo', line),
-    motif: getField('motif', line),
-    numeroFournisseur: getField('numeroFournisseur', line),
-    prixUnitaire: getField('PU', line),
+    famille: getField("codeFams1", line),
+    sousFamille: getField("codeFams2", line),
+    reference: getField("reference", line),
+    designation: getField("designation", line),
+    fournisseur: getField("fournisseur", line),
+    qteDispo: getField("qte_dispo", line),
+    motif: getField("motif", line),
+    numeroFournisseur: getField("numeroFournisseur", line),
+    prixUnitaire: getField("PU", line),
   };
 
   const divValidation = document.getElementById(`validationButtons`);
@@ -28,7 +28,7 @@ export function ajouterReference(addLineId) {
         // divValidation.classList.add('d-none'); // On le cache
       }
       if (envoyerSelections) {
-        envoyerSelections.classList.remove('d-none'); // On l'affiche
+        envoyerSelections.classList.remove("d-none"); // On l'affiche
       }
       ajouterUneLigne(line, fields, iscatalogue);
     }
@@ -36,51 +36,40 @@ export function ajouterReference(addLineId) {
     if (!fields.prixUnitaire.value) {
       fields.prixUnitaire.focus();
     } else {
-      console.log('fields.famille.value', fields.famille.value);
-      console.log('fields.sousFamille.value', fields.sousFamille.value);
-      console.log('fields.reference.value', fields.reference.value);
-      console.log('fields.designation.value', fields.designation.value);
-      console.log('fields.fournisseur.value', fields.fournisseur.value);
-      console.log(
-        'fields.numeroFournisseur.value',
-        fields.numeroFournisseur.value
-      );
-      console.log('fields.qteDispo.value', fields.qteDispo.value);
-      console.log('fields.motif.value', fields.motif.value);
-
       fields.famille.value =
-        fields.famille.value == '-'
-          ? getValueField(`artFams1_${line}`)
+        fields.famille.value == "-"
+          ? getValueField(`codeFams1_${line}`)
           : fields.famille.value;
       fields.sousFamille.value =
-        fields.sousFamille.value == '-'
-          ? getValueField(`artFams2_${line}`)
+        fields.sousFamille.value == "-"
+          ? getValueField(`codeFams2_${line}`)
           : fields.sousFamille.value;
       fields.reference.value =
-        fields.reference.value == ''
+        fields.reference.value == ""
           ? getValueField(`artRefp_${line}`)
           : fields.reference.value;
       fields.designation.value =
-        fields.designation.value == ''
+        fields.designation.value == ""
           ? getValueField(`artDesi_${line}`)
           : fields.designation.value;
       fields.fournisseur.value =
-        fields.fournisseur.value == ''
+        fields.fournisseur.value == ""
           ? getValueField(`nomFournisseur_${line}`)
           : fields.fournisseur.value;
       fields.numeroFournisseur.value =
-        fields.numeroFournisseur.value == ''
+        fields.numeroFournisseur.value == ""
           ? getValueField(`numeroFournisseur_${line}`)
           : fields.numeroFournisseur.value;
       fields.qteDispo.value =
-        fields.qteDispo.value == '' ? '-' : fields.qteDispo.value;
-      fields.motif.value = fields.motif.value == '' ? '*' : fields.motif.value;
+        fields.qteDispo.value == "" ? "-" : fields.qteDispo.value;
+      fields.motif.value = fields.motif.value == "" ? "*" : fields.motif.value;
+
       if (divValidation) {
         divValidation.remove(); // On supprime le div de validation s'il existe
         // divValidation.classList.add('d-none'); // On le cache
       }
       if (envoyerSelections) {
-        envoyerSelections.classList.remove('d-none'); // On l'affiche
+        envoyerSelections.classList.remove("d-none"); // On l'affiche
       }
       ajouterUneLigne(line, fields, iscatalogue);
     }
@@ -98,7 +87,7 @@ function handleFieldValue(field) {
    * field.id.includes('qte_dispo'): pour savoir que c'est le champ qté dispo
    * Champ non requis
    */
-  if (field.value || field.id.includes('qte_dispo')) {
+  if (field.value || field.id.includes("qte_dispo")) {
     return false;
   } else {
     field.focus();
@@ -151,6 +140,6 @@ function initializeFields(fields, line) {
     fields[key].value = fields[key].value ?? getValueField(fieldId);
   }
 
-  fields.qteDispo.value = fields.qteDispo.value ?? '-';
-  fields.motif.value = fields.motif.value ?? '*';
+  fields.qteDispo.value = fields.qteDispo.value ?? "-";
+  fields.motif.value = fields.motif.value ?? "*";
 }

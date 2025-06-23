@@ -1,10 +1,20 @@
 <div class="email-header">
 	{{ numDa }}
-	- DEMANDE D'APPROVISIONNEMENT
+	- 
+	{% if statut in ['validationDa', 'validationAteDa'] %}
+		PROPOSITION(S) 
+		<span class="validationDa">
+			VALIDÉE(S) PAR L’
+			{% if tab.service is same as 'atelier' %}
+				ATELIER
+			{% elseif tab.service is same as 'appro' %}
+				APPRO
+			{% endif %}
+		</span>
+	{% else %}
+	DEMANDE D'APPROVISIONNEMENT
 	<span class="{{ statut }}">
-		{% if statut == "validationDa" %}
-			VALIDÉE
-		{% elseif statut == "newDa" %}
+		{% if statut == "newDa" %}
 			CRÉÉ
 		{% elseif statut == 'bonAchatDa' %}
 			BON D'ACHAT
@@ -12,17 +22,11 @@
 			PROPOSITION
 		{% elseif statut == 'modificationDa' %}
 			MODIFICATION
-		{% elseif statut == 'validationAteDa' %}
-			VALIDÉE PAR L'
-			{% if tab.service is same as 'atelier' %}
-				ATELIER
-			{% elseif tab.service is same as 'appro' %}
-				APPRO
-			{% endif %}
 		{% elseif statut == 'demandeDeverouillage' %}
 			DEMANDE DE DÉVERROUILLAGE
 		{% elseif statut == 'confirmationDeverrouillage' %}
 			DEMANDE DÉVERROUILLÉE
 		{% endif %}
 	</span>
+	{% endif %}
 </div>
