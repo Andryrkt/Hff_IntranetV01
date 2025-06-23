@@ -821,4 +821,14 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getNumOr(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
