@@ -241,21 +241,21 @@ class DaNewController extends Controller
     }
 
     /**
-     * TRAITEMENT DES FICHIER UPLOAD
+     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
      * (copier le fichier uploader dans une répertoire et le donner un nom)
      */
     private function uploadFile(UploadedFile $file, DemandeApproL $dal, int $i)
     {
         $fileName = sprintf(
-            'pj_%s_%s_%s.%s',
-            $dal->getNumeroDemandeAppro(),
+            'PJ_%s_%s_%s.%s',
+            date("YmdHis"),
             $dal->getNumeroLigne(),
             $i,
             $file->getClientOriginalExtension()
-        );
+        ); // Exemple: PJ_20250623121403_3_1.pdf
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/' . $dal->getNumeroDemandeAppro() . '/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
