@@ -10,6 +10,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -18,6 +19,7 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\dit\DitRepository;
@@ -35,6 +37,7 @@ class ListCdeFrnController extends Controller
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
     private DitRepository $ditRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
 
     public function __construct()
     {
@@ -46,6 +49,7 @@ class ListCdeFrnController extends Controller
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
     }
 
     /** 
@@ -97,13 +101,17 @@ class ListCdeFrnController extends Controller
         $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
         $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
 
+        //recupération des données dans IPS
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
-        $datas = $this->ajouterNumDa($datas, $criteria);
+        //ajout des données utile
+        $datas = $this->ajouterNumDa($datas);
+        $datas = $this->ajoutDateFinSouhaite($datas);
         $datas = $this->ajoutStatutBc($datas);
         $datas = $this->ajouterNbrJoursDispo($datas);
-        $datas = $this->ajoutniveauUrgence($datas, $criteria);
+        $datas = $this->ajoutniveauUrgence($datas);
 
+        //filtre des données ajouter
         $datas = $this->filtreDonnee($datas, $criteria);
 
         // dd($datas);
@@ -137,6 +145,20 @@ class ListCdeFrnController extends Controller
             $datas = array_values(array_filter($datas, function ($item) use ($filtreStatutBc) {
                 return isset($item['statut_bc']) && $item['statut_bc'] === $filtreStatutBc;
             }));
+        }
+
+        return $datas;
+    }
+
+    private function ajoutDateFinSouhaite(array $datas)
+    {
+        foreach ($datas as $key => $data) {
+            $numDa = $data['num_da'];
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+            $donners = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+            foreach ($donners as $donner) {
+                $datas[$key]['date_fin_souhaite'] = $donner->getDateFinSouhaite();
+            }
         }
 
         return $datas;
