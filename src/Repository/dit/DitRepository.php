@@ -809,4 +809,16 @@ class DitRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getNiveauUrgence(string $numDit)
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('nu.description') // <-- un champ scalaire
+            ->join('d.idNiveauUrgence', 'nu') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit);
+
+        return $queryBuilder->getQuery()
+            ->getSingleScalarResult();
+    }
 }

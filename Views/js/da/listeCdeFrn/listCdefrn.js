@@ -14,9 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 3, columns: [0, 1, 2, 3, 4], insertSeparator: true },
-    { pivotIndex: 5, columns: [5, 6], insertSeparator: true },
-    { pivotIndex: 7, columns: [7, 8], insertSeparator: true },
+    { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
+    { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
+    { pivotIndex: 8, columns: [8, 9], insertSeparator: true },
   ]);
 });
 
@@ -132,7 +132,7 @@ document.addEventListener("contextmenu", function (event) {
       <a href="${url}"
          class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1"
          title="cliquer pour confirmer l'envoi">
-         BC à envoyer au fournisseur
+         BC envoyé au fournisseur
       </a>`;
     //desactive le formulaire
     Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
