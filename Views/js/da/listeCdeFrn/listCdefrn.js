@@ -132,7 +132,7 @@ document.addEventListener("contextmenu", function (event) {
       <a href="${url}"
          class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1"
          title="cliquer pour confirmer l'envoi">
-         BC à envoyer au fournisseur
+         BC envoyé au fournisseur
       </a>`;
     //desactive le formulaire
     Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire

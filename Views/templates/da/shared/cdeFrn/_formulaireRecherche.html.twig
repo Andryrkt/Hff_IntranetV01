@@ -33,9 +33,13 @@
 						{{ form_row(form.designation) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.achatDirect)}}
+						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
+						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
+						{{ form_row(form.statutBc)}}
 					</div>
-					<div class="col-12 col-md-2"></div>
+					<div class="col-12 col-md-2">
+					{{ form_row(form.achatDirect)}}
+					</div>
 				</div>
 
 				<div class="d-flex justify-content-end mb-2">

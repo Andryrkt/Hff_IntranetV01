@@ -10,6 +10,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Form\da\DaSoumissionType;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\da\DaModel;
@@ -19,6 +20,7 @@ use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Repository\dit\DitRepository;
 
 class ListCdeFrnController extends Controller
 {
@@ -32,6 +34,7 @@ class ListCdeFrnController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -42,6 +45,7 @@ class ListCdeFrnController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /** 
@@ -95,30 +99,83 @@ class ListCdeFrnController extends Controller
 
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
-        $datas = $this->ajouterNumDa($datas);
+        $datas = $this->ajouterNumDa($datas, $criteria);
         $datas = $this->ajoutStatutBc($datas);
         $datas = $this->ajouterNbrJoursDispo($datas);
+        $datas = $this->ajoutniveauUrgence($datas, $criteria);
 
+        $datas = $this->filtreDonnee($datas, $criteria);
+
+        // dd($datas);
+        return $datas;
+    }
+
+    private function filtreDonnee(array $datas, array $criteria = [])
+    {
+        //filtre du niceau d'urgence
+        if (!empty($criteria['niveauUrgence'])) {
+            $filtreNivUrg = $criteria['niveauUrgence']->getDescription();
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreNivUrg) {
+                return isset($item['niv_urg']) && $item['niv_urg'] === $filtreNivUrg;
+            }));
+        }
+
+        //filtres sur le numero demande appro
+        if (!empty($criteria['numDa'])) {
+            $filtreNumDa = $criteria['numDa'];
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreNumDa) {
+                return isset($item['num_da']) && $item['num_da'] === $filtreNumDa;
+            }));
+        }
+
+        //Filtre sur le stattu BC
+        if (!empty($criteria['statutBc'])) {
+            $filtreStatutBc = $criteria['statutBc'];
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreStatutBc) {
+                return isset($item['statut_bc']) && $item['statut_bc'] === $filtreStatutBc;
+            }));
+        }
+
+        return $datas;
+    }
+
+    private function ajoutniveauUrgence(array $datas)
+    {
+        //ajout du niveau d'urgence
+        foreach ($datas as $key => $data) {
+            $nivUrg = $this->ditRepository->getNiveauUrgence($data['num_dit']);
+            $datas[$key]['niv_urg'] = $nivUrg;
+        }
+
+        //return du nouveau donnée
         return $datas;
     }
 
     private function ajouterNumDa(array $datas)
     {
+        //ajout du numero demande appro
         foreach ($datas as $key => $data) {
             $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
             $datas[$key]['num_da'] = $numDa;
         }
+
+        //return du nouveau donnée
         return $datas;
     }
 
     private function ajoutStatutBc(array $datas)
     {
+        //ajout du statut BC
         foreach ($datas as $key => $data) {
 
             $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
             $datas[$key]['statut_bc'] = $statutBc;
         }
 
+        //return du nouveau Donnée
         return $datas;
     }
 
