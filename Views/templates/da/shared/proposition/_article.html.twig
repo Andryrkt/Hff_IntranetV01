@@ -59,7 +59,7 @@
 					<ul class="mb-0 px-3">
 						{% for file in article.fileNames %}
 							<li>
-								<a href="{{ App.base_path_fichier }}/da/fichiers/{{ file }}" target="_blank">{{ file }}</a>
+								<a href="{{ App.base_path_fichier }}/da/fichiers/{{ article.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
 							</li>
 						{% endfor %}
 					</ul>
@@ -80,7 +80,7 @@
 			<div class="d-flex align-items-center mb-2 div-disabled-2">
 				{% if article.estFicheTechnique %}
 					{% if article.nomFicheTechnique %}
-					<a href="{{ App.base_path_fichier }}/da/fichiers/{{ article.nomFicheTechnique }}" target="_blank">{{ article.nomFicheTechnique }}</a>
+					<a href="{{ App.base_path_fichier }}/da/fichiers/{{ article.numeroDemandeAppro }}/{{ article.nomFicheTechnique }}" target="_blank">{{ article.nomFicheTechnique }}</a>
 					{% else %}
 						Pas encore de fiche technique attachée
 					{% endif %}

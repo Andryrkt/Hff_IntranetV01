@@ -112,7 +112,7 @@
 									<td>
 										{% if DAL.estFicheTechnique %}
 											{% if DAL.nomFicheTechnique %}
-												<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
+												<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DAL.numeroDemandeAppro }}/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
 											{% else %}
 												Fiche technique pas encore attachée
 											{% endif %}

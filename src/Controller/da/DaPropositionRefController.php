@@ -761,22 +761,21 @@ class DaPropositionRefController extends Controller
     }
 
     /**
-     * TRAITEMENT DES FICHIER UPLOAD
+     * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
      * (copier le fichier uploader dans une répertoire et le donner un nom)
      */
     private function uploadFile(UploadedFile $file, DemandeApproLR $dalr)
     {
         $fileName = sprintf(
-            'ft_%s_%s_%s_%s.%s',
-            $dalr->getNumeroDemandeAppro(),
+            'FT_%s_%s_%s.%s',
+            date("YmdHis"),
             $dalr->getNumeroLigneDem(),
             $dalr->getNumLigneTableau(),
-            date("YmdHis"),
             $file->getClientOriginalExtension()
-        );
+        ); // Exemple: FT_20250623121403_2_4.pdf
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/' . $dalr->getNumeroDemandeAppro() . '/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
