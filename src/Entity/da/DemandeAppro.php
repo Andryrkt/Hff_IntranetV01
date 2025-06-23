@@ -24,7 +24,7 @@ class DemandeAppro
     public const STATUT_VALIDE = 'Bon d’achats validé';
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
-    public const MAIL_ATELIER = 'nomenjanahary.randrianantenaina@hff.mg';
+    public const MAIL_ATELIER = 'hasina.andrianadison@hff.mg';
     public const MAIL_APPRO = 'nomenjanahary.randrianantenaina@hff.mg';
 
     /**
