@@ -415,16 +415,22 @@ class DitOrSoumisAValidationModel extends Model
 
     public function getTypeLigne($numOr)
     {
-        $statement = " SELECT slor_typlig as type_lig
-        from sav_lor 
-        where slor_numor='$numOr'
+        $statement = "SELECT 
+            TRIM(CASE 
+                WHEN slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('achat_locaux') . ", 'ZST') 
+                THEN 'bloquer' 
+                ELSE 'pas bloquer' 
+            END) AS est_bloquer
+        FROM sav_lor 
+        WHERE slor_numor = $numOr
+    
         ";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
-        return array_column($this->convertirEnUtf8($data), 'type_lig');
+        return array_column($this->convertirEnUtf8($data), 'est_bloquer');
     }
 
     public function getNumItv($numOr)

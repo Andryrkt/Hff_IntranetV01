@@ -417,10 +417,10 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        //première soumission
-        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
-        $typeLigs = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr);
-        if ((int)$nbrOrSoumis <= 0 && in_array('P', $typeLigs)) {
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);//première soumission
+        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr);//return bloquer si type piece ou pas bloquer  si non
+        
+        if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
             $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
             $dateDuJour = new DateTime('now');
             foreach ($numItvs as $numItv) {
