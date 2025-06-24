@@ -9,4 +9,4 @@ CREATE TABLE da_demande_modification
     date_modification DATETIME2(0),
 
     CONSTRAINT PK_da_demande_modification PRIMARY KEY (id)
-)
+);
