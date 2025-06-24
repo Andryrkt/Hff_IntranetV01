@@ -91,7 +91,9 @@ class DaSoumissionBcController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $this->traitementDeFichier->fusionFichers($fichierConvertir, $this->cheminDeBase . $numDa . '/' . 'BC_' . $numCde . '.pdf');
+                $nomPdfFusionner =  'BC_' . $numCde . '.pdf';
+                $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
                 $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
