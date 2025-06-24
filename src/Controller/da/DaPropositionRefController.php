@@ -651,7 +651,10 @@ class DaPropositionRefController extends Controller
     private function recupEntitePageCourante(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrsAll = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            $dalrsAllTab = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            foreach ($dalrsAllTab as $dalr) {
+                $dalrsAll[] = $dalr;
+            }
         }
 
         return $dalrsAll;
@@ -676,7 +679,10 @@ class DaPropositionRefController extends Controller
     private function recupEntiteAModifier(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            $dalrsTab = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            foreach ($dalrsTab as $dalr) {
+                $dalrs[] = $dalr;
+            }
         }
 
         return $dalrs;
