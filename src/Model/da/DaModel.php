@@ -104,8 +104,7 @@ class DaModel extends Model
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
-            WHERE abse_constp = 'ZST'
-            AND fbse_numfou in ('6001537','6001625')";
+            WHERE abse_constp = 'ZST'";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
             if ($codeSousFamille !== '-') {
