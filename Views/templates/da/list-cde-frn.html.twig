@@ -12,6 +12,14 @@
 {% endblock %}
 
 {% block content %}
+	{% set styleStatutBC = {
+		'A générer': 'bg-bc-a-generer fw-bold',
+		'A éditer': 'bg-bc-a-editer fw-bold',
+		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
+		'Validé': 'bg-bc-valide fw-bold',
+		'Non validé': 'bg-bc-non-valide fw-bold',
+	} %}
+
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
 			<div class="mb-3 container">
@@ -95,24 +103,24 @@
 						<td class="text-center">{{ item.num_fournisseur }}</td>
 						<td class="text-center">{{ item.nom_fournisseur }}</td>
 						{% if item.num_cde %}
-							<td class="text-center commande-cellule commande {{ classe }}" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}" data-statut-bc="{{item.statut_bc}}">
+							<td class="text-center commande-cellule commande" data-commande-id="{{item.num_cde}}" data-num-da="{{item.num_da}}" data-statut-bc="{{item.statut_bc}}">
 								{{ item.num_cde }}
 							</td>
 						{% else %}
-							<td class="text-center {{ classe }}">
+							<td class="text-center">
 								{{ item.num_cde }}
 							</td>
 						{% endif %}
 
-						<td class="text-center fw-bold">{{ item.statut_bc}}</td>
+						<td class="text-center fw-bold {{ styleStatutBC[item.statut_bc]}}">{{ item.statut_bc}}</td>
 						<td class="text-center">{{ item.date_fin_souhaite | date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.reference }}</td>
 						<td class="text-left">{{ item.designation }}</td>
-						<td class="text-center">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
+						<td class="text-center {{ classe }}">{{ item.qte_dem == 0 ? '-': item.qte_dem }}</td>
 						<td class="text-center">{{ item.qte_reliquat == 0 ? '-': item.qte_reliquat }}</td>
 						<td class="text-center">{{ item.qte_a_livrer == 0 ? '-': item.qte_a_livrer }}</td>
 						<td class="text-center">{{ item.qte_livee == 0 ? '-': item.qte_livee }}</td>
-						<td class="text-center">{{ item.jours_dispo == 0 ? '-': item.jours_dispo }}</td>
+						<td class="text-center">{{ item.jours_dispo == 0}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

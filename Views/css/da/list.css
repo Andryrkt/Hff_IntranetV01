@@ -204,3 +204,20 @@ tr.sub-separator > td {
 .modal-dialog.custom-width {
   max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
 }
+
+/* Pour les statuts du BC */
+.bg-bc-a-generer {
+  background-color: #ff66cc !important;
+}
+.bg-bc-a-editer {
+  background-color: #7030a0 !important;
+}
+.bg-bc-a-soumettre-a-validation {
+  background-color: #ddebf7 !important;
+}
+.bg-bc-valide {
+  background-color: #ccff66 !important;
+}
+.bg-bc-non-valide {
+  background-color: #c00000 !important;
+}
