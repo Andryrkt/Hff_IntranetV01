@@ -162,6 +162,11 @@ class DemandeApproLR
      */
     private $nomFicheTechnique;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_fin_souhaitee_l", nullable=true)
+     */
+    private $dateFinSouhaite;
+
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -699,6 +704,23 @@ class DemandeApproLR
     public function setNomFicheTechnique($nomFicheTechnique): self
     {
         $this->nomFicheTechnique = $nomFicheTechnique;
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFinSouhaite
+     */
+    public function getDateFinSouhaite()
+    {
+        return $this->dateFinSouhaite;
+    }
+
+    /**
+     * Set the value of dateFinSouhaite
+     */
+    public function setDateFinSouhaite($dateFinSouhaite): self
+    {
+        $this->dateFinSouhaite = $dateFinSouhaite;
         return $this;
     }
 }
