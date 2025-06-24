@@ -51,11 +51,22 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   boutonRadio();
 
   // Vider les valeurs dans les champs
-  Object.values(fields).forEach((field) => {
-    if (iscatalogue != "1" || !field.id.includes("_codeFams")) {
-      field.value = "";
-    }
-  });
+
+  if (iscatalogue == 1) {
+    Object.values(fields).forEach((field) => {
+      if (!field.id.includes("_codeFams")) {
+        field.value = "";
+      }
+    });
+  } else {
+    Object.values(fields).forEach((field) => {
+      if (!field.id.includes("_codeFams")) {
+        field.value = "";
+      } else {
+        field.value = "-";
+      }
+    });
+  }
 }
 
 function insertCellData(row, $data, align = "center", color = "red") {
