@@ -436,4 +436,23 @@ class DossierInterventionAtelierModel extends Model
         }
         return $this->ConvertirEnUtf_8($tab);
     }
+
+    public function findCheminOrVersionMax($numDoc)
+    {
+        if (!$numDoc) {
+            return [];
+        }
+        $sql = "
+            SELECT TOP 1
+                ord.path AS chemin
+            FROM DW_Ordre_De_Reparation ord
+            WHERE ord.numero_or = '" . $numDoc . "'
+            ORDER BY ord.numero_version DESC
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+
+        return $this->ConvertirEnUtf_8($result ? $result : []);
+    }
 }
