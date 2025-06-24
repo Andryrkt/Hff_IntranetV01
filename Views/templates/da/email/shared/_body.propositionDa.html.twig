@@ -44,11 +44,11 @@
 		{% set dals = tab.hydratedDa.DAL %}
 		{% for dal in dals %}
 			<tr>
-				<td>{{ dal.artFams1 ?? '-'}}</td>
-				<td>{{ dal.artFams2 ?? '-'}}</td>
-				<td>{{ dal.artDesi }}</td>
-				<td>{{ dal.nomFournisseur }}</td>
-				<td>{{ dal.commentaire }}</td>
+				<td><b>{{ dal.artFams1 ?? '-'}}</b></td>
+				<td><b>{{ dal.artFams2 ?? '-'}}</b></td>
+				<td><b>{{ dal.artDesi }}</b></td>
+				<td><b>{{ dal.nomFournisseur }}</b></td>
+				<td><b>{{ dal.commentaire }}</b></td>
 			</tr>
 			{% if dal.demandeApproLR|length > 0 %}
 				{% for dalr in dal.demandeApproLR %}
