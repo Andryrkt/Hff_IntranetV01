@@ -130,7 +130,7 @@
 											{% if item.dit.statutOr is same as "Validé" and get_path_or_max(item.dit.numeroOR) is not empty%}
 												{% set chemin = get_path_or_max(item.dit.numeroOR)['chemin'] %}
 											<li>
-												<a class="dropdown-item fw-bold" target="_blank" href="{{ App.base_path_fichier }}/{{ chemin }}">Télécharger l’OR</a>
+												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
 											</li>
 											{% endif %}
 										</ul>
