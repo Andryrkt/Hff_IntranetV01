@@ -64,3 +64,6 @@ ADD nom_fiche_technique VARCHAR(255);
 
 ALTER TABLE Demande_Appro_L_R
 ADD date_fin_souhaitee_l DATETIME2(0);
+
+ALTER TABLE Demande_Appro_L_R
+ADD file_names text;
