@@ -44,6 +44,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   if (nbrColonnes > 10) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
+  insertCellPiecesJointes(row, color, line, rowIndex);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
@@ -89,15 +90,7 @@ function insertCellsFicheTechnique(
   numeroLigneDem,
   numLigneTableau
 ) {
-  const lienFicheTechnique = document.createElement("a");
-  lienFicheTechnique.href = "#";
-  lienFicheTechnique.target = "_blank";
-  lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
-  lienFicheTechnique.textContent = "";
-  console.log(lienFicheTechnique);
-
-  insertCellToRow(row, lienFicheTechnique, "center", color);
-
+  /** Icône d'ajout de fichier */
   const addFile = document.createElement("a");
   addFile.href = "#";
   addFile.title = "Joindre une fiche technique";
@@ -117,9 +110,45 @@ function insertCellsFicheTechnique(
     );
     createFicheTechnique(nbrLine, numLigneTableau, inputFile);
   });
-  console.log(addFile);
-
   insertCellToRow(row, addFile, "center", color);
+
+  /** Lien du fichier */
+  const lienFicheTechnique = document.createElement("a");
+  lienFicheTechnique.href = "#";
+  lienFicheTechnique.target = "_blank";
+  lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
+  lienFicheTechnique.textContent = "";
+
+  insertCellToRow(row, lienFicheTechnique, "left", color);
+}
+
+function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
+  /** Icône d'ajout de fichiers */
+  const addFile = document.createElement("a");
+  addFile.href = "#";
+  addFile.title = "Joindre des pièces jointes";
+  addFile.dataset.nbrLine = numeroLigneDem;
+  addFile.dataset.nbrLineTable = numLigneTableau;
+
+  const icon = document.createElement("i");
+  icon.className = "fas fa-paperclip";
+
+  addFile.appendChild(icon);
+
+  addFile.addEventListener("click", function () {
+    const nbrLine = addFile.dataset.nbrLine;
+    const numLigneTableau = addFile.dataset.nbrLineTable;
+    const inputFile = document.getElementById(
+      `demande_appro_lr_collection_DALR_${nbrLine}${numLigneTableau}_fileNames`
+    );
+    createPieceJointe(nbrLine, numLigneTableau, inputFile);
+  });
+  insertCellToRow(row, addFile, "center", color);
+
+  /** contenant des fichiers */
+  let fieldContainer = document.createElement("div");
+  fieldContainer.id = `demande_appro_lr_collection_DALR_${numeroLigneDem}${numLigneTableau}_fileNamesContainer`;
+  insertCellToRow(row, fieldContainer, "left", color);
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
@@ -188,7 +217,9 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
 
     container.append(prototype);
     // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file
-    const inputFileInserted = prototype.querySelector('input[type="file"]');
+    const inputFileInserted = prototype.querySelector(
+      'input[type="file"][id*="nomFicheTechnique"]'
+    );
 
     if (inputFileInserted) {
       inputFileInserted.accept = ".pdf";
@@ -206,6 +237,54 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
     inputFile.addEventListener("change", (e) =>
       onFileInputChange(e, line, rowIndex)
     );
+    inputFile.click();
+  }
+}
+
+export function createPieceJointe(line, rowIndex, inputFile) {
+  if (!inputFile) {
+    console.log("input file inexistant");
+
+    let newIndex = line + rowIndex;
+    let prototype = document
+      .getElementById("child-prototype")
+      .firstElementChild.cloneNode(true); // Clonage du prototype
+    let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
+    container.style.display = "none"; // ne pas afficher le contenant
+
+    prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
+    prototype.querySelectorAll("[id], [name]").forEach(function (element) {
+      element.id = element.id
+        ? replaceNameToNewIndex(element.id, newIndex)
+        : element.id;
+      element.name = element.name
+        ? replaceNameToNewIndex(element.name, newIndex)
+        : element.name;
+    });
+
+    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
+
+    container.append(prototype);
+    // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file
+    const inputFileInserted = prototype.querySelector(
+      'input[type="file"][id*="fileNames"]'
+    );
+
+    if (inputFileInserted) {
+      inputFileInserted.accept = ".pdf, image/*";
+      inputFileInserted.addEventListener("change", (e) =>
+        onFileNamesInputChangeDalr(e)
+      );
+      inputFileInserted.click();
+    } else {
+      console.warn(
+        "Le nouvel input file est introuvable dans le prototype cloné."
+      );
+    }
+  } else {
+    inputFile.accept = ".pdf, image/*";
+    inputFile.addEventListener("change", (e) => onFileNamesInputChangeDalr(e));
     inputFile.click();
   }
 }
@@ -228,6 +307,37 @@ export function onFileInputChange(event, nbrLine, numLigneTableau) {
   if (file && fileLink) {
     const fileURL = URL.createObjectURL(file);
     fileLink.href = fileURL;
-    fileLink.textContent = generateCustomFilename("ft");
+    fileLink.textContent =
+      generateCustomFilename("FT") +
+      `.${file.name.split(".").pop().toLowerCase()}`;
+  }
+}
+
+export function onFileNamesInputChangeDalr(event) {
+  let inputFile = event.target; // input file field
+  let fieldContainer = document.getElementById(
+    inputFile.id.replace("fileNames", "fileNamesContainer")
+  ); // Conteneur du champ de fichier correspondant
+
+  // Vérifier si un fichier a été sélectionné
+  if (inputFile.files.length > 0) {
+    // Vider le conteneur avant d'ajouter les nouveaux liens
+    fieldContainer.innerHTML = ""; // Vider le conteneur
+
+    let ul = document.createElement("ul");
+    ul.classList.add("ps-3", "mb-0"); // Ajouter des classes pour le style
+    for (let index = 0; index < inputFile.files.length; index++) {
+      const file = inputFile.files[index];
+      let li = document.createElement("li");
+      let a = document.createElement("a");
+      a.href = URL.createObjectURL(file);
+      a.textContent =
+        generateCustomFilename("PJ") +
+        `${index + 1}.${file.name.split(".").pop().toLowerCase()}`; // nom généré exemple: PJ
+      a.target = "_blank"; // Ouvrir le fichier dans un nouvel onglet
+      li.appendChild(a); // Ajouter le lien à l'élément de liste
+      ul.appendChild(li); // Ajouter l'élément de liste
+    }
+    fieldContainer.appendChild(ul); // Ajouter le lien au conteneur
   }
 }
