@@ -76,7 +76,9 @@ class DaPropositionRefController extends Controller
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $dals, $request, $numDa, $da);
+        // Traitement du formulaire en géneral ===========================//
+        $this->traitementFormulaire($form, $dals, $request, $numDa, $da); //
+        // ===============================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
@@ -114,8 +116,10 @@ class DaPropositionRefController extends Controller
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
+                /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
+                /** Valider les articles */
                 $this->traitementPourBtnValider($request, $dals, $numDa, $dalrList, $observation, $da);
             }
         }
@@ -729,7 +733,7 @@ class DaPropositionRefController extends Controller
         })->first();
     }
 
-    private function ajoutDonnerDaLR($DAL, DemandeApproLR $demandeApproLR)
+    private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR)
     {
         $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigneDem(), $demandeApproLR->getNumLigneTableau());
 
@@ -756,6 +760,7 @@ class DaPropositionRefController extends Controller
                 ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
+                ->setDateFinSouhaite($DAL->getDateFinSouhaite())
             ;
 
             if ($file) {
