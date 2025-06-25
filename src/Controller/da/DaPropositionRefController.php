@@ -729,14 +729,16 @@ class DaPropositionRefController extends Controller
         })->first();
     }
 
-    private function ajoutDonnerDaLR($DAL, $demandeApproLR)
+    private function ajoutDonnerDaLR($DAL, DemandeApproLR $demandeApproLR)
     {
         $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigneDem(), $demandeApproLR->getNumLigneTableau());
 
-        $file = $demandeApproLR->getNomFicheTechnique();
+        $file = $demandeApproLR->getNomFicheTechnique(); // fiche technique de la DALR
+        $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
             $this->uploadFTForDalr($file, $demandeApproLR_Ancien);
+            $this->traitementFichiers($demandeApproLR_Ancien, $fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
 
@@ -760,9 +762,34 @@ class DaPropositionRefController extends Controller
                 $this->uploadFTForDalr($file, $demandeApproLR);
             }
 
+            if ($fileNames) {
+                $this->traitementFichiers($demandeApproLR, $fileNames);
+            }
+
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
             return $demandeApproLR;
         }
+    }
+
+    /** 
+     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de remplacement la demande appro (DALR)
+     */
+    private function traitementFichiers(DemandeApproLR $dalr, $files): void
+    {
+        $fileNames = [];
+        if ($files !== null) {
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        $dalr->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
     }
 }
