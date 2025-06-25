@@ -91,7 +91,7 @@ class DaSoumissionBcController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  $numCde .'_'.$numDa.'_'.$numOr. '.pdf';
+                $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -101,7 +101,7 @@ class DaSoumissionBcController extends Controller
                 $numOr = $this->ditRepository->getNumOr($numDit);
                 $soumissionBc->setNumeroCde($numCde)
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                    ->setPieceJoint1($nomDeFichiers[0])
+                    ->setPieceJoint1($nomPdfFusionner)
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setNumeroDemandeAppro($numDa)
