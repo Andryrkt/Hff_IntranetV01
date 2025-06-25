@@ -77,4 +77,24 @@ trait DaTrait
 
         return $donnerExcels;
     }
+
+    private function ajoutJour(int $jourAjouter): DateTime
+    {
+        $date = new DateTime();
+
+        // Compteur pour les jours ouvrables ajoutés
+        $joursOuvrablesAjoutes = 0;
+
+        // Ajouter des jours jusqu'à obtenir 3 jours ouvrables
+        while ($joursOuvrablesAjoutes < $jourAjouter) {
+            // Ajouter un jour
+            $date->modify('+1 day');
+
+            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
+            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
+                $joursOuvrablesAjoutes++;
+            }
+        }
+        return $date;
+    }
 }
