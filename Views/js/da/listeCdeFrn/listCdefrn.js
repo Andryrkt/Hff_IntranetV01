@@ -90,11 +90,12 @@ window.addEventListener("DOMContentLoaded", adjustStickyPositions);
 window.addEventListener("resize", adjustStickyPositions);
 
 /**=============================================================
- * Click droite sur le numero commande
+ * Click droite sur le numero commande (menu contextuel)
  *===============================================================*/
 const menu = document.getElementById("menuContextuelGlobal");
 const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
+const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
 const statutAffiche = document.getElementById("statut-affiche");
 const form = document.forms["da_soumission"];
 
@@ -110,8 +111,10 @@ document.addEventListener("contextmenu", function (event) {
   const numDa = targetCell.dataset.numDa;
   hiddenInputDa.value = numDa;
 
+  const numOr = targetCell.dataset.numOr;
+  hiddenInputNumOr.value = numOr;
+
   const statutBc = targetCell.dataset.statutBc;
-  console.log(statutBc);
 
   if (statutBc == "BC envoyé au fournisseur") {
     statutAffiche.style.display = "block";
