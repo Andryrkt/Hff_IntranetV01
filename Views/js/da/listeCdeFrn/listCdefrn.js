@@ -128,15 +128,48 @@ document.addEventListener("contextmenu", function (event) {
     form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "block";
-    // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
-    const url = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}`;
 
-    statutAffiche.innerHTML = `
-      <a href="${url}"
-         class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1"
-         title="cliquer pour confirmer l'envoi">
-         BC envoyé au fournisseur
-      </a>`;
+    const overlay = document.getElementById("loading-overlays");
+    overlay.classList.remove("hidden");
+    const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
+    fetchManager
+      .get(url, "text")
+      .then((html) => {
+        statutAffiche.innerHTML = html;
+
+        // Ajouter un écouteur sur la soumission du formulaire
+        document
+          .getElementById("typeDemandeForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            let jsonData = {};
+            formData.forEach((value, key) => {
+              // Supprimer le préfixe `form_type_demande[...]`
+              let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
+              jsonData[cleanKey] = value;
+            });
+
+            // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
+            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}/${jsonData.dateLivraisonPrevue}`;
+            window.location.href = urlLien;
+          });
+      })
+      .catch((error) =>
+        console.error("Erreur lors du chargement du formulaire:", error)
+      )
+      .finally(() => {
+        overlay.classList.add("hidden");
+      });
+
+    // statutAffiche.innerHTML = `
+    //   <a href="${urlLien}"
+    //      class="text-decoration-none text-dark cursor-pointer bg-warning text-white border-0 rounded px-2 py-1"
+    //      title="cliquer pour confirmer l'envoi">
+    //      BC envoyé au fournisseur
+    //   </a>`;
     //desactive le formulaire
     Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
     form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton

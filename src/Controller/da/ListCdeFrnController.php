@@ -2,19 +2,21 @@
 
 namespace App\Controller\da;
 
+use App\Model\da\DaModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Form\da\CdeFrnListType;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
-use App\Form\da\DaSoumissionType;
+use App\Entity\da\DemandeApproLR;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
-use App\Entity\da\DemandeApproLR;
+use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
+use App\Form\da\daCdeFrn\CdeFrnListType;
+use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\da\DaModel;
+use App\Form\da\daCdeFrn\DaCdeEnvoyerType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -22,7 +24,6 @@ use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 
 class ListCdeFrnController extends Controller
 {
@@ -59,19 +60,20 @@ class ListCdeFrnController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
+        /** Formulaire pour la recherche */
         $form = self::$validator->createBuilder(CdeFrnListType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $criteria = $this->traitementFormulaireRecherche($request, $form);
+
+        /** Les données à afficher */
         $datas = $this->recuperationDonner($criteria);
         // dd($datas);
 
-
+        /** Formulaire pour l'envoie de BC et FAC + Bl */
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
         self::$twig->display('da/list-cde-frn.html.twig', [
