@@ -736,7 +736,7 @@ class DaPropositionRefController extends Controller
         $file = $demandeApproLR->getNomFicheTechnique();
 
         if ($demandeApproLR_Ancien) {
-            $this->uploadFile($file, $demandeApproLR_Ancien);
+            $this->uploadFTForDalr($file, $demandeApproLR_Ancien);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
 
@@ -757,43 +757,12 @@ class DaPropositionRefController extends Controller
             ;
 
             if ($file) {
-                $this->uploadFile($file, $demandeApproLR);
+                $this->uploadFTForDalr($file, $demandeApproLR);
             }
 
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
             return $demandeApproLR;
         }
-    }
-
-    /**
-     * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
-     * (copier le fichier uploader dans une répertoire et le donner un nom)
-     */
-    private function uploadFile(UploadedFile $file, DemandeApproLR $dalr)
-    {
-        $fileName = sprintf(
-            'FT_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dalr->getNumeroLigneDem(),
-            $dalr->getNumLigneTableau(),
-            $file->getClientOriginalExtension()
-        ); // Exemple: FT_20250623121403_2_4.pdf
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/' . $dalr->getNumeroDemandeAppro() . '/';
-
-        // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
-            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
-        }
-
-        try {
-            $file->move($destination, $fileName);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
-        }
-
-        $dalr->setNomFicheTechnique($fileName);
     }
 }

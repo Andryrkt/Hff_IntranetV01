@@ -167,6 +167,10 @@ class DemandeApproLR
      */
     private $dateFinSouhaite;
 
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -721,6 +725,26 @@ class DemandeApproLR
     public function setDateFinSouhaite($dateFinSouhaite): self
     {
         $this->dateFinSouhaite = $dateFinSouhaite;
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
+
         return $this;
     }
 }

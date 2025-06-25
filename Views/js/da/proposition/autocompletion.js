@@ -88,52 +88,30 @@ function onBlurEvents(found, designation, numPage) {
     let referencePiece = document.querySelector(
       `#demande_appro_proposition_reference_${numPage}`
     );
-    // let oldValueFamille = fields.famille.value;
-    // let oldValueSousFamille = fields.sousFamille.value;
 
     // Texte rouge ou non, ajout de valeur dans catalogue
-
     allFields.forEach((field) => {
       if (found) {
         field.classList.remove("text-danger");
       } else {
         field.classList.add("text-danger");
         if (field.id.includes(`PU_${numPage}`)) {
-          field.disabled = false;
+          field.parentElement.classList.remove("d-none"); // afficher le div container du PU
           field.value = 0;
         }
         if (field.id.includes(`numeroFournisseur_${numPage}`)) {
           field.value = 0;
+        }
+        if (field.id.includes("codeFams") && field.id.includes(`_${numPage}`)) {
+          console.log("codeFams");
+
+          field.value = "-";
         }
       }
     });
 
     // Si non trouvé alors valeur de reférence pièce = ''
     referencePiece.value = found ? referencePiece.value : "ST";
-
-    // Champs requis ou non et changement de valeur de champs
-    // Object.values(fields).forEach((field) => {
-    //   field.required = found;
-
-    //   // Ne pas vider si c'est le champ de désignation
-    //   if (field !== designation) {
-    //     field.value = found ? field.value : "";
-    //   }
-
-    //   console.log(field, found);
-    // });
-
-    // Champ readonly ou non
-    // fournisseur.readOnly = found;
-
-    // réinitialiser l'autocomplete de désignation
-    // if (
-    //   !found &&
-    //   oldValueFamille !== fields.famille.value &&
-    //   oldValueSousFamille !== fields.sousFamille.value
-    // ) {
-    //   initializeAutoCompletionDesi(designation);
-    // }
   }
 }
 
@@ -203,7 +181,7 @@ function handleValuesOfFields(
     fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
     designation.value = item.designation;
-    PU.disabled = true;
+    PU.parentElement.classList.add("d-none"); // cacher le div container du PU
     PU.value = item.prix;
     famille.value = item.codefamille;
     const numPage = localStorage.getItem("currentTab");
