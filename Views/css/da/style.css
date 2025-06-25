@@ -49,6 +49,32 @@ a.choix:hover {
   border: none;
 }
 
+@media (min-width: 576px) {
+  .container.custom-width {
+    max-width: 768px;
+  }
+}
+@media (min-width: 768px) {
+  .container.custom-width {
+    max-width: 992px;
+  }
+}
+@media (min-width: 992px) {
+  .container.custom-width {
+    max-width: 1200px;
+  }
+}
+@media (min-width: 1200px) {
+  .container.custom-width {
+    max-width: 1400px;
+  }
+}
+@media (min-width: 1400px) {
+  .container.custom-width {
+    max-width: 1700px;
+  }
+}
+
 .w-1 {
   width: 1% !important;
 }
@@ -270,5 +296,3 @@ a.choix:hover {
 .bg-or-non-valide {
   background-color: #00ffff !important;
 }
-
-

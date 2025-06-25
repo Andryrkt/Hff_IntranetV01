@@ -84,7 +84,7 @@ trait DaTrait
      * TRAITEMENT DES FICHIER UPLOAD
      * (copier le fichier uploadé dans une répertoire et le donner un nom)
      */
-    private function uploadFile(UploadedFile $file, string $fileName, string $destination)
+    private function uploadFileTo(UploadedFile $file, string $fileName, string $destination)
     {
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
@@ -114,7 +114,7 @@ trait DaTrait
         // Définir le répertoire de destination
         $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dal->getNumeroDemandeAppro() . '/';
 
-        $this->uploadFile($file, $fileName, $destination);
+        $this->uploadFileTo($file, $fileName, $destination);
 
         return $fileName;
     }
@@ -135,7 +135,7 @@ trait DaTrait
         // Définir le répertoire de destination
         $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dalr->getNumeroDemandeAppro() . '/';
 
-        $this->uploadFile($file, $fileName, $destination);
+        $this->uploadFileTo($file, $fileName, $destination);
 
         $dalr->setNomFicheTechnique($fileName);
     }
