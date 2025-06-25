@@ -264,8 +264,8 @@ class DaListeController extends Controller
             foreach ($dasFiltered->getDAL() as $dal) {
                 $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
                 if (array_key_exists(0, $qte)) {
-                    $dal->setQteLivee($qte[0]['qte_a_livrer']);
-                    $dal->setQteALivrer($qte[0]['qte_livee']);
+                    $dal->setQteLivee((int)$qte[0]['qte_a_livrer']);
+                    $dal->setQteALivrer((int)$qte[0]['qte_livee']);
                 }
             }
         }

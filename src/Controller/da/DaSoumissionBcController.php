@@ -49,9 +49,9 @@ class DaSoumissionBcController extends Controller
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}/{numDa}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc")
      */
-    public function index(string $numCde, string $numDa, Request $request)
+    public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -62,7 +62,7 @@ class DaSoumissionBcController extends Controller
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form, $numDa);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
         self::$twig->display('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
@@ -78,7 +78,7 @@ class DaSoumissionBcController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
     {
         $form->handleRequest($request);
 
@@ -91,7 +91,7 @@ class DaSoumissionBcController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'BC_' . $numCde . '.pdf';
+                $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -101,7 +101,7 @@ class DaSoumissionBcController extends Controller
                 $numOr = $this->ditRepository->getNumOr($numDit);
                 $soumissionBc->setNumeroCde($numCde)
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                    ->setPieceJoint1($nomDeFichiers[0])
+                    ->setPieceJoint1($nomPdfFusionner)
                     ->setStatut(self::STATUT_SOUMISSION)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setNumeroDemandeAppro($numDa)
@@ -114,7 +114,7 @@ class DaSoumissionBcController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                $this->genererPdfDa->copyToDWBcDa('BC_' . $numCde . '.pdf', $numDa);
+                $this->genererPdfDa->copyToDWBcDa($nomPdfFusionner, $numDa);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';

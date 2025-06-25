@@ -2,6 +2,7 @@
 
 namespace App\Entity\da;
 
+use App\Controller\Traits\da\DaTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Agence;
@@ -20,12 +21,13 @@ use Doctrine\Common\Collections\Collection;
 class DemandeAppro
 {
     use DateTrait;
+    use DaTrait;
 
     public const STATUT_VALIDE = 'Bon d’achats validé';
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
-    public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
+    public const MAIL_ATELIER = 'nomenjanahary.randrianantenaina@hff.mg';
+    public const MAIL_APPRO = 'nomenjanahary.randrianantenaina@hff.mg';
 
     /**
      * @ORM\Id
@@ -384,21 +386,7 @@ class DemandeAppro
      */
     public function setDateFinSouhaiteAutomatique()
     {
-        $date = new DateTime();
-
-        // Compteur pour les jours ouvrables ajoutés
-        $joursOuvrablesAjoutes = 0;
-
-        // Ajouter des jours jusqu'à obtenir 3 jours ouvrables
-        while ($joursOuvrablesAjoutes < 3) {
-            // Ajouter un jour
-            $date->modify('+1 day');
-
-            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
-            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
-                $joursOuvrablesAjoutes++;
-            }
-        }
+        $date = $this->ajoutJour(3);
 
         $this->setDateFinSouhaite($date);
 
