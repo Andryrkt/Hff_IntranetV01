@@ -64,7 +64,7 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp;
+    private string $artRefp = 'ST';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -74,12 +74,12 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private ?string $artFams1 = null;
+    private ?string $artFams1 = '-';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private ?string $artFams2 = null;
+    private ?string $artFams2 = '-';
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")

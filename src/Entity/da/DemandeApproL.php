@@ -57,7 +57,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private ?string $artRefp = '-';
+    private string $artRefp = 'ST';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
