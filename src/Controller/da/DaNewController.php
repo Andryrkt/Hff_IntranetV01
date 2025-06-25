@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewController extends Controller
 {
+    use DaTrait;
     use DemandeApproTrait;
     use lienGenerique;
 
@@ -229,7 +231,7 @@ class DaNewController extends Controller
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadFile($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }
@@ -238,36 +240,5 @@ class DaNewController extends Controller
             }
         }
         $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
-    }
-
-    /**
-     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
-     * (copier le fichier uploader dans une répertoire et le donner un nom)
-     */
-    private function uploadFile(UploadedFile $file, DemandeApproL $dal, int $i)
-    {
-        $fileName = sprintf(
-            'PJ_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dal->getNumeroLigne(),
-            $i,
-            $file->getClientOriginalExtension()
-        ); // Exemple: PJ_20250623121403_3_1.pdf
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/' . $dal->getNumeroDemandeAppro() . '/';
-
-        // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
-            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
-        }
-
-        try {
-            $file->move($destination, $fileName);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
-        }
-
-        return $fileName;
     }
 }

@@ -3,8 +3,10 @@
 namespace App\Controller\Traits\da;
 
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 use DateTime;
-
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaTrait
 {
@@ -76,5 +78,65 @@ trait DaTrait
         }
 
         return $donnerExcels;
+    }
+
+    /**
+     * TRAITEMENT DES FICHIER UPLOAD
+     * (copier le fichier uploadé dans une répertoire et le donner un nom)
+     */
+    private function uploadFile(UploadedFile $file, string $fileName, string $destination)
+    {
+        // Assurer que le répertoire existe
+        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
+            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
+        }
+
+        try {
+            $file->move($destination, $fileName);
+        } catch (\Exception $e) {
+            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
+        }
+    }
+
+    /** 
+     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
+     */
+    private function uploadPJForDal(UploadedFile $file, DemandeApproL $dal, int $i): string
+    {
+        $fileName = sprintf(
+            'PJ_%s_%s_%s.%s',
+            date("YmdHis"),
+            $dal->getNumeroLigne(),
+            $i,
+            $file->getClientOriginalExtension()
+        ); // Exemple: PJ_20250623121403_3_1.pdf
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dal->getNumeroDemandeAppro() . '/';
+
+        $this->uploadFile($file, $fileName, $destination);
+
+        return $fileName;
+    }
+
+    /** 
+     * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
+     */
+    private function uploadFTForDalr(UploadedFile $file, DemandeApproLR $dalr)
+    {
+        $fileName = sprintf(
+            'FT_%s_%s_%s.%s',
+            date("YmdHis"),
+            $dalr->getNumeroLigneDem(),
+            $dalr->getNumLigneTableau(),
+            $file->getClientOriginalExtension()
+        ); // Exemple: FT_20250623121403_2_4.pdf
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dalr->getNumeroDemandeAppro() . '/';
+
+        $this->uploadFile($file, $fileName, $destination);
+
+        $dalr->setNomFicheTechnique($fileName);
     }
 }
