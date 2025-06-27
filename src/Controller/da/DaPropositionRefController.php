@@ -76,7 +76,9 @@ class DaPropositionRefController extends Controller
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
 
-        $this->traitementFormulaire($form, $dals, $request, $numDa, $da);
+        // Traitement du formulaire en géneral ===========================//
+        $this->traitementFormulaire($form, $dals, $request, $numDa, $da); //
+        // ===============================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
 
@@ -114,8 +116,10 @@ class DaPropositionRefController extends Controller
             $observation = $form->getData()->getObservation();
 
             if ($request->request->has('enregistrer')) {
+                /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
+                /** Valider les articles */
                 $this->traitementPourBtnValider($request, $dals, $numDa, $dalrList, $observation, $da);
             }
         }
@@ -729,14 +733,16 @@ class DaPropositionRefController extends Controller
         })->first();
     }
 
-    private function ajoutDonnerDaLR($DAL, $demandeApproLR)
+    private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR)
     {
         $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigneDem(), $demandeApproLR->getNumLigneTableau());
 
-        $file = $demandeApproLR->getNomFicheTechnique();
+        $file = $demandeApproLR->getNomFicheTechnique(); // fiche technique de la DALR
+        $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
             $this->uploadFTForDalr($file, $demandeApproLR_Ancien);
+            $this->traitementFichiers($demandeApproLR_Ancien, $fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
 
@@ -754,15 +760,41 @@ class DaPropositionRefController extends Controller
                 ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
+                ->setDateFinSouhaite($DAL->getDateFinSouhaite())
             ;
 
             if ($file) {
                 $this->uploadFTForDalr($file, $demandeApproLR);
             }
 
+            if ($fileNames) {
+                $this->traitementFichiers($demandeApproLR, $fileNames);
+            }
+
             $DAL->getDemandeApproLR()->add($demandeApproLR);
 
             return $demandeApproLR;
         }
+    }
+
+    /** 
+     * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de remplacement la demande appro (DALR)
+     */
+    private function traitementFichiers(DemandeApproLR $dalr, $files): void
+    {
+        $fileNames = [];
+        if ($files !== null) {
+            $i = 1; // Compteur pour le nom du fichier
+            foreach ($files as $file) {
+                if ($file instanceof UploadedFile) {
+                    $fileName = $this->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
+                } else {
+                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
+                }
+                $i++; // Incrémenter le compteur pour le prochain fichier
+                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
+            }
+        }
+        $dalr->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
     }
 }

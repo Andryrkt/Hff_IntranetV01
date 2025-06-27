@@ -246,11 +246,9 @@
 				<th>Qté Dispo</th>
 				<th>Commentaire / motif</th>
 				{% if article.estFicheTechnique %}
-					<th>Fiche technique</th>
-					{% if not estAte %}
-					<th><i class="fas fa-paperclip"></i></th>
-					{% endif %}
+					<th colspan="2">Fiche technique</th>
 				{% endif %}
+				<th colspan="2">Pièces jointes</th>
 			</tr>
 		</thead>
 
@@ -271,15 +269,32 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 					{% if article.estFicheTechnique %}
-					<td class="align-middle">
-						<a href="{{ App.base_path_fichier }}/da/fichiers/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
-					</td>
-					{% if not estAte %}
+					{# {% if not estAte %}
 					<td class="align-middle">
 						<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
 					</td>
+					{% endif %} #}
+					<td></td>
+					<td class="text-start">
+						<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
+					</td>
 					{% endif %}
-					{% endif %}
+					<td></td>
+					<td class="text-start">
+						<div>
+							{% if DALR.fileNames is not empty %}
+							<ul class="ps-3 mb-0">
+							{% for file in DALR.fileNames %}
+								<li>
+									<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+								</li>
+							{% endfor %}
+							</ul>
+							{% else %}
+								Aucune pièce jointe
+							{% endif %}
+						</div>
+					</td>
 				</tr>
 			{% endfor %}
 		</tbody>

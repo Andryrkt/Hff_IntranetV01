@@ -120,6 +120,28 @@ trait DaTrait
     }
 
     /** 
+     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
+     */
+    private function uploadPJForDalr(UploadedFile $file, DemandeApproLR $dalr, int $i): string
+    {
+        $fileName = sprintf(
+            'PJ_%s_%s%s_%s.%s',
+            date("YmdHis"),
+            $dalr->getNumeroLigneDem(),
+            $dalr->getNumLigneTableau(),
+            $i,
+            $file->getClientOriginalExtension()
+        ); // Exemple: PJ_20250623121403_34_1.pdf
+
+        // Définir le répertoire de destination
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dalr->getNumeroDemandeAppro() . '/';
+
+        $this->uploadFileTo($file, $fileName, $destination);
+
+        return $fileName;
+    }
+
+    /** 
      * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
      */
     private function uploadFTForDalr(UploadedFile $file, DemandeApproLR $dalr)
