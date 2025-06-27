@@ -6,6 +6,7 @@ use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\dit\DemandeIntervention;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -130,14 +131,22 @@ trait DaTrait
         foreach ($donnees as $donnee) {
             $daValider = new DaValider;
 
+            /** @var DemandeAppro $da l'entité de la demande appro correspondant au numero demandeAppro du donnée (DAL ou DALR) */
             $da = $em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $donnee->getNumeroDemandeAppro()]);
+
             $numeroVersionMax = $em->getRepository(DaValider::class)->getNumeroVersionMax($da->getNumeroDemandeAppro());
-            $daValider->enregistrerDa($da);
-            $daValider->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax));
+            $nivUrgence = $em->getRepository(DemandeIntervention::class)->getNiveauUrgence($da->getNumeroDemandeDit());
+            $daValider
+                ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
+                ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
+            ;
+
+            $daValider->enregistrerDa($da); // enregistrement pour DA
+
             if ($donnee instanceof DemandeApproL) {
-                $daValider->enregistrerDal($donnee);
-            } else {
-                $daValider->enregistrerDalr($donnee);
+                $daValider->enregistrerDal($donnee); // enregistrement pour DAL
+            } else if ($donnee instanceof DemandeApproLR) {
+                $daValider->enregistrerDalr($donnee); // enregistrement pour DALR
             }
 
             $em->persist($daValider);

@@ -201,12 +201,14 @@ class DaValider
      */
     private ?int $numeroVersion = 0;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="niveau_urgence")
+     */
+    private string $niveauUrgence;
 
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
-
-
 
     /**
      * Get the value of id
@@ -900,6 +902,25 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of niveauUrgence
+     */
+    public function getNiveauUrgence()
+    {
+        return $this->niveauUrgence;
+    }
+
+    /**
+     * Set the value of niveauUrgence
+     *
+     * @return  self
+     */
+    public function setNiveauUrgence($niveauUrgence)
+    {
+        $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
 
     public function enregistrerDa(DemandeAppro $da)
     {
