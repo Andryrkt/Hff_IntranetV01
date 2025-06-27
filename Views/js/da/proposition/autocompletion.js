@@ -31,8 +31,8 @@ export function autocompleteTheField(
       "#demande_appro_proposition_codeFams1_" + numPage
     );
 
-    codeFams2 = safeValue(sousFamille.value);
     codeFams1 = safeValue(famille.value);
+    codeFams2 = safeValue(sousFamille.value);
   }
   const numPages = localStorage.getItem("currentTab");
 
@@ -191,6 +191,7 @@ function handleValuesOfFields(
     PU.parentElement.classList.add("d-none"); // cacher le div container du PU
     PU.value = item.prix;
     famille.value = item.codefamille;
+    sousFamille.value = item.codesousfamille;
     const numPage = localStorage.getItem("currentTab");
     const spinnerElement = document.querySelector(
       "#spinner_codeFams2_" + numPage

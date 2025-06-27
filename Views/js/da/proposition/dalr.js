@@ -44,7 +44,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 
-  if (nbrColonnes > 10) {
+  if (nbrColonnes > 11) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
   insertCellPiecesJointes(row, color, line, rowIndex);
@@ -62,6 +62,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       if (!field.id.includes("_codeFams")) {
         field.value = "";
       }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   } else {
     Object.values(fields).forEach((field) => {
@@ -70,6 +71,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       } else {
         field.value = "-";
       }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   }
 }
