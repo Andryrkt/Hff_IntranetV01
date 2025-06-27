@@ -139,7 +139,7 @@ document.addEventListener("contextmenu", function (event) {
 
         // Ajouter un écouteur sur la soumission du formulaire
         document
-          .getElementById("typeDemandeForm")
+          .getElementById("daCdeEnvoyer")
           .addEventListener("submit", function (event) {
             event.preventDefault();
 
@@ -151,9 +151,10 @@ document.addEventListener("contextmenu", function (event) {
               let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
               jsonData[cleanKey] = value;
             });
+            console.log(jsonData);
 
             // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
-            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${numDa}/${jsonData.dateLivraisonPrevue}`;
+            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
             window.location.href = urlLien;
           });
       })
