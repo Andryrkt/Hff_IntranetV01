@@ -2,14 +2,21 @@
 
 namespace App\Controller\da;
 
+use Exception;
+use App\Entity\da\DaValider;
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
+use App\Repository\dit\DitRepository;
+use App\Form\da\DaSoumissionFacBlType;
+use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GenererPdfDa;
+use App\Repository\da\DaValiderRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Form\da\DaSoumissionFacBlType;
-use App\Service\genererPdf\GenererPdfDa;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
 
@@ -26,6 +33,9 @@ class DaSoumissionFacBlController extends Controller
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private GenererPdfDa $genererPdfDa;
+    private DemandeApproRepository $demandeApproRepository;
+    private DitRepository $ditRepository;
+    private DaValiderRepository $daValiderRepository;
 
     public function __construct()
     {
@@ -33,16 +43,19 @@ class DaSoumissionFacBlController extends Controller
 
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
-        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/soumissionFacBl';
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaFacBlService();
         $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
         $this->genererPdfDa = new GenererPdfDa();
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /**
-     * @Route("/soumission-FacBl/{numCde}", name="da_soumission_FacBl")
+     * @Route("/soumission-FacBl/{numCde}/{numDa}/{numOr}", name="da_soumission_FacBl")
      */
-    public function index(string $numCde, Request $request)
+    public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -53,7 +66,7 @@ class DaSoumissionFacBlController extends Controller
             'method' => 'POST',
         ])->getForm();
 
-        $this->traitementFormulaire($request, $numCde, $form);
+        $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
         self::$twig->display('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
@@ -69,7 +82,7 @@ class DaSoumissionFacBlController extends Controller
      * @param [type] $form
      * @return void
      */
-    private function traitementFormulaire(Request $request, string $numCde, $form): void
+    private function traitementFormulaire(Request $request, string $numCde, $form, string $numDa, string $numOr): void
     {
         $form->handleRequest($request);
 
@@ -77,29 +90,48 @@ class DaSoumissionFacBlController extends Controller
             $soumissionFacBl = $form->getData();
             if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
                 /** ENREGISTREMENT DE FICHIER */
-                $nomDeFichier = $this->enregistrementFichier($form);
+                $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+
+                /** FUSION DES PDF */
+                $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+                $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+                $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
+                $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);
-                $soumissionFacBl->setNumeroCde($numCde)
-                    ->setUtilisateur($this->getUser()->getUsername())
-                    ->setPieceJoint1($nomDeFichier)
-                    ->setStatut(self::STATUT_SOUMISSION)
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                ; //TODO: A AJOUTER le numero Da, numero OR,...
+                $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 self::$em->persist($soumissionFacBl);
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                $this->genererPdfDa->copyToDWFacBlDa($nomDeFichier);
+                $this->genererPdfDa->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
             }
         }
+    }
+
+
+    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner): DaSoumissionFacBl
+    {
+        $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);
+        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        $numOr = $this->ditRepository->getNumOr($numDit);
+        $soumissionFacBl->setNumeroCde($numCde)
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setPieceJoint1($nomPdfFusionner)
+            ->setStatut(self::STATUT_SOUMISSION)
+            ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeDit($numDit)
+            ->setNumeroOR($numOr)
+        ;
+        return $soumissionFacBl;
     }
 
     private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, string $numCde): array
@@ -140,31 +172,55 @@ class DaSoumissionFacBlController extends Controller
      * @param [type] $form
      * @return array
      */
-    private function enregistrementFichier($form): string
+    private function enregistrementFichier($form, $numCde, $numDa): array
     {
         $fieldPattern = '/^pieceJoint(\d{1})$/';
-        $nomDeFichie = '';
-        foreach ($form->all() as $fieldName => $field) {
+        $nomDesFichiers = [];
+        $compteur = 1; // Pour l’indexation automatique
 
+        foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
                 /** @var UploadedFile|UploadedFile[]|null $file */
                 $file = $field->getData();
 
                 if ($file !== null) {
+                    $fichiers = is_array($file) ? $file : [$file];
 
-                    // Cas où c'est un seul fichier
-                    $nomDeFichier = $file->getClientOriginalName();
-                    $this->traitementDeFichier->upload(
-                        $file,
-                        $this->cheminDeBase,
-                        $nomDeFichier
-                    );
-                    $nomDeFichie = $nomDeFichier;
+                    foreach ($fichiers as $singleFile) {
+                        if ($singleFile !== null) {
+                            $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
+                            $nomDeFichier = sprintf('FacBl_%s-%04d.%s', $numCde, $compteur, $extension);
+
+                            $this->traitementDeFichier->upload(
+                                $singleFile,
+                                $this->cheminDeBase . '/' . $numDa,
+                                $nomDeFichier
+                            );
+
+                            $nomDesFichiers[] = $nomDeFichier;
+                            $compteur++;
+                        }
+                    }
                 }
             }
         }
 
-        return $nomDeFichie;
+        return $nomDesFichiers;
+    }
+
+
+    /**
+     * Ajout de prefix pour chaque element du tableau files
+     *
+     * @param array $files
+     * @param string $prefix
+     * @return array
+     */
+    private function addPrefixToElementArray(array $files, string $prefix): array
+    {
+        return array_map(function ($file) use ($prefix) {
+            return $prefix . $file;
+        }, $files);
     }
 
     private function autoIncrement(?int $num): int
@@ -173,5 +229,49 @@ class DaSoumissionFacBlController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+        return $tousLesFichiers;
+    }
+
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 }
