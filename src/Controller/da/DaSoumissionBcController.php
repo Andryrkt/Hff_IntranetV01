@@ -7,6 +7,7 @@ use App\Entity\da\DaValider;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Model\da\DaSoumissionBcModel;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
@@ -36,6 +37,7 @@ class DaSoumissionBcController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
     private DaValiderRepository $daValiderRepository;
+    private DaSoumissionBcModel $daSoumissionBcModel;
 
     public function __construct()
     {
@@ -50,6 +52,7 @@ class DaSoumissionBcController extends Controller
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daValiderRepository = self::$em->getRepository(DaValider::class);
+        $this->daSoumissionBcModel = new DaSoumissionBcModel();
     }
 
     /**
@@ -88,7 +91,7 @@ class DaSoumissionBcController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionBc = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde)) {
+            if ($this->verifierConditionDeBlocage($soumissionBc, $numCde, $numDa)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -148,20 +151,24 @@ class DaSoumissionBcController extends Controller
         return $soumissionBc;
     }
 
-    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): array
+    private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): array
     {
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
+        //recuperation du numDa dans Informix
+        $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde);
+
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === self::STATUT_SOUMISSION,
+            'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): bool
+    private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): bool
     {
-        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde);
+        $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa);
         $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
         $okey = false;
 
@@ -171,6 +178,10 @@ class DaSoumissionBcController extends Controller
             $okey = false;
         } elseif ($conditions['statut']) {
             $message = "Echec lors de la soumission, un BC est déjà en cours de validation ";
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $okey = false;
+        } elseif ($conditions['numDaEgale']) {
+            $message = "Le numéro de DA '$numDa' ne correspond pas pour le BC '$numCde'";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
             $okey = false;
         } else {
