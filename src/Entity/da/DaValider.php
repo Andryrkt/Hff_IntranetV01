@@ -206,6 +206,13 @@ class DaValider
      */
     private string $niveauUrgence;
 
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     *
+     * @var integer | null
+     */
+    private ?int $joursDispo;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -922,6 +929,30 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $joursDispo  | null
+     *
+     * @return  self
+     */
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -954,6 +985,7 @@ class DaValider
             ->setPjNewAte($dal->getFileNames())
             ->setNomFicheTechnique($dal->getNomFicheTechnique())
             ->setValidePar($dal->getValidePar())
+            ->setJoursDispo($dal->getJoursDispo())
         ;
     }
 
@@ -978,6 +1010,7 @@ class DaValider
             ->setNomFicheTechnique($dalr->getNomFicheTechnique())
             ->setPjPropositionAppro($dalr->getFileNames())
             ->setValidePar($dalr->getValidePar())
+            ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
     }
 }
