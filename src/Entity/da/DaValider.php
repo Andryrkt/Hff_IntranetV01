@@ -52,7 +52,7 @@ class DaValider
     private string $statutOr;
 
     /**
-     * @ORM\Column(type="string", length=50, name="statut_dal")
+     * @ORM\Column(type="string", length=50, name="statut_cde")
      */
     private string $statutCde;
 
@@ -150,7 +150,7 @@ class DaValider
     private ?string $prixUnitaire = '0';
 
     /**
-     * @ORM\Column(type="string", length=100, name="prix_unitaire")
+     * @ORM\Column(type="string", length=100, name="total")
      */
     private ?string $total = '0';
 
