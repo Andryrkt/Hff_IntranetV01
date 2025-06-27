@@ -139,12 +139,12 @@ class ListCdeFrnController extends Controller
             $data['statut_bc'] = $daValider->getStatutBc();
 
             //ajout du nombre de jours dispo
-            $$data['jours_dispo'] = $daValider->getNbrJoursDispo();
+            $data['jours_dispo'] = $daValider->getNbrJoursDispo();
         }
 
         return $datas;
     }
-    
+
     private function filtreDonnee(array $datas, array $criteria = [])
     {
         //filtre du niceau d'urgence
