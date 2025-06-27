@@ -3,6 +3,9 @@ import { formaterNombre } from "../../utils/formatNumberUtils";
 import { boutonRadio } from "./boutonRadio.js";
 import { generateCustomFilename } from "../../utils/dateUtils.js";
 
+// Dictionnaire pour stocker les fichiers sélectionnés par champ input
+const selectedFilesMap = {};
+
 export function ajouterUneLigne(line, fields, iscatalogue) {
   const tableBody = document.getElementById(`tableBody_${line}`);
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
@@ -334,30 +337,62 @@ export function onFileInputChange(event, nbrLine, numLigneTableau) {
 }
 
 export function onFileNamesInputChangeDalr(event) {
-  let inputFile = event.target; // input file field
-  let fieldContainer = document.getElementById(
-    inputFile.id.replace("fileNames", "fileNamesContainer")
-  ); // Conteneur du champ de fichier correspondant
+  const inputFile = event.target; // input file field
+  const inputId = inputFile.id; // id de l'input
 
-  // Vérifier si un fichier a été sélectionné
-  if (inputFile.files.length > 0) {
-    // Vider le conteneur avant d'ajouter les nouveaux liens
-    fieldContainer.innerHTML = ""; // Vider le conteneur
+  // Initialiser la liste si elle n'existe pas encore
+  if (!selectedFilesMap[inputId]) {
+    selectedFilesMap[inputId] = [];
+  }
 
-    let ul = document.createElement("ul");
-    ul.classList.add("ps-3", "mb-0"); // Ajouter des classes pour le style
-    for (let index = 0; index < inputFile.files.length; index++) {
-      const file = inputFile.files[index];
-      let li = document.createElement("li");
-      let a = document.createElement("a");
+  // Ajouter les nouveaux fichiers à la liste existante
+  const currentFiles = Array.from(inputFile.files);
+  selectedFilesMap[inputId].push(...currentFiles);
+
+  // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
+  inputFile.value = "";
+
+  // Afficher la liste des fichiers cumulés
+  renderFileList(inputId);
+}
+
+function renderFileList(inputId) {
+  const containerId = inputId.replace("fileNames", "fileNamesContainer");
+  const fieldContainer = document.getElementById(containerId);
+  const files = selectedFilesMap[inputId];
+
+  // Vider l'affichage
+  fieldContainer.innerHTML = "";
+
+  if (files.length > 0) {
+    const ul = document.createElement("ul");
+    ul.classList.add("ps-3", "mb-0");
+
+    files.forEach((file, index) => {
+      const li = document.createElement("li");
+
+      const a = document.createElement("a");
       a.href = URL.createObjectURL(file);
       a.textContent =
         generateCustomFilename("PJ") +
-        `${index + 1}.${file.name.split(".").pop().toLowerCase()}`; // nom généré exemple: PJ
-      a.target = "_blank"; // Ouvrir le fichier dans un nouvel onglet
-      li.appendChild(a); // Ajouter le lien à l'élément de liste
-      ul.appendChild(li); // Ajouter l'élément de liste
-    }
-    fieldContainer.appendChild(ul); // Ajouter le lien au conteneur
+        `${index + 1}.${file.name.split(".").pop().toLowerCase()}`;
+      a.target = "_blank";
+
+      const deleteBtn = document.createElement("button");
+      deleteBtn.textContent = "❌";
+      deleteBtn.type = "button";
+      deleteBtn.style.marginLeft = "10px";
+      deleteBtn.onclick = () => {
+        // Supprimer le fichier de la liste et re-render
+        selectedFilesMap[inputId].splice(index, 1);
+        renderFileList(inputId);
+      };
+
+      li.appendChild(a);
+      li.appendChild(deleteBtn);
+      ul.appendChild(li);
+    });
+
+    fieldContainer.appendChild(ul);
   }
 }
