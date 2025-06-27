@@ -3,18 +3,20 @@
 namespace App\Controller\da;
 
 use Exception;
+use App\Entity\da\DaValider;
 use App\Controller\Controller;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaSoumissionBc;
+use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
+use App\Repository\da\DaValiderRepository;
 use App\Service\fichier\TraitementDeFichier;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\dit\DitRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -33,6 +35,7 @@ class DaSoumissionBcController extends Controller
     private GenererPdfDa $genererPdfDa;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
+    private DaValiderRepository $daValiderRepository;
 
     public function __construct()
     {
@@ -46,6 +49,7 @@ class DaSoumissionBcController extends Controller
         $this->genererPdfDa = new GenererPdfDa();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /**
@@ -96,18 +100,7 @@ class DaSoumissionBcController extends Controller
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-                $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-                $numOr = $this->ditRepository->getNumOr($numDit);
-                $soumissionBc->setNumeroCde($numCde)
-                    ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                    ->setPieceJoint1($nomPdfFusionner)
-                    ->setStatut(self::STATUT_SOUMISSION)
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setNumeroDemandeDit($numDit)
-                    ->setNumeroOR($numOr)
-                ;
+                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 self::$em->persist($soumissionBc);
@@ -119,8 +112,40 @@ class DaSoumissionBcController extends Controller
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
+
+                /** modification du table da_valider */
+                $this->modificationDaValider($numCde);
             }
         }
+    }
+
+    private function modificationDaValider(string $numCde): void
+    {
+        $numeroVersionMaxCde = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+        $daValider = $this->daValiderRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numeroVersionMaxCde]);
+        if ($daValider) {
+            $daValider->setStatutCde(self::STATUT_SOUMISSION)
+                ->setNumeroCde($numCde);
+            self::$em->persist($daValider);
+            self::$em->flush();
+        }
+    }
+
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner): DaSoumissionBc
+    {
+        $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+        $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
+        $numOr = $this->ditRepository->getNumOr($numDit);
+        $soumissionBc->setNumeroCde($numCde)
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setPieceJoint1($nomPdfFusionner)
+            ->setStatut(self::STATUT_SOUMISSION)
+            ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+            ->setNumeroDemandeAppro($numDa)
+            ->setNumeroDemandeDit($numDit)
+            ->setNumeroOR($numOr)
+        ;
+        return $soumissionBc;
     }
 
     private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde): array
