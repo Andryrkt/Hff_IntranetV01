@@ -138,46 +138,6 @@ class DaValidationController extends Controller
         return $da;
     }
 
-    private function creationExcel(string $numDa, int $numeroVersionMax): array
-    {
-        //recupération des donnée
-        $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
-
-        // Convertir les entités en tableau de données
-        $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
-
-        //creation du fichier excel
-        $date = new DateTime();
-        $formattedDate = $date->format('Ymd_His');
-        $fileName = $numDa . '_' . $formattedDate . '.xlsx';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
-        $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
-
-        return [
-            'fileName' => $fileName,
-            'filePath' => $filePath
-        ];
-    }
-
-    private function transformationEnTableauAvecEntet($entities): array
-    {
-        $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité', '', 'designation', 'PU'];
-
-        foreach ($entities as $entity) {
-            $data[] = [
-                $entity->getArtConstp(),
-                $entity->getArtRefp(),
-                $entity->getQteDem(),
-                '',
-                $entity->getArtRefp() == 'ST' ? $entity->getArtDesi() : '',
-                $entity->getArtRefp() == 'ST' ? $entity->getPrixUnitaire() : '',
-            ];
-        }
-
-        return $data;
-    }
-
     /** 
      * Fonctions pour envoyer un mail de validation à la service Ate
      */
