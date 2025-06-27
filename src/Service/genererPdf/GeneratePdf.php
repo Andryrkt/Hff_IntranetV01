@@ -152,11 +152,11 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    //facture + bon de livraison de demande appro
-    public function copyToDWFacBlDa($fileName)
+    //bon de commande de demande appro
+    public function copyToDWFacBlDa($fileName, $numDa)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/soumissionFacBl/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
