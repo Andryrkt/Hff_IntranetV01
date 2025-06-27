@@ -174,6 +174,8 @@ class DitOrsSoumisAValidationController extends Controller
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
         $numDa = $this->demandeApproRepository->getNumDa($numDit);
+        $articleDas = [];
+        $referenceDas = [];
         if ($numDa) {
             $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
