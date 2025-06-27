@@ -62,7 +62,8 @@ export function autocompleteTheField(
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
-    onBlurCallback: (found) => onBlurEvents(found, designation, numPages),
+    onBlurCallback: (found) =>
+      onBlurEvents(found, designation, fieldName, numPages),
   });
 }
 
@@ -74,7 +75,7 @@ function getFieldByGeneratedId(baseId, suffix) {
   return document.getElementById(baseId.replace("artDesi", suffix));
 }
 
-function onBlurEvents(found, designation, numPage) {
+function onBlurEvents(found, designation, fieldName, numPage) {
   if (designation.value.trim() !== "") {
     const desi = `designation_${numPage}`;
 
@@ -89,26 +90,31 @@ function onBlurEvents(found, designation, numPage) {
       `#demande_appro_proposition_reference_${numPage}`
     );
 
-    // Texte rouge ou non, ajout de valeur dans catalogue
-    allFields.forEach((field) => {
-      if (found) {
-        field.classList.remove("text-danger");
-      } else {
-        field.classList.add("text-danger");
-        if (field.id.includes(`PU_${numPage}`)) {
-          field.parentElement.classList.remove("d-none"); // afficher le div container du PU
-          field.value = 0;
-        }
-        if (field.id.includes(`numeroFournisseur_${numPage}`)) {
-          field.value = 0;
-        }
-        if (field.id.includes("codeFams") && field.id.includes(`_${numPage}`)) {
-          console.log("codeFams");
+    if (fieldName == "designation") {
+      // Texte rouge ou non, ajout de valeur dans catalogue
+      allFields.forEach((field) => {
+        if (found) {
+          field.classList.remove("text-danger");
+        } else {
+          field.classList.add("text-danger");
+          if (field.id.includes(`PU_${numPage}`)) {
+            field.parentElement.classList.remove("d-none"); // afficher le div container du PU
+            field.value = 0;
+          }
+          if (field.id.includes(`numeroFournisseur_${numPage}`)) {
+            field.value = 0;
+          }
+          if (
+            field.id.includes("codeFams") &&
+            field.id.includes(`_${numPage}`)
+          ) {
+            console.log("codeFams");
 
-          field.value = "-";
+            field.value = "-";
+          }
         }
-      }
-    });
+      });
+    }
 
     // Si non trouvé alors valeur de reférence pièce = ''
     referencePiece.value = found ? referencePiece.value : "ST";
@@ -176,6 +182,7 @@ function handleValuesOfFields(
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
+    console.log(PU.value);
   } else {
     reference.value = item.referencepiece;
     fournisseur.value = item.fournisseur;

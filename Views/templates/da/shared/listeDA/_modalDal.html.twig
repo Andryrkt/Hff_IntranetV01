@@ -21,6 +21,7 @@
 								<th class="text-center">Quantité dispo</th>
 								<th class="text-start">Commentaire / motif</th>
 								<th class="text-start">Fiche technique</th>
+								<th class="text-start">Pièces jointes</th>
 							</tr>
 						</thead>
 						<tbody id="tableBody">
@@ -44,6 +45,19 @@
 											{% else %}
 												NON	
 											{% endif %}
+										</td>
+										<td class="text-start">
+										{% if item.fileNames|length > 0 %}
+										<ul class="mb-0 px-0">
+											{% for file in item.fileNames %}
+												<li>
+													<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+												</li>
+											{% endfor %}
+										</ul>
+									{% else %}
+										Aucune pièce jointe
+									{% endif %}
 										</td>
 									</tr>
 								{% endfor %}
