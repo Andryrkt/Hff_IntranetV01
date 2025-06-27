@@ -2,9 +2,11 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Entity\dit\DemandeIntervention;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -59,6 +61,49 @@ trait DaTrait
         return $statut_bc;
     }
 
+    private function creationExcel(string $numDa, int $numeroVersionMax): array
+    {
+        //recupération des donnée
+        $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+
+        $this->enregistrerDonneeDansDaValide($donnerExcels);
+
+        // Convertir les entités en tableau de données
+        $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
+
+        //creation du fichier excel
+        $date = new DateTime();
+        $formattedDate = $date->format('Ymd_His');
+        $fileName = $numDa . '_' . $formattedDate . '.xlsx';
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
+        $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
+
+        return [
+            'fileName' => $fileName,
+            'filePath' => $filePath
+        ];
+    }
+
+    private function transformationEnTableauAvecEntet($entities): array
+    {
+        $data = [];
+        $data[] = ['constructeur', 'reference', 'quantité', '', 'designation', 'PU'];
+
+        foreach ($entities as $entity) {
+            $data[] = [
+                $entity->getArtConstp(),
+                $entity->getArtRefp(),
+                $entity->getQteDem(),
+                '',
+                $entity->getArtRefp() == 'ST' ? $entity->getArtDesi() : '',
+                $entity->getArtRefp() == 'ST' ? $entity->getPrixUnitaire() : '',
+            ];
+        }
+
+        return $data;
+    }
+
+
     private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
     {
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
@@ -78,6 +123,36 @@ trait DaTrait
         }
 
         return $donnerExcels;
+    }
+
+    private function enregistrerDonneeDansDaValide($donnees)
+    {
+        $em = self::getEntity();
+        foreach ($donnees as $donnee) {
+            $daValider = new DaValider;
+
+            /** @var DemandeAppro $da l'entité de la demande appro correspondant au numero demandeAppro du donnée (DAL ou DALR) */
+            $da = $em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $donnee->getNumeroDemandeAppro()]);
+
+            $numeroVersionMax = $em->getRepository(DaValider::class)->getNumeroVersionMax($da->getNumeroDemandeAppro());
+            $nivUrgence = $em->getRepository(DemandeIntervention::class)->getNiveauUrgence($da->getNumeroDemandeDit());
+            $daValider
+                ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
+                ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
+            ;
+
+            $daValider->enregistrerDa($da); // enregistrement pour DA
+
+            if ($donnee instanceof DemandeApproL) {
+                $daValider->enregistrerDal($donnee); // enregistrement pour DAL
+            } else if ($donnee instanceof DemandeApproLR) {
+                $daValider->enregistrerDalr($donnee); // enregistrement pour DALR
+            }
+
+            $em->persist($daValider);
+        }
+
+        $em->flush();
     }
 
     /**
@@ -180,5 +255,13 @@ trait DaTrait
             }
         }
         return $date;
+    }
+
+    private function autoIncrementForDa(?int $num): int
+    {
+        if ($num === null) {
+            $num = 0;
+        }
+        return (int)$num + 1;
     }
 }

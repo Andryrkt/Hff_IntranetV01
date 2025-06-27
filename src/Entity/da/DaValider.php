@@ -160,6 +160,11 @@ class DaValider
     private $estFicheTechnique = false;
 
     /**
+     * @ORM\Column(type="string", length=255, name="nom_fiche_technique")
+     */
+    private $nomFicheTechnique;
+
+    /**
      * @ORM\Column(type="json", name="pj_new_ate")
      */
     private $pjNewAte = [];
@@ -196,12 +201,14 @@ class DaValider
      */
     private ?int $numeroVersion = 0;
 
+    /**
+     * @ORM\Column(type="string", length=50, name="niveau_urgence")
+     */
+    private string $niveauUrgence;
 
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
-
-
 
     /**
      * Get the value of id
@@ -853,5 +860,124 @@ class DaValider
         $this->numeroVersion = $numeroVersion;
 
         return $this;
+    }
+
+    /**
+     * Get the value of statutDal
+     */
+    public function getStatutDal()
+    {
+        return $this->statutDal;
+    }
+
+    /**
+     * Set the value of statutDal
+     *
+     * @return  self
+     */
+    public function setStatutDal($statutDal)
+    {
+        $this->statutDal = $statutDal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFicheTechnique
+     */
+    public function getNomFicheTechnique()
+    {
+        return $this->nomFicheTechnique;
+    }
+
+    /**
+     * Set the value of nomFicheTechnique
+     *
+     * @return  self
+     */
+    public function setNomFicheTechnique($nomFicheTechnique)
+    {
+        $this->nomFicheTechnique = $nomFicheTechnique;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of niveauUrgence
+     */
+    public function getNiveauUrgence()
+    {
+        return $this->niveauUrgence;
+    }
+
+    /**
+     * Set the value of niveauUrgence
+     *
+     * @return  self
+     */
+    public function setNiveauUrgence($niveauUrgence)
+    {
+        $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
+
+    public function enregistrerDa(DemandeAppro $da)
+    {
+        $this
+            ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
+            ->setNumeroDemandeDit($da->getNumeroDemandeDit())
+            ->setStatutDal($da->getStatutDal())
+            ->setObjetDal($da->getObjetDal())
+            ->setDetailDal($da->getDetailDal())
+        ;
+    }
+
+    public function enregistrerDal(DemandeApproL $dal)
+    {
+        $this
+            ->setQteDem($dal->getQteDem())
+            ->setArtConstp($dal->getArtConstp())
+            ->setArtRefp($dal->getArtRefp())
+            ->setArtDesi($dal->getArtDesi())
+            ->setArtFams1($dal->getArtFams1())
+            ->setArtFams2($dal->getArtFams2())
+            ->setCodeFams1($dal->getCodeFams1())
+            ->setCodeFams2($dal->getCodeFams2())
+            ->setNumeroFournisseur($dal->getNumeroFournisseur())
+            ->setNomFournisseur($dal->getNomFournisseur())
+            ->setDateFinSouhaite($dal->getDateFinSouhaite())
+            ->setCommentaire($dal->getCommentaire())
+            ->setPrixUnitaire($dal->getPrixUnitaire())
+            ->setTotal($dal->getPrixUnitaire() * $dal->getQteDem())
+            ->setEstFicheTechnique($dal->getEstFicheTechnique())
+            ->setPjNewAte($dal->getFileNames())
+            ->setNomFicheTechnique($dal->getNomFicheTechnique())
+            ->setValidePar($dal->getValidePar())
+        ;
+    }
+
+    public function enregistrerDalr(DemandeApproLR $dalr)
+    {
+        $this
+            ->setQteDem($dalr->getQteDem())
+            ->setArtConstp($dalr->getArtConstp())
+            ->setArtRefp($dalr->getArtRefp())
+            ->setArtDesi($dalr->getArtDesi())
+            ->setArtFams1($dalr->getArtFams1())
+            ->setArtFams2($dalr->getArtFams2())
+            ->setCodeFams1($dalr->getCodeFams1())
+            ->setCodeFams2($dalr->getCodeFams2())
+            ->setNumeroFournisseur($dalr->getNumeroFournisseur())
+            ->setNomFournisseur($dalr->getNomFournisseur())
+            ->setDateFinSouhaite($dalr->getDateFinSouhaite())
+            ->setCommentaire($dalr->getMotif())
+            ->setPrixUnitaire($dalr->getPrixUnitaire())
+            ->setTotal($dalr->getTotal())
+            ->setEstFicheTechnique($dalr->getEstFicheTechnique())
+            ->setNomFicheTechnique($dalr->getNomFicheTechnique())
+            ->setPjPropositionAppro($dalr->getFileNames())
+            ->setValidePar($dalr->getValidePar())
+        ;
     }
 }
