@@ -45,6 +45,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
   insertCellPiecesJointes(row, color, line, rowIndex);
+  insertCellDeleteLine(row, color, line, rowIndex);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
@@ -149,6 +150,25 @@ function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
   let fieldContainer = document.createElement("div");
   fieldContainer.id = `demande_appro_lr_collection_DALR_${numeroLigneDem}${numLigneTableau}_fileNamesContainer`;
   insertCellToRow(row, fieldContainer, "left", color);
+}
+
+function insertCellDeleteLine(row, color, line, rowIndex) {
+  /** Icône de suppression de ligne */
+  const deleteLineIcon = document.createElement("i");
+  deleteLineIcon.classList.add("fas", "fa-times", "fs-7");
+  deleteLineIcon.style.cursor = "pointer";
+  deleteLineIcon.title = "Supprimer la ligne de proposition";
+
+  deleteLineIcon.addEventListener("click", function () {
+    let row = this.parentElement.parentElement; // ligne sur le tableau (ce que l'utilisateur voit)
+    let formRow = document.getElementById(
+      `demande_appro_lr_collection_DALR_${line}${rowIndex}`
+    ); // ligne de formulaire à envoyer dans la BDD (ce que l'utilisateur ne voit pas)
+    row.remove();
+    formRow.remove();
+  });
+
+  insertCellToRow(row, deleteLineIcon, "center", color);
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
