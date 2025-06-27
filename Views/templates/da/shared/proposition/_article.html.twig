@@ -32,7 +32,7 @@
 		</div>
 	</div>
 	<div class="row">
-		{% if not estAte %}
+		{% if estAppro %}
 		<div class="col-3 col-md-3">
 			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
 		</div>
@@ -71,7 +71,7 @@
 		<div class="col-4 col-md-4">
 			<label class="mt-2">
 				Fiche technique
-				{% if not estAte and article.estFicheTechnique %}
+				{% if estAppro and article.estFicheTechnique %}
 					<a href="#" class="d-none">
 						<i class="fas fa-paperclip"></i>
 					</a>
@@ -236,7 +236,7 @@
 			<tr>
 				<th>Choix</th>
 				<th>Fournisseur</th>
-				{% if not estAte %}
+				{% if estAppro %}
 				<th>Référence</th>									
 				{% endif %}
 				<th>Désignation</th>
@@ -249,6 +249,11 @@
 					<th colspan="2">Fiche technique</th>
 				{% endif %}
 				<th colspan="2">Pièces jointes</th>
+				{% if estAppro %}
+				<th>
+					<i class="fas fa-times fs-7"></i>
+				</th>
+				{% endif %}
 			</tr>
 		</thead>
 
@@ -259,7 +264,7 @@
 						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
-					{% if not estAte %}
+					{% if estAppro %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
 					{% endif %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
@@ -269,7 +274,7 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 					{% if article.estFicheTechnique %}
-					{# {% if not estAte %}
+					{# {% if estAppro %}
 					<td class="align-middle">
 						<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
 					</td>

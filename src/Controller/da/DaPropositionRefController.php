@@ -33,6 +33,7 @@ class DaPropositionRefController extends Controller
     use lienGenerique;
 
     private const ID_ATELIER = 3;
+    private const ID_APPRO = 16;
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
@@ -90,6 +91,7 @@ class DaPropositionRefController extends Controller
             'observations' => $observations,
             'numDa' => $numDa,
             'estAte' => $this->estUserDansServiceAtelier(),
+            'estAppro' => $this->estUserDansServiceAppro(),
             'nePeutPasModifier' => $this->nePeutPasModifier($da)
         ]);
     }
@@ -98,6 +100,12 @@ class DaPropositionRefController extends Controller
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(self::ID_ATELIER, $serviceIds);
+    }
+
+    private function estUserDansServiceAppro()
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(self::ID_APPRO, $serviceIds);
     }
 
     private function nePeutPasModifier($demandeAppro)
