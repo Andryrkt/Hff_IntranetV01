@@ -123,8 +123,8 @@ class ListCdeFrnController extends Controller
     private function ajoutDonnerUtile(array $datas)
     {
         foreach ($datas as $data) {
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($datas['num_dit']);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $datas['num_dit']]);
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($data['num_dit']);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $data['num_dit']]);
 
             //ajout du numero demande appro
             $data['num_da'] = $daValider->getNumeroDemandeAppro();

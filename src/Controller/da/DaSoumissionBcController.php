@@ -112,12 +112,12 @@ class DaSoumissionBcController extends Controller
                 /** COPIER DANS DW */
                 $this->genererPdfDa->copyToDWBcDa($nomPdfFusionner, $numDa);
 
+                /** modification du table da_valider */
+                $this->modificationDaValider($numCde);
+
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
-
-                /** modification du table da_valider */
-                $this->modificationDaValider($numCde);
             }
         }
     }
