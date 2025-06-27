@@ -111,16 +111,37 @@ class ListCdeFrnController extends Controller
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
         //ajout des données utile
-        // $datas = $this->ajouterNumDa($datas);
-        // $datas = $this->ajoutDateFinSouhaite($datas);
-        // $datas = $this->ajoutStatutBc($datas);
-        // $datas = $this->ajouterNbrJoursDispo($datas);
-        // $datas = $this->ajoutniveauUrgence($datas);
+        $datas = $this->ajoutDonnerUtile($datas);
 
-        // //filtre des données ajouter
-        // $datas = $this->filtreDonnee($datas, $criteria);
+        //filtre des données ajouter
+        $datas = $this->filtreDonnee($datas, $criteria);
 
         // dd($datas);
+        return $datas;
+    }
+
+    private function ajoutDonnerUtile(array $datas)
+    {
+        foreach ($datas as $data) {
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($datas['num_dit']);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $datas['num_dit']]);
+
+            //ajout du numero demande appro
+            $data['num_da'] = $daValider->getNumeroDemandeAppro();
+
+            //ajout du niveau d'urgence
+            $data['niv_urg'] = $daValider->getNiveauUrgence();
+
+            //ajout de la date fin souhaité
+            $data['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
+
+            //ajout du statut BC
+            $data['statut_bc'] = $daValider->getStatutBc();
+
+            //ajout du nombre de jours dispo
+            $data['jours_dispo'] = $daValider->getNbrJoursDispo();
+        }
+
         return $datas;
     }
 
@@ -173,66 +194,6 @@ class ListCdeFrnController extends Controller
         return $datas;
     }
 
-    private function ajoutDateFinSouhaite(array $datas)
-    {
-        foreach ($datas as $key => $data) {
-            $numDa = $data['num_da'];
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-            $donners = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
-            foreach ($donners as $donner) {
-                $datas[$key]['date_fin_souhaite'] = $donner->getDateFinSouhaite();
-            }
-        }
-
-        return $datas;
-    }
-
-    private function ajoutniveauUrgence(array $datas)
-    {
-        //ajout du niveau d'urgence
-        foreach ($datas as $key => $data) {
-            $nivUrg = $this->ditRepository->getNiveauUrgence($data['num_dit']);
-            $datas[$key]['niv_urg'] = $nivUrg;
-        }
-
-        //return du nouveau donnée
-        return $datas;
-    }
-
-    private function ajouterNumDa(array $datas)
-    {
-        //ajout du numero demande appro
-        foreach ($datas as $key => $data) {
-            $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
-            $datas[$key]['num_da'] = $numDa;
-        }
-
-        //return du nouveau donnée
-        return $datas;
-    }
-
-    private function ajoutStatutBc(array $datas)
-    {
-        //ajout du statut BC
-        foreach ($datas as $key => $data) {
-
-            $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
-            $datas[$key]['statut_bc'] = $statutBc;
-        }
-
-        //return du nouveau Donnée
-        return $datas;
-    }
-
-
-    private function ajouterNbrJoursDispo(array $datas)
-    {
-        foreach ($datas as $key => $data) {
-            $nbrJoursDispo = $this->demandeApproLRepository->getJoursDispo($data['num_da'], $data['reference']);
-            $datas[$key]['jours_dispo'] = $nbrJoursDispo;
-        }
-        return $datas;
-    }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
     {

@@ -5,15 +5,19 @@ namespace App\Controller\dit;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use App\Entity\da\DaValider;
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\da\DaTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use App\Repository\da\DemandeApproLRepository;
@@ -23,8 +27,6 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Entity\da\DemandeAppro;
-use App\Repository\da\DemandeApproRepository;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
@@ -43,6 +45,7 @@ class DitOrsSoumisAValidationController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
+    private DaValiderRepository $daValiderRepository;
 
 
     public function __construct()
@@ -57,6 +60,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /**
@@ -97,6 +101,7 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
+
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
 
                 $ditInsertionOrSoumis
@@ -127,6 +132,9 @@ class DitOrsSoumisAValidationController extends Controller
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
+                /** modification da_valider */
+                $this->modificationDaValider($numDit, $ditInsertionOrSoumis->getNumeroOR());
+
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             } else {
                 $message = "Echec lors de la soumission, . . .";
@@ -142,6 +150,19 @@ class DitOrsSoumisAValidationController extends Controller
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function modificationDaValider(string $numDit, string $numOr): void
+    {
+        $numDa = $this->demandeApproRepository->getNumDa($numDit);
+        if ($numDa) {
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($numDit);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+            $daValider->setNumeroOr($numOr)
+                ->setStatutOr('Soumis à validation');
+            self::$em->persist($daValider);
+            self::$em->flush();
+        }
     }
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array

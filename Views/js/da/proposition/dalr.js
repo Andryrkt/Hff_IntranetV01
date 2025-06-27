@@ -44,7 +44,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 
-  if (nbrColonnes > 10) {
+  if (nbrColonnes > 11) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
   insertCellPiecesJointes(row, color, line, rowIndex);
@@ -62,6 +62,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       if (!field.id.includes("_codeFams")) {
         field.value = "";
       }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   } else {
     Object.values(fields).forEach((field) => {
@@ -70,6 +71,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
       } else {
         field.value = "-";
       }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
     });
   }
 }
@@ -147,7 +149,11 @@ function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
     );
     createPieceJointe(nbrLine, numLigneTableau, inputFile);
   });
-  insertCellToRow(row, addFile, "center", color);
+  let cell = row.insertCell();
+  cell.style.padding = "10px 0";
+  cell.style.textAlign = "center";
+  cell.style.color = color;
+  cell.append(addFile);
 
   /** contenant des fichiers */
   let fieldContainer = document.createElement("div");
@@ -365,34 +371,37 @@ function renderFileList(inputId) {
   fieldContainer.innerHTML = "";
 
   if (files.length > 0) {
-    const ul = document.createElement("ul");
-    ul.classList.add("ps-3", "mb-0");
+    const fileList = document.createElement("ul");
+    fileList.classList.add("ps-0", "mb-0", "file-list");
 
     files.forEach((file, index) => {
-      const li = document.createElement("li");
+      const listItem = document.createElement("li");
+      listItem.classList.add("file-item");
 
+      const fileNameSpan = document.createElement("span");
+      fileNameSpan.classList.add("file-name");
       const a = document.createElement("a");
       a.href = URL.createObjectURL(file);
       a.textContent =
         generateCustomFilename("PJ") +
         `${index + 1}.${file.name.split(".").pop().toLowerCase()}`;
       a.target = "_blank";
+      fileNameSpan.appendChild(a);
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.textContent = "❌";
-      deleteBtn.type = "button";
-      deleteBtn.style.marginLeft = "10px";
+      const deleteBtn = document.createElement("span");
+      deleteBtn.textContent = "x";
+      deleteBtn.classList.add("remove-file");
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
         renderFileList(inputId);
       };
 
-      li.appendChild(a);
-      li.appendChild(deleteBtn);
-      ul.appendChild(li);
+      listItem.appendChild(fileNameSpan);
+      listItem.appendChild(deleteBtn);
+      fileList.appendChild(listItem);
     });
 
-    fieldContainer.appendChild(ul);
+    fieldContainer.appendChild(fileList);
   }
 }

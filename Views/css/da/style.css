@@ -75,6 +75,43 @@ a.choix:hover {
   }
 }
 
+/* File list */
+.file-list {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+}
+
+.file-list li {
+  padding: 5px 8px;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-list li .file-name {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.file-list li .file-size {
+  margin-left: 10px;
+  color: #666;
+}
+
+.file-list li .remove-file {
+  color: #d9534f;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: auto;
+  padding-left: 10px;
+}
+
 .w-1 {
   width: 1% !important;
 }

@@ -41,3 +41,9 @@ CREATE TABLE da_valider
     date_modification DATETIME2(0),
     CONSTRAINT PK_da_valider PRIMARY KEY (id)
 );
+
+alter TABLE da_valider ADD niveau_urgence VARCHAR(50);
+alter TABLE da_valider ADD nom_fiche_technique VARCHAR(255);
+
+ALTER TABLE da_valider
+ADD jours_dispo int;
