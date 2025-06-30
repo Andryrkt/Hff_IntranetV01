@@ -85,11 +85,22 @@
 			.espace {
 				margin-left: 5rem;
 			}
+			table {
+				border-collapse: collapse;
+				width: 100%;
+				border: 1px solid #ccc;
+				font-size: 11px;
+				font-family: Arial, sans-serif;
+			}
+			th, td {
+				border: 1px solid #ccc;
+    			padding: 3px;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="email-container">
-			{{ include('da/email/shared/_header.html.twig', { numDa:tab.numDa, statut:statut }) }}
+			{{ include('da/email/shared/_header.html.twig', { numDa:tab.numDa, statut:statut, tab:tab }) }}
 
 			<div class="email-body">
 				<p>Bonjour,</p>

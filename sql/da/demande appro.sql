@@ -20,20 +20,20 @@ CREATE TABLE Demande_Appro
     date_heure_fin_souhaitee DATETIME2(0) null,
     statut_dal varchar(100) null,
     CONSTRAINT PK_Demande_Appro PRIMARY KEY (id)
-)
+);
 
 
 ALTER TABLE Demande_Appro 
-ADD id_Materiel INT
+ADD id_Materiel INT;
 
 ALTER TABLE Demande_Appro 
-ADD statut_email VARCHAR(100)
+ADD statut_email VARCHAR(100);
 
 ALTER TABLE Demande_Appro
-ADD est_validee bit DEFAULT 0
+ADD est_validee bit DEFAULT 0;
 
 ALTER TABLE Demande_Appro
-ADD valide_par VARCHAR(50)
+ADD valide_par VARCHAR(50);
 
 ALTER TABLE Demande_Appro
-ADD nom_fichier_reference_zst VARCHAR(255)
+ADD nom_fichier_reference_zst VARCHAR(255);

@@ -49,6 +49,69 @@ a.choix:hover {
   border: none;
 }
 
+@media (min-width: 576px) {
+  .container.custom-width {
+    max-width: 768px;
+  }
+}
+@media (min-width: 768px) {
+  .container.custom-width {
+    max-width: 992px;
+  }
+}
+@media (min-width: 992px) {
+  .container.custom-width {
+    max-width: 1200px;
+  }
+}
+@media (min-width: 1200px) {
+  .container.custom-width {
+    max-width: 1400px;
+  }
+}
+@media (min-width: 1400px) {
+  .container.custom-width {
+    max-width: 1700px;
+  }
+}
+
+/* File list */
+.file-list {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+}
+
+.file-list li {
+  padding: 5px 8px;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-list li .file-name {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.file-list li .file-size {
+  margin-left: 10px;
+  color: #666;
+}
+
+.file-list li .remove-file {
+  color: #d9534f;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: auto;
+  padding-left: 10px;
+}
+
 .w-1 {
   width: 1% !important;
 }
@@ -85,7 +148,7 @@ a.choix:hover {
   width: 23% !important;
 }
 
-[id*='tableBody'] td {
+[id*="tableBody"] td {
   text-align: center;
 }
 
@@ -118,7 +181,7 @@ a.choix:hover {
   }
 }
 
-[id*='spinner_container_']:not([id*='nomFournisseur']) {
+[id*="spinner_container_"]:not([id*="nomFournisseur"]) {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
   border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
@@ -129,14 +192,14 @@ a.choix:hover {
   padding: 10px;
 }
 
-[id*='spinner_container_'] .text-overlay {
+[id*="spinner_container_"] .text-overlay {
   font-size: 14px;
   color: white;
   margin-right: 10px;
   display: inline-block;
 }
 
-[id*='demande_appro_form_DAL'][id*='estFicheTechnique'] {
+[id*="demande_appro_form_DAL"][id*="estFicheTechnique"] {
   width: 1.5em;
   height: 1.5em;
   border-radius: 0.3em;
@@ -241,10 +304,21 @@ a.choix:hover {
   background-color: #000;
 }
 
-/* Pour les statuts de la DA */
-.bg-or-non-valide {
-  background-color: #00ffff !important;
+.mise-en-evidence,
+.mise-en-evidence a {
+  color: orange !important;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
+
+.urgency-level {
+  font-size: 2rem !important;
+  position: absolute;
+  left: 30px;
+  top: 20px;
+}
+
+/* Pour les statuts de la DA */
 .bg-demande-achat {
   background-color: #ffff00 !important;
 }
@@ -254,6 +328,8 @@ a.choix:hover {
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
 }
-.bg-orange {
-  background-color: #fbbd08 !important;
+
+/* Pour les statuts de l'OR */
+.bg-or-non-valide {
+  background-color: #00ffff !important;
 }

@@ -36,7 +36,6 @@ class DaListeController extends Controller
 
     private const ID_ATELIER = 3;
     private const ID_APPRO = 16;
-    private const DA_STATUT_SOUMIS_ATE = 'Proposition achats';
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
@@ -265,8 +264,8 @@ class DaListeController extends Controller
             foreach ($dasFiltered->getDAL() as $dal) {
                 $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
                 if (array_key_exists(0, $qte)) {
-                    $dal->setQteLivee($qte[0]['qte_a_livrer']);
-                    $dal->setQteALivrer($qte[0]['qte_livee']);
+                    $dal->setQteLivee((int)$qte[0]['qte_a_livrer']);
+                    $dal->setQteALivrer((int)$qte[0]['qte_livee']);
                 }
             }
         }
@@ -288,14 +287,14 @@ class DaListeController extends Controller
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
-        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == 'Bon d’achats validé' && $statutOr == 'Validé') {
-            $statut_bc = 'à générer';
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
+            $statut_bc = 'A générer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
-            $statut_bc = 'à éditer';
+            $statut_bc = 'A éditer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
-            $statut_bc = 'à soumettre à validation';
+            $statut_bc = 'A soumettre à validation';
         } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
-            $statut_bc = 'à envoyer au fournisseur';
+            $statut_bc = 'A envoyer au fournisseur';
         } else {
             $statut_bc = $statutBc;
         }
@@ -375,7 +374,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_ATELIER,
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -397,7 +396,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_APPRO,
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -446,7 +445,7 @@ class DaListeController extends Controller
         $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+            $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
             self::$em->persist($dal);
         }
 
@@ -456,7 +455,7 @@ class DaListeController extends Controller
     private function modificationStatutDa(string $numDa): void
     {
         $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal(self::DA_STATUT_SOUMIS_ATE);
+        $da->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
 
         self::$em->persist($da);
         self::$em->flush();

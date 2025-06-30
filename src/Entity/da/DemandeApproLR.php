@@ -64,7 +64,7 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp;
+    private string $artRefp = 'ST';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -74,12 +74,12 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private ?string $artFams1;
+    private ?string $artFams1 = '-';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private ?string $artFams2;
+    private ?string $artFams2 = '-';
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
@@ -162,6 +162,15 @@ class DemandeApproLR
      */
     private $nomFicheTechnique;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_fin_souhaitee_l", nullable=true)
+     */
+    private $dateFinSouhaite;
+
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -699,6 +708,43 @@ class DemandeApproLR
     public function setNomFicheTechnique($nomFicheTechnique): self
     {
         $this->nomFicheTechnique = $nomFicheTechnique;
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFinSouhaite
+     */
+    public function getDateFinSouhaite()
+    {
+        return $this->dateFinSouhaite;
+    }
+
+    /**
+     * Set the value of dateFinSouhaite
+     */
+    public function setDateFinSouhaite($dateFinSouhaite): self
+    {
+        $this->dateFinSouhaite = $dateFinSouhaite;
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
+
         return $this;
     }
 }

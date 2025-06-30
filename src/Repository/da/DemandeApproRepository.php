@@ -35,7 +35,7 @@ class DemandeApproRepository extends EntityRepository
         //filtre sur le statut de DA
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
-                ->setParameter('statut', $criteria['statut']);
+                ->setParameter('statut', $criteria['statutDA']);
         }
 
         //Filtre sur l'id matériel
@@ -152,6 +152,17 @@ class DemandeApproRepository extends EntityRepository
             ->select('da.numeroDemandeDit')
             ->getQuery()
             ->getSingleColumnResult()
+        ;
+    }
+
+    public function getNumDitDa(string $numDa)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeDit')
+            ->where('da.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 

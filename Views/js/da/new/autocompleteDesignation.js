@@ -120,7 +120,7 @@ function onBlurEvent(found, designation, fields) {
     });
 
     // Si non trouvé alors valeur de reférence pièce = ''
-    referencePiece.value = found ? referencePiece.value : '';
+    referencePiece.value = found ? referencePiece.value : 'ST';
 
     // Champs requis ou non et changement de valeur de champs
     Object.values(fields).forEach((field) => {

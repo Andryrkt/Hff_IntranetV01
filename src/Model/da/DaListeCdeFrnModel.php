@@ -49,6 +49,30 @@ class DaListeCdeFrnModel extends Model
             $numCommande = '';
         }
 
+        if (!empty($criteria['dateDebutOR'])) {
+            $dateDebutORPlanning = $criteria['dateDebutOR']->format('Y-m-d');
+            $dateDebutOr = " AND CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                END >= $dateDebutORPlanning";
+        } else {
+            $dateDebutOr = '';
+        }
+
+        if (!empty($criteria['dateFinOR'])) {
+            $dateFinORPlanning = $criteria['dateFinOR']->format('Y-m-d');
+            $dateFinOr = " AND CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                END <= $dateFinORPlanning";
+        } else {
+            $dateFinOr = '';
+        }
+
         //requête
         $statement = "SELECT
                 TRIM(seor_refdem) as num_dit,
@@ -98,6 +122,7 @@ class DaListeCdeFrnModel extends Model
                 and slor_refp not like ('PREST%')
                 and TRIM(seor_refdem) IN ($numDitString)
                 and slor_numor IN ($numOrString)
+                --and (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) NOT IN ('FC', 'FA', 'CP')
                 $numDit
                 $numOr
                 $designation
@@ -105,6 +130,8 @@ class DaListeCdeFrnModel extends Model
                 $numFournisseur
                 $nomFournisseur
                 $numCommande
+                $dateDebutOr
+                $dateFinOr
                 order by num_dit, num_or , num_fournisseur , nom_fournisseur , num_cde
         ";
 

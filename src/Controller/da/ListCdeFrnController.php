@@ -2,21 +2,28 @@
 
 namespace App\Controller\da;
 
+use App\Model\da\DaModel;
+use App\Entity\da\DaValider;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Form\da\CdeFrnListType;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
-use App\Form\da\DaSoumissionType;
+use App\Entity\da\DemandeApproLR;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Controller\Traits\da\DaTrait;
+use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
+use App\Form\da\daCdeFrn\CdeFrnListType;
+use App\Form\da\daCdeFrn\DaCdeEnvoyerType;
+use App\Form\da\daCdeFrn\DaSoumissionType;
+use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\da\DaModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DaSoumissionBcRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
@@ -32,6 +39,9 @@ class ListCdeFrnController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
+    private DitRepository $ditRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+    private DaValiderRepository $daValiderRepository;
 
     public function __construct()
     {
@@ -42,6 +52,9 @@ class ListCdeFrnController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /** 
@@ -51,19 +64,20 @@ class ListCdeFrnController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
+        /** Formulaire pour la recherche */
         $form = self::$validator->createBuilder(CdeFrnListType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $criteria = $this->traitementFormulaireRecherche($request, $form);
+
+        /** Les données à afficher */
         $datas = $this->recuperationDonner($criteria);
         // dd($datas);
 
-
+        /** Formulaire pour l'envoie de BC et FAC + Bl */
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
-
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
         self::$twig->display('da/list-cde-frn.html.twig', [
@@ -93,44 +107,95 @@ class ListCdeFrnController extends Controller
         $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
         $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
 
+        //recupération des données dans IPS
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
-        $datas = $this->ajouterNumDa($datas);
-        $datas = $this->ajoutStatutBc($datas);
-        $datas = $this->ajouterNbrJoursDispo($datas);
+        //ajout des données utile
+        $datas = $this->ajoutDonnerUtile($datas);
 
+        //filtre des données ajouter
+        $datas = $this->filtreDonnee($datas, $criteria);
+
+        // dd($datas);
         return $datas;
     }
 
-    private function ajouterNumDa(array $datas)
+    private function ajoutDonnerUtile(array $datas)
     {
-        foreach ($datas as $key => $data) {
-            $numDa = $this->demandeApproRepository->getNumDa($data['num_dit']);
-            $datas[$key]['num_da'] = $numDa;
+        foreach ($datas as $data) {
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($data['num_dit']);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $data['num_dit']]);
+            if($daValider) {
+                //ajout du numero demande appro
+                $data['num_da'] = $daValider->getNumeroDemandeAppro();
+
+                //ajout du niveau d'urgence
+                $data['niv_urg'] = $daValider->getNiveauUrgence();
+
+                //ajout de la date fin souhaité
+                $data['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
+
+                //ajout du statut BC
+                $data['statut_bc'] = $daValider->getStatutBc();
+
+                //ajout du nombre de jours dispo
+                $data['jours_dispo'] = $daValider->getNbrJoursDispo();
+            }
+            
         }
+
         return $datas;
     }
 
-    private function ajoutStatutBc(array $datas)
+    private function filtreDonnee(array $datas, array $criteria = [])
     {
-        foreach ($datas as $key => $data) {
+        //filtre du niceau d'urgence
+        if (!empty($criteria['niveauUrgence'])) {
+            $filtreNivUrg = $criteria['niveauUrgence']->getDescription();
 
-            $statutBc = $this->statutBc($data['reference'], $data['num_dit'], $data['num_cde']);
-            $datas[$key]['statut_bc'] = $statutBc;
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreNivUrg) {
+                return isset($item['niv_urg']) && $item['niv_urg'] === $filtreNivUrg;
+            }));
+        }
+
+        //filtres sur le numero demande appro
+        if (!empty($criteria['numDa'])) {
+            $filtreNumDa = $criteria['numDa'];
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreNumDa) {
+                return isset($item['num_da']) && $item['num_da'] === $filtreNumDa;
+            }));
+        }
+
+        //Filtre sur le stattu BC
+        if (!empty($criteria['statutBc'])) {
+            $filtreStatutBc = $criteria['statutBc'];
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreStatutBc) {
+                return isset($item['statut_bc']) && $item['statut_bc'] === $filtreStatutBc;
+            }));
+        }
+
+        //Filtre sur la date de debut date fin souhaité
+        if (!empty($criteria['dateDebutDAL'])) {
+            $filtreDateDebutFinSouhaite = $criteria['dateDebutDAL']->format('Y-m-d');
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreDateDebutFinSouhaite) {
+                return isset($item['date_fin_souhaite']) && $item['date_fin_souhaite'] <= $filtreDateDebutFinSouhaite;
+            }));
+        }
+        //Filtre sur la date de fin date fin souhaité
+        if (!empty($criteria['dateFinDAL'])) {
+            $filtreDateFinFinSouhaite = $criteria['dateFinDAL']->format('Y-m-d');
+
+            $datas = array_values(array_filter($datas, function ($item) use ($filtreDateFinFinSouhaite) {
+                return isset($item['date_fin_souhaite']) && $item['date_fin_souhaite'] <= $filtreDateFinFinSouhaite;
+            }));
         }
 
         return $datas;
     }
 
-
-    private function ajouterNbrJoursDispo(array $datas)
-    {
-        foreach ($datas as $key => $data) {
-            $nbrJoursDispo = $this->demandeApproLRepository->getJoursDispo($data['num_da'], $data['reference']);
-            $datas[$key]['jours_dispo'] = $nbrJoursDispo;
-        }
-        return $datas;
-    }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
     {
@@ -140,32 +205,48 @@ class ListCdeFrnController extends Controller
             $soumission = $formSoumission->getData();
 
             if ($soumission['soumission'] === true) {
-                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id']]);
+                $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             } else {
-                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id']]);
+                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
         }
     }
 
     /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{numDa}", name="changement_statut_envoyer_fournisseur")
+     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
-    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $numDa = '')
+    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
     {
         $this->verifierSessionUtilisateur();
 
-        // modification de statut soumission bc
-        $numVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-        $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMax]);
-        if ($soumissionBc) {
-            $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
-            self::$em->persist($soumissionBc);
-            self::$em->flush();
-        }
+        if ($estEnvoyer) {
+            // modification de statut dans la soumission bc
+            $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
+            $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
+            if ($soumissionBc) {
+                $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
+                self::$em->persist($soumissionBc);
+                self::$em->flush();
+            }
 
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
-        $this->redirectToRoute("list_cde_frn");
+            //modification dans la table da_valider
+            $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
+            foreach ($daValider as $valider) {
+                $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
+                    ->setDateLivraisonPrevue(new \DateTime($datePrevue))
+                ;
+                self::$em->persist($valider);
+            }
+
+            // envoyer une notification de succès
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
+            $this->redirectToRoute("list_cde_frn");
+        } else {
+            $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
+            $this->redirectToRoute("list_cde_frn");
+        }
     }
 }

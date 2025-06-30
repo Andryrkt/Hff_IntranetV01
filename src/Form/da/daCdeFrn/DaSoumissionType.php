@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\da;
+namespace App\Form\da\daCdeFrn;
 
 
 use Symfony\Component\Form\AbstractType;
@@ -16,17 +16,18 @@ class DaSoumissionType extends  AbstractType
         $builder
             ->add('soumission', ChoiceType::class, [
                 'choices'  => [
-                    'Soumission BC' => true,
-                    'Soumission facture + BL' => false,
+                    'BC' => true,
+                    'Facture + BL' => false,
                 ],
                 'expanded' => true, // pour afficher des boutons radio
                 'multiple' => false, // un seul choix possible
                 'required' => true,
-                'label' => 'dossier à soumettre',
+                'label' => 'Document à soumettre',
                 'data' => true
             ])
             ->add('commande_id', HiddenType::class)
-            ->add('da_id', HiddenType::class);
+            ->add('da_id', HiddenType::class)
+            ->add('num_or', HiddenType::class);
     }
 
     public function configureOptions(OptionsResolver $resolver)

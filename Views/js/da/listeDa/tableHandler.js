@@ -7,7 +7,7 @@
 export function mergeCellsTable(cellPivotIndex) {
   const tableBody = document.querySelector('#tableBody'); // obtenir tBody du tableau à l'aide de l'id "tableBody"
   const rows = Array.from(tableBody.getElementsByTagName('tr')); // obtenir tous les lignes de ce tableau
-  const COLUMNS_TO_GROUP = [0, 1, 2, 3, 4]; // indice des cellules à fusionner
+  const COLUMNS_TO_GROUP = [0, 1, 2, 3, 4, 5]; // indice des cellules à fusionner
 
   let rowSpanCount = 0; // initialiser à 0 le row span
   let previousDap = null; // initialiser à null la valeur précédente de Dap

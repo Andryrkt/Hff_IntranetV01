@@ -396,7 +396,8 @@ class DitOrSoumisAValidationModel extends Model
                     --TRIM(isl.slor_constp) as contructeur, 
                     ROUND(isl.slor_qterel) as quantite, 
                     TRIM(isl.slor_refp) as reference, 
-                    isl.slor_pxnreel as montant
+                    isl.slor_pxnreel as montant,
+                    TRIM(isl.slor_desi) as designation
                     from Informix.sav_lor isl 
                     where slor_constp ='ZST' 
                     and slor_soc ='HF' 
@@ -411,5 +412,38 @@ class DitOrSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getTypeLigne($numOr)
+    {
+        $statement = "SELECT 
+            TRIM(CASE 
+                WHEN slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('achat_locaux') . ", 'ZST') 
+                THEN 'bloquer' 
+                ELSE 'pas bloquer' 
+            END) AS est_bloquer
+        FROM sav_lor 
+        WHERE slor_numor = $numOr
+    
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'est_bloquer');
+    }
+
+    public function getNumItv($numOr)
+    {
+        $statement = " SELECT sitv_interv  as num_itv
+                    from sav_itv
+                    where sitv_numor='$numOr'
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'num_itv');
     }
 }

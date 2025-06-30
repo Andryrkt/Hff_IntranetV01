@@ -12,4 +12,4 @@ CREATE TABLE da_soumission_facture_bl
     date_creation DATETIME2(0) ,
     date_modification DATETIME2(0),
     CONSTRAINT PK_da_soumission_facture_bl PRIMARY KEY (id)
-)
+);

@@ -14,14 +14,15 @@
 {% endblock %}
 
 {% block content %}
-	<div class=" container">
+	<div class="container custom-width">
 		<div class="card">
 			<div class="card-body">
 				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
+							<div class="urgency-level">{{ dit.idNiveauUrgence.description }}</div>
 							Validation et proposition
-							{{ numDa }} : {{ dit.idNiveauUrgence.description }}
+							{{ numDa }}
 						</h3>
 					</div>
 
@@ -46,7 +47,7 @@
 		<div class="d-flex justify-content-between mt-2">
 			<div>
 				<div class="">
-					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte ? 'd-none' : ''}}" id="envoyerSelections" name="enregistrer">
+					<button type="submit" class="btn bouton mt-2 me-4 d-none" id="envoyerSelections" name="enregistrer">
 						Envoyer proposition à l'ATE
 						<i class="fa-solid fa-square-arrow-up-right"></i>
 					</button>
@@ -79,8 +80,6 @@
 
 		</div>
 		{{ form_end(form) }}
-	</div>
-	<div class=" container">
 		<div class="card">
 			<div class="card-body">
 				<div class="row">
