@@ -222,6 +222,12 @@ export function onFileNamesInputChange(event) {
   // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
   inputFile.value = "";
 
+  const dataTransfer = new DataTransfer();
+  selectedFilesMap[inputId].forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+  inputFile.files = dataTransfer.files; // Remplace les fichiers dans l'input
+
   // Afficher la liste des fichiers cumulés
   renderFileList(inputId);
 }
