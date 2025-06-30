@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (checkedValue === "") {
       alert("Veuillez sélectionner un DIT");
     } else {
-      const endpoint = "api/recup-statut-da";
+      /* const endpoint = "api/recup-statut-da";
       const data = {
         id: checkedValue,
       };
@@ -108,11 +108,12 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
           url = `${baseUrl}/demande-appro/new/${checkedValue}`;
         }
-        // let url = suivant
-        //   .getAttribute("data-uri")
-        //   .replace("__id__", checkedValue);
-        window.location.href = url;
-      });
+        }); */
+      displayOverlay(true);
+      let url = suivant
+        .getAttribute("data-uri")
+        .replace("__id__", checkedValue);
+      window.location.href = url;
     }
   });
 });
