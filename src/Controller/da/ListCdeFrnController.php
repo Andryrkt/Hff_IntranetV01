@@ -123,23 +123,25 @@ class ListCdeFrnController extends Controller
     private function ajoutDonnerUtile(array $datas)
     {
         foreach ($datas as $data) {
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($data['num_dit']);
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($data['num_dit']);
             $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $data['num_dit']]);
+            if($daValider) {
+                //ajout du numero demande appro
+                $data['num_da'] = $daValider->getNumeroDemandeAppro();
 
-            //ajout du numero demande appro
-            $data['num_da'] = $daValider->getNumeroDemandeAppro();
+                //ajout du niveau d'urgence
+                $data['niv_urg'] = $daValider->getNiveauUrgence();
 
-            //ajout du niveau d'urgence
-            $data['niv_urg'] = $daValider->getNiveauUrgence();
+                //ajout de la date fin souhaité
+                $data['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
 
-            //ajout de la date fin souhaité
-            $data['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
+                //ajout du statut BC
+                $data['statut_bc'] = $daValider->getStatutBc();
 
-            //ajout du statut BC
-            $data['statut_bc'] = $daValider->getStatutBc();
-
-            //ajout du nombre de jours dispo
-            $data['jours_dispo'] = $daValider->getNbrJoursDispo();
+                //ajout du nombre de jours dispo
+                $data['jours_dispo'] = $daValider->getNbrJoursDispo();
+            }
+            
         }
 
         return $datas;
