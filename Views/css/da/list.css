@@ -129,7 +129,8 @@
 }
 
 /* Style pour aucune suggestion trouvée */
-.suggestions-container .no_results {
+.suggestions-container .no_results,
+.suggestions-container .no_results:hover {
   color: #888;
   text-align: center;
   font-style: italic;
