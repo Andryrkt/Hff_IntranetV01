@@ -302,11 +302,11 @@ class GenererPdfDit extends GeneratePdf
         $pdf->cell(30, 6, $this->formatNumberDecimal($dit->getChargeLocative()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(155);
         $pdf->cell(15, 6, 'CA :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $this->formatNumberDecimal($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $dit->getModele() == 'IMMODIV' ? 0 : $this->formatNumberDecimal($dit->getChiffreAffaire()), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->MultiCell(43, 6, "Résultat d'exploitation : ", 0, 'L', false, 0);
-        $pdf->cell(30, 6, $this->formatNumberDecimal($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(30, 6, $dit->getModele() == 'IMMODIV' ? 0 : $this->formatNumberDecimal($dit->getResultatExploitation()), 1, 0, '', false, '', 0, false, 'T', 'M');
 
         //=========================================================================================
 

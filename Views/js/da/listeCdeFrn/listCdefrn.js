@@ -177,8 +177,8 @@ document.addEventListener("contextmenu", function (event) {
   } else if (statutBc == "A soumettre à validation") {
     statutAffiche.style.display = "none";
 
-    //desactive le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = false)); // Désactive tous les champs du formulaire
+    //active le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
     form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
   } else {
     statutAffiche.style.display = "none";
