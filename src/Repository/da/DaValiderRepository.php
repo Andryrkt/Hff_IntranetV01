@@ -65,4 +65,20 @@ class DaValiderRepository extends EntityRepository
         }
         return $numeroVersionMax;
     }
+
+    public function getDaValider($numeroVersion, $numeroDemandeDit, $criteria = [])
+    {
+        $davalider =  $this->createQueryBuilder('d')
+            ->where('d.numeroVersion = :version')
+            ->andWhere('d.numeroDemandeDit = :numDit')
+            ->setParameter('version', $numeroVersion)
+            ->setParameter('numDit', $numeroDemandeDit);
+        if (empty($criteria['numDa'])) {
+            $davalider->andWhere('d.statutDal != :statut')
+                ->setParameter('statut', 'TERMINER');
+        }
+        return $davalider
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

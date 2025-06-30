@@ -3,6 +3,7 @@
 namespace App\Controller\da;
 
 use App\Model\da\DaModel;
+use App\Entity\da\DaValider;
 use App\Form\da\DaSearchType;
 use App\Service\EmailService;
 use App\Controller\Controller;
@@ -15,6 +16,7 @@ use App\Repository\dit\DitRepository;
 use App\Form\da\HistoriqueModifDaType;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Repository\da\DemandeApproRepository;
@@ -45,6 +47,8 @@ class DaListeController extends Controller
     private DaModel $daModel;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaValiderRepository $daValiderRepository;
+    private DaValider $daValider;
 
     public function __construct()
     {
@@ -58,6 +62,8 @@ class DaListeController extends Controller
         $this->daModel = new DaModel();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
+        $this->daValider = new DaValider();
     }
 
     /**
@@ -84,6 +90,7 @@ class DaListeController extends Controller
 
         $this->sessionService->remove('firstCharge');
 
+
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
 
@@ -96,6 +103,10 @@ class DaListeController extends Controller
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
+
+        /** modification des donnée dans DaValider */
+        $this->ChangeQteDaValider($dasFiltered);
+        $this->ChangeStatutBcDaValider($dasFiltered);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
 
@@ -258,6 +269,8 @@ class DaListeController extends Controller
         }
     }
 
+
+
     private function ajoutQte($dasFiltereds)
     {
         foreach ($dasFiltereds as $dasFiltered) {
@@ -271,36 +284,39 @@ class DaListeController extends Controller
         }
     }
 
-    private function statutBc(?string $ref, string $numDit)
+    private function ChangeQteDaValider($dasFiltereds)
     {
-        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
-
-        $statutDa = $this->daRepository->getStatut($numDit);
-
-        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
-        $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
-        $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
-
-        $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
-
-
-        $statut_bc = '';
-        if (!array_key_exists(0, $situationCde)) {
-            $statut_bc = $statutBc;
-        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
-            $statut_bc = 'A générer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
-            $statut_bc = 'A éditer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
-            $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
-            $statut_bc = 'A envoyer au fournisseur';
-        } else {
-            $statut_bc = $statutBc;
+        foreach ($dasFiltereds as $dasFiltered) {
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+            $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltereds->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+            $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
+            if (array_key_exists(0, $qte)) {
+                if ($daValider) {
+                    $daValider->setQteLivrer((int)$qte[0]['qte_a_livrer']);
+                    $daValider->setQteALivrer((int)$qte[0]['qte_livee']);
+                    self::$em->persist($daValider);
+                }
+            }
         }
-
-        return $statut_bc;
+        self::$em->flush();
     }
+
+    private function ChangeStatutBcDaValider($dasFiltereds): void
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDAL() as $dal) {
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltereds->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                if ($daValider) {
+                    $statutBc = $this->statutBc($dal->getArtRefp(), $dasFiltered->getNumeroDemandeDit());
+                    $daValider->setStatutCde($statutBc);
+                    self::$em->persist($daValider);
+                }
+            }
+        }
+        self::$em->flush();
+    }
+
 
     private function ajoutInfoDit(array $datas): void
     {

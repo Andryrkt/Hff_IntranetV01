@@ -111,7 +111,7 @@ class ListCdeFrnController extends Controller
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
         //ajout des données utile
-        $datas = $this->ajoutDonnerUtile($datas);
+        $datas = $this->ajoutDonnerUtile($datas, $criteria);
 
         //filtre des données ajouter
         $datas = $this->filtreDonnee($datas, $criteria);
@@ -120,12 +120,19 @@ class ListCdeFrnController extends Controller
         return $datas;
     }
 
-    private function ajoutDonnerUtile(array $datas)
+    private function ajoutDonnerUtile(array $datas, array $criteria): array
     {
         foreach ($datas as $data) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($data['num_dit']);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $data['num_dit']]);
-            if($daValider) {
+            $daValider = $this->daValiderRepository->findOneBy([
+                'numeroVersion' => $numeroVersionMax,
+                'numeroDemandeDit' => $data['num_dit'],
+                $criteria
+            ]);
+            if ($daValider) {
+                //modification statut bc ou cde dans la table da_valider
+                $this->modificationStatutDaValider($daValider);
+
                 //ajout du numero demande appro
                 $data['num_da'] = $daValider->getNumeroDemandeAppro();
 
@@ -141,10 +148,17 @@ class ListCdeFrnController extends Controller
                 //ajout du nombre de jours dispo
                 $data['jours_dispo'] = $daValider->getNbrJoursDispo();
             }
-            
         }
 
         return $datas;
+    }
+
+    private function modificationStatutDaValider(DaValider $daValider)
+    {
+        $statutBc = $this->statutBcCde($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroCde());
+        $daValider->setStatutCde($statutBc);
+        self::$em->persist($daValider);
+        self::$em->flush();
     }
 
     private function filtreDonnee(array $datas, array $criteria = [])

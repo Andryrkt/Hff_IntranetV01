@@ -34,7 +34,38 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, ?string $numCde)
+    private function statutBc(?string $ref, string $numDit)
+    {
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit);
+
+        $statutDa = $this->daRepository->getStatut($numDit);
+
+        $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
+        $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
+        $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
+
+        $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
+
+
+        $statut_bc = '';
+        if (!array_key_exists(0, $situationCde)) {
+            $statut_bc = $statutBc;
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
+            $statut_bc = 'A générer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
+            $statut_bc = 'A éditer';
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
+            $statut_bc = 'A soumettre à validation';
+        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
+            $statut_bc = 'A envoyer au fournisseur';
+        } else {
+            $statut_bc = $statutBc;
+        }
+
+        return $statut_bc;
+    }
+
+    private function statutBcCde(?string $ref, string $numDit, ?string $numCde)
     {
         $situationCde = $this->daModel->getSituationCde($ref, $numDit);
         $statutDa = $this->demandeApproRepository->getStatut($numDit);

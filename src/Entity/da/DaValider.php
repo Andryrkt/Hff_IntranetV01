@@ -890,6 +890,26 @@ class DaValider
     }
 
     /**
+     * Get the value of statutCde
+     */
+    public function getStatutCde()
+    {
+        return $this->statutCde;
+    }
+
+    /**
+     * Set the value of statutCde
+     *
+     * @return  self
+     */
+    public function setStatutCde($statutCde)
+    {
+        $this->statutCde = $statutCde;
+
+        return $this;
+    }
+
+    /**
      * Get the value of nomFicheTechnique
      */
     public function getNomFicheTechnique()
