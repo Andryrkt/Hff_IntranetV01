@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mergeCellsRecursiveTable([
     { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8, 9], insertSeparator: true },
+    { pivotIndex: 8, columns: [8], insertSeparator: true },
   ]);
 });
 

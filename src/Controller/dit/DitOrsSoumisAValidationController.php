@@ -156,7 +156,7 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $numDa = $this->demandeApproRepository->getNumDa($numDit);
         if ($numDa) {
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMaxDit($numDit);
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
             $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
             $daValider->setNumeroOr($numOr)
                 ->setStatutOr('Soumis à validation');

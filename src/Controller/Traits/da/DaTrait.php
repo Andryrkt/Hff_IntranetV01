@@ -46,7 +46,6 @@ trait DaTrait
 
         $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
 
-
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
@@ -147,6 +146,7 @@ trait DaTrait
                 foreach ($dalrs as $dalr) {
                     if ($dalr->getChoix()) {
                         $donnerExcel = $dalr;
+                        break;
                     }
                 }
             }

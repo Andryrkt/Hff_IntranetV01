@@ -39,7 +39,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
      */
-    private string $numeroCde;
+    private ?string $numeroCde = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_dal")
