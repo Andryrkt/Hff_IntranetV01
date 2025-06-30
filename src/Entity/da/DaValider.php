@@ -54,7 +54,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
      */
-    private string $statutCde;
+    private ?string $statutCde;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")

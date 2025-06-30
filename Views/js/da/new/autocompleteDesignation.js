@@ -131,8 +131,10 @@ function onBlurEvent(found, designation, fields) {
 
     // Champ readonly pour le nom de fournisseur
     nomFournisseur.readOnly = found;
-    numeroFournisseur.value = "99"; // valeur par défaut du numéro de fournisseur
-    nomFournisseur.value = "CHANGER DE FOURNISSEUR"; // valeur par défaut du nom de fournisseur (correspondant au numéro '99')
+    if (!found) {
+      numeroFournisseur.value = "99"; // valeur par défaut du numéro de fournisseur
+      nomFournisseur.value = "CHANGER DE FOURNISSEUR"; // valeur par défaut du nom de fournisseur (correspondant au numéro '99')
+    }
 
     // Champs requis ou non et changement de valeur de champs (famille et sous-famille seulement)
     Object.values(fields).forEach((field) => {

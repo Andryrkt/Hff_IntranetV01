@@ -124,11 +124,11 @@ class ListCdeFrnController extends Controller
     {
         foreach ($datas as $data) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($data['num_dit']);
-            $daValider = $this->daValiderRepository->findOneBy([
-                'numeroVersion' => $numeroVersionMax,
-                'numeroDemandeDit' => $data['num_dit'],
+            $daValider = $this->daValiderRepository->getDaValider(
+                $numeroVersionMax,
+                $data['num_dit'],
                 $criteria
-            ]);
+            );
             if ($daValider) {
                 //modification statut bc ou cde dans la table da_valider
                 $this->modificationStatutDaValider($daValider);

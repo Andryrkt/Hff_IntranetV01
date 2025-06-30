@@ -288,7 +288,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-            $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltereds->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+            $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
             if (array_key_exists(0, $qte)) {
                 if ($daValider) {
@@ -306,7 +306,7 @@ class DaListeController extends Controller
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDAL() as $dal) {
                 $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-                $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltereds->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
                 if ($daValider) {
                     $statutBc = $this->statutBc($dal->getArtRefp(), $dasFiltered->getNumeroDemandeDit());
                     $daValider->setStatutCde($statutBc);
