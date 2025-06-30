@@ -101,13 +101,14 @@ class DaListeDitController extends Controller
         $paginationData = $this->data($request, $option, $criteria);
 
         self::$twig->display('da/list-dit.html.twig', [
-            'data'          => $paginationData['data'] ?? null,
-            'currentPage'   => $paginationData['currentPage'] ?? 0,
-            'totalPages'    => $paginationData['lastPage'] ?? 0,
-            'criteria'      => $criteriaTab,
-            'resultat'      => $paginationData['totalItems'] ?? 0,
-            'statusCounts'  => $paginationData['statusCounts'] ?? 0,
-            'form'          => $form->createView(),
+            'data'            => $paginationData['data'] ?? null,
+            'currentPage'     => $paginationData['currentPage'] ?? 0,
+            'totalPages'      => $paginationData['lastPage'] ?? 0,
+            'criteria'        => $criteriaTab,
+            'resultat'        => $paginationData['totalItems'] ?? 0,
+            'statusCounts'    => $paginationData['statusCounts'] ?? 0,
+            'form'            => $form->createView(),
+            'formIsSubmitted' => $form->isSubmitted(),
         ]);
     }
 }
