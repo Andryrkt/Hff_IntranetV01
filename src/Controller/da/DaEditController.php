@@ -88,6 +88,37 @@ class DaEditController extends Controller
         ]);
     }
 
+    /** 
+     * @Route("/delete-line-da/{id}",name="da_delete_line_da")
+     */
+    public function deleteLineDa(int $id)
+    {
+        $this->verifierSessionUtilisateur();
+
+        /** @var DemandeApproL $demandeApproL la ligne de demande appro correspondant à l'id $id */
+        $demandeApproL = self::$em->getRepository(DemandeApproL::class)->find($id);
+
+        if ($demandeApproL) {
+            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
+                'numeroDemandeAppro' => $demandeApproL->getNumeroDemandeAppro(),
+                'numeroLigneDem' => $demandeApproL->getNumeroLigne()
+            ]);
+
+            foreach ($demandeApproLRs as $demandeApproLR) {
+                self::$em->remove($demandeApproLR);
+            }
+            self::$em->remove($demandeApproL);
+            self::$em->flush();
+
+            $notifType = "success";
+            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
+        } else {
+            $notifType = "danger";
+            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+        }
+        $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->redirectToRoute("da_list");
+    }
 
     /**
      * @Route("/delete-edit-ligne/{ligne}/{idDit}/{numeroVersionMax}", name="da_edit_delete_ligne")

@@ -71,6 +71,7 @@
 					<th class="text-center">Qté dem</th>
 					<th class="text-center">Date fin souhaitée</th>
 					<th class="text-center">Nbr Jour(s) dispo</th>
+					<th class="text-center">Suppression</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -179,6 +180,9 @@
 							<td class="text-center {{classe}}">{{ dal.qteDem }}</td>
 							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
 							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
+							<td class="text-center">
+								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-id="{{ dal.id }}"></i>
+							</td>
 						</tr>
 					{% endfor %}
 				{% endfor %}
