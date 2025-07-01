@@ -33,6 +33,8 @@ class User implements UserInterface
 {
     use DateTrait;
 
+    public const PROFIL_CHEF_ATELIER = 9;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
