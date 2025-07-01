@@ -71,6 +71,7 @@
 					<table class="table rounded table-plein-ecran mt-4">
 						<thead class="table-dark text-center">
 							<tr>
+								<th></th>
 								<th class="text-start">Famille</th>
 								<th class="text-start">Sous-famille</th>
 								<th class="text-start">Désignation</th>
@@ -86,11 +87,17 @@
 						</thead>
 						<tbody>
 							{% for DAL in demandeAppro.DAL %}
-								<tr>
+								<tr class="parent-row fw-bold align-middle">
+									<td>
+										<button class="btn btn-outline-primary btn-sm rounded-circle toggle-btn">
+											<i class="fas fa-plus"></i>
+										</button>
+									</td>
 									<td>{{ DAL.artFams1 ?? '-' }}</td>
 									<td>{{ DAL.artFams2 ?? '-' }}</td>
 									<td>
-										<a href="#" data-bs-toggle="modal" data-bs-target="#modalDal{{ DAL.id }}">{{ DAL.artDesi }}</a>
+										{# <a href="#" data-bs-toggle="modal" data-bs-target="#modalDal{{ DAL.id }}">{{ DAL.artDesi }}</a> #}
+										{{ DAL.artDesi }}
 									</td>
 									<td>{{ DAL.nomFournisseur }}</td>
 									<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
@@ -129,6 +136,56 @@
 										{% endif %}
 									</td>
 								</tr>
+							{% if DAL.demandeApproLR is empty %}
+								<tr class="child-row" style="display: none;">
+									<td colspan="12" class="text-center">Aucune ligne de proposition de l'APPRO</td>
+								</tr>
+							{% else %}
+								{% for item in DAL.demandeApproLR %}
+									<tr class="child-row" style="display: none;">
+										<td></td>
+										<td class="text-start">{{ item.artFams1 ?? '-' }}</td>
+										<td class="text-start">{{ item.artFams2 ?? '-' }}</td>
+										<td class="text-start">{{ item.artDesi }}</td>
+										<td class="text-start">{{ item.nomFournisseur }}</td>
+										<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+										<td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
+										<td class="text-center">{{ item.qteDispo ?? '-' }}</td>
+										<td class="text-start">{{ item.motif }}</td>
+										<td class="text-start">
+										{% if item.fileNames|length > 0 %}
+											<ul class="mb-0 px-0">
+												{% for file in item.fileNames %}
+													<li>
+														<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+													</li>
+												{% endfor %}
+											</ul>
+										{% else %}
+											Aucune pièce jointe
+										{% endif %}
+										</td>
+										<td class="text-start">
+											{% if DAL.estFicheTechnique %}
+												{% if item.nomFicheTechnique %}
+													<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.nomFicheTechnique }}" target="_blank">{{ item.nomFicheTechnique }}</a>
+												{% else %}
+													Fiche technique pas encore attachée
+												{% endif %}
+											{% else %}
+												NON	
+											{% endif %}
+										</td>
+										<td class="text-center">
+											{% if item.choix %}
+												<i class="fas fa-check text-success"></i>
+											{% else %}
+												<i class="fas fa-xmark text-danger"></i>
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							{% endif %}
 							{% endfor %}
 						</tbody>
 					</table>
