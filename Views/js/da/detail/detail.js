@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
   /** Toggle button pour le + et - */
   document.querySelectorAll(".toggle-btn").forEach(function (button) {
     button.addEventListener("click", function () {
-      const parentRow = button.closest("tr");
+      const icon = this.querySelector("i");
+      const parentRow = this.closest("tr");
       let nextRow = parentRow.nextElementSibling;
 
       // Toggle les lignes enfants jusqu'à ce qu'on tombe sur une nouvelle ligne parente
@@ -21,7 +22,8 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // Change le bouton de + à - et inversement
-      button.textContent = button.textContent === "+" ? "-" : "+";
+      icon.classList.toggle("fa-chevron-down");
+      icon.classList.toggle("fa-chevron-up");
     });
   });
 });
