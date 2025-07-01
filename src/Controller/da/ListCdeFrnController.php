@@ -152,6 +152,9 @@ class ListCdeFrnController extends Controller
 
                 //ajout date livraison prévu
                 $datas[$key]['date_livraison_prevue'] = $daValider->getDateLivraisonPrevue();
+
+                //ajout de l'id de la DIT
+                $datas[$key]['id_dit'] = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $daValider->getNumeroDemandeDit()])->getId();
             }
         }
 
