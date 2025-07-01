@@ -95,19 +95,28 @@ class DaEditController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        /** @var DemandeApproL $demandeApproL la ligne de demande appro correspondant à l'id $id */
-        $demandeApproL = self::$em->getRepository(DemandeApproL::class)->find($id);
+        /** @var DemandeApproL $demandeApproLVersionMax la ligne de demande appro correspondant à l'id $id */
+        $demandeApproLVersionMax = self::$em->getRepository(DemandeApproL::class)->find($id);
 
-        if ($demandeApproL) {
-            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
-                'numeroDemandeAppro' => $demandeApproL->getNumeroDemandeAppro(),
-                'numeroLigneDem' => $demandeApproL->getNumeroLigne()
+        if ($demandeApproLVersionMax) {
+            $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
+                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
+                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
             ]);
+
+            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
+                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
+                'numeroLigneDem' => $demandeApproLVersionMax->getNumeroLigne()
+            ]);
+
+            foreach ($demandeApproLs as $demandeApproL) {
+                self::$em->remove($demandeApproL);
+            }
 
             foreach ($demandeApproLRs as $demandeApproLR) {
                 self::$em->remove($demandeApproLR);
             }
-            self::$em->remove($demandeApproL);
+
             self::$em->flush();
 
             $notifType = "success";
