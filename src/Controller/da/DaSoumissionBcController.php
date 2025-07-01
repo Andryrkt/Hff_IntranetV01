@@ -113,7 +113,7 @@ class DaSoumissionBcController extends Controller
                 $this->genererPdfDa->copyToDWBcDa($nomPdfFusionner, $numDa);
 
                 /** modification du table da_valider */
-                $this->modificationDaValider($numCde);
+                $this->modificationDaValider($numDa, $numCde);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -122,14 +122,20 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function modificationDaValider(string $numCde): void
+    
+    private function modificationDaValider(string $numDa, string $numCde): void
     {
-        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
-        $daValider = $this->daValiderRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numeroVersionMaxCde]);
-        if ($daValider) {
-            $daValider->setStatutCde(self::STATUT_SOUMISSION)
-                ->setNumeroCde($numCde);
-            self::$em->persist($daValider);
+        $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde]);
+        if (!empty($daValiders)) {
+            foreach ($daValiders as $key => $daValider) {
+                $daValider
+                    ->setStatutCde(self::STATUT_SOUMISSION)
+                    ->setNumeroCde($numCde)
+                ;
+                self::$em->persist($daValider);
+            }
+            
             self::$em->flush();
         }
     }

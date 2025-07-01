@@ -289,12 +289,14 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-            $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+            $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
-            if (array_key_exists(0, $qte) && $daValider) {
-                $daValider->setQteLivrer((int)$qte[0]['qte_a_livrer']);
-                $daValider->setQteALivrer((int)$qte[0]['qte_livee']);
-                self::$em->persist($daValider);
+            if (array_key_exists(0, $qte) && !empty($daValiders)) {
+                foreach ($daValiders as $key => $daValider) {
+                    $daValider->setQteLivrer((int)$qte[0]['qte_a_livrer']);
+                    $daValider->setQteALivrer((int)$qte[0]['qte_livee']);
+                    self::$em->persist($daValider);
+                }
             }
         }
         self::$em->flush();
@@ -307,7 +309,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
-                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit());
+                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $daValider->getArtDesi());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);
                 }

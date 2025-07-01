@@ -157,11 +157,18 @@ class DitOrsSoumisAValidationController extends Controller
         $numDa = $this->demandeApproRepository->getNumDa($numDit);
         if ($numDa) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-            $daValider->setNumeroOr($numOr)
-                ->setStatutOr('Soumis à validation');
-            self::$em->persist($daValider);
-            self::$em->flush();
+            $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+            if(!empty($daValiders)) {
+
+                foreach ($daValiders as $key => $daValider) {
+                    $daValider
+                    ->setNumeroOr($numOr)
+                    ->setStatutOr('Soumis à validation')
+                    ;
+                    self::$em->persist($daValider);
+                }
+                self::$em->flush();
+            }
         }
     }
 

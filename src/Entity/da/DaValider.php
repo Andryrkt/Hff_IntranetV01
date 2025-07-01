@@ -83,11 +83,11 @@ class DaValider
     /**
      * @ORM\Column(type="integer", name="qte_a_livrer")
      */
-    private int $qteALivrer;
+    private ?int $qteALivrer = 0;
     /**
      * @ORM\Column(type="integer", name="qte_livrer")
      */
-    private int $qteLivrer;
+    private ?int $qteLivrer = 0;
 
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
@@ -1032,5 +1032,23 @@ class DaValider
             ->setValidePar($dalr->getValidePar())
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
+    }
+
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr(): string
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     */
+    public function setStatutOr(string $statutOr): self
+    {
+        $this->statutOr = $statutOr;
+
+        return $this;
     }
 }

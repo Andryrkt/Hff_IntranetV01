@@ -69,6 +69,7 @@
 					<th class="text-center">Qté en attente</th>
 					<th class="text-center">Qté Dispo (Qté à livrer)</th>
 					<th class="text-center">Qté livrée</th>
+					<th class="text-center">Date livraison prevue</th>
 					<th class="text-center">Nb jours dispo</th>
 				</tr>
 			</thead>
@@ -120,7 +121,8 @@
 						<td class="text-center">{{ item.qte_reliquat == 0 ? '-': item.qte_reliquat }}</td>
 						<td class="text-center">{{ item.qte_a_livrer == 0 ? '-': item.qte_a_livrer }}</td>
 						<td class="text-center">{{ item.qte_livee == 0 ? '-': item.qte_livee }}</td>
-						<td class="text-center">{{ item.jours_dispo == 0}}</td>
+						<td class="text-center">{{ item.date_livraison_prevue | date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.jours_dispo}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

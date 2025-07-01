@@ -34,7 +34,7 @@ class ListCdeFrnController extends Controller
     private const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
 
     private DaListeCdeFrnModel $daListeCdeFrnModel;
-    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproRepository $daRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -47,7 +47,7 @@ class ListCdeFrnController extends Controller
     {
         parent::__construct();
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
@@ -99,7 +99,7 @@ class ListCdeFrnController extends Controller
 
     private function recuperationDonner(array $criteria): array
     {
-        $numDits = $this->demandeApproRepository->getNumDit();
+        $numDits = $this->daRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
 
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
@@ -128,12 +128,13 @@ class ListCdeFrnController extends Controller
                 $numeroVersionMax,
                 $data['num_dit'],
                 $data['reference'],
+                $data['designation'],
                 $criteria
             );
             if ($daValider) {
-                //modification statut bc ou cde dans la table da_valider
-                $this->modificationStatutDaValider($daValider);
-
+                    //modification statut bc ou cde dans la table da_valider
+                    $this->modificationStatutDaValider($daValider, $data['num_cde']);
+                
                 //ajout du numero demande appro
                 $datas[$key]['num_da'] = $daValider->getNumeroDemandeAppro();
 
@@ -148,16 +149,22 @@ class ListCdeFrnController extends Controller
 
                 //ajout du nombre de jours dispo
                 $datas[$key]['jours_dispo'] = $daValider->getJoursDispo();
+
+                //ajout date livraison prévu
+                $datas[$key]['date_livraison_prevue'] = $daValider->getDateLivraisonPrevue();
             }
         }
 
         return $datas;
     }
 
-    private function modificationStatutDaValider(DaValider $daValider)
+    private function modificationStatutDaValider(DaValider $daValider, string $numCde = '')
     {
-        $statutBc = $this->statutBcCde($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroCde());
-        $daValider->setStatutCde($statutBc);
+        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getArtDesi());
+        $daValider
+            ->setStatutCde($statutBc)
+            ->setNumeroCde($numCde)
+        ;
         self::$em->persist($daValider);
         self::$em->flush();
     }
