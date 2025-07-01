@@ -76,11 +76,12 @@
 								<th class="text-start">Désignation</th>
 								<th class="text-start">Fournisseur</th>
 								<th class="text-start">Date fin souhaitée</th>
-								<th class="text-center">Prix Unitaire</th>
-								<th class="text-center">Quantité</th>
-								<th class="text-start">Commentaire</th>
+								<th class="text-end">Prix Unitaire</th>
+								<th class="text-center">Quantité dem / dispo</th>
+								<th class="text-start">Commentaire / motif</th>
 								<th class="text-start">Pièces jointes</th>
 								<th class="text-start">Fiche technique</th>
+								<th class="text-center">Choix</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -118,6 +119,13 @@
 											{% endif %}
 										{% else %}
 											NON
+										{% endif %}
+									</td>
+									<td class="text-center">
+										{% if DAL.demandeApproLR is empty %}
+											<i class="fas fa-check text-success"></i>
+										{% else %}
+											<i class="fas fa-xmark text-danger"></i>
 										{% endif %}
 									</td>
 								</tr>
