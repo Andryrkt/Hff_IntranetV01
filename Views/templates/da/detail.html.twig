@@ -84,6 +84,7 @@
 								<th class="text-start">Pièces jointes</th>
 								<th class="text-start">Fiche technique</th>
 								<th class="text-center">Choix</th>
+								<th class="text-center">Suppression</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -136,10 +137,13 @@
 											<i class="fas fa-xmark text-danger"></i>
 										{% endif %}
 									</td>
+									<td class="text-center">
+										<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-id="{{ DAL.id }}"></i>
+									</td>
 								</tr>
 							{% if DAL.demandeApproLR is empty %}
 								<tr class="child-row" style="display: none;">
-									<td colspan="12" class="text-center">Aucune ligne de proposition de l'APPRO</td>
+									<td colspan="13" class="text-center">Aucune ligne de proposition de l'APPRO</td>
 								</tr>
 							{% else %}
 								{% for item in DAL.demandeApproLR %}
@@ -184,6 +188,7 @@
 												<i class="fas fa-xmark text-danger"></i>
 											{% endif %}
 										</td>
+										<td></td>
 									</tr>
 								{% endfor %}
 							{% endif %}
