@@ -119,6 +119,7 @@ class DaPropositionRefController extends Controller
             // ✅ Récupérer les valeurs des champs caché
             $dalrList = $form->getData()->getDALR();
             $observation = $form->getData()->getObservation();
+            $statutChange = $form->get('statutChange')->getData();
 
             if ($request->request->has('enregistrer')) {
                 /** Envoyer proposition à l'atelier */
@@ -126,8 +127,37 @@ class DaPropositionRefController extends Controller
             } elseif ($request->request->has('changement')) {
                 /** Valider les articles */
                 $this->traitementPourBtnValider($request, $dals, $numDa, $dalrList, $observation, $da);
+            } elseif ($request->request->has('observation')) {
+                /** Envoyer observation */
+                $this->traitementPourBtnEnvoyerObservation($observation, $numDa, $statutChange);
             }
         }
+    }
+
+    /** 
+     * Traitement pour le cas où c'est envoi d'observation
+     */
+    private function traitementPourBtnEnvoyerObservation($observation, $numDa, $statutChange)
+    {
+        if ($observation !== null) {
+            $this->insertionObservation($observation, $numDa);
+            if ($statutChange) {
+                $this->modificationStatutDal($numDa, DemandeAppro::STATUT_SOUMIS_APPRO);
+                $this->modificationStatutDa($numDa, DemandeAppro::STATUT_SOUMIS_APPRO);
+            }
+            $notification = [
+                'type' => 'success',
+                'message' => 'Votre observation a été enregistré avec succès.',
+            ];
+        } else {
+            $notification = [
+                'type' => 'danger',
+                'message' => 'Echec: Pas d\'observation.',
+            ];
+        }
+
+        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->redirectToRoute("da_list");
     }
 
     /** 
@@ -328,8 +358,8 @@ class DaPropositionRefController extends Controller
             $this->insertionObservation($observation, $numDa);
         }
 
-        $this->modificationStatutDal($numDa);
-        $this->modificationStatutDa($numDa);
+        $this->modificationStatutDal($numDa, DemandeAppro::STATUT_SOUMIS_ATE);
+        $this->modificationStatutDa($numDa, DemandeAppro::STATUT_SOUMIS_ATE);
 
         return $this->notification('success', $messageSuccess);
     }
@@ -455,13 +485,13 @@ class DaPropositionRefController extends Controller
         $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
     }
 
-    private function modificationStatutDal(string $numDa): void
+    private function modificationStatutDal(string $numDa, string $statut): void
     {
         $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal($this->statutDa());
+            $dal->setStatutDal($statut);
             $dal->setEdit(self::EDIT);
             self::$em->persist($dal);
         }
@@ -469,10 +499,10 @@ class DaPropositionRefController extends Controller
         self::$em->flush();
     }
 
-    private function modificationStatutDa(string $numDa): void
+    private function modificationStatutDa(string $numDa, string $statut): void
     {
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal($this->statutDa());
+        $da->setStatutDal($statut);
 
         self::$em->persist($da);
         self::$em->flush();
