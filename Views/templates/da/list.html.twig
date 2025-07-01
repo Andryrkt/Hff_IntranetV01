@@ -62,6 +62,7 @@
 					<th class="text-center">Statut BC</th>
 					<th>Famille</th>
 					<th>Sous-famille</th>
+					<th>Fournisseur</th>
 					{% if not serviceAtelier %}
 						<th>Réference</th>
 					{% endif %}
@@ -155,6 +156,7 @@
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }}">{{dal.statutBc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
+							<td class="text-start">{{ dalAffiche.nomFournisseur }}</td>
 							{% if not serviceAtelier %}
 								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
 							{% endif %}
