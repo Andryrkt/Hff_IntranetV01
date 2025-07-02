@@ -74,7 +74,7 @@
             <tr class="parent-row align-middle">
                 <td class="text-center p-1">
                     <button class="btn btn-outline-primary btn-sm rounded toggle-btn pb-0">
-                        <i class="fas fa-chevron-down"></i>
+                        <i class="fas fa-chevron-up"></i>
                     </button>
                 </td>
                 <td>{{ DAL.artFams1 ?? '-' }}</td>
@@ -124,12 +124,12 @@
                 </td>
             </tr>
         {% if DAL.demandeApproLR is empty %}
-            <tr class="child-row" style="display: none;">
+            <tr class="child-row">
                 <td colspan="13" class="text-center">Aucune ligne de proposition de l'APPRO</td>
             </tr>
         {% else %}
             {% for item in DAL.demandeApproLR %}
-                <tr class="child-row" style="display: none;">
+                <tr class="child-row">
                     <td></td>
                     <td class="text-start">{{ item.artFams1 ?? '-' }}</td>
                     <td class="text-start">{{ item.artFams2 ?? '-' }}</td>
