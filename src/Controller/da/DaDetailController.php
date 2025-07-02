@@ -130,7 +130,10 @@ class DaDetailController extends Controller
 	 */
 	private function insertionObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
 	{
+		$text = str_replace(["\r\n", "\n", "\r"], "<br>", $daObservation->getObservation());
+
 		$daObservation
+			->setObservation($text)
 			->setNumDa($demandeAppro->getNumeroDemandeAppro())
 			->setUtilisateur($this->getUser()->getNomUtilisateur())
 		;
