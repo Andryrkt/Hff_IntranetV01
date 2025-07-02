@@ -31,7 +31,6 @@ class DaEditController extends Controller
     use DemandeApproTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;

@@ -24,8 +24,6 @@ class DaValidationController extends Controller
     use DaTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
-
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;

@@ -32,8 +32,6 @@ class DaPropositionRefController extends Controller
     use DaTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
-    private const ID_APPRO = 16;
     private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 

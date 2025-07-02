@@ -36,9 +36,6 @@ class DaListeController extends Controller
     use lienGenerique;
     use DaTrait;
 
-    private const ID_ATELIER = 3;
-    private const ID_APPRO = 16;
-
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DemandeApproLRepository $daLRepository;
