@@ -181,7 +181,9 @@
 							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
 							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 							<td class="text-center">
-								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-id="{{ dal.id }}"></i>
+								{% if serviceAppro and dal.statutDal == 'Demande d’achats' or serviceAtelier and dal.statutDal == 'Proposition achats' %}
+									<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-id="{{ dal.id }}"></i>
+								{% endif %}
 							</td>
 						</tr>
 					{% endfor %}
