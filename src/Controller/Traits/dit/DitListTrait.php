@@ -553,7 +553,7 @@ trait DitListTrait
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 50;
+        $limit = 20;
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
@@ -591,21 +591,24 @@ trait DitListTrait
     private function ajoutConditionAnnulationDit($datas, $ditListeModel)
     {
         foreach ($datas as $data) {
-            $estAnnulable = $this->conditionAnnulationDit($datas, $ditListeModel);
+            $estAnnulable = $this->conditionAnnulationDit($data, $ditListeModel);
             $data->setEstAnnulable($estAnnulable);
         }
     }
 
-    private function conditionAnnulationDit($datas, $ditListeModel): bool
+    private function conditionAnnulationDit($data, $ditListeModel): bool
     {
         $estAnnulable = false; //cacher le boutton Annuler
-        foreach ($datas as $data) {
-            $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER; //si le statut dit est A_AFFECTER
-            $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && $data->getUtilisateurDemandeur() === $this->getUser()->getNomUtilisateur() && in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds()); //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté et profil de l'utilisateur connecté est CHEF_ATELIER
-            $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0; //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
-            if ($condition1 || $condition2 || $condition3) {
-                $estAnnulable =  true; //affichage du boutton Annuler
-            }
+
+        //si le statut dit est A_AFFECTER
+        $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
+        //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté et profil de l'utilisateur connecté est CHEF_ATELIER
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && $data->getUtilisateurDemandeur() === $this->getUser()->getNomUtilisateur() && in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds());
+        //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
+        $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
+
+        if ($condition1 || $condition2 || $condition3) {
+            $estAnnulable =  true; //affichage du boutton Annuler
         }
 
         return $estAnnulable;
