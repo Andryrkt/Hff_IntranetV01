@@ -66,3 +66,124 @@
 .border-top-left-radius-0 {
   border-top-left-radius: 0 !important;
 }
+
+/* CONVERSATION */
+.conversation {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+}
+.conversation .header-time {
+  align-self: center;
+  font-size: 0.6rem !important;
+  color: #6c757d;
+}
+.talk {
+  color: #f1f1f1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.talk .msg {
+  position: relative;
+  padding: 7px 10px 3px;
+  border-radius: 10px;
+}
+
+.talk .msg::after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.right .msg::after {
+  display: none;
+}
+
+.talk .msg p {
+  margin-bottom: 0 !important;
+}
+
+.right {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.right .msg {
+  background: #ffc107;
+  color: black;
+}
+.right .file-comment {
+  background-color: #ffc10880;
+}
+.left .msg::after {
+  border-width: 0px 10px 10px 0;
+  border-color: transparent #d8d8d8 transparent transparent;
+  top: 0;
+  left: -10px;
+}
+.left .msg {
+  margin-left: 10px;
+  border-top-left-radius: 0 !important;
+  background: #d8d8d8;
+  color: #000;
+}
+.left .file-comment {
+  background-color: #d8d8d880;
+  transform: translateX(10px);
+}
+.msg-file {
+  display: flex;
+  flex-direction: column;
+}
+.user {
+  display: block;
+  width: 60px;
+  align-self: flex-start;
+  text-align: center;
+}
+.user span {
+  color: #212529;
+}
+
+.error-message {
+  display: none;
+}
+
+.icon-user {
+  margin: auto;
+  margin-bottom: 5px !important;
+  width: 25px;
+  height: 25px;
+  color: #000;
+  background-color: #d8d8d8;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.icon-user i {
+  font-size: 1.2rem;
+  transform: translateY(2px);
+}
+
+.msg .time {
+  font-size: 0.7rem;
+  color: #6c757d;
+  margin-top: 3px;
+  float: right;
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+.msg .time:before {
+  content: "\f017";
+  color: #6c757d;
+  font-family: FontAwesome;
+  display: inline-block;
+  margin-right: 4px;
+}

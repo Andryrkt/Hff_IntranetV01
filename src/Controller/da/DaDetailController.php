@@ -69,6 +69,7 @@ class DaDetailController extends Controller
 			'numSerie'          => $dataModel[0]['num_serie'],
 			'numParc'           => $dataModel[0]['num_parc'],
 			'dit'               => $dit,
+			'connectedUser'     => $this->getUser(),
 			// 'idDit'             => $id,
 			// 'numeroVersionMax'  => $numeroVersionMax,
 			// 'numDa'             => $numDa,
