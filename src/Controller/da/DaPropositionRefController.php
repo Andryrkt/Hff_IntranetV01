@@ -149,6 +149,15 @@ class DaPropositionRefController extends Controller
                 'type' => 'success',
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
+
+            /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
+            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+            $this->envoyerMailObservation([
+                'numDa'         => $numDa,
+                'observation'   => $observation,
+                'service'       => $service,
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
         } else {
             $notification = [
                 'type' => 'danger',
@@ -478,6 +487,31 @@ class DaPropositionRefController extends Controller
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'ATELIER",
                 'tab'        => $tab,
                 'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
+            ]
+        ];
+        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+    }
+
+    /** 
+     * Fonctions pour envoyer un mail sur l'observation à la service Appro 
+     */
+    private function envoyerMailObservation(array $tab)
+    {
+        $email       = new EmailService;
+
+        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : DemandeAppro::MAIL_ATELIER;
+
+        $content = [
+            'to'        => $to,
+            // 'cc'        => array_slice($emailValidateurs, 1),
+            'template'  => 'da/email/emailDa.html.twig',
+            'variables' => [
+                'statut'     => "commente",
+                'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
+                'tab'        => $tab,
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
