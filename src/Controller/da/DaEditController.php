@@ -207,12 +207,6 @@ class DaEditController extends Controller
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
-    private function estUserDansServiceAtelier()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
-    }
-
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
     {
         $form->handleRequest($request);

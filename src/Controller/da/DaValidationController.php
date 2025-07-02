@@ -86,12 +86,6 @@ class DaValidationController extends Controller
         $this->redirectToRoute("da_list");
     }
 
-    private function estUserDansServiceAtelier(): bool
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
-    }
-
     private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire): DemandeAppro
     {
         /** @var DemandeAppro */

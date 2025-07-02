@@ -94,18 +94,6 @@ class DaPropositionRefController extends Controller
         ]);
     }
 
-    private function estUserDansServiceAtelier()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
-    }
-
-    private function estUserDansServiceAppro()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_APPRO, $serviceIds);
-    }
-
     private function nePeutPasModifier($demandeAppro)
     {
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
