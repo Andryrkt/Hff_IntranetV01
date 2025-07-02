@@ -9,7 +9,8 @@
     <div class="col-8 col-md-8">
         <div class="card">
             <div class="card-body bg-light">
-                <div class="conversation mt-3">
+            <div class="overflow-auto pe-1" style="max-height: 60vh;" id="conversationContainer">
+                <div class="conversation">
                 {% set dateTemp = null %}
                 {% for observation in observations %}
                     {% if dateTemp != observation.dateCreation|date('d/m/Y') %}
@@ -45,6 +46,7 @@
                         </div>
                 {% endfor %}
                 </div>
+            </div>
 
                 {# {% for observation in observations %}
                     <p class="mb-0">

@@ -36,9 +36,9 @@
 			</div>
 		</div>
 	</div>
-	{% for DAL in demandeAppro.DAL %}
+	{# {% for DAL in demandeAppro.DAL %}
 		{{ include('da/shared/listeDA/_modalDal.html.twig', { DAL: DAL }) }}
-	{% endfor %}
+	{% endfor %} #}
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/detail/detail.js" type="module"></script>

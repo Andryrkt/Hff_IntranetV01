@@ -60,7 +60,7 @@ class DaDetailController extends Controller
 
 		$this->traitementFormulaire($form, $request, $demandeAppro);
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		self::$twig->display('da/detail.html.twig', [
 			'form'				=> $form->createView(),
