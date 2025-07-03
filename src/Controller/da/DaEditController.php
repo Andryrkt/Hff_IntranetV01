@@ -31,7 +31,6 @@ class DaEditController extends Controller
     use DemandeApproTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
@@ -204,13 +203,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
-    }
-
-    private function estUserDansServiceAtelier()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_AUTORISER_MODIF_ATE));
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
@@ -326,7 +319,7 @@ class DaEditController extends Controller
             ; // Incrémenter le numéro de version
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
-            $this->deleteDALR($demandeApproL);
+            // $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }

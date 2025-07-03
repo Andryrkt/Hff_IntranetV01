@@ -83,7 +83,6 @@
 					</div>
 				</div>
 			</div>
-
 		</div>
 		{{ form_end(form) }}
 		<div class="card">
@@ -95,7 +94,7 @@
 							<b>{{observation.utilisateur}}</b>
 							<small>{{observation.dateCreation|date('d/m/Y H:i')}}</small>
 						</p>
-						<p>{{observation.observation}}</p>
+						<p>{{observation.observation|raw}}</p>
 					{% endfor %}
 				</div>
 			</div>

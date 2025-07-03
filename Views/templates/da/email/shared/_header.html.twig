@@ -5,12 +5,19 @@
 		PROPOSITION(S) 
 		<span class="validationDa">
 			VALIDÉE(S) PAR L’
-			{% if tab.service is same as 'atelier' %}
+			{% if tab.service == 'atelier' %}
 				ATELIER
-			{% elseif tab.service is same as 'appro' %}
+			{% elseif tab.service == 'appro' %}
 				APPRO
 			{% endif %}
 		</span>
+	{% elseif statut == 'commente' %}
+		OBSERVATION AJOUTÉE PAR L’
+			{% if tab.service == 'atelier' %}
+				ATELIER
+			{% elseif tab.service == 'appro' %}
+				APPRO
+			{% endif %}
 	{% else %}
 	DEMANDE D'APPROVISIONNEMENT
 	<span class="{{ statut }}">

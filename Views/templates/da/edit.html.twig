@@ -97,7 +97,7 @@
 							<div id="demande_appro_form_DAL_{{ ligne }}" class="DAL-container">
 								<div class="row g-3">
 									<div class="w-10">
-										{{ form_widget(DAL.codeFams1, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.codeFams1, { 'attr': { class:"non-modifiable" } }) }}
 									</div>
 									<div class="w-10">
 										<div class="spinner-container">
@@ -117,11 +117,11 @@
 											</div>
 										</div>
 										<div id="container_{{ ligne }}_codeFams2">
-											{{ form_widget(DAL.codeFams2, { 'attr': { 'disabled': peutModifier } }) }}
+											{{ form_widget(DAL.codeFams2, { 'attr': { class:"non-modifiable" } }) }}
 										</div>
 									</div>
 									<div class="w-20">
-										{{ form_widget(DAL.artDesi, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
 											<div class="text-overlay">
@@ -131,7 +131,7 @@
 										</div>
 									</div>
 									<div class="w-10">
-										{{ form_widget(DAL.nomFournisseur, { 'attr': { 'disabled': peutModifier } }) }}
+										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>

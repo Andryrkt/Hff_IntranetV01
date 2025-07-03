@@ -22,7 +22,12 @@
   height: 90px !important;
   align-items: unset !important;
 }
-
+.non-modifiable {
+  background-color: #e9ecef;
+  color: #212529;
+  pointer-events: none !important;
+  opacity: 1;
+}
 a.choix {
   width: 300px;
   background: #fbbb01;
@@ -327,6 +332,9 @@ a.choix:hover {
 }
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
+}
+.bg-creation-demande-initiale {
+  background-color: #fbbb01 !important;
 }
 
 /* Pour les statuts de l'OR */
