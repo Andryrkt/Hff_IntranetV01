@@ -582,7 +582,7 @@ trait DitListTrait
 
         $this->ajoutDateEtMontantOR($paginationData['data'], $em);
 
-        $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
+        // $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
 
         // dd($paginationData['data']);
         return $paginationData;
