@@ -197,7 +197,7 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(string $numDit)
+    public function getEvolutionQte(?string $numDit, $plusPrecie = false, string $ref = '', string $designation = '')
     {
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,
@@ -224,6 +224,11 @@ class DaModel extends Model
                 and seor_refdem='$numDit'
         ";
 
+        if ($plusPrecie) {
+            $statement .= " AND slor_refp = '$ref'
+                and slor_desi = '$designation'
+                ";
+        }
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

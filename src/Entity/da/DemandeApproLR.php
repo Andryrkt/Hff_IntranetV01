@@ -181,6 +181,18 @@ class DemandeApproLR
      */
     private ?string $statutDal;
 
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     */
+    private ?string $numeroDemandeDit;
+
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     *
+     * @var integer | null
+     */
+    private ?int $joursDispo;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -833,6 +845,50 @@ class DemandeApproLR
     public function setStatutDal($statutDal)
     {
         $this->statutDal = $statutDal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDit
+     */
+    public function getNumeroDemandeDit()
+    {
+        return $this->numeroDemandeDit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDit($numeroDemandeDit)
+    {
+        $this->numeroDemandeDit = $numeroDemandeDit;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */ 
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $joursDispo  | null
+     *
+     * @return  self
+     */ 
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
 
         return $this;
     }

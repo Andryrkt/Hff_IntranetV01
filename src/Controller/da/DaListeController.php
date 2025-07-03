@@ -327,7 +327,7 @@ class DaListeController extends Controller
         foreach ($dasFiltereds as $dasFiltered) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-            $qtes = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
+            $qtes = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit(), false);
             if (array_key_exists(0, $qtes) && !empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
                     foreach ($qtes as $qte) {

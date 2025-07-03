@@ -779,6 +779,8 @@ class DaPropositionRefController extends Controller
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
                 ->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE)
+                ->setNumeroDemandeDit($DAL->getNumeroDit())
+                ->setJoursDispo($DAL->getJoursDispo())
             ;
 
             if ($file) {
