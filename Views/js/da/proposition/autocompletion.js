@@ -34,7 +34,6 @@ export function autocompleteTheField(
     codeFams1 = safeValue(famille.value);
     codeFams2 = safeValue(sousFamille.value);
   }
-  const numPages = localStorage.getItem("currentTab");
 
   // const isCatalogueInput = document.querySelector(`#catalogue_${numPages}`);
 
@@ -62,8 +61,7 @@ export function autocompleteTheField(
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
-    onBlurCallback: (found) =>
-      onBlurEvents(found, designation, fieldName, numPages),
+    onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
   });
 }
 
@@ -75,7 +73,8 @@ function getFieldByGeneratedId(baseId, suffix) {
   return document.getElementById(baseId.replace("artDesi", suffix));
 }
 
-function onBlurEvents(found, designation, fieldName, numPage) {
+function onBlurEvents(found, designation, fieldName) {
+  const numPage = localStorage.getItem("currentTab");
   if (designation.value.trim() !== "") {
     const desi = `designation_${numPage}`;
 
@@ -99,7 +98,6 @@ function onBlurEvents(found, designation, fieldName, numPage) {
           field.classList.add("text-danger");
           if (field.id.includes(`PU_${numPage}`)) {
             field.parentElement.classList.remove("d-none"); // afficher le div container du PU
-            field.value = 0;
           }
           if (field.id.includes(`numeroFournisseur_${numPage}`)) {
             field.value = 0;
