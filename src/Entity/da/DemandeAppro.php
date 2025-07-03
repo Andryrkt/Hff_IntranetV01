@@ -23,11 +23,14 @@ class DemandeAppro
     use DateTrait;
     use DaTrait;
 
+    public const ID_ATELIER = 3;
+    public const ID_APPRO = 16;
     public const STATUT_VALIDE = 'Bon d’achats validé';
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
+    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
-    public const MAIL_ATELIER = 'nomenjanahary.randrianantenaina@hff.mg';
-    public const MAIL_APPRO = 'nomenjanahary.randrianantenaina@hff.mg';
+    public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
+    public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
 
     /**
      * @ORM\Id

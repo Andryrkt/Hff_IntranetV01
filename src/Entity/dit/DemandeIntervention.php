@@ -36,6 +36,13 @@ class DemandeIntervention
     use BilanFinancierMaterielTrait;
     use QuantiteDitTrait;
 
+    public const STATUT_A_AFFECTER = 50;
+    public const STATUT_AFFECTEE_SECTION = 51;
+    public const STATUT_CLOTUREE_ANNULEE = 52;
+    public const STATUT_CLOTUREE_VALIDER = 53;
+    public const STATUT_CLOTUREE_HORS_DELAI = 54;
+    public const STATUT_TERMINER = 57;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -520,6 +527,8 @@ class DemandeIntervention
     private $dateSoumissionOR;
 
     private $montantTotalOR;
+
+    private bool $estAnnulable = false;
 
     /** ===================================================================================================================
      * 
@@ -1631,9 +1640,9 @@ class DemandeIntervention
         return $this;
     }
 
-        /**
+    /**
      * Get the value of dateSoumissionOR
-     */ 
+     */
     public function getDateSoumissionOR()
     {
         return $this->dateSoumissionOR;
@@ -1643,7 +1652,7 @@ class DemandeIntervention
      * Set the value of dateSoumissionOR
      *
      * @return  self
-     */ 
+     */
     public function setDateSoumissionOR($dateSoumissionOR)
     {
         $this->dateSoumissionOR = $dateSoumissionOR;
@@ -1653,7 +1662,7 @@ class DemandeIntervention
 
     /**
      * Get the value of montantTotalOR
-     */ 
+     */
     public function getMontantTotalOR()
     {
         return $this->montantTotalOR;
@@ -1663,10 +1672,30 @@ class DemandeIntervention
      * Set the value of montantTotalOR
      *
      * @return  self
-     */ 
+     */
     public function setMontantTotalOR($montantTotalOR)
     {
         $this->montantTotalOR = $montantTotalOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAnnulable
+     */
+    public function getEstAnnulable()
+    {
+        return $this->estAnnulable;
+    }
+
+    /**
+     * Set the value of estAnnulable
+     *
+     * @return  self
+     */
+    public function setEstAnnulable($estAnnulable)
+    {
+        $this->estAnnulable = $estAnnulable;
 
         return $this;
     }

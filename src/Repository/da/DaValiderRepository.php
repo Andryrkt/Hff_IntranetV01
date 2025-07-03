@@ -65,4 +65,35 @@ class DaValiderRepository extends EntityRepository
         }
         return $numeroVersionMax;
     }
+
+    public function getDaValider($numeroVersion, $numeroDemandeDit, $reference, $designation, $criteria = [])
+    {
+        $davalider =  $this->createQueryBuilder('d')
+            ->where('d.numeroVersion = :version')
+            ->andWhere('d.numeroDemandeDit = :numDit')
+            ->andWhere('d.artRefp = :ref')
+            ->andWhere('d.artDesi = :desi')
+            ->setParameter('version', $numeroVersion)
+            ->setParameter('ref', $reference)
+            ->setParameter('desi', $designation)
+            ->setParameter('numDit', $numeroDemandeDit)
+            ;
+        if (empty($criteria['numDa'])) {
+            $davalider->andWhere('d.statutDal != :statut')
+                ->setParameter('statut', 'TERMINER');
+        }
+
+        // $query = $davalider->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+        return $davalider
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

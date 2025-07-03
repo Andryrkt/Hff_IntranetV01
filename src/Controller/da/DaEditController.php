@@ -31,7 +31,6 @@ class DaEditController extends Controller
     use DemandeApproTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
@@ -88,6 +87,46 @@ class DaEditController extends Controller
         ]);
     }
 
+    /** 
+     * @Route("/delete-line-da/{id}",name="da_delete_line_da")
+     */
+    public function deleteLineDa(int $id)
+    {
+        $this->verifierSessionUtilisateur();
+
+        /** @var DemandeApproL $demandeApproLVersionMax la ligne de demande appro correspondant à l'id $id */
+        $demandeApproLVersionMax = self::$em->getRepository(DemandeApproL::class)->find($id);
+
+        if ($demandeApproLVersionMax) {
+            $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
+                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
+                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
+            ]);
+
+            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
+                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
+                'numeroLigneDem' => $demandeApproLVersionMax->getNumeroLigne()
+            ]);
+
+            foreach ($demandeApproLs as $demandeApproL) {
+                self::$em->remove($demandeApproL);
+            }
+
+            foreach ($demandeApproLRs as $demandeApproLR) {
+                self::$em->remove($demandeApproLR);
+            }
+
+            self::$em->flush();
+
+            $notifType = "success";
+            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
+        } else {
+            $notifType = "danger";
+            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+        }
+        $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->redirectToRoute("da_list");
+    }
 
     /**
      * @Route("/delete-edit-ligne/{ligne}/{idDit}/{numeroVersionMax}", name="da_edit_delete_ligne")
@@ -165,12 +204,6 @@ class DaEditController extends Controller
     private function PeutModifier($demandeAppro)
     {
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
-    }
-
-    private function estUserDansServiceAtelier()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
@@ -286,7 +319,7 @@ class DaEditController extends Controller
             ; // Incrémenter le numéro de version
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
-            $this->deleteDALR($demandeApproL);
+            // $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }

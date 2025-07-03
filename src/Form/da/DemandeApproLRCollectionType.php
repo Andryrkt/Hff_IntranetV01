@@ -15,6 +15,11 @@ class DemandeApproLRCollectionType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
+            ->add('statutChange', CheckboxType::class, [
+                'label' => 'Passer la main à l\'APPRO',
+                'mapped' => false,
+                'required' => false
+            ])
             ->add('estValidee', CheckboxType::class, [
                 'label' => 'Cocher pour valider et generer le bon d\'achat',
                 'required' => false,

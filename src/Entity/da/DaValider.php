@@ -39,7 +39,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
      */
-    private string $numeroCde;
+    private ?string $numeroCde = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_dal")
@@ -54,7 +54,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
      */
-    private string $statutCde;
+    private ?string $statutCde;
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
@@ -83,11 +83,11 @@ class DaValider
     /**
      * @ORM\Column(type="integer", name="qte_a_livrer")
      */
-    private int $qteALivrer;
+    private ?int $qteALivrer = 0;
     /**
      * @ORM\Column(type="integer", name="qte_livrer")
      */
-    private int $qteLivrer;
+    private ?int $qteLivrer = 0;
 
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
@@ -890,6 +890,26 @@ class DaValider
     }
 
     /**
+     * Get the value of statutCde
+     */
+    public function getStatutCde()
+    {
+        return $this->statutCde;
+    }
+
+    /**
+     * Set the value of statutCde
+     *
+     * @return  self
+     */
+    public function setStatutCde($statutCde)
+    {
+        $this->statutCde = $statutCde;
+
+        return $this;
+    }
+
+    /**
      * Get the value of nomFicheTechnique
      */
     public function getNomFicheTechnique()
@@ -1012,5 +1032,23 @@ class DaValider
             ->setValidePar($dalr->getValidePar())
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
+    }
+
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr(): string
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     */
+    public function setStatutOr(string $statutOr): self
+    {
+        $this->statutOr = $statutOr;
+
+        return $this;
     }
 }

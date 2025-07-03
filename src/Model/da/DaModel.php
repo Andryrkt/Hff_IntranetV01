@@ -151,7 +151,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit)
+    public function getSituationCde(?string $ref = '', string $numDit, ?string $designation = '')
     {
         $statement = " SELECT DISTINCT
                 slor_natcm,
@@ -173,6 +173,7 @@ class DaModel extends Model
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
                 and slor_refp = '$ref'
+                and slor_desi = '$designation'
                 and seor_refdem = '$numDit'
         ";
 

@@ -8,7 +8,7 @@ class DaSoumissionBcModel extends Model
 {
     public function getNumDa(string $numCde)
     {
-        $statement = " SELECT fc.fcde_cdeext as num_da 
+        $statement = " SELECT TRIM(fc.fcde_cdeext) as num_da 
                         from informix.frn_cde fc
                         where fcde_soc = 'HF' 
                         and fcde_numcde = '$numCde'

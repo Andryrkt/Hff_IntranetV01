@@ -129,7 +129,8 @@
 }
 
 /* Style pour aucune suggestion trouvée */
-.suggestions-container .no_results {
+.suggestions-container .no_results,
+.suggestions-container .no_results:hover {
   color: #888;
   text-align: center;
   font-style: italic;
@@ -211,6 +212,7 @@ tr.sub-separator > td {
 }
 .bg-bc-a-editer {
   background-color: #7030a0 !important;
+  color: #fff !important;
 }
 .bg-bc-a-soumettre-a-validation {
   background-color: #ddebf7 !important;
@@ -220,4 +222,5 @@ tr.sub-separator > td {
 }
 .bg-bc-non-valide {
   background-color: #c00000 !important;
+  color: #fff !important;
 }

@@ -54,55 +54,61 @@
 			</tr>
 		</thead>
 		<tbody>
-			{# DEBUT LOGIQUE #}
-			{% for item in data %}
-				{% set classeStatutDit = '' %}
-				{% set styleStatutDit = '' %}
-
-				{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
-					{% set classeStatutDit ='aAffecter' %}
-				{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
-					{% set classeStatutDit ='affecterSection' %}
-				{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
-					{% set classeStatutDit ='cloturerValider' %}
-				{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
-					{% set classeStatutDit ='cloturerAnnuler' %}
-				{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
-					{% set classeStatutDit ='cloturerHorsDelai' %}
-				{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
-					{% set classeStatutDit ='terminer' %}
-				{% else %}
+			{% if data is not empty %}
+				{# DEBUT LOGIQUE #}
+				{% for item in data %}
 					{% set classeStatutDit = '' %}
-				{% endif %}
-				{# FIN LOGIQUE #}
+					{% set styleStatutDit = '' %}
 
-				<tr role="button">
-					<td class="text-center" style="width: 2%;">
-						<input type="checkbox" name="option" class="checkbox" value="{{item.id}}" role="button">
-					</td>
-					<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
-					<td>
-						<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
-					</td>
-					<td>{{ item.typeDocument.description}}</td>
-					<td class="text-center">
-						{{ item.idNiveauUrgence.description}}
-					</td>
-					<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-					<td>{{ item.numSerie}}</td>
-					<td>{{ item.numParc}}</td>
-					<td>{{ item.dateDemande|date('d/m/Y')}}</td>
-					<td>{{ item.internetExterne}}</td>
-					<td>{{ item.agenceServiceEmetteur }}</td>
-					<td>{{ item.agenceServiceDebiteur}}</td>
-					<td>
-						{{ item.objetDemande}}</td>
-					{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
-                    <td>
-						{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
-                    </td>
+					{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
+						{% set classeStatutDit ='aAffecter' %}
+					{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+						{% set classeStatutDit ='affecterSection' %}
+					{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
+						{% set classeStatutDit ='cloturerValider' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
+						{% set classeStatutDit ='cloturerAnnuler' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+						{% set classeStatutDit ='cloturerHorsDelai' %}
+					{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
+						{% set classeStatutDit ='terminer' %}
+					{% else %}
+						{% set classeStatutDit = '' %}
+					{% endif %}
+					{# FIN LOGIQUE #}
+
+					<tr role="button">
+						<td class="text-center" style="width: 2%;">
+							<input type="checkbox" name="option" class="checkbox" value="{{item.id}}" role="button">
+						</td>
+						<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
+						<td>
+							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+						</td>
+						<td>{{ item.typeDocument.description}}</td>
+						<td class="text-center">
+							{{ item.idNiveauUrgence.description}}
+						</td>
+						<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+						<td>{{ item.numSerie}}</td>
+						<td>{{ item.numParc}}</td>
+						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td>{{ item.internetExterne}}</td>
+						<td>{{ item.agenceServiceEmetteur }}</td>
+						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>
+							{{ item.objetDemande}}</td>
+						{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
+						<td>
+							{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+						</td>
+					</tr>
+				{% endfor %}
+			{% elseif data is empty and formIsSubmitted %}
+				<tr>
+					<td colspan="14" class="text-center fw-bold">Aucune donnée trouvée pour votre recherche.</td>
 				</tr>
-			{% endfor %}
+			{% endif %}
 		</tbody>
 	</table>
 	<div class="d-flex justify-content-end mb-2">
@@ -111,7 +117,7 @@
 			<i class="fas fa-arrow-right"></i>
 		</button>
 	</div>
-	{% if data is empty %}
+	{% if not formIsSubmitted %}
 	<div class="container">
 		<div class="justify-content-center">
 			<div class="notice">
@@ -119,7 +125,7 @@
 					<i class="fas fa-info-circle"></i>
 				</span>
 				<div class="notice-content">
-					Veuillez effectuer une recherche afin d’afficher les données disponibles. 
+					Vous devez effectuer une recherche afin d’afficher les données disponibles. 
 				</div>
 			</div>
 		</div>

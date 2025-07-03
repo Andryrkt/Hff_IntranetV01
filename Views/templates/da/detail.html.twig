@@ -3,6 +3,7 @@
 {% block stylesheets%}
 	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
 {% endblock %}
 
@@ -14,139 +15,30 @@
 
 {% block content %}
 	<div class=" container-fluid">
-		<div class="card">
+		<nav>
+			<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
+				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
+				<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
+			</div>
+		</nav>
+		<div class="card border-top-left-radius-0">
 			<div class="card-body">
 				<div class="container-fluid">
-					<div class="row">
-						<h3 class="perso-titre">
-							<span class="urgency-level">{{ dit.idNiveauUrgence.description }}</span>
-							Détails Demande d'achat, n°
-							{{ demandeAppro.numeroDemandeAppro }}
-						</h3>
-					</div>
-
-					<div class="row">
-						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information sur la demande') }}
-							{{ macroForm.affichage2('Objet de la demande', demandeAppro.objetDal, 'mb-2') }}
-							{{ macroForm.affichage2('Détail de la demande', demandeAppro.detailDal, 'h-90 mb-2') }}
-							{{ macroForm.affichage2('Date fin souhaitée', demandeAppro.dateFinSouhaite|date('d/m/Y'), 'mb-2') }}
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
+							{{ include('da/shared/detail/detail.html.twig') }}
 						</div>
-						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Agence et service') }}
-							<div class="row">
-								<div class="col-6 col-md-6">
-									{{ macroForm.sousTitre('Emetteur') }}
-									{{ macroForm.affichage2('Agence', demandeAppro.agenceEmetteur.codeAgence ~ ' ' ~ demandeAppro.agenceEmetteur.libelleAgence, 'mb-2') }}
-									{{ macroForm.affichage2('Service', demandeAppro.serviceEmetteur.codeService ~ ' ' ~  demandeAppro.serviceEmetteur.libelleService, 'mb-2') }}
-								</div>
-								<div class="col-6 col-md-6">
-									{{ macroForm.sousTitre('Débiteur') }}
-									{{ macroForm.affichage2('Agence Débiteur', demandeAppro.agenceDebiteur.codeAgence ~ ' ' ~ demandeAppro.agenceDebiteur.libelleAgence, 'mb-2') }}
-									{{ macroForm.affichage2('Service Débiteur', demandeAppro.serviceDebiteur.codeService ~ ' ' ~  demandeAppro.serviceDebiteur.libelleService, 'mb-2') }}
-								</div>
-							</div>
-						</div>
-						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information Matériel / DIT') }}
-							<div class="row">
-								<div class="col-md-6 col-6">
-									{{ macroForm.affichage2('Id Matériel', demandeAppro.dit.idMateriel, 'mb-2') }}
-									{{ macroForm.affichage2('Série', numSerie, 'mb-2') }}
-								</div>
-								<div class="col-md-6 col-6">
-									{{ macroForm.affichage2('N° Parc', numParc, 'mb-2') }}
-									{{ macroForm.affichage2('N° DIT', demandeAppro.dit.numeroDemandeIntervention, 'mb-2') }}
-								</div>
-								<div class="col-md-12 col-12">
-									{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}
-								</div>
-								{% if nomFichierRefZst is not null and estAte %}
-									<a class="fw-bold" href="{{ App.base_path_fichier }}/da/ba/{{nomFichierRefZst}}" download>Télécharger le bon d'achat</a>
-								{% endif %}
-							</div>
+						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
+							{{ include('da/shared/detail/observation.html.twig') }}
 						</div>
 					</div>
-
-					<table class="table rounded table-plein-ecran mt-4">
-						<thead class="table-dark text-center">
-							<tr>
-								<th class="text-start">Famille</th>
-								<th class="text-start">Sous-famille</th>
-								<th class="text-start">Désignation</th>
-								<th class="text-start">Fournisseur</th>
-								<th class="text-start">Date fin souhaitée</th>
-								<th class="text-center">Prix Unitaire</th>
-								<th class="text-center">Quantité</th>
-								<th class="text-start">Commentaire</th>
-								<th class="text-start">Pièces jointes</th>
-								<th class="text-start">Fiche technique</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for DAL in demandeAppro.DAL %}
-								<tr>
-									<td>{{ DAL.artFams1 ?? '-' }}</td>
-									<td>{{ DAL.artFams2 ?? '-' }}</td>
-									<td>
-										<a href="#" data-bs-toggle="modal" data-bs-target="#modalDal{{ DAL.id }}">{{ DAL.artDesi }}</a>
-									</td>
-									<td>{{ DAL.nomFournisseur }}</td>
-									<td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
-									<td class="format-mtt text-end">{{ DAL.prixUnitaire }}</td>
-									<td class="text-center">{{ DAL.qteDem }}</td>
-									<td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
-									<td>
-									{% if DAL.fileNames|length > 0 %}
-										<ul class="mb-0 px-0">
-											{% for file in DAL.fileNames %}
-												<li>
-													<a href="{{ App.base_path_fichier }}/da/{{ DAL.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
-												</li>
-											{% endfor %}
-										</ul>
-									{% else %}
-										Aucune pièce jointe
-									{% endif %}
-									</td>
-									<td>
-										{% if DAL.estFicheTechnique %}
-											{% if DAL.nomFicheTechnique %}
-												<a href="{{ App.base_path_fichier }}/da/{{ DAL.numeroDemandeAppro }}/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
-											{% else %}
-												Fiche technique pas encore attachée
-											{% endif %}
-										{% else %}
-											NON
-										{% endif %}
-									</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class=" container-fluid mt-3">
-		<div class="card">
-			<div class="card-body">
-				<div class="row">
-					<h3 class="fw-bold">Observations</h3>
-					{% for observation in observations %}
-						<p class="mb-0">
-							<b>{{observation.utilisateur}}</b>
-							<small>{{observation.dateCreation|date('d/m/Y H:i')}}</small>
-						</p>
-						<p>{{observation.observation}}</p>
-					{% endfor %}
-				</div>
-			</div>
-		</div>
-	</div>
-	{% for DAL in demandeAppro.DAL %}
+	{# {% for DAL in demandeAppro.DAL %}
 		{{ include('da/shared/listeDA/_modalDal.html.twig', { DAL: DAL }) }}
-	{% endfor %}
+	{% endfor %} #}
 {% endblock %}
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/detail/detail.js" type="module"></script>

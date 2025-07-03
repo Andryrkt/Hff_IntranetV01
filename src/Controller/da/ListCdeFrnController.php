@@ -34,7 +34,7 @@ class ListCdeFrnController extends Controller
     private const STATUT_ENVOYE_FOURNISSEUR = 'BC envoyé au fournisseur';
 
     private DaListeCdeFrnModel $daListeCdeFrnModel;
-    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproRepository $daRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -47,7 +47,7 @@ class ListCdeFrnController extends Controller
     {
         parent::__construct();
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
@@ -99,7 +99,7 @@ class ListCdeFrnController extends Controller
 
     private function recuperationDonner(array $criteria): array
     {
-        $numDits = $this->demandeApproRepository->getNumDit();
+        $numDits = $this->daRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
 
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
@@ -111,7 +111,7 @@ class ListCdeFrnController extends Controller
         $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
 
         //ajout des données utile
-        $datas = $this->ajoutDonnerUtile($datas);
+        $datas = $this->ajoutDonnerUtile($datas, $criteria);
 
         //filtre des données ajouter
         $datas = $this->filtreDonnee($datas, $criteria);
@@ -120,31 +120,57 @@ class ListCdeFrnController extends Controller
         return $datas;
     }
 
-    private function ajoutDonnerUtile(array $datas)
+    private function ajoutDonnerUtile(array $datas, array $criteria): array
     {
-        foreach ($datas as $data) {
+        foreach ($datas as $key => $data) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($data['num_dit']);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $data['num_dit']]);
-            if($daValider) {
+            $daValider = $this->daValiderRepository->getDaValider(
+                $numeroVersionMax,
+                $data['num_dit'],
+                $data['reference'],
+                $data['designation'],
+                $criteria
+            );
+            if ($daValider) {
+                    //modification statut bc ou cde dans la table da_valider
+                    $this->modificationStatutDaValider($daValider, $data['num_cde']);
+                
                 //ajout du numero demande appro
-                $data['num_da'] = $daValider->getNumeroDemandeAppro();
+                $datas[$key]['num_da'] = $daValider->getNumeroDemandeAppro();
 
                 //ajout du niveau d'urgence
-                $data['niv_urg'] = $daValider->getNiveauUrgence();
+                $datas[$key]['niv_urg'] = $daValider->getNiveauUrgence();
 
                 //ajout de la date fin souhaité
-                $data['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
+                $datas[$key]['date_fin_souhaite'] = $daValider->getDateFinSouhaite();
 
                 //ajout du statut BC
-                $data['statut_bc'] = $daValider->getStatutBc();
+                $datas[$key]['statut_bc'] = $daValider->getStatutCde();
 
                 //ajout du nombre de jours dispo
-                $data['jours_dispo'] = $daValider->getNbrJoursDispo();
+                $datas[$key]['jours_dispo'] = $daValider->getJoursDispo();
+
+                //ajout date livraison prévu
+                $datas[$key]['date_livraison_prevue'] = $daValider->getDateLivraisonPrevue();
+
+                //ajout de l'id de la DIT
+                $datas[$key]['id_dit'] = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $daValider->getNumeroDemandeDit()])->getId();
             }
-            
         }
 
         return $datas;
+    }
+
+    private function modificationStatutDaValider(DaValider $daValider, ?string $numCde)
+    {
+        $numCde ? $numCde : '';
+        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getArtDesi());
+        $daValider
+            ->setStatutCde($statutBc)
+            ->setNumeroCde($numCde)
+        ;
+        self::$em->persist($daValider);
+        self::$em->flush();
     }
 
     private function filtreDonnee(array $datas, array $criteria = [])
