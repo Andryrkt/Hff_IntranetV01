@@ -3,6 +3,7 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -25,6 +26,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaDetailController extends Controller
 {
 	use lienGenerique;
+	use DaTrait;
 
 	private DemandeApproRepository $daRepository;
 	private DitRepository $ditRepository;
@@ -56,25 +58,24 @@ class DaDetailController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$form = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
+		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
 
-		$this->traitementFormulaire($form, $request, $demandeAppro);
+		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		self::$twig->display('da/detail.html.twig', [
-			'form'				=> $form->createView(),
-			'demandeAppro'      => $demandeAppro,
-			'observations'      => $observations,
-			'numSerie'          => $dataModel[0]['num_serie'],
-			'numParc'           => $dataModel[0]['num_parc'],
-			'dit'               => $dit,
-			'connectedUser'     => $this->getUser(),
-			// 'idDit'             => $id,
-			// 'numeroVersionMax'  => $numeroVersionMax,
-			// 'numDa'             => $numDa,
-			'nomFichierRefZst'  => $demandeAppro->getNonFichierRefZst(),
-			'estAte'            => $this->estUserDansServiceAtelier(),
+			'formObservation'			=> $formObservation->createView(),
+			'demandeAppro'      		=> $demandeAppro,
+			'observations'      		=> $observations,
+			'numSerie'          		=> $dataModel[0]['num_serie'],
+			'numParc'           		=> $dataModel[0]['num_parc'],
+			'dit'               		=> $dit,
+			'connectedUser'     		=> $this->getUser(),
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),
+			'estAte'            		=> $this->estUserDansServiceAtelier(),
+			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
 	}
 
@@ -105,7 +106,14 @@ class DaDetailController extends Controller
 		if ($form->isSubmitted() && $form->isValid()) {
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
+
 			$this->insertionObservation($daObservation, $demandeAppro);
+
+			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+				$this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
+				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+			}
 
 			$notification = [
 				'type' => 'success',
@@ -122,7 +130,7 @@ class DaDetailController extends Controller
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			$this->redirectToRoute("da_list");
+			return $this->redirectToRoute("da_list");
 		}
 	}
 
@@ -166,5 +174,54 @@ class DaDetailController extends Controller
 		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 		// $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
 		$email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+	}
+
+	/**
+	 * Dupliquer les lignes de la table demande_appro_L
+	 *
+	 * @param array $refs
+	 * @param [type] $data
+	 * @return array
+	 */
+	private function duplicationDataDaL($numDa): void
+	{
+		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+		$dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+
+		foreach ($dals as $dal) {
+			// On clone l'entité (copie en mémoire)
+			$newDal = clone $dal;
+			$newDal->setNumeroVersion($this->autoIncrementForDa($dal->getNumeroVersion())); // Incrémenter le numéro de version
+			$newDal->setEdit(1); // Indiquer que c'est une version modifiée
+
+			// Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
+			self::$em->persist($newDal);
+		}
+
+		self::$em->flush();
+	}
+
+
+	private function modificationStatutDal(string $numDa, string $statut): void
+	{
+		$numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+		$dals = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+		foreach ($dals as  $dal) {
+			$dal->setStatutDal($statut);
+			$dal->setEdit(3);
+			self::$em->persist($dal);
+		}
+
+		self::$em->flush();
+	}
+
+	private function modificationStatutDa(string $numDa, string $statut): void
+	{
+		$da = self::$em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
+		$da->setStatutDal($statut);
+
+		self::$em->persist($da);
+		self::$em->flush();
 	}
 }

@@ -61,15 +61,18 @@
     <div class="col-4 col-md-4">
         <div class="card">
             <div class="card-body bg-light">
-                {{ form_start(form) }}
-                    {{ form_row(form.observation) }}
-                    <div class="d-flex justify-content-end">
+                {{ form_start(formObservation) }}
+                    {{ form_row(formObservation.observation) }}
+                    <div class="d-flex justify-content-end align-items-end gap-3">
+                        <div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
+                            {{ form_widget(formObservation.statutChange) }}
+                        </div>
                         <button type="submit" class="btn bouton mt-2" name="observation">
                             Envoyer l'observation
                             <i class="fa-solid fa-paper-plane"></i>
                         </button>
                     </div>
-                {{ form_end(form) }}
+                {{ form_end(formObservation) }}
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 .child-row td {
   background-color: #f9f9f9;
   animation: dropdownFade 0.3s ease;
-  font-size: 0.68rem;
+  font-size: 0.56rem;
   padding-top: 0.45rem;
   padding-bottom: 0.45rem;
 }

@@ -328,6 +328,9 @@ a.choix:hover {
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
 }
+.bg-creation-demande-initiale {
+  background-color: #fbbb01 !important;
+}
 
 /* Pour les statuts de l'OR */
 .bg-or-non-valide {
