@@ -36,6 +36,7 @@
 			<th>Famille</th>
 			<th>Sous famille</th>
 			<th>Désignation</th>
+			<th>Prix Unitaire</th>
 			<th>Fournisseur</th>
 			<th>Commentaire</th>
 		</tr>
@@ -43,26 +44,29 @@
 	<tbody>
 		{% set dals = tab.hydratedDa.DAL %}
 		{% for dal in dals %}
-			<tr>
-				<td><b>{{ dal.artFams1 ?? '-'}}</b></td>
-				<td><b>{{ dal.artFams2 ?? '-'}}</b></td>
-				<td><b>{{ dal.artDesi }}</b></td>
-				<td><b>{{ dal.nomFournisseur }}</b></td>
-				<td><b>{{ dal.commentaire }}</b></td>
+			<tr class="parent-row {{ dal.demandeApproLR is empty ? 'choisi' : ''}}">
+				<td>{{ dal.artFams1 ?? '-'}}</td>
+				<td>{{ dal.artFams2 ?? '-'}}</td>
+				<td>{{ dal.artDesi }}</td>
+				<td>{{ dal.prixUnitaire }}</td>
+				<td>{{ dal.nomFournisseur }}</td>
+				<td>{{ dal.commentaire }}</td>
+				<td>{{ dal.commentaire }}</td>
 			</tr>
 			{% if dal.demandeApproLR|length > 0 %}
 				{% for dalr in dal.demandeApproLR %}
-				<tr>
-					<td style="padding: 3px 3px 3px 0px;">___ {{ dalr.artFams1 ?? '-'}}</td>
+				<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
+					<td>{{ dalr.artFams1 ?? '-'}}</td>
 					<td>{{ dalr.artFams2 ?? '-'}}</td>
 					<td>{{ dalr.artDesi }}</td>
+					<td>{{ dalr.prixUnitaire }}</td>
 					<td>{{ dalr.nomFournisseur }}</td>
 					<td>{{ dalr.motif }}</td>
 				</tr>
 				{% endfor %}
 			{% else %}
-				<tr>
-					<td colspan="5" style="padding: 3px 3px 3px 0px;">___ Aucune proposition n’a été faite pour cet article.</td>
+				<tr class="child-row">
+					<td colspan="5" style="text-align:center;">Aucune proposition n’a été faite pour cet article.</td>
 				</tr>
 			{% endif %}
 		{% endfor %}
