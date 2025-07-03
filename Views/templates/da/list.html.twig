@@ -81,7 +81,7 @@
 
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
-					{% for dal in item.DAL %}
+					{% for dal in item.daValiderOuProposer %}
 						{% set classe = '' %}
 						{% set qteCdm = dal.qteDem | default(0) * 1 %}
 						{% set qteLiv = dal.qteLivee | default(0) * 1 %}
@@ -125,15 +125,15 @@
 									{% elseif serviceAppro %}
 										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 											{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
-											<li>
-												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
-											</li>
+												<li>
+													<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
+												</li>
 											{% endif %}
 											{% if item.dit.statutOr is same as "Validé" and get_path_or_max(item.dit.numeroOR) is not empty%}
 												{% set chemin = get_path_or_max(item.dit.numeroOR)['chemin'] %}
-											<li>
-												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
-											</li>
+												<li>
+													<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
+												</li>
 											{% endif %}
 										</ul>
 									{% endif %}
