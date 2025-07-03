@@ -197,10 +197,16 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(string $numDit)
+    public function getEvolutionQte(?string $numDit, $plusPrecie = false, string $ref = '', string $designation = '')
     {
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,
+                CASE
+                    when slor_natcm = 'C' then (select fcde_numcde from frn_cde where fcde_numcde = slor_numcf)
+                    when slor_natcm = 'L' then (select distinct fcde_numcde from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
+                END as num_cde,
+                TRIM(slor_refp) as reference,
+                TRIM(slor_desi) as designation,
                 ROUND(CASE
                     when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
                 END) as qte_dem,
@@ -218,6 +224,11 @@ class DaModel extends Model
                 and seor_refdem='$numDit'
         ";
 
+        if ($plusPrecie) {
+            $statement .= " AND slor_refp = '$ref'
+                and slor_desi = '$designation'
+                ";
+        }
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
