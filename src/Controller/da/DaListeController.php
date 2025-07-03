@@ -100,8 +100,7 @@ class DaListeController extends Controller
         /**  ajout des donners */
         $this->ajoutStatutBc($dasFiltered);
         $this->ajoutQte($dasFiltered);
-
-        dd($dasFiltered);
+        $this->ajoutStatutDal($dasFiltered);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
@@ -267,6 +266,19 @@ class DaListeController extends Controller
         return $das;
     }
 
+    private function ajoutStatutDal($dasFiltereds): void
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                foreach ($daValiders as $daValider) {
+                    $davp->setStatutDal($daValider->getStatutDal());
+                }
+            }
+        }
+    }
+
     private function ajoutStatutBc($dasFiltereds): void
     {
         foreach ($dasFiltereds as $dasFiltered) {
@@ -300,8 +312,10 @@ class DaListeController extends Controller
 
             foreach ($daFiltered->getDaValiderOuProposer() as $daVP) {
                 foreach ($daValiderList as $daValider) {
-                    $daVP->setQteLivee($daValider->getQteLivrer());
-                    $daVP->setQteALivrer($daValider->getQteALivrer());
+                    if ($daVP->getArtRefp() === $daValider->getArtRefp() && $daVP->getArtDesi() === $daValider->getArtDesi()) {
+                        $daVP->setQteLivee($daValider->getQteLivrer());
+                        $daVP->setQteALivrer($daValider->getQteALivrer());
+                    }
                 }
             }
         }

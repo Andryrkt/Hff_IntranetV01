@@ -67,3 +67,6 @@ ADD date_fin_souhaitee_l DATETIME2(0);
 
 ALTER TABLE Demande_Appro_L_R
 ADD file_names text;
+
+ALTER TABLE Demande_Appro_L_R
+ADD statut_dal VARCHAR(50);

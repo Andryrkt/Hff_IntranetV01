@@ -175,7 +175,11 @@ class DemandeApproLR
     private $qteLivee;
     private $qteALivrer;
     private $statutBc;
-    private $statutDal;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="statut_dal")
+     */
+    private ?string $statutDal;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -815,7 +819,7 @@ class DemandeApproLR
 
     /**
      * Get the value of statutDal
-     */ 
+     */
     public function getStatutDal()
     {
         return $this->statutDal;
@@ -825,7 +829,7 @@ class DemandeApproLR
      * Set the value of statutDal
      *
      * @return  self
-     */ 
+     */
     public function setStatutDal($statutDal)
     {
         $this->statutDal = $statutDal;
