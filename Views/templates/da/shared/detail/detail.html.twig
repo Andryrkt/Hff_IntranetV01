@@ -89,7 +89,7 @@
                     {{ DAL.artDesi }}
                 </td>
                 <td>{{ DAL.nomFournisseur }}</td>
-                <td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+                <td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
                 <td class="format-mtt text-end">{{ DAL.prixUnitaire }}</td>
                 <td class="text-center">{{ DAL.qteDem }}</td>
                 <td>{{ DAL.commentaire == '' ? '-' : DAL.commentaire }}</td>
@@ -140,7 +140,7 @@
                     <td class="text-start">{{ item.artFams2 ?? '-' }}</td>
                     <td class="text-start">{{ item.artDesi }}</td>
                     <td class="text-start">{{ item.nomFournisseur }}</td>
-                    <td>{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
+                    <td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
                     <td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
                     <td class="text-center">{{ item.qteDispo ?? '-' }}</td>
                     <td class="text-start">{{ item.motif }}</td>
