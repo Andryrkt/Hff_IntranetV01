@@ -46,6 +46,13 @@ trait DaTrait
 
         $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
 
+        $qte = $this->daModel->getEvolutionQte($numDit, true, $ref, $designation);
+        if (!empty($qte)) {
+            $partiellementDispo = $qte[0]['qte_dem'] != $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] == 0 && $qte[0]['qte_a_livrer'] > 0;
+            $completNonLivrer = ($qte[0]['qte_dem'] == $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] < $qte[0]['qte_dem']) || ($qte[0]['qte_a_livrer'] > 0 && $qte[0]['qte_dem'] == ($qte[0]['qte_a_livrer'] + $qte[0]['qte_livee']));
+            $tousLivres = $qte[0]['qte_dem'] ==  $qte[0]['qte_livee'] && $qte[0]['qte_dem'] != '' && $qte[0]['qte_livee'] != '';
+        }
+
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
@@ -57,6 +64,8 @@ trait DaTrait
             $statut_bc = 'A soumettre à validation';
         } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
             $statut_bc = 'A envoyer au fournisseur';
+        } elseif ($partiellementDispo || $completNonLivrer || $tousLivres) {
+            $statut_bc = 'BC réceptionné';
         } else {
             $statut_bc = $statutBc;
         }

@@ -160,6 +160,8 @@ class DemandeAppro
 
     private bool $demandeDeverouillage = false;
 
+    private array $daValiderOuProposer = [];
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -733,6 +735,26 @@ class DemandeAppro
     public function setDemandeDeverouillage($demandeDeverouillage)
     {
         $this->demandeDeverouillage = $demandeDeverouillage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daValiderOuProposer
+     */ 
+    public function getDaValiderOuProposer()
+    {
+        return $this->daValiderOuProposer;
+    }
+
+    /**
+     * Set the value of daValiderOuProposer
+     *
+     * @return  self
+     */ 
+    public function setDaValiderOuProposer($daValiderOuProposer)
+    {
+        $this->daValiderOuProposer = $daValiderOuProposer;
 
         return $this;
     }

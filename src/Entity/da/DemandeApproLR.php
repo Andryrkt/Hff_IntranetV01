@@ -172,6 +172,27 @@ class DemandeApproLR
      */
     private $fileNames = [];
 
+    private $qteLivee;
+    private $qteALivrer;
+    private $statutBc;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="statut_dal")
+     */
+    private ?string $statutDal;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     */
+    private ?string $numeroDemandeDit;
+
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     *
+     * @var integer | null
+     */
+    private ?int $joursDispo;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -744,6 +765,130 @@ class DemandeApproLR
     public function setFileNames($fileNames)
     {
         $this->fileNames = $fileNames;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteLivee
+     */
+    public function getQteLivee()
+    {
+        return $this->qteLivee;
+    }
+
+    /**
+     * Set the value of qteLivee
+     *
+     * @return  self
+     */
+    public function setQteLivee($qteLivee)
+    {
+        $this->qteLivee = $qteLivee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteALivrer
+     */
+    public function getQteALivrer()
+    {
+        return $this->qteALivrer;
+    }
+
+    /**
+     * Set the value of qteALivrer
+     *
+     * @return  self
+     */
+    public function setQteALivrer($qteALivrer)
+    {
+        $this->qteALivrer = $qteALivrer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutDal
+     */
+    public function getStatutDal()
+    {
+        return $this->statutDal;
+    }
+
+    /**
+     * Set the value of statutDal
+     *
+     * @return  self
+     */
+    public function setStatutDal($statutDal)
+    {
+        $this->statutDal = $statutDal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDit
+     */
+    public function getNumeroDemandeDit()
+    {
+        return $this->numeroDemandeDit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDit($numeroDemandeDit)
+    {
+        $this->numeroDemandeDit = $numeroDemandeDit;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */ 
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $joursDispo  | null
+     *
+     * @return  self
+     */ 
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
 
         return $this;
     }

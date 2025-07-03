@@ -38,8 +38,8 @@ class DaListeController extends Controller
 
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
-    private DemandeApproLRepository $daLRepository;
-    private DemandeApproLRRepository $dalrRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
     private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private DaModel $daModel;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
@@ -53,8 +53,8 @@ class DaListeController extends Controller
 
         $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->dalrRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->historiqueModifDARepository = self::$em->getRepository(DaHistoriqueDemandeModifDA::class);
         $this->daModel = new DaModel();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
@@ -100,6 +100,7 @@ class DaListeController extends Controller
         /**  ajout des donners */
         $this->ajoutStatutBc($dasFiltered);
         $this->ajoutQte($dasFiltered);
+        $this->ajoutStatutDal($dasFiltered);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
@@ -121,6 +122,7 @@ class DaListeController extends Controller
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
     }
+
 
     /** 
      * @Route("/deverrouiller-da/{idDa}", name="da_deverrouiller_da")
@@ -177,7 +179,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltered as $da) {
             foreach ($da->getDAL() as $dal) {
-                $dalrs = $this->dalrRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
                 if (!empty($dalrs)) {
                     foreach ($dalrs as $dalr) {
                         $dalr->setDemandeApproL($dal);
@@ -246,53 +248,95 @@ class DaListeController extends Controller
     private function filtreDal(array $das): array
     {
         foreach ($das as $da) {
-            $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($da->getNumeroDemandeAppro());
+            $numDa = $da->getNumeroDemandeAppro();
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
             // filtre une collection de versions selon le numero de version max
             $dalDernieresVersions = $da->getDAL()->filter(function ($item) use ($numeroVersionMax) {
                 return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
             });
 
             $da->setDAL($dalDernieresVersions);
+
+            //da final
+            $daFinal = $this->recuperationRectificationDonnee($numDa, (int)$numeroVersionMax);
+            $da->setDaValiderOuProposer($daFinal);
         }
 
 
         return $das;
     }
 
-    private function ajoutStatutBc($dasFiltereds): void
+    private function ajoutStatutDal($dasFiltereds): void
     {
         foreach ($dasFiltereds as $dasFiltered) {
-            foreach ($dasFiltered->getDAL() as $dal) {
+            foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
                 $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-                $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-                $dal->setStatutBc($daValider ? $daValider->getStatutCde() : '');
+                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                foreach ($daValiders as $daValider) {
+                    $davp->setStatutDal($daValider->getStatutDal());
+                }
             }
         }
     }
 
-    private function ajoutQte($dasFiltereds)
+    private function ajoutStatutBc($dasFiltereds): void
     {
         foreach ($dasFiltereds as $dasFiltered) {
-            foreach ($dasFiltered->getDAL() as $dal) {
+            foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
                 $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-                $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-                $dal->setQteLivee($daValider ? $daValider->getQteLivrer() : 0);
-                $dal->setQteALivrer($daValider ? $daValider->getQteALivrer() : 0);
+                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                foreach ($daValiders as $daValider) {
+                    $davp->setStatutBc($daValider->getStatutCde());
+                }
             }
         }
     }
+
+    private function ajoutQte(array $dasFiltereds): void
+    {
+        foreach ($dasFiltereds as $daFiltered) {
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($daFiltered->getNumeroDemandeDit());
+
+            if ($numeroVersionMax === null) {
+                continue; // Sauter si aucune version trouvée
+            }
+
+            $daValiderList = $this->daValiderRepository->findBy([
+                'numeroDemandeAppro' => $daFiltered->getNumeroDemandeAppro(),
+                'numeroVersion' => $numeroVersionMax
+            ]);
+
+            if (empty($daValiderList)) {
+                continue;
+            }
+
+            foreach ($daFiltered->getDaValiderOuProposer() as $daVP) {
+                foreach ($daValiderList as $daValider) {
+                    if ($daVP->getArtRefp() === $daValider->getArtRefp() && $daVP->getArtDesi() === $daValider->getArtDesi()) {
+                        $daVP->setQteLivee($daValider->getQteLivrer());
+                        $daVP->setQteALivrer($daValider->getQteALivrer());
+                    }
+                }
+            }
+        }
+    }
+
 
     private function ChangeQteDaValider($dasFiltereds)
     {
         foreach ($dasFiltereds as $dasFiltered) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-            $qte = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit());
-            if (array_key_exists(0, $qte) && !empty($daValiders)) {
-                foreach ($daValiders as $key => $daValider) {
-                    $daValider->setQteLivrer((int)$qte[0]['qte_a_livrer']);
-                    $daValider->setQteALivrer((int)$qte[0]['qte_livee']);
-                    self::$em->persist($daValider);
+            $qtes = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit(), false);
+            if (array_key_exists(0, $qtes) && !empty($daValiders)) {
+                foreach ($daValiders as $daValider) {
+                    foreach ($qtes as $qte) {
+                        if ($qte['num_dit'] === $daValider->getNumeroDemandeDit() && $qte['reference'] === $daValider->getArtRefp() && $qte['designation'] === $daValider->getArtDesi()) {
+                            $daValider->setQteLivrer((int)$qte['qte_livee']);
+                            $daValider->setQteALivrer((int)$qte['qte_a_livrer']);
+                            self::$em->persist($daValider);
+                        }
+                    }
                 }
             }
         }
@@ -417,8 +461,8 @@ class DaListeController extends Controller
      */
     private function duplicationDataDaL($data): void
     {
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
-        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
 
         foreach ($dals as $dal) {
             // On clone l'entité (copie en mémoire)
@@ -442,8 +486,8 @@ class DaListeController extends Controller
 
     private function modificationStatutDal(string $numDa): void
     {
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
-        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
             $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
