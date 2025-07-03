@@ -209,6 +209,8 @@ class DaNewController extends Controller
     {
         $demandeAppro
             ->setDit($dit)
+            ->setObjetDal($dit->getObjetDemande())
+            ->setDetailDal($dit->getDetailDemande())
             ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
             ->setAgenceDebiteur($dit->getAgenceDebiteurId())
             ->setServiceDebiteur($dit->getServiceDebiteurId())
