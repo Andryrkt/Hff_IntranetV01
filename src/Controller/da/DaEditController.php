@@ -319,7 +319,7 @@ class DaEditController extends Controller
             ; // Incrémenter le numéro de version
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
-            $this->deleteDALR($demandeApproL);
+            // $this->deleteDALR($demandeApproL);
             self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }
