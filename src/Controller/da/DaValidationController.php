@@ -24,8 +24,6 @@ class DaValidationController extends Controller
     use DaTrait;
     use lienGenerique;
 
-    private const ID_ATELIER = 3;
-
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
@@ -84,12 +82,6 @@ class DaValidationController extends Controller
         /** NOTIFICATION */
         $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("da_list");
-    }
-
-    private function estUserDansServiceAtelier(): bool
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
     }
 
     private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire): DemandeAppro

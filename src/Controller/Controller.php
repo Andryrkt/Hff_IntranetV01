@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\da\DemandeAppro;
 use App\Model\da\DaModel;
 
 class Controller
@@ -561,5 +562,17 @@ class Controller
     {
         $userId = $this->getUserId();
         return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
+    protected function estUserDansServiceAtelier(): bool
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+    }
+
+    protected function estUserDansServiceAppro(): bool
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }

@@ -36,9 +36,6 @@ class DaListeController extends Controller
     use lienGenerique;
     use DaTrait;
 
-    private const ID_ATELIER = 3;
-    private const ID_APPRO = 16;
-
     private DemandeApproRepository $daRepository;
     private DitRepository $ditRepository;
     private DemandeApproLRepository $daLRepository;
@@ -324,19 +321,6 @@ class DaListeController extends Controller
         foreach ($datas as $data) {
             $data->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]));
         }
-    }
-
-
-    private function estUserDansServiceAtelier()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_ATELIER, $serviceIds);
-    }
-
-    private function estUserDansServiceAppro()
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(self::ID_APPRO, $serviceIds);
     }
 
     private function initialiserHistorique(DaHistoriqueDemandeModifDA $historique)
