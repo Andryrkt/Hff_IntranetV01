@@ -637,21 +637,24 @@ trait DitListTrait
             // dump($value->getIdStatutDemande());
             // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
 
+            $statutAffecterSection = $value->getIdStatutDemande()->getId() === Demandeintervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
+            $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
+            $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());
 
-            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+            if ($statutAffecterSection && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
             } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+            } elseif ($statutCloturerValider && !$estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
+            } elseif ($statutCloturerValider && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
             }
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
             // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
+            elseif ($statutTerminer) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
                 $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);
