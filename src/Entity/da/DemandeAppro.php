@@ -29,6 +29,7 @@ class DemandeAppro
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
+    public const STATUT_TERMINER = 'TERMINER';
     public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
     public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
 
@@ -741,7 +742,7 @@ class DemandeAppro
 
     /**
      * Get the value of daValiderOuProposer
-     */ 
+     */
     public function getDaValiderOuProposer()
     {
         return $this->daValiderOuProposer;
@@ -751,7 +752,7 @@ class DemandeAppro
      * Set the value of daValiderOuProposer
      *
      * @return  self
-     */ 
+     */
     public function setDaValiderOuProposer($daValiderOuProposer)
     {
         $this->daValiderOuProposer = $daValiderOuProposer;
