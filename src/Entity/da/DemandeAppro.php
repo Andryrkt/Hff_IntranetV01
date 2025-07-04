@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproRepository;
@@ -154,6 +155,12 @@ class DemandeAppro
     private $historiqueDemandeModifDA;
 
     private ?DemandeIntervention $dit = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
+     * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
+     */
+    private ?User $user;
 
     private $observation;
 
@@ -756,6 +763,26 @@ class DemandeAppro
     public function setDaValiderOuProposer($daValiderOuProposer)
     {
         $this->daValiderOuProposer = $daValiderOuProposer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of user
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set the value of user
+     *
+     * @return  self
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
 
         return $this;
     }
