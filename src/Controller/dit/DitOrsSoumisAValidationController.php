@@ -201,10 +201,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        //selon la demande de hoby rahalahy
         // $numDa = $this->demandeApproRepository->getNumDa($numDit);
-        // $articleDas = [];
-        // $referenceDas = [];
         // if ($numDa) {
         //     $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
         //     $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
@@ -231,7 +228,7 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
+            // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
@@ -288,10 +285,11 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
-            $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } 
+        // elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
+        //     $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        // } 
         // elseif ($conditionBloquage['articleDas']) {
         //     $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
         //     $okey = false;
