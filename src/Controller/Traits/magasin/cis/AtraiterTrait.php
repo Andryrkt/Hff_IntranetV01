@@ -3,19 +3,19 @@
 namespace App\Controller\Traits\magasin\cis;
 
 use App\Entity\admin\utilisateur\User;
+use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
 
 trait AtraiterTrait
 {
     private function agenceUser($autoriser): ?string
     {
-        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
-        if($autoriser)
-        {
-            $agenceUser = null;
+        if ($autoriser) {
+            $agenceUser = "''";
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
         return $agenceUser;

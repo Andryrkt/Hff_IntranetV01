@@ -199,7 +199,7 @@ class InventaireModel extends Model
                         INNER JOIN art_bse on abse_constp = ainvp_constp and abse_refp = ainvp_refp
                         INNER JOIN art_stp on astp_constp = ainvp_constp and astp_refp = ainvp_refp and astp_soc = ainvp_soc and astp_succ = ainvp_succ
                         WHERE ainvp_numinv = (select max(ainvi_numinv) from art_invi where ainvi_numinv_mait = '" . $numInv . "')
-                        and ainvp_ecart <> 0 and astp_casier not in ('NP','@@@@','CASIER C')
+                        and ainvp_ecart <> 0 --and astp_casier not in ('NP','@@@@','CASIER C')
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
                         ";
         //   dump($statement);
