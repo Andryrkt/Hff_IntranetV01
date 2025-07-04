@@ -70,6 +70,7 @@
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
 					<th class="text-center">Qté dem</th>
+					<th class="text-center">Qté en attente</th>
 					<th class="text-center">Qté Dispo (Qté à livrer)</th>
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date fin souhaitée</th>
@@ -181,6 +182,7 @@
 								{% endif %}
 							</td>
 							<td class="text-center {{classe}}">{{ dal.qteDem }}</td>
+							<td class="text-center">{{ dal.qteEnAttent == 0 ? '-': dal.qteEnAttent}}</td>
 							<td class="text-center">{{ dal.qteALivrer == 0 ? '-': dal.qteALivrer}}</td>
 							<td class="text-center">{{ dal.qteLivee == 0 ? '-': dal.qteLivee}}</td>
 							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>

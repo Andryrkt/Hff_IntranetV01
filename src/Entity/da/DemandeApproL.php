@@ -193,8 +193,9 @@ class DemandeApproL
 
     private $statutBc;
 
-    private $qteLivee;
-    private $qteALivrer;
+    private $qteLivee = 0;
+    private $qteALivrer = 0;
+    private $qteEnAttent = 0; 
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -933,6 +934,26 @@ class DemandeApproL
     public function setQteALivrer($qteALivrer)
     {
         $this->qteALivrer = $qteALivrer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */ 
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */ 
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
 
         return $this;
     }
