@@ -270,6 +270,10 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
   }
 }
 
+function handleFileNamesInputChange(e) {
+  onFileNamesInputChangeDalr(e);
+}
+
 export function createPieceJointe(line, rowIndex, inputFile) {
   if (!inputFile) {
     console.log("input file inexistant");
@@ -302,9 +306,13 @@ export function createPieceJointe(line, rowIndex, inputFile) {
 
     if (inputFileInserted) {
       inputFileInserted.accept = ".pdf, image/*";
-      inputFileInserted.addEventListener("change", (e) =>
-        onFileNamesInputChangeDalr(e)
+      // 🔁 Supprimer l'ancien listener si déjà ajouté
+      inputFileInserted.removeEventListener(
+        "change",
+        handleFileNamesInputChange
       );
+      inputFileInserted.addEventListener("change", handleFileNamesInputChange);
+
       inputFileInserted.click();
     } else {
       console.warn(
@@ -313,7 +321,11 @@ export function createPieceJointe(line, rowIndex, inputFile) {
     }
   } else {
     inputFile.accept = ".pdf, image/*";
-    inputFile.addEventListener("change", (e) => onFileNamesInputChangeDalr(e));
+
+    // 🔁 Supprimer l'ancien listener si déjà ajouté
+    inputFile.removeEventListener("change", handleFileNamesInputChange);
+    inputFile.addEventListener("change", handleFileNamesInputChange);
+
     inputFile.click();
   }
 }
@@ -388,9 +400,9 @@ function renderFileList(inputId) {
       fileNameSpan.classList.add("file-name");
       const a = document.createElement("a");
       a.href = URL.createObjectURL(file);
-      a.textContent =
-        generateCustomFilename("PJ") +
-        `${index + 1}.${file.name.split(".").pop().toLowerCase()}`;
+      a.textContent = file.name;
+      // generateCustomFilename("PJ") +
+      // `${index + 1}.${file.name.split(".").pop().toLowerCase()}`;
       a.target = "_blank";
       fileNameSpan.appendChild(a);
 
