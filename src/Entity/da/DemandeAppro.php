@@ -2,6 +2,7 @@
 
 namespace App\Entity\da;
 
+use App\Controller\Traits\da\DaTrait;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Agence;
@@ -20,6 +21,17 @@ use Doctrine\Common\Collections\Collection;
 class DemandeAppro
 {
     use DateTrait;
+    use DaTrait;
+
+    public const ID_ATELIER = 3;
+    public const ID_APPRO = 16;
+    public const STATUT_VALIDE = 'Bon d’achats validé';
+    public const STATUT_SOUMIS_ATE = 'Proposition achats';
+    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
+    public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
+    public const STATUT_TERMINER = 'TERMINER';
+    public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
+    public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
 
     /**
      * @ORM\Id
@@ -136,12 +148,20 @@ class DemandeAppro
      */
     private ?string $nonFichierRefZst = null;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
+     */
+    private $historiqueDemandeModifDA;
 
     private ?DemandeIntervention $dit = null;
 
     private $observation;
 
     private $numDossierDouane;
+
+    private bool $demandeDeverouillage = false;
+
+    private array $daValiderOuProposer = [];
 
     /**===========================================================================
      * GETTER & SETTER
@@ -372,21 +392,7 @@ class DemandeAppro
      */
     public function setDateFinSouhaiteAutomatique()
     {
-        $date = new DateTime();
-
-        // Compteur pour les jours ouvrables ajoutés
-        $joursOuvrablesAjoutes = 0;
-
-        // Ajouter des jours jusqu'à obtenir 3 jours ouvrables
-        while ($joursOuvrablesAjoutes < 3) {
-            // Ajouter un jour
-            $date->modify('+1 day');
-
-            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
-            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
-                $joursOuvrablesAjoutes++;
-            }
-        }
+        $date = $this->ajoutJour(3);
 
         $this->setDateFinSouhaite($date);
 
@@ -690,6 +696,66 @@ class DemandeAppro
     public function setNonFichierRefZst($nonFichierRefZst)
     {
         $this->nonFichierRefZst = $nonFichierRefZst;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of historiqueDemandeModifDA
+     */
+    public function getHistoriqueDemandeModifDA()
+    {
+        return $this->historiqueDemandeModifDA;
+    }
+
+    /**
+     * Set the value of historiqueDemandeModifDA
+     *
+     * @return  self
+     */
+    public function setHistoriqueDemandeModifDA($historiqueDemandeModifDA)
+    {
+        $this->historiqueDemandeModifDA = $historiqueDemandeModifDA;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeDeverouillage
+     */
+    public function getDemandeDeverouillage()
+    {
+        return $this->demandeDeverouillage;
+    }
+
+    /**
+     * Set the value of demandeDeverouillage
+     *
+     * @return  self
+     */
+    public function setDemandeDeverouillage($demandeDeverouillage)
+    {
+        $this->demandeDeverouillage = $demandeDeverouillage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daValiderOuProposer
+     */
+    public function getDaValiderOuProposer()
+    {
+        return $this->daValiderOuProposer;
+    }
+
+    /**
+     * Set the value of daValiderOuProposer
+     *
+     * @return  self
+     */
+    public function setDaValiderOuProposer($daValiderOuProposer)
+    {
+        $this->daValiderOuProposer = $daValiderOuProposer;
 
         return $this;
     }

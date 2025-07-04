@@ -3,16 +3,21 @@
 namespace App\Controller\da;
 
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Form\da\DaObservationType;
 use App\Model\dit\DitModel;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Service\EmailService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -20,7 +25,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaDetailController extends Controller
 {
-	private const ID_ATELIER = 3;
+	use lienGenerique;
+	use DaTrait;
 
 	private DemandeApproRepository $daRepository;
 	private DitRepository $ditRepository;
@@ -39,7 +45,7 @@ class DaDetailController extends Controller
 	/**
 	 * @Route("/detail/{id}", name="da_detail")
 	 */
-	public function deatil(int $id)
+	public function deatil(int $id, Request $request)
 	{
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
@@ -51,18 +57,25 @@ class DaDetailController extends Controller
 		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+		$daObservation = new DaObservation;
+		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
+
+		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
+
+		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		self::$twig->display('da/detail.html.twig', [
-			'demandeAppro'      => $demandeAppro,
-			'observations'      => $observations,
-			'numSerie'          => $dataModel[0]['num_serie'],
-			'numParc'           => $dataModel[0]['num_parc'],
-			// 'idDit'             => $id,
-			// 'numeroVersionMax'  => $numeroVersionMax,
-			// 'numDa'             => $numDa,
-			'nomFichierRefZst'  => $demandeAppro->getNonFichierRefZst(),
-			'estAte'            => $this->estUserDansServiceAtelier(),
+			'formObservation'			=> $formObservation->createView(),
+			'demandeAppro'      		=> $demandeAppro,
+			'observations'      		=> $observations,
+			'numSerie'          		=> $dataModel[0]['num_serie'],
+			'numParc'           		=> $dataModel[0]['num_parc'],
+			'dit'               		=> $dit,
+			'connectedUser'     		=> $this->getUser(),
+			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),
+			'estAte'            		=> $this->estUserDansServiceAtelier(),
+			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
 	}
 
@@ -83,9 +96,132 @@ class DaDetailController extends Controller
 		return $demandeAppro;
 	}
 
-	private function estUserDansServiceAtelier()
+	/** 
+	 * Traitement du formulaire
+	 */
+	private function traitementFormulaire($form, Request $request, DemandeAppro $demandeAppro)
 	{
-		$serviceIds = $this->getUser()->getServiceAutoriserIds();
-		return in_array(self::ID_ATELIER, $serviceIds);
+		$form->handleRequest($request);
+
+		if ($form->isSubmitted() && $form->isValid()) {
+			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
+			$daObservation = $form->getData();
+
+			$this->insertionObservation($daObservation, $demandeAppro);
+
+			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+				$this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
+				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+			}
+
+			$notification = [
+				'type' => 'success',
+				'message' => 'Votre observation a été enregistré avec succès.',
+			];
+
+			/** ENVOIE D'EMAIL à l'APPRO pour l'observation */
+			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+			$this->envoyerMailObservation([
+				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+				'observation'   => $daObservation->getObservation(),
+				'service'       => $service,
+				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+			]);
+
+			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			return $this->redirectToRoute("da_list");
+		}
+	}
+
+	/** 
+	 * Insertion de l'observation dans la Base de donnée
+	 */
+	private function insertionObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
+	{
+		$text = str_replace(["\r\n", "\n", "\r"], "<br>", $daObservation->getObservation());
+
+		$daObservation
+			->setObservation($text)
+			->setNumDa($demandeAppro->getNumeroDemandeAppro())
+			->setUtilisateur($this->getUser()->getNomUtilisateur())
+		;
+
+		self::$em->persist($daObservation);
+		self::$em->flush();
+	}
+
+	/** 
+	 * Fonctions pour envoyer un mail sur l'observation à la service Appro 
+	 */
+	private function envoyerMailObservation(array $tab)
+	{
+		$email       = new EmailService;
+
+		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : DemandeAppro::MAIL_ATELIER;
+
+		$content = [
+			'to'        => $to,
+			// 'cc'        => array_slice($emailValidateurs, 1),
+			'template'  => 'da/email/emailDa.html.twig',
+			'variables' => [
+				'statut'     => "commente",
+				'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
+				'tab'        => $tab,
+				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+			]
+		];
+		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
+		// $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+		$email->sendEmail($content['to'], [], $content['template'], $content['variables']);
+	}
+
+	/**
+	 * Dupliquer les lignes de la table demande_appro_L
+	 *
+	 * @param array $refs
+	 * @param [type] $data
+	 * @return array
+	 */
+	private function duplicationDataDaL($numDa): void
+	{
+		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+		$dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+
+		foreach ($dals as $dal) {
+			// On clone l'entité (copie en mémoire)
+			$newDal = clone $dal;
+			$newDal->setNumeroVersion($this->autoIncrementForDa($dal->getNumeroVersion())); // Incrémenter le numéro de version
+			$newDal->setEdit(1); // Indiquer que c'est une version modifiée
+
+			// Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
+			self::$em->persist($newDal);
+		}
+
+		self::$em->flush();
+	}
+
+
+	private function modificationStatutDal(string $numDa, string $statut): void
+	{
+		$numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+		$dals = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+		foreach ($dals as  $dal) {
+			$dal->setStatutDal($statut);
+			$dal->setEdit(3);
+			self::$em->persist($dal);
+		}
+
+		self::$em->flush();
+	}
+
+	private function modificationStatutDa(string $numDa, string $statut): void
+	{
+		$da = self::$em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
+		$da->setStatutDal($statut);
+
+		self::$em->persist($da);
+		self::$em->flush();
 	}
 }

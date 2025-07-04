@@ -241,11 +241,9 @@
 {% endmacro %}
 
 {% macro agence_service_change(form_agence, form_service, spinner_service, service_container) %}
-    <div>
-	    {{ form_row(form_agence) }}
-	</div>
+    {{ form_row(form_agence) }}
     <div class="spinner-container">
-	    <label for="form_service">{{ form_label(form_service) }}</label><br>
+	    {{ form_label(form_service) }}
         <div class="spinner" id="{{spinner_service}}" style="display: none;">
             <div></div>
             <div></div>
@@ -261,7 +259,7 @@
             <div></div>
         </div>
     </div>
-    <div id="{{service_container}}">
+    <div id="{{service_container}}" class="mb-3">
 	    {{ form_widget(form_service) }}
     </div>
 {% endmacro %}

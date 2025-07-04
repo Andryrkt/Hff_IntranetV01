@@ -24,7 +24,7 @@ UPDATE ors_soumis_a_validation
 SET numeroDIT = di.numero_demande_dit
 FROM ors_soumis_a_validation
     JOIN demande_intervention AS di
-    ON ors_soumis_a_validation.numeroOR = di.numero_or;
+    ON ors_soumis_a_validation.numeroOR = di.numero_or AND num_migr = 7;
 
 CREATE TABLE type_document
 (

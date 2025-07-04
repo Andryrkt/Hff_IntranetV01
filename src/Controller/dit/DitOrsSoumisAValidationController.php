@@ -5,19 +5,25 @@ namespace App\Controller\dit;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use App\Entity\da\DaValider;
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Controller\Traits\da\DaTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
@@ -28,6 +34,7 @@ class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;
     use DitOrSoumisAValidationTrait;
+    use DaTrait;
 
     private MagasinListeOrLivrerModel $magasinListOrLivrerModel;
     private HistoriqueOperationService $historiqueOperation;
@@ -36,6 +43,10 @@ class DitOrsSoumisAValidationController extends Controller
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $orRepository;
     private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DaValiderRepository $daValiderRepository;
+
 
     public function __construct()
     {
@@ -47,6 +58,9 @@ class DitOrsSoumisAValidationController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->orRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /**
@@ -58,7 +72,6 @@ class DitOrsSoumisAValidationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
 
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
 
@@ -88,6 +101,7 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
+
                 $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
 
                 $ditInsertionOrSoumis
@@ -98,7 +112,7 @@ class DitOrsSoumisAValidationController extends Controller
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 //dump($orSoumisValidationModel);
-                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
+                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
                 // dd($orSoumisValidataion);
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
@@ -118,6 +132,9 @@ class DitOrsSoumisAValidationController extends Controller
                 /** modifier la colonne numero_or dans la table demande_intervention */
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
+                /** modification da_valider */
+                $this->modificationDaValider($numDit, $ditInsertionOrSoumis->getNumeroOR());
+
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             } else {
                 $message = "Echec lors de la soumission, . . .";
@@ -133,6 +150,26 @@ class DitOrsSoumisAValidationController extends Controller
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function modificationDaValider(string $numDit, string $numOr): void
+    {
+        $numDa = $this->demandeApproRepository->getNumDa($numDit);
+        if ($numDa) {
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
+            $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+            if(!empty($daValiders)) {
+
+                foreach ($daValiders as $key => $daValider) {
+                    $daValider
+                    ->setNumeroOr($numOr)
+                    ->setStatutOr('Soumis à validation')
+                    ;
+                    self::$em->persist($daValider);
+                }
+                self::$em->flush();
+            }
+        }
     }
 
     private function conditionsDeBloquegeSoumissionOr(string $originalName, string $numOr, $ditInsertionOrSoumis, string $numDit): array
@@ -164,9 +201,21 @@ class DitOrsSoumisAValidationController extends Controller
 
         $countAgServDeb = $this->ditOrsoumisAValidationModel->countAgServDebit($numOr);
 
-        // $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
-        // $referenceDas = $this->demandeApproLRepository->getQteRefPu($numDit);
-
+        // $numDa = $this->demandeApproRepository->getNumDa($numDit);
+        // if ($numDa) {
+        //     $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
+        //     $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        //     $daValiders = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        //     $referenceDas = array_map(function ($item) {
+        //         return [
+        //             "quantite" => $item->getQteDem(),
+        //             "reference" => $item->getArtRefp(),
+        //             "montant" => $item->getPrixUnitaire(),
+        //             "designation" => $item->getArtDesi()
+        //         ];
+        //     }, $daValiders);
+        //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
+        // }
 
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
@@ -179,9 +228,9 @@ class DitOrsSoumisAValidationController extends Controller
             'situationOrSoumis'     => $situationOrSoumis === 'bloquer',
             'countAgServDeb'        => (int)$countAgServDeb > 1,
             'numOrFichier'          => $numOrNomFIchier <> $numOr,
-            'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
+            // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
-            // 'articleDas'            => $this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
         ];
     }
 
@@ -236,14 +285,17 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
-            $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['articleDas']) {
-            $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
-            $okey = false;
-            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } elseif ($conditionBloquage['numcliExiste']) {
+        } 
+        // elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
+        //     $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        // } 
+        // elseif ($conditionBloquage['articleDas']) {
+        //     $message = "Echec de la soumission de l'OR . . . incohérence entre le bon d’achat validé et celui saisi dans l’OR";
+        //     $okey = false;
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        // } 
+        elseif ($conditionBloquage['numcliExiste']) {
             $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
@@ -332,7 +384,7 @@ class DitOrsSoumisAValidationController extends Controller
         foreach ($a as $item) {
             $found = false;
             foreach ($b as $key => $value) {
-                if ($item === $value) {
+                if ($item == $value) {
                     $found = true;
                     unset($b[$key]);
                     break;

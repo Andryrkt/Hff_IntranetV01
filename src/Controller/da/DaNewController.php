@@ -4,6 +4,7 @@ namespace App\Controller\da;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -25,10 +26,9 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaNewController extends Controller
 {
+    use DaTrait;
     use DemandeApproTrait;
     use lienGenerique;
-
-    private const DA_STATUT = 'Demande d’achats';
 
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
@@ -87,15 +87,20 @@ class DaNewController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
+            /** 
+             * @var DemandeAppro $demandeAppro
+             */
+            $demandeAppro = $form->getData();
             $demandeAppro
                 ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
+
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $numDit = $demandeAppro->getNumeroDemandeDit();
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
+            $formDAL = $form->get('DAL');
             /** ajout de ligne de demande appro dans la table Demande_Appro_L */
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 /** 
@@ -104,13 +109,13 @@ class DaNewController extends Controller
                 $DAL
                     ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(self::DA_STATUT)
+                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
                     ->setNumeroDit($numDit)
                     ->setJoursDispo($this->getJoursRestants($DAL))
                 ;
-                $this->traitementFichiers($DAL); // traitement des fichiers uploadés pour chaque ligne DAL
+                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("da_list");
@@ -161,7 +166,7 @@ class DaNewController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => 'hoby.ralahy@hff.mg',
+            'to'        => DemandeAppro::MAIL_APPRO,
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -204,6 +209,8 @@ class DaNewController extends Controller
     {
         $demandeAppro
             ->setDit($dit)
+            ->setObjetDal($dit->getObjetDemande())
+            ->setDetailDal($dit->getDetailDemande())
             ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
             ->setAgenceDebiteur($dit->getAgenceDebiteurId())
             ->setServiceDebiteur($dit->getServiceDebiteurId())
@@ -211,7 +218,7 @@ class DaNewController extends Controller
             ->setServiceEmetteur($dit->getServiceEmetteurId())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal(self::DA_STATUT)
+            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
     }
@@ -219,15 +226,14 @@ class DaNewController extends Controller
     /** 
      * TRAITEMENT DES FICHIER UPLOAD pour chaque ligne de la demande appro (DAL)
      */
-    private function traitementFichiers(DemandeApproL $dal)
+    private function traitementFichiers(DemandeApproL $dal, $files): void
     {
         $fileNames = [];
-        $files = $dal->getFileNames();
         if ($files !== null) {
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadFile($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }
@@ -236,36 +242,5 @@ class DaNewController extends Controller
             }
         }
         $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
-    }
-
-    /**
-     * TRAITEMENT DES FICHIER UPLOAD
-     * (copier le fichier uploader dans une répertoire et le donner un nom)
-     */
-    private function uploadFile(UploadedFile $file, DemandeApproL $dal, int $i)
-    {
-        $fileName = sprintf(
-            'pj_%s_%s_%s.%s',
-            $dal->getNumeroDemandeAppro(),
-            $dal->getNumeroLigne(),
-            $i,
-            $file->getClientOriginalExtension()
-        );
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/fichiers/';
-
-        // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
-            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
-        }
-
-        try {
-            $file->move($destination, $fileName);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
-        }
-
-        return $fileName;
     }
 }

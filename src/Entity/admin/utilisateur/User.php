@@ -33,6 +33,8 @@ class User implements UserInterface
 {
     use DateTrait;
 
+    public const PROFIL_CHEF_ATELIER = 9;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -671,7 +673,33 @@ class User implements UserInterface
         })->toArray();
     }
 
+    /**
+     * RECUPERE LES codes de l'agence Autoriser
+     */
+    public function getAgenceAutoriserCode(): array
+    {
+        return $this->agencesAutorisees->map(function ($agenceAutorise) {
+            return $agenceAutorise->getCodeAgence();
+        })->toArray();
+    }
 
+
+    /**
+     * RECUPERE LES code du service Autoriser
+     */
+    public function getServiceAutoriserCode(): array
+    {
+        return $this->serviceAutoriser->map(function ($serviceAutorise) {
+            return $serviceAutorise->getCodeService();
+        })->toArray();
+    }
+
+
+    /**
+     * RECUPERE LES id de l'application
+     *
+     * @return array
+     */
     public function getApplicationsIds(): array
     {
         return $this->applications->map(function ($app) {

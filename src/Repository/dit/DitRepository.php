@@ -3,6 +3,7 @@
 namespace App\Repository\dit;
 
 use App\Entity\dit\DitSearch;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\NonUniqueResultException;
@@ -620,7 +621,7 @@ class DitRepository extends EntityRepository
     {
         return $this->createQueryBuilder('d')
             ->Where('d.numMigration = :numMigr')
-            ->setParameter('numMigr', 5)
+            ->setParameter('numMigr', 7)
             // ->andWhere('d.numeroDemandeIntervention = :numDit')
             // ->setParameter('numDit', 'DIT25010315')
             ->orderBy('d.numeroDemandeIntervention', 'ASC')
@@ -712,9 +713,17 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-        $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (:numDit)')
-            ->setParameter('numDit', $numDits)
-        ;
+        $placeholders = [];
+        foreach ($numDits as $index => $value) {
+            $placeholder = ':numDit' . $index;
+            $placeholders[] = $placeholder;
+            $queryBuilder->setParameter($placeholder, $value);
+        }
+
+        if (!empty($placeholders)) {
+            $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (' . implode(', ', $placeholders) . ')');
+        }
+
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
 
@@ -795,6 +804,28 @@ class DitRepository extends EntityRepository
         return $this->createQueryBuilder('d')
             ->select('s.id') // <-- un champ scalaire
             ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNiveauUrgence(string $numDit)
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('nu.description') // <-- un champ scalaire
+            ->join('d.idNiveauUrgence', 'nu') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit);
+
+        return $queryBuilder->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNumOr(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
             ->where('d.numeroDemandeIntervention = :numDit')
             ->setParameter('numDit', $numDit)
             ->getQuery()

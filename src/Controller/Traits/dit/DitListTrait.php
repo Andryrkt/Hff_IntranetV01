@@ -553,7 +553,7 @@ trait DitListTrait
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 50;
+        $limit = 20;
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
@@ -582,8 +582,36 @@ trait DitListTrait
 
         $this->ajoutDateEtMontantOR($paginationData['data'], $em);
 
+        // $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
+
         // dd($paginationData['data']);
         return $paginationData;
+    }
+
+    private function ajoutConditionAnnulationDit($datas, $ditListeModel)
+    {
+        foreach ($datas as $data) {
+            $estAnnulable = $this->conditionAnnulationDit($data, $ditListeModel);
+            $data->setEstAnnulable($estAnnulable);
+        }
+    }
+
+    private function conditionAnnulationDit($data, $ditListeModel): bool
+    {
+        $estAnnulable = false; //cacher le boutton Annuler
+
+        //si le statut dit est A_AFFECTER
+        $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
+        //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté et profil de l'utilisateur connecté est CHEF_ATELIER
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && $data->getUtilisateurDemandeur() === $this->getUser()->getNomUtilisateur() && in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds());
+        //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
+        $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
+
+        if ($condition1 || $condition2 || $condition3) {
+            $estAnnulable =  true; //affichage du boutton Annuler
+        }
+
+        return $estAnnulable;
     }
 
     private function ajoutDateEtMontantOR($datas, $em)
@@ -609,21 +637,24 @@ trait DitListTrait
             // dump($value->getIdStatutDemande());
             // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
 
+            $statutAffecterSection = $value->getIdStatutDemande()->getId() === Demandeintervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
+            $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
+            $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());
 
-            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+            if ($statutAffecterSection && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
             } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+            } elseif ($statutCloturerValider && !$estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
+            } elseif ($statutCloturerValider && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
             }
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
             // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
+            elseif ($statutTerminer) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
                 $value->setEstOrASoumi(true);
             } else {
                 $value->setEstOrASoumi(false);

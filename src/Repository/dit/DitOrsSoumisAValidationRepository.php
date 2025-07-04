@@ -378,4 +378,33 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    public function getStatut(string $numDit)
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($numeroVersionMax === null) {
+            return null;
+        }
+
+        // Étape 2 : Récupérer le statut
+        $result = $this->createQueryBuilder('osv')
+            ->select('DISTINCT osv.statut')
+            ->where('osv.numeroDit = :numDit')
+            ->andWhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numDit' => $numDit,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->getQuery()
+            ->getOneOrNullResult(); // retourne un tableau associatif ou null
+
+        return $result['statut'] ?? null;
+    }
 }

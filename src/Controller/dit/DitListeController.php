@@ -66,7 +66,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie));
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);

@@ -29,29 +29,9 @@ class CdefnrSoumisAValidation
     private string $codeFournisseur = '';
 
     /**
-     * @ORM\Column(type="string", length=200, name="libelle_fournisseur")
-     */
-    private string $libelleFournisseur = '';
-
-    /**
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private int $numVersion = 0;
-
-    /**
-     * @ORM\Column(type="date", name="date_commande")
-     */
-    private $dateCommande;
-
-    /**
-     * @ORM\Column(type="float", scale="2", name="montant_commande")
-     */
-    private ?float $montantCommande = 0.00;
-
-    /**
-     * @ORM\Column(type="string", length=3, name="devise_commande")
-     */
-    private string $deviseCommande = '';
 
     /**
      * @ORM\Column(type="datetime", name="date_heure_soumission")
@@ -63,19 +43,26 @@ class CdefnrSoumisAValidation
      */
     private string $statut = '';
 
+    /**
+     * @ORM\Column(type="string", length=255, name="nom_fichier")
+     */
+    private string $nomFichier;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_da")
+     */
+    private string $numeroDa;
+
     private $pieceJoint01;
 
     private array $pieceJoint02 = [];
 
-    /**
-     * @ORM\Column(type="boolean", name="est_facture")
-     */
-    private $estFacture = false;
 
 
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
+
 
     /**
      * Get the value of id
@@ -126,26 +113,6 @@ class CdefnrSoumisAValidation
     }
 
     /**
-     * Get the value of libelleFournisseur
-     */
-    public function getLibelleFournisseur()
-    {
-        return $this->libelleFournisseur;
-    }
-
-    /**
-     * Set the value of libelleFournisseur
-     *
-     * @return  self
-     */
-    public function setLibelleFournisseur($libelleFournisseur)
-    {
-        $this->libelleFournisseur = $libelleFournisseur;
-
-        return $this;
-    }
-
-    /**
      * Get the value of numVersion
      */
     public function getNumVersion()
@@ -165,65 +132,6 @@ class CdefnrSoumisAValidation
         return $this;
     }
 
-    /**
-     * Get the value of dateCommande
-     */
-    public function getDateCommande()
-    {
-        return $this->dateCommande;
-    }
-
-    /**
-     * Set the value of dateCommande
-     *
-     * @return  self
-     */
-    public function setDateCommande($dateCommande)
-    {
-        $this->dateCommande = $dateCommande;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of montantCommande
-     */
-    public function getMontantCommande()
-    {
-        return $this->montantCommande;
-    }
-
-    /**
-     * Set the value of montantCommande
-     *
-     * @return  self
-     */
-    public function setMontantCommande($montantCommande)
-    {
-        $this->montantCommande = $montantCommande;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of deviseCommande
-     */
-    public function getDeviseCommande()
-    {
-        return $this->deviseCommande;
-    }
-
-    /**
-     * Set the value of deviseCommande
-     *
-     * @return  self
-     */
-    public function setDeviseCommande($deviseCommande)
-    {
-        $this->deviseCommande = $deviseCommande;
-
-        return $this;
-    }
 
     /**
      * Get the value of dateHeureSoumission
@@ -266,6 +174,46 @@ class CdefnrSoumisAValidation
     }
 
     /**
+     * Get the value of nomFichier
+     */
+    public function getNomFichier()
+    {
+        return $this->nomFichier;
+    }
+
+    /**
+     * Set the value of nomFichier
+     *
+     * @return  self
+     */
+    public function setNomFichier($nomFichier)
+    {
+        $this->nomFichier = $nomFichier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDa
+     */
+    public function getNumeroDa()
+    {
+        return $this->numeroDa;
+    }
+
+    /**
+     * Set the value of numeroDa
+     *
+     * @return  self
+     */
+    public function setNumeroDa($numeroDa)
+    {
+        $this->numeroDa = $numeroDa;
+
+        return $this;
+    }
+
+    /**
      * Get the value of pieceJoint01
      */
     public function getPieceJoint01()
@@ -281,26 +229,6 @@ class CdefnrSoumisAValidation
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of estFacture
-     */
-    public function getEstFacture()
-    {
-        return $this->estFacture;
-    }
-
-    /**
-     * Set the value of estFacture
-     *
-     * @return  self
-     */
-    public function setEstFacture($estFacture)
-    {
-        $this->estFacture = $estFacture;
 
         return $this;
     }

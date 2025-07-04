@@ -32,10 +32,14 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
         }
 
-        //filtre sur le statut
-        if (isset($criteria['statut'])) {
+        //filtre sur le statut de DA
+        if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
-                ->setParameter('statut', $criteria['statut']);
+                ->setParameter('statut', $criteria['statutDA']);
+        } else {
+            // Par défaut, on n'affiche pas les demandes terminer
+            $qb->andWhere("da.statutDal != :statut")
+                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
         }
 
         //Filtre sur l'id matériel
@@ -94,7 +98,7 @@ class DemandeApproRepository extends EntityRepository
     public function getStatut($numDit)
     {
         $result = $this->createQueryBuilder('da')
-            ->select('da.statutDal')
+            ->select('DISTINCT da.statutDal')
             ->where('da.numeroDemandeDit = :numDit')
             ->setParameter('numDit', $numDit)
             ->getQuery()
@@ -139,8 +143,30 @@ class DemandeApproRepository extends EntityRepository
     {
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
+            ->where('da.statutDal = :statut')
+            ->setParameter('statut', DemandeAppro::STATUT_VALIDE)
             ->getQuery()
             ->getSingleColumnResult()
+        ;
+    }
+
+    public function getAllNumDit()
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeDit')
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
+
+    public function getNumDitDa(string $numDa)
+    {
+        return $this->createQueryBuilder('da')
+            ->select('da.numeroDemandeDit')
+            ->where('da.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 

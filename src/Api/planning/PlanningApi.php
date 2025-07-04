@@ -64,7 +64,7 @@ class PlanningApi extends Controller
             $dateAllLig = [];
             for ($i = 0; $i < count($details); $i++) {
 
-                if ($numOr[0] == '5' || $numOr[0] == '3' || $numOr[0] == '4') {
+                if ($numOr[0] == '5' || $numOr[0] == '3' || $numOr[0] == '4' || $numOr[0] == '2') {
 
                     // if ($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0") {
 

@@ -3,11 +3,14 @@ import { formaterNombre } from "../../utils/formatNumberUtils";
 import { boutonRadio } from "./boutonRadio.js";
 import { generateCustomFilename } from "../../utils/dateUtils.js";
 
+// Dictionnaire pour stocker les fichiers sélectionnés par champ input
+const selectedFilesMap = {};
+
 export function ajouterUneLigne(line, fields, iscatalogue) {
   const tableBody = document.getElementById(`tableBody_${line}`);
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
-  const row = tableBody.insertRow();
+  const row = tableBody.insertRow(0);
   const rowIndex = tableBody.rows.length; // numero de ligne du tableau
   console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);
@@ -41,9 +44,11 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 
-  if (nbrColonnes > 10) {
+  if (nbrColonnes > 11) {
     insertCellsFicheTechnique(row, color, line, rowIndex);
   }
+  insertCellPiecesJointes(row, color, line, rowIndex);
+  insertCellDeleteLine(row, color, line, rowIndex);
 
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
@@ -51,11 +56,24 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   boutonRadio();
 
   // Vider les valeurs dans les champs
-  Object.values(fields).forEach((field) => {
-    if (iscatalogue != "1" || !field.id.includes("_codeFams")) {
-      field.value = "";
-    }
-  });
+
+  if (iscatalogue == 1) {
+    Object.values(fields).forEach((field) => {
+      if (!field.id.includes("_codeFams")) {
+        field.value = "";
+      }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
+    });
+  } else {
+    Object.values(fields).forEach((field) => {
+      if (!field.id.includes("_codeFams")) {
+        field.value = "";
+      } else {
+        field.value = "-";
+      }
+      console.log(field.id, field.id.includes("_codeFams"), field.value);
+    });
+  }
 }
 
 function insertCellData(row, $data, align = "center", color = "red") {
@@ -78,15 +96,7 @@ function insertCellsFicheTechnique(
   numeroLigneDem,
   numLigneTableau
 ) {
-  const lienFicheTechnique = document.createElement("a");
-  lienFicheTechnique.href = "#";
-  lienFicheTechnique.target = "_blank";
-  lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
-  lienFicheTechnique.textContent = "";
-  console.log(lienFicheTechnique);
-
-  insertCellToRow(row, lienFicheTechnique, "center", color);
-
+  /** Icône d'ajout de fichier */
   const addFile = document.createElement("a");
   addFile.href = "#";
   addFile.title = "Joindre une fiche technique";
@@ -106,9 +116,68 @@ function insertCellsFicheTechnique(
     );
     createFicheTechnique(nbrLine, numLigneTableau, inputFile);
   });
-  console.log(addFile);
-
   insertCellToRow(row, addFile, "center", color);
+
+  /** Lien du fichier */
+  const lienFicheTechnique = document.createElement("a");
+  lienFicheTechnique.href = "#";
+  lienFicheTechnique.target = "_blank";
+  lienFicheTechnique.id = `lien_fiche_technique_${numeroLigneDem}_${numLigneTableau}`;
+  lienFicheTechnique.textContent = "";
+
+  insertCellToRow(row, lienFicheTechnique, "left", color);
+}
+
+function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
+  /** Icône d'ajout de fichiers */
+  const addFile = document.createElement("a");
+  addFile.href = "#";
+  addFile.title = "Joindre des pièces jointes";
+  addFile.dataset.nbrLine = numeroLigneDem;
+  addFile.dataset.nbrLineTable = numLigneTableau;
+
+  const icon = document.createElement("i");
+  icon.className = "fas fa-paperclip";
+
+  addFile.appendChild(icon);
+
+  addFile.addEventListener("click", function () {
+    const nbrLine = addFile.dataset.nbrLine;
+    const numLigneTableau = addFile.dataset.nbrLineTable;
+    const inputFile = document.getElementById(
+      `demande_appro_lr_collection_DALR_${nbrLine}${numLigneTableau}_fileNames`
+    );
+    createPieceJointe(nbrLine, numLigneTableau, inputFile);
+  });
+  let cell = row.insertCell();
+  cell.style.padding = "10px 0";
+  cell.style.textAlign = "center";
+  cell.style.color = color;
+  cell.append(addFile);
+
+  /** contenant des fichiers */
+  let fieldContainer = document.createElement("div");
+  fieldContainer.id = `demande_appro_lr_collection_DALR_${numeroLigneDem}${numLigneTableau}_fileNamesContainer`;
+  insertCellToRow(row, fieldContainer, "left", color);
+}
+
+function insertCellDeleteLine(row, color, line, rowIndex) {
+  /** Icône de suppression de ligne */
+  const deleteLineIcon = document.createElement("i");
+  deleteLineIcon.classList.add("fas", "fa-times", "fs-7");
+  deleteLineIcon.style.cursor = "pointer";
+  deleteLineIcon.title = "Supprimer la ligne de proposition";
+
+  deleteLineIcon.addEventListener("click", function () {
+    let row = this.parentElement.parentElement; // ligne sur le tableau (ce que l'utilisateur voit)
+    let formRow = document.getElementById(
+      `demande_appro_lr_collection_DALR_${line}${rowIndex}`
+    ); // ligne de formulaire à envoyer dans la BDD (ce que l'utilisateur ne voit pas)
+    row.remove();
+    formRow.remove();
+  });
+
+  insertCellToRow(row, deleteLineIcon, "center", color);
 }
 
 function ajouterLigneDansForm(line, fields, total, rowIndex) {
@@ -177,7 +246,9 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
 
     container.append(prototype);
     // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file
-    const inputFileInserted = prototype.querySelector('input[type="file"]');
+    const inputFileInserted = prototype.querySelector(
+      'input[type="file"][id*="nomFicheTechnique"]'
+    );
 
     if (inputFileInserted) {
       inputFileInserted.accept = ".pdf";
@@ -195,6 +266,66 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
     inputFile.addEventListener("change", (e) =>
       onFileInputChange(e, line, rowIndex)
     );
+    inputFile.click();
+  }
+}
+
+function handleFileNamesInputChange(e) {
+  onFileNamesInputChangeDalr(e);
+}
+
+export function createPieceJointe(line, rowIndex, inputFile) {
+  if (!inputFile) {
+    console.log("input file inexistant");
+
+    let newIndex = line + rowIndex;
+    let prototype = document
+      .getElementById("child-prototype")
+      .firstElementChild.cloneNode(true); // Clonage du prototype
+    let container = document.getElementById("demande_appro_lr_collection_DALR"); // contenant du formulaire
+    container.style.display = "none"; // ne pas afficher le contenant
+
+    prototype.id = replaceNameToNewIndex(prototype.id, newIndex);
+    prototype.querySelectorAll("[id], [name]").forEach(function (element) {
+      element.id = element.id
+        ? replaceNameToNewIndex(element.id, newIndex)
+        : element.id;
+      element.name = element.name
+        ? replaceNameToNewIndex(element.name, newIndex)
+        : element.name;
+    });
+
+    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
+
+    container.append(prototype);
+    // 🔄 Maintenant que le prototype est dans le DOM, retrouve l'input file
+    const inputFileInserted = prototype.querySelector(
+      'input[type="file"][id*="fileNames"]'
+    );
+
+    if (inputFileInserted) {
+      inputFileInserted.accept = ".pdf, image/*";
+      // 🔁 Supprimer l'ancien listener si déjà ajouté
+      inputFileInserted.removeEventListener(
+        "change",
+        handleFileNamesInputChange
+      );
+      inputFileInserted.addEventListener("change", handleFileNamesInputChange);
+
+      inputFileInserted.click();
+    } else {
+      console.warn(
+        "Le nouvel input file est introuvable dans le prototype cloné."
+      );
+    }
+  } else {
+    inputFile.accept = ".pdf, image/*";
+
+    // 🔁 Supprimer l'ancien listener si déjà ajouté
+    inputFile.removeEventListener("change", handleFileNamesInputChange);
+    inputFile.addEventListener("change", handleFileNamesInputChange);
+
     inputFile.click();
   }
 }
@@ -217,6 +348,78 @@ export function onFileInputChange(event, nbrLine, numLigneTableau) {
   if (file && fileLink) {
     const fileURL = URL.createObjectURL(file);
     fileLink.href = fileURL;
-    fileLink.textContent = generateCustomFilename("ft");
+    fileLink.textContent =
+      generateCustomFilename("FT") +
+      `.${file.name.split(".").pop().toLowerCase()}`;
+  }
+}
+
+export function onFileNamesInputChangeDalr(event) {
+  const inputFile = event.target; // input file field
+  const inputId = inputFile.id; // id de l'input
+
+  // Initialiser la liste si elle n'existe pas encore
+  if (!selectedFilesMap[inputId]) {
+    selectedFilesMap[inputId] = [];
+  }
+
+  // Ajouter les nouveaux fichiers à la liste existante
+  const currentFiles = Array.from(inputFile.files);
+  selectedFilesMap[inputId].push(...currentFiles);
+
+  // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
+  inputFile.value = "";
+
+  const dataTransfer = new DataTransfer();
+  selectedFilesMap[inputId].forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+  inputFile.files = dataTransfer.files; // Remplace les fichiers dans l'input
+
+  // Afficher la liste des fichiers cumulés
+  renderFileList(inputId);
+}
+
+function renderFileList(inputId) {
+  const containerId = inputId.replace("fileNames", "fileNamesContainer");
+  const fieldContainer = document.getElementById(containerId);
+  const files = selectedFilesMap[inputId];
+
+  // Vider l'affichage
+  fieldContainer.innerHTML = "";
+
+  if (files.length > 0) {
+    const fileList = document.createElement("ul");
+    fileList.classList.add("ps-0", "mb-0", "file-list");
+
+    files.forEach((file, index) => {
+      const listItem = document.createElement("li");
+      listItem.classList.add("file-item");
+
+      const fileNameSpan = document.createElement("span");
+      fileNameSpan.classList.add("file-name");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(file);
+      a.textContent = file.name;
+      // generateCustomFilename("PJ") +
+      // `${index + 1}.${file.name.split(".").pop().toLowerCase()}`;
+      a.target = "_blank";
+      fileNameSpan.appendChild(a);
+
+      const deleteBtn = document.createElement("span");
+      deleteBtn.textContent = "x";
+      deleteBtn.classList.add("remove-file");
+      deleteBtn.onclick = () => {
+        // Supprimer le fichier de la liste et re-render
+        selectedFilesMap[inputId].splice(index, 1);
+        renderFileList(inputId);
+      };
+
+      listItem.appendChild(fileNameSpan);
+      listItem.appendChild(deleteBtn);
+      fileList.appendChild(listItem);
+    });
+
+    fieldContainer.appendChild(fileList);
   }
 }

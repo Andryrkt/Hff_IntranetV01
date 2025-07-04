@@ -66,7 +66,7 @@ export function ajouterUneLigne() {
     } else if (fieldName === 'fileNamesContainer') {
       createFileContainerAndAppendTo(classe, prototype, row);
     } else if (fieldName === 'fileNamesLabel') {
-      createFileNamesLabelAndAppendTo(classe, prototype, row);
+      createFileNamesLabelAndAppendTo(classe, prototype, row); // icône trombone + contenant des pièces jointes
     } else {
       createFieldAndAppendTo(classe, prototype, fieldName, row);
     }

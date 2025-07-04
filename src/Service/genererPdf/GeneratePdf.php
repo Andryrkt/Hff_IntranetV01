@@ -144,6 +144,22 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    //bon de commande de demande appro
+    public function copyToDWBcDa($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //bon de commande de demande appro
+    public function copyToDWFacBlDa($fileName, $numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     /**
      * Méthode pour ajouter un titre au PDF
      * 

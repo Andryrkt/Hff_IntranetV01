@@ -2,6 +2,7 @@ import { displayOverlay } from "../../utils/spinnerUtils";
 import { mergeCellsRecursiveTable } from "./tableHandler";
 import { AutoComplete } from "../../utils/AutoComplete.js";
 import { FetchManager } from "../../api/FetchManager.js";
+import { baseUrl } from "../../utils/config";
 const fetchManager = new FetchManager();
 
 window.addEventListener("load", () => {
@@ -15,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function () {
   mergeCellsRecursiveTable([
     { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
-    { pivotIndex: 8, columns: [8, 9], insertSeparator: true },
+    { pivotIndex: 8, columns: [8], insertSeparator: true },
   ]);
 });
 
@@ -89,11 +90,14 @@ window.addEventListener("DOMContentLoaded", adjustStickyPositions);
 window.addEventListener("resize", adjustStickyPositions);
 
 /**=============================================================
- * Click droite sur le numero commande
+ * Click droite sur le numero commande (menu contextuel)
  *===============================================================*/
 const menu = document.getElementById("menuContextuelGlobal");
 const hiddenInputCde = document.getElementById("da_soumission_commande_id");
 const hiddenInputDa = document.getElementById("da_soumission_da_id");
+const hiddenInputNumOr = document.getElementById("da_soumission_num_or");
+const statutAffiche = document.getElementById("statut-affiche");
+const form = document.forms["da_soumission"];
 
 document.addEventListener("contextmenu", function (event) {
   const targetCell = event.target.closest(".commande-cellule");
@@ -103,8 +107,89 @@ document.addEventListener("contextmenu", function (event) {
 
   const commandeId = targetCell.dataset.commandeId;
   hiddenInputCde.value = commandeId;
+
   const numDa = targetCell.dataset.numDa;
   hiddenInputDa.value = numDa;
+
+  const numOr = targetCell.dataset.numOr;
+  hiddenInputNumOr.value = numOr;
+
+  const statutBc = targetCell.dataset.statutBc;
+
+  const positionCde = targetCell.dataset.positionCde;
+  const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
+
+  if (statutBc == "BC envoyé au fournisseur") {
+    statutAffiche.style.display = "block";
+    statutAffiche.innerHTML = `
+      <p title="cliquer pour confirmer l'envoi"
+         class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
+         BC envoyé au fournisseur
+      </p>`;
+    // if (positionCdeFacturer) {
+      //active le formulaire
+      Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+      form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    // } else {
+    //   //desactive le formulaire
+    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    // }
+  } else if (statutBc == "A envoyer au fournisseur") {
+    statutAffiche.style.display = "block";
+
+    const overlay = document.getElementById("loading-overlays");
+    overlay.classList.remove("hidden");
+    const url = "api/da-envoie-cde"; // L'URL de votre route Symfony
+    fetchManager
+      .get(url, "text")
+      .then((html) => {
+        statutAffiche.innerHTML = html;
+
+        // Ajouter un écouteur sur la soumission du formulaire
+        document
+          .getElementById("daCdeEnvoyer")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            let jsonData = {};
+            formData.forEach((value, key) => {
+              // Supprimer le préfixe `form_type_demande[...]`
+              let cleanKey = key.replace(/^da_cde_envoyer\[(.*?)\]$/, "$1");
+              jsonData[cleanKey] = value;
+            });
+            console.log(jsonData);
+
+            // Génère le lien dynamiquement, avec une vraie URL (pas Twig)
+            const urlLien = `${baseUrl}/demande-appro/changement-statuts-envoyer-fournisseur/${commandeId}/${jsonData.dateLivraisonPrevue}/${jsonData.estEnvoyer}`;
+            window.location.href = urlLien;
+          });
+      })
+      .catch((error) =>
+        console.error("Erreur lors du chargement du formulaire:", error)
+      )
+      .finally(() => {
+        overlay.classList.add("hidden");
+      });
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  } else if (statutBc == "A soumettre à validation") {
+    statutAffiche.style.display = "none";
+
+    //active le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+  } else {
+    statutAffiche.style.display = "none";
+
+    //desactive le formulaire
+    Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+    form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+  }
 
   menu.style.top = event.pageY + "px";
   menu.style.left = event.pageX + "px";

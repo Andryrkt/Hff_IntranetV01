@@ -236,7 +236,7 @@ trait DitOrSoumisAValidationTrait
             $recapAvantApres[] = [
                 'itv' => $itv,
                 'libelleItv' => $libelleItv,
-                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR()),
+                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv),
                 'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
@@ -336,8 +336,9 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
     {
+
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
         foreach ($orSoumisValidationModel as $orSoumis) {
@@ -359,6 +360,7 @@ trait DitOrSoumisAValidationTrait
                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNumeroDit($numDit)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -415,21 +417,30 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-
-        $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
-        $dateDuJour = new DateTime('now');
-
-        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);
-
-        return $datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d') && (int)$nbrOrSoumis <= 0;
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);//première soumission
+        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr);//return bloquer si type piece ou pas bloquer  si non
+        
+        if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
     }
 
-    private function datePlanning($numOr)
+    private function datePlanning($numOr, $numItv)
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
 
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }

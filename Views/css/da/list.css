@@ -129,7 +129,8 @@
 }
 
 /* Style pour aucune suggestion trouvée */
-.suggestions-container .no_results {
+.suggestions-container .no_results,
+.suggestions-container .no_results:hover {
   color: #888;
   text-align: center;
   font-style: italic;
@@ -196,4 +197,30 @@ tr.sub-separator > td {
 
 .menu-contextuel-custom form {
   margin: 0;
+}
+
+/*================================================
+*Largeur du modal niveau d'urgence 
+================================================*/
+.modal-dialog.custom-width {
+  max-width: 60%; /* Ajustez le pourcentage selon vos besoins */
+}
+
+/* Pour les statuts du BC */
+.bg-bc-a-generer {
+  background-color: #ff66cc !important;
+}
+.bg-bc-a-editer {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-bc-a-soumettre-a-validation {
+  background-color: #ddebf7 !important;
+}
+.bg-bc-valide {
+  background-color: #ccff66 !important;
+}
+.bg-bc-non-valide {
+  background-color: #c00000 !important;
+  color: #fff !important;
 }

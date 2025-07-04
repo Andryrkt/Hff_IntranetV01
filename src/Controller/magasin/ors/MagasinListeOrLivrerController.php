@@ -8,14 +8,15 @@ ini_set('memory_limit', '1000M');
 
 
 use App\Controller\Controller;
-use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
-use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
+use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 class MagasinListeOrLivrerController extends Controller
 {
@@ -41,16 +42,17 @@ class MagasinListeOrLivrerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
         if ($autoriser) {
-            $agenceUser = null;
+            $agenceUser = "''";
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() . '-' . $agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
         $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
@@ -139,8 +141,9 @@ class MagasinListeOrLivrerController extends Controller
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {
             $numeroOr = $data[$i]['numeroor'];
+            $numItv = $data[$i]['numinterv'];
             $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numeroOr);
-            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
+            $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numeroOr, $numItv);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
 
             if (!empty($datePlannig1)) {
@@ -160,8 +163,8 @@ class MagasinListeOrLivrerController extends Controller
                 $idMateriel = $ditRepository->getIdMateriel();
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
                 $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] = $marqueCasier[0]['marque'];
-                $data[$i]['casier'] = $marqueCasier[0]['casier'];
+                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
+                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }

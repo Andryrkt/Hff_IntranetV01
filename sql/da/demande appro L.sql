@@ -22,37 +22,37 @@ CREATE TABLE Demande_Appro_L
     catalogue BIT,
     demande_appro_id int not null,
     CONSTRAINT PK_Demande_Appro_L PRIMARY KEY (id)
-)
+);
 
 ALTER TABLE Demande_Appro_L
-ADD est_validee bit DEFAULT 0
+ADD est_validee bit DEFAULT 0;
 
 ALTER TABLE Demande_Appro_L
-ADD est_modifier bit DEFAULT 0
+ADD est_modifier bit DEFAULT 0;
 
 ALTER TABLE Demande_Appro_L
-ADD date_creation DATETIME2(0)
+ADD date_creation DATETIME2(0);
 
 ALTER TABLE Demande_Appro_L
-ADD date_modification DATETIME2(0)
+ADD date_modification DATETIME2(0);
 
 ALTER TABLE Demande_Appro_L
-ALTER COLUMN code_fams2 VARCHAR(50)
+ALTER COLUMN code_fams2 VARCHAR(50);
 
 ALTER TABLE Demande_Appro_L
-ADD valide_par VARCHAR(50)
+ADD valide_par VARCHAR(50);
 
 ALTER TABLE Demande_Appro_L
-ADD numero_version INT DEFAULT 0
+ADD numero_version INT DEFAULT 0;
 
 ALTER TABLE Demande_Appro_L
-ADD edit INT DEFAULT 0
+ADD edit INT DEFAULT 0;
 
 ALTER TABLE Demande_Appro_L
-ADD prix_unitaire VARCHAR(100)
+ADD prix_unitaire VARCHAR(100);
 
 ALTER TABLE Demande_Appro_L
-ADD numero_dit VARCHAR(50)
+ADD numero_dit VARCHAR(50);
 
 ALTER TABLE Demande_Appro_L
 ADD deleted BIT DEFAULT 0;

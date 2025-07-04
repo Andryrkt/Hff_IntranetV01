@@ -14,17 +14,17 @@
 {% endblock %}
 
 {% block content %}
-	<div class=" container">
+	<div class="container custom-width">
 		<div class="card">
 			<div class="card-body">
 				<div class="container-fluid">
 					<div class="row">
 						<h3 class="perso-titre">
+							<div class="urgency-level">{{ dit.idNiveauUrgence.description }}</div>
 							Validation et proposition
 							{{ numDa }}
 						</h3>
 					</div>
-
 
 					<div class="tab-content">
 						{% for DAL in da.DAL %}
@@ -42,22 +42,29 @@
 		</div>
 		<div class="{{ nePeutPasModifier ? 'd-none' : ''}}">
 			{{ form_row(form.observation)}}
+			<div class="{{ estAte ? '' : 'd-none' }}">
+			{{ form_row(form.statutChange)}}
+			</div>
 		</div>
 		<div class="d-flex justify-content-between mt-2">
-			<div>
+			<div class="d-flex">
 				<div class="">
-					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte ? 'd-none' : ''}}" id="envoyerSelections" name="enregistrer">
+					<button type="submit" class="btn bouton mt-2 me-4 d-none" id="envoyerSelections" name="enregistrer">
 						Envoyer proposition à l'ATE
 						<i class="fa-solid fa-square-arrow-up-right"></i>
 					</button>
 				</div>
 				<div>
-					<a href="{{ path("da_edit", {id: dit_id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+					<a href="{{ path("da_edit", {id: dit.id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 						Modifier la demande
 					</a>
+					<button type="submit" class="btn bouton mt-2 me-4" name="observation">
+						Envoyer l'observation
+						<i class="fa-solid fa-paper-plane"></i>
+					</button>
 				</div>
 			</div>
-			<div>
+			<div id="validationButtons">
 				<div>
 					<button type="submit" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
 						Valider la proposition
@@ -76,11 +83,8 @@
 					</div>
 				</div>
 			</div>
-
 		</div>
 		{{ form_end(form) }}
-	</div>
-	<div class=" container">
 		<div class="card">
 			<div class="card-body">
 				<div class="row">
@@ -90,7 +94,7 @@
 							<b>{{observation.utilisateur}}</b>
 							<small>{{observation.dateCreation|date('d/m/Y H:i')}}</small>
 						</p>
-						<p>{{observation.observation}}</p>
+						<p>{{observation.observation|raw}}</p>
 					{% endfor %}
 				</div>
 			</div>

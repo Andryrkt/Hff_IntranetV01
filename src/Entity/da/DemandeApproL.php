@@ -57,7 +57,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private ?string $artRefp = '-';
+    private string $artRefp = 'ST';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -190,6 +190,12 @@ class DemandeApproL
      * @ORM\Column(type="json", name="file_names")
      */
     private $fileNames = [];
+
+    private $statutBc;
+
+    private $qteLivee = 0;
+    private $qteALivrer = 0;
+    private $qteEnAttent = 0; 
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -868,6 +874,86 @@ class DemandeApproL
     public function setFileNames($fileNames)
     {
         $this->fileNames = $fileNames;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteLivee
+     */ 
+    public function getQteLivee()
+    {
+        return $this->qteLivee;
+    }
+
+    /**
+     * Set the value of qteLivee
+     *
+     * @return  self
+     */ 
+    public function setQteLivee($qteLivee)
+    {
+        $this->qteLivee = $qteLivee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteALivrer
+     */ 
+    public function getQteALivrer()
+    {
+        return $this->qteALivrer;
+    }
+
+    /**
+     * Set the value of qteALivrer
+     *
+     * @return  self
+     */ 
+    public function setQteALivrer($qteALivrer)
+    {
+        $this->qteALivrer = $qteALivrer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */ 
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */ 
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
 
         return $this;
     }

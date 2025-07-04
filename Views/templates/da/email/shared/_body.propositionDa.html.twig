@@ -27,55 +27,49 @@
 		</li>
 	</ul>
 </p>
-
-
 <hr>
-<p>demande de l'atelier</p>
-<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
+<p>Demande de l'atelier avec propositions de l'Appro.</p>
+<p>Les propositions de l'Appro sont affichées sous la demande de l'atelier, avec un retrait (indentation) pour marquer la hiérarchie. </p>
+<table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
 			<th>Famille</th>
 			<th>Sous famille</th>
 			<th>Désignation</th>
+			<th>Prix Unitaire</th>
 			<th>Fournisseur</th>
 			<th>Commentaire</th>
 		</tr>
 	</thead>
 	<tbody>
-		{% for dala in tab.dalAncien %}
-			<tr>
-				<td>{{dala.artFams1}}</td>
-				<td>{{dala.artFams2}}</td>
-				<td>{{dala.artDesi}}</td>
-				<td>{{dala.nomFournisseur}}</td>
-				<td>{{dala.commentaire}}</td>
+		{% set dals = tab.hydratedDa.DAL %}
+		{% for dal in dals %}
+			<tr class="parent-row {{ dal.demandeApproLR is empty ? 'choisi' : ''}}">
+				<td>{{ dal.artFams1 ?? '-'}}</td>
+				<td>{{ dal.artFams2 ?? '-'}}</td>
+				<td>{{ dal.artDesi }}</td>
+				<td>{{ dal.prixUnitaire }}</td>
+				<td>{{ dal.nomFournisseur }}</td>
+				<td>{{ dal.commentaire }}</td>
 			</tr>
+			{% if dal.demandeApproLR|length > 0 %}
+				{% for dalr in dal.demandeApproLR %}
+				<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
+					<td>{{ dalr.artFams1 ?? '-'}}</td>
+					<td>{{ dalr.artFams2 ?? '-'}}</td>
+					<td>{{ dalr.artDesi }}</td>
+					<td>{{ dalr.prixUnitaire }}</td>
+					<td>{{ dalr.nomFournisseur }}</td>
+					<td>{{ dalr.motif }}</td>
+				</tr>
+				{% endfor %}
+			{% else %}
+				<tr class="child-row">
+					<td colspan="5" style="text-align:center;">Aucune proposition n’a été faite pour cet article.</td>
+				</tr>
+			{% endif %}
 		{% endfor %}
 	</tbody>
 </table>
-<hr>
-<p>Proposition de l'Appro</p>
-<table border="1" cellspacing="0" cellpadding="0" style="border-collapse:collapse; width:100%; border:1px solid #000000; font-size: 11px;">
-	<thead style="background-color:#000; color:#fff;">
-		<tr>
-			<th>Famille</th>
-			<th>Sous famille</th>
-			<th>Désignation</th>
-			<th>Fournisseur</th>
-			<th>Commentaire</th>
-		</tr>
-	</thead>
-	<tbody>
-		{% for daln in tab.dalNouveau %}
-			<tr>
-				<td>{{daln.artFams1}}</td>
-				<td>{{daln.artFams2}}</td>
-				<td>{{daln.artDesi}}</td>
-				<td>{{daln.nomFournisseur}}</td>
-				<td>{{daln.commentaire}}</td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table>
-
+<br>
 <hr>

@@ -39,7 +39,7 @@ class DaObservation
      */
     private ?string $observation;
 
-
+    private bool $statutChange = false;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -108,6 +108,26 @@ class DaObservation
     public function setObservation($observation)
     {
         $this->observation = $observation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutChange
+     */
+    public function getStatutChange()
+    {
+        return $this->statutChange;
+    }
+
+    /**
+     * Set the value of statutChange
+     *
+     * @return  self
+     */
+    public function setStatutChange($statutChange)
+    {
+        $this->statutChange = $statutChange;
 
         return $this;
     }

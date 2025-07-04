@@ -64,6 +64,14 @@
 			.suspendu {
 				background-color: #6c757d;
 			}
+			.demandeDeverouillage {
+				background-color: #b3d7ff;
+				color: #004085;
+			}
+			.confirmationDeverrouillage {
+				background-color: #d1ecf1; /* Bleu clair neutre */
+				color: #0c5460;
+			}
 			.validationAteDa,
 			.refuse,
 			.modificationDa,
@@ -77,22 +85,47 @@
 			.espace {
 				margin-left: 5rem;
 			}
+			table {
+				border-collapse: collapse;
+				width: 100%;
+				border: 1px solid #ccc;
+				font-size: 11px;
+				font-family: Arial, sans-serif;
+			}
+			.choisi td {
+				background-color: #fbbb01 !important;
+			}
+			.parent-row {
+				font-weight: bold;
+			}
+			.child-row {
+				font-size: 8.96px;
+			}
+			.child-row td {
+				background-color: #f9f9f9;
+			}
+			.child-row td:first-child {
+				border-left: 3px solid #0d6efd;
+			}
+			th, td {
+				border: 1px solid #ccc;
+    			padding: 3px;
+			}
 		</style>
 	</head>
 	<body>
 		<div class="email-container">
-			{{ include('da/email/shared/_header.html.twig', { numDa:tab.numDa, statut:statut }) }}
+			{{ include('da/email/shared/_header.html.twig', { numDa:tab.numDa, statut:statut, tab:tab }) }}
 
 			<div class="email-body">
 				<p>Bonjour,</p>
 
 				{% include 'da/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
 
-
 				<p>
 					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
-					<a href="{{ action_url }}" class="button">Detail de la demande</a>
+					<a href="{{ action_url }}" class="button">Détail de la demande</a>
 				</p>
 				<p>
 					<span class="fw-bold">NB:</span>

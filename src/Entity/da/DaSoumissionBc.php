@@ -52,6 +52,8 @@ class DaSoumissionBc
      */
     private $pieceJoint1;
 
+    private $pieceJoint2;
+
     /**
      * @ORM\Column(type="string", length=255, name="utilisateur")
      */
@@ -223,6 +225,26 @@ class DaSoumissionBc
     public function setNumeroVersion($numeroVersion): self
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint2
+     */ 
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of pieceJoint2
+     *
+     * @return  self
+     */ 
+    public function setPieceJoint2($pieceJoint2)
+    {
+        $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
     }

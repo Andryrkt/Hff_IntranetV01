@@ -9,4 +9,4 @@ CREATE TABLE da_observation
     date_modification DATETIME2(0),
 
     CONSTRAINT PK_da_observation PRIMARY KEY (id)
-)
+);

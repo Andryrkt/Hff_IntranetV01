@@ -10,7 +10,9 @@ class DwProcessusProcedureRepository extends EntityRepository
 {
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DocInternesearch $docInternesearch)
     {
-        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->andWhere('d.statut = :statutValide')
+            ->setParameter('statutValide', 'Validé DA'); // n'afficher que les statuts validé: 'Validé DA'
 
         if (!empty($docInternesearch->getDateDocumentDebut())) {
             $queryBuilder->andWhere('d.dateDocument >= :dateDebut')

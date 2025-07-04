@@ -75,6 +75,38 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     });
 
+  const boutonOK = document.getElementById('bouton_ok');
+
+  boutonOK.addEventListener('click', function (event) {
+    event.preventDefault();
+    let allPrixUnitaire = document.querySelectorAll(
+      '[id^="demande_appro_proposition_PU_"]'
+    ); // tous les prix unitaires
+    let filteredPrixUnitaire = Array.from(allPrixUnitaire).filter(
+      (el) => el.dataset.catalogue === '0'
+    ); // tous les prix unitaires des pages d'articles non catalogués
+    console.log(filteredPrixUnitaire);
+
+    let bloquer = filteredPrixUnitaire.some((e) => e.value.trim() === ''); // vraie s'il y a au moins un filteredPrixUnitaire avec valeur = ''
+    if (bloquer) {
+      alert(
+        "Votre demande est bloquée parce que vous devez d'abord renseigner tous les champs PU des articles non catalogué."
+      );
+    } else {
+      const params = new URLSearchParams();
+      filteredPrixUnitaire.forEach((prixUnitaireInput) => {
+        let line = prixUnitaireInput.id.split('_').pop();
+        params.append(`PU[${line}]`, prixUnitaireInput.value);
+      });
+      let url = this.getAttribute('href');
+      // vérifier s'il y a au moins un paramètre
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+      window.location.href = url;
+    }
+  });
+
   function initialiserFamilleEtSousFamille(numPage, familleInput) {
     const { sousFamilleInput, codeFamilleInput, codeSousFamilleInput } =
       recupInput(numPage);
@@ -191,13 +223,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   // Tous les boutons "Ajouter la référence"
   document.querySelectorAll('[id*="add_line_"]').forEach((addLine) => {
-    const numPage = addLine.id.split('_').pop();
-    const { isCatalogueInput } = recupInput(numPage);
-    let iscatalogue = isCatalogueInput.value;
-
-    addLine.addEventListener('click', () =>
-      ajouterReference(addLine.id, iscatalogue)
-    );
+    addLine.addEventListener('click', () => ajouterReference(addLine.id));
   });
   // Tous les boutons add-file (joindre une fiche technique)
   document.querySelectorAll('.add-file').forEach((addFile) => {

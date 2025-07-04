@@ -33,8 +33,11 @@ class DaSearchType extends  AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $choices = $this->demandeApproRepository->getDistinctColumn('statutDal');
-        $values = array_column($choices, 'statutDal');
+        $statutDaChoices = [
+            "Bon d’achats validé" => "Bon d’achats validé",
+            "Demande d’achats" => "Demande d’achats",
+            "Proposition achats" => "Proposition achats",
+        ];
 
         $builder
             ->add('numDit', TextType::class, [
@@ -49,10 +52,22 @@ class DaSearchType extends  AbstractType
                 'label' => 'Demandeur',
                 'required' => false
             ])
-            ->add('statut', ChoiceType::class, [
+            ->add('statutDA', ChoiceType::class, [
                 'placeholder' => '-- Choisir un statut --',
-                'label' => 'Statut',
-                'choices'  => array_combine($values, $values),
+                'label' => 'Statut de la DA',
+                'choices'  => $statutDaChoices,
+                'required' => false
+            ])
+            ->add('statutOR', ChoiceType::class, [
+                'placeholder' => '-- Choisir un statut --',
+                'label' => 'Statut de l\'OR',
+                'choices'  => [],
+                'required' => false
+            ])
+            ->add('statutBC', ChoiceType::class, [
+                'placeholder' => '-- Choisir un statut --',
+                'label' => 'Statut du BC',
+                'choices'  => [],
                 'required' => false
             ])
             ->add('idMateriel', TextType::class, [

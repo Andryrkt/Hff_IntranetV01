@@ -64,7 +64,7 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private string $artRefp;
+    private string $artRefp = 'ST';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
@@ -74,12 +74,12 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
      */
-    private ?string $artFams1;
+    private ?string $artFams1 = '-';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams2")
      */
-    private ?string $artFams2;
+    private ?string $artFams2 = '-';
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
@@ -162,6 +162,37 @@ class DemandeApproLR
      */
     private $nomFicheTechnique;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_fin_souhaitee_l", nullable=true)
+     */
+    private $dateFinSouhaite;
+
+    /**
+     * @ORM\Column(type="json", name="file_names")
+     */
+    private $fileNames = [];
+
+    private $qteLivee;
+    private $qteALivrer;
+    private $qteEnAttent = 0;
+    private $statutBc;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="statut_dal")
+     */
+    private ?string $statutDal;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     */
+    private ?string $numeroDemandeDit;
+
+    /**
+     * @ORM\Column(type="integer", name="jours_dispo")
+     *
+     * @var integer | null
+     */
+    private ?int $joursDispo;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -699,6 +730,187 @@ class DemandeApproLR
     public function setNomFicheTechnique($nomFicheTechnique): self
     {
         $this->nomFicheTechnique = $nomFicheTechnique;
+        return $this;
+    }
+
+    /**
+     * Get the value of dateFinSouhaite
+     */
+    public function getDateFinSouhaite()
+    {
+        return $this->dateFinSouhaite;
+    }
+
+    /**
+     * Set the value of dateFinSouhaite
+     */
+    public function setDateFinSouhaite($dateFinSouhaite): self
+    {
+        $this->dateFinSouhaite = $dateFinSouhaite;
+        return $this;
+    }
+
+    /**
+     * Get the value of fileNames
+     */
+    public function getFileNames()
+    {
+        return $this->fileNames;
+    }
+
+    /**
+     * Set the value of fileNames
+     *
+     * @return  self
+     */
+    public function setFileNames($fileNames)
+    {
+        $this->fileNames = $fileNames;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteLivee
+     */
+    public function getQteLivee()
+    {
+        return $this->qteLivee;
+    }
+
+    /**
+     * Set the value of qteLivee
+     *
+     * @return  self
+     */
+    public function setQteLivee($qteLivee)
+    {
+        $this->qteLivee = $qteLivee;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteALivrer
+     */
+    public function getQteALivrer()
+    {
+        return $this->qteALivrer;
+    }
+
+    /**
+     * Set the value of qteALivrer
+     *
+     * @return  self
+     */
+    public function setQteALivrer($qteALivrer)
+    {
+        $this->qteALivrer = $qteALivrer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     */
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @return  self
+     */
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutDal
+     */
+    public function getStatutDal()
+    {
+        return $this->statutDal;
+    }
+
+    /**
+     * Set the value of statutDal
+     *
+     * @return  self
+     */
+    public function setStatutDal($statutDal)
+    {
+        $this->statutDal = $statutDal;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDit
+     */
+    public function getNumeroDemandeDit()
+    {
+        return $this->numeroDemandeDit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDit($numeroDemandeDit)
+    {
+        $this->numeroDemandeDit = $numeroDemandeDit;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */
+    public function getJoursDispo()
+    {
+        return $this->joursDispo;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $joursDispo  | null
+     *
+     * @return  self
+     */
+    public function setJoursDispo($joursDispo)
+    {
+        $this->joursDispo = $joursDispo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
+
         return $this;
     }
 }

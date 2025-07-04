@@ -167,15 +167,52 @@ trait DaListeDitTrait
         //nombre de ligne par page
         $limit = 20;
 
-        $numDits = $this->daRepository->getNumDit();
+        $numDits = $this->daRepository->getAllNumDit();
 
         //recupération des données filtrée
-        $paginationData = $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option, $numDits);
+        $paginationData = $this->criteriaIsObjectEmpty($criteria) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option, $numDits);
 
         //recuperation de numero de serie et parc pour l'affichage
-        $this->ajoutNumSerieNumParc($paginationData['data']);
+        $this->ajoutNumSerieNumParc($paginationData['data'] ?? []);
 
         return $paginationData;
+    }
+
+    /** 
+     * Méthode pour vérifier si l'objet est vide
+     * 
+     * @return bool
+     */
+    private function criteriaIsObjectEmpty(DitSearch $ditSearch): bool
+    {
+        return
+            $ditSearch->getNiveauUrgence() === null &&
+            $ditSearch->getStatut() === null &&
+            $ditSearch->getIdMateriel() === null &&
+            $ditSearch->getTypeDocument() === null &&
+            $ditSearch->getInternetExterne() === "INTERNE" &&
+            $ditSearch->getDateDebut() === null &&
+            $ditSearch->getDateFin() === null &&
+            $ditSearch->getDateFin() === null &&
+            $ditSearch->getNumParc() === null &&
+            $ditSearch->getNumParc() === null &&
+            $ditSearch->getNumSerie() === null &&
+            $ditSearch->getAgenceEmetteur() === null &&
+            $ditSearch->getServiceEmetteur() === null &&
+            $ditSearch->getAgenceDebiteur() === null &&
+            $ditSearch->getServiceDebiteur() === null &&
+            $ditSearch->getNumDit() === null &&
+            $ditSearch->getNumOr() === null &&
+            $ditSearch->getStatutOr() === null &&
+            $ditSearch->getDitSansOr() === null &&
+            $ditSearch->getCategorie() === null &&
+            $ditSearch->getUtilisateur() === null &&
+            $ditSearch->getSectionAffectee() === null &&
+            $ditSearch->getSectionSupport1() === null &&
+            $ditSearch->getSectionSupport2() === null &&
+            $ditSearch->getSectionSupport3() === null &&
+            $ditSearch->getEtatFacture() === null &&
+            $ditSearch->getNumDevis() === "";
     }
 
     /**
