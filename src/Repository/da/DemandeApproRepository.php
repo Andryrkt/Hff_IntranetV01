@@ -36,6 +36,10 @@ class DemandeApproRepository extends EntityRepository
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
                 ->setParameter('statut', $criteria['statutDA']);
+        } else {
+            // Par défaut, on n'affiche pas les demandes terminer
+            $qb->andWhere("da.statutDal != :statut")
+                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
         }
 
         //Filtre sur l'id matériel
