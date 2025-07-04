@@ -315,6 +315,7 @@ class DaListeController extends Controller
                     if ($daVP->getArtRefp() === $daValider->getArtRefp() && $daVP->getArtDesi() === $daValider->getArtDesi()) {
                         $daVP->setQteLivee($daValider->getQteLivrer());
                         $daVP->setQteALivrer($daValider->getQteALivrer());
+                        $daVP->setQteEnAttent($daValider->getQteEnAttent());
                     }
                 }
             }
@@ -334,6 +335,7 @@ class DaListeController extends Controller
                         if ($qte['num_dit'] === $daValider->getNumeroDemandeDit() && $qte['reference'] === $daValider->getArtRefp() && $qte['designation'] === $daValider->getArtDesi()) {
                             $daValider->setQteLivrer((int)$qte['qte_livee']);
                             $daValider->setQteALivrer((int)$qte['qte_a_livrer']);
+                            $daValider->setQteEnAttent((int)$qte['qte_reliquat']);
                             self::$em->persist($daValider);
                         }
                     }

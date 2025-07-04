@@ -174,6 +174,7 @@ class DemandeApproLR
 
     private $qteLivee;
     private $qteALivrer;
+    private $qteEnAttent = 0;
     private $statutBc;
 
     /**
@@ -873,7 +874,7 @@ class DemandeApproLR
      * Get | null
      *
      * @return  integer
-     */ 
+     */
     public function getJoursDispo()
     {
         return $this->joursDispo;
@@ -885,10 +886,30 @@ class DemandeApproLR
      * @param  integer  $joursDispo  | null
      *
      * @return  self
-     */ 
+     */
     public function setJoursDispo($joursDispo)
     {
         $this->joursDispo = $joursDispo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
 
         return $this;
     }

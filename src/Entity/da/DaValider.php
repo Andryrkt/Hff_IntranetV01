@@ -213,6 +213,11 @@ class DaValider
      */
     private ?int $joursDispo;
 
+    /**
+     * @ORM\Column(type="integer", name="qte_en_attent")
+     */
+    private ?int $qteEnAttent = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1048,6 +1053,26 @@ class DaValider
     public function setStatutOr(string $statutOr): self
     {
         $this->statutOr = $statutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */ 
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */ 
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
 
         return $this;
     }
