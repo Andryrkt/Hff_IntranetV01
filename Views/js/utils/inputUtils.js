@@ -29,7 +29,6 @@ export function limitInputLength(input, maxLength) {
   });
 }
 
-
 export function populateServiceOptions(services, serviceInput) {
   // Supprimer toutes les options existantes
   while (serviceInput.options.length > 0) {
@@ -55,4 +54,21 @@ export function populateServiceOptions(services, serviceInput) {
     const option = serviceInput.options[i];
     console.log("Value:", option.value, "Text:", option.text);
   }
+}
+
+/** * Transfère les données d'un tableau de fichiers vers un champ input de type file.
+ * @param {File[]} filesArray - Le tableau de fichiers à transférer.
+ * @param {HTMLInputElement} inputFile - Le champ input file où les fichiers seront assignés.
+ */
+export function transfererDonnees(filesArray, inputFile) {
+  // Créer un objet DataTransfer pour gérer les fichiers
+  const dataTransfer = new DataTransfer();
+
+  // Ajouter chaque fichier à l'objet DataTransfer
+  filesArray.forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+
+  // Assigner les fichiers à l'input file
+  inputFile.files = dataTransfer.files;
 }
