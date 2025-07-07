@@ -100,12 +100,35 @@ trait DaTrait
     //     return $statut_bc;
     // }
 
+    private function creationPdf(string $numDa, int $numeroVersionMax)
+    {
+        $daValiders = $this->daValiderRepository->findBy([
+            'numeroDemandeAppro' => $numDa,
+            'numeroVersion' => $numeroVersionMax
+        ]);
+
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeDit' => $daValiders[0]->getNumeroDemandeDit()]);
+    }
+
+    private function SommeTotal($daValiders): float
+    {
+        $somme = 0.0;
+        foreach ($daValiders as $daValider) {
+            $somme += (float)$daValider->getTotal();
+        }
+        return $somme;
+    }
+
     private function creationExcel(string $numDa, int $numeroVersionMax): array
     {
         //recupération des donnée
         $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
 
+        //enregistrement des données dans DaValider
         $this->enregistrerDonneeDansDaValide($donnerExcels);
+
+        //creation PDF
+        $this->creationPdf($numDa, $numeroVersionMax);
 
         // Convertir les entités en tableau de données
         $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
