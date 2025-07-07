@@ -274,6 +274,7 @@ class DaPropositionRefController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
             }
@@ -777,6 +778,9 @@ class DaPropositionRefController extends Controller
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
+                ->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE)
+                ->setNumeroDemandeDit($DAL->getNumeroDit())
+                ->setJoursDispo($DAL->getJoursDispo())
             ;
 
             if ($file) {

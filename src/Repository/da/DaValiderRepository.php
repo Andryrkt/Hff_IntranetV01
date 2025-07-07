@@ -51,7 +51,7 @@ class DaValiderRepository extends EntityRepository
      * @param string $numeroDit
      * @return int
      */
-    public function getNumeroVersionMaxDit(string $numeroDit): int
+    public function getNumeroVersionMaxDit(?string $numeroDit): int
     {
         $numeroVersionMax = $this->createQueryBuilder('dav')
             ->select('DISTINCT MAX(dav.numeroVersion)')
@@ -76,8 +76,7 @@ class DaValiderRepository extends EntityRepository
             ->setParameter('version', $numeroVersion)
             ->setParameter('ref', $reference)
             ->setParameter('desi', $designation)
-            ->setParameter('numDit', $numeroDemandeDit)
-            ;
+            ->setParameter('numDit', $numeroDemandeDit);
         if (empty($criteria['numDa'])) {
             $davalider->andWhere('d.statutDal != :statut')
                 ->setParameter('statut', 'TERMINER');

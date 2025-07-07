@@ -88,7 +88,7 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
+            // if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -112,7 +112,7 @@ class DaSoumissionFacBlController extends Controller
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
-            }
+            // }
         }
     }
 
@@ -140,7 +140,7 @@ class DaSoumissionFacBlController extends Controller
         $statut = $this->daSoumissionFacBlRepository->getStatut($numCde);
 
         return [
-            'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
+            // 'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
             'statut' => $statut === self::STATUT_SOUMISSION,
         ];
     }
@@ -151,11 +151,12 @@ class DaSoumissionFacBlController extends Controller
         $nomdeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
         $okey = false;
 
-        if ($conditions['nomDeFichier']) {
-            $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un FacBl";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
-            $okey = false;
-        } elseif ($conditions['statut']) {
+        // if ($conditions['nomDeFichier']) {
+        //     $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un FacBl";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+        //     $okey = false;
+        // } else
+        if ($conditions['statut']) {
             $message = "Echec lors de la soumission, un FacBl est déjà en cours de validation ";
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
             $okey = false;

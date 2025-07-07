@@ -29,7 +29,6 @@ export function limitInputLength(input, maxLength) {
   });
 }
 
-
 export function populateServiceOptions(services, serviceInput) {
   // Supprimer toutes les options existantes
   while (serviceInput.options.length > 0) {

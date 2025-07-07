@@ -62,6 +62,8 @@ class DaSoumissionFacBl
      */
     private $numeroVersion;
 
+    private $pieceJoint2;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -223,6 +225,26 @@ class DaSoumissionFacBl
     public function setNumeroVersion($numeroVersion): self
     {
         $this->numeroVersion = $numeroVersion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFicheBc
+     */
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of nomFicheBc
+     *
+     * @return  self
+     */
+    public function setPieceJoint2($pieceJoint2)
+    {
+        $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
     }

@@ -215,21 +215,30 @@ export function onFileNamesInputChange(event) {
     selectedFilesMap[inputId] = [];
   }
 
-  // Ajouter les nouveaux fichiers à la liste existante
-  const currentFiles = Array.from(inputFile.files);
+  // Récupérer les fichiers sélectionnés et valider leur taille
+  const currentFiles = Array.from(inputFile.files).filter((file) =>
+    isValidFile(file)
+  );
+
+  // Ajouter uniquement les fichiers valides
   selectedFilesMap[inputId].push(...currentFiles);
 
   // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
   inputFile.value = "";
-
-  const dataTransfer = new DataTransfer();
-  selectedFilesMap[inputId].forEach((file) => {
-    dataTransfer.items.add(file);
-  });
-  inputFile.files = dataTransfer.files; // Remplace les fichiers dans l'input
-
+  // Assigner les fichiers à l'input file
+  transfererDonnees(selectedFilesMap[inputId], inputFile);
   // Afficher la liste des fichiers cumulés
   renderFileList(inputId);
+}
+
+function isValidFile(file, maxSize = 5 * 1024 * 1024) {
+  if (file.size > maxSize) {
+    alert(
+      `Le fichier "${file.name}" dépasse la taille maximale autorisée de 5 Mo donc elle ne sera pas ajoutée.`
+    );
+    return false;
+  }
+  return true;
 }
 
 function renderFileList(inputId) {
@@ -263,6 +272,7 @@ function renderFileList(inputId) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
+        transfererDonnees(selectedFilesMap[inputId], inputFile);
         renderFileList(inputId);
       };
 
@@ -272,4 +282,21 @@ function renderFileList(inputId) {
     });
     fieldContainer.appendChild(fileList); // Ajouter le lien au conteneur
   }
+}
+
+/** * Transfère les données d'un tableau de fichiers vers un champ input de type file.
+ * @param {File[]} filesArray - Le tableau de fichiers à transférer.
+ * @param {HTMLInputElement} inputFile - Le champ input file où les fichiers seront assignés.
+ */
+function transfererDonnees(filesArray, inputFile) {
+  // Créer un objet DataTransfer pour gérer les fichiers
+  const dataTransfer = new DataTransfer();
+
+  // Ajouter chaque fichier à l'objet DataTransfer
+  filesArray.forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+
+  // Assigner les fichiers à l'input file
+  inputFile.files = dataTransfer.files;
 }

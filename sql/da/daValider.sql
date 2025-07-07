@@ -47,3 +47,6 @@ alter TABLE da_valider ADD nom_fiche_technique VARCHAR(255);
 
 ALTER TABLE da_valider
 ADD jours_dispo int;
+
+ALTER TABLE da_valider
+ADD qte_en_attent int;
