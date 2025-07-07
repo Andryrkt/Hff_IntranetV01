@@ -367,6 +367,8 @@ class Dom
 
     private $rmq;
 
+    private $statutTropPercuOk = false;
+
     //======================================================================================================================================================
     public function getId()
     {
@@ -1281,5 +1283,25 @@ class Dom
             'prenom' => $this->prenom,
             'cin' => $this->cin
         ];
+    }
+
+    /**
+     * Get the value of statutTropPercuOk
+     */
+    public function getStatutTropPercuOk()
+    {
+        return $this->statutTropPercuOk;
+    }
+
+    /**
+     * Set the value of statutTropPercuOk
+     *
+     * @return  self
+     */
+    public function setStatutTropPercuOk($statutTropPercuOk)
+    {
+        $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
     }
 }
