@@ -46,6 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const totaAutreDepenseInput = document.getElementById(
     "mutation_form_totalAutresDepenses"
   );
+  const totaGeneralInput = document.getElementById(
+    "mutation_form_totalGeneralPayer"
+  );
 
   const categorieInput = document.querySelector("#mutation_form_categorie");
   categorieInput.addEventListener("change", () => {
@@ -117,13 +120,22 @@ document.addEventListener("DOMContentLoaded", function () {
   matricule.addEventListener("change", function () {
     if (this.value) {
       console.log(this.value);
-      
+
       updateModePaiement(this.value);
     }
   });
   modePaiementLabelInput.addEventListener("change", function () {
     if (matricule.value) {
       updateModePaiement(matricule.value);
+      if (this.value === "VIREMENT BANCAIRE") {
+        totaGeneralInput.classList.remove(
+          "border",
+          "border-2",
+          "border-danger",
+          "border-success",
+          "border-opacity-75"
+        );
+      }
     }
   });
   modePaiementValueInput.addEventListener("input", function () {
