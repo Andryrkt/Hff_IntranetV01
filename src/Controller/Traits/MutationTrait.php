@@ -78,6 +78,8 @@ trait MutationTrait
         $formatDate = fn(DateTime $date) => $date->format('d/m/Y');
         $withDevis = fn($value) => $value !== null ? $value . ' ' . $devis : '';
 
+        $rental = $mutation->getAgenceDebiteur()->getCodeAgence() === '50';
+
         $tab = [
             'MailUser'              => $user->getMail(),
             'dateS'                 => $formatDate($mutation->getDateDemande()),
@@ -108,6 +110,7 @@ trait MutationTrait
             "libModPaie"            => $form->get('modePaiementLabel')->getData(),
             "valModPaie"            => $form->get('modePaiementValue')->getData(),
             "mode"                  => $form->get('modePaiementLabel')->getData() === 'MOBILE MONEY' ? 'TEL' : 'CPT',
+            "message"               => $rental ? 'Les avances sur indemnité seront retirées du salaire à la prochaine paie.' : 'Les frais d\'installation sont à la charge de l\'entreprise.',
             "codeAg_serv"           => $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService()
         ];
         if ($tab['avanceSurIndemnite'] === 'OUI') {
