@@ -200,7 +200,14 @@ class GeneratePdfMutation extends GeneratePdf
         $pdf->SetFont('helvetica', '', 11);
         $pdf->Cell($w50 - 39, 10, $tab['valModPaie'], 1, 1, 'C');
 
-        $pdf->Line(0, $pdf->GetY() + 3, $w_total, $pdf->GetY() + 3);
+        $pdf->setTextColor(255, 0, 0); // rouge
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->Cell(8, 7, 'NB : ', 0, 0);
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->Cell(10, 7, $tab['message'], 0, 1);
+
+        // Ligne de séparation
+        $pdf->Line(0, $pdf->GetY(), $w_total, $pdf->GetY());
 
         // génération de fichier
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/mut/';
