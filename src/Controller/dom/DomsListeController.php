@@ -91,6 +91,7 @@ class DomsListeController extends Controller
             [
                 'form' => $form->createView(),
                 'data' => $paginationData['data'],
+                'page' => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage' => $paginationData['lastPage'],
                 'resultat' => $paginationData['totalItems'],
@@ -225,6 +226,7 @@ class DomsListeController extends Controller
             [
                 'form' => $form->createView(),
                 'data' => $paginationData['data'],
+                'page' => 'dom_list_annuler',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage' => $paginationData['lastPage'],
                 'resultat' => $paginationData['totalItems'],
