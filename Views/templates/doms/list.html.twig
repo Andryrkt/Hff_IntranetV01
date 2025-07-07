@@ -75,16 +75,13 @@
 								<button class="btn  dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-									<li>
-										<a class="dropdown-item fw-bold" href="#">Dupliquer</a>
-									</li>
-									{% if trop_percu(item.numeroOrdreMission) %}
+								{% if trop_percu(item.numeroOrdreMission) and item.statutTropPercuOk %}
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										<li>
 											<a class="dropdown-item fw-bold" href="{{ path("dom_trop_percu_form", {id:item.id}) }}">Trop perçu</a>
 										</li>
-									{% endif %}
-								</ul>
+									</ul>
+								{% endif %}
 							</div>
 						</td>
 						{# Fin Actions #}

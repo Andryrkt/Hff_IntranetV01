@@ -507,7 +507,18 @@ trait DomsTrait
             ->setSite($oldDom->getSite())
             ->setMatricule($oldDom->getMatricule())
             ->setNom($oldDom->getNom())
+            ->setDateDebut($oldDom->getDateDebut())
+            ->setDateFin($oldDom->getDateFin())
             ->setPrenom($oldDom->getPrenom())
+            ->setNombreJour($oldDom->getNombreJour())
+            ->setMotifAutresDepense1($oldDom->getMotifAutresDepense1())
+            ->setMotifAutresDepense2($oldDom->getMotifAutresDepense2())
+            ->setMotifAutresDepense3($oldDom->getMotifAutresDepense3())
+            ->setAutresDepense1($oldDom->getAutresDepense1() == 0 ? '' : $oldDom->getAutresDepense1())
+            ->setAutresDepense2($oldDom->getAutresDepense2() == 0 ? '' : $oldDom->getAutresDepense2())
+            ->setAutresDepense3($oldDom->getAutresDepense3() == 0 ? '' : $oldDom->getAutresDepense3())
+            ->setTotalAutresDepenses($oldDom->getTotalAutresDepenses() == 0 ? '' : $oldDom->getTotalAutresDepenses())
+            ->setTotalGeneralPayer('-' . $oldDom->getTotalGeneralPayer())
             ->setMotifDeplacement($oldDom->getMotifDeplacement())
             ->setClient($oldDom->getClient())
             ->setFiche($oldDom->getFiche())
@@ -522,5 +533,10 @@ trait DomsTrait
             ->setSiteId($oldDom->getSiteId())
             ->setCategoryId($oldDom->getCategoryId())
         ;
+    }
+
+    private function statutTropPercu()
+    {
+        # code...
     }
 }

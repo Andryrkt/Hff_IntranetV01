@@ -61,8 +61,7 @@ class DomsListeController extends Controller
             'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
-        $repository = self::$em->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
 
         //enregistre le critère dans la session
         $this->sessionService->set('dom_search_criteria', $criteria);
@@ -211,8 +210,7 @@ class DomsListeController extends Controller
             'boolean' => $autoriser,
             'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
-        $repository = self::$em->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
 
 
         //enregistre le critère dans la session
