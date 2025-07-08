@@ -12,7 +12,7 @@ CREATE TABLE Demande_de_mutation(
 	Date_Fin date NOT NULL,
 	Lieu_Mutation varchar(100) NOT NULL,
 	Motif_Mutation varchar(100) NOT NULL,
-	Client varchar(100) NOT NULL,
+	Client varchar(100) NULL,
 	Nombre_Jour_Avance int NULL,
 	Indemnite_Forfaitaire varchar(50) NULL,
 	Total_Indemnite_Forfaitaire varchar(50) NULL,
