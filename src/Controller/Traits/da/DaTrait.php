@@ -9,6 +9,7 @@ use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaTrait
@@ -119,12 +120,14 @@ trait DaTrait
 
         foreach ($dals as $dal) {
             $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
-            $dal->setDemandeApproLR($dalrs);
+            $dal->setDemandeApproLR(new ArrayCollection($dalrs));
         }
 
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeDit' => $dals[0]->getNumeroDemandeDit()]);
+        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
 
-        $genererPdfDa->genererPdf($dit, $dals);
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+
+        $genererPdfDa->genererPdf($dit, $da, $dals);
     }
 
     private function SommeTotal($daValiders): float
