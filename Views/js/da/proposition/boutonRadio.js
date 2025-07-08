@@ -16,6 +16,13 @@ export function boutonRadio() {
     selectedValues.push(valeur);
 
     console.log("Valeurs sélectionnées :", selectedValues);
+
+    const refsValide = selectedValues.map((item) => {
+      const [key, value] = item.split("-");
+      return { [key]: value }; // Transforme en objet avec clé-valeur, par exemple { "1": "5" }; ajout de [key] pour éviter les erreurs de syntaxe
+    }); // Transforme en tableau d'objets
+
+    localStorage.setItem("selectedValues", JSON.stringify(refsValide));
   }
 
   // Écouteur sur chaque radio
