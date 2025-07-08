@@ -156,7 +156,7 @@
 							<td>{{ item.dit.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
-							<td class="{{ styleStatutDA[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
 							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
