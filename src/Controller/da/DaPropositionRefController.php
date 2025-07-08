@@ -15,6 +15,7 @@ use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
+use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -72,6 +73,7 @@ class DaPropositionRefController extends Controller
 
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $dals, $request, $numDa, $da); //
@@ -84,6 +86,7 @@ class DaPropositionRefController extends Controller
             'id' => $id,
             'dit' => $dit,
             'form' => $form->createView(),
+            'formValidation' => $formValidation->createView(),
             'observations' => $observations,
             'numDa' => $numDa,
             'estAte' => $this->estUserDansServiceAtelier(),
