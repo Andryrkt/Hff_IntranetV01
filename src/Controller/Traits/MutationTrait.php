@@ -2,8 +2,10 @@
 
 namespace App\Controller\Traits;
 
+use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\Mutation;
@@ -72,70 +74,66 @@ trait MutationTrait
          */
         $mutation = $form->getData();
         $devis = $mutation->getDevis();
+
+        $formatDate = fn(DateTime $date) => $date->format('d/m/Y');
+        $withDevis = fn($value) => $value !== null ? $value . ' ' . $devis : '';
+
+        $rental = $mutation->getAgenceDebiteur()->getCodeAgence() === '50';
+
         $tab = [
             'MailUser'              => $user->getMail(),
-            'dateS'                 => $mutation->getDateDemande()->format('d/m/Y'),
+            'dateS'                 => $formatDate($mutation->getDateDemande()),
             "NumMut"                => $mutation->getNumeroMutation(),
             "Nom"                   => $mutation->getNom(),
             "Prenoms"               => $mutation->getPrenom(),
             "matr"                  => $mutation->getMatricule(),
             "CategoriePers"         => $mutation->getCategorie() === null ? '' : $mutation->getCategorie()->getDescription(),
-            "agenceOrigine"         => $mutation->getAgenceEmetteur()->getCodeAgence() . ' - ' . $mutation->getAgenceEmetteur()->getLibelleAgence(),
-            "serviceOrigine"        => $mutation->getServiceEmetteur()->getCodeService() . ' - ' . $mutation->getServiceEmetteur()->getLibelleService(),
+            "agenceOrigine"         => $this->formatAgence($mutation->getAgenceEmetteur()),
+            "serviceOrigine"        => $this->formatService($mutation->getServiceEmetteur()),
             "dateAffectation"       => $mutation->getDateDebut()->format('d/m/Y'),
             "lieuAffectation"       => $mutation->getLieuMutation(),
             "motif"                 => $mutation->getMotifMutation(),
-            "agenceDestination"     => $mutation->getAgenceDebiteur()->getCodeAgence() . ' - ' . $mutation->getAgenceDebiteur()->getLibelleAgence(),
-            "serviceDestination"    => $mutation->getServiceDebiteur()->getCodeService() . ' - ' . $mutation->getServiceDebiteur()->getLibelleService(),
+            "agenceDestination"     => $this->formatAgence($mutation->getAgenceDebiteur()),
+            "serviceDestination"    => $this->formatService($mutation->getServiceDebiteur()),
             "client"                => $mutation->getClient(),
             "avanceSurIndemnite"    => $form->get('avanceSurIndemnite')->getData(),
             "NbJ"                   => '',
             "indemnite"             => '',
             "supplement"            => '',
             "totalIndemnite"        => '',
-            "motifdep01"            => '',
-            "montdep01"             => '',
-            "motifdep02"            => '',
-            "montdep02"             => '',
-            "totaldep"              => '',
-            "totalGeneral"          => '0 ' . $devis,
+            "motifdep01"            => $mutation->getMotifAutresDepense1() ?? '',
+            "montdep01"             => $withDevis($mutation->getAutresDepense1()),
+            "motifdep02"            => $mutation->getMotifAutresDepense2() ?? '',
+            "montdep02"             => $withDevis($mutation->getAutresDepense2()),
+            "totaldep"              => $withDevis($mutation->getTotalAutresDepenses()),
+            "totalGeneral"          => $withDevis($mutation->getTotalGeneralPayer() ?? 0),
             "libModPaie"            => $form->get('modePaiementLabel')->getData(),
             "valModPaie"            => $form->get('modePaiementValue')->getData(),
-            "mode"                  => 'TEL',
+            "mode"                  => $form->get('modePaiementLabel')->getData() === 'MOBILE MONEY' ? 'TEL' : 'CPT',
+            "message"               => $rental ? 'Les avances sur indemnité seront retirées du salaire à la prochaine paie.' : 'Les frais d\'installation sont à la charge de l\'entreprise.',
             "codeAg_serv"           => $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService()
         ];
-        if ($mutation->getMotifAutresDepense1() !== null) {
-            $tab['motifdep01'] = $mutation->getMotifAutresDepense1();
-        }
-        if ($mutation->getMotifAutresDepense2() !== null) {
-            $tab['motifdep02'] = $mutation->getMotifAutresDepense2();
-        }
-        if ($mutation->getAutresDepense1() !== null) {
-            $tab['montdep01'] = $mutation->getAutresDepense1() . ' ' . $devis;
-        }
-        if ($mutation->getAutresDepense2() !== null) {
-            $tab['montdep02'] = $mutation->getAutresDepense2() . ' ' . $devis;
-        }
-        if ($mutation->getTotalAutresDepenses() !== null) {
-            $tab['totaldep'] = $mutation->getTotalAutresDepenses() . ' ' . $devis;
-        }
-        if ($mutation->getTotalGeneralPayer() !== null) {
-            $tab['totalGeneral'] = $mutation->getTotalGeneralPayer() . ' ' . $devis;
-        }
-        if ($tab['libModPaie'] !== 'MOBILE MONEY') {
-            $tab['mode'] = 'CPT';
-        }
         if ($tab['avanceSurIndemnite'] === 'OUI') {
+            $tab['NbJ'] = $mutation->getNombreJourAvance() ?? '';
+            $tab['indemnite'] = $withDevis($mutation->getIndemniteForfaitaire()) . ' / jour';
+            $tab['totalIndemnite'] = $withDevis($mutation->getTotalIndemniteForfaitaire());
+
             if ($form->get('supplementJournaliere')->getData() !== null) {
                 $tab['supplement'] = $form->get('supplementJournaliere')->getData() . ' ' . $devis . ' / jour';
             }
-            if ($mutation->getNombreJourAvance() !== null) {
-                $tab['NbJ'] = $mutation->getNombreJourAvance();
-            }
-            $tab['indemnite'] = $mutation->getIndemniteForfaitaire() . ' ' . $devis . ' / jour';
-            $tab['totalIndemnite'] = $mutation->getTotalIndemniteForfaitaire() . ' ' . $devis;
         }
         return $tab;
+    }
+
+
+    private function formatAgence(Agence $agence): string
+    {
+        return $agence->getCodeAgence() . ' - ' . $agence->getLibelleAgence();
+    }
+
+    private function formatService(Service $service): string
+    {
+        return $service->getCodeService() . ' - ' . $service->getLibelleService();
     }
 
     private function envoyerPieceJointes($form, $fusionPdf)
@@ -225,7 +223,7 @@ trait MutationTrait
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER']. '/mut/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/mut/fichier/';
 
         // Assurer que le répertoire existe
         if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
