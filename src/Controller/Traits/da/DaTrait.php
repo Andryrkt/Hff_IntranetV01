@@ -7,6 +7,7 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GenererPdfDa;
 use DateTime;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -109,12 +110,21 @@ trait DaTrait
 
     private function creationPdf(string $numDa, int $numeroVersionMax)
     {
-        $daValiders = $this->daValiderRepository->findBy([
+        $genererPdfDa = new GenererPdfDa();
+
+        $dals = $this->demandeApproLRepository->findBy([
             'numeroDemandeAppro' => $numDa,
             'numeroVersion' => $numeroVersionMax
         ]);
 
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeDit' => $daValiders[0]->getNumeroDemandeDit()]);
+        foreach ($dals as $dal) {
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dal->setDemandeApproLR($dalrs);
+        }
+
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeDit' => $dals[0]->getNumeroDemandeDit()]);
+
+        $genererPdfDa->genererPdf($dit, $dals);
     }
 
     private function SommeTotal($daValiders): float
