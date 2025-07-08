@@ -564,6 +564,14 @@ class Controller
         return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 
+    public  static function getMailUser(): string
+    {
+        $ctrl = new self();
+
+        $userId = $ctrl->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
     protected function estUserDansServiceAtelier(): bool
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
