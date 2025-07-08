@@ -3,17 +3,15 @@
 namespace App\Service\genererPdf;
 
 use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DemandeIntervention;
 use TCPDF;
 
 class GenererPdfDa extends GeneratePdf
 {
-    public function genererPdf(DemandeIntervention $dit, $dals)
+    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da, $dals)
     {
-        /** @var DemandeApproL $DAL */
-        $DAL = $dals[0];
-
         $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
 
@@ -30,7 +28,7 @@ class GenererPdfDa extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $DAL->getNumeroDemandeAppro(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $da->getNumeroDemandeAppro(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
@@ -46,7 +44,7 @@ class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $DAL->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, 'Le : ' . $da->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         //========================================================================================
@@ -196,7 +194,7 @@ class GenererPdfDa extends GeneratePdf
         $pdf->Cell(35, 6, "email : " . Controller::getMailUser(), 0, 0, 'L');
 
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $DAL->getNumeroDemandeAppro() . '/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $da->getNumeroDemandeAppro() . '/';
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {
@@ -205,7 +203,7 @@ class GenererPdfDa extends GeneratePdf
             }
         }
 
-        $pdf->Output($Dossier . $DAL->getNumeroDemandeAppro() . '.pdf', 'F');
+        $pdf->Output($Dossier . $da->getNumeroDemandeAppro() . '.pdf', 'F');
     }
 
 
