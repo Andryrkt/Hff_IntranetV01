@@ -203,8 +203,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE ));
-        
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
@@ -320,7 +319,9 @@ class DaEditController extends Controller
             ; // Incrémenter le numéro de version
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
-            // $this->deleteDALR($demandeApproL);
+            if ($demandeApproL->getDeleted() == 1) {
+                $this->deleteDALR($demandeApproL);
+            }
             self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }
