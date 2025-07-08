@@ -81,15 +81,15 @@ class DemandeApproRepository extends EntityRepository
         }
 
         //Filtre sur l'agence destinataire
-        if (isset($criteria['agenceDestinataire'])) {
-            $qb->andWhere("da.agenceDestinataire = :agenceDestinataire")
-                ->setParameter('agenceDestinataire', $criteria['agenceDestinataire']->getId());
+        if (isset($criteria['agenceDebiteur'])) {
+            $qb->andWhere("da.agenceDebiteur = :agenceDebiteur")
+                ->setParameter('agenceDebiteur', $criteria['agenceDebiteur']->getId());
         }
 
         // Filtre sur le service destinataire
-        if (isset($criteria['serviceDestinataire'])) {
-            $qb->andWhere("da.serviceDestinataire = :serviceDestinataire")
-                ->setParameter('serviceDestinataire', $criteria['serviceDestinataire']->getId());
+        if (isset($criteria['serviceDebiteur'])) {
+            $qb->andWhere("da.serviceDebiteur = :serviceDebiteur")
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
 
         return $qb->getQuery()->getResult();

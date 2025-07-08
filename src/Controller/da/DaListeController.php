@@ -87,7 +87,7 @@ class DaListeController extends Controller
 
         $this->sessionService->remove('firstCharge');
 
-
+        // recupération des données de la DA
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
 
