@@ -15,6 +15,7 @@ use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
+use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\da\DemandeApproRepository;
@@ -72,25 +73,30 @@ class DaPropositionRefController extends Controller
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
 
         $DapLRCollection = new DemandeApproLRCollection();
+        $daObservation = new DaObservation();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
         $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
         self::$twig->display('da/proposition.html.twig', [
-            'da' => $da,
-            'id' => $id,
-            'dit' => $dit,
-            'form' => $form->createView(),
-            'formValidation' => $formValidation->createView(),
-            'observations' => $observations,
-            'numDa' => $numDa,
-            'estAte' => $this->estUserDansServiceAtelier(),
-            'estAppro' => $this->estUserDansServiceAppro(),
+            'da'                => $da,
+            'id'                => $id,
+            'dit'               => $dit,
+            'form'              => $form->createView(),
+            'formValidation'    => $formValidation->createView(),
+            'formObservation'   => $formObservation->createView(),
+            'observations'      => $observations,
+            'numDa'             => $numDa,
+            'connectedUser'     => $this->getUser(),
+			'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'estAte'            => $this->estUserDansServiceAtelier(),
+            'estAppro'          => $this->estUserDansServiceAppro(),
             'nePeutPasModifier' => $this->nePeutPasModifier($da)
         ]);
     }
