@@ -50,15 +50,15 @@ class GenererPdfDa extends GeneratePdf
         //========================================================================================
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->cell(25, 6, 'Objet DIT :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->cell(0, 6, $dit->getObjetDemande(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $da->getObjetDal(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->cell(25, 6, 'Détails DIT :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 50, $dit->getDetailDemande(), 1, '', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 50, $da->getDetailDal(), 1, '', 0, 0, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
@@ -68,12 +68,6 @@ class GenererPdfDa extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
-        //     $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
-        // } else {
-        //     $pdf->cell(50, 6, $dit->getDatePrevueTravaux(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        // }
         $pdf->cell(25, 6, 'Date prévue :', 0, 0, '', false, '', 0, false, 'T', 'M');
         if ($dit->getDatePrevueTravaux() !== null && !empty($dit->getDatePrevueTravaux())) {
             $pdf->cell(50, 6, $dit->getDatePrevueTravaux()->format('d/m/Y'), 1, 0, '', false, '', 0, false, 'T', 'M');
