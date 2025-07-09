@@ -188,7 +188,7 @@ trait DaTrait
 
     private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
     {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'deleted' => false]); // On récupère les DALs avec version max et non supprimés de la DA
 
         $donnerExcels = [];
         foreach ($dals as $dal) {
