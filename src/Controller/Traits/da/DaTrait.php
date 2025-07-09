@@ -157,7 +157,7 @@ trait DaTrait
         $date = new DateTime();
         $formattedDate = $date->format('Ymd_His');
         $fileName = $numDa . '_' . $formattedDate . '.xlsx';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa/$fileName";
         $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
 
         return [
