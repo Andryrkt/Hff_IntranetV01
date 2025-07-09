@@ -42,7 +42,7 @@
             <a href="{{ path("da_edit", {id: dit.id})}}" class="btn bouton mt-2 me-4 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
                 Modifier la demande
             </a>
-            <button type="submit" class="btn bouton mt-2 me-4" name="observation">
+            <button type="submit" class="btn bouton mt-2 me-4 d-none" name="observation">
                 Envoyer l'observation
                 <i class="fa-solid fa-paper-plane"></i>
             </button>
