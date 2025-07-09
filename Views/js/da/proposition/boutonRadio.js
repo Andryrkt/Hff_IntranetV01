@@ -17,10 +17,11 @@ export function boutonRadio() {
 
     console.log("Valeurs sélectionnées :", selectedValues);
 
-    const refsValide = selectedValues.map((item) => {
+    const refsValide = selectedValues.reduce((acc, item) => {
       const [key, value] = item.split("-");
-      return { [key]: value }; // Transforme en objet avec clé-valeur, par exemple { "1": "5" }; ajout de [key] pour éviter les erreurs de syntaxe
-    }); // Transforme en tableau d'objets
+      acc[key] = value; // Utilise le premier élément comme clé et le second comme valeur
+      return acc; // Accumulate les paires clé-valeur
+    }, {}); // Crée un objet avec les paires clé-valeur, {} est l'initialisation
 
     localStorage.setItem("selectedValues", JSON.stringify(refsValide));
   }

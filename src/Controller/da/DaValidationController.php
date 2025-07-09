@@ -10,9 +10,11 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -27,6 +29,7 @@ class DaValidationController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -34,6 +37,7 @@ class DaValidationController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -41,10 +45,13 @@ class DaValidationController extends Controller
      */
     public function validate(string $numDa, Request $request)
     {
+        $daValidationData = $request->request->get('da_proposition_validation');
+        $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
-        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire);
+        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
@@ -84,7 +91,7 @@ class DaValidationController extends Controller
         $this->redirectToRoute("da_list");
     }
 
-    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire): DemandeAppro
+    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire, array $refsValide): DemandeAppro
     {
         /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
@@ -94,6 +101,7 @@ class DaValidationController extends Controller
                 ->setValidePar($this->getUser()->getNomUtilisateur())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
+            self::$em->persist($da);
         }
 
         /** @var DemandeApproL */
@@ -110,19 +118,30 @@ class DaValidationController extends Controller
                     if (!empty($prixUnitaire) && array_key_exists($item->getNumeroLigne(), $prixUnitaire)) {
                         $item->setPrixUnitaire($prixUnitaire[$item->getNumeroLigne()]);
                     }
+
+                    self::$em->persist($item);
                 }
             }
         }
 
-        /** @var DemandeApproLR */
         $dalr = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
         if (!empty($dalr)) {
             foreach ($dalr as $item) {
+                /** @var DemandeApproLR $item le DALR correspondant */
                 if ($item) {
                     $item
                         ->setEstValidee(true)
+                        ->setChoix(false) // on réinitialise le choix à false
                         ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
+                    if (key_exists($item->getNumeroLigneDem(), $refsValide)) {
+                        if ($item->getNumLigneTableau() == $refsValide[$item->getNumeroLigneDem()]) {
+                            $item->setChoix(true);
+                        }
+                    }
+
+                    self::$em->persist($item);
                 }
             }
         }
