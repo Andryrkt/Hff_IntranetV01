@@ -108,6 +108,7 @@ class DaListeController extends Controller
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
+        $this->verouillerOuNonLesDa($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
         // changer le statut de la DA si la situation des pièce est tout livré
@@ -549,5 +550,60 @@ class DaListeController extends Controller
         }
 
         self::$em->flush();
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function verouillerOuNonLesDa($dasFiltered)
+    {
+        foreach ($dasFiltered as $da) {
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $this->estVerouillerOuNon($daValiderOuProposer);
+            }
+        }
+        return $dasFiltered;
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
+     */
+    private function estVerouillerOuNon($daValiderOuProposer)
+    {
+        $statutDa = $daValiderOuProposer->getStatutDal(); // Récupération du statut de la DA
+        $statutBc = $daValiderOuProposer->getStatutBc(); // Récupération du statut du BC
+
+        $estAppro = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
+        $estAdmin = in_array(Controller::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
+        $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
+
+        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE];
+        $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO];
+
+        if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
+            /** 
+             * Si l'utilisateur est Appro mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE,
+             * et que le statut de la soumission BC n'est pas REFUSE, alors on verrouille la DA. 
+             **/
+            $verouiller = true;
+        } elseif (!$estAdmin && $estAtelier && in_array($statutDa, $statutDaVerouillerAtelier)) {
+            /** 
+             * Si l'utilisateur est Atelier mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE ou SOUMIS A APPRO, 
+             * alors on verrouille la DA.
+             **/
+            $verouiller = true;
+        } elseif (!$estAtelier && !$estAppro && !$estAdmin) {
+            /** 
+             * Si l'utilisateur n'est ni Appro ni Atelier, et n'est pas Administrateur,
+             * alors on verrouille la DA.
+             */
+            $verouiller = true;
+        }
+
+        // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
+        $daValiderOuProposer->setVerouille($verouiller);
     }
 }

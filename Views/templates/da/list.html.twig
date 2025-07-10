@@ -103,14 +103,7 @@
 							{% set classe = 'complet-non-livre bg-primary text-white' %}
 						{% endif %}
 
-						{% set dalAffiche = dal %}
-						{% if dal.demandeApproLR|length > 0 %}
-							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
-							{# Le premier dalr avec choix = true #}
-							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
-						{% endif %}
-
-						{% set designationStyle = dalAffiche is same as dal ? '' : 'mise-en-evidence' %}
+						{% set designationStyle = dal.demandeApproLR is iterable ? '' : 'mise-en-evidence' %}
 
 						<tr>
 							{# Début Action #}
@@ -158,16 +151,16 @@
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
-							<td class="text-start">{{ dalAffiche.nomFournisseur }}</td>
+							<td class="text-start">{{ dal.nomFournisseur }}</td>
 							{% if not serviceAtelier %}
-								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
+								<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td class="text-start {{ designationStyle }}">
-								{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') or (serviceAppro and (dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO'))%}
-									{{ dalAffiche.artDesi }}
+								{% if dal.verouille %}
+									{{ dal.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
-										{{ dalAffiche.artDesi }}
+										{{ dal.artDesi }}
 									</a>
 								{% endif %}
 							</td>

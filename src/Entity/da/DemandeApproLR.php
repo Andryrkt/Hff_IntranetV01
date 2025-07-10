@@ -194,6 +194,8 @@ class DemandeApproLR
      */
     private ?int $joursDispo;
 
+    private $verouille = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -910,6 +912,26 @@ class DemandeApproLR
     public function setQteEnAttent($qteEnAttent)
     {
         $this->qteEnAttent = $qteEnAttent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of verouille
+     */
+    public function getVerouille()
+    {
+        return $this->verouille;
+    }
+
+    /**
+     * Set the value of verouille
+     *
+     * @return  self
+     */
+    public function setVerouille($verouille)
+    {
+        $this->verouille = $verouille;
 
         return $this;
     }
