@@ -2,19 +2,20 @@
 
 namespace App\Api\da;
 
-use App\Entity\dw\DwBcClient;
 use App\Controller\Controller;
-use App\Repository\dw\DwBcClientRepository;
+use App\Entity\dw\DwBcAppro;
+use App\Repository\dw\DwBcApproRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DaTelechargeBcValiderApi extends Controller
 {
-    private DwBcClientRepository $dwBcClientRepository;
+    private DwBcApproRepository $dwBcApproRepository;
+
     public function __construct()
     {
         parent::__construct();
 
-        $this->dwBcClientRepository = self::$em->getRepository(DwBcClient::class);
+        $this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
     }
 
     /**
@@ -22,7 +23,7 @@ class DaTelechargeBcValiderApi extends Controller
      */
     public function telechargeBcValider(string $numBc)
     {
-        $path = $this->dwBcClientRepository->getPath($numBc);
+        $path = $this->dwBcApproRepository->getPath($numBc);
 
         $filePath = "C:\\wamp64\\www\\Upload\\" . $path;
         // En-têtes pour forcer le téléchargement
