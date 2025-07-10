@@ -132,9 +132,9 @@ class ListCdeFrnController extends Controller
                 $criteria
             );
             if ($daValider) {
-                    //modification statut bc ou cde dans la table da_valider
-                    $this->modificationStatutDaValider($daValider, $data['num_cde']);
-                
+                //modification statut bc ou cde dans la table da_valider
+                $this->modificationStatutDaValider($daValider, $data['num_cde']);
+
                 //ajout du numero demande appro
                 $datas[$key]['num_da'] = $daValider->getNumeroDemandeAppro();
 
@@ -259,7 +259,7 @@ class ListCdeFrnController extends Controller
 
             //modification dans la table da_valider
             $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
+            $daValider = $this->daValiderRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
             foreach ($daValider as $valider) {
                 $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
