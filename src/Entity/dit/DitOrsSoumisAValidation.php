@@ -30,7 +30,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = '';
 
     /**
      * @ORM\Column(type="integer")

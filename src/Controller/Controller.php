@@ -37,6 +37,11 @@ use App\Model\da\DaModel;
 
 class Controller
 {
+
+    public const ROLE_ADMINISTRATEUR = 1;
+    public const ROLE_ATELIER = 4;
+    public const ROLE_MULTI_SUCURSALES = 6;
+    
     protected $fusionPdf;
 
     protected $ldap;

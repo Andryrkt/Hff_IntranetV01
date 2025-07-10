@@ -3,6 +3,7 @@
 namespace App\Controller\Traits\da;
 
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 
 trait DaListeDitTrait
@@ -17,7 +18,7 @@ trait DaListeDitTrait
     {
         $userConnecter = $this->getUser();
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
+        return in_array(Controller::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Controller::ROLE_ATELIER, $roleIds);
     }
 
     /**
