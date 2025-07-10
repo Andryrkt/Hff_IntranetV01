@@ -34,8 +34,7 @@ class DomSecondController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         $dom = new Dom();
         /** INITIALISATION des données  */
