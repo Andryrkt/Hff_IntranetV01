@@ -6,6 +6,7 @@ namespace App\Controller\Traits\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -283,7 +284,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
+        return in_array(Controller::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Controller::ROLE_ATELIER, $roleIds) || in_array(Controller::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 
     private function autorisationRoleEnergie($em): bool
@@ -582,7 +583,7 @@ trait DitListTrait
 
         $this->ajoutDateEtMontantOR($paginationData['data'], $em);
 
-        // $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
+        $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
 
         // dd($paginationData['data']);
         return $paginationData;
@@ -637,7 +638,7 @@ trait DitListTrait
             // dump($value->getIdStatutDemande());
             // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
 
-            $statutAffecterSection = $value->getIdStatutDemande()->getId() === Demandeintervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
+            $statutAffecterSection = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
             $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
             $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());

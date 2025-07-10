@@ -4,24 +4,15 @@ namespace App\Entity\da;
 
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\da\DaSoumissionBcRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DaSoumissionBcRepository::class)
- * @ORM\Table(name="da_soumission_bc")
+ * @ORM\Entity(repositoryClass=DaPickingRepository::class)
+ * @ORM\Table(name="da_picking")
  * @ORM\HasLifecycleCallbacks
  */
-class DaSoumissionBc
+class DaPicking
 {
     use DateTrait;
-
-
-    public const STATUT_VALIDE = 'Validé';
-    public const STATUT_CLOTURE = 'Cloturé';
-    public const STATUT_REFUSE = 'Refusé';
-
-    public const POSITION_TERMINER = 'TE';
-    public const POSITION_EDITER = 'ED';
 
     /**
      * @ORM\Id
@@ -71,6 +62,7 @@ class DaSoumissionBc
      * @ORM\Column(type="integer", name="numero_version")
      */
     private $numeroVersion;
+
 
     /**===========================================================================
      * GETTER & SETTER

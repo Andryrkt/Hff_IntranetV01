@@ -158,12 +158,12 @@ class DitOrsSoumisAValidationController extends Controller
         if ($numDa) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
             $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-            if(!empty($daValiders)) {
+            if (!empty($daValiders)) {
 
-                foreach ($daValiders as $key => $daValider) {
+                foreach ($daValiders as $daValider) {
                     $daValider
-                    ->setNumeroOr($numOr)
-                    ->setStatutOr('Soumis à validation')
+                        ->setNumeroOr($numOr)
+                        ->setStatutOr('Soumis à validation')
                     ;
                     self::$em->persist($daValider);
                 }
@@ -285,7 +285,7 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "Echec de la soumission de l'OR . . . le numéro OR ne correspond pas ";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } 
+        }
         // elseif ($conditionBloquage['datePlanningInferieureDateDuJour']) {
         //     $message = "Echec de la soumission de l'OR . . . la date de planning est inférieure à la date du jour";
         //     $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
@@ -355,23 +355,33 @@ class DitOrsSoumisAValidationController extends Controller
     {
         $numDevis = $this->ditModel->recupererNumdevis($numOr);
         $nbSotrieMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
-
         $nbAchatLocaux = $this->ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
+        $nbPol = $this->ditOrsoumisAValidationModel->recupNbPol($numOr);
+
+
         if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';
         } else {
             $sortieMagasin = 'NON';
         }
+
         if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
             $achatLocaux = 'NON';
         }
 
+        if (!empty($nbPol) && $nbPol[0]['nbr_pol'] !== "0") {
+            $pol = 'OUI';
+        } else {
+            $pol = 'NON';
+        }
+
         return [
             "numDevis" => $numDevis,
             "sortieMagasin" => $sortieMagasin,
-            "achatLocaux" => $achatLocaux
+            "achatLocaux" => $achatLocaux,
+            "pol" => $pol,
         ];
     }
 

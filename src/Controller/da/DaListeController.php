@@ -71,6 +71,9 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** Autorisation */
+
+
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
@@ -87,13 +90,13 @@ class DaListeController extends Controller
 
         $this->sessionService->remove('firstCharge');
 
-
+        // recupération des données de la DA
         $das = $this->daRepository->findDaData($criteria);
         $this->deleteDal($das);
 
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
-        /** modification des donnée dans DaValider */
+        /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
         $this->ChangeQteDaValider($dasFiltered);
         $this->ChangeStatutBcDaValider($dasFiltered);
 
@@ -105,8 +108,11 @@ class DaListeController extends Controller
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
+        $this->verouillerOuNonLesDa($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
+        // changer le statut de la DA si la situation des pièce est tout livré
+        $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
@@ -123,6 +129,18 @@ class DaListeController extends Controller
         ]);
     }
 
+    private function modificationStatutSiSituationPieceLivree(array $dasFiltered): void
+    {
+        foreach ($dasFiltered as $da) {
+            $sumQteDemEtLivrer = $this->daValiderRepository->getSumQteDemEtLivrer($da->getNumeroDemandeAppro());
+            if ((int)$sumQteDemEtLivrer['qteDem'] != 0 && (int)$sumQteDemEtLivrer['qteLivrer'] != 0 && (int)$sumQteDemEtLivrer['qteDem'] === (int)$sumQteDemEtLivrer['qteLivrer']) {
+                $this->modificationStatutDalr($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDal($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDa($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDaValider($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+            }
+        }
+    }
 
     /** 
      * @Route("/deverrouiller-da/{idDa}", name="da_deverrouiller_da")
@@ -151,15 +169,16 @@ class DaListeController extends Controller
             }
 
             $this->duplicationDataDaL($demandeAppro->getDAL()->toArray());
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro());
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro());
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
 
             $historiqueModifDA->setEstDeverouillee(true); // Marquer la demande comme déverrouillée
             self::$em->persist($historiqueModifDA);
             self::$em->flush();
 
             $this->envoyerMailAuxAte([
-                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
+                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'userConnecter' => $this->getUser()->getNomUtilisateur(),
             ]);
 
@@ -421,7 +440,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -486,25 +505,105 @@ class DaListeController extends Controller
         return (int)$num + 1;
     }
 
-    private function modificationStatutDal(string $numDa): void
+    private function modificationStatutDal(string $numDa, string $statut): void
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+            $dal->setStatutDal($statut);
             self::$em->persist($dal);
         }
 
         self::$em->flush();
     }
 
-    private function modificationStatutDa(string $numDa): void
+    private function modificationStatutDa(string $numDa, string $statut): void
     {
         $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+        $da->setStatutDal($statut);
 
         self::$em->persist($da);
         self::$em->flush();
+    }
+
+    private function modificationStatutDaValider(string $numDa, string $statut): void
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        foreach ($daValiders as  $daValider) {
+            $daValider->setStatutDal($statut);
+            self::$em->persist($daValider);
+        }
+
+        self::$em->flush();
+    }
+
+    private function modificationStatutDalr(string $numDa, string $statut): void
+    {
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
+
+        foreach ($dalrs as  $dalr) {
+            $dalr->setStatutDal($statut);
+            self::$em->persist($dalr);
+        }
+
+        self::$em->flush();
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function verouillerOuNonLesDa($dasFiltered)
+    {
+        foreach ($dasFiltered as $da) {
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $this->estVerouillerOuNon($daValiderOuProposer);
+            }
+        }
+        return $dasFiltered;
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
+     */
+    private function estVerouillerOuNon($daValiderOuProposer)
+    {
+        $statutDa = $daValiderOuProposer->getStatutDal(); // Récupération du statut de la DA
+        $statutBc = $daValiderOuProposer->getStatutBc(); // Récupération du statut du BC
+
+        $estAppro = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
+        $estAdmin = in_array(Controller::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
+        $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
+
+        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE];
+        $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO];
+
+        if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
+            /** 
+             * Si l'utilisateur est Appro mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE,
+             * et que le statut de la soumission BC n'est pas REFUSE, alors on verrouille la DA. 
+             **/
+            $verouiller = true;
+        } elseif (!$estAdmin && $estAtelier && in_array($statutDa, $statutDaVerouillerAtelier)) {
+            /** 
+             * Si l'utilisateur est Atelier mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE ou SOUMIS A APPRO, 
+             * alors on verrouille la DA.
+             **/
+            $verouiller = true;
+        } elseif (!$estAtelier && !$estAppro && !$estAdmin) {
+            /** 
+             * Si l'utilisateur n'est ni Appro ni Atelier, et n'est pas Administrateur,
+             * alors on verrouille la DA.
+             */
+            $verouiller = true;
+        }
+
+        // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
+        $daValiderOuProposer->setVerouille($verouiller);
     }
 }

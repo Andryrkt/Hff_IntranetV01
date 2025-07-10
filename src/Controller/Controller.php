@@ -37,6 +37,11 @@ use App\Model\da\DaModel;
 
 class Controller
 {
+
+    public const ROLE_ADMINISTRATEUR = 1;
+    public const ROLE_ATELIER = 4;
+    public const ROLE_MULTI_SUCURSALES = 6;
+    
     protected $fusionPdf;
 
     protected $ldap;
@@ -561,6 +566,14 @@ class Controller
     protected function getEmail(): string
     {
         $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
+    public  static function getMailUser(): string
+    {
+        $ctrl = new self();
+
+        $userId = $ctrl->getUserId();
         return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 

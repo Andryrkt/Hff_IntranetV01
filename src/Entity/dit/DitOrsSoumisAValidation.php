@@ -15,6 +15,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DitOrsSoumisAValidation
 {
+
+    public const STATUT_VALIDE = 'Validé';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

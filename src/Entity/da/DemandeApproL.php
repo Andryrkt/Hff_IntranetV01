@@ -195,7 +195,9 @@ class DemandeApproL
 
     private $qteLivee = 0;
     private $qteALivrer = 0;
-    private $qteEnAttent = 0; 
+    private $qteEnAttent = 0;
+
+    private $verouille = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -900,7 +902,7 @@ class DemandeApproL
 
     /**
      * Get the value of qteLivee
-     */ 
+     */
     public function getQteLivee()
     {
         return $this->qteLivee;
@@ -910,7 +912,7 @@ class DemandeApproL
      * Set the value of qteLivee
      *
      * @return  self
-     */ 
+     */
     public function setQteLivee($qteLivee)
     {
         $this->qteLivee = $qteLivee;
@@ -920,7 +922,7 @@ class DemandeApproL
 
     /**
      * Get the value of qteALivrer
-     */ 
+     */
     public function getQteALivrer()
     {
         return $this->qteALivrer;
@@ -930,7 +932,7 @@ class DemandeApproL
      * Set the value of qteALivrer
      *
      * @return  self
-     */ 
+     */
     public function setQteALivrer($qteALivrer)
     {
         $this->qteALivrer = $qteALivrer;
@@ -940,7 +942,7 @@ class DemandeApproL
 
     /**
      * Get the value of qteEnAttent
-     */ 
+     */
     public function getQteEnAttent()
     {
         return $this->qteEnAttent;
@@ -950,10 +952,30 @@ class DemandeApproL
      * Set the value of qteEnAttent
      *
      * @return  self
-     */ 
+     */
     public function setQteEnAttent($qteEnAttent)
     {
         $this->qteEnAttent = $qteEnAttent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of verouille
+     */
+    public function getVerouille()
+    {
+        return $this->verouille;
+    }
+
+    /**
+     * Set the value of verouille
+     *
+     * @return  self
+     */
+    public function setVerouille($verouille)
+    {
+        $this->verouille = $verouille;
 
         return $this;
     }

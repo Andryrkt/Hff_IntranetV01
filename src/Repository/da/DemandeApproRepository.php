@@ -14,6 +14,12 @@ class DemandeApproRepository extends EntityRepository
             ->select('da')
             ->orderBy('da.id', 'DESC');
 
+        if (empty(array_filter($criteria, fn($v) => !is_null($v)))) {
+            // Par défaut, on n'affiche pas les demandes terminées
+            $qb->andWhere("da.statutDal != :statut")
+                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
+        }
+
         // Filtre sur le numero DIT
         if (isset($criteria['numDit'])) {
             $qb->andWhere("da.numeroDemandeDit LIKE :numDit")
@@ -36,10 +42,6 @@ class DemandeApproRepository extends EntityRepository
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
                 ->setParameter('statut', $criteria['statutDA']);
-        } else {
-            // Par défaut, on n'affiche pas les demandes terminer
-            $qb->andWhere("da.statutDal != :statut")
-                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
         }
 
         //Filtre sur l'id matériel
@@ -81,15 +83,15 @@ class DemandeApproRepository extends EntityRepository
         }
 
         //Filtre sur l'agence destinataire
-        if (isset($criteria['agenceDestinataire'])) {
-            $qb->andWhere("da.agenceDestinataire = :agenceDestinataire")
-                ->setParameter('agenceDestinataire', $criteria['agenceDestinataire']->getId());
+        if (isset($criteria['agenceDebiteur'])) {
+            $qb->andWhere("da.agenceDebiteur = :agenceDebiteur")
+                ->setParameter('agenceDebiteur', $criteria['agenceDebiteur']->getId());
         }
 
         // Filtre sur le service destinataire
-        if (isset($criteria['serviceDestinataire'])) {
-            $qb->andWhere("da.serviceDestinataire = :serviceDestinataire")
-                ->setParameter('serviceDestinataire', $criteria['serviceDestinataire']->getId());
+        if (isset($criteria['serviceDebiteur'])) {
+            $qb->andWhere("da.serviceDebiteur = :serviceDebiteur")
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
 
         return $qb->getQuery()->getResult();
@@ -143,8 +145,8 @@ class DemandeApproRepository extends EntityRepository
     {
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
-            ->where('da.statutDal = :statut')
-            ->setParameter('statut', DemandeAppro::STATUT_VALIDE)
+            ->where('da.statutDal IN (:statuts)')
+            ->setParameter('statuts', [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])
             ->getQuery()
             ->getSingleColumnResult()
         ;

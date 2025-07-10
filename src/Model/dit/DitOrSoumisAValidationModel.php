@@ -220,6 +220,22 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function recupNbPol($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_pol 
+            from sav_lor 
+            where slor_constp in (" . GlobalVariablesService::get('lub') . ")  
+            and slor_numor = '" . $numOr . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupRefClient($numOr)
     {
         $statement = " SELECT seor_lib  
