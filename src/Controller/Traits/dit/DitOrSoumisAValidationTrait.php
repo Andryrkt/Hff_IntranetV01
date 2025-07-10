@@ -383,8 +383,10 @@ trait DitOrSoumisAValidationTrait
             }
             if (!$trouve) {
                 $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+                $numeroOrExist = $objetB->getNumeroOR() === "" ? $objetA->getNumeroOR() : $objetB->getNumeroOR();
                 // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
                 $nouvelObjet = new DitOrsSoumisAValidation();
+                $nouvelObjet->setNumeroOR($numeroOrExist);
                 $nouvelObjet->setNumeroItv($numeroItvExist);
                 $manquants[] = $nouvelObjet;
             }
