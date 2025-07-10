@@ -124,6 +124,7 @@ class DaDetailController extends Controller
 			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
 			$this->envoyerMailObservation([
 				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -158,7 +159,7 @@ class DaDetailController extends Controller
 	{
 		$email       = new EmailService;
 
-		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : DemandeAppro::MAIL_ATELIER;
+		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
 
 		$content = [
 			'to'        => $to,

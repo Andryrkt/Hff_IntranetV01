@@ -76,6 +76,7 @@ class DaValidationController extends Controller
         $this->envoyerMailValidationAuxAte([
             'id'                => $da->getId(),
             'numDa'             => $da->getNumeroDemandeAppro(),
+            'mailDemandeur'     => $da->getUser()->getMail(),
             'objet'             => $da->getObjetDal(),
             'detail'            => $da->getDetailDal(),
             'fileName'          => $nomEtChemin['fileName'],
@@ -158,7 +159,7 @@ class DaValidationController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [

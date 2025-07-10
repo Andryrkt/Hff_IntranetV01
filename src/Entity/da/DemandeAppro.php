@@ -31,7 +31,6 @@ class DemandeAppro
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
     public const STATUT_TERMINER = 'TERMINER';
-    public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
     public const MAIL_APPRO = 'appro@hff.mg';
 
     /**

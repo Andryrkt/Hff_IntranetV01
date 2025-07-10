@@ -124,7 +124,7 @@ class DaPropositionRefController extends Controller
                 $this->traitementPourBtnValider($request, $dals, $numDa, $dalrList, $observation, $da);
             } elseif ($request->request->has('observation')) {
                 /** Envoyer observation */
-                $this->traitementPourBtnEnvoyerObservation($observation, $numDa, $statutChange);
+                $this->traitementPourBtnEnvoyerObservation($observation, $da, $statutChange);
             }
         }
 
@@ -157,6 +157,7 @@ class DaPropositionRefController extends Controller
         $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
         $this->envoyerMailObservation([
             'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+            'mailDemandeur' => $demandeAppro->getUser()->getMail(),
             'observation'   => $daObservation->getObservation(),
             'service'       => $service,
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -169,13 +170,13 @@ class DaPropositionRefController extends Controller
     /** 
      * Traitement pour le cas où c'est envoi d'observation
      */
-    private function traitementPourBtnEnvoyerObservation($observation, $numDa, $statutChange)
+    private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($observation, $numDa);
+            $this->insertionObservation($observation, $demandeAppro->getNumeroDemandeAppro());
             if ($statutChange) {
-                $this->modificationStatutDal($numDa, DemandeAppro::STATUT_SOUMIS_APPRO);
-                $this->modificationStatutDa($numDa, DemandeAppro::STATUT_SOUMIS_APPRO);
+                $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
+                $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
             }
             $notification = [
                 'type' => 'success',
@@ -185,7 +186,8 @@ class DaPropositionRefController extends Controller
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
             $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
             $this->envoyerMailObservation([
-                'numDa'         => $numDa,
+                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'observation'   => $observation,
                 'service'       => $service,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -232,6 +234,7 @@ class DaPropositionRefController extends Controller
         $this->envoyerMailValidationAuxAte([
             'id'                => $da->getId(),
             'numDa'             => $da->getNumeroDemandeAppro(),
+            'mailDemandeur'     => $da->getUser()->getMail(),
             'objet'             => $da->getObjetDal(),
             'detail'            => $da->getDetailDal(),
             'fileName'          => $nomEtChemin['fileName'],
@@ -355,6 +358,7 @@ class DaPropositionRefController extends Controller
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
+            'mailDemandeur' => $da->getUser()->getMail(),
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
@@ -464,7 +468,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -487,7 +491,7 @@ class DaPropositionRefController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -535,7 +539,7 @@ class DaPropositionRefController extends Controller
     {
         $email       = new EmailService;
 
-        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : DemandeAppro::MAIL_ATELIER;
+        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
 
         $content = [
             'to'        => $to,

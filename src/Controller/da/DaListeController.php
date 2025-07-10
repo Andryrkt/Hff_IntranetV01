@@ -72,7 +72,7 @@ class DaListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation */
-        
+
 
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
@@ -176,7 +176,8 @@ class DaListeController extends Controller
             self::$em->flush();
 
             $this->envoyerMailAuxAte([
-                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
+                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'userConnecter' => $this->getUser()->getNomUtilisateur(),
             ]);
 
@@ -438,7 +439,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
