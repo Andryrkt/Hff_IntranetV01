@@ -294,6 +294,7 @@ class DaPropositionRefController extends Controller
             $da
                 ->setEstValidee(true)
                 ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur($this->getUser())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }

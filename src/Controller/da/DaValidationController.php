@@ -98,6 +98,7 @@ class DaValidationController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
+                ->setValidateur($this->getUser())
                 ->setValidePar($this->getUser()->getNomUtilisateur())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
