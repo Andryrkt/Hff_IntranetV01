@@ -60,10 +60,6 @@ class SousTypeDocument
      */
     private $doms;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="sousTypeDocument")
-     */
-    private $mutation;
 
 
     public function __construct()
@@ -71,7 +67,6 @@ class SousTypeDocument
         $this->catg = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
         $this->doms = new ArrayCollection();
-        $this->mutation = new ArrayCollection();
     }
 
     public function getId(): int
@@ -218,47 +213,5 @@ class SousTypeDocument
     public function __toString()
     {
         return $this->codeSousType;
-    }
-
-    /**
-     * Get the value of mutation
-     */
-    public function getMutation()
-    {
-        return $this->mutation;
-    }
-
-    public function addMutation(Mutation $mutation): self
-    {
-        if (!$this->mutation->contains($mutation)) {
-            $this->mutation[] = $mutation;
-            $mutation->setSousTypeDocument($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMutation(Mutation $mutation): self
-    {
-        if ($this->mutation->contains($mutation)) {
-            $this->mutation->removeElement($mutation);
-            if ($mutation->getSousTypeDocument() === $this) {
-                $mutation->setSousTypeDocument(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of mutation
-     *
-     * @return  self
-     */
-    public function setMutation($mutation)
-    {
-        $this->mutation = $mutation;
-
-        return $this;
     }
 }

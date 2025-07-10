@@ -51,11 +51,6 @@ class Site
      */
     private $domSite;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="siteId")
-     */
-    private $mutation;
-
 
     public function __construct()
     {
@@ -166,48 +161,6 @@ class Site
     public function setDomSites($domSite)
     {
         $this->domSite = $domSite;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of mutation
-     */
-    public function getMutation()
-    {
-        return $this->mutation;
-    }
-
-    public function addMutation(Mutation $mutation): self
-    {
-        if (!$this->mutation->contains($mutation)) {
-            $this->mutation[] = $mutation;
-            $mutation->setSite($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMutation(Mutation $mutation): self
-    {
-        if ($this->mutation->contains($mutation)) {
-            $this->mutation->removeElement($mutation);
-            if ($mutation->getSite() === $this) {
-                $mutation->setSite(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of mutation
-     *
-     * @return  self
-     */
-    public function setMutation($mutation)
-    {
-        $this->mutation = $mutation;
 
         return $this;
     }

@@ -54,10 +54,6 @@ class Catg
      */
     private $domCatg;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="categorieId")
-     */
-    private $mutCatg;
 
 
     public function __construct()
@@ -65,7 +61,6 @@ class Catg
         $this->sites = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
         $this->domCatg = new ArrayCollection();
-        $this->mutCatg = new ArrayCollection();
     }
 
     public function getId(): int
@@ -183,48 +178,5 @@ class Catg
     public function __toString()
     {
         return $this->description;
-    }
-
-    /**
-     * Get the value of mutCatg
-     */
-    public function getMutCatg()
-    {
-        return $this->mutCatg;
-    }
-
-
-    public function addMutCatg(Mutation $mutCatg): self
-    {
-        if (!$this->mutCatg->contains($mutCatg)) {
-            $this->mutCatg[] = $mutCatg;
-            $mutCatg->setCategorie($this);
-        }
-
-        return $this;
-    }
-
-    public function removeMutCatg(Mutation $mutCatg): self
-    {
-        if ($this->mutCatg->contains($mutCatg)) {
-            $this->mutCatg->removeElement($mutCatg);
-            if ($mutCatg->getCategorie() === $this) {
-                $mutCatg->setCategorie(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * Set the value of mutCatg
-     *
-     * @return  self
-     */
-    public function setMutCatg($mutCatg)
-    {
-        $this->mutCatg = $mutCatg;
-
-        return $this;
     }
 }

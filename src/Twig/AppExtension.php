@@ -35,13 +35,11 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $this->tokenStorage = $tokenStorage;
         $this->authorizationChecker = $authorizationChecker;
         $this->domModel = new DomModel;
-        $this->dwModel = new DossierInterventionAtelierModel;
     }
 
     public function getGlobals(): array
     {
         $user = null;
-        $token = $this->tokenStorage->getToken();
 
 
         $notification = $this->session->get('notification');
@@ -75,10 +73,5 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     public function tropPercu(string $numeroDom)
     {
         return $this->domModel->verifierSiTropPercu($numeroDom);
-    }
-
-    public function getPathOrMax(?string $numeroOR)
-    {
-        return $this->dwModel->findCheminOrVersionMax($numeroOR);
     }
 }

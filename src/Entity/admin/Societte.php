@@ -40,18 +40,12 @@ class Societte
 
 
     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="statutDemande")
-     */
-    private $demandeInterventions;
-
-    /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="societtes", orphanRemoval=true)
      */
     private $users;
 
     public function __construct()
     {
-        $this->demandeInterventions = new ArrayCollection();
         $this->users = new ArrayCollection();
 
     }
@@ -86,37 +80,6 @@ class Societte
     {
         $this->codeSociete = $codeSociete;
 
-        return $this;
-    }
-    
-    public function getDemandeInterventions()
-    {
-        return $this->demandeInterventions;
-    }
-
-    public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
-    {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions[] = $demandeIntervention;
-            $demandeIntervention->setCodeSociete($this);
-        }
-        return $this;
-    }
-
-    public function removeDemandeIntervention(DemandeIntervention $demandeIntervention): self
-    {
-        if ($this->demandeInterventions->contains($demandeIntervention)) {
-            $this->demandeInterventions->removeElement($demandeIntervention);
-            if ($demandeIntervention->getCodeSociete() === $this) {
-                $demandeIntervention->setCodeSociete(null);
-            }
-        }
-        return $this;
-    }
-
-    public function setBadms($demandeIntervention): self
-    {
-        $this->demandeInterventions = $demandeIntervention;
         return $this;
     }
 

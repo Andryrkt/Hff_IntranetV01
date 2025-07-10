@@ -19,7 +19,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Application
 {
     use DateTrait;
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -42,7 +42,7 @@ class Application
      *
      * @var ?string
      */
-    private ?string $derniereId = null ;
+    private ?string $derniereId = null;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
@@ -50,19 +50,14 @@ class Application
     private $users;
 
 
-    /**
-     * @ORM\ManyToMany(targetEntity=CategorieAteApp::class, mappedBy="applications")
-     */
-    private $categorieAtes;
 
 
     public function __construct()
     {
         $this->users = new ArrayCollection();
-        $this->categorieAtes = new ArrayCollection();
     }
 
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,14 +85,14 @@ class Application
         return $this;
     }
 
-   
-   
+
+
     public function getDerniereId()
     {
         return $this->derniereId;
     }
 
-  
+
     public function setDerniereId(?string $derniereId): self
     {
         $this->derniereId = $derniereId;
@@ -105,7 +100,7 @@ class Application
         return $this;
     }
 
-     /**
+    /**
      * @return Collection|User[]
      */
     public function getUsers(): Collection
@@ -131,29 +126,6 @@ class Application
         return $this;
     }
 
-  
-    public function getCategorieAtes(): Collection
-    {
-        return $this->categorieAtes;
-    }
-
-    public function addCategorieAte(CategorieAteApp $categorieAteApp): self
-    {
-        if (!$this->categorieAtes->contains($$categorieAteApp)) {
-            $this->categorieAtes[] = $$categorieAteApp;
-            $$categorieAteApp->addApplication($this);
-        }
-        return $this;
-    }
-
-    public function removeCategorieAte(CategorieAteApp $categorieAteApp): self
-    {
-        if ($this->categorieAtes->contains($$categorieAteApp)) {
-            $this->categorieAtes->removeElement($$categorieAteApp);
-            $$categorieAteApp->removeApplication($this);
-        }
-        return $this;
-    }
 
     public function __toString()
     {

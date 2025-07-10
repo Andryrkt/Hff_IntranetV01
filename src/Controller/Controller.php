@@ -11,29 +11,24 @@ use Parsedown;
 use App\Model\LdapModel;
 use App\Model\ProfilModel;
 use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
 use App\Model\dom\DomModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Model\badm\BadmModel;
 use App\Service\ExcelService;
 use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
 use App\Model\dom\DomDetailModel;
-use App\Model\TransferDonnerModel;
 use App\Service\AccessControlService;
 use App\Entity\admin\utilisateur\User;
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
-//use App\Model\admin\user\ProfilUserModel;
 use App\Model\admin\personnel\PersonnelModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Entity\da\DemandeAppro;
-use App\Model\da\DaModel;
+
 
 class Controller
 {
@@ -41,8 +36,6 @@ class Controller
 
     protected $ldap;
     protected $profilModel;
-    protected $casier;
-    protected $badm;
     protected $Person;
     protected $DomModel;
     protected $DaModel;
@@ -67,8 +60,6 @@ class Controller
     protected static $em;
     protected static $paginator;
 
-    protected $ditModel;
-
     protected $transfer04;
 
     protected $sessionService;
@@ -86,13 +77,9 @@ class Controller
 
         $this->profilModel      = new ProfilModel();
 
-
-        $this->badm             = new BadmModel();
-
         $this->Person           = new PersonnelModel();
 
         $this->DomModel         = new DomModel();
-        $this->DaModel          = new DaModel();
         $this->detailModel      = new DomDetailModel();
         $this->duplicata        = new DomDuplicationModel();
         $this->domList          = new DomListModel();
@@ -104,12 +91,6 @@ class Controller
         $this->response         = new Response();
 
         $this->parsedown        = new Parsedown();
-
-        //$this->profilUser     = new ProfilUserModel();
-
-        $this->ditModel         = new DitModel();
-
-        $this->transfer04       = new TransferDonnerModel();
 
 
         $this->sessionService   = new SessionManagerService();
@@ -562,17 +543,5 @@ class Controller
     {
         $userId = $this->getUserId();
         return self::$em->getRepository(User::class)->find($userId)->getMail();
-    }
-
-    protected function estUserDansServiceAtelier(): bool
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
-    }
-
-    protected function estUserDansServiceAppro(): bool
-    {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
-        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }
