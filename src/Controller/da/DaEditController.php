@@ -293,6 +293,7 @@ class DaEditController extends Controller
 
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
     {
+        $demandeAppro->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
         self::$em->persist($demandeAppro); // on persiste la DA
         $this->modificationDAL($demandeAppro, $formDAL);
         self::$em->flush(); // on enregistre les modifications
