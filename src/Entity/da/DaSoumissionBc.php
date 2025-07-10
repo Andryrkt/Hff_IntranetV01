@@ -18,6 +18,7 @@ class DaSoumissionBc
 
     public const STATUT_VALIDE = 'Validé';
     public const STATUT_CLOTURE = 'Cloturé';
+    public const STATUT_REFUSE = 'Refusé';
 
     public const POSITION_TERMINER = 'TE';
     public const POSITION_EDITER = 'ED';
