@@ -196,6 +196,7 @@ class PdfTableGenerator
     private function generateBodyForDA(array $headerConfig, array $dals): string
     {
         $html = '<tbody>';
+        $total = 0;
         // Vérifier si le tableau $dals est vide
         if (empty($dals)) {
             $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold; border:1px solid  #c4c4c4;">N/A</td></tr>';
@@ -226,7 +227,8 @@ class PdfTableGenerator
             }
             $html .= '</tr>';
             if (empty($dal->getDemandeApproLR())) {
-                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4; border-left: 2px solid blue;">Aucune proposition n’a été faite pour cet article.</td></tr>';
+                $total += $row['mttTotal'];
+                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid #c4c4c4; color: #646464; border-left: 2px solid blue;">Aucune proposition n’a été faite pour cet article.</td></tr>';
             } else {
                 /** @var DemandeApproLR $dalr une demande appro LR dans dalrs */
                 foreach ($dal->getDemandeApproLR() as $dalr) {
@@ -238,6 +240,7 @@ class PdfTableGenerator
                         'qte' => $dalr->getQteDem(),
                     ];
                     $row['mttTotal'] = $row['pu1'] * $row['qte'];
+                    $total += $dalr['choix'] ? $row['mttTotal'] : 0;
                     foreach ($headerConfig as $config) {
                         $key = $config['key'];
                         $value = $row[$key] ?? '';
@@ -252,13 +255,18 @@ class PdfTableGenerator
                         }
                         $value = $this->formatValue($key, $value);
 
-                        $html .= '<td style="width: ' . $config['width'] . 'px; font-size: 8px; border:1px solid  #c4c4c4; ' . $style . '">' . $value . '</td>';
+                        $html .= '<td style="width: ' . $config['width'] . 'px; font-size: 8px; border:1px solid #c4c4c4;  color: #646464; ' . $style . '">' . $value . '</td>';
                     }
                     $html .= '</tr>';
                 }
             }
         }
         $html .= '</tbody>';
+        $html .= '<tfoot><tr style="background-color: #000; color: #fff; font-weight: bold;">';
+        $html .= '<th colspan="4" style="border:1px solid  #c4c4c4;">Total de montants des articles validés</th>';
+        $html .= '<th style="border:1px solid  #c4c4c4; text-align: right;">' . number_format($total, 2, ',', '.') . '</th>';
+        $html .= '</tr></tfoot>';
+
         return $html;
     }
 }

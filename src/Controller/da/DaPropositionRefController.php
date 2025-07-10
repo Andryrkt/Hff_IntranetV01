@@ -15,6 +15,8 @@ use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
+use App\Form\da\DaObservationType;
+use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,23 +73,30 @@ class DaPropositionRefController extends Controller
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
 
         $DapLRCollection = new DemandeApproLRCollection();
+        $daObservation = new DaObservation();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
+        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//
-        $this->traitementFormulaire($form, $dals, $request, $numDa, $da); //
+        $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
-        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa], ['dateCreation' => 'DESC']);
+        $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
         self::$twig->display('da/proposition.html.twig', [
-            'da' => $da,
-            'id' => $id,
-            'dit' => $dit,
-            'form' => $form->createView(),
-            'observations' => $observations,
-            'numDa' => $numDa,
-            'estAte' => $this->estUserDansServiceAtelier(),
-            'estAppro' => $this->estUserDansServiceAppro(),
+            'da'                => $da,
+            'id'                => $id,
+            'dit'               => $dit,
+            'form'              => $form->createView(),
+            'formValidation'    => $formValidation->createView(),
+            'formObservation'   => $formObservation->createView(),
+            'observations'      => $observations,
+            'numDa'             => $numDa,
+            'connectedUser'     => $this->getUser(),
+            'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            'estAte'            => $this->estUserDansServiceAtelier(),
+            'estAppro'          => $this->estUserDansServiceAppro(),
             'nePeutPasModifier' => $this->nePeutPasModifier($da)
         ]);
     }
@@ -97,7 +106,7 @@ class DaPropositionRefController extends Controller
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
-    private function traitementFormulaire($form, $dals, Request $request, string $numDa, DemandeAppro $da)
+    private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
     {
         $form->handleRequest($request);
 
@@ -118,6 +127,43 @@ class DaPropositionRefController extends Controller
                 $this->traitementPourBtnEnvoyerObservation($observation, $numDa, $statutChange);
             }
         }
+
+        $formObservation->handleRequest($request);
+
+        if ($formObservation->isSubmitted() && $formObservation->isValid()) {
+            /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
+            $daObservation = $formObservation->getData();
+
+            $this->traitementEnvoiObservation($daObservation, $da);
+        }
+    }
+
+    private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
+    {
+        $this->insertionObservationSeul($daObservation, $demandeAppro);
+
+        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+            $this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+        }
+
+        $notification = [
+            'type' => 'success',
+            'message' => 'Votre observation a été enregistré avec succès.',
+        ];
+
+        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
+        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+        $this->envoyerMailObservation([
+            'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+            'observation'   => $daObservation->getObservation(),
+            'service'       => $service,
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
+
+        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        return $this->redirectToRoute("da_list");
     }
 
     /** 
@@ -545,6 +591,23 @@ class DaPropositionRefController extends Controller
 
         self::$em->persist($daObservation);
 
+        self::$em->flush();
+    }
+
+    /** 
+     * Insertion de l'observation dans la Base de donnée
+     */
+    private function insertionObservationSeul(DaObservation $daObservation, DemandeAppro $demandeAppro)
+    {
+        $text = str_replace(["\r\n", "\n", "\r"], "<br>", $daObservation->getObservation());
+
+        $daObservation
+            ->setObservation($text)
+            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+        ;
+
+        self::$em->persist($daObservation);
         self::$em->flush();
     }
 

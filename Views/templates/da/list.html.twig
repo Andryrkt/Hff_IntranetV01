@@ -49,7 +49,7 @@
 
 	<div class="container-fluid">
 		<table class="table table-plein-ecran">
-			<thead class="table-dark">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -62,8 +62,6 @@
 					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut OR</th>
 					<th class="text-center">Statut BC</th>
-					<th>Famille</th>
-					<th>Sous-famille</th>
 					<th>Fournisseur</th>
 					{% if not serviceAtelier %}
 						<th>Réference</th>
@@ -160,8 +158,6 @@
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
-							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
-							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
 							<td class="text-start">{{ dalAffiche.nomFournisseur }}</td>
 							{% if not serviceAtelier %}
 								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
