@@ -25,6 +25,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Service
 {
     use DateTrait;
+
+    public const ID_ATELIER = 3;
+    public const ID_APPRO = 16;
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
