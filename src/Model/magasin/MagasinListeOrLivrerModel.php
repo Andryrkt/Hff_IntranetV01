@@ -74,7 +74,7 @@ class MagasinListeOrLivrerModel extends Model
                             min(ska_d_start) as datePlanning1
                         from skw 
                         inner join ska on ska.skw_id = skw.skw_id 
-                        where ofh_id =' $numOr'
+                        where ofh_id ='$numOr'
                         and ofs_id = '$numItv'
                         group by ofh_id 
                     ";
