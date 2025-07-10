@@ -146,9 +146,14 @@ class User implements UserInterface
     private $commentaireDitOr;
 
     /**
-     * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="user")
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="user")
      */
     private $demandeApproUser;
+
+    /**
+     * @ORM\OneToOne(targetEntity=DemandeAppro::class, mappedBy="validateur")
+     */
+    private $demandeApproValidateur;
 
     /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
@@ -866,6 +871,26 @@ class User implements UserInterface
     public function setDemandeApproUser($demandeApproUser)
     {
         $this->demandeApproUser = $demandeApproUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproValidateur
+     */
+    public function getDemandeApproValidateur()
+    {
+        return $this->demandeApproValidateur;
+    }
+
+    /**
+     * Set the value of demandeApproValidateur
+     *
+     * @return  self
+     */
+    public function setDemandeApproValidateur($demandeApproValidateur)
+    {
+        $this->demandeApproValidateur = $demandeApproValidateur;
 
         return $this;
     }

@@ -43,3 +43,9 @@ ALTER TABLE Demande_Appro ADD user_id INT;
 ALTER TABLE Demande_Appro
 ADD CONSTRAINT FK_User_Id
 FOREIGN KEY (user_id) REFERENCES users (id);
+
+ALTER TABLE Demande_Appro ADD validateur_id INT;
+
+ALTER TABLE Demande_Appro
+ADD CONSTRAINT FK_Validateur_id
+FOREIGN KEY (validateur_id) REFERENCES users (id);

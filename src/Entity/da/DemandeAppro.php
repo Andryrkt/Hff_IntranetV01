@@ -32,7 +32,7 @@ class DemandeAppro
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
     public const STATUT_TERMINER = 'TERMINER';
     public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
+    public const MAIL_APPRO = 'appro@hff.mg';
 
     /**
      * @ORM\Id
@@ -161,6 +161,12 @@ class DemandeAppro
      * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
      */
     private ?User $user;
+
+    /**
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
+     * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
+     */
+    private ?User $validateur;
 
     private $observation;
 
@@ -783,6 +789,26 @@ class DemandeAppro
     public function setUser($user)
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validateur
+     */
+    public function getValidateur()
+    {
+        return $this->validateur;
+    }
+
+    /**
+     * Set the value of validateur
+     *
+     * @return  self
+     */
+    public function setValidateur($validateur)
+    {
+        $this->validateur = $validateur;
 
         return $this;
     }

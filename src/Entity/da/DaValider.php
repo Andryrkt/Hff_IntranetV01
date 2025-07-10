@@ -978,6 +978,44 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr(): string
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     */
+    public function setStatutOr(string $statutOr): self
+    {
+        $this->statutOr = $statutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1037,43 +1075,5 @@ class DaValider
             ->setValidePar($dalr->getValidePar())
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
-    }
-
-    /**
-     * Get the value of statutOr
-     */
-    public function getStatutOr(): string
-    {
-        return $this->statutOr;
-    }
-
-    /**
-     * Set the value of statutOr
-     */
-    public function setStatutOr(string $statutOr): self
-    {
-        $this->statutOr = $statutOr;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of qteEnAttent
-     */ 
-    public function getQteEnAttent()
-    {
-        return $this->qteEnAttent;
-    }
-
-    /**
-     * Set the value of qteEnAttent
-     *
-     * @return  self
-     */ 
-    public function setQteEnAttent($qteEnAttent)
-    {
-        $this->qteEnAttent = $qteEnAttent;
-
-        return $this;
     }
 }
