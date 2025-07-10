@@ -228,7 +228,7 @@ class PdfTableGenerator
             $html .= '</tr>';
             if (empty($dal->getDemandeApproLR())) {
                 $total += $row['mttTotal'];
-                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid #c4c4c4; color: #646464; border-left: 2px solid blue;">Aucune proposition n’a été faite pour cet article.</td></tr>';
+                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4;  color:#646464; border-left: 2px solid blue;">Aucune proposition n’a été faite pour cet article.</td></tr>';
             } else {
                 /** @var DemandeApproLR $dalr une demande appro LR dans dalrs */
                 foreach ($dal->getDemandeApproLR() as $dalr) {
@@ -250,10 +250,12 @@ class PdfTableGenerator
                         } else {
                             $style .= 'background-color: #e9e9e9;';
                         }
-                        if ($config['key'] === 'reference') {
-                            $style .= 'border-left: 2px solid blue;';
-                        }
+
                         $value = $this->formatValue($key, $value);
+                        if ($config['key'] === 'reference') {
+                            $style .= 'border-left: 2px solid black;';
+                            $value = "   $value";
+                        }
 
                         $html .= '<td style="width: ' . $config['width'] . 'px; font-size: 8px; border:1px solid #c4c4c4;  color: #646464; ' . $style . '">' . $value . '</td>';
                     }
