@@ -43,6 +43,7 @@
 		'A éditer': 'bg-bc-a-editer fw-bold',
 		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
 		'Validé': 'bg-bc-valide fw-bold',
+		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
 	} %}
 
@@ -162,7 +163,7 @@
 								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td class="text-start {{ designationStyle }}">
-								{% if dal.statutDal == 'Bon d’achats validé' or (serviceAppro and (dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'Demande d’achats')%}
+								{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') or (serviceAppro and (dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO'))%}
 									{{ dalAffiche.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
