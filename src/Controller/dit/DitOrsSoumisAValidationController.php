@@ -160,7 +160,7 @@ class DitOrsSoumisAValidationController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
             if (!empty($daValiders)) {
 
-                foreach ($daValiders as $key => $daValider) {
+                foreach ($daValiders as $daValider) {
                     $daValider
                         ->setNumeroOr($numOr)
                         ->setStatutOr('Soumis à validation')

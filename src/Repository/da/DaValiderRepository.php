@@ -95,4 +95,28 @@ class DaValiderRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    public function getSumQteDemEtLivrer(string $numDa): array
+    {
+        $numeroVersionMax = $this->createQueryBuilder('dav')
+            ->select('MAX(dav.numeroVersion)')
+            ->where('dav.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getSingleScalarResult();
+        if ($numeroVersionMax === null) {
+            return [
+                'qteDem' => 0,
+                'qteLivrer' => 0
+            ];
+        }
+        $qb = $this->createQueryBuilder('dav')
+            ->select('SUM(dav.qteDem) as qteDem, SUM(dav.qteLivrer) as qteLivrer')
+            ->where('dav.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->andWhere('dav.numeroVersion = :numVersion')
+            ->setParameter('numVersion', $numeroVersionMax);
+
+        return $qb->getQuery()->getSingleResult();
+    }
 }

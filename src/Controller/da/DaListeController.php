@@ -71,6 +71,9 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** Autorisation */
+        
+
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
@@ -93,7 +96,7 @@ class DaListeController extends Controller
 
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
-        /** modification des donnée dans DaValider */
+        /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
         $this->ChangeQteDaValider($dasFiltered);
         $this->ChangeStatutBcDaValider($dasFiltered);
 
@@ -107,6 +110,8 @@ class DaListeController extends Controller
         $this->demandeDeverouillageDA($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
+        // changer le statut de la DA si la situation des pièce est tout livré
+        $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
@@ -123,6 +128,18 @@ class DaListeController extends Controller
         ]);
     }
 
+    private function modificationStatutSiSituationPieceLivree(array $dasFiltered): void
+    {
+        foreach ($dasFiltered as $da) {
+            $sumQteDemEtLivrer = $this->daValiderRepository->getSumQteDemEtLivrer($da->getNumeroDemandeAppro());
+            if ((int)$sumQteDemEtLivrer['qteDem'] != 0 && (int)$sumQteDemEtLivrer['qteLivrer'] != 0 && (int)$sumQteDemEtLivrer['qteDem'] === (int)$sumQteDemEtLivrer['qteLivrer']) {
+                $this->modificationStatutDalr($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDal($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDa($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDaValider($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+            }
+        }
+    }
 
     /** 
      * @Route("/deverrouiller-da/{idDa}", name="da_deverrouiller_da")
@@ -151,8 +168,8 @@ class DaListeController extends Controller
             }
 
             $this->duplicationDataDaL($demandeAppro->getDAL()->toArray());
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro());
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro());
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
 
             $historiqueModifDA->setEstDeverouillee(true); // Marquer la demande comme déverrouillée
             self::$em->persist($historiqueModifDA);
@@ -486,25 +503,50 @@ class DaListeController extends Controller
         return (int)$num + 1;
     }
 
-    private function modificationStatutDal(string $numDa): void
+    private function modificationStatutDal(string $numDa, string $statut): void
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+            $dal->setStatutDal($statut);
             self::$em->persist($dal);
         }
 
         self::$em->flush();
     }
 
-    private function modificationStatutDa(string $numDa): void
+    private function modificationStatutDa(string $numDa, string $statut): void
     {
         $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+        $da->setStatutDal($statut);
 
         self::$em->persist($da);
+        self::$em->flush();
+    }
+
+    private function modificationStatutDaValider(string $numDa, string $statut): void
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        foreach ($daValiders as  $daValider) {
+            $daValider->setStatutDal($statut);
+            self::$em->persist($daValider);
+        }
+
+        self::$em->flush();
+    }
+
+    private function modificationStatutDalr(string $numDa, string $statut): void
+    {
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
+
+        foreach ($dalrs as  $dalr) {
+            $dalr->setStatutDal($statut);
+            self::$em->persist($dalr);
+        }
+
         self::$em->flush();
     }
 }
