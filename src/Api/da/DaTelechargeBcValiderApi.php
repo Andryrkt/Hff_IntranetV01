@@ -25,7 +25,7 @@ class DaTelechargeBcValiderApi extends Controller
     {
         $path = $this->dwBcApproRepository->getPath($numBc);
 
-        $filePath = "C:\\wamp64\\www\\Upload\\" . $path;
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . DIRECTORY_SEPARATOR . $path;
         // En-têtes pour forcer le téléchargement
         header('Content-Description: File Transfer');
         header('Content-Type: application/pdf');
