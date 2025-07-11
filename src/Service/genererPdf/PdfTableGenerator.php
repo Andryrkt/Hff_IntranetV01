@@ -240,7 +240,7 @@ class PdfTableGenerator
                         'qte' => $dalr->getQteDem(),
                     ];
                     $row['mttTotal'] = $row['pu1'] * $row['qte'];
-                    $total += $dalr['choix'] ? $row['mttTotal'] : 0;
+                    $total += $dalr->getChoix() ? $row['mttTotal'] : 0;
                     foreach ($headerConfig as $config) {
                         $key = $config['key'];
                         $value = $row[$key] ?? '';
