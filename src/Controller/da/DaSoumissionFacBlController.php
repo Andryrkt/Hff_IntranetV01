@@ -89,29 +89,29 @@ class DaSoumissionFacBlController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
             // if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
-                /** ENREGISTREMENT DE FICHIER */
-                $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+            /** ENREGISTREMENT DE FICHIER */
+            $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
-                /** FUSION DES PDF */
-                $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-                $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
-                $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+            /** FUSION DES PDF */
+            $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+            $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
+            $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
-                /** AJOUT DES INFO NECESSAIRE */
-                $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner);
+            /** AJOUT DES INFO NECESSAIRE */
+            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner);
 
-                /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                self::$em->persist($soumissionFacBl);
-                self::$em->flush();
+            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+            self::$em->persist($soumissionFacBl);
+            self::$em->flush();
 
-                /** COPIER DANS DW */
-                $this->genererPdfDa->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            /** COPIER DANS DW */
+            $this->genererPdfDa->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
-                /** HISTORISATION */
-                $message = 'Le document est soumis pour validation';
-                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
+            /** HISTORISATION */
+            $message = 'Le document est soumis pour validation';
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
             // }
         }
     }
@@ -123,7 +123,7 @@ class DaSoumissionFacBlController extends Controller
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
-            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($this->autoIncrement($numeroVersionMax))

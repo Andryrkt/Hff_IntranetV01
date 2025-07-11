@@ -93,17 +93,17 @@ class DaPropositionRefController extends Controller
             'formObservation'   => $formObservation->createView(),
             'observations'      => $observations,
             'numDa'             => $numDa,
-            'connectedUser'     => $this->getUser(),
+            'connectedUser'     => Controller::getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estAte'            => $this->estUserDansServiceAtelier(),
-            'estAppro'          => $this->estUserDansServiceAppro(),
+            'estAte'            => Controller::estUserDansServiceAtelier(),
+            'estAppro'          => Controller::estUserDansServiceAppro(),
             'nePeutPasModifier' => $this->nePeutPasModifier($da)
         ]);
     }
 
     private function nePeutPasModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -142,7 +142,7 @@ class DaPropositionRefController extends Controller
     {
         $this->insertionObservationSeul($daObservation, $demandeAppro);
 
-        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+        if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
             $this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
@@ -154,13 +154,13 @@ class DaPropositionRefController extends Controller
         ];
 
         /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+        $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
         $this->envoyerMailObservation([
             'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
             'mailDemandeur' => $demandeAppro->getUser()->getMail(),
             'observation'   => $daObservation->getObservation(),
             'service'       => $service,
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -184,13 +184,13 @@ class DaPropositionRefController extends Controller
             ];
 
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+            $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
             $this->envoyerMailObservation([
                 'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'observation'   => $observation,
                 'service'       => $service,
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
             ]);
         } else {
             $notification = [
@@ -228,7 +228,7 @@ class DaPropositionRefController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $this->getNouveauDal($numDa),
             'service'       => 'atelier',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
@@ -242,7 +242,7 @@ class DaPropositionRefController extends Controller
             'dalNouveau'        => $this->getNouveauDal($numDa),
             'service'           => 'atelier',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -296,8 +296,8 @@ class DaPropositionRefController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setValidateur($this->getUser())
+                ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                ->setValidateur(Controller::getUser())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }
@@ -309,7 +309,7 @@ class DaPropositionRefController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -323,7 +323,7 @@ class DaPropositionRefController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -362,7 +362,7 @@ class DaPropositionRefController extends Controller
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -582,7 +582,7 @@ class DaPropositionRefController extends Controller
 
     private function statutDa()
     {
-        if ($this->estUserDansServiceAtelier()) {
+        if (Controller::estUserDansServiceAtelier()) {
             $statut = self::DA_STATUT_CHANGE_CHOIX_ATE;
         } else {
             $statut = DemandeAppro::STATUT_SOUMIS_ATE;
@@ -609,7 +609,7 @@ class DaPropositionRefController extends Controller
         $daObservation
             ->setObservation($text)
             ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
         ;
 
         self::$em->persist($daObservation);
@@ -620,7 +620,7 @@ class DaPropositionRefController extends Controller
     {
         return $this->daObservation
             ->setNumDa($numDa)
-            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
             ->setObservation($observation)
         ;
     }

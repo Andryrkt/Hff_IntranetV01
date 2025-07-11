@@ -122,7 +122,7 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    
+
     private function modificationDaValider(string $numDa, string $numCde): void
     {
         $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
@@ -135,7 +135,7 @@ class DaSoumissionBcController extends Controller
                 ;
                 self::$em->persist($daValider);
             }
-            
+
             self::$em->flush();
         }
     }
@@ -146,7 +146,7 @@ class DaSoumissionBcController extends Controller
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionBc->setNumeroCde($numCde)
-            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($this->autoIncrement($numeroVersionMax))

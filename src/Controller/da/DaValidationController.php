@@ -70,7 +70,7 @@ class DaValidationController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $dalNouveau,
             'service'       => 'appro',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
@@ -84,7 +84,7 @@ class DaValidationController extends Controller
             'dalNouveau'        => $dalNouveau,
             'service'           => 'appro',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         /** NOTIFICATION */
@@ -99,8 +99,8 @@ class DaValidationController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidateur($this->getUser())
-                ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur(Controller::getUser())
+                ->setValidePar(Controller::getUser()->getNomUtilisateur())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
             self::$em->persist($da);
@@ -113,7 +113,7 @@ class DaValidationController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
@@ -134,7 +134,7 @@ class DaValidationController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setChoix(false) // on réinitialise le choix à false
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     if (key_exists($item->getNumeroLigneDem(), $refsValide)) {

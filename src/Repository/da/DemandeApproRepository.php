@@ -2,23 +2,20 @@
 
 namespace App\Repository\da;
 
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
 
 class DemandeApproRepository extends EntityRepository
 {
-    public function findDaData(array $criteria = [])
+    public function findDaData(array $criteria = [], int $idAgenceUser)
     {
         $qb = $this->createQueryBuilder('da')
             ->select('da')
             ->orderBy('da.id', 'DESC');
 
-        if (empty(array_filter($criteria, fn($v) => !is_null($v)))) {
-            // Par défaut, on n'affiche pas les demandes terminées
-            $qb->andWhere("da.statutDal != :statut")
-                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
-        }
 
         // Filtre sur le numero DIT
         if (isset($criteria['numDit'])) {
@@ -38,6 +35,12 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
         }
 
+        if (empty(array_filter($criteria, fn($v) => !is_null($v)))) {
+            // Par défaut, on n'affiche pas les demandes terminées
+            $qb->andWhere("da.statutDal != :statut")
+                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
+        }
+
         //filtre sur le statut de DA
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
@@ -50,24 +53,37 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('idMat', (int)$criteria['idMateriel']);
         }
 
-        // Filtre sur la date de création
-        if (isset($criteria['dateDebutCreation'])) {
-            $qb->andWhere("da.dateCreation >= :dateDebut")
-                ->setParameter('dateDebut', $criteria['dateDebutCreation']);
-        }
-        if (isset($criteria['dateFinCreation'])) {
-            $qb->andWhere("da.dateCreation <= :dateFin")
-                ->setParameter('dateFin', $criteria['dateFinCreation']);
-        }
+        $this->FiltredSelonDate($qb, $criteria);
 
-        //filtre sur la date  de fin souhaitée
-        if (isset($criteria['dateDebutfinSouhaite'])) {
-            $qb->andWhere("da.dateFinSouhaite >= :dateDebut")
-                ->setParameter('dateDebut', $criteria['dateDebutfinSouhaite']);
-        }
-        if (isset($criteria['dateFinFinSouhaite'])) {
-            $qb->andWhere("da.dateFinSouhaite <= :dateFin")
-                ->setParameter('dateFin', $criteria['dateFinFinSouhaite']);
+        $this->FiltredSelonAgenceService($qb, $criteria, $idAgenceUser);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    private function FiltredSelonAgenceService($qb, array $criteria, int $idAgenceUser)
+    {
+
+        $estAppro = Controller::estUserDansServiceAppro();
+        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+
+        if (!$estAtelier && !$estAppro && !$estAdmin) {
+            $qb
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.agenceDebiteur IN (:agenceAutoriserIds)',
+                        'da.agenceEmetteur = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', Controller::getUser()->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $idAgenceUser)
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.serviceDebiteur IN (:serviceAutoriserIds)',
+                        'da.serviceEmetteur IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', Controller::getUser()->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
         // Filtre sur l'agence Emetteur
@@ -93,8 +109,29 @@ class DemandeApproRepository extends EntityRepository
             $qb->andWhere("da.serviceDebiteur = :serviceDebiteur")
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
+    }
 
-        return $qb->getQuery()->getResult();
+    private function FiltredSelonDate($qb, array $criteria)
+    {
+        // Filtre sur la date de création
+        if (isset($criteria['dateDebutCreation'])) {
+            $qb->andWhere("da.dateCreation >= :dateDebut")
+                ->setParameter('dateDebut', $criteria['dateDebutCreation']);
+        }
+        if (isset($criteria['dateFinCreation'])) {
+            $qb->andWhere("da.dateCreation <= :dateFin")
+                ->setParameter('dateFin', $criteria['dateFinCreation']);
+        }
+
+        //filtre sur la date  de fin souhaitée
+        if (isset($criteria['dateDebutfinSouhaite'])) {
+            $qb->andWhere("da.dateFinSouhaite >= :dateDebut")
+                ->setParameter('dateDebut', $criteria['dateDebutfinSouhaite']);
+        }
+        if (isset($criteria['dateFinFinSouhaite'])) {
+            $qb->andWhere("da.dateFinSouhaite <= :dateFin")
+                ->setParameter('dateFin', $criteria['dateFinFinSouhaite']);
+        }
     }
 
     public function getStatut($numDit)
