@@ -719,6 +719,15 @@ class User implements UserInterface
         })->toArray();
     }
 
+    public function getCodeAgenceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;
+    }
+
+    public function getCodeServiceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getServiceIps() : null;
+    }
 
     public function getPassword() {}
 

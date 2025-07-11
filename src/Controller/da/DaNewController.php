@@ -92,7 +92,7 @@ class DaNewController extends Controller
              */
             $demandeAppro = $form->getData();
             $demandeAppro
-                ->setDemandeur($this->getUser()->getNomUtilisateur())
+                ->setDemandeur(Controller::getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ;
 
@@ -150,7 +150,7 @@ class DaNewController extends Controller
                 'dal'           => $dal,
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
@@ -219,7 +219,7 @@ class DaNewController extends Controller
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
             ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-            ->setUser($this->getUser())
+            ->setUser(Controller::getUser())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
     }

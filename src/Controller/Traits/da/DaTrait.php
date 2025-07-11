@@ -2,15 +2,15 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Entity\da\DaSoumissionBc;
+use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Service\genererPdf\GenererPdfDa;
-use DateTime;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -84,32 +84,6 @@ trait DaTrait
         return $statut_bc;
     }
 
-    // private function statutBcCde(?string $ref, string $numDit, ?string $numCde)
-    // {
-    //     $situationCde = $this->daModel->getSituationCde($ref, $numDit);
-    //     $statutDa = $this->demandeApproRepository->getStatut($numDit);
-    //     $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
-
-    //     $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
-
-    //     $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
-    //     $statut_bc = '';
-    //     if (!array_key_exists(0, $situationCde)) {
-    //         $statut_bc = $statutBc;
-    //     } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
-    //         $statut_bc = 'A générer';
-    //     } elseif ((int)$situationCde[0]['num_cde'] <> '' && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
-    //         $statut_bc = 'A éditer';
-    //     } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
-    //         $statut_bc = 'A envoyer au fournisseur';
-    //     }elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
-    //         $statut_bc = 'A soumettre à validation';
-    //     }  else {
-    //         $statut_bc = $statutBc;
-    //     }
-
-    //     return $statut_bc;
-    // }
 
     private function creationPdf(string $numDa, int $numeroVersionMax)
     {
