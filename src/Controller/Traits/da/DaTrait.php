@@ -117,7 +117,8 @@ trait DaTrait
 
         $dals = $this->demandeApproLRepository->findBy([
             'numeroDemandeAppro' => $numDa,
-            'numeroVersion' => $numeroVersionMax
+            'numeroVersion' => $numeroVersionMax,
+            'deleted' => false // On récupère les DALs avec version max et non supprimés de la DA
         ]);
 
         foreach ($dals as $dal) {
