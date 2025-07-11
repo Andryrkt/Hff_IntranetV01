@@ -112,14 +112,17 @@
 									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
-									{% if demandeDeverouiller %}
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
+											</li>
+										{% endif %}
+										{% if demandeDeverouiller %}
 											<li>
 												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
 											</li>
-										</ul>
-									{% elseif serviceAppro %}
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% elseif serviceAppro %}
 											{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
 												<li>
 													<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
@@ -131,8 +134,8 @@
 													<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
 												</li>
 											{% endif %}
-										</ul>
-									{% endif %}
+										{% endif %}
+									</ul>
 								</div>
 							</td>
 							{# Fin Actions #}
