@@ -10,7 +10,7 @@ trait AtraiterTrait
 {
     private function agenceUser($autoriser): ?string
     {
-        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $codeAgence = Controller::getUser()->getAgenceAutoriserCode();
 
         if ($autoriser) {
             $agenceUser = "''";

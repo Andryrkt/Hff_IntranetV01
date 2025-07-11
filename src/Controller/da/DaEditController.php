@@ -203,7 +203,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
@@ -245,7 +245,7 @@ class DaEditController extends Controller
             'dalNouveau'    => $dalNouveau,
             'observation'   => $observation,
             'service'       => 'atelier',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
 

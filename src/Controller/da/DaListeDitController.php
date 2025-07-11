@@ -65,7 +65,7 @@ class DaListeDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recupère les information de l'utilisateur connecter
-        $user = $this->getUser();
+        $user = Controller::getUser();
 
         //recuperation agence et service autoriser
         $agenceIds = $user->getAgenceAutoriserIds();

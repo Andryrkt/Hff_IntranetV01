@@ -72,6 +72,7 @@
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date livraison prévue</th>
 					<th class="text-center">Nb jours dispo</th>
+					<th class="text-center">Demandeur</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -128,6 +129,7 @@
 						<td class="text-center">{{ item.qte_livee == 0 ? '-': item.qte_livee }}</td>
 						<td class="text-center">{{ item.date_livraison_prevue == null ? '' : item.date_livraison_prevue| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.jours_dispo}}</td>
+						<td class="text-center">{{ item.demandeur}}</td>
 					</tr>
 				{% endfor %}
 			</tbody>

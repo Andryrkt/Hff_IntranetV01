@@ -175,6 +175,11 @@ class DemandeAppro
 
     private array $daValiderOuProposer = [];
 
+    /**
+     * @ORM\Column(type="string", length=50, name="niveau_urgence")
+     */
+    private string $niveauUrgence;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -808,6 +813,26 @@ class DemandeAppro
     public function setValidateur($validateur)
     {
         $this->validateur = $validateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of niveauUrgence
+     */
+    public function getNiveauUrgence()
+    {
+        return $this->niveauUrgence;
+    }
+
+    /**
+     * Set the value of niveauUrgence
+     *
+     * @return  self
+     */
+    public function setNiveauUrgence($niveauUrgence)
+    {
+        $this->niveauUrgence = $niveauUrgence;
 
         return $this;
     }

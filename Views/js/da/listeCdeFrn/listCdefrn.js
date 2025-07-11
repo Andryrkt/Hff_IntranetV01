@@ -146,15 +146,15 @@ document.addEventListener("contextmenu", function (event) {
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
       </p>`;
-    // if (positionCdeFacturer) {
-    //active le formulaire
-    Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
-    form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-    // } else {
-    //   //desactive le formulaire
-    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-    // }
+    if (statutBc !== "Tous livrés") {
+      //active le formulaire
+      Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
+      form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
+    } else {
+      //desactive le formulaire
+      Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+      form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    }
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "block";
 

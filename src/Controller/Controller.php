@@ -37,11 +37,6 @@ use App\Model\da\DaModel;
 
 class Controller
 {
-
-    public const ROLE_ADMINISTRATEUR = 1;
-    public const ROLE_ATELIER = 4;
-    public const ROLE_MULTI_SUCURSALES = 6;
-    
     protected $fusionPdf;
 
     protected $ldap;
@@ -556,10 +551,11 @@ class Controller
         return $this->sessionService->get('user_id');
     }
 
-    protected function getUser(): User
+    public static function getUser(): User
     {
+        $ctrl = new self();
         //recuperation de l'utilisateur connecter
-        $userId = $this->getUserId();
+        $userId = $ctrl->getUserId();
         return  self::$em->getRepository(User::class)->find($userId);
     }
 
@@ -577,15 +573,17 @@ class Controller
         return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 
-    protected function estUserDansServiceAtelier(): bool
+    public static function estUserDansServiceAtelier(): bool
     {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
     }
 
-    protected function estUserDansServiceAppro(): bool
+    public static function estUserDansServiceAppro(): bool
     {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }

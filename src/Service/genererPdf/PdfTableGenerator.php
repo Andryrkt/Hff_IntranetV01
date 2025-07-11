@@ -218,7 +218,7 @@ class PdfTableGenerator
                 $key = $config['key'];
                 $value = $row[$key] ?? '';
                 $style = str_replace('font-weight: bold;', '', $config['style']);
-                if (empty($dal->getDemandeApproLR())) {
+                if ($dal->getDemandeApproLR()->isEmpty()) {
                     $style .= 'background-color: #fbbb01;';
                 }
                 $value = $this->formatValue($key, $value);
@@ -226,9 +226,9 @@ class PdfTableGenerator
                 $html .= '<td style="width: ' . $config['width'] . 'px; border:1px solid  #c4c4c4; ' . $style . '">' . $value . '</td>';
             }
             $html .= '</tr>';
-            if (empty($dal->getDemandeApproLR())) {
+            if ($dal->getDemandeApproLR()->isEmpty()) {
                 $total += $row['mttTotal'];
-                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4;  color:#646464; border-left: 2px solid blue;">Aucune proposition n’a été faite pour cet article.</td></tr>';
+                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4;  color:#646464; border-left: 2px solid black;">Aucune proposition n’a été faite pour cet article.</td></tr>';
             } else {
                 /** @var DemandeApproLR $dalr une demande appro LR dans dalrs */
                 foreach ($dal->getDemandeApproLR() as $dalr) {
@@ -240,7 +240,7 @@ class PdfTableGenerator
                         'qte' => $dalr->getQteDem(),
                     ];
                     $row['mttTotal'] = $row['pu1'] * $row['qte'];
-                    $total += $dalr['choix'] ? $row['mttTotal'] : 0;
+                    $total += $dalr->getChoix() ? $row['mttTotal'] : 0;
                     foreach ($headerConfig as $config) {
                         $key = $config['key'];
                         $value = $row[$key] ?? '';

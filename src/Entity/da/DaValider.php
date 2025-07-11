@@ -218,6 +218,11 @@ class DaValider
      */
     private ?int $qteEnAttent = 0;
 
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $demandeur = '';
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1016,6 +1021,26 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     *
+     * @return  self
+     */
+    public function setDemandeur($demandeur)
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1024,6 +1049,7 @@ class DaValider
             ->setStatutDal($da->getStatutDal())
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
+            ->setDemandeur($da->getDemandeur())
         ;
     }
 
