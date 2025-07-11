@@ -94,6 +94,7 @@ class DaNewController extends Controller
             $demandeAppro
                 ->setDemandeur(Controller::getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+                ->setNiveauUrgence($this->ditRepository->getNiveauUrgence($demandeAppro->getNumeroDemandeDit()))
             ;
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();

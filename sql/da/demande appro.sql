@@ -49,3 +49,6 @@ ALTER TABLE Demande_Appro ADD validateur_id INT;
 ALTER TABLE Demande_Appro
 ADD CONSTRAINT FK_Validateur_id
 FOREIGN KEY (validateur_id) REFERENCES users (id);
+
+
+alter TABLE Demande_Appro ADD niveau_urgence VARCHAR(50);

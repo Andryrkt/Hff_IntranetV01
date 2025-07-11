@@ -50,3 +50,6 @@ ADD jours_dispo int;
 
 ALTER TABLE da_valider
 ADD qte_en_attent int;
+
+ALTER TABLE da_valider
+ADD demandeur varchar(100);

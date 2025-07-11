@@ -201,6 +201,11 @@ class DemandeApproL
 
     private $verouille = false;
 
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $demandeur = '';
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -978,6 +983,26 @@ class DemandeApproL
     public function setVerouille($verouille)
     {
         $this->verouille = $verouille;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     *
+     * @return  self
+     */
+    public function setDemandeur($demandeur)
+    {
+        $this->demandeur = $demandeur;
 
         return $this;
     }
