@@ -197,6 +197,8 @@ class DemandeApproL
     private $qteALivrer = 0;
     private $qteEnAttent = 0;
 
+    private $datePlanningOR;
+
     private $verouille = false;
 
     /**==============================================================================
@@ -976,6 +978,26 @@ class DemandeApproL
     public function setVerouille($verouille)
     {
         $this->verouille = $verouille;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlanningOR
+     */
+    public function getDatePlanningOR()
+    {
+        return $this->datePlanningOR;
+    }
+
+    /**
+     * Set the value of datePlanningOR
+     *
+     * @return  self
+     */
+    public function setDatePlanningOR($datePlanningOR)
+    {
+        $this->datePlanningOR = $datePlanningOR;
 
         return $this;
     }

@@ -138,6 +138,31 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function getDatePlanningPourDa(string $numOr)
+    {
+        $statement = "SELECT slor_numor as num_or,
+                CASE 
+                    WHEN 
+                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id )  is Null THEN DATE(sitv_datepla)  
+                    ELSE
+                        (SELECT DATE(Min(ska_d_start)) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+                END as datePlanning
+                    FROM sav_lor
+                INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+                INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
+                    WHERE slor_constp = 'ZST' 
+                        and slor_numor = '$numOr'
+                        and slor_typlig = 'P'
+                        and slor_refp not like ('PREST%')
+                    ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
     public function recupOrLivrerComplet($numOrValideItv, $numOrValide, $criteria)
     {
         $piece = $this->conditionPiece('pieces', $criteria);

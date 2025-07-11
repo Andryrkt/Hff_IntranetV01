@@ -22,6 +22,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -30,6 +31,7 @@ use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -76,9 +78,6 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation */
-
-
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
@@ -117,14 +116,13 @@ class DaListeController extends Controller
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
         $this->verouillerOuNonLesDa($dasFiltered);
+        $this->ajouterDatePlanningOR($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
         // changer le statut de la DA si la situation des pièce est tout livré
         $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
-
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         self::$twig->display('da/list.html.twig', [
@@ -558,6 +556,30 @@ class DaListeController extends Controller
         }
 
         self::$em->flush();
+    }
+
+    /** 
+     * Ajoute la date de planning OR pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function ajouterDatePlanningOR($dasFiltered)
+    {
+        $model = new MagasinListeOrLivrerModel;
+        /** @var DemandeAppro $da demande appro */
+        foreach ($dasFiltered as $da) {
+            $numOr = $da->getDit()->getNumeroOR();
+            $datePlanning = '-';
+            if (!is_null($numOr)) {
+                $data = $model->getDatePlanningPourDa($numOr);
+                $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
+            }
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $daValiderOuProposer->setDatePlanningOR($datePlanning);
+            }
+        }
+
+        return $dasFiltered;
     }
 
     /** 
