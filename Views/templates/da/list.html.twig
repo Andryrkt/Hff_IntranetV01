@@ -56,6 +56,7 @@
 					</th>
 					<th class="text-center">N° Demande</th>
 					<th class="text-center">N° DIT</th>
+					<th class="text-center">Niveau urgence DIT</th>
 					<th class="text-center">N° OR</th>
 					<th class="text-center">Demandeur</th>
 					<th class="text-center">Date de demande</th>
@@ -149,6 +150,7 @@
 								{# {% endif %} #}
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
+							<td>{{ item.dit.idNiveauUrgence.description }}</td>
 							<td>{{ item.dit.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
