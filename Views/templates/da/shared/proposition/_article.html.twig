@@ -266,7 +266,7 @@
 			{% for DALR in article.demandeApproLR|reverse %}
 				<tr role="button">
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
-						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
+						<input type="radio" name="selectedRow_{{DALR.numeroLigne}}" id="radio_{{DALR.numeroLigne}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigne}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
 					{% if estAppro %}
@@ -279,14 +279,9 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 					{% if article.estFicheTechnique %}
-						{# {% if estAppro %}
-											<td class="align-middle">
-												<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
-											</td>
-											{% endif %} #}
 						<td></td>
 						<td class="text-start">
-							<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
+							<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigne}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
 						</td>
 					{% endif %}
 					<td></td>

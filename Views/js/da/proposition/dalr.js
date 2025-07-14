@@ -200,7 +200,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
       : element.name;
   });
 
-  ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+  ajouterValeur(prototype, "numeroLigne", line); // numero de page
   ajouterValeur(prototype, "numeroFournisseur", fields.numeroFournisseur.value);
   ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
   ajouterValeur(prototype, "artRefp", fields.reference.value);
@@ -242,7 +242,7 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
         : element.name;
     });
 
-    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numeroLigne", line); // numero de page
     ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
     container.append(prototype);
@@ -296,7 +296,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
         : element.name;
     });
 
-    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numeroLigne", line); // numero de page
     ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
     container.append(prototype);

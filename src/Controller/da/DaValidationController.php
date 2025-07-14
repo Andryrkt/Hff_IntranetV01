@@ -137,8 +137,8 @@ class DaValidationController extends Controller
                         ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
-                    if (key_exists($item->getNumeroLigneDem(), $refsValide)) {
-                        if ($item->getNumLigneTableau() == $refsValide[$item->getNumeroLigneDem()]) {
+                    if (key_exists($item->getNumeroLigne(), $refsValide)) {
+                        if ($item->getNumLigneTableau() == $refsValide[$item->getNumeroLigne()]) {
                             $item->setChoix(true);
                         }
                     }

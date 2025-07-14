@@ -247,7 +247,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltered as $da) {
             foreach ($da->getDAL() as $dal) {
-                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigne' => $dal->getNumeroLigne()]);
                 if (!empty($dalrs)) {
                     foreach ($dalrs as $dalr) {
                         $dalr->setDemandeApproL($dal);

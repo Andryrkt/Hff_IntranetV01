@@ -105,7 +105,7 @@ class DaEditController extends Controller
 
             $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
                 'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
-                'numeroLigneDem' => $demandeApproLVersionMax->getNumeroLigne()
+                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
             ]);
 
             foreach ($demandeApproLs as $demandeApproL) {
@@ -335,7 +335,7 @@ class DaEditController extends Controller
      */
     private function deleteDALR(DemandeApproL $dal)
     {
-        $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        $dalrs = $this->daLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
             self::$em->remove($dalr);
         }
