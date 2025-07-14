@@ -24,6 +24,17 @@ export function boutonRadio() {
     }, {}); // Crée un objet avec les paires clé-valeur, {} est l'initialisation
 
     localStorage.setItem("selectedValues", JSON.stringify(refsValide));
+
+    const tableBody = radio.closest("tbody");
+    const radiosInTableBody = tableBody.querySelectorAll('input[type="radio"]');
+    radiosInTableBody.forEach((r) => {
+      let row = r.closest("tr");
+      if (r === radio) {
+        row.classList.add("table-active");
+      } else {
+        row.classList.remove("table-active");
+      }
+    });
   }
 
   // Écouteur sur chaque radio

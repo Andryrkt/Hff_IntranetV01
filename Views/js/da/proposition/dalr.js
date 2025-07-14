@@ -54,7 +54,11 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
 
+  // Evènement pour les bouton radio
   boutonRadio();
+
+  // Evènement de clic sur une ligne de proposition
+  row.addEventListener("click", handleRowClick);
 
   // Vider les valeurs dans les champs
 
@@ -422,5 +426,23 @@ function renderFileList(inputId) {
     });
 
     fieldContainer.appendChild(fileList);
+  }
+}
+
+/**
+ * Déclenche un 'change' sur la première cellule si l'élément cliqué n'est pas un lien.
+ * @param {MouseEvent} event - L'événement de clic
+ */
+export function handleRowClick(event) {
+  // Si on a cliqué sur un <a> ou un de ses enfants, on ne fait rien
+  if (event.target.closest("a")) return;
+
+  /**
+   * this représente le tr de la table
+   * Déclencher l’événement "change" sur le premier élément de la première cellule
+   */
+  const target = this.cells[0].firstElementChild;
+  if (target) {
+    target.click();
   }
 }
