@@ -41,7 +41,7 @@ class Connexion
             $result = odbc_exec($this->conn, $sql);
             if (!$result) {
                 $this->logError("ODBC Query failed: " . odbc_errormsg($this->conn));
-                throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
+                throw new \Exception("ODBC Query failed: " . odbc_error($this->conn) . "msg" . odbc_errormsg($this->conn));
             }
             return $result;
         } catch (\Exception $e) {
@@ -80,7 +80,7 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, $_ENV['BASE_PATH_LOG']."/log/app_errors.log");
+        error_log($message, 3, $_ENV['BASE_PATH_LOG'] . "/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur
