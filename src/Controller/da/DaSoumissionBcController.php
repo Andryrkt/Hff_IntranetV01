@@ -95,15 +95,17 @@ class DaSoumissionBcController extends Controller
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
+                //numeroversion max
+                $numeroVersionMax = $this->autoIncrement($this->daSoumissionBcRepository->getNumeroVersionMax($numCde));
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
+                $nomPdfFusionner =  $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner);
+                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 self::$em->persist($soumissionBc);
@@ -140,16 +142,15 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner): DaSoumissionBc
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax): DaSoumissionBc
     {
-        $numeroVersionMax = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
-            ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+            ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
             ->setNumeroOR($numOr)
