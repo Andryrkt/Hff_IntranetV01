@@ -24,8 +24,7 @@ export function ajouterReference(addLineId) {
     const nePasAjouter = Object.values(fields).some(handleFieldValue);
     if (!nePasAjouter) {
       if (divValidation) {
-        divValidation.remove(); // On supprime le div de validation s'il existe
-        // divValidation.classList.add('d-none'); // On le cache
+        divValidation.classList.add("d-none"); // On le cache
       }
       if (envoyerSelections) {
         envoyerSelections.classList.remove("d-none"); // On l'affiche
@@ -65,8 +64,7 @@ export function ajouterReference(addLineId) {
       fields.motif.value = fields.motif.value == "" ? "*" : fields.motif.value;
 
       if (divValidation) {
-        divValidation.remove(); // On supprime le div de validation s'il existe
-        // divValidation.classList.add('d-none'); // On le cache
+        divValidation.classList.add("d-none"); // On le cache
       }
       if (envoyerSelections) {
         envoyerSelections.classList.remove("d-none"); // On l'affiche

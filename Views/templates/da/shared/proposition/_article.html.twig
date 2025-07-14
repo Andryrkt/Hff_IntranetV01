@@ -33,9 +33,9 @@
 	</div>
 	<div class="row">
 		{% if estAppro %}
-		<div class="col-3 col-md-3">
-			{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
-		</div>
+			<div class="col-3 col-md-3">
+				{{ macroForm.affichage2('Référence', referencePiece, 'mb-2') }}
+			</div>
 		{% endif %}
 
 		<div class="col-3 col-md-{{ estAte ? '6' : '3' }}">
@@ -75,12 +75,12 @@
 					<a href="#" class="d-none">
 						<i class="fas fa-paperclip"></i>
 					</a>
-				{% endif %} 
+				{% endif %}
 			</label>
 			<div class="d-flex align-items-center mb-2 div-disabled-2">
 				{% if article.estFicheTechnique %}
 					{% if article.nomFicheTechnique %}
-					<a href="{{ App.base_path_fichier }}/da/{{ article.numeroDemandeAppro }}/{{ article.nomFicheTechnique }}" target="_blank">{{ article.nomFicheTechnique }}</a>
+						<a href="{{ App.base_path_fichier }}/da/{{ article.numeroDemandeAppro }}/{{ article.nomFicheTechnique }}" target="_blank">{{ article.nomFicheTechnique }}</a>
 					{% else %}
 						Pas encore de fiche technique attachée
 					{% endif %}
@@ -176,7 +176,9 @@
 		<div class="row">
 			<div class="col-3 col-md-3">
 				<div class="mb-2">
-					<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence {{ article.catalogue ? '(*)' : ''}} </label>
+					<label for="demande_appro_proposition_reference_{{ currentPage }}" class="form-label mb-0">Référence
+						{{ article.catalogue ? '(*)' : ''}}
+					</label>
 					<input type="text" id="demande_appro_proposition_reference_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 					<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
 					<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
@@ -194,7 +196,8 @@
 				<div class="row">
 					<div class="col-8 col-md-8">
 						<div class="mb-2">
-							<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation {{ article.catalogue ? '(*)' : ''}}</label>
+							<label for="demande_appro_proposition_designation_{{ currentPage }}" class="form-label mb-0">Désignation
+								{{ article.catalogue ? '(*)' : ''}}</label>
 							<input type="text" id="demande_appro_proposition_designation_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 							<div id="suggestion_designation_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container_designation_{{ currentPage }}" class="text-center" style="display: none;">
@@ -207,14 +210,16 @@
 					</div>
 					<div class="col-4 col-md-4">
 						<div class="mb-2">
-							<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur {{ article.catalogue ? '(*)' : ''}}</label>
+							<label for="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-label mb-0">Nom du fournisseur
+								{{ article.catalogue ? '(*)' : ''}}</label>
 							<input type="text" id="demande_appro_proposition_fournisseur_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 							<div id="suggestion_fournisseur_{{ currentPage }}" class="suggestions-container"></div>
 							<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 						</div>
 					</div>
 					<div class="mb-2">
-						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif {{ article.catalogue ? '(*)' : ''}}</label>
+						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif
+							{{ article.catalogue ? '(*)' : ''}}</label>
 						<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 					</div>
 				</div>
@@ -231,13 +236,13 @@
 			</button>
 		</div>
 	</div>
-	<table class="table rounded table-plein-ecran mt-4">
+	<table class="table rounded table-hover table-plein-ecran mt-4">
 		<thead class="table-dark text-center">
 			<tr>
 				<th>Choix</th>
 				<th>Fournisseur</th>
 				{% if estAppro %}
-				<th>Référence</th>									
+					<th>Référence</th>
 				{% endif %}
 				<th>Désignation</th>
 				<th>PU</th>
@@ -250,22 +255,22 @@
 				{% endif %}
 				<th colspan="2">Pièces jointes</th>
 				{% if estAppro %}
-				<th>
-					<i class="fas fa-times fs-7"></i>
-				</th>
+					<th>
+						<i class="fas fa-times fs-7"></i>
+					</th>
 				{% endif %}
 			</tr>
 		</thead>
 
 		<tbody id="tableBody_{{ currentPage }}">
 			{% for DALR in article.demandeApproLR|reverse %}
-				<tr>
+				<tr role="button">
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">
 						<input type="radio" name="selectedRow_{{DALR.numeroLigneDem}}" id="radio_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" value="{{ DALR.numeroLigneDem}}-{{DALR.numLigneTableau}}" {{ DALR.choix ? 'checked' : '' }} {{ nePeutPasModifier ? 'disabled':''}}>
 					</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.nomFournisseur }}</td>
 					{% if estAppro %}
-					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
+						<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.artRefp }}</td>
 					{% endif %}
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.artDesi }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: right;">{{ DALR.prixUnitaire | number_format(2, ',', '.')}}</td>
@@ -274,27 +279,27 @@
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }};">{{ DALR.qteDispo }}</td>
 					<td style="color: {{ DALR.prixUnitaire == '0' ? 'red' : '#000' }}; text-align: left;">{{ DALR.motif }}</td>
 					{% if article.estFicheTechnique %}
-					{# {% if estAppro %}
-					<td class="align-middle">
-						<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
-					</td>
-					{% endif %} #}
-					<td></td>
-					<td class="text-start">
-						<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
-					</td>
+						{# {% if estAppro %}
+											<td class="align-middle">
+												<a href="#" class="add-file" data-nbr-line="{{DALR.numeroLigneDem}}" data-nbr-line-table="{{DALR.numLigneTableau}}" title="Joindre une fiche technique"><i class="fas fa-paperclip"></i></a>
+											</td>
+											{% endif %} #}
+						<td></td>
+						<td class="text-start">
+							<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ DALR.nomFicheTechnique }}" id="lien_fiche_technique_{{DALR.numeroLigneDem}}_{{DALR.numLigneTableau}}" target="_blank">{{ DALR.nomFicheTechnique }}</a>
+						</td>
 					{% endif %}
 					<td></td>
 					<td class="text-start">
 						<div>
 							{% if DALR.fileNames is not empty %}
-							<ul class="ps-3 mb-0">
-							{% for file in DALR.fileNames %}
-								<li>
-									<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
-								</li>
-							{% endfor %}
-							</ul>
+								<ul class="ps-3 mb-0">
+									{% for file in DALR.fileNames %}
+										<li>
+											<a href="{{ App.base_path_fichier }}/da/{{ DALR.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+										</li>
+									{% endfor %}
+								</ul>
 							{% else %}
 								Aucune pièce jointe
 							{% endif %}
@@ -323,7 +328,8 @@
 			{% endif %}
 		</div>
 		<div class="align-self-end">
-			<span class="fs-6"><span class="currentPage fs-6"></span>/{{ totalPage }}</span>
+			<span class="fs-6">
+				<span class="currentPage fs-6"></span>/{{ totalPage }}</span>
 		</div>
 	</div>
 </div>

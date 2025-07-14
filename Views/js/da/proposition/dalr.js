@@ -11,6 +11,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
   const row = tableBody.insertRow(0);
+  row.setAttribute("role", "button");
   const rowIndex = tableBody.rows.length; // numero de ligne du tableau
   console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);
@@ -131,7 +132,7 @@ function insertCellsFicheTechnique(
 function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
   /** Icône d'ajout de fichiers */
   const addFile = document.createElement("a");
-  addFile.href = "#";
+  addFile.classList.add("link-primary");
   addFile.title = "Joindre des pièces jointes";
   addFile.dataset.nbrLine = numeroLigneDem;
   addFile.dataset.nbrLineTable = numLigneTableau;
