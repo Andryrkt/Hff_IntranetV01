@@ -15,6 +15,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DitOrsSoumisAValidation
 {
+
+    public const STATUT_VALIDE = 'Validé';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -30,7 +33,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = '';
 
     /**
      * @ORM\Column(type="integer")

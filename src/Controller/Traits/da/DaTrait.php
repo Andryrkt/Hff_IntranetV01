@@ -2,12 +2,16 @@
 
 namespace App\Controller\Traits\da;
 
+use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
-use DateTime;
+use App\Service\genererPdf\GenererPdfDa;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaTrait
@@ -51,21 +55,28 @@ trait DaTrait
             $partiellementDispo = $qte[0]['qte_dem'] != $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] == 0 && $qte[0]['qte_a_livrer'] > 0;
             $completNonLivrer = ($qte[0]['qte_dem'] == $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] < $qte[0]['qte_dem']) || ($qte[0]['qte_a_livrer'] > 0 && $qte[0]['qte_dem'] == ($qte[0]['qte_a_livrer'] + $qte[0]['qte_livee']));
             $tousLivres = $qte[0]['qte_dem'] ==  $qte[0]['qte_livee'] && $qte[0]['qte_dem'] != '' && $qte[0]['qte_livee'] != '';
+            $partiellementLivre = $qte[0]['qte_livee'] > 0 && $qte[0]['qte_livee'] != $qte[0]['qte_dem'] && $qte[0]['qte_dem'] > ($qte[0]['qte_livee'] + $qte[0]['qte_a_livrer']);
         }
 
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
-        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
+        } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == DitOrsSoumisAValidation::STATUT_VALIDE) {
             $statut_bc = 'A générer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_TERMINER) {
             $statut_bc = 'A éditer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !$bcExiste) {
             $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
+        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc)) {
             $statut_bc = 'A envoyer au fournisseur';
-        } elseif ($partiellementDispo || $completNonLivrer || $tousLivres) {
-            $statut_bc = 'BC réceptionné';
+        } elseif ($partiellementDispo) {
+            $statut_bc = 'Partiellement dispo';
+        } elseif ($completNonLivrer) {
+            $statut_bc = 'Complet non livré';
+        } elseif ($tousLivres) {
+            $statut_bc = 'Tous livrés';
+        } elseif ($partiellementLivre) {
+            $statut_bc = 'Partiellement livré';
         } else {
             $statut_bc = $statutBc;
         }
@@ -73,39 +84,48 @@ trait DaTrait
         return $statut_bc;
     }
 
-    // private function statutBcCde(?string $ref, string $numDit, ?string $numCde)
-    // {
-    //     $situationCde = $this->daModel->getSituationCde($ref, $numDit);
-    //     $statutDa = $this->demandeApproRepository->getStatut($numDit);
-    //     $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
 
-    //     $bcExiste = $this->daSoumissionBcRepository->bcExists($numCde);
+    private function creationPdf(string $numDa, int $numeroVersionMax)
+    {
+        $genererPdfDa = new GenererPdfDa();
 
-    //     $statutBc = $this->daSoumissionBcRepository->getStatut($numCde);
-    //     $statut_bc = '';
-    //     if (!array_key_exists(0, $situationCde)) {
-    //         $statut_bc = $statutBc;
-    //     } elseif ($situationCde[0]['num_cde'] == '' && $statutDa == DemandeAppro::STATUT_VALIDE && $statutOr == 'Validé') {
-    //         $statut_bc = 'A générer';
-    //     } elseif ((int)$situationCde[0]['num_cde'] <> '' && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'TE') {
-    //         $statut_bc = 'A éditer';
-    //     } elseif ($situationCde[0]['position_bc'] == 'ED' && $statutBc == 'Validé') {
-    //         $statut_bc = 'A envoyer au fournisseur';
-    //     }elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == 'ED' && !$bcExiste) {
-    //         $statut_bc = 'A soumettre à validation';
-    //     }  else {
-    //         $statut_bc = $statutBc;
-    //     }
+        $dals = $this->demandeApproLRepository->findBy([
+            'numeroDemandeAppro' => $numDa,
+            'numeroVersion' => $numeroVersionMax,
+            'deleted' => false // On récupère les DALs avec version max et non supprimés de la DA
+        ]);
 
-    //     return $statut_bc;
-    // }
+        foreach ($dals as $dal) {
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dal->setDemandeApproLR(new ArrayCollection($dalrs));
+        }
+
+        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
+
+        $genererPdfDa->genererPdf($dit, $da, $dals);
+    }
+
+    private function SommeTotal($daValiders): float
+    {
+        $somme = 0.0;
+        foreach ($daValiders as $daValider) {
+            $somme += (float)$daValider->getTotal();
+        }
+        return $somme;
+    }
 
     private function creationExcel(string $numDa, int $numeroVersionMax): array
     {
         //recupération des donnée
         $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
 
+        //enregistrement des données dans DaValider
         $this->enregistrerDonneeDansDaValide($donnerExcels);
+
+        //creation PDF
+        $this->creationPdf($numDa, $numeroVersionMax);
 
         // Convertir les entités en tableau de données
         $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
@@ -114,7 +134,7 @@ trait DaTrait
         $date = new DateTime();
         $formattedDate = $date->format('Ymd_His');
         $fileName = $numDa . '_' . $formattedDate . '.xlsx';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . '/da/ba/' . $fileName;
+        $filePath = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa/$fileName";
         $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
 
         return [
@@ -145,7 +165,7 @@ trait DaTrait
 
     private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
     {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'deleted' => false]); // On récupère les DALs avec version max et non supprimés de la DA
 
         $donnerExcels = [];
         foreach ($dals as $dal) {

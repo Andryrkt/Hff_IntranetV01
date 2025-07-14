@@ -15,6 +15,14 @@ class DaSoumissionBc
 {
     use DateTrait;
 
+
+    public const STATUT_VALIDE = 'Validé';
+    public const STATUT_CLOTURE = 'Cloturé';
+    public const STATUT_REFUSE = 'Refusé';
+
+    public const POSITION_TERMINER = 'TE';
+    public const POSITION_EDITER = 'ED';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -231,7 +239,7 @@ class DaSoumissionBc
 
     /**
      * Get the value of pieceJoint2
-     */ 
+     */
     public function getPieceJoint2()
     {
         return $this->pieceJoint2;
@@ -241,7 +249,7 @@ class DaSoumissionBc
      * Set the value of pieceJoint2
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;

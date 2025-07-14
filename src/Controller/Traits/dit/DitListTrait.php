@@ -6,12 +6,14 @@ namespace App\Controller\Traits\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 
@@ -283,7 +285,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
+        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 
     private function autorisationRoleEnergie($em): bool
@@ -582,7 +584,7 @@ trait DitListTrait
 
         $this->ajoutDateEtMontantOR($paginationData['data'], $em);
 
-        // $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
+        $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
 
         // dd($paginationData['data']);
         return $paginationData;
@@ -603,7 +605,7 @@ trait DitListTrait
         //si le statut dit est A_AFFECTER
         $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
         //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté et profil de l'utilisateur connecté est CHEF_ATELIER
-        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && $data->getUtilisateurDemandeur() === $this->getUser()->getNomUtilisateur() && in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds());
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && $data->getUtilisateurDemandeur() === Controller::getUser()->getNomUtilisateur() && in_array(User::PROFIL_CHEF_ATELIER, Controller::getUser()->getRoleIds());
         //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
         $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
 
@@ -637,7 +639,7 @@ trait DitListTrait
             // dump($value->getIdStatutDemande());
             // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
 
-            $statutAffecterSection = $value->getIdStatutDemande()->getId() === Demandeintervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
+            $statutAffecterSection = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
             $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
             $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());

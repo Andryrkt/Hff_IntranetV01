@@ -182,39 +182,44 @@ export function calculTotal() {
 
   montantTotalInput.value = formatMontant(montantTotal);
 
-  if (montantTotal > 500000) {
-    montantTotalInput.classList.remove(
-      "border",
-      "border-2",
-      "border-success",
-      "border-opacity-75"
-    );
-    montantTotalInput.classList.add(
-      "border",
-      "border-2",
-      "border-danger",
-      "border-opacity-75"
-    );
-  } else if (montantTotal > 0) {
+  if (
+    document.getElementById("mutation_form_modePaiementLabel").value ===
+    "VIREMENT BANCAIRE"
+  ) {
     montantTotalInput.classList.remove(
       "border",
       "border-2",
       "border-danger",
-      "border-opacity-75"
-    );
-    montantTotalInput.classList.add(
-      "border",
-      "border-2",
       "border-success",
       "border-opacity-75"
     );
   } else {
-    montantTotalInput.classList.remove(
-      "border",
-      "border-2",
-      "border-danger",
-      "border-success",
-      "border-opacity-75"
-    );
+    if (montantTotal > 500000) {
+      montantTotalInput.classList.remove(
+        "border",
+        "border-2",
+        "border-success",
+        "border-opacity-75"
+      );
+      montantTotalInput.classList.add(
+        "border",
+        "border-2",
+        "border-danger",
+        "border-opacity-75"
+      );
+    } else if (montantTotal > 0) {
+      montantTotalInput.classList.remove(
+        "border",
+        "border-2",
+        "border-danger",
+        "border-opacity-75"
+      );
+      montantTotalInput.classList.add(
+        "border",
+        "border-2",
+        "border-success",
+        "border-opacity-75"
+      );
+    }
   }
 }

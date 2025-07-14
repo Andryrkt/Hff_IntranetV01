@@ -203,8 +203,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE ));
-        
+        return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
@@ -246,7 +245,7 @@ class DaEditController extends Controller
             'dalNouveau'    => $dalNouveau,
             'observation'   => $observation,
             'service'       => 'atelier',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
 
@@ -294,6 +293,7 @@ class DaEditController extends Controller
 
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
     {
+        $demandeAppro->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
         self::$em->persist($demandeAppro); // on persiste la DA
         $this->modificationDAL($demandeAppro, $formDAL);
         self::$em->flush(); // on enregistre les modifications
@@ -320,7 +320,9 @@ class DaEditController extends Controller
             ; // Incrémenter le numéro de version
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
-            // $this->deleteDALR($demandeApproL);
+            if ($demandeApproL->getDeleted() == 1) {
+                $this->deleteDALR($demandeApproL);
+            }
             self::$em->persist($demandeApproL); // on persiste la DAL
         }
     }

@@ -120,7 +120,7 @@ class DemandePaiementController extends Controller
             if ($id == 2) {
                 $data->setNumeroCommande($numeroCommandes);
             }
-            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1);//recupération de fichier cde dans DW
+            $nomDufichierCde = $this->recupCdeDw($data, $numDdp, 1); //recupération de fichier cde dans DW
             /** AJOUT DES INFO NECESSAIRE  A L'ENTITE DDP */
             $this->ajoutDesInfoNecessaire($data, $numDdp, $id, $nomDesFichiers, $nomDufichierCde);
 
@@ -357,7 +357,7 @@ class DemandePaiementController extends Controller
             ->setAgenceDebiter($this->agenceRepository->find(1)->getCodeAgence())
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
-            ->setDemandeur($this->getUser()->getNomUtilisateur())
+            ->setDemandeur(Controller::getUser()->getNomUtilisateur())
             ->setStatut(self::STATUT_CREATION)
             ->setNumeroVersion('1')
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))

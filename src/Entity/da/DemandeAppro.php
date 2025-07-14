@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
 use App\Repository\da\DemandeApproRepository;
@@ -30,8 +31,7 @@ class DemandeAppro
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
     public const STATUT_TERMINER = 'TERMINER';
-    public const MAIL_ATELIER = 'hoby.ralahy@hff.mg';
-    public const MAIL_APPRO = 'hoby.ralahy@hff.mg';
+    public const MAIL_APPRO = 'appro@hff.mg';
 
     /**
      * @ORM\Id
@@ -155,6 +155,18 @@ class DemandeAppro
 
     private ?DemandeIntervention $dit = null;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="demandeApproUser")
+     * @ORM\JoinColumn(nullable=true, name="user_id", referencedColumnName="id")
+     */
+    private ?User $user;
+
+    /**
+     * @ORM\OneToOne(targetEntity=User::class, inversedBy="demandeApproValidateur")
+     * @ORM\JoinColumn(nullable=true, name="validateur_id", referencedColumnName="id")
+     */
+    private ?User $validateur;
+
     private $observation;
 
     private $numDossierDouane;
@@ -162,6 +174,11 @@ class DemandeAppro
     private bool $demandeDeverouillage = false;
 
     private array $daValiderOuProposer = [];
+
+    /**
+     * @ORM\Column(type="string", length=50, name="niveau_urgence")
+     */
+    private string $niveauUrgence;
 
     /**===========================================================================
      * GETTER & SETTER
@@ -756,6 +773,66 @@ class DemandeAppro
     public function setDaValiderOuProposer($daValiderOuProposer)
     {
         $this->daValiderOuProposer = $daValiderOuProposer;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of user
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * Set the value of user
+     *
+     * @return  self
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of validateur
+     */
+    public function getValidateur()
+    {
+        return $this->validateur;
+    }
+
+    /**
+     * Set the value of validateur
+     *
+     * @return  self
+     */
+    public function setValidateur($validateur)
+    {
+        $this->validateur = $validateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of niveauUrgence
+     */
+    public function getNiveauUrgence()
+    {
+        return $this->niveauUrgence;
+    }
+
+    /**
+     * Set the value of niveauUrgence
+     *
+     * @return  self
+     */
+    public function setNiveauUrgence($niveauUrgence)
+    {
+        $this->niveauUrgence = $niveauUrgence;
 
         return $this;
     }

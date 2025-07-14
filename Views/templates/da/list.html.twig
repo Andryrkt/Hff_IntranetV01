@@ -43,12 +43,13 @@
 		'A éditer': 'bg-bc-a-editer fw-bold',
 		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
 		'Validé': 'bg-bc-valide fw-bold',
+		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
 	} %}
 
 	<div class="container-fluid">
 		<table class="table table-plein-ecran">
-			<thead class="table-dark">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th>
 						<i class="fas fa-ellipsis-vertical"></i>
@@ -61,8 +62,7 @@
 					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut OR</th>
 					<th class="text-center">Statut BC</th>
-					<th>Famille</th>
-					<th>Sous-famille</th>
+					<th class="text-center">Date Planning OR</th>
 					<th>Fournisseur</th>
 					{% if not serviceAtelier %}
 						<th>Réference</th>
@@ -104,14 +104,7 @@
 							{% set classe = 'complet-non-livre bg-primary text-white' %}
 						{% endif %}
 
-						{% set dalAffiche = dal %}
-						{% if dal.demandeApproLR|length > 0 %}
-							{% set dalAffiche = dal.demandeApproLR|filter(dalr => dalr.choix)|first %}
-							{# Le premier dalr avec choix = true #}
-							{% set dalAffiche = dalAffiche ? dalAffiche : dal %}
-						{% endif %}
-
-						{% set designationStyle = dalAffiche is same as dal ? '' : 'mise-en-evidence' %}
+						{% set designationStyle = dal.demandeApproLR is iterable ? '' : 'mise-en-evidence' %}
 
 						<tr>
 							{# Début Action #}
@@ -120,14 +113,17 @@
 									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
-									{% if demandeDeverouiller %}
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
+											</li>
+										{% endif %}
+										{% if demandeDeverouiller %}
 											<li>
 												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
 											</li>
-										</ul>
-									{% elseif serviceAppro %}
-										<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% elseif serviceAppro %}
 											{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
 												<li>
 													<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
@@ -139,8 +135,8 @@
 													<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
 												</li>
 											{% endif %}
-										</ul>
-									{% endif %}
+										{% endif %}
+									</ul>
 								</div>
 							</td>
 							{# Fin Actions #}
@@ -156,21 +152,20 @@
 							<td>{{ item.dit.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
-							<td class="{{ styleStatutDA[dal.statutDal] }}">{{ dal.statutDal }}</td>
+							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
-							<td class="text-start">{{ dalAffiche.artFams1 ?? '-' }}</td>
-							<td class="text-start">{{ dalAffiche.artFams2 ?? '-' }}</td>
-							<td class="text-start">{{ dalAffiche.nomFournisseur }}</td>
+							<td class="text-center">{{ dal.datePlanningOR }}</td>
+							<td class="text-start">{{ dal.nomFournisseur }}</td>
 							{% if not serviceAtelier %}
-								<td class="text-start">{{ dalAffiche.artRefp ?? '-' }}</td>
+								<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 							{% endif %}
 							<td class="text-start {{ designationStyle }}">
-								{% if dal.statutDal == 'Bon d’achats validé' or (serviceAppro and (dal.statutDal == 'ZST non Validé')) or (serviceAtelier and dal.statutDal == 'Demande d’achats')%}
-									{{ dalAffiche.artDesi }}
+								{% if dal.verouille %}
+									{{ dal.artDesi }}
 								{% else %}
 									<a href="{{ path('da_proposition', { id : item.id }) }}" class="designation-btn" data-numero-ligne="{{ dal.numeroLigne }}" target="_blank">
-										{{ dalAffiche.artDesi }}
+										{{ dal.artDesi }}
 									</a>
 								{% endif %}
 							</td>

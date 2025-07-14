@@ -116,9 +116,9 @@ class MutationFormType extends AbstractType
                     'choice_label'  => 'description',
                     'query_builder' => function (CatgRepository $catg) {
                         return $catg->createQueryBuilder('c')
-                                    ->where('c.id NOT IN (:excluded)')
-                                    ->setParameter('excluded', [5, 6, 7])
-                                    ->orderBy('c.description', 'ASC');
+                            ->where('c.id NOT IN (:excluded)')
+                            ->setParameter('excluded', [5, 6, 7])
+                            ->orderBy('c.description', 'ASC');
                     }
                 ]
             )
@@ -146,7 +146,7 @@ class MutationFormType extends AbstractType
                 DateType::class,
                 [
                     'widget' => 'single_text',
-                    'label'  => 'Date fin de frais d\'installation',
+                    'label'  => 'Date fin frais / indemnité',
                 ]
             )
             ->add(
@@ -170,6 +170,7 @@ class MutationFormType extends AbstractType
                 TextType::class,
                 [
                     'label'       => 'Nom du client',
+                    'required'    => false,
                     'constraints' => [
                         new Length([
                             'min'        => 3,
@@ -212,7 +213,7 @@ class MutationFormType extends AbstractType
                 ChoiceType::class,
                 [
                     'mapped'  => false,
-                    'label'   => 'Frais d\'installation',
+                    'label'   => 'Frais d\'installation / Avances sur Indemnité',
                     'choices' => self::AVANCE_SUR_INDEMNITE
                 ]
             )

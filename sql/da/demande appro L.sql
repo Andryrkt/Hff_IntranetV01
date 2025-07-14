@@ -68,3 +68,6 @@ ADD jours_dispo int;
 
 ALTER TABLE Demande_Appro_L
 ADD file_names text;
+
+ALTER TABLE Demande_Appro_L
+ADD demandeur varchar(100);

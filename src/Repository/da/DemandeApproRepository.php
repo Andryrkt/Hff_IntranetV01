@@ -2,17 +2,20 @@
 
 namespace App\Repository\da;
 
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
 
 class DemandeApproRepository extends EntityRepository
 {
-    public function findDaData(array $criteria = [])
+    public function findDaData(array $criteria = [], int $idAgenceUser)
     {
         $qb = $this->createQueryBuilder('da')
             ->select('da')
             ->orderBy('da.id', 'DESC');
+
 
         // Filtre sur le numero DIT
         if (isset($criteria['numDit'])) {
@@ -32,14 +35,16 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('demandeur', '%' . $criteria['demandeur'] . '%');
         }
 
+        if (empty(array_filter($criteria, fn($v) => !is_null($v)))) {
+            // Par défaut, on n'affiche pas les demandes terminées
+            $qb->andWhere("da.statutDal != :statut")
+                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
+        }
+
         //filtre sur le statut de DA
         if (isset($criteria['statutDA'])) {
             $qb->andWhere("da.statutDal =:statut")
                 ->setParameter('statut', $criteria['statutDA']);
-        } else {
-            // Par défaut, on n'affiche pas les demandes terminer
-            $qb->andWhere("da.statutDal != :statut")
-                ->setParameter('statut', DemandeAppro::STATUT_TERMINER);
         }
 
         //Filtre sur l'id matériel
@@ -48,6 +53,66 @@ class DemandeApproRepository extends EntityRepository
                 ->setParameter('idMat', (int)$criteria['idMateriel']);
         }
 
+        $this->FiltredSelonDate($qb, $criteria);
+
+        $this->FiltredSelonAgenceService($qb, $criteria, $idAgenceUser);
+
+        return $qb->getQuery()->getResult();
+    }
+
+    private function FiltredSelonAgenceService($qb, array $criteria, int $idAgenceUser)
+    {
+
+        $estAppro = Controller::estUserDansServiceAppro();
+        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+
+        if (!$estAtelier && !$estAppro && !$estAdmin) {
+            $qb
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.agenceDebiteur IN (:agenceAutoriserIds)',
+                        'da.agenceEmetteur = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', Controller::getUser()->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $idAgenceUser)
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.serviceDebiteur IN (:serviceAutoriserIds)',
+                        'da.serviceEmetteur IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', Controller::getUser()->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
+        // Filtre sur l'agence Emetteur
+        if (isset($criteria['agenceEmetteur'])) {
+            $qb->andWhere("da.agenceEmetteur = :agenceEmetteur")
+                ->setParameter('agenceEmetteur', $criteria['agenceEmetteur']->getId());
+        }
+
+        // Filtre sur le service Emetteur
+        if (isset($criteria['serviceEmetteur'])) {
+            $qb->andWhere("da.serviceEmetteur = :serviceEmetteur")
+                ->setParameter('serviceEmetteur', $criteria['serviceEmetteur']->getId());
+        }
+
+        //Filtre sur l'agence destinataire
+        if (isset($criteria['agenceDebiteur'])) {
+            $qb->andWhere("da.agenceDebiteur = :agenceDebiteur")
+                ->setParameter('agenceDebiteur', $criteria['agenceDebiteur']->getId());
+        }
+
+        // Filtre sur le service destinataire
+        if (isset($criteria['serviceDebiteur'])) {
+            $qb->andWhere("da.serviceDebiteur = :serviceDebiteur")
+                ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
+        }
+    }
+
+    private function FiltredSelonDate($qb, array $criteria)
+    {
         // Filtre sur la date de création
         if (isset($criteria['dateDebutCreation'])) {
             $qb->andWhere("da.dateCreation >= :dateDebut")
@@ -67,32 +132,6 @@ class DemandeApproRepository extends EntityRepository
             $qb->andWhere("da.dateFinSouhaite <= :dateFin")
                 ->setParameter('dateFin', $criteria['dateFinFinSouhaite']);
         }
-
-        // Filtre sur l'agence Emetteur
-        if (isset($criteria['agenceEmetteur'])) {
-            $qb->andWhere("da.agenceEmetteur = :agenceEmetteur")
-                ->setParameter('agenceEmetteur', $criteria['agenceEmetteur']->getId());
-        }
-
-        // Filtre sur le service Emetteur
-        if (isset($criteria['serviceEmetteur'])) {
-            $qb->andWhere("da.serviceEmetteur = :serviceEmetteur")
-                ->setParameter('serviceEmetteur', $criteria['serviceEmetteur']->getId());
-        }
-
-        //Filtre sur l'agence destinataire
-        if (isset($criteria['agenceDestinataire'])) {
-            $qb->andWhere("da.agenceDestinataire = :agenceDestinataire")
-                ->setParameter('agenceDestinataire', $criteria['agenceDestinataire']->getId());
-        }
-
-        // Filtre sur le service destinataire
-        if (isset($criteria['serviceDestinataire'])) {
-            $qb->andWhere("da.serviceDestinataire = :serviceDestinataire")
-                ->setParameter('serviceDestinataire', $criteria['serviceDestinataire']->getId());
-        }
-
-        return $qb->getQuery()->getResult();
     }
 
     public function getStatut($numDit)
@@ -143,8 +182,8 @@ class DemandeApproRepository extends EntityRepository
     {
         return $this->createQueryBuilder('da')
             ->select('da.numeroDemandeDit')
-            ->where('da.statutDal = :statut')
-            ->setParameter('statut', DemandeAppro::STATUT_VALIDE)
+            ->where('da.statutDal IN (:statuts)')
+            ->setParameter('statuts', [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])
             ->getQuery()
             ->getSingleColumnResult()
         ;

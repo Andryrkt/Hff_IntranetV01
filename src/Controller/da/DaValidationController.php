@@ -10,9 +10,11 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\dit\DemandeIntervention;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -27,6 +29,7 @@ class DaValidationController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
+    private DitRepository $ditRepository;
 
     public function __construct()
     {
@@ -34,6 +37,7 @@ class DaValidationController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -41,10 +45,13 @@ class DaValidationController extends Controller
      */
     public function validate(string $numDa, Request $request)
     {
+        $daValidationData = $request->request->get('da_proposition_validation');
+        $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
-        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire);
+        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
@@ -63,12 +70,13 @@ class DaValidationController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $dalNouveau,
             'service'       => 'appro',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
             'id'                => $da->getId(),
             'numDa'             => $da->getNumeroDemandeAppro(),
+            'mailDemandeur'     => $da->getUser()->getMail(),
             'objet'             => $da->getObjetDal(),
             'detail'            => $da->getDetailDal(),
             'fileName'          => $nomEtChemin['fileName'],
@@ -76,7 +84,7 @@ class DaValidationController extends Controller
             'dalNouveau'        => $dalNouveau,
             'service'           => 'appro',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         /** NOTIFICATION */
@@ -84,16 +92,18 @@ class DaValidationController extends Controller
         $this->redirectToRoute("da_list");
     }
 
-    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire): DemandeAppro
+    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire, array $refsValide): DemandeAppro
     {
         /** @var DemandeAppro */
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur(Controller::getUser())
+                ->setValidePar(Controller::getUser()->getNomUtilisateur())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
+            self::$em->persist($da);
         }
 
         /** @var DemandeApproL */
@@ -103,26 +113,37 @@ class DaValidationController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
                     if (!empty($prixUnitaire) && array_key_exists($item->getNumeroLigne(), $prixUnitaire)) {
                         $item->setPrixUnitaire($prixUnitaire[$item->getNumeroLigne()]);
                     }
+
+                    self::$em->persist($item);
                 }
             }
         }
 
-        /** @var DemandeApproLR */
         $dalr = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
         if (!empty($dalr)) {
             foreach ($dalr as $item) {
+                /** @var DemandeApproLR $item le DALR correspondant */
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
+                        ->setChoix(false) // on réinitialise le choix à false
+                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
+                    if (key_exists($item->getNumeroLigneDem(), $refsValide)) {
+                        if ($item->getNumLigneTableau() == $refsValide[$item->getNumeroLigneDem()]) {
+                            $item->setChoix(true);
+                        }
+                    }
+
+                    self::$em->persist($item);
                 }
             }
         }
@@ -138,7 +159,7 @@ class DaValidationController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             // 'cc'        => array_slice($emailValidateurs, 1),
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [

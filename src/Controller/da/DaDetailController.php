@@ -71,16 +71,16 @@ class DaDetailController extends Controller
 			'numSerie'          		=> $dataModel[0]['num_serie'],
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'dit'               		=> $dit,
-			'connectedUser'     		=> $this->getUser(),
+			'connectedUser'     		=> Controller::getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
 			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),
-			'estAte'            		=> $this->estUserDansServiceAtelier(),
-			'estAppro'          		=> $this->estUserDansServiceAppro(),
+			'estAte'            		=> Controller::estUserDansServiceAtelier(),
+			'estAppro'          		=> Controller::estUserDansServiceAppro(),
 		]);
 	}
 
 	/**  
-	 * 
+	 * Filtre les lignes de la DA (Demande Appro) pour ne garder que celles qui correspondent au numero de version max
 	 */
 	private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
 	{
@@ -109,7 +109,7 @@ class DaDetailController extends Controller
 
 			$this->insertionObservation($daObservation, $demandeAppro);
 
-			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+			if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
 				$this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
 				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
 				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
@@ -121,12 +121,13 @@ class DaDetailController extends Controller
 			];
 
 			/** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+			$service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
 			$this->envoyerMailObservation([
 				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
-				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+				'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -144,7 +145,7 @@ class DaDetailController extends Controller
 		$daObservation
 			->setObservation($text)
 			->setNumDa($demandeAppro->getNumeroDemandeAppro())
-			->setUtilisateur($this->getUser()->getNomUtilisateur())
+			->setUtilisateur(Controller::getUser()->getNomUtilisateur())
 		;
 
 		self::$em->persist($daObservation);
@@ -158,7 +159,7 @@ class DaDetailController extends Controller
 	{
 		$email       = new EmailService;
 
-		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : DemandeAppro::MAIL_ATELIER;
+		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
 
 		$content = [
 			'to'        => $to,

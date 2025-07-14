@@ -119,22 +119,42 @@ document.addEventListener("contextmenu", function (event) {
   const positionCde = targetCell.dataset.positionCde;
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
 
-  if (statutBc == "BC envoyé au fournisseur") {
+  const statutsTelechargeBC = [
+    "A envoyer au fournisseur",
+    "BC envoyé au fournisseur",
+    "Partiellement dispo",
+    "Complet non livré",
+    "Tous livrés",
+    "Partiellement livré",
+  ];
+
+  if (statutsTelechargeBC.includes(statutBc)) {
+    telechargerBcValide(commandeId);
+  }
+
+  const statutsBcEnvoyer = [
+    "BC envoyé au fournisseur",
+    "Partiellement dispo",
+    "Complet non livré",
+    "Tous livrés",
+    "Partiellement livré",
+  ];
+  if (statutsBcEnvoyer.includes(statutBc)) {
     statutAffiche.style.display = "block";
     statutAffiche.innerHTML = `
       <p title="cliquer pour confirmer l'envoi"
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
       </p>`;
-    // if (positionCdeFacturer) {
+    if (statutBc !== "Tous livrés") {
       //active le formulaire
       Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
       form.querySelector("button[type='submit']").classList.remove("disabled"); //changer l'apparence du bouton
-    // } else {
-    //   //desactive le formulaire
-    //   Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
-    //   form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
-    // }
+    } else {
+      //desactive le formulaire
+      Array.from(form.elements).forEach((el) => (el.disabled = true)); // Désactive tous les champs du formulaire
+      form.querySelector("button[type='submit']").classList.add("disabled"); //changer l'apparence du bouton
+    }
   } else if (statutBc == "A envoyer au fournisseur") {
     statutAffiche.style.display = "block";
 
@@ -202,3 +222,16 @@ document.addEventListener("click", function (event) {
     menu.style.display = "none";
   }
 });
+
+function telechargerBcValide(commandeId) {
+  const bcValideTelecharger = document.getElementById("bcValideTelecharger");
+  bcValideTelecharger.innerHTML =
+    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"> BC VALIDE</button>';
+
+  document
+    .getElementById("downloadBcBtn")
+    .addEventListener("click", async () => {
+      // Lancement du téléchargement
+      window.open(`${baseUrl}/api/generer-bc-valider/${commandeId}`);
+    });
+}

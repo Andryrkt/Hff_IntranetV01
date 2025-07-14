@@ -23,6 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\utilisateur\UserRepository;
 use Symfony\Component\Security\Core\User\UserInterface;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\da\DemandeAppro;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -145,6 +146,16 @@ class User implements UserInterface
     private $commentaireDitOr;
 
     /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="user")
+     */
+    private $demandeApproUser;
+
+    /**
+     * @ORM\OneToOne(targetEntity=DemandeAppro::class, mappedBy="validateur")
+     */
+    private $demandeApproValidateur;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
      */
     private $supportInfoUser;
@@ -199,6 +210,7 @@ class User implements UserInterface
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
         $this->supportInfoUser = new ArrayCollection();
+        $this->demandeApproUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
         $this->userLoggers = new ArrayCollection();
@@ -707,6 +719,15 @@ class User implements UserInterface
         })->toArray();
     }
 
+    public function getCodeAgenceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;
+    }
+
+    public function getCodeServiceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getServiceIps() : null;
+    }
 
     public function getPassword() {}
 
@@ -817,6 +838,68 @@ class User implements UserInterface
     public function setReplanificationUser($replanificationUser)
     {
         $this->replanificationUser = $replanificationUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproUser
+     */
+    public function getDemandeApproUser()
+    {
+        return $this->demandeApproUser;
+    }
+
+    public function addDemandeApproUser(DemandeAppro $demandeApproUser): self
+    {
+        if (!$this->demandeApproUser->contains($demandeApproUser)) {
+            $this->demandeApproUser[] = $demandeApproUser;
+            $demandeApproUser->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeApproUser(DemandeAppro $demandeApproUser): self
+    {
+        if ($this->demandeApproUser->contains($demandeApproUser)) {
+            $this->demandeApproUser->removeElement($demandeApproUser);
+            if ($demandeApproUser->getUser() === $this) {
+                $demandeApproUser->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of demandeApproUser
+     *
+     * @return  self
+     */
+    public function setDemandeApproUser($demandeApproUser)
+    {
+        $this->demandeApproUser = $demandeApproUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproValidateur
+     */
+    public function getDemandeApproValidateur()
+    {
+        return $this->demandeApproValidateur;
+    }
+
+    /**
+     * Set the value of demandeApproValidateur
+     *
+     * @return  self
+     */
+    public function setDemandeApproValidateur($demandeApproValidateur)
+    {
+        $this->demandeApproValidateur = $demandeApproValidateur;
 
         return $this;
     }

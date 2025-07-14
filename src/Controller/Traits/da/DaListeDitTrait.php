@@ -3,6 +3,8 @@
 namespace App\Controller\Traits\da;
 
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 
 trait DaListeDitTrait
@@ -15,9 +17,9 @@ trait DaListeDitTrait
      */
     private function autorisationRole(): bool
     {
-        $userConnecter = $this->getUser();
+        $userConnecter = Controller::getUser();
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
+        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Role::ROLE_ATELIER, $roleIds);
     }
 
     /**
@@ -27,7 +29,7 @@ trait DaListeDitTrait
      */
     private function autorisationRoleEnergie(): bool
     {
-        $userConnecter = $this->getUser();
+        $userConnecter = Controller::getUser();
         $roleIds = $userConnecter->getRoleIds();
         return in_array(5, $roleIds);
     }
