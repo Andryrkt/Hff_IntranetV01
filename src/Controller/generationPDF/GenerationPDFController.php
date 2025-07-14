@@ -4,6 +4,7 @@ namespace App\Controller\generationPDF;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaTrait;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -40,7 +41,7 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDa(string $numeroDemandeAppro, int $numeroVersionMax)
     {
-        if (!in_array(Controller::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds())) {
+        if (!in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds())) {
             $this->redirectToRoute('security_signin');
         }
         $this->creationPdf($numeroDemandeAppro, $numeroVersionMax);

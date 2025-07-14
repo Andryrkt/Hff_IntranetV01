@@ -177,6 +177,8 @@ class DemandeApproLR
     private $qteEnAttent = 0;
     private $statutBc;
 
+    private $datePlanningOR;
+
     /**
      * @ORM\Column(type="string", length=50, name="statut_dal")
      */
@@ -932,6 +934,26 @@ class DemandeApproLR
     public function setVerouille($verouille)
     {
         $this->verouille = $verouille;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlanningOR
+     */
+    public function getDatePlanningOR()
+    {
+        return $this->datePlanningOR;
+    }
+
+    /**
+     * Set the value of datePlanningOR
+     *
+     * @return  self
+     */
+    public function setDatePlanningOR($datePlanningOR)
+    {
+        $this->datePlanningOR = $datePlanningOR;
 
         return $this;
     }

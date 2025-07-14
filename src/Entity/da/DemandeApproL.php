@@ -197,6 +197,8 @@ class DemandeApproL
     private $qteALivrer = 0;
     private $qteEnAttent = 0;
 
+    private $datePlanningOR;
+
     private $verouille = false;
 
     /**
@@ -1001,6 +1003,26 @@ class DemandeApproL
     public function setDemandeur($demandeur)
     {
         $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlanningOR
+     */
+    public function getDatePlanningOR()
+    {
+        return $this->datePlanningOR;
+    }
+
+    /**
+     * Set the value of datePlanningOR
+     *
+     * @return  self
+     */
+    public function setDatePlanningOR($datePlanningOR)
+    {
+        $this->datePlanningOR = $datePlanningOR;
 
         return $this;
     }
