@@ -47,7 +47,7 @@ class Connexion
         } catch (\Exception $e) {
             // Capture de l'erreur et redirection vers la page d'erreur
             $this->logError($e->getMessage());
-            $this->redirectToErrorPage($e->getMessage());
+            // $this->redirectToErrorPage($e->getMessage());
         }
     }
 
@@ -71,12 +71,12 @@ class Connexion
         }
     }
 
-    public function __destruct()
-    {
-        if ($this->conn && is_resource($this->conn)) {
-            odbc_close($this->conn);
-        }
-    }
+    // public function __destruct()
+    // {
+    //     if ($this->conn && is_resource($this->conn)) {
+    //         odbc_close($this->conn);
+    //     }
+    // }
 
     private function logError($message)
     {
