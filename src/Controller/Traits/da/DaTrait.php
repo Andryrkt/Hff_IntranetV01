@@ -38,11 +38,11 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, ?string $designation)
+    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation)
     {
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $designation);
 
-        $statutDa = $this->daRepository->getStatut($numDit);
+        $statutDa = $this->daRepository->getStatutDa($numDa);
 
         $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
         $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';

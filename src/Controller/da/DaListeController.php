@@ -421,7 +421,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
-                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $daValider->getArtDesi());
+                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $dasFiltered->getNumeroDemandeAppro(), $daValider->getArtDesi());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);
                 }
