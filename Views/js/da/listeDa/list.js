@@ -112,6 +112,20 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  /**
+   * Désactiver l'ouverture du dropdown s'il n'y a pas d'enfant
+   **/
+  const dropdowns = document.querySelectorAll(".dropdown");
+
+  dropdowns.forEach(function (dropdown) {
+    const menu = dropdown.querySelector(".dropdown-menu");
+    const button = dropdown.querySelector(".dropdown-toggle");
+
+    if (menu && menu.children.length === 0 && button) {
+      menu.remove();
+    }
+  });
 });
 
 window.addEventListener("load", () => {

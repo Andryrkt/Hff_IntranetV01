@@ -79,10 +79,10 @@
 					<th class="text-center">Suppression</th>
 				</tr>
 			</thead>
-			<tbody id="tableBody">
+			<tbody id="tableBody" class="align-middle">
 				{% for item in data %}
 					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
-
+					{% set ajouterDA = serviceAtelier and item.numeroDemandeDit ?? false %}
 
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
@@ -109,12 +109,17 @@
 
 						<tr>
 							{# Début Action #}
-							<td class="align-middle" style="padding: 0px">
+							<td style="padding: 0px">
 								<div class="dropdown">
 									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 										<i class="fas fa-ellipsis-vertical"></i>
 									</button>
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+										{% if ajouterDA %}
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ path('da_new', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
+											</li>
+										{% endif %}
 										{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}
 											<li>
 												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
