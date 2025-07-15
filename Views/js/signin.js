@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleIcon = document.getElementById("toggleIcon");
     const isPasswordHidden = passwordInput.type === "password";
     passwordInput.type = isPasswordHidden ? "text" : "password";
-    toggleContainer.title = isPasswordHidden
+    toggleContainer.dataset.bsOriginalTitle = isPasswordHidden
       ? "Masquer le mot de passe"
       : "Afficher le mot de passe";
     toggleIcon.classList.toggle("fa-eye");
