@@ -257,7 +257,6 @@ class ListCdeFrnController extends Controller
             if ($soumissionBc) {
                 $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
                 self::$em->persist($soumissionBc);
-                self::$em->flush();
             }
 
             //modification dans la table da_valider
@@ -269,6 +268,8 @@ class ListCdeFrnController extends Controller
                 ;
                 self::$em->persist($valider);
             }
+
+            self::$em->flush();
 
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
