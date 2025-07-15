@@ -14,6 +14,8 @@
 {% endblock %}
 
 {% block content %}
+	{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
+	{% set role_ids = App.user.roleIds %}
 
 	<div class="container mb-3">
 		<h3 class="perso-titre">
@@ -82,7 +84,7 @@
 			<tbody id="tableBody" class="align-middle">
 				{% for item in data %}
 					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
-					{% set ajouterDA = serviceAtelier and item.numeroDemandeDit ?? false %}
+					{% set ajouterDA = (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
@@ -117,7 +119,7 @@
 									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 										{% if ajouterDA %}
 											<li>
-												<a class="dropdown-item fw-bold" href="{{ path('da_new', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
+												<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
 											</li>
 										{% endif %}
 										{% if dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}

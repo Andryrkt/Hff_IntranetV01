@@ -2,6 +2,7 @@ import { baseUrl } from "./utils/config";
 
 import { FetchManager } from "./api/FetchManager";
 import { afficherToast } from "./utils/toastUtils";
+import { displayOverlay } from "./utils/spinnerUtils";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
@@ -235,14 +236,11 @@ window.addEventListener('beforeunload', function () {
 // Afficher l'overlay
 const allButtonAfficher = document.querySelectorAll(".ajout-overlay");
 
-// allButtonAfficher.forEach((button) => {
-//   button.addEventListener('click', () => {
-//     const overlay = document.getElementById('loading-overlay');
-//     if (overlay) {
-//       overlay.classList.remove('hidden'); // Affiche l'overlay
-//     }
-//   });
-// });
+allButtonAfficher.forEach((button) => {
+  button.addEventListener("click", () => {
+    displayOverlay(true);
+  });
+});
 
 // Masquer l'overlay après le chargement de la page
 window.addEventListener("load", () => {
