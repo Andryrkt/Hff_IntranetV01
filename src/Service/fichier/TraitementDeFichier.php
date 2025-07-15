@@ -3,6 +3,7 @@
 namespace App\Service\fichier;
 
 use App\Service\FusionPdf;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 class TraitementDeFichier
@@ -15,8 +16,16 @@ class TraitementDeFichier
         $this->fusionPdf = new FusionPdf();
     }
 
-    public function upload($file, $cheminDeBase,$fileName): void
+    public function upload(UploadedFile $file, string  $cheminDeBase, string $fileName): void
     {
+        if (!$file instanceof UploadedFile) {
+            throw new \InvalidArgumentException("Le fichier fourni n'est pas une instance de UploadedFile.");
+        }
+    
+        if (!file_exists($file->getPathname())) {
+            throw new \RuntimeException("Le fichier temporaire n'existe plus : " . $file->getPathname());
+        }
+        
         try {
             $file->move($cheminDeBase, $fileName);
         } catch (\Exception $e) {
