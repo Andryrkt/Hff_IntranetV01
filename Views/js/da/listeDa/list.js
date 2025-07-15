@@ -102,14 +102,21 @@ document.addEventListener("DOMContentLoaded", function () {
   deleteLineBtns.forEach((deleteLineBtn) => {
     deleteLineBtn.addEventListener("click", function () {
       let dalId = this.dataset.id;
-      if (
-        confirm(
-          "Voulez-vous vraiment supprimer cette ligne de DA?\nAttention!!! Cette action est irréversible."
-        )
-      ) {
-        displayOverlay(true);
-        window.location = `${baseUrl}/demande-appro/delete-line-da/${dalId}`;
-      }
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment supprimer cette ligne d'article?<br><strong>Attention :</strong> cette action est <span style="color: red;"><strong>irréversible</strong></span>.`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Oui, supprimer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          window.location = `${baseUrl}/demande-appro/delete-line-da/${dalId}`;
+        }
+      });
     });
   });
 
