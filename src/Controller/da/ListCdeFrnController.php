@@ -268,9 +268,7 @@ class ListCdeFrnController extends Controller
                 ;
                 self::$em->persist($valider);
             }
-
             self::$em->flush();
-
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("list_cde_frn");

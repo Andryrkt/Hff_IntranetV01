@@ -67,7 +67,7 @@ trait DaTrait
             $statut_bc = 'A éditer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !$bcExiste) {
             $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc)) {
+        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR != $statutBc) {
             $statut_bc = 'A envoyer au fournisseur';
         } elseif ($partiellementDispo) {
             $statut_bc = 'Partiellement dispo';
