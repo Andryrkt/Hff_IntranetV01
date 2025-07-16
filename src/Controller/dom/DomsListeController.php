@@ -69,12 +69,12 @@ class DomsListeController extends Controller
 
         $criteriaTab = $criteria;
 
+        $criteriaTab['statut']           = $criteria['statut']           ? $criteria['statut']->getDescription()            : $criteria['statut'];
+        $criteriaTab['dateDebut']        = $criteria['dateDebut']        ? $criteria['dateDebut']->format('d-m-Y')          : $criteria['dateDebut'];
+        $criteriaTab['dateFin']          = $criteria['dateFin']          ? $criteria['dateFin']->format('d-m-Y')            : $criteria['dateFin'];
+        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin']   ? $criteria['dateMissionFin']->format('d-m-Y')     : $criteria['dateMissionFin'];
         $criteriaTab['sousTypeDocument'] = $criteria['sousTypeDocument'] ? $criteria['sousTypeDocument']->getCodeSousType() : $criteria['sousTypeDocument'];
-        $criteriaTab['statut']           = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']        = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']          = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y') : $criteria['dateMissionDebut'];
-        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin'] ? $criteria['dateMissionFin']->format('d-m-Y') : $criteria['dateMissionFin'];
+        $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y')   : $criteria['dateMissionDebut'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
@@ -88,13 +88,13 @@ class DomsListeController extends Controller
         self::$twig->display(
             'doms/list.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'page' => 'doms_liste',
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'page'        => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
             ]
         );
     }

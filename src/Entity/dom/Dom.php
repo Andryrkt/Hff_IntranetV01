@@ -369,6 +369,8 @@ class Dom
 
     private $statutTropPercuOk = false;
 
+    private $pieceJustificatif = false;
+
     //======================================================================================================================================================
     public function getId()
     {
@@ -1301,6 +1303,26 @@ class Dom
     public function setStatutTropPercuOk($statutTropPercuOk)
     {
         $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJustificatif
+     */
+    public function getPieceJustificatif()
+    {
+        return $this->pieceJustificatif;
+    }
+
+    /**
+     * Set the value of pieceJustificatif
+     *
+     * @return  self
+     */
+    public function setPieceJustificatif($pieceJustificatif)
+    {
+        $this->pieceJustificatif = $pieceJustificatif;
 
         return $this;
     }
