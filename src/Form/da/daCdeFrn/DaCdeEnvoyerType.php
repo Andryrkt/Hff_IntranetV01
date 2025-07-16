@@ -22,7 +22,7 @@ class DaCdeEnvoyerType extends  AbstractType
             ])
             ->add('estEnvoyer', CheckboxType::class, [
                 'label' => 'BC envoyé au fournisseur',
-                'required' => false,
+                'required' => true,
             ])
         ;
     }
