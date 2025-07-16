@@ -25,7 +25,7 @@ class DaSoumissionFacBlType extends AbstractType
                 'pieceJoint1',
                 FileType::class,
                 [
-                    'label' => 'Bc à soumettre',
+                    'label' => 'FacBl à soumettre',
                     'required' => true,
                     'constraints' => [
                         new File([
@@ -49,7 +49,7 @@ class DaSoumissionFacBlType extends AbstractType
                     'required' => false,
                     'multiple' => true,
                     'data_class' => null,
-                    'mapped' => false,
+                    'mapped' => true,
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
                     ],

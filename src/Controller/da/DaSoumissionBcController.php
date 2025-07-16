@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
@@ -220,6 +221,11 @@ class DaSoumissionBcController extends Controller
 
                     foreach ($fichiers as $singleFile) {
                         if ($singleFile !== null) {
+                            // Ensure $singleFile is an instance of Symfony's UploadedFile
+                            if (!$singleFile instanceof UploadedFile) {
+                                throw new \InvalidArgumentException('Expected instance of Symfony\Component\HttpFoundation\File\UploadedFile.');
+                            }
+
                             $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
                             $nomDeFichier = sprintf('BC_%s-%04d.%s', $numCde, $compteur, $extension);
 
