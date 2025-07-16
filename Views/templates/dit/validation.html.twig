@@ -8,60 +8,60 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class=" container mt-3">
-		<div class="card mb-3">
-			<div class="card-body">
+<div class=" container mt-3">
+	<div class="card mb-3">
+		<div class="card-body">
 
-				<class="container">
-					<h3 class="perso-titre">
-						Détail de la demande
-					</h3>
-					<div class="d-flex justify-content-between">
-						<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold  fond-btn">Retour</a>
-						{# {% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %} #}
-					{# <a href="/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank"> #}
-						{# <i class="fas fa-print"></i> #}
-						{# Imprimer #}
-						{# </a> #}
-					</div>
+			<class="container">
+				<h3 class="perso-titre">
+					Détail de la demande
+				</h3>
+				<div class="d-flex justify-content-between">
+					<a href="{{ path("dit_index")}}" class="btn btn-sm  text-white my-3 fw-bold  fond-btn">Retour</a>
+					{# {% set nomFichier = dit.numeroDemandeIntervention ~'_'~ dit.agenceServiceEmetteur| replace({'-':''}) %} #}
+				{# <a href="/Upload/dit/{{nomFichier}}" class="btn btn-sm  text-black my-3 fw-bold  fond-btn" target="_blank"> #}
+					{# <i class="fas fa-print"></i> #}
+					{# Imprimer #}
+					{# </a> #}
+				</div>
 
 
-					<div
-						class="row">
-						{# DEBUT DIT #}
-						<div class="col-12 col-md-6">
-							{{ macroForm.sousTitre('DIT', {class: 'sousTitre'})}}
-							<div class="row">
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Date Demande', dit.dateDemande|date('d/m/Y'))}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Statut DIT', '')}}</div>
-							</div>
-							<div class="row">
-								<div class="col-12">{{ macroForm.affichage('Objet de la demande', dit.objetDemande)}}</div>
-								<div class="col-12">{{ macroForm.affichage('Détail de la demande', dit.detailDemande)}}</div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Type de document', dit.typeDocument)}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Demande de devis', dit.demandeDevis)}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Livraison Partielle', dit.livraisonPartiel)}}</div>
-							</div>
-							<div class="row">
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Avis de recouvrement', dit.avisRecouvrement)}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Catégorie de demande', dit.categorieDemande.libelleCategorieAteApp)}}</div>
-								<div class="col-12 col-md-4">{{ macroForm.affichage('Interne et Externe', dit.internetExterne)}}</div>
-							</div>
+				<div
+					class="row">
+					{# DEBUT DIT #}
+					<div class="col-12 col-md-6">
+						{{ macroForm.sousTitre('DIT', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Numero DIT', dit.numeroDemandeIntervention)}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Date Demande', dit.dateDemande|date('d/m/Y'))}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Statut DIT', '')}}</div>
 						</div>
-						{# FIN DIT #}
-						{# DEBUT OR #}
-						<div class="col-12 col-md-3">
-							{{ macroForm.sousTitre('Or', {class: 'sousTitre'})}}
-							<div class="row">
-								<div class="col-12 col-md-6">
+						<div class="row">
+							<div class="col-12">{{ macroForm.affichage('Objet de la demande', dit.objetDemande)}}</div>
+							<div class="col-12">{{ macroForm.affichage('Détail de la demande', dit.detailDemande)}}</div>
+						</div>
+						<div class="row">
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Type de document', dit.typeDocument)}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Demande de devis', dit.demandeDevis)}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Livraison Partielle', dit.livraisonPartiel)}}</div>
+						</div>
+						<div class="row">
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Avis de recouvrement', dit.avisRecouvrement)}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Catégorie de demande', dit.categorieDemande.libelleCategorieAteApp)}}</div>
+							<div class="col-12 col-md-4">{{ macroForm.affichage('Interne et Externe', dit.internetExterne)}}</div>
+						</div>
+					</div>
+					{# FIN DIT #}
+					{# DEBUT OR #}
+					<div class="col-12 col-md-3">
+						{{ macroForm.sousTitre('Or', {class: 'sousTitre'})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
 
-									{{ macroForm.affichage('N° Or', dit.numeroOr)}}
-								</div>
-								<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
-								{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
+								{{ macroForm.affichage('N° Or', dit.numeroOr)}}
+							</div>
+							<div class="col-12 col-md-6">{{ macroForm.affichage('Statut Or', dit.statutOr)}}</div>
+							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 								<div class="col-12 col-md-12">{{ macroForm.affichage('Section affectée', dit.sectionAffectee | remove_words(mots_a_supprimer) )}}</div>
 							</div>
 						</div>
@@ -225,11 +225,11 @@
 
 
 							<div class="d-flex justify-content-end">
-								<button type="submit" class="btn bouton mx-3 text-white bg-danger ajout-overlay" name="refuser" id="btn_refuser">
+								<button type="submit" class="btn bouton mx-3 text-white bg-danger" name="refuser" id="btn_refuser">
 									<i class="fas fa-xmark"></i>
 									Réfuser
 								</button>
-								<button type="submit" class="btn bouton ajout-overlay" name="valider" id="btn_valider">
+								<button type="submit" class="btn bouton" name="valider" id="btn_valider">
 									<i class="fas fa-check"></i>
 									Valider
 								</button>

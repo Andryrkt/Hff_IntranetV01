@@ -85,7 +85,11 @@ document.addEventListener("DOMContentLoaded", function () {
   suivant.addEventListener("click", function () {
     let checkedValue = [...checkboxes].find((cb) => cb.checked)?.value || "";
     if (checkedValue === "") {
-      alert("Veuillez sélectionner un DIT");
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: "Veuillez sélectionner un DIT avant de continuer.",
+      });
     } else {
       /* const endpoint = "api/recup-statut-da";
       const data = {

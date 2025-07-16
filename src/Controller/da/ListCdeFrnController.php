@@ -167,7 +167,7 @@ class ListCdeFrnController extends Controller
     private function modificationStatutDaValider(DaValider $daValider, ?string $numCde)
     {
         $numCde ? $numCde : '';
-        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getArtDesi());
+        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroDemandeAppro(), $daValider->getArtDesi());
         $daValider
             ->setStatutCde($statutBc)
             ->setNumeroCde($numCde)
