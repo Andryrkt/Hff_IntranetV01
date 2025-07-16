@@ -210,6 +210,7 @@ class DaListeController extends Controller
         $data[] = [
             "N° Demande",
             "N° DIT",
+            "Niveau urgence DIT",
             "N° OR",
             "Demandeur",
             "Date de demande",
@@ -698,6 +699,7 @@ class DaListeController extends Controller
                 $data[] = [
                     $da->getNumeroDemandeAppro(),
                     $da->getNumeroDemandeDit(),
+                    $da->getDit()->getIdNiveauUrgence()->getDescription(),
                     $da->getDit()->getNumeroOR() ?? '-',
                     $da->getDemandeur(),
                     $da->getDateCreation()->format('d/m/Y'),

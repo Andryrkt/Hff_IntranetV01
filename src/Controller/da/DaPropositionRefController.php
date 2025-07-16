@@ -338,7 +338,6 @@ class DaPropositionRefController extends Controller
         /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
         $refs = $this->recuperationDesRef($request);
 
-
         $notification = $this->traiterProposition(
             $dals,
             $dalrList,
