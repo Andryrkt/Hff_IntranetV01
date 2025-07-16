@@ -11,6 +11,7 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   const qteDem = parseFloat(document.getElementById(`qteDem_${line}`).value);
   const prixUnitaire = parseFloat(fields.prixUnitaire.value);
   const row = tableBody.insertRow(0);
+  row.setAttribute("role", "button");
   const rowIndex = tableBody.rows.length; // numero de ligne du tableau
   console.log("Ligne ajoutée n°", rowIndex);
   let total = (prixUnitaire * qteDem).toFixed(2);
@@ -53,7 +54,11 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   // Ajouter une ligne dans le formulaire d'ajout de DemandeApproLR
   ajouterLigneDansForm(line, fields, total, rowIndex);
 
+  // Evènement pour les bouton radio
   boutonRadio();
+
+  // Evènement de clic sur une ligne de proposition
+  row.addEventListener("click", handleRowClick);
 
   // Vider les valeurs dans les champs
 
@@ -131,7 +136,7 @@ function insertCellsFicheTechnique(
 function insertCellPiecesJointes(row, color, numeroLigneDem, numLigneTableau) {
   /** Icône d'ajout de fichiers */
   const addFile = document.createElement("a");
-  addFile.href = "#";
+  addFile.classList.add("link-primary");
   addFile.title = "Joindre des pièces jointes";
   addFile.dataset.nbrLine = numeroLigneDem;
   addFile.dataset.nbrLineTable = numLigneTableau;
@@ -199,7 +204,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
       : element.name;
   });
 
-  ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+  ajouterValeur(prototype, "numeroLigne", line); // numero de page
   ajouterValeur(prototype, "numeroFournisseur", fields.numeroFournisseur.value);
   ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
   ajouterValeur(prototype, "artRefp", fields.reference.value);
@@ -241,7 +246,7 @@ export function createFicheTechnique(line, rowIndex, inputFile) {
         : element.name;
     });
 
-    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numeroLigne", line); // numero de page
     ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
     container.append(prototype);
@@ -295,7 +300,7 @@ export function createPieceJointe(line, rowIndex, inputFile) {
         : element.name;
     });
 
-    ajouterValeur(prototype, "numeroLigneDem", line); // numero de page
+    ajouterValeur(prototype, "numeroLigne", line); // numero de page
     ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
 
     container.append(prototype);
@@ -421,5 +426,23 @@ function renderFileList(inputId) {
     });
 
     fieldContainer.appendChild(fileList);
+  }
+}
+
+/**
+ * Déclenche un 'change' sur la première cellule si l'élément cliqué n'est pas un lien.
+ * @param {MouseEvent} event - L'événement de clic
+ */
+export function handleRowClick(event) {
+  // Si on a cliqué sur un <a> ou un de ses enfants, on ne fait rien
+  if (event.target.closest("a")) return;
+
+  /**
+   * this représente le tr de la table
+   * Déclencher l’événement "change" sur le premier élément de la première cellule
+   */
+  const target = this.cells[0].firstElementChild;
+  if (target) {
+    target.click();
   }
 }

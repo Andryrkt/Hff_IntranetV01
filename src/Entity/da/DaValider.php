@@ -218,6 +218,11 @@ class DaValider
      */
     private ?int $qteEnAttent = 0;
 
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private ?string $demandeur = '';
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -978,6 +983,64 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr(): string
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     */
+    public function setStatutOr(string $statutOr): self
+    {
+        $this->statutOr = $statutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteEnAttent
+     */
+    public function getQteEnAttent()
+    {
+        return $this->qteEnAttent;
+    }
+
+    /**
+     * Set the value of qteEnAttent
+     *
+     * @return  self
+     */
+    public function setQteEnAttent($qteEnAttent)
+    {
+        $this->qteEnAttent = $qteEnAttent;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeur
+     */
+    public function getDemandeur()
+    {
+        return $this->demandeur;
+    }
+
+    /**
+     * Set the value of demandeur
+     *
+     * @return  self
+     */
+    public function setDemandeur($demandeur)
+    {
+        $this->demandeur = $demandeur;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -986,6 +1049,7 @@ class DaValider
             ->setStatutDal($da->getStatutDal())
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
+            ->setDemandeur($da->getDemandeur())
         ;
     }
 
@@ -1037,43 +1101,5 @@ class DaValider
             ->setValidePar($dalr->getValidePar())
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
-    }
-
-    /**
-     * Get the value of statutOr
-     */
-    public function getStatutOr(): string
-    {
-        return $this->statutOr;
-    }
-
-    /**
-     * Set the value of statutOr
-     */
-    public function setStatutOr(string $statutOr): self
-    {
-        $this->statutOr = $statutOr;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of qteEnAttent
-     */ 
-    public function getQteEnAttent()
-    {
-        return $this->qteEnAttent;
-    }
-
-    /**
-     * Set the value of qteEnAttent
-     *
-     * @return  self
-     */ 
-    public function setQteEnAttent($qteEnAttent)
-    {
-        $this->qteEnAttent = $qteEnAttent;
-
-        return $this;
     }
 }

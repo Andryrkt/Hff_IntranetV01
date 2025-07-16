@@ -132,9 +132,9 @@ class ListCdeFrnController extends Controller
                 $criteria
             );
             if ($daValider) {
-                    //modification statut bc ou cde dans la table da_valider
-                    $this->modificationStatutDaValider($daValider, $data['num_cde']);
-                
+                //modification statut bc ou cde dans la table da_valider
+                $this->modificationStatutDaValider($daValider, $data['num_cde']);
+
                 //ajout du numero demande appro
                 $datas[$key]['num_da'] = $daValider->getNumeroDemandeAppro();
 
@@ -153,6 +153,9 @@ class ListCdeFrnController extends Controller
                 //ajout date livraison prévu
                 $datas[$key]['date_livraison_prevue'] = $daValider->getDateLivraisonPrevue();
 
+                //ajout demandeur de demande appro
+                $datas[$key]['demandeur'] = $daValider->getDemandeur();
+
                 //ajout de l'id de la DIT
                 $datas[$key]['id_dit'] = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $daValider->getNumeroDemandeDit()])->getId();
             }
@@ -164,7 +167,7 @@ class ListCdeFrnController extends Controller
     private function modificationStatutDaValider(DaValider $daValider, ?string $numCde)
     {
         $numCde ? $numCde : '';
-        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getArtDesi());
+        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroDemandeAppro(), $daValider->getArtDesi());
         $daValider
             ->setStatutCde($statutBc)
             ->setNumeroCde($numCde)
@@ -233,7 +236,7 @@ class ListCdeFrnController extends Controller
             if ($soumission['soumission'] === true) {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             } else {
-                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
         }
     }
@@ -254,19 +257,18 @@ class ListCdeFrnController extends Controller
             if ($soumissionBc) {
                 $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
                 self::$em->persist($soumissionBc);
-                self::$em->flush();
             }
 
             //modification dans la table da_valider
             $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daValiderRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
+            $daValider = $this->daValiderRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
             foreach ($daValider as $valider) {
                 $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
                 ;
                 self::$em->persist($valider);
             }
-
+            self::$em->flush();
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("list_cde_frn");

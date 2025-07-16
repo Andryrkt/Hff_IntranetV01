@@ -551,10 +551,11 @@ class Controller
         return $this->sessionService->get('user_id');
     }
 
-    protected function getUser(): User
+    public static function getUser(): User
     {
+        $ctrl = new self();
         //recuperation de l'utilisateur connecter
-        $userId = $this->getUserId();
+        $userId = $ctrl->getUserId();
         return  self::$em->getRepository(User::class)->find($userId);
     }
 
@@ -564,15 +565,31 @@ class Controller
         return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 
-    protected function estUserDansServiceAtelier(): bool
+    protected function getUserNameUser(): string
     {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+    }
+
+    public  static function getMailUser(): string
+    {
+        $ctrl = new self();
+
+        $userId = $ctrl->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
+    public static function estUserDansServiceAtelier(): bool
+    {
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
     }
 
-    protected function estUserDansServiceAppro(): bool
+    public static function estUserDansServiceAppro(): bool
     {
-        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }

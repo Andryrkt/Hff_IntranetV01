@@ -137,6 +137,14 @@
   padding: 10px;
 }
 
+/***=============================
+  * CSS pour table hover
+  **=============================*/
+
+.table-hover > tbody > tr:hover {
+  transform: scale(1.0025);
+}
+
 /**===================================
 * Séparateurs pour les niveaux de la liste
 *--======================================/

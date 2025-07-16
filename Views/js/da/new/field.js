@@ -1,5 +1,4 @@
 import { resetDropdown } from "../../utils/dropdownUtils";
-import { transfererDonnees } from "../../utils/inputUtils";
 
 // Dictionnaire pour stocker les fichiers sélectionnés par champ input
 const selectedFilesMap = {};
@@ -234,9 +233,12 @@ export function onFileNamesInputChange(event) {
 
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
   if (file.size > maxSize) {
-    alert(
-      `Le fichier "${file.name}" dépasse la taille maximale autorisée de 5 Mo donc elle ne sera pas ajoutée.`
-    );
+    Swal.fire({
+      icon: "error",
+      title: "Fichier trop volumineux",
+      html: `Le fichier <strong>"${file.name}"</strong> dépasse la taille maximale autorisée de <strong>5 Mo</strong>. Il ne sera donc pas ajouté.`,
+      confirmButtonText: "OK",
+    });
     return false;
   }
   return true;
@@ -283,4 +285,21 @@ function renderFileList(inputId) {
     });
     fieldContainer.appendChild(fileList); // Ajouter le lien au conteneur
   }
+}
+
+/** * Transfère les données d'un tableau de fichiers vers un champ input de type file.
+ * @param {File[]} filesArray - Le tableau de fichiers à transférer.
+ * @param {HTMLInputElement} inputFile - Le champ input file où les fichiers seront assignés.
+ */
+function transfererDonnees(filesArray, inputFile) {
+  // Créer un objet DataTransfer pour gérer les fichiers
+  const dataTransfer = new DataTransfer();
+
+  // Ajouter chaque fichier à l'objet DataTransfer
+  filesArray.forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+
+  // Assigner les fichiers à l'input file
+  inputFile.files = dataTransfer.files;
 }

@@ -3,6 +3,7 @@
 namespace App\Controller\da;
 
 use App\Model\da\DaModel;
+use App\Entity\admin\Agence;
 use App\Entity\da\DaValider;
 use App\Form\da\DaSearchType;
 use App\Service\EmailService;
@@ -16,9 +17,12 @@ use App\Repository\dit\DitRepository;
 use App\Form\da\HistoriqueModifDaType;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\utilisateur\Role;
+use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -27,6 +31,7 @@ use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -46,6 +51,7 @@ class DaListeController extends Controller
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaValiderRepository $daValiderRepository;
     private DaValider $daValider;
+    private AgenceRepository $agenceRepository;
 
     public function __construct()
     {
@@ -61,6 +67,7 @@ class DaListeController extends Controller
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daValiderRepository = self::$em->getRepository(DaValider::class);
         $this->daValider = new DaValider();
+        $this->agenceRepository = self::$em->getRepository(Agence::class);
     }
 
     /**
@@ -87,13 +94,16 @@ class DaListeController extends Controller
 
         $this->sessionService->remove('firstCharge');
 
-
-        $das = $this->daRepository->findDaData($criteria);
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        // recupération des données de la DA
+        $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
         $this->deleteDal($das);
 
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
-        /** modification des donnée dans DaValider */
+        /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
         $this->ChangeQteDaValider($dasFiltered);
         $this->ChangeStatutBcDaValider($dasFiltered);
 
@@ -105,24 +115,40 @@ class DaListeController extends Controller
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
+        $this->verouillerOuNonLesDa($dasFiltered);
+        $this->ajouterDatePlanningOR($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
+        // changer le statut de la DA si la situation des pièce est tout livré
+        $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
+        $this->sessionService->set('da_data_for_excel', $dasFiltered);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         self::$twig->display('da/list.html.twig', [
             'data'                   => $dasFiltered,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),
-            'serviceAtelier'         => $this->estUserDansServiceAtelier(),
-            'serviceAppro'           => $this->estUserDansServiceAppro(),
+            'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
+            'serviceAppro'           => Controller::estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
     }
 
+    private function modificationStatutSiSituationPieceLivree(array $dasFiltered): void
+    {
+        foreach ($dasFiltered as $da) {
+            $sumQteDemEtLivrer = $this->daValiderRepository->getSumQteDemEtLivrer($da->getNumeroDemandeAppro());
+            if ((int)$sumQteDemEtLivrer['qteDem'] != 0 && (int)$sumQteDemEtLivrer['qteLivrer'] != 0 && (int)$sumQteDemEtLivrer['qteDem'] === (int)$sumQteDemEtLivrer['qteLivrer']) {
+                $this->modificationStatutDalr($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDal($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDa($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+                $this->modificationStatutDaValider($da->getNumeroDemandeAppro(), DemandeAppro::STATUT_TERMINER);
+            }
+        }
+    }
 
     /** 
      * @Route("/deverrouiller-da/{idDa}", name="da_deverrouiller_da")
@@ -145,27 +171,69 @@ class DaListeController extends Controller
             $this->sessionService->set('notification', ['type' => 'warning', 'message' => 'La demande d\'approvisionnement est déjà déverrouillée.']);
             return $this->redirectToRoute('da_list');
         } else {
-            if (!$this->estUserDansServiceAppro()) {
+            if (!Controller::estUserDansServiceAppro()) {
                 $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Vous n\'êtes pas autorisé à déverrouiller cette demande.']);
                 return $this->redirectToRoute('da_list');
             }
 
             $this->duplicationDataDaL($demandeAppro->getDAL()->toArray());
-            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro());
-            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro());
+            $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
+            $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_ATE);
 
             $historiqueModifDA->setEstDeverouillee(true); // Marquer la demande comme déverrouillée
             self::$em->persist($historiqueModifDA);
             self::$em->flush();
 
             $this->envoyerMailAuxAte([
-                'numDa' => $demandeAppro->getNumeroDemandeAppro(),
-                'userConnecter' => $this->getUser()->getNomUtilisateur(),
+                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
+                'userConnecter' => Controller::getUser()->getNomUtilisateur(),
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande d\'approvisionnement a été déverrouillée avec succès.']);
             return $this->redirectToRoute('da_list');
         }
+    }
+
+    /** 
+     * @Route("/export-excel/list-DA", name="da_export_excel_list_da")
+     */
+    public function exportExcel()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $dasFiltered = $this->sessionService->get('da_data_for_excel');
+
+        $data = [];
+        // En-tête du tableau d'excel
+        $data[] = [
+            "N° Demande",
+            "N° DIT",
+            "N° OR",
+            "Demandeur",
+            "Date de demande",
+            "Statut DA",
+            "Statut OR",
+            "Statut BC",
+            "Date Planning OR",
+            "Fournisseur",
+            "Réference",
+            "Désignation",
+            "Fiche technique",
+            "Qté dem",
+            "Qté en attente",
+            "Qté Dispo (Qté à livrer)",
+            "Qté livrée",
+            "Date fin souhaitée",
+            "Nbr Jour(s) dispo"
+        ];
+
+        // Convertir les entités en tableau de données
+        $data = $this->convertirObjetEnTableau($dasFiltered, $data);
+
+        // Crée le fichier Excel
+        $this->excelService->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
     /**
@@ -179,7 +247,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltered as $da) {
             foreach ($da->getDAL() as $dal) {
-                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigne' => $dal->getNumeroLigne()]);
                 if (!empty($dalrs)) {
                     foreach ($dalrs as $dalr) {
                         $dalr->setDemandeApproL($dal);
@@ -196,10 +264,11 @@ class DaListeController extends Controller
      */
     private function modificationDateRestant($dasFiltered)
     {
+        /** @var DemandeAppro $da chaque DA dans $dasFiltered */
         foreach ($dasFiltered as $da) {
-            $this->ajoutNbrJourRestant($da->getDAL());
-            foreach ($da->getDAL() as $dal) {
-                self::$em->persist($dal);
+            $this->ajoutNbrJourRestant($da->getDaValiderOuProposer());
+            foreach ($da->getDaValiderOuProposer() as $davp) {
+                self::$em->persist($davp);
             }
         }
 
@@ -352,7 +421,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
-                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $daValider->getArtDesi());
+                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $dasFiltered->getNumeroDemandeAppro(), $daValider->getArtDesi());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);
                 }
@@ -372,7 +441,7 @@ class DaListeController extends Controller
     private function initialiserHistorique(DaHistoriqueDemandeModifDA $historique)
     {
         $historique
-            ->setDemandeur($this->getUser()->getNomUtilisateur());
+            ->setDemandeur(Controller::getUser()->getNomUtilisateur());
     }
 
     private function traitementFormulaireDeverouillage($form, $request)
@@ -403,7 +472,7 @@ class DaListeController extends Controller
                 $this->envoyerMailAuxAppro([
                     'numDa' => $demandeAppro->getNumeroDemandeAppro(),
                     'motif' => $historiqueModifDA->getMotif(),
-                    'userConnecter' => $this->getUser()->getNomUtilisateur(),
+                    'userConnecter' => Controller::getUser()->getNomUtilisateur(),
                 ]);
 
                 $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
@@ -421,7 +490,7 @@ class DaListeController extends Controller
         $email       = new EmailService;
 
         $content = [
-            'to'        => DemandeAppro::MAIL_ATELIER,
+            'to'        => $tab['mailDemandeur'],
             'cc'        => [],
             'template'  => 'da/email/emailDa.html.twig',
             'variables' => [
@@ -486,25 +555,170 @@ class DaListeController extends Controller
         return (int)$num + 1;
     }
 
-    private function modificationStatutDal(string $numDa): void
+    private function modificationStatutDal(string $numDa, string $statut): void
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
-            $dal->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+            $dal->setStatutDal($statut);
             self::$em->persist($dal);
         }
 
         self::$em->flush();
     }
 
-    private function modificationStatutDa(string $numDa): void
+    private function modificationStatutDa(string $numDa, string $statut): void
     {
         $da = $this->daRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $da->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE);
+        $da->setStatutDal($statut);
 
         self::$em->persist($da);
         self::$em->flush();
+    }
+
+    private function modificationStatutDaValider(string $numDa, string $statut): void
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+        foreach ($daValiders as  $daValider) {
+            $daValider->setStatutDal($statut);
+            self::$em->persist($daValider);
+        }
+
+        self::$em->flush();
+    }
+
+    private function modificationStatutDalr(string $numDa, string $statut): void
+    {
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
+
+        foreach ($dalrs as  $dalr) {
+            $dalr->setStatutDal($statut);
+            self::$em->persist($dalr);
+        }
+
+        self::$em->flush();
+    }
+
+    /** 
+     * Ajoute la date de planning OR pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function ajouterDatePlanningOR($dasFiltered)
+    {
+        $model = new MagasinListeOrLivrerModel;
+        /** @var DemandeAppro $da demande appro */
+        foreach ($dasFiltered as $da) {
+            $numOr = $da->getDit()->getNumeroOR();
+            $datePlanning = '-';
+            if (!is_null($numOr)) {
+                $data = $model->getDatePlanningPourDa($numOr);
+                $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
+            }
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $daValiderOuProposer->setDatePlanningOR($datePlanning);
+            }
+        }
+
+        return $dasFiltered;
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function verouillerOuNonLesDa($dasFiltered)
+    {
+        foreach ($dasFiltered as $da) {
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $this->estVerouillerOuNon($daValiderOuProposer);
+            }
+        }
+        return $dasFiltered;
+    }
+
+    /** 
+     * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
+     */
+    private function estVerouillerOuNon($daValiderOuProposer)
+    {
+        $statutDa = $daValiderOuProposer->getStatutDal(); // Récupération du statut de la DA
+        $statutBc = $daValiderOuProposer->getStatutBc(); // Récupération du statut du BC
+
+        $estAppro = Controller::estUserDansServiceAppro();
+        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+        $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
+
+        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE];
+        $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO];
+
+        if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
+            /** 
+             * Si l'utilisateur est Appro mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE,
+             * et que le statut de la soumission BC n'est pas REFUSE, alors on verrouille la DA. 
+             **/
+            $verouiller = true;
+        } elseif (!$estAdmin && $estAtelier && in_array($statutDa, $statutDaVerouillerAtelier)) {
+            /** 
+             * Si l'utilisateur est Atelier mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE ou SOUMIS A APPRO, 
+             * alors on verrouille la DA.
+             **/
+            $verouiller = true;
+        } elseif (!$estAtelier && !$estAppro && !$estAdmin) {
+            /** 
+             * Si l'utilisateur n'est ni Appro ni Atelier, et n'est pas Administrateur,
+             * alors on verrouille la DA.
+             */
+            $verouiller = true;
+        }
+
+        // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
+        $daValiderOuProposer->setVerouille($verouiller);
+    }
+
+    /** 
+     * Convertis les données d'objet en tableau
+     * 
+     * @param array $dasFiltered tableau d'objets à convertir
+     * @param array $data tableau de retour
+     * 
+     * @return array
+     */
+    private function convertirObjetEnTableau(array $dasFiltered, array $data): array
+    {
+        /** @var DemandeAppro $da chaque DA dans $dasFiltered */
+        foreach ($dasFiltered as $da) {
+            /** @var DemandeApproL|DemandeApproLR $davp DAL ou DALR */
+            foreach ($da->getDaValiderOuProposer() as $davp) {
+                $data[] = [
+                    $da->getNumeroDemandeAppro(),
+                    $da->getNumeroDemandeDit(),
+                    $da->getDit()->getNumeroOR() ?? '-',
+                    $da->getDemandeur(),
+                    $da->getDateCreation()->format('d/m/Y'),
+                    $davp->getStatutDal(),
+                    $da->getDit()->getStatutOr() ?? '-',
+                    $davp->getStatutBc(),
+                    $davp->getDatePlanningOR(),
+                    $davp->getNomFournisseur(),
+                    $davp->getArtRefp(),
+                    $davp->getArtDesi(),
+                    $davp->getEstFicheTechnique() ? 'OUI' : 'NON',
+                    $davp->getQteDem(),
+                    $davp->getQteEnAttent() == 0 ? '-' : $davp->getQteEnAttent(),
+                    $davp->getQteDispo() == 0 ? '-' : $davp->getQteDispo(),
+                    $davp->getQteLivee() == 0 ? '-' : $davp->getQteLivee(),
+                    $davp->getDateFinSouhaite()->format('d/m/Y'),
+                    $davp->getJoursDispo()
+                ];
+            }
+        }
+
+        return $data;
     }
 }

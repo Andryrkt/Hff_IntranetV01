@@ -83,8 +83,14 @@ class DitFactureSoumisAValidationController extends Controller
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
             }
-            $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
-            $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
+
+            if (!array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)) || !array_key_exists(0, $this->ditFactureSoumiAValidationModel->recupQterea($numFac))) {
+                $message = "Le numero facture '{$numFac}' ne correspond pas à la facture de l'OR";
+                $this->historiqueOperation->sendNotificationSoumission($message, $numFac, 'dit_index');
+            } else {
+                $typeFacture = (int)$this->ditFactureSoumiAValidationModel->recupTypeFacture($numFac)[0];
+                $qterea = (int)$this->ditFactureSoumiAValidationModel->recupQterea($numFac)[0];
+            }
 
             if (strpos($originalName, 'FACTURE CESSION') !== 0 && strpos($originalName, 'FACTURE-BON DE LIVRAISON') !== 0 && !(in_array($typeFacture, $typeFacVente) && strpos($originalName, 'AVOIR') !== 0 && $qterea < 0)) {
                 $message = "Le fichier '{$originalName}' soumis a été renommé ou ne correspond pas à la facture de l'OR";
