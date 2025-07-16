@@ -565,6 +565,12 @@ class Controller
         return self::$em->getRepository(User::class)->find($userId)->getMail();
     }
 
+    protected function getUserNameUser(): string
+    {
+        $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+    }
+
     public  static function getMailUser(): string
     {
         $ctrl = new self();

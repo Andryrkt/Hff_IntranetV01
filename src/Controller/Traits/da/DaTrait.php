@@ -38,11 +38,11 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, ?string $designation)
+    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation)
     {
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $designation);
 
-        $statutDa = $this->daRepository->getStatut($numDit);
+        $statutDa = $this->daRepository->getStatutDa($numDa);
 
         $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
         $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
@@ -96,7 +96,7 @@ trait DaTrait
         ]);
 
         foreach ($dals as $dal) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
             $dal->setDemandeApproLR(new ArrayCollection($dalrs));
         }
 
@@ -170,7 +170,7 @@ trait DaTrait
         $donnerExcels = [];
         foreach ($dals as $dal) {
             $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     if ($dalr->getChoix()) {
@@ -262,7 +262,7 @@ trait DaTrait
         $fileName = sprintf(
             'PJ_%s_%s%s_%s.%s',
             date("YmdHis"),
-            $dalr->getNumeroLigneDem(),
+            $dalr->getNumeroLigne(),
             $dalr->getNumLigneTableau(),
             $i,
             $file->getClientOriginalExtension()
@@ -284,7 +284,7 @@ trait DaTrait
         $fileName = sprintf(
             'FT_%s_%s_%s.%s',
             date("YmdHis"),
-            $dalr->getNumeroLigneDem(),
+            $dalr->getNumeroLigne(),
             $dalr->getNumLigneTableau(),
             $file->getClientOriginalExtension()
         ); // Exemple: FT_20250623121403_2_4.pdf

@@ -3,7 +3,6 @@
 namespace App\Controller\da;
 
 use Exception;
-use App\Entity\da\DaValider;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
@@ -11,14 +10,14 @@ use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
-use App\Repository\da\DaValiderRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use App\Service\historiqueOperation\HistoriqueOperationDaFacBlService;
+use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
 /**
  * @Route("/demande-appro")
@@ -35,7 +34,6 @@ class DaSoumissionFacBlController extends Controller
     private GenererPdfDa $genererPdfDa;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
-    private DaValiderRepository $daValiderRepository;
 
     public function __construct()
     {
@@ -44,16 +42,15 @@ class DaSoumissionFacBlController extends Controller
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaFacBlService();
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
         $this->genererPdfDa = new GenererPdfDa();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
     }
 
     /**
-     * @Route("/soumission-FacBl/{numCde}/{numDa}/{numOr}", name="da_soumission_FacBl")
+     * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl")
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
@@ -88,19 +85,21 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
-            // if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
+
             /** ENREGISTREMENT DE FICHIER */
             $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
+            //numeroversion max
+            $numeroVersionMax = $this->autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
             /** FUSION DES PDF */
             $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
             $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-            $nomPdfFusionner =  $numCde . '_' . $numDa . '_' . $numOr . '.pdf';
+            $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
             $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
             $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
             /** AJOUT DES INFO NECESSAIRE */
-            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner);
+            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             self::$em->persist($soumissionFacBl);
@@ -112,21 +111,18 @@ class DaSoumissionFacBlController extends Controller
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
-            // }
         }
     }
 
-
-    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner): DaSoumissionFacBl
+    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax): DaSoumissionFacBl
     {
-        $numeroVersionMax = $this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde);
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+            ->setUtilisateur($this->getUserNameUser())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
-            ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+            ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
             ->setNumeroOR($numOr)
@@ -134,38 +130,6 @@ class DaSoumissionFacBlController extends Controller
         return $soumissionFacBl;
     }
 
-    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, string $numCde): array
-    {
-        $nomdeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-        $statut = $this->daSoumissionFacBlRepository->getStatut($numCde);
-
-        return [
-            // 'nomDeFichier' => !preg_match('/^CONTROL COMMANDE.*\b\d{8}\b/', $nomdeFichier),
-            'statut' => $statut === self::STATUT_SOUMISSION,
-        ];
-    }
-
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, string $numCde): bool
-    {
-        $conditions = $this->conditionDeBlocage($soumissionFacBl, $numCde);
-        $nomdeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
-        $okey = false;
-
-        // if ($conditions['nomDeFichier']) {
-        //     $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un FacBl";
-        //     $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
-        //     $okey = false;
-        // } else
-        if ($conditions['statut']) {
-            $message = "Echec lors de la soumission, un FacBl est déjà en cours de validation ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
-            $okey = false;
-        } else {
-            $okey = true; // Aucune condition de blocage n'est remplie
-        }
-
-        return $okey;
-    }
 
     /**
      * Enregistrement des fichiers téléchagrer dans le dossier de destination
@@ -189,8 +153,13 @@ class DaSoumissionFacBlController extends Controller
 
                     foreach ($fichiers as $singleFile) {
                         if ($singleFile !== null) {
+                            // Ensure $singleFile is an instance of Symfony's UploadedFile
+                            if (!$singleFile instanceof UploadedFile) {
+                                throw new \InvalidArgumentException('Expected instance of Symfony\Component\HttpFoundation\File\UploadedFile.');
+                            }
+
                             $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
-                            $nomDeFichier = sprintf('FacBl_%s-%04d.%s', $numCde, $compteur, $extension);
+                            $nomDeFichier = sprintf('FACBL_%s-%04d.%s', $numCde, $compteur, $extension);
 
                             $this->traitementDeFichier->upload(
                                 $singleFile,
@@ -208,7 +177,6 @@ class DaSoumissionFacBlController extends Controller
 
         return $nomDesFichiers;
     }
-
 
     /**
      * Ajout de prefix pour chaque element du tableau files

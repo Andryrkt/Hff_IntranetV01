@@ -8,6 +8,7 @@ import {
 import { displayOverlay } from "../../utils/spinnerUtils";
 import { FetchManager } from "../../api/FetchManager";
 import { baseUrl } from "../../utils/config";
+import { handleRowClick } from "../proposition/dalr";
 
 const fetchManager = new FetchManager();
 
@@ -73,15 +74,8 @@ document.addEventListener("DOMContentLoaded", function () {
   /**===========================================
    * EVENEMENT SUR LES LIGNES DU TABLEAU
    *============================================*/
-  const rows = document.querySelectorAll('tr[role="button"]');
-  console.log(rows);
-  rows.forEach((row) => {
-    row.addEventListener("click", function (event) {
-      let DITlink = row.querySelector("a");
-      if (event.target !== DITlink) {
-        row.cells[0].firstElementChild.dispatchEvent(new Event("change"));
-      }
-    });
+  document.querySelectorAll('tr[role="button"]').forEach((row) => {
+    row.addEventListener("click", handleRowClick);
   });
 
   /**===========================================
@@ -91,7 +85,11 @@ document.addEventListener("DOMContentLoaded", function () {
   suivant.addEventListener("click", function () {
     let checkedValue = [...checkboxes].find((cb) => cb.checked)?.value || "";
     if (checkedValue === "") {
-      alert("Veuillez sélectionner un DIT");
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: "Veuillez sélectionner un DIT avant de continuer.",
+      });
     } else {
       /* const endpoint = "api/recup-statut-da";
       const data = {

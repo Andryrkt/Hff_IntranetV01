@@ -4,7 +4,7 @@ import { autocompleteTheField } from "./autocompletion";
 import { changeTab, initialiserIdTabs, showTab } from "./pageNavigation";
 import { updateDropdown } from "../../utils/selectionHandler";
 import { boutonRadio } from "./boutonRadio";
-import { createFicheTechnique } from "./dalr";
+import { createFicheTechnique, handleRowClick } from "./dalr";
 
 document.addEventListener("DOMContentLoaded", function () {
   initialiserIdTabs(); // initialiser les ID des onglets pour la navigation
@@ -255,6 +255,41 @@ document.addEventListener("DOMContentLoaded", function () {
     const prototype = document.getElementById("child-prototype");
     if (prototype) prototype.remove();
   });
+
+  /**=============================================
+   * Desactive le bouton OK si la cage à cocher n'est pas cocher
+   *==============================================*/
+  const cageACocherInput = document.querySelector(
+    "#demande_appro_lr_collection_estValidee"
+  );
+  const boutonOkInput = document.querySelector("#bouton_ok");
+
+  // Fonction pour activer ou désactiver le bouton
+  function verifierCaseCochee() {
+    if (cageACocherInput.checked) {
+      boutonOkInput.classList.remove("d-none");
+    } else {
+      boutonOkInput.classList.add("d-none");
+    }
+  }
+
+  // Initialiser l'état du bouton au chargement
+  verifierCaseCochee();
+
+  // Écouteur d'événement sur la case à cocher
+  cageACocherInput.addEventListener("change", verifierCaseCochee);
+
+  /**=================================================================
+   * lorsqu'on clique sur le bouton radio et envoyer le  proposition
+   *==================================================================*/
+  boutonRadio();
+
+  /**===========================================
+   * EVENEMENT SUR LES LIGNES DU TABLEAU
+   *============================================*/
+  document.querySelectorAll('tr[role="button"]').forEach((row) => {
+    row.addEventListener("click", handleRowClick);
+  });
 });
 
 window.addEventListener("load", () => {
@@ -278,31 +313,3 @@ window.addEventListener("load", () => {
     }
   }, 100);
 });
-
-/**=============================================
- * Desactive le bouton OK si la cage à cocher n'est pas cocher
- *==============================================*/
-const cageACocherInput = document.querySelector(
-  "#demande_appro_lr_collection_estValidee"
-);
-const boutonOkInput = document.querySelector("#bouton_ok");
-
-// Fonction pour activer ou désactiver le bouton
-function verifierCaseCochee() {
-  if (cageACocherInput.checked) {
-    boutonOkInput.classList.remove("d-none");
-  } else {
-    boutonOkInput.classList.add("d-none");
-  }
-}
-
-// Initialiser l'état du bouton au chargement
-verifierCaseCochee();
-
-// Écouteur d'événement sur la case à cocher
-cageACocherInput.addEventListener("change", verifierCaseCochee);
-
-/**=================================================================
- * lorsqu'on clique sur le bouton radio et envoyer le  proposition
- *==================================================================*/
-boutonRadio();

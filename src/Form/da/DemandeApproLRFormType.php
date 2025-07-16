@@ -21,7 +21,7 @@ class DemandeApproLRFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('numeroLigneDem', TextType::class,  [
+            ->add('numeroLigne', TextType::class,  [
                 'label' => false,
                 'required' => false,
             ])

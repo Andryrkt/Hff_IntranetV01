@@ -197,12 +197,9 @@ class DemandeApproL
     private $qteALivrer = 0;
     private $qteEnAttent = 0;
 
-    private $verouille = false;
+    private $datePlanningOR;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
-    private ?string $demandeur = '';
+    private $verouille = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -986,21 +983,21 @@ class DemandeApproL
     }
 
     /**
-     * Get the value of demandeur
+     * Get the value of datePlanningOR
      */
-    public function getDemandeur()
+    public function getDatePlanningOR()
     {
-        return $this->demandeur;
+        return $this->datePlanningOR;
     }
 
     /**
-     * Set the value of demandeur
+     * Set the value of datePlanningOR
      *
      * @return  self
      */
-    public function setDemandeur($demandeur)
+    public function setDatePlanningOR($datePlanningOR)
     {
-        $this->demandeur = $demandeur;
+        $this->datePlanningOR = $datePlanningOR;
 
         return $this;
     }

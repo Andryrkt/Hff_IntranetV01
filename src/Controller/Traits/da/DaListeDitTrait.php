@@ -169,7 +169,8 @@ trait DaListeDitTrait
         //nombre de ligne par page
         $limit = 20;
 
-        $numDits = $this->daRepository->getAllNumDit();
+        $numDits = $this->daRepository->getAllNumDit(); // Filtre pour tous les DIT de la DA
+        // $numDits = [];
 
         //recupération des données filtrée
         $paginationData = $this->criteriaIsObjectEmpty($criteria) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option, $numDits);

@@ -60,8 +60,9 @@ class DaEditController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $dit = $this->ditRepository->find($id); // recupération du DIT
-        $demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]); // recupération de la DA associée au DIT
+        /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
+        $demandeAppro = $this->daRepository->find($id); // recupération de la DA
+        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
         if (!$this->sessionService->has('firstCharge') && !$this->PeutModifier($demandeAppro)) {
@@ -105,7 +106,7 @@ class DaEditController extends Controller
 
             $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
                 'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
-                'numeroLigneDem' => $demandeApproLVersionMax->getNumeroLigne()
+                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
             ]);
 
             foreach ($demandeApproLs as $demandeApproL) {
@@ -126,30 +127,6 @@ class DaEditController extends Controller
         }
         $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
         $this->redirectToRoute("da_list");
-    }
-
-    /**
-     * @Route("/delete-edit-ligne/{ligne}/{idDit}/{numeroVersionMax}", name="da_edit_delete_ligne")
-     */
-    public function deleteLigne(int $ligne, int $idDit, int $numeroVersionMax)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroLigne' => $ligne, 'numeroVersion' => $numeroVersionMax]); // recupération de la ligne à supprimer
-
-        $this->modificationEdit($demandeApproLs, self::EDIT_DELETE);
-
-        foreach ($demandeApproLs as $demandeApproL) {
-            $demandeAppro = $demandeApproL->getDemandeAppro();
-            $demandeAppro->removeDAL($demandeApproL); // supprime le lien
-            self::$em->remove($demandeApproL); // supprime l'entité
-        }
-
-        self::$em->flush();
-
-
-        return $this->redirectToRoute('da_edit', ['id' => $idDit]);
     }
 
     private function modificationEdit($demandeApproLs, $numero)
@@ -335,7 +312,7 @@ class DaEditController extends Controller
      */
     private function deleteDALR(DemandeApproL $dal)
     {
-        $dalrs = $this->daLRRepository->findBy(['numeroLigneDem' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        $dalrs = $this->daLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
             self::$em->remove($dalr);
         }

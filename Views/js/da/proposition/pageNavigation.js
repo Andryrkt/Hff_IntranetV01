@@ -1,14 +1,18 @@
+/**
+ * Fonction pour gérer le changement de page par les boutons précédent ou suivant
+ * @param {string} direction
+ */
 export function changeTab(direction) {
   showTab(false); // cacher l'onglet actuel
-  let currentTab = localStorage.getItem('currentTab') || 1; // Récupérer l'ID du tab actuel depuis le localStorage
-  let idTabs = JSON.parse(localStorage.getItem('idTabs')) || []; // Récupérer les ID des onglets depuis le localStorage
+  let currentTab = localStorage.getItem("currentTab") || 1; // Récupérer l'ID du tab actuel depuis le localStorage
+  let idTabs = JSON.parse(localStorage.getItem("idTabs")) || []; // Récupérer les ID des onglets depuis le localStorage
   let currentPage = idTabs.indexOf(currentTab); // Récupérer page actuelle à partir de l'ID du tab stocké dans le localStorage
-  if (direction === 'next') {
+  if (direction === "next") {
     currentPage++; // Incrémenter la page actuelle
-  } else if (direction === 'prev') {
+  } else if (direction === "prev") {
     currentPage--; // Décrémenter la page actuelle
   }
-  localStorage.setItem('currentTab', idTabs[currentPage]); // Mettre à jour le localStorage avec la nouvelle page
+  localStorage.setItem("currentTab", idTabs[currentPage]); // Mettre à jour le localStorage avec la nouvelle page
   showTab();
 }
 
@@ -16,24 +20,24 @@ export function changeTab(direction) {
  * Fonction pour gérer l'affichage des boutons de navigation et la page actuelle.
  */
 function gererAffichage() {
-  let currentTab = localStorage.getItem('currentTab') || 1; // Récupérer l'ID du tab actuel depuis le localStorage
-  let idTabs = JSON.parse(localStorage.getItem('idTabs')) || [];
+  let idTabs = JSON.parse(localStorage.getItem("idTabs")) || [];
+  let currentTab = localStorage.getItem("currentTab") || idTabs[0]; // Récupérer l'ID du tab actuel depuis le localStorage
   let currentPage = idTabs.indexOf(currentTab) + 1; // Récupérer la page actuelle à partir de l'ID du tab stocké dans le localStorage
-  document.querySelectorAll('.prevBtn').forEach((btn) => {
+  document.querySelectorAll(".prevBtn").forEach((btn) => {
     if (currentPage === 1) {
-      btn.classList.add('disabled');
+      btn.classList.add("disabled");
     } else {
-      btn.classList.remove('disabled');
+      btn.classList.remove("disabled");
     }
   });
-  document.querySelectorAll('.nextBtn').forEach((btn) => {
+  document.querySelectorAll(".nextBtn").forEach((btn) => {
     if (currentPage === idTabs.length) {
-      btn.classList.add('disabled');
+      btn.classList.add("disabled");
     } else {
-      btn.classList.remove('disabled');
+      btn.classList.remove("disabled");
     }
   });
-  document.querySelectorAll('.currentPage').forEach((page) => {
+  document.querySelectorAll(".currentPage").forEach((page) => {
     page.textContent = currentPage;
   });
 }
@@ -44,16 +48,17 @@ function gererAffichage() {
  * @param {*} afficher
  */
 export function showTab(afficher = true) {
-  let currentTab = localStorage.getItem('currentTab') || 1;
-  console.log(currentTab);
+  let idTabs = JSON.parse(localStorage.getItem("idTabs"));
+  let currentTab = localStorage.getItem("currentTab") || idTabs[0];
+  console.log("currentTab = " + currentTab);
 
   let tab = document.getElementById(`tab_${currentTab}`);
 
   if (afficher) {
     gererAffichage(); // Mettre à jour l'affichage des boutons de navigation
-    tab.classList.add('show', 'active');
+    tab.classList.add("show", "active");
   } else {
-    tab.classList.remove('show', 'active');
+    tab.classList.remove("show", "active");
   }
 }
 
@@ -73,5 +78,5 @@ export function initialiserIdTabs() {
     }
   });
 
-  localStorage.setItem('idTabs', JSON.stringify(idTabs)); // * localStorage ne peut stocker que des chaînes de caractères, donc convertir le tableau en JSON.
+  localStorage.setItem("idTabs", JSON.stringify(idTabs)); // * localStorage ne peut stocker que des chaînes de caractères, donc convertir le tableau en JSON.
 }

@@ -22,6 +22,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DemandeApproLRepository;
@@ -30,6 +31,7 @@ use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use DateTime;
 
 /**
  * @Route("/demande-appro")
@@ -76,9 +78,6 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation */
-
-
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
@@ -117,14 +116,15 @@ class DaListeController extends Controller
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
         $this->verouillerOuNonLesDa($dasFiltered);
+        $this->ajouterDatePlanningOR($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
         // changer le statut de la DA si la situation des pièce est tout livré
         $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
+        $this->sessionService->set('da_data_for_excel', $dasFiltered);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         self::$twig->display('da/list.html.twig', [
@@ -195,6 +195,48 @@ class DaListeController extends Controller
         }
     }
 
+    /** 
+     * @Route("/export-excel/list-DA", name="da_export_excel_list_da")
+     */
+    public function exportExcel()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $dasFiltered = $this->sessionService->get('da_data_for_excel');
+
+        $data = [];
+        // En-tête du tableau d'excel
+        $data[] = [
+            "N° Demande",
+            "N° DIT",
+            "Niveau urgence DIT",
+            "N° OR",
+            "Demandeur",
+            "Date de demande",
+            "Statut DA",
+            "Statut OR",
+            "Statut BC",
+            "Date Planning OR",
+            "Fournisseur",
+            "Réference",
+            "Désignation",
+            "Fiche technique",
+            "Qté dem",
+            "Qté en attente",
+            "Qté Dispo (Qté à livrer)",
+            "Qté livrée",
+            "Date fin souhaitée",
+            "Nbr Jour(s) dispo"
+        ];
+
+        // Convertir les entités en tableau de données
+        $data = $this->convertirObjetEnTableau($dasFiltered, $data);
+
+        // Crée le fichier Excel
+        $this->excelService->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+    }
+
     /**
      * Permet de modifier l'id de la relation demande_appro_L dans la table demande_appro_LR
      *
@@ -206,7 +248,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltered as $da) {
             foreach ($da->getDAL() as $dal) {
-                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigne' => $dal->getNumeroLigne()]);
                 if (!empty($dalrs)) {
                     foreach ($dalrs as $dalr) {
                         $dalr->setDemandeApproL($dal);
@@ -223,10 +265,11 @@ class DaListeController extends Controller
      */
     private function modificationDateRestant($dasFiltered)
     {
+        /** @var DemandeAppro $da chaque DA dans $dasFiltered */
         foreach ($dasFiltered as $da) {
-            $this->ajoutNbrJourRestant($da->getDAL());
-            foreach ($da->getDAL() as $dal) {
-                self::$em->persist($dal);
+            $this->ajoutNbrJourRestant($da->getDaValiderOuProposer());
+            foreach ($da->getDaValiderOuProposer() as $davp) {
+                self::$em->persist($davp);
             }
         }
 
@@ -379,7 +422,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
-                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $daValider->getArtDesi());
+                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $dasFiltered->getNumeroDemandeAppro(), $daValider->getArtDesi());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);
                 }
@@ -561,6 +604,30 @@ class DaListeController extends Controller
     }
 
     /** 
+     * Ajoute la date de planning OR pour chaque DA filtrée
+     * @param array $dasFiltered
+     * @return array
+     */
+    private function ajouterDatePlanningOR($dasFiltered)
+    {
+        $model = new MagasinListeOrLivrerModel;
+        /** @var DemandeAppro $da demande appro */
+        foreach ($dasFiltered as $da) {
+            $numOr = $da->getDit()->getNumeroOR();
+            $datePlanning = '-';
+            if (!is_null($numOr)) {
+                $data = $model->getDatePlanningPourDa($numOr);
+                $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
+            }
+            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                $daValiderOuProposer->setDatePlanningOR($datePlanning);
+            }
+        }
+
+        return $dasFiltered;
+    }
+
+    /** 
      * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
      * @param array $dasFiltered
      * @return array
@@ -613,5 +680,47 @@ class DaListeController extends Controller
 
         // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
         $daValiderOuProposer->setVerouille($verouiller);
+    }
+
+    /** 
+     * Convertis les données d'objet en tableau
+     * 
+     * @param array $dasFiltered tableau d'objets à convertir
+     * @param array $data tableau de retour
+     * 
+     * @return array
+     */
+    private function convertirObjetEnTableau(array $dasFiltered, array $data): array
+    {
+        /** @var DemandeAppro $da chaque DA dans $dasFiltered */
+        foreach ($dasFiltered as $da) {
+            /** @var DemandeApproL|DemandeApproLR $davp DAL ou DALR */
+            foreach ($da->getDaValiderOuProposer() as $davp) {
+                $data[] = [
+                    $da->getNumeroDemandeAppro(),
+                    $da->getNumeroDemandeDit(),
+                    $da->getDit()->getIdNiveauUrgence()->getDescription(),
+                    $da->getDit()->getNumeroOR() ?? '-',
+                    $da->getDemandeur(),
+                    $da->getDateCreation()->format('d/m/Y'),
+                    $davp->getStatutDal(),
+                    $da->getDit()->getStatutOr() ?? '-',
+                    $davp->getStatutBc(),
+                    $davp->getDatePlanningOR(),
+                    $davp->getNomFournisseur(),
+                    $davp->getArtRefp(),
+                    $davp->getArtDesi(),
+                    $davp->getEstFicheTechnique() ? 'OUI' : 'NON',
+                    $davp->getQteDem(),
+                    $davp->getQteEnAttent() == 0 ? '-' : $davp->getQteEnAttent(),
+                    $davp->getQteDispo() == 0 ? '-' : $davp->getQteDispo(),
+                    $davp->getQteLivee() == 0 ? '-' : $davp->getQteLivee(),
+                    $davp->getDateFinSouhaite()->format('d/m/Y'),
+                    $davp->getJoursDispo()
+                ];
+            }
+        }
+
+        return $data;
     }
 }

@@ -20,34 +20,61 @@ class Connexion
 
 
             $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
-            if (!$this->conn) {
-                throw new \Exception("ODBC Connection failed:" . odbc_error());
+            if (!$this->conn || !is_resource($this->conn)) {
+                $err = odbc_errormsg() ?: 'Connexion invalide ou échouée';
+                throw new \Exception("ODBC Connection failed: " . $err);
             }
         } catch (\Exception $e) {
-            // Capture de l'erreur et redirection vers la page d'erreur
-            $this->logError($e->getMessage());
-            $this->redirectToErrorPage($e->getMessage());
+            $this->logError("Connexion échouée: " . $e->getMessage());
+            $this->redirectToErrorPage("Connexion ODBC impossible");
+            exit; // <- obligatoire pour bloquer l'exécution
         }
     }
 
-    public function getConnexion()
+    public function getConnexion(bool $retry = true)
     {
+        if (!is_resource($this->conn)) {
+            $this->logError("Connexion ODBC invalide. Tentative de reconnexion ... à " . date('Y-m-d H:i:s'));
+            try {
+                $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
+                if (!is_resource($this->conn)) {
+                    throw new \Exception("Reconnexion ODBC échouée.");
+                }
+            } catch (\Exception $e) {
+                $this->logError("Erreur lors de la reconnexion : " . $e->getMessage());
+                if ($retry) {
+                    throw new \Exception("Connexion ODBC non valide et reconnexion impossible.");
+                }
+            }
+        }
+
         return $this->conn;
     }
+
 
     public function query($sql)
     {
         try {
-            $result = odbc_exec($this->conn, $sql);
+            $conn = $this->getConnexion();
+            $result = odbc_exec($conn, $sql);
+
+            // Échec → tentative de reconnexion unique
             if (!$result) {
-                $this->logError("ODBC Query failed: " . odbc_errormsg($this->conn));
-                throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
+                $this->logError("Première exécution échouée. Tentative de reconnexion...");
+                $conn = $this->getConnexion(false); // Retente sans boucle
+                $result = odbc_exec($conn, $sql);
+            }
+
+            if (!$result) {
+                $this->logError("ODBC Query failed: " . odbc_errormsg($conn) . "\nSQL: $sql");
+                throw new \Exception("ODBC Query failed: " . odbc_errormsg($conn));
             }
             return $result;
         } catch (\Exception $e) {
             // Capture de l'erreur et redirection vers la page d'erreur
-            $this->logError($e->getMessage());
-            // $this->redirectToErrorPage($e->getMessage());
+            $this->logError("Exception capturée dans query(): " . $e->getMessage());
+            $this->redirectToErrorPage($e->getMessage());
+            exit; // Assure l'arrêt
         }
     }
 
@@ -80,7 +107,7 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, $_ENV['BASE_PATH_LOG']."/log/app_errors.log");
+        error_log($message, 3, $_ENV['BASE_PATH_LOG'] . "/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExcelService
 {
-    public function createSpreadsheet(array $data)
+    public function createSpreadsheet(array $data, $filename = "donnees")
     {
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -29,7 +29,7 @@ class ExcelService
         // $response->headers->set('Content-Disposition', 'attachment;filename="export.xlsx"');
         // $response->headers->set('Cache-Control', 'max-age=0');
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="donnees.xlsx"');
+        header('Content-Disposition: attachment; filename="' . $filename . '.xlsx"');
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
     }

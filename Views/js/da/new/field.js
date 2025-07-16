@@ -233,9 +233,12 @@ export function onFileNamesInputChange(event) {
 
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
   if (file.size > maxSize) {
-    alert(
-      `Le fichier "${file.name}" dépasse la taille maximale autorisée de 5 Mo donc elle ne sera pas ajoutée.`
-    );
+    Swal.fire({
+      icon: "error",
+      title: "Fichier trop volumineux",
+      html: `Le fichier <strong>"${file.name}"</strong> dépasse la taille maximale autorisée de <strong>5 Mo</strong>. Il ne sera donc pas ajouté.`,
+      confirmButtonText: "OK",
+    });
     return false;
   }
   return true;
