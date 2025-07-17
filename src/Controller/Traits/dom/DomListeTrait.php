@@ -7,6 +7,7 @@ use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\dom\Dom;
 
 trait DomListeTrait
 {
@@ -51,5 +52,24 @@ trait DomListeTrait
             ->setDateMissionFin($criteria['dateMissionFin'] ?? null)
             ->setMatricule($criteria['matricule'] ?? null)
         ;
+    }
+
+    /** 
+     * Fonction pour voir si le statut du dom peut être trop perçu ou non
+     */
+    private function statutTropPercuDomList(array $data)
+    {
+        /** @var Dom $dom chaque Dom dans $data */
+        foreach ($data as $dom) {
+            if (in_array($dom->getSousTypeDocument()->getCodeSousType(), ['COMPLEMENT', 'MISSION'])) {
+                if ($dom->getIdStatutDemande()->getDescription() == 'PAYE') {
+                    $dom->setStatutTropPercuOk(true);
+                } elseif ($dom->getIdStatutDemande()->getDescription() == 'ATTENTE PAIEMENT') {
+                    if (explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY') {
+                        $dom->setStatutTropPercuOk(true);
+                    }
+                }
+            }
+        }
     }
 }

@@ -63,6 +63,8 @@ class DomsListeController extends Controller
 
         $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
 
+        $this->statutTropPercuDomList($paginationData['data']);
+
         //enregistre le critère dans la session
         $this->sessionService->set('dom_search_criteria', $criteria);
         $this->sessionService->set('dom_search_option', $option);
