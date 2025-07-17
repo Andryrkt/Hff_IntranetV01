@@ -84,7 +84,7 @@
 			<tbody id="tableBody" class="align-middle">
 				{% for item in data %}
 					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
-					{% set ajouterDA = (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
+					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
