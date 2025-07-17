@@ -44,12 +44,12 @@ class DomTropPercuController extends Controller
          */
         $oldDom = self::$em->getRepository(Dom::class)->find($id);
 
-        $statutOk = false;
+        $this->statutTropPercu($oldDom);
 
         if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission())) {
             $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
             $this->redirectToRoute("doms_liste");
-        } elseif (!$statutOk) {
+        } elseif (!$oldDom->getStatutTropPercuOk()) {
             $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause de son statut.']);
             $this->redirectToRoute("doms_liste");
         }

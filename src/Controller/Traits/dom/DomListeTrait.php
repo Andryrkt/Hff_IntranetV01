@@ -11,6 +11,7 @@ use App\Entity\dom\Dom;
 
 trait DomListeTrait
 {
+    use DomsTrait;
 
     private function autorisationRole($em): bool
     {
@@ -61,15 +62,7 @@ trait DomListeTrait
     {
         /** @var Dom $dom chaque Dom dans $data */
         foreach ($data as $dom) {
-            if (in_array($dom->getSousTypeDocument()->getCodeSousType(), ['COMPLEMENT', 'MISSION'])) {
-                if ($dom->getIdStatutDemande()->getDescription() == 'PAYE') {
-                    $dom->setStatutTropPercuOk(true);
-                } elseif ($dom->getIdStatutDemande()->getDescription() == 'ATTENTE PAIEMENT') {
-                    if (explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY') {
-                        $dom->setStatutTropPercuOk(true);
-                    }
-                }
-            }
+            $this->statutTropPercu($dom);
         }
     }
 }

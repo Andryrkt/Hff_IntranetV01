@@ -335,6 +335,7 @@ class DomTropPercuFormType extends AbstractType
                     'mapped' => false,
                     'required' => false,
                     'label' => 'Total indemnité de déplacement',
+                    'data'  => $this->formatNumber(str_replace('.', '', ($dom->getIdemnityDepl())) * $dom->getNombreJour()),
                     'attr' => [
                         'class' => 'disabled',
                     ]

@@ -520,6 +520,7 @@ trait DomsTrait
             ->setAutresDepense3($oldDom->getAutresDepense3() == 0 ? '' : $oldDom->getAutresDepense3())
             ->setTotalAutresDepenses($oldDom->getTotalAutresDepenses() == 0 ? '' : $oldDom->getTotalAutresDepenses())
             ->setTotalGeneralPayer('-' . $oldDom->getTotalGeneralPayer())
+            ->setTotalIndemniteForfaitaire($oldDom->getTotalIndemniteForfaitaire())
             ->setMotifDeplacement($oldDom->getMotifDeplacement())
             ->setClient($oldDom->getClient())
             ->setFiche($oldDom->getFiche())
@@ -536,8 +537,23 @@ trait DomsTrait
         ;
     }
 
-    private function statutTropPercu()
+    /** 
+     * Vérifier le trop perçu par statut
+     */
+    private function statutTropPercu(Dom $dom)
     {
-        # code...
+        $codeSousType      = $dom->getSousTypeDocument()->getCodeSousType();
+        $statutDescription = $dom->getIdStatutDemande()->getDescription();
+        $modePaiement      = explode(':', $dom->getModePayement())[0];
+
+        if (in_array($codeSousType, ['COMPLEMENT', 'MISSION'])) {
+            $isPaye           = $statutDescription === 'PAYE';
+            $isAttente        = $statutDescription === 'ATTENTE PAIEMENT';
+            $isNotMobileMoney = $modePaiement !== 'MOBILE MONEY';
+
+            if ($isPaye || ($isAttente && $isNotMobileMoney)) {
+                $dom->setStatutTropPercuOk(true);
+            }
+        }
     }
 }
