@@ -176,6 +176,7 @@ class DaModel extends Model
                 and slor_desi = '$designation'
                 and seor_refdem = '$numDit'
         ";
+        dump($statement);
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));

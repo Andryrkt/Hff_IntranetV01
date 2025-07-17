@@ -1,4 +1,5 @@
 import { FetchManager } from "../api/FetchManager";
+import { displayOverlay } from "../utils/spinnerUtils";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
@@ -456,4 +457,43 @@ document.addEventListener("DOMContentLoaded", (event) => {
       .toUpperCase()
       .slice(0, 29);
   });
+
+  /**
+   * Envoi du formulaire
+   */
+  document
+    .querySelector('form[name="dom_form2"]')
+    .addEventListener("submit", function (e) {
+      e.preventDefault();
+      console.log(this);
+
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment envoyer la demande?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, Envoyer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          this.submit();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Votre demande n'a pas été envoyée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
+    });
+});
+
+window.addEventListener("load", () => {
+  displayOverlay(false);
 });

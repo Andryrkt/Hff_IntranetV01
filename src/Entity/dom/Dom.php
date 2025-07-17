@@ -369,6 +369,9 @@ class Dom
 
     private $statutTropPercuOk = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="piece_justificatif")
+     */
     private $pieceJustificatif = false;
 
     //======================================================================================================================================================

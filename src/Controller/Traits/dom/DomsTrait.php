@@ -378,6 +378,7 @@ trait DomsTrait
             "Nom"                   => $dom->getNom(),
             "Prenoms"               => $dom->getPrenom(),
             "matr"                  => $dom->getMatricule(),
+            "pieceJustificatif"     => $dom->getPieceJustificatif(),
             "motif"                 => $dom->getMotifDeplacement(),
             "CategoriePers"         => $dom->getCategorie() === null ? '' : ($tropPercu ? $dom->getCategorie() : $dom->getCategorie()->getDescription()),
             "NbJ"                   => $dom->getNombreJour(),

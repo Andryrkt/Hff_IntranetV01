@@ -9,9 +9,11 @@
 	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
 {% endblock %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
 {% block content %}
-
-
 	<div class="container mb-4">
 		<div class="card p-2">
 			<div class="card-body">
@@ -229,12 +231,10 @@
 				</div>
 				<div class="row">
 					<div class="mt-2 ">
-						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
-								<i class="fa fa-print"></i>
-								Envoyer
-							</button>
-						</a>
+						<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+							<i class="fa fa-print"></i>
+							Envoyer
+						</button>
 					</div>
 				</div>
 
