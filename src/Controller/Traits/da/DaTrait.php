@@ -58,6 +58,14 @@ trait DaTrait
             $partiellementLivre = $qte[0]['qte_livee'] > 0 && $qte[0]['qte_livee'] != $qte[0]['qte_dem'] && $qte[0]['qte_dem'] > ($qte[0]['qte_livee'] + $qte[0]['qte_a_livrer']);
         }
 
+        $statutsBcEnvoyer = [
+            "BC envoyé au fournisseur",
+            "Partiellement dispo",
+            "Complet non livré",
+            "Tous livrés",
+            "Partiellement livré",
+        ];
+
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
@@ -67,7 +75,7 @@ trait DaTrait
             $statut_bc = 'A éditer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !$bcExiste) {
             $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR != $statutBc) {
+        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && !in_array(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $statutsBcEnvoyer) ) {
             $statut_bc = 'A envoyer au fournisseur';
         } elseif ($partiellementDispo) {
             $statut_bc = 'Partiellement dispo';
