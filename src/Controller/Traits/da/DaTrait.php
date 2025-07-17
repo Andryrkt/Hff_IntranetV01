@@ -38,11 +38,11 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, ?string $designation)
+    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation)
     {
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $designation);
 
-        $statutDa = $this->daRepository->getStatut($numDit);
+        $statutDa = $this->daRepository->getStatutDa($numDa);
 
         $statutOr = $this->ditOrsSoumisAValidationRepository->getStatut($numDit);
         $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
@@ -58,6 +58,14 @@ trait DaTrait
             $partiellementLivre = $qte[0]['qte_livee'] > 0 && $qte[0]['qte_livee'] != $qte[0]['qte_dem'] && $qte[0]['qte_dem'] > ($qte[0]['qte_livee'] + $qte[0]['qte_a_livrer']);
         }
 
+        $statutsBcEnvoyer = [
+            "BC envoyé au fournisseur",
+            "Partiellement dispo",
+            "Complet non livré",
+            "Tous livrés",
+            "Partiellement livré",
+        ];
+
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
@@ -67,7 +75,7 @@ trait DaTrait
             $statut_bc = 'A éditer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !$bcExiste) {
             $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc)) {
+        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && !in_array(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $statutsBcEnvoyer) ) {
             $statut_bc = 'A envoyer au fournisseur';
         } elseif ($partiellementDispo) {
             $statut_bc = 'Partiellement dispo';
@@ -96,7 +104,7 @@ trait DaTrait
         ]);
 
         foreach ($dals as $dal) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
             $dal->setDemandeApproLR(new ArrayCollection($dalrs));
         }
 
@@ -170,7 +178,7 @@ trait DaTrait
         $donnerExcels = [];
         foreach ($dals as $dal) {
             $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     if ($dalr->getChoix()) {
@@ -262,7 +270,7 @@ trait DaTrait
         $fileName = sprintf(
             'PJ_%s_%s%s_%s.%s',
             date("YmdHis"),
-            $dalr->getNumeroLigneDem(),
+            $dalr->getNumeroLigne(),
             $dalr->getNumLigneTableau(),
             $i,
             $file->getClientOriginalExtension()
@@ -284,7 +292,7 @@ trait DaTrait
         $fileName = sprintf(
             'FT_%s_%s_%s.%s',
             date("YmdHis"),
-            $dalr->getNumeroLigneDem(),
+            $dalr->getNumeroLigne(),
             $dalr->getNumLigneTableau(),
             $file->getClientOriginalExtension()
         ); // Exemple: FT_20250623121403_2_4.pdf

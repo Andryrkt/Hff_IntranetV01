@@ -146,6 +146,18 @@ class DemandeApproRepository extends EntityRepository
         return $result ? $result['statutDal'] : null;
     }
 
+    public function getStatutDa(string $numDa)
+    {
+        $result = $this->createQueryBuilder('da')
+            ->select('DISTINCT da.statutDal')
+            ->where('da.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getOneOrNullResult();;
+
+        return $result ? $result['statutDal'] : null;
+    }
+
     public function getDistinctColumn($column)
     {
         return $this->createQueryBuilder('da')

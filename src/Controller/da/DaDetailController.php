@@ -45,12 +45,13 @@ class DaDetailController extends Controller
 	/**
 	 * @Route("/detail/{id}", name="da_detail")
 	 */
-	public function deatil(int $id, Request $request)
+	public function detail(int $id, Request $request)
 	{
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
-		$dit = $this->ditRepository->find($id); // recupération du DIT
-		$demandeAppro = $this->daRepository->findOneBy(['numeroDemandeDit' => $dit->getNumeroDemandeIntervention()]); // recupération de la DA associée au DIT
+		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
+		$demandeAppro = $this->daRepository->find($id); // recupération de la DA
+		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
 		$ditModel = new DitModel;
 		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 

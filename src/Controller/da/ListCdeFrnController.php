@@ -167,7 +167,7 @@ class ListCdeFrnController extends Controller
     private function modificationStatutDaValider(DaValider $daValider, ?string $numCde)
     {
         $numCde ? $numCde : '';
-        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getArtDesi());
+        $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroDemandeAppro(), $daValider->getArtDesi());
         $daValider
             ->setStatutCde($statutBc)
             ->setNumeroCde($numCde)
@@ -236,7 +236,7 @@ class ListCdeFrnController extends Controller
             if ($soumission['soumission'] === true) {
                 $this->redirectToRoute("da_soumission_bc", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             } else {
-                $this->redirectToRoute("da_soumission_FacBl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
+                $this->redirectToRoute("da_soumission_facbl", ['numCde' => $soumission['commande_id'], 'numDa' => $soumission['da_id'], 'numOr' => $soumission['num_or']]);
             }
         }
     }
@@ -257,7 +257,6 @@ class ListCdeFrnController extends Controller
             if ($soumissionBc) {
                 $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
                 self::$em->persist($soumissionBc);
-                self::$em->flush();
             }
 
             //modification dans la table da_valider
@@ -269,7 +268,7 @@ class ListCdeFrnController extends Controller
                 ;
                 self::$em->persist($valider);
             }
-
+            self::$em->flush();
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("list_cde_frn");

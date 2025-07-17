@@ -338,7 +338,6 @@ class DaPropositionRefController extends Controller
         /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
         $refs = $this->recuperationDesRef($request);
 
-
         $notification = $this->traiterProposition(
             $dals,
             $dalrList,
@@ -449,7 +448,7 @@ class DaPropositionRefController extends Controller
         $dalsTrie = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
         //modification du colonne $demandeApproL dans le table demande_appro_LR
         foreach ($dalsTrie as $dal) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigneDem' => $dal->getNumeroLigne()]);
+            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     $dalr->setDemandeApproL($dal);
@@ -708,7 +707,7 @@ class DaPropositionRefController extends Controller
     {
         $dalrs = [];
         for ($i = 0; $i < count($refs); $i++) {
-            $dalrs[] = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigneDem' => 'ASC']);
+            $dalrs[] = $this->demandeApproLRRepository->findBy(['numeroLigne' => $refs[$i][0], 'numLigneTableau' => $refs[$i][1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()], ['numeroLigne' => 'ASC']);
         }
 
         return $dalrs;
@@ -740,7 +739,7 @@ class DaPropositionRefController extends Controller
     private function recupEntitePageCourante(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrsAllTab = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            $dalrsAllTab = $this->demandeApproLRRepository->findBy(['numeroLigne' => $ref[0], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
             foreach ($dalrsAllTab as $dalr) {
                 $dalrsAll[] = $dalr;
             }
@@ -768,7 +767,7 @@ class DaPropositionRefController extends Controller
     private function recupEntiteAModifier(array $refs, $data): array
     {
         foreach ($refs as $ref) {
-            $dalrsTab = $this->demandeApproLRRepository->findBy(['numeroLigneDem' => $ref[0], 'numLigneTableau' => $ref[1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
+            $dalrsTab = $this->demandeApproLRRepository->findBy(['numeroLigne' => $ref[0], 'numLigneTableau' => $ref[1], 'numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro()]);
             foreach ($dalrsTab as $dalr) {
                 $dalrs[] = $dalr;
             }
@@ -814,13 +813,13 @@ class DaPropositionRefController extends Controller
     private function filtreDal($data, $demandeApproLR): ?object
     {
         return  $data->filter(function ($entite) use ($demandeApproLR) {
-            return $entite->getNumeroLigne() === $demandeApproLR->getNumeroLigneDem();
+            return $entite->getNumeroLigne() === $demandeApproLR->getNumeroLigne();
         })->first();
     }
 
     private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR)
     {
-        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigneDem(), $demandeApproLR->getNumLigneTableau());
+        $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
 
         $file = $demandeApproLR->getNomFicheTechnique(); // fiche technique de la DALR
         $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR

@@ -44,7 +44,7 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=11, name="num_ligne_dem")
      */
-    private string $numeroLigneDem;
+    private string $numeroLigne;
 
     /**
      * @ORM\Column(type="integer", name="qte_dem")
@@ -240,29 +240,6 @@ class DemandeApproLR
     public function setNumeroDemandeAppro(string $numeroDemandeAppro): self
     {
         $this->numeroDemandeAppro = $numeroDemandeAppro;
-        return $this;
-    }
-
-    /**
-     * Get the value of numeroLigneDem
-     *
-     * @return string
-     */
-    public function getNumeroLigneDem(): string
-    {
-        return $this->numeroLigneDem;
-    }
-
-    /**
-     * Set the value of numeroLigneDem
-     *
-     * @param string $numeroLigneDem
-     *
-     * @return self
-     */
-    public function setNumeroLigneDem(string $numeroLigneDem): self
-    {
-        $this->numeroLigneDem = $numeroLigneDem;
         return $this;
     }
 
@@ -955,6 +932,26 @@ class DemandeApproLR
     public function setDatePlanningOR($datePlanningOR)
     {
         $this->datePlanningOR = $datePlanningOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroLigne
+     */
+    public function getNumeroLigne()
+    {
+        return $this->numeroLigne;
+    }
+
+    /**
+     * Set the value of numeroLigne
+     *
+     * @return  self
+     */
+    public function setNumeroLigne($numeroLigne)
+    {
+        $this->numeroLigne = $numeroLigne;
 
         return $this;
     }

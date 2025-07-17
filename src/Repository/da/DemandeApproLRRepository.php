@@ -13,7 +13,7 @@ class DemandeApproLRRepository extends EntityRepository
             ->select('dalr')
             ->where('dalr.numeroDemandeAppro =:numDap')
             ->setParameter('numDap', $numDap)
-            ->andWhere('dalr.numeroLigneDem =:line')
+            ->andWhere('dalr.numeroLigne =:line')
             ->setParameter('line', $line)
             ->andWhere('dalr.numLigneTableau =:row')
             ->setParameter('row', $row)

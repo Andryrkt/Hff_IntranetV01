@@ -210,6 +210,7 @@ class DaListeController extends Controller
         $data[] = [
             "N° Demande",
             "N° DIT",
+            "Niveau urgence DIT",
             "N° OR",
             "Demandeur",
             "Date de demande",
@@ -247,7 +248,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltered as $da) {
             foreach ($da->getDAL() as $dal) {
-                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigneDem' => $dal->getNumeroLigne()]);
+                $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $dal->getNumeroDemandeAppro(), 'numeroLigne' => $dal->getNumeroLigne()]);
                 if (!empty($dalrs)) {
                     foreach ($dalrs as $dalr) {
                         $dalr->setDemandeApproL($dal);
@@ -421,7 +422,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
-                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $daValider->getArtDesi());
+                    $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $dasFiltered->getNumeroDemandeAppro(), $daValider->getArtDesi());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);
                 }
@@ -698,6 +699,7 @@ class DaListeController extends Controller
                 $data[] = [
                     $da->getNumeroDemandeAppro(),
                     $da->getNumeroDemandeDit(),
+                    $da->getDit()->getIdNiveauUrgence()->getDescription(),
                     $da->getDit()->getNumeroOR() ?? '-',
                     $da->getDemandeur(),
                     $da->getDateCreation()->format('d/m/Y'),

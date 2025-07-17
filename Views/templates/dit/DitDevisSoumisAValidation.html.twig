@@ -64,7 +64,7 @@
 						</div>
 					</div>
 					<div class="d-flex justify-content-end">
-						<button type="submit" class="btn bouton mt-2 ajout-overlay" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
+						<button type="submit" class="btn bouton mt-2" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
 							<i class="fas fa-save"></i>
 							Enregistrer
 						</button>
@@ -82,20 +82,26 @@
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
-Swal.fire({
+Swal.fire( {
+
 title: "Attention !",
 text: "{{ App.session.get('message') }}", // Correcte en Twig
 icon: "warning",
 showCancelButton: true,
 confirmButtonText: "Continuer",
 cancelButtonText: "Quitter"
-}).then((result) => {
-if (result.isConfirmed) { // L'utilisateur veut continuer
+
+} ).then( ( result ) => {
+
+if ( result.isConfirmed ) { // L'utilisateur veut continuer
 
 window.location.href = window.location.href + "?continueDevis=1";
+
 } else { // L'utilisateur annule, redirection vers l'accueil
 window.location.href = "{{ path('dit_index') }}";
+
 }
-});{% endif %}
+
+} );{% endif %}
 	</script>
 {% endblock %}
