@@ -65,6 +65,8 @@ class DaDetailController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
+		$fichiers = $this->getAllDAFile();
+
 		self::$twig->display('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
@@ -72,6 +74,7 @@ class DaDetailController extends Controller
 			'numSerie'          		=> $dataModel[0]['num_serie'],
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'dit'               		=> $dit,
+			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> Controller::getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
 			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),

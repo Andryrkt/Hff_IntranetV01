@@ -98,7 +98,7 @@ class DaModel extends Model
             trim(abse_fams2) as codesousfamille,
             trim(abse_refp) as referencepiece,
             trim(abse_desi) as designation,
-            abse_pxstd as prix,
+            afrn_pxach as prix,
             fbse_numfou as numerofournisseur,
             trim(fbse_nomfou) as fournisseur
             FROM art_frn
@@ -135,8 +135,9 @@ class DaModel extends Model
     public function getPrixUnitaire($referencePiece)
     {
         $statement = "SELECT 
-            abse_pxstd as prix
-            FROM art_bse
+            afrn_pxach as prix,
+            FROM art_frn
+            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             WHERE abse_constp = 'ZST'
             and abse_refp = '$referencePiece'
             ";

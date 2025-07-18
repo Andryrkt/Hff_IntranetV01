@@ -434,4 +434,40 @@ trait DaTrait
         }
         return (int)$num + 1;
     }
+
+    private function getAllDAFile(): array
+    {
+        return [
+            'BA' => [
+                'type' => 'Bon d\'achat',
+                'nom'  => '',
+                'icon' => 'fa-solid fa-file-signature',
+                'path' => '-'
+            ],
+            'OR' => [
+                'type' => 'Ordre de réparation',
+                'nom'  => '',
+                'icon' => 'fa-solid fa-wrench',
+                'path' => '-'
+            ],
+            'BC' => [
+                'type' => 'Bon de commande',
+                'nom'  => '',
+                'icon' => 'fa-solid fa-file-circle-check',
+                'path' => '-'
+            ],
+            'BL' => [
+                'type' => 'Bon de livraison',
+                'nom'  => '',
+                'icon' => 'fa-solid fa-box',
+                'path' => '-'
+            ],
+            'FAC' => [
+                'type' => 'Facture',
+                'nom'  => '',
+                'icon' => 'fa-solid fa-file-invoice',
+                'path' => '-'
+            ]
+        ];
+    }
 }
