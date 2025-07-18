@@ -137,8 +137,8 @@
 													<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
 												</li>
 											{% endif %}
-											{% if item.dit.statutOr is same as "Validé" and get_path_or_max(item.dit.numeroOR) is not empty%}
-												{% set chemin = get_path_or_max(item.dit.numeroOR)['chemin'] %}
+											{% if item.statutOr is same as "Validé" and get_path_or_max(item.numeroOR) is not empty%}
+												{% set chemin = get_path_or_max(item.numeroOR)['chemin'] %}
 												<li>
 													<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
 												</li>
@@ -158,11 +158,11 @@
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.dit.idNiveauUrgence.description }}</td>
-							<td>{{ item.dit.numeroOR }}</td>
+							<td>{{ item.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
-							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
+							<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{ item.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
 							<td class="text-center">{{ dal.datePlanningOR }}</td>
 							<td class="text-start">{{ dal.nomFournisseur }}</td>
