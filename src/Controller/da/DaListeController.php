@@ -104,7 +104,6 @@ class DaListeController extends Controller
         $this->ajoutInfoDit($das);
         $dasFiltered  = $this->filtreDal($das);
         /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
-        $this->ChangeQteDaValider($dasFiltered);
         $this->ChangeStatutBcDaValider($dasFiltered);
 
         /**  ajout des donners */
@@ -392,28 +391,6 @@ class DaListeController extends Controller
         }
     }
 
-
-    private function ChangeQteDaValider($dasFiltereds)
-    {
-        foreach ($dasFiltereds as $dasFiltered) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
-            $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-            $qtes = $this->daModel->getEvolutionQte($dasFiltered->getNumeroDemandeDit(), false);
-            if (array_key_exists(0, $qtes) && !empty($daValiders)) {
-                foreach ($daValiders as $daValider) {
-                    foreach ($qtes as $qte) {
-                        if ($qte['num_dit'] === $daValider->getNumeroDemandeDit() && $qte['reference'] === $daValider->getArtRefp() && $qte['designation'] === $daValider->getArtDesi()) {
-                            $daValider->setQteLivrer((int)$qte['qte_livee']);
-                            $daValider->setQteALivrer((int)$qte['qte_a_livrer']);
-                            $daValider->setQteEnAttent((int)$qte['qte_reliquat']);
-                            self::$em->persist($daValider);
-                        }
-                    }
-                }
-            }
-        }
-        self::$em->flush();
-    }
 
     private function ChangeStatutBcDaValider($dasFiltereds): void
     {

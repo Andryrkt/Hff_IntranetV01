@@ -151,34 +151,61 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, ?string $designation = '')
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '')
     {
         $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
 
+        $statement = "SELECT DISTINCT
+                        slor_natcm,
+                        slor_refp,
+                        seor_refdem,
 
-        $statement = " SELECT DISTINCT
-                slor_natcm,
-                slor_refp,
-                seor_refdem,
-                CASE
-                    when slor_natcm = 'C' then (select fcde_numcde from Informix.frn_cde where fcde_numcde = slor_numcf)
-                    when slor_natcm = 'L' then (select distinct fcde_numcde from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
-                END as num_cde,
-                CASE
-                    when slor_natcm = 'C' then (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf)
-                    when slor_natcm = 'L' then (select distinct fcde_posc from Informix.frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
-                END as position_bc           
-                FROM Informix.sav_lor
-                INNER JOIN Informix.sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
-                INNER JOIN Informix.sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
-                WHERE
-                slor_constp = 'ZST' 
-                and slor_typlig = 'P'
-                and slor_refp not like ('PREST%')
-                and slor_refp = '$ref'
-                and slor_desi = '$designation'
-                and seor_refdem = '$numDit'
-        ";
+                        CASE
+                            WHEN slor_natcm = 'C' THEN c.fcde_numcde
+                            WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                        END AS num_cde,
+
+                        CASE
+                            WHEN slor_natcm = 'C' THEN c.fcde_posc
+                            WHEN slor_natcm = 'L' THEN cl.fcde_posc
+                        END AS position_bc
+
+                    FROM Informix.sav_lor slor
+                    INNER JOIN Informix.sav_eor seor 
+                        ON seor.seor_numor = slor.slor_numor 
+                    AND seor.seor_soc = slor.slor_soc 
+                    AND seor.seor_succ = slor.slor_succ 
+                    AND slor.slor_soc = 'HF'
+
+                    INNER JOIN Informix.sav_itv sitv 
+                        ON sitv.sitv_numor = slor.slor_numor 
+                    AND sitv.sitv_soc = slor.slor_soc 
+                    AND sitv.sitv_succ = slor.slor_succ 
+                    AND slor.slor_soc = 'HF'
+
+                    -- jointure pour natcm = 'C'
+                    LEFT JOIN Informix.frn_cde c
+                        ON slor.slor_natcm = 'C' AND c.fcde_numcde = slor.slor_numcf
+
+                    -- jointure pour natcm = 'L'
+                    LEFT JOIN Informix.frn_llf llf
+                        ON slor.slor_natcm = 'L' 
+                    AND llf.fllf_numliv = slor.slor_numcf
+
+                    LEFT JOIN Informix.frn_cde cl
+                        ON llf.fllf_numcde = cl.fcde_numcde
+                    AND llf.fllf_soc = cl.fcde_soc
+                    AND llf.fllf_succ = cl.fcde_succ
+
+                    WHERE
+                        slor.slor_constp = 'ZST' 
+                        AND slor.slor_typlig = 'P'
+                        AND slor.slor_refp NOT LIKE 'PREST%'
+                        and slor_refp = '$ref'
+                                    and slor.slor_desi = '$designation'
+                                    and seor.seor_refdem = '$numDit'
+                                    and c.fcde_cdeext ='$numDa'
+            ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
@@ -200,16 +227,16 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, $plusPrecie = false, string $ref = '', string $designation = '')
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '')
     {
         $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
-        
+
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,
                 CASE
-                    when slor_natcm = 'C' then (select fcde_numcde from frn_cde where fcde_numcde = slor_numcf)
-                    when slor_natcm = 'L' then (select distinct fcde_numcde from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
-                END as num_cde,
+                    WHEN slor_natcm = 'C' THEN c.fcde_numcde
+                    WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                END AS num_cde,
                 TRIM(slor_refp) as reference,
                 TRIM(slor_desi) as designation,
                 ROUND(CASE
@@ -219,21 +246,42 @@ class DaModel extends Model
                 ROUND(slor_qteres) as qte_a_livrer,
                 ROUND(slor_qterea) as qte_livee
 
-                FROM sav_lor
-                INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
-                INNER JOIN sav_itv on sitv_numor = slor_numor and slor_soc = sitv_soc and slor_succ = sitv_succ and slor_soc = 'HF'
-                WHERE
-                slor_constp = 'ZST' 
-                and slor_typlig = 'P'
-                and slor_refp not like ('PREST%')
-                and seor_refdem='$numDit'
-        ";
+                FROM Informix.sav_lor slor
+                    INNER JOIN Informix.sav_eor seor 
+                        ON seor.seor_numor = slor.slor_numor 
+                    AND seor.seor_soc = slor.slor_soc 
+                    AND seor.seor_succ = slor.slor_succ 
+                    AND slor.slor_soc = 'HF'
 
-        if ($plusPrecie) {
-            $statement .= " AND slor_refp = '$ref'
+                    INNER JOIN Informix.sav_itv sitv 
+                        ON sitv.sitv_numor = slor.slor_numor 
+                    AND sitv.sitv_soc = slor.slor_soc 
+                    AND sitv.sitv_succ = slor.slor_succ 
+                    AND slor.slor_soc = 'HF'
+
+                    -- jointure pour natcm = 'C'
+                    LEFT JOIN Informix.frn_cde c
+                        ON slor.slor_natcm = 'C' AND c.fcde_numcde = slor.slor_numcf
+
+                    -- jointure pour natcm = 'L'
+                    LEFT JOIN Informix.frn_llf llf
+                        ON slor.slor_natcm = 'L' 
+                    AND llf.fllf_numliv = slor.slor_numcf
+
+                    LEFT JOIN Informix.frn_cde cl
+                        ON llf.fllf_numcde = cl.fcde_numcde
+                    AND llf.fllf_soc = cl.fcde_soc
+                    AND llf.fllf_succ = cl.fcde_succ
+
+                    WHERE
+                        slor.slor_constp = 'ZST' 
+                        AND slor.slor_typlig = 'P'
+                        AND slor.slor_refp NOT LIKE 'PREST%'
+                        and seor.seor_refdem = '$numDit'
+                        and c.fcde_cdeext ='$numDa'
+                        AND slor_refp = '$ref'
                 and slor_desi = '$designation'
-                ";
-        }
+        ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

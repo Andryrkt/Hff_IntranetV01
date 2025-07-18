@@ -223,6 +223,21 @@ class DaValider
      */
     private ?string $demandeur = '';
 
+    /**
+     * @ORM\Column(type="integer", name="id_da")
+     */
+    private int $idDa;
+
+    /**
+     * @ORM\Column(type="boolean", name="achat_direct")
+     */
+    private bool $achatDirect = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="position_bc")
+     */
+    private ?string $positionBc;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1041,6 +1056,66 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of idDa
+     */
+    public function getIdDa()
+    {
+        return $this->idDa;
+    }
+
+    /**
+     * Set the value of idDa
+     *
+     * @return  self
+     */
+    public function setIdDa($idDa)
+    {
+        $this->idDa = $idDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of achatDirect
+     */
+    public function getAchatDirect()
+    {
+        return $this->achatDirect;
+    }
+
+    /**
+     * Set the value of achatDirect
+     *
+     * @return  self
+     */
+    public function setAchatDirect($achatDirect)
+    {
+        $this->achatDirect = $achatDirect;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of positionBc
+     */
+    public function getPositionBc()
+    {
+        return $this->positionBc;
+    }
+
+    /**
+     * Set the value of positionBc
+     *
+     * @return  self
+     */
+    public function setPositionBc($positionBc)
+    {
+        $this->positionBc = $positionBc;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1050,6 +1125,8 @@ class DaValider
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
+            ->setIdDa($da->getId())
+            ->setAchatDirect($da->getAchatDirect())
         ;
     }
 
