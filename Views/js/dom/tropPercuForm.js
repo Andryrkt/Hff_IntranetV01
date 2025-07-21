@@ -97,15 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /** Blocage de Formulaire */
-  const formTropPercu = document.querySelector('form');
-  formTropPercu.addEventListener('submit', function (e) {
-    if (errorMessage.textContent !== '') {
-      e.preventDefault();
-      dateFinInput.focus();
-    }
-  });
-
   /**
    * CALCULE et AFFICHAGE total indemnité de déplacement
    */
@@ -166,7 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
   numeral.locale('fr-custom');
 
   function formatNumberInt(value) {
-    return numeral(value).format(0, 0);
+    return numeral(value).format(0, 0); // exemple : "1000" -> 1.000
+  }
+
+  function parseFormattedNumber(formatted) {
+    return numeral(formatted).value(); // exemple : "1.000" -> 1000
   }
 
   /** AFFICHAGE DE l'INDEMNITE FORFAITAIRE JOURNALIERE selon le site */
@@ -304,6 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
     //creation d'une evement personaliser
     const event = new Event('valueAdded');
     totaAutreDepenseInput.dispatchEvent(event);
+
+    verifierMontantTotal();
   }
 
   /** CALCUL  MONTANT TOTAL */
@@ -327,6 +324,55 @@ document.addEventListener('DOMContentLoaded', () => {
 
     montantTotalInput.value = '-' + formatNumberInt(montantTotal);
   }
+
+  const errorTotalMessage = document.createElement('div');
+  errorTotalMessage.style.color = 'red';
+  errorTotalMessage.style.display = 'none';
+
+  console.log('montantTotalInput:', montantTotalInput);
+
+  if (montantTotalInput) {
+    console.log('montantTotalInput is present');
+
+    montantTotalInput.dispatchEvent(new Event('valueAdded'));
+    montantTotalInput.addEventListener('valueAdded', verifierMontantTotal);
+    montantTotalInput.parentNode.insertBefore(
+      errorTotalMessage,
+      montantTotalInput.nextSibling
+    );
+  }
+
+  function verifierMontantTotal() {
+    errorTotalMessage.textContent = '';
+    errorMessage.style.display = 'none';
+    let montantTotalInputValue = parseFormattedNumber(montantTotalInput.value);
+    let montantTotalAncien = parseFormattedNumber(
+      document.querySelector('#oldTotalGeneral').value
+    );
+    console.log('montantTotalInputValue:', montantTotalInputValue);
+    console.log('montantTotalAncien:', montantTotalAncien);
+
+    if (montantTotalAncien < Math.abs(montantTotalInputValue)) {
+      errorTotalMessage.textContent =
+        'Le montant total ne peut pas être inférieur au montant total de l’ancien DOM.';
+      errorTotalMessage.style.display = 'block';
+    } else {
+      errorTotalMessage.textContent = '';
+      errorTotalMessage.style.display = 'none';
+    }
+  }
+
+  /** Blocage de Formulaire */
+  const formTropPercu = document.querySelector('form');
+  formTropPercu.addEventListener('submit', function (e) {
+    if (errorMessage.textContent !== '') {
+      e.preventDefault();
+      dateFinInput.focus();
+    } else if (errorTotalMessage.textContent !== '') {
+      e.preventDefault();
+      montantTotalInput.focus();
+    }
+  });
 
   /** CHANGEMENT DE LABEL MODE DE PAIEMENT */
   const modePayementInput = document.querySelector(

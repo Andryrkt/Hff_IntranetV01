@@ -41,6 +41,7 @@ class DomSecondController extends Controller
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->sessionService->get('form1Data', []);
+        $sousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
 
         $this->initialisationSecondForm($form1Data, self::$em, $dom);
         $criteria = $this->criteria($form1Data, self::$em);
@@ -94,7 +95,8 @@ class DomSecondController extends Controller
         self::$twig->display('doms/secondForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
-            'criteria'      => $criteria
+            'criteria'      => $criteria,
+            'sousTypeDoc'   => $sousTypeDoc
         ]);
     }
 }

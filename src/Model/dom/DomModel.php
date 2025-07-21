@@ -39,7 +39,7 @@ class DomModel extends Model
                 FROM Demande_ordre_mission dom
                 LEFT JOIN Demande_ordre_mission_tp domtp
                     ON dom.Numero_Ordre_Mission = domtp.Numero_Ordre_Mission
-                WHERE dom.Numero_Ordre_Mission = '" . $numeroDom . "' AND dom.Sous_Type_Document = 2
+                WHERE dom.Numero_Ordre_Mission = '" . $numeroDom . "' AND dom.Sous_Type_Document in (2, 3)
                 GROUP BY dom.Numero_Ordre_Mission, dom.Nombre_Jour";
 
         $result = odbc_fetch_array($this->connexion->query($sql));
