@@ -98,6 +98,33 @@ class DaListeController extends Controller
         $codeAgence = Controller::getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         // recupération des données de la DA
+        $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
+
+        $this->modificationIdDALsDansDALRs($dasFiltered);
+        $this->modificationDateRestant($dasFiltered);
+        $this->demandeDeverouillageDA($dasFiltered);
+        $this->verouillerOuNonLesDa($dasFiltered);
+        $this->initialiserHistorique($historiqueModifDA);
+
+
+        //recupération des critères dans la session pour Excel
+        $this->sessionService->set('criteria_for_excel', $criteria);
+
+        $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
+        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
+
+        self::$twig->display('da/list.html.twig', [
+            'data'                   => $dasFiltered,
+            'form'                   => $form->createView(),
+            'formHistorique'         => $formHistorique->createView(),
+            'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
+            'serviceAppro'           => Controller::estUserDansServiceAppro(),
+            'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
+        ]);
+    }
+
+    private function donnerAfficher(array $criteria, $idAgenceUser): array
+    {
         $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
         $this->deleteDal($das);
 
@@ -111,30 +138,14 @@ class DaListeController extends Controller
         $this->ajoutQte($dasFiltered);
         $this->ajoutStatutDal($dasFiltered);
         $this->ajoutDateLIvraisonPrevu($dasFiltered);
-
-        $this->modificationIdDALsDansDALRs($dasFiltered);
-        $this->modificationDateRestant($dasFiltered);
-        $this->demandeDeverouillageDA($dasFiltered);
-        $this->verouillerOuNonLesDa($dasFiltered);
         $this->ajouterDatePlanningOR($dasFiltered);
-        $this->initialiserHistorique($historiqueModifDA);
+
+
 
         // changer le statut de la DA si la situation des pièce est tout livré
         $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
-        $this->sessionService->set('da_data_for_excel', $dasFiltered);
-
-        $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
-
-        self::$twig->display('da/list.html.twig', [
-            'data'                   => $dasFiltered,
-            'form'                   => $form->createView(),
-            'formHistorique'         => $formHistorique->createView(),
-            'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
-            'serviceAppro'           => Controller::estUserDansServiceAppro(),
-            'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
-        ]);
+        return $dasFiltered;
     }
 
     private function modificationStatutSiSituationPieceLivree(array $dasFiltered): void
@@ -203,7 +214,13 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dasFiltered = $this->sessionService->get('da_data_for_excel');
+        $criteria = $this->sessionService->get('criteria_for_excel');
+
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        // recupération des données de la DA
+        $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -227,6 +244,7 @@ class DaListeController extends Controller
             "Qté Dispo (Qté à livrer)",
             "Qté livrée",
             "Date fin souhaitée",
+            "Date livraison prévue",
             "Nbr Jour(s) dispo"
         ];
 
@@ -603,7 +621,6 @@ class DaListeController extends Controller
 
     /** 
      * Ajoute la date de planning OR pour chaque DA filtrée
-     * @param array $dasFiltered
      * @return array
      */
     private function ajouterDatePlanningOR($dasFiltered)
@@ -621,8 +638,6 @@ class DaListeController extends Controller
                 $daValiderOuProposer->setDatePlanningOR($datePlanning);
             }
         }
-
-        return $dasFiltered;
     }
 
     /** 
@@ -714,6 +729,7 @@ class DaListeController extends Controller
                     $davp->getQteDispo() == 0 ? '-' : $davp->getQteDispo(),
                     $davp->getQteLivee() == 0 ? '-' : $davp->getQteLivee(),
                     $davp->getDateFinSouhaite()->format('d/m/Y'),
+                    $davp->getDateLivraisonPrevue() == null ? '' : $davp->getDateLivraisonPrevue()->format('d/m/Y'),
                     $davp->getJoursDispo()
                 ];
             }
