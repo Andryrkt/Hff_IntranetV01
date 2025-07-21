@@ -53,3 +53,12 @@ ADD qte_en_attent int;
 
 ALTER TABLE da_valider
 ADD demandeur varchar(100);
+
+ALTER TABLE da_valider
+ADD id_da INT;
+
+ALTER TABLE da_valider
+ADD achat_direct BIT NOT NULL DEFAULT 0 WITH VALUES;
+
+ALTER TABLE da_valider
+ADD position_bc varchar(10);

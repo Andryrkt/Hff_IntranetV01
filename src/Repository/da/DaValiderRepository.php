@@ -119,4 +119,49 @@ class DaValiderRepository extends EntityRepository
 
         return $qb->getQuery()->getSingleResult();
     }
+
+    public function getDaOrValider(array $numOrValideZst): array
+    {
+        // Étape 1 : sous-requête pour récupérer (numeroOr, maxVersion)
+        $subQuery = $this->_em->createQueryBuilder()
+            ->select('dav2.numeroOr AS numeroOr', 'MAX(dav2.numeroVersion) AS maxVersion')
+            ->from('App\Entity\Da\DaValider', 'dav2')
+            ->where('dav2.numeroOr IN (:numOrValideZst)')
+            ->groupBy('dav2.numeroOr')
+            ->setParameter('numOrValideZst', $numOrValideZst);
+
+        $resultats = $subQuery->getQuery()->getArrayResult();
+
+        if (empty($resultats)) {
+            return [];
+        }
+
+        // Étape 2 : construire les critères pour récupérer les lignes finales
+        $criteres = [];
+        foreach ($resultats as $res) {
+            $criteres[] = [
+                'numeroOr' => $res['numeroOr'],
+                'numeroVersion' => $res['maxVersion'],
+            ];
+        }
+
+        // Étape 3 : requête finale pour récupérer les lignes correspondantes
+        $qb = $this->createQueryBuilder('dav');
+        $orX = $qb->expr()->orX();
+
+        foreach ($criteres as $index => $critere) {
+            $orX->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('dav.numeroOr', ':numeroOr_' . $index),
+                    $qb->expr()->eq('dav.numeroVersion', ':version_' . $index)
+                )
+            );
+            $qb->setParameter('numeroOr_' . $index, $critere['numeroOr']);
+            $qb->setParameter('version_' . $index, $critere['numeroVersion']);
+        }
+
+        $qb->where($orX);
+
+        return $qb->getQuery()->getResult();
+    }
 }
