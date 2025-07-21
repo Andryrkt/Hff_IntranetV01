@@ -1,0 +1,84 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css">
+{% endblock %}
+
+{# {% import "macroForm.html.twig" as form %} #}
+
+{% block content %}
+	{# {% include "/partials/_loader.html.twig" %} #}
+	<div class="sticky-header-titre">
+		<div class="container">
+			<h3 class="perso-titre">
+				Planning
+			</h3>
+
+			{% include "/planningAtelier/_formulaire.html.twig" %}
+		</div>
+	</div>
+	<div class="container-fluid">
+		<!-- DEBUT tableau -->
+		<!-- Bloc fixe en haut -->
+			<div class="sticky-header-statut"> <div class="container">
+				<div class="my-3 d-flex flex-row">
+					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
+						<small>TOUT AFFICHER |</small>
+					</div>
+					<div role="button" tabindex="0" id="tout-livre">
+						<i class="fa-solid fa-circle text-success"></i>
+						<small class="text-success">Tout livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-livre">
+						<i class="fa-solid fa-circle text-warning"></i>
+						<small class="text-warning">Partiellement livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="partiellement-dispo">
+						<i class="fa-solid fa-circle text-info"></i>
+						<small class="text-info">Partiellement dispo |</small>
+					</div>
+					<div role="button" tabindex="0" id="complet-non-livre">
+						<i class="fa-solid fa-circle text-primary"></i>
+						<small class="text-primary">Complet non livré |</small>
+					</div>
+					<div role="button" tabindex="0" id="back-order">
+						<small class=" border-end border-start border-danger border-3">
+							Back Order/Error
+						</small>
+					</div>
+
+				</div>
+			</div>
+
+		    <table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>Agence - Service Travaux</th>
+					<th>ID</th>
+					<th>Marque</th>
+					<th>Modèle</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Casier</th>
+					{% for month in uniqueMonths %}
+						<th>{{ month.month }}
+							{{ month.year }}</th>
+					{% endfor %}
+				</tr>
+			</thead>
+			<tbody>
+				
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+	{# body modal #}
+{% endblock %}
+{% block javascript %}
+	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+	{#  <script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js" type="module"></script> #}
+	 <script src="{{ App.base_path }}/Views/js/planningAtelier/semaine.js" type="module"></script>
+	{#<script src="{{ App.base_path }}/Views/js/planning/main.js" type="module"></script>#}
+{% endblock %}
