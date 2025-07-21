@@ -20,15 +20,26 @@
 		{% set queryParams = criteria  %}
 
 		{% if currentPage > 1 %}
-			<a class="btn btn-dark my-3" href="{{ path('doms_liste', queryParams|merge({'page': currentPage - 1})) }}">
+			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': 1})) }}" data-bs-toggle="tooltip" title="Première page">
+				<i class="fas fa-angle-double-left text-warning"></i>
+			</a>
+		{% endif %}
+
+		{% if currentPage > 1 %}
+			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': currentPage - 1})) }}" data-bs-toggle="tooltip" title="Page précédente">
 				<i class="fas fa-angle-left text-warning"></i>
 			</a>
 		{% endif %}
 
+		{% if currentPage < lastPage %}
+			<a class="btn btn-dark" href="{{ path(page, queryParams|merge({'page': currentPage + 1})) }}" data-bs-toggle="tooltip" title="Page suivante">
+				<i class="fas fa-angle-right text-warning"></i>
+			</a>
+		{% endif %}
 
 		{% if currentPage < lastPage %}
-			<a class="btn btn-dark" href="{{ path('doms_liste', queryParams|merge({'page': currentPage + 1})) }}">
-				<i class="fas fa-angle-right text-warning"></i>
+			<a class="btn btn-dark my-3" href="{{ path(page, queryParams|merge({'page': lastPage})) }}" data-bs-toggle="tooltip" title="Dernière page">
+				<i class="fas fa-angle-double-right text-warning"></i>
 			</a>
 		{% endif %}
 	</div>

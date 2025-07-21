@@ -9,9 +9,11 @@
 	<link href="{{ App.base_path }}/Views/css/dom/secondForm.css" rel="stylesheet"/>
 {% endblock %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
 {% block content %}
-
-
 	<div class="container mb-4">
 		<div class="card p-2">
 			<div class="card-body">
@@ -135,7 +137,18 @@
 					<div class="col-12 col-md-6">
 						{{ form_row(form.heureDebut, {'attr': { 'class' : 'border_orange'}})}}
 						{{ form_row(form.heureFin, {'attr': { 'class' : 'border_orange'}})}}
-						{{ form_row(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						<div class="row">
+							<div class="col-12 col-md-6">
+								{{ form_label(form.motifDeplacement) }}
+							</div>
+							<div class="col-12 col-md-6 {{ sousTypeDoc == 'COMPLEMENT' ? '' : 'd-none'}}">
+								{{ form_label(form.pieceJustificatif) }}
+								{{ form_widget(form.pieceJustificatif) }}
+							</div>
+						</div>
+						<div class="mb-3">
+							{{ form_widget(form.motifDeplacement, {'attr': { 'class' : 'border_orange'}})}}
+						</div>
 						{{ form_row(form.fiche)}}
 					</div>
 				</div>
@@ -196,7 +209,7 @@
 						{{ form_row(form.modePayement, {'attr': { 'class' : 'border_orange'}})}}
 					</div>
 					<div class="col-12 col-md-6">
-						{{ form_row(form.mode)}}
+						{{ form_row(form.mode, {'attr': { 'class' : 'border_orange'}})}}
 					</div>
 				</div>
 
@@ -218,12 +231,10 @@
 				</div>
 				<div class="row">
 					<div class="mt-2 ">
-						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
-								<i class="fa fa-print"></i>
-								Envoyer
-							</button>
-						</a>
+						<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
+							<i class="fa fa-print"></i>
+							Envoyer
+						</button>
 					</div>
 				</div>
 

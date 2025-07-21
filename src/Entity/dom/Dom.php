@@ -367,6 +367,13 @@ class Dom
 
     private $rmq;
 
+    private $statutTropPercuOk = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_justificatif")
+     */
+    private $pieceJustificatif = false;
+
     //======================================================================================================================================================
     public function getId()
     {
@@ -1281,5 +1288,45 @@ class Dom
             'prenom' => $this->prenom,
             'cin' => $this->cin
         ];
+    }
+
+    /**
+     * Get the value of statutTropPercuOk
+     */
+    public function getStatutTropPercuOk()
+    {
+        return $this->statutTropPercuOk;
+    }
+
+    /**
+     * Set the value of statutTropPercuOk
+     *
+     * @return  self
+     */
+    public function setStatutTropPercuOk($statutTropPercuOk)
+    {
+        $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJustificatif
+     */
+    public function getPieceJustificatif()
+    {
+        return $this->pieceJustificatif;
+    }
+
+    /**
+     * Set the value of pieceJustificatif
+     *
+     * @return  self
+     */
+    public function setPieceJustificatif($pieceJustificatif)
+    {
+        $this->pieceJustificatif = $pieceJustificatif;
+
+        return $this;
     }
 }

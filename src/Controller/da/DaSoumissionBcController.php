@@ -148,7 +148,7 @@ class DaSoumissionBcController extends Controller
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionBc->setNumeroCde($numCde)
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+            ->setUtilisateur($this->getUserNameUser())
             ->setPieceJoint1($nomPdfFusionner)
             ->setStatut(self::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
