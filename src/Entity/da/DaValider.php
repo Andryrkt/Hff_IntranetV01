@@ -238,6 +238,11 @@ class DaValider
      */
     private ?string $positionBc;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
+     */
+    private $datePlannigOr;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1112,6 +1117,26 @@ class DaValider
     public function setPositionBc($positionBc)
     {
         $this->positionBc = $positionBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlannigOr
+     */
+    public function getDatePlannigOr()
+    {
+        return $this->datePlannigOr;
+    }
+
+    /**
+     * Set the value of datePlannigOr
+     *
+     * @return  self
+     */
+    public function setDatePlannigOr($datePlannigOr)
+    {
+        $this->datePlannigOr = $datePlannigOr;
 
         return $this;
     }

@@ -11,6 +11,7 @@ use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -40,6 +41,8 @@ trait DaTrait
 
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation): string
     {
+        $this->updateInfoOR($numDa, $numDit, $ref, $designation);
+
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation);
         $this->updateSituationCdeDansDaValider($numDa, $numDit, $ref, $designation, $situationCde);
 
@@ -176,9 +179,35 @@ trait DaTrait
 
     private function updateSituationCdeDansDaValider(string $numDa, string $numDit, string $ref, string $designation, array $situationCde): void
     {
-        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
         $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
+        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
         $daValider->setPositionBc($positionBc);
+    }
+
+    private function updateInfoOR(string $numDa, string $numDit, string $ref, string $designation)
+    {
+        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        $datePlanningOr = $this->getDatePlannigOr($numOr);
+        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+        $daValider
+            ->setNumeroOr($numOr)
+            ->setStatutOr($statutOr)
+            ->setDatePlannigOr($datePlanningOr)
+        ;
+    }
+
+    private function getDatePlannigOr(?string $numOr)
+    {
+        if (!is_null($numOr)) {
+            $magasinListeOrLivrerModel = new MagasinListeOrLivrerModel();
+            $data = $magasinListeOrLivrerModel->getDatePlanningPourDa($numOr);
+
+            if (!empty($data) && !empty($data[0]['dateplanning'])) {
+                $dateObj = DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']);
+            }
+        }
+
+        return $dateObj ?? null;
     }
 
     private function getDaValider(string $numDa, string $numDit, string $ref, string $designation): DaValider

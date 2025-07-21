@@ -199,25 +199,27 @@ class DaValiderRepository extends EntityRepository
                     ->setParameter('niveauUrgence', $criteria['niveauUrgence']);
             }
 
-            // if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-            //     $qb->andWhere('dav.dateDebutOr >= :dateDebutOR')
-            //         ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
-            // }
+            /** ## Date planning OR ## */
+            if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.datePlannigOr >= :dateDebutOR')
+                    ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
+            }
 
-            // if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-            //     $qb->andWhere('dav.dateFinOr <= :dateFinOR')
-            //         ->setParameter('dateFinOR', $criteria['dateFinOR']);
-            // }
+            if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.datePlannigOr <= :dateFinOR')
+                    ->setParameter('dateFinOR', $criteria['dateFinOR']);
+            }
 
-            // if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
-            //     $qb->andWhere('dav.dateDebutDal >= :dateDebutDAL')
-            //         ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
-            // }
+            /** ## Date fin sohaite ## */
+            if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.dateFinSouhaite >= :dateDebutDAL')
+                    ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
+            }
 
-            // if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
-            //     $qb->andWhere('dav.dateFinDal <= :dateFinDAL')
-            //         ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
-            // }
+            if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.dateFinSouhaite <= :dateFinDAL')
+                    ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
+            }
         }
 
         return $qb->getQuery()->getResult();

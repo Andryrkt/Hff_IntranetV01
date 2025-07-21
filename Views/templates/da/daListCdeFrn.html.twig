@@ -68,7 +68,7 @@
 						<td class="text-center">{{ item.numeroDemandeDit }}</td>
 						<td class="text-center">{{ item.niveauUrgence }}</td>
 						<td class="text-center">{{ item.numeroOr }}</td>
-						<td class="text-center">date planning OR</td>
+						<td class="text-center">{{ item.datePlannigOr == null ? '' : item.datePlannigOr| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.numeroFournisseur }}</td>
 						<td class="text-center">{{ item.nomFournisseur }}</td>
 						{% if item.numeroCde %}

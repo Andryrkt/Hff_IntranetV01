@@ -5,6 +5,7 @@ namespace App\Controller\da;
 
 use App\Entity\da\DaValider;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Service\TableauEnStringService;
 use App\Form\da\daCdeFrn\CdeFrnListType;
@@ -12,6 +13,7 @@ use Symfony\Component\Form\FormInterface;
 use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
