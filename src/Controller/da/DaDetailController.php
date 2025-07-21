@@ -11,11 +11,14 @@ use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\da\DaObservationType;
 use App\Model\dit\DitModel;
+use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\EmailService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +35,8 @@ class DaDetailController extends Controller
 	private DitRepository $ditRepository;
 	private DaObservationRepository $daObservationRepository;
 	private DemandeApproLRepository $daLRepository;
+	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
 	public function __construct()
 	{
@@ -39,7 +44,9 @@ class DaDetailController extends Controller
 		$this->daRepository = self::$em->getRepository(DemandeAppro::class);
 		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
 		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
+		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
 		$this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
 	}
 
 	/**
@@ -65,7 +72,13 @@ class DaDetailController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
-		$fichiers = $this->getAllDAFile();
+		$fichiers = $this->getAllDAFile([
+			'baPath' => $this->getBaPath($demandeAppro),
+			'orPath' => $this->getOrPath($demandeAppro),
+			'bcPath' => $this->getBcPath(),
+			'blPath' => $this->getBlPath(),
+			'facPath' => $this->getFacPath(),
+		]);
 
 		self::$twig->display('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),

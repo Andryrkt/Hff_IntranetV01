@@ -411,8 +411,15 @@ class DaListeController extends Controller
 
     private function ajoutInfoDit(array $datas): void
     {
+        /** @var DemandeAppro $data */
         foreach ($datas as $data) {
-            $data->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]));
+            /** @var DitOrsSoumisAValidation $ditOrsSoumis */
+            $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($data->getNumeroDemandeDit());
+            $data
+                ->setNumeroOr($ditOrsSoumis ? $ditOrsSoumis->getNumeroOR() : '')
+                ->setStatutOr($ditOrsSoumis ? $ditOrsSoumis->getStatut() : '')
+                ->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]))
+            ;
         }
     }
 

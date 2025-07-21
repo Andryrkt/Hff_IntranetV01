@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Controller\Traits\lienGenerique;
 use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
@@ -11,12 +12,14 @@ use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Model\dw\DossierInterventionAtelierModel;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaTrait
 {
+    use lienGenerique;
 
     private function ajoutNbrJourRestant($dalDernieresVersions)
     {
@@ -464,39 +467,90 @@ trait DaTrait
         return (int)$num + 1;
     }
 
-    private function getAllDAFile(): array
+    private function getAllDAFile($tab): array
     {
         return [
             'BA' => [
                 'type' => 'Bon d\'achat',
-                'nom'  => '',
+                'nom'  => $tab['baPath'] == '-' ? '' : basename($tab['baPath']),
                 'icon' => 'fa-solid fa-file-signature',
-                'path' => '-'
+                'path' => $tab['baPath']
             ],
             'OR' => [
                 'type' => 'Ordre de réparation',
-                'nom'  => '',
+                'nom'  => $tab['orPath'] == '-' ? '' : basename($tab['orPath']),
                 'icon' => 'fa-solid fa-wrench',
-                'path' => '-'
+                'path' => $tab['orPath']
             ],
             'BC' => [
                 'type' => 'Bon de commande',
-                'nom'  => '',
+                'nom'  => $tab['bcPath'] == '-' ? '' : basename($tab['bcPath']),
                 'icon' => 'fa-solid fa-file-circle-check',
-                'path' => '-'
+                'path' => $tab['bcPath']
             ],
             'BL' => [
                 'type' => 'Bon de livraison',
-                'nom'  => '',
+                'nom'  => $tab['blPath'] == '-' ? '' : basename($tab['blPath']),
                 'icon' => 'fa-solid fa-box',
-                'path' => '-'
+                'path' => $tab['blPath']
             ],
             'FAC' => [
                 'type' => 'Facture',
-                'nom'  => '',
+                'nom'  => $tab['facPath'] == '-' ? '' : basename($tab['facPath']),
                 'icon' => 'fa-solid fa-file-invoice',
-                'path' => '-'
+                'path' => $tab['facPath']
             ]
         ];
+    }
+
+    /** 
+     * Obtenir l'url du bon d'achat
+     */
+    private function getBaPath(DemandeAppro $demandeAppro): string
+    {
+        if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
+            // return;
+        }
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url de l'ordre de réparation
+     */
+    private function getOrPath(DemandeAppro $demandeAppro): string
+    {
+        $numeroDit = $demandeAppro->getNumeroDemandeDit();
+        $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
+        $numeroOr = $ditOrsSoumis ? $ditOrsSoumis->getNumeroOR() : '';
+        $statutOr = $ditOrsSoumis ? $ditOrsSoumis->getStatut() : '';
+        if ($statutOr == 'Validé') {
+            $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin'];
+        }
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url du bon de commande
+     */
+    private function getBcPath(): string
+    {
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url du bon de livraison
+     */
+    private function getBlPath(): string
+    {
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url de la facture
+     */
+    private function getFacPath(): string
+    {
+        return "-";
     }
 }

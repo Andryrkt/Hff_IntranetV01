@@ -408,6 +408,22 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $result['statut'] ?? null;
     }
 
+    public function findDerniereVersionByNumeroDit(string $numeroDit)
+    {
+        $qb = $this->createQueryBuilder('osav');
+
+        $subQb = $this->createQueryBuilder('sub')
+            ->select('MAX(sub.numeroVersion)')
+            ->where('sub.numeroDit = :numeroDit')
+            ->getDQL();
+
+        $qb->where('osav.numeroDit = :numeroDit')
+            ->andWhere('osav.numeroVersion = (' . $subQb . ')')
+            ->setParameter('numeroDit', $numeroDit);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
     public function getNumeroEtStatutOr(string $numDit): array
     {
         // Étape 1 : Récupérer le numeroVersion maximum
