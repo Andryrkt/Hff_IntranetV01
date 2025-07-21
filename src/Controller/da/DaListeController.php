@@ -110,6 +110,7 @@ class DaListeController extends Controller
         $this->ajoutStatutBc($dasFiltered);
         $this->ajoutQte($dasFiltered);
         $this->ajoutStatutDal($dasFiltered);
+        $this->ajoutDateLIvraisonPrevu($dasFiltered);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
@@ -339,7 +340,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
-                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
                 $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
                 foreach ($daValiders as $daValider) {
                     $davp->setStatutDal($daValider->getStatutDal());
@@ -352,7 +353,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
-                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
                 $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
                 foreach ($daValiders as $daValider) {
                     $davp->setStatutBc($daValider->getStatutCde());
@@ -361,10 +362,23 @@ class DaListeController extends Controller
         }
     }
 
+    private function ajoutDateLIvraisonPrevu($dasFiltereds)
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
+                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                foreach ($daValiders as $daValider) {
+                    $davp->setDateLivraisonPrevue($daValider->getDateLivraisonPrevue());
+                }
+            }
+        }
+    }
+
     private function ajoutQte(array $dasFiltereds): void
     {
         foreach ($dasFiltereds as $daFiltered) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($daFiltered->getNumeroDemandeDit());
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($daFiltered->getNumeroDemandeAppro());
 
             if ($numeroVersionMax === null) {
                 continue; // Sauter si aucune version trouvée
@@ -395,7 +409,7 @@ class DaListeController extends Controller
     private function ChangeStatutBcDaValider($dasFiltereds): void
     {
         foreach ($dasFiltereds as $dasFiltered) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {

@@ -77,6 +77,7 @@
 					<th class="text-center">Qté Dispo (Qté à livrer)</th>
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Date livraison prévue</th>
 					<th class="text-center">Nbr Jour(s) dispo</th>
 					<th class="text-center">Suppression</th>
 				</tr>
@@ -189,7 +190,8 @@
 							<td class="text-center">{{ dal.qteEnAttent == 0 ? '-': dal.qteEnAttent}}</td>
 							<td class="text-center">{{ dal.qteALivrer == 0 ? '-': dal.qteALivrer}}</td>
 							<td class="text-center">{{ dal.qteLivee == 0 ? '-': dal.qteLivee}}</td>
-							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.dateFinSouhaite == null ? '' :dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.dateLivraisonPrevue == null ? '' : dal.dateLivraisonPrevue|date('d/m/Y') }}</td>
 							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 							<td class="text-center">
 								{% if serviceAppro and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}

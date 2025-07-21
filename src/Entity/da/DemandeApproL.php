@@ -191,6 +191,11 @@ class DemandeApproL
      */
     private $fileNames = [];
 
+    /**
+     * @ORM\Column(type="datetime", name="date_livraison_prevue", nullable=true)
+     */
+    private $dateLivraisonPrevue;
+
     private $statutBc;
 
     private $qteLivee = 0;
@@ -998,6 +1003,26 @@ class DemandeApproL
     public function setDatePlanningOR($datePlanningOR)
     {
         $this->datePlanningOR = $datePlanningOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLivraisonPrevue
+     */ 
+    public function getDateLivraisonPrevue()
+    {
+        return $this->dateLivraisonPrevue;
+    }
+
+    /**
+     * Set the value of dateLivraisonPrevue
+     *
+     * @return  self
+     */ 
+    public function setDateLivraisonPrevue($dateLivraisonPrevue)
+    {
+        $this->dateLivraisonPrevue = $dateLivraisonPrevue;
 
         return $this;
     }
