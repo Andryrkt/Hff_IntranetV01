@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const fileItems = document.querySelectorAll(".list-file-item");
   fileItems.forEach((fileItem) => {
     fileItem.addEventListener("click", function (event) {
-      toggleSelectedItem(fileItem, fileItems);
       if (event.target.closest("a")) return;
 
       let docType = this.querySelector("a").dataset.docType;
@@ -12,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let height = window.innerHeight;
       console.log(filePath, docType);
 
+      toggleSelectedItem(fileItem, fileItems);
       if (filePath.endsWith("-")) {
         textHtml = `Aucun <strong class="text-danger">"${docType}"</strong> n'est actuellement rattaché à cette demande d'achat.`;
         Swal.fire({

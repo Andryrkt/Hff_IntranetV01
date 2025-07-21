@@ -479,8 +479,9 @@ trait DaTrait
      */
     private function getBaPath(DemandeAppro $demandeAppro): string
     {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
         if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
-            // return;
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
         }
         return "-";
     }
@@ -504,8 +505,13 @@ trait DaTrait
     /** 
      * Obtenir l'url du bon de commande
      */
-    private function getBcPath(): string
+    private function getBcPath(DemandeAppro $demandeAppro): string
     {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $DwBcAppro = $this->dwBcApproRepository->findBy(['numeroDa' => $numDa]);
+        if ($DwBcAppro) {
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $this->dwBcApproRepository->getPathByNumDa($numDa);
+        }
         return "-";
     }
 
