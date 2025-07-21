@@ -1,12 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
   const viewer = document.getElementById("file-viewer");
-  document.querySelectorAll(".list-file-item").forEach((fileItem) => {
+  const fileItems = document.querySelectorAll(".list-file-item");
+  fileItems.forEach((fileItem) => {
     fileItem.addEventListener("click", function (event) {
+      toggleSelectedItem(fileItem, fileItems);
       if (event.target.closest("a")) return;
 
       let docType = this.querySelector("a").dataset.docType;
       let filePath = this.querySelector("a").href;
       let textHtml = "";
+      let height = window.innerHeight;
       console.log(filePath, docType);
 
       if (filePath.endsWith("-")) {
@@ -19,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         viewer.innerHTML = textHtml;
       } else if (filePath.endsWith(".pdf")) {
-        viewer.innerHTML = `<embed src="${filePath}" type="application/pdf" width="100%" height="400px"/>`;
+        viewer.innerHTML = `<embed src="${filePath}" type="application/pdf" width="100%" height="${height}px"/>`;
       } else if (filePath.match(/\.(jpeg|jpg|png|gif)$/)) {
         viewer.innerHTML = `<img src="${filePath}" class="img-fluid" alt="Image du document" />`;
       } else {
@@ -52,9 +55,21 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         } else {
           // Télécharger manuellement
-          window.location.href = filePath;
+          const link = document.createElement("a"); // créer une balise a temporaire
+          link.href = filePath;
+          link.download = filePath.split("/").pop();
+          document.body.appendChild(link);
+          link.click(); // Aucun handler ne s'exécute ici
+          document.body.removeChild(link);
         }
       });
     });
   });
+
+  function toggleSelectedItem(selectedItem, allItem) {
+    allItem.forEach((item) => {
+      item.classList.remove("selected");
+    });
+    selectedItem.classList.add("selected");
+  }
 });
