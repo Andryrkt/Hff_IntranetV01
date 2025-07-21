@@ -80,6 +80,9 @@
 					<div class="col-12 col-md-6">
 						{{ form_row(form.sousTypeDocument)}}
 					</div>
+					<div class="col-12 col-md-6  d-flex align-items-center {{ sousTypeDoc == 'COMPLEMENT' ? '' : 'd-none'}}">
+						{{ form_row(form.pieceJustificatif)}}
+					</div>
 				</div>
 				<div class="row">
 					<div class="col-12 col-md-6" id="categ">
@@ -140,10 +143,6 @@
 						<div class="row">
 							<div class="col-12 col-md-6">
 								{{ form_label(form.motifDeplacement) }}
-							</div>
-							<div class="col-12 col-md-6 {{ sousTypeDoc == 'COMPLEMENT' ? '' : 'd-none'}}">
-								{{ form_label(form.pieceJustificatif) }}
-								{{ form_widget(form.pieceJustificatif) }}
 							</div>
 						</div>
 						<div class="mb-3">
