@@ -179,6 +179,8 @@ class Dom
      */
     private ?string $totalGeneralPayer = null;
 
+    private ?string $totalDeplPlusAutres = null;
+
     /**
      * @ORM\Column(type="string", length=50, name="Mode_Paiement",nullable=true)
      */
@@ -1326,6 +1328,26 @@ class Dom
     public function setPieceJustificatif($pieceJustificatif)
     {
         $this->pieceJustificatif = $pieceJustificatif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalDeplPlusAutres
+     */
+    public function getTotalDeplPlusAutres()
+    {
+        return $this->totalDeplPlusAutres;
+    }
+
+    /**
+     * Set the value of totalDeplPlusAutres
+     *
+     * @return  self
+     */
+    public function setTotalDeplPlusAutres($totalDeplPlusAutres)
+    {
+        $this->totalDeplPlusAutres = $totalDeplPlusAutres;
 
         return $this;
     }

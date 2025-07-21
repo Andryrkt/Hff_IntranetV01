@@ -216,7 +216,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell(80, 10, $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
                 /** Ligne de NB sur les montants */
-                $NB_1 = $tab['Idemn_depl'] === '0' ? '' : 'Montant total à payer = ' . $tab['totalIdemn'] . ' - (' . $tab['Idemn_depl'] . '*' . $tab['NbJ'] . ') = ' . $tab['AllMontant'];
+                $NB_1 = $tab['Idemn_depl'] === '0' ? '' : 'Montant total à payer = ' . $tab['totalDeplAutre'] . ' - (' . $tab['Idemn_depl'] . '*' . $tab['NbJ'] . ') = ' . $tab['AllMontant'];
                 $NB_2 = $tab['Idemn_depl'] === '0' ? '' : $tab['Idemn_depl'] . " étant l'indemnité journalière reçue mensuellement du fait que l'agent se trouve sur un site";
                 $pdf->setY(227);
                 $pdf->SetFont('helvetica', 'B', 10);
