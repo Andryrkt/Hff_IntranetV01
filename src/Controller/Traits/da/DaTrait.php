@@ -42,7 +42,7 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation): string
+    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation): ?string
     {
         $this->updateInfoOR($numDa, $numDit, $ref, $designation);
 
@@ -111,7 +111,7 @@ trait DaTrait
         return array_key_exists(0, $situationCde);
     }
 
-    private function doitGenererBc(array $situationCde, string $statutDa, string $statutOr): bool
+    private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr): bool
     {
         return $situationCde[0]['num_cde'] === ''
             && $statutDa === DemandeAppro::STATUT_VALIDE
@@ -166,17 +166,19 @@ trait DaTrait
 
     private function updateQteCdeDansDaValider(string $numDa, string $numDit, string $ref, string $designation, array $qte): void
     {
-        $q = $qte[0];
-        $qteDem = (int)$q['qte_dem'];
-        $qteALivrer = (int)$q['qte_a_livrer'];
-        $qteLivee = (int)$q['qte_livee'];
-        $qteReliquat = (int)$q['qte_reliquat'];
+        if (!empty($qte)) {
+            $q = $qte[0];
+            $qteDem = (int)$q['qte_dem'];
+            $qteALivrer = (int)$q['qte_a_livrer'];
+            $qteLivee = (int)$q['qte_livee'];
+            $qteReliquat = (int)$q['qte_reliquat'];
 
-        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
-        $daValider->setQteDispo($qteReliquat)
-            ->setQteALivrer($qteALivrer)
-            ->setQteLivrer($qteLivee)
-        ;
+            $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+            $daValider->setQteDispo($qteReliquat)
+                ->setQteALivrer($qteALivrer)
+                ->setQteLivrer($qteLivee)
+            ;
+        }
     }
 
 
