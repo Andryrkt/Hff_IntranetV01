@@ -613,3 +613,6 @@ SET
     ID_Statut_Demande = 9
 where
     Numero_Ordre_Mission = 'DOM24100448'
+
+    
+ALTER TABLE Demande_ordre_mission ADD piece_justificatif bit DEFAULT 0;
