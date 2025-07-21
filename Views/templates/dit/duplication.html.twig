@@ -160,19 +160,19 @@
 					</div>
 
 
-					<button type="submit" class="btn bouton
-												<i class=" fas fa-save"></i>
-					Enregistrer
-				</button>
-				{{ form_end(form) }}
+					<button type="submit" class="btn bouton" id="formDit">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+					{{ form_end(form) }}
+				</div>
+
 			</div>
-
 		</div>
-	</div>
 
-	<div id="materielInfos"></div>
-{% endblock %}
+		<div id="materielInfos"></div>
+	{% endblock %}
 
-{% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dit/dit.js" type="module"></script>
-{% endblock %}
+	{% block javascript %}
+		<script src="{{ App.base_path }}/Views/js/dit/dit.js" type="module"></script>
+	{% endblock %}

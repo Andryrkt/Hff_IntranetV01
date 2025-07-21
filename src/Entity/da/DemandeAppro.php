@@ -45,6 +45,9 @@ class DemandeAppro
      */
     private string $numeroDemandeAppro;
 
+    private string $numeroOr;
+    private string $statutOr;
+
     /**
      * @ORM\Column(type="boolean", name="achat_direct")
      */
@@ -833,6 +836,46 @@ class DemandeAppro
     public function setNiveauUrgence($niveauUrgence)
     {
         $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroOr
+     */
+    public function getNumeroOr()
+    {
+        return $this->numeroOr;
+    }
+
+    /**
+     * Set the value of numeroOr
+     *
+     * @return  self
+     */
+    public function setNumeroOr($numeroOr)
+    {
+        $this->numeroOr = $numeroOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr()
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     *
+     * @return  self
+     */
+    public function setStatutOr($statutOr)
+    {
+        $this->statutOr = $statutOr;
 
         return $this;
     }
