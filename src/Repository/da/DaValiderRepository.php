@@ -120,7 +120,7 @@ class DaValiderRepository extends EntityRepository
         return $qb->getQuery()->getSingleResult();
     }
 
-    public function getDaOrValider(array $numOrValideZst): array
+    public function getDaOrValider(array $numOrValideZst, ?array $criteria): array
     {
         // Étape 1 : sous-requête pour récupérer (numeroOr, maxVersion)
         $subQuery = $this->_em->createQueryBuilder()
@@ -145,7 +145,7 @@ class DaValiderRepository extends EntityRepository
             ];
         }
 
-        // Étape 3 : requête finale pour récupérer les lignes correspondantes
+        // Étape 3 : requête finale avec conditions dynamiques
         $qb = $this->createQueryBuilder('dav');
         $orX = $qb->expr()->orX();
 
@@ -161,6 +161,66 @@ class DaValiderRepository extends EntityRepository
         }
 
         $qb->where($orX);
+
+        // Étape 4 : ajout des filtres dynamiques
+        if (!empty($criteria)) {
+            if (!empty($criteria['numDa'])) {
+                $qb->andWhere('dav.numeroDemandeAppro = :numDa')
+                    ->setParameter('numDa', $criteria['numDa']);
+            }
+
+            if (!empty($criteria['numDit'])) {
+                $qb->andWhere('dav.numeroDemandeDit = :numDit')
+                    ->setParameter('numDit', $criteria['numDit']);
+            }
+
+            if (!empty($criteria['numFrn'])) {
+                $qb->andWhere('dav.numeroFournisseur = :numFrn')
+                    ->setParameter('numFrn', $criteria['numFrn']);
+            }
+
+            if (!empty($criteria['ref'])) {
+                $qb->andWhere('dav.artRefp LIKE :ref')
+                    ->setParameter('ref', '%' . $criteria['ref'] . '%');
+            }
+
+            if (!empty($criteria['designation'])) {
+                $qb->andWhere('dav.artDesi LIKE :designation')
+                    ->setParameter('designation', '%' . $criteria['designation'] . '%');
+            }
+
+            if (!empty($criteria['statutBc'])) {
+                $qb->andWhere('dav.statutCde = :statutBc')
+                    ->setParameter('statutBc', $criteria['statutBc']);
+            }
+
+            if (!empty($criteria['niveauUrgence'])) {
+                $qb->andWhere('dav.niveauUrgence = :niveauUrgence')
+                    ->setParameter('niveauUrgence', $criteria['niveauUrgence']);
+            }
+
+            /** ## Date planning OR ## */
+            if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.datePlannigOr >= :dateDebutOR')
+                    ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
+            }
+
+            if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.datePlannigOr <= :dateFinOR')
+                    ->setParameter('dateFinOR', $criteria['dateFinOR']);
+            }
+
+            /** ## Date fin sohaite ## */
+            if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.dateFinSouhaite >= :dateDebutDAL')
+                    ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
+            }
+
+            if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
+                $qb->andWhere('dav.dateFinSouhaite <= :dateFinDAL')
+                    ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
+            }
+        }
 
         return $qb->getQuery()->getResult();
     }

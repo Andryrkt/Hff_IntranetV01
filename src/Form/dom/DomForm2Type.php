@@ -20,6 +20,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotNull;
@@ -478,6 +479,10 @@ class DomForm2Type extends AbstractType
                     ],
                 ]
             )
+            ->add('pieceJustificatif', CheckboxType::class, [
+                'label' => 'Pièce à justifier',
+                'required' => false,
+            ])
             ->add(
                 'client',
                 TextType::class,

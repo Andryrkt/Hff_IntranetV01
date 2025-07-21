@@ -13,6 +13,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Service\genererPdf\GenererPdfDa;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\dw\DossierInterventionAtelierModel;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -41,8 +42,10 @@ trait DaTrait
         }
     }
 
-    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation): string
+    private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation): ?string
     {
+        $this->updateInfoOR($numDa, $numDit, $ref, $designation);
+
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation);
         $this->updateSituationCdeDansDaValider($numDa, $numDit, $ref, $designation, $situationCde);
 
@@ -108,7 +111,7 @@ trait DaTrait
         return array_key_exists(0, $situationCde);
     }
 
-    private function doitGenererBc(array $situationCde, string $statutDa, string $statutOr): bool
+    private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr): bool
     {
         return $situationCde[0]['num_cde'] === ''
             && $statutDa === DemandeAppro::STATUT_VALIDE
@@ -163,25 +166,53 @@ trait DaTrait
 
     private function updateQteCdeDansDaValider(string $numDa, string $numDit, string $ref, string $designation, array $qte): void
     {
-        $q = $qte[0];
-        $qteDem = (int)$q['qte_dem'];
-        $qteALivrer = (int)$q['qte_a_livrer'];
-        $qteLivee = (int)$q['qte_livee'];
-        $qteReliquat = (int)$q['qte_reliquat'];
+        if (!empty($qte)) {
+            $q = $qte[0];
+            $qteDem = (int)$q['qte_dem'];
+            $qteALivrer = (int)$q['qte_a_livrer'];
+            $qteLivee = (int)$q['qte_livee'];
+            $qteReliquat = (int)$q['qte_reliquat'];
 
-        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
-        $daValider->setQteDispo($qteReliquat)
-            ->setQteALivrer($qteALivrer)
-            ->setQteLivrer($qteLivee)
-        ;
+            $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+            $daValider->setQteDispo($qteReliquat)
+                ->setQteALivrer($qteALivrer)
+                ->setQteLivrer($qteLivee)
+            ;
+        }
     }
 
 
     private function updateSituationCdeDansDaValider(string $numDa, string $numDit, string $ref, string $designation, array $situationCde): void
     {
-        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
         $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
+        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
         $daValider->setPositionBc($positionBc);
+    }
+
+    private function updateInfoOR(string $numDa, string $numDit, string $ref, string $designation)
+    {
+        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        $datePlanningOr = $this->getDatePlannigOr($numOr);
+        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+        $daValider
+            ->setNumeroOr($numOr)
+            ->setStatutOr($statutOr)
+            ->setDatePlannigOr($datePlanningOr)
+        ;
+    }
+
+    private function getDatePlannigOr(?string $numOr)
+    {
+        if (!is_null($numOr)) {
+            $magasinListeOrLivrerModel = new MagasinListeOrLivrerModel();
+            $data = $magasinListeOrLivrerModel->getDatePlanningPourDa($numOr);
+
+            if (!empty($data) && !empty($data[0]['dateplanning'])) {
+                $dateObj = DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']);
+            }
+        }
+
+        return $dateObj ?? null;
     }
 
     private function getDaValider(string $numDa, string $numDit, string $ref, string $designation): DaValider

@@ -423,4 +423,33 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $qb->getQuery()->getOneOrNullResult();
     }
+
+    public function getNumeroEtStatutOr(string $numDit): array
+    {
+        // Étape 1 : Récupérer le numeroVersion maximum
+        $numeroVersionMax = $this->createQueryBuilder('osv')
+            ->select('MAX(osv.numeroVersion)')
+            ->where('osv.numeroDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        if ($numeroVersionMax === null) {
+            return [null, null];
+        }
+
+        // Étape 2 : Récupérer le statut et numero OR
+        $result = $this->createQueryBuilder('osv')
+            ->select('osv.statut as statutOr', 'osv.numeroOR as numOr')
+            ->where('osv.numeroDit = :numDit')
+            ->andWhere('osv.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numDit' => $numDit,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->getQuery()
+            ->getOneOrNullResult(); // On prend une seule ligne
+
+        return [$result['numOr'] ?? null, $result['statutOr'] ?? null];
+    }
 }

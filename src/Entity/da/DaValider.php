@@ -34,7 +34,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private string $numeroOr;
+    private ?string $numeroOr;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
@@ -49,7 +49,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=50, name="statut_or")
      */
-    private string $statutOr;
+    private ?string $statutOr;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
@@ -237,6 +237,11 @@ class DaValider
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
     private ?string $positionBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
+     */
+    private $datePlannigOr;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1009,7 +1014,7 @@ class DaValider
     /**
      * Set the value of statutOr
      */
-    public function setStatutOr(string $statutOr): self
+    public function setStatutOr(?string $statutOr): self
     {
         $this->statutOr = $statutOr;
 
@@ -1112,6 +1117,26 @@ class DaValider
     public function setPositionBc($positionBc)
     {
         $this->positionBc = $positionBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlannigOr
+     */
+    public function getDatePlannigOr()
+    {
+        return $this->datePlannigOr;
+    }
+
+    /**
+     * Set the value of datePlannigOr
+     *
+     * @return  self
+     */
+    public function setDatePlannigOr($datePlannigOr)
+    {
+        $this->datePlannigOr = $datePlannigOr;
 
         return $this;
     }

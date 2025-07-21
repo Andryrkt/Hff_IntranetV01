@@ -98,30 +98,17 @@ class DaListeController extends Controller
         $codeAgence = Controller::getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         // recupération des données de la DA
-        $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
-        $this->deleteDal($das);
-
-        $this->ajoutInfoDit($das);
-        $dasFiltered  = $this->filtreDal($das);
-        /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
-        $this->ChangeStatutBcDaValider($dasFiltered);
-
-        /**  ajout des donners */
-        $this->ajoutStatutBc($dasFiltered);
-        $this->ajoutQte($dasFiltered);
-        $this->ajoutStatutDal($dasFiltered);
+        $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
 
         $this->modificationIdDALsDansDALRs($dasFiltered);
         $this->modificationDateRestant($dasFiltered);
         $this->demandeDeverouillageDA($dasFiltered);
         $this->verouillerOuNonLesDa($dasFiltered);
-        $this->ajouterDatePlanningOR($dasFiltered);
         $this->initialiserHistorique($historiqueModifDA);
 
-        // changer le statut de la DA si la situation des pièce est tout livré
-        $this->modificationStatutSiSituationPieceLivree($dasFiltered);
 
-        $this->sessionService->set('da_data_for_excel', $dasFiltered);
+        //recupération des critères dans la session pour Excel
+        $this->sessionService->set('criteria_for_excel', $criteria);
 
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
@@ -134,6 +121,31 @@ class DaListeController extends Controller
             'serviceAppro'           => Controller::estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
+    }
+
+    private function donnerAfficher(array $criteria, $idAgenceUser): array
+    {
+        $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
+        $this->deleteDal($das);
+
+        $this->ajoutInfoDit($das);
+        $dasFiltered  = $this->filtreDal($das);
+        /** modification des donnée dans DaValider  (Tsy azo alefa any afara an'ity toerana misy azy inty)*/
+        $this->ChangeStatutBcDaValider($dasFiltered);
+
+        /**  ajout des donners */
+        $this->ajoutStatutBc($dasFiltered);
+        $this->ajoutQte($dasFiltered);
+        $this->ajoutStatutDal($dasFiltered);
+        $this->ajoutDateLIvraisonPrevu($dasFiltered);
+        $this->ajouterDatePlanningOR($dasFiltered);
+
+
+
+        // changer le statut de la DA si la situation des pièce est tout livré
+        $this->modificationStatutSiSituationPieceLivree($dasFiltered);
+
+        return $dasFiltered;
     }
 
     private function modificationStatutSiSituationPieceLivree(array $dasFiltered): void
@@ -202,7 +214,13 @@ class DaListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dasFiltered = $this->sessionService->get('da_data_for_excel');
+        $criteria = $this->sessionService->get('criteria_for_excel');
+
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+        // recupération des données de la DA
+        $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
 
         $data = [];
         // En-tête du tableau d'excel
@@ -226,6 +244,7 @@ class DaListeController extends Controller
             "Qté Dispo (Qté à livrer)",
             "Qté livrée",
             "Date fin souhaitée",
+            "Date livraison prévue",
             "Nbr Jour(s) dispo"
         ];
 
@@ -339,7 +358,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
-                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
                 $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
                 foreach ($daValiders as $daValider) {
                     $davp->setStatutDal($daValider->getStatutDal());
@@ -352,7 +371,7 @@ class DaListeController extends Controller
     {
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
-                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
                 $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
                 foreach ($daValiders as $daValider) {
                     $davp->setStatutBc($daValider->getStatutCde());
@@ -361,10 +380,23 @@ class DaListeController extends Controller
         }
     }
 
+    private function ajoutDateLIvraisonPrevu($dasFiltereds)
+    {
+        foreach ($dasFiltereds as $dasFiltered) {
+            foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
+                $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
+                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
+                foreach ($daValiders as $daValider) {
+                    $davp->setDateLivraisonPrevue($daValider->getDateLivraisonPrevue());
+                }
+            }
+        }
+    }
+
     private function ajoutQte(array $dasFiltereds): void
     {
         foreach ($dasFiltereds as $daFiltered) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($daFiltered->getNumeroDemandeDit());
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($daFiltered->getNumeroDemandeAppro());
 
             if ($numeroVersionMax === null) {
                 continue; // Sauter si aucune version trouvée
@@ -395,7 +427,7 @@ class DaListeController extends Controller
     private function ChangeStatutBcDaValider($dasFiltereds): void
     {
         foreach ($dasFiltereds as $dasFiltered) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($dasFiltered->getNumeroDemandeDit());
+            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
@@ -589,7 +621,6 @@ class DaListeController extends Controller
 
     /** 
      * Ajoute la date de planning OR pour chaque DA filtrée
-     * @param array $dasFiltered
      * @return array
      */
     private function ajouterDatePlanningOR($dasFiltered)
@@ -607,8 +638,6 @@ class DaListeController extends Controller
                 $daValiderOuProposer->setDatePlanningOR($datePlanning);
             }
         }
-
-        return $dasFiltered;
     }
 
     /** 
@@ -700,6 +729,7 @@ class DaListeController extends Controller
                     $davp->getQteDispo() == 0 ? '-' : $davp->getQteDispo(),
                     $davp->getQteLivee() == 0 ? '-' : $davp->getQteLivee(),
                     $davp->getDateFinSouhaite()->format('d/m/Y'),
+                    $davp->getDateLivraisonPrevue() == null ? '' : $davp->getDateLivraisonPrevue()->format('d/m/Y'),
                     $davp->getJoursDispo()
                 ];
             }
