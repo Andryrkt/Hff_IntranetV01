@@ -34,8 +34,9 @@ class planningAtelierModel extends Model
                     $numOR
                     $ressource
 
-                    order by ska_id
+                    order by   numOR,ressource
         ";
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);

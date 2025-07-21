@@ -1,3 +1,5 @@
+import { displayOverlay } from "../utils/spinnerUtils";
+
 document.addEventListener("DOMContentLoaded", function () {
     const semaineInput = document.getElementById("planning_atelier_search_numeroSemaine");
     const dateDebutInput = document.getElementById("planning_atelier_search_dateDebut");
@@ -63,18 +65,28 @@ function getStartAndEndDateISO(week, year) {
     //         }
     //     });
     // }
-     if (semaineInput) {
-        semaineInput.addEventListener("change", function () {
-            const week = parseInt(this.value, 10);
-            const year = new Date().getFullYear(); // ou un champ personnalisé
-            if (week >= 1 && week <= 53) {
-                const monday = getMondayOfISOWeek(week, year);
-                const sunday = new Date(monday);
-                sunday.setUTCDate(monday.getUTCDate() + 6);
+    function eventSurSemaineInput(semaineInput) {
+        const week = parseInt(semaineInput.value, 10);
+        const year = new Date().getFullYear(); // ou un champ personnalisé
+        if (week >= 1 && week <= 53) {
+            const monday = getMondayOfISOWeek(week, year);
+            const sunday = new Date(monday);
+            sunday.setUTCDate(monday.getUTCDate() + 6);
+    
+            dateDebutInput.value = formatDate(monday);
+            dateFinInput.value = formatDate(sunday);
+        }
+    }
 
-                dateDebutInput.value = formatDate(monday);
-                dateFinInput.value = formatDate(sunday);
-            }
+     if (semaineInput) {
+        eventSurSemaineInput(semaineInput);
+        semaineInput.addEventListener("change", function () {
+            eventSurSemaineInput(semaineInput);
         });
     }
 });
+
+window.addEventListener("load", () => {
+  displayOverlay(false);
+});
+

@@ -32,6 +32,7 @@ class planningAtelierSearchType extends AbstractType
                 'choices' => array_combine(range(1, 53), range(1, 53)),
                 'label' => 'Numéro de semaine',
                 'placeholder' => '-- Choisir une semaine --',
+                'data' => date('W'),
                 'required' => false
             ])
             ->add('dateDebut', DateType::class, [
