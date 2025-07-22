@@ -549,12 +549,15 @@ trait DaTrait
     private function getBcPath(DemandeAppro $demandeAppro): string
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $DwBcAppro = $this->dwBcApproRepository->findBy(['numeroDa' => $numDa]);
-        if ($DwBcAppro) {
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $this->dwBcApproRepository->getPathByNumDa($numDa);
+        $path = $this->dwBcApproRepository->getPathByNumDa($numDa);
+
+        if ($path) {
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $path;
         }
+
         return "-";
     }
+
 
     /** 
      * Obtenir l'url du bon de livraison
