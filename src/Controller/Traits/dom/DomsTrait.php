@@ -75,8 +75,8 @@ trait DomsTrait
 
         $dom->setRmq($criteria['rmq']);
 
-        $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
-        $dom->setNumeroTel($numTel);
+        // $numTel = $em->getRepository(Dom::class)->findLastNumtel($form1Data['matricule']);
+        // $dom->setNumeroTel($numTel);
     }
 
     private function criteria($form1Data, $em)
@@ -378,6 +378,7 @@ trait DomsTrait
             "Nom"                   => $dom->getNom(),
             "Prenoms"               => $dom->getPrenom(),
             "matr"                  => $dom->getMatricule(),
+            "pieceJustificatif"     => $dom->getPieceJustificatif(),
             "motif"                 => $dom->getMotifDeplacement(),
             "CategoriePers"         => $dom->getCategorie() === null ? '' : ($tropPercu ? $dom->getCategorie() : $dom->getCategorie()->getDescription()),
             "NbJ"                   => $dom->getNombreJour(),
@@ -507,7 +508,19 @@ trait DomsTrait
             ->setSite($oldDom->getSite())
             ->setMatricule($oldDom->getMatricule())
             ->setNom($oldDom->getNom())
+            ->setDateDebut($oldDom->getDateDebut())
+            ->setDateFin($oldDom->getDateFin())
             ->setPrenom($oldDom->getPrenom())
+            ->setNombreJour($oldDom->getNombreJour())
+            ->setMotifAutresDepense1($oldDom->getMotifAutresDepense1())
+            ->setMotifAutresDepense2($oldDom->getMotifAutresDepense2())
+            ->setMotifAutresDepense3($oldDom->getMotifAutresDepense3())
+            ->setAutresDepense1($oldDom->getAutresDepense1() == 0 ? '' : $oldDom->getAutresDepense1())
+            ->setAutresDepense2($oldDom->getAutresDepense2() == 0 ? '' : $oldDom->getAutresDepense2())
+            ->setAutresDepense3($oldDom->getAutresDepense3() == 0 ? '' : $oldDom->getAutresDepense3())
+            ->setTotalAutresDepenses($oldDom->getTotalAutresDepenses() == 0 ? '' : $oldDom->getTotalAutresDepenses())
+            ->setTotalGeneralPayer('-' . $oldDom->getTotalGeneralPayer())
+            ->setTotalIndemniteForfaitaire($oldDom->getTotalIndemniteForfaitaire())
             ->setMotifDeplacement($oldDom->getMotifDeplacement())
             ->setClient($oldDom->getClient())
             ->setFiche($oldDom->getFiche())
@@ -522,5 +535,25 @@ trait DomsTrait
             ->setSiteId($oldDom->getSiteId())
             ->setCategoryId($oldDom->getCategoryId())
         ;
+    }
+
+    /** 
+     * Vérifier le trop perçu par statut
+     */
+    private function statutTropPercu(Dom $dom)
+    {
+        $codeSousType      = $dom->getSousTypeDocument()->getCodeSousType();
+        $statutDescription = $dom->getIdStatutDemande()->getDescription();
+        $modePaiement      = explode(':', $dom->getModePayement())[0];
+
+        if (in_array($codeSousType, ['COMPLEMENT', 'MISSION'])) {
+            $isPaye           = $statutDescription === 'PAYE';
+            $isAttente        = $statutDescription === 'ATTENTE PAIEMENT';
+            $isNotMobileMoney = $modePaiement !== 'MOBILE MONEY';
+
+            if ($isPaye || ($isAttente && $isNotMobileMoney)) {
+                $dom->setStatutTropPercuOk(true);
+            }
+        }
     }
 }

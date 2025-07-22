@@ -25,19 +25,23 @@
 				{{ form_row(form.mail) }}
 			</div>
 		</div>
+		<button type="submit" class="btn btn-primary">
+			<i class="fas fa-save"></i>
+			Enregistrer
+		</button>
+		{{ form_end(form) }}
+	</div>
+{% endblock %}
 
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/admin/user/profilUser.js"></script>
+{% endblock %}
 
-		<button type="submit" class="btn btn-primary
-						<i class=" fas fa-save"></i>
-		Enregistrer
-	</button>
-	{{ form_end(form) }}
-</div>{% endblock %}{% block javascript %}
-<script src="{{ App.base_path }}/Views/js/admin/user/profilUser.js"></script>{% endblock %}{# {% block form_row %}
-		<div class="frorm-group">
-			{{ form_label(form) }}
-			{{ form_widget(form, {'attr': {'class':'form-control'}})}}
-			{{ form_help(form)}}
-			{{ form_errors(form)}}
-		</div>
-	{% endblock %} #}
+{# {% block form_row %}
+	<div class="frorm-group">
+		{{ form_label(form) }}
+		{{ form_widget(form, {'attr': {'class':'form-control'}})}}
+		{{ form_help(form)}}
+		{{ form_errors(form)}}
+	</div>
+{% endblock %} #}

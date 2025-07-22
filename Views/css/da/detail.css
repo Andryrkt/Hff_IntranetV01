@@ -67,6 +67,31 @@
   border-top-left-radius: 0 !important;
 }
 
+.statut .list-file-item {
+  border-top: 1px solid rgba(0, 0, 0, 0.17);
+  cursor: pointer;
+}
+
+.statut .list-file-item > div:first-child {
+  padding: 13px 35px;
+}
+
+.nav-top span {
+  font-size: 1rem !important;
+}
+.nav-top {
+  margin-top: 0;
+  display: block;
+  color: white;
+  background-color: #212529;
+  font-size: 1rem;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
 /* CONVERSATION */
 .conversation {
   margin: 0;
@@ -186,4 +211,16 @@
   font-family: FontAwesome;
   display: inline-block;
   margin-right: 4px;
+}
+
+.list-file-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.075);
+}
+
+.list-file-item.selected {
+  transform: translateY(0px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }

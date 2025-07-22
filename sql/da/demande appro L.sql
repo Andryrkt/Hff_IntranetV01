@@ -71,3 +71,6 @@ ADD file_names text;
 
 ALTER TABLE Demande_Appro_L
 ADD demandeur varchar(100);
+
+ALTER TABLE Demande_Appro_L
+ADD date_livraison_prevue DATETIME2(0)

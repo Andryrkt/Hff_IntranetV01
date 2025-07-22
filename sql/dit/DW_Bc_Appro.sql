@@ -28,3 +28,5 @@ CREATE NONCLUSTERED INDEX idx_dw_dit_id_dit ON DW_Demande_Intervention (id_dit);
 CREATE NONCLUSTERED INDEX idx_dw_dit_numero_dit ON DW_Demande_Intervention (numero_dit);
 CREATE NONCLUSTERED INDEX idx_dw_devis_id_devis ON DW_Devis (id_devis);
 CREATE NONCLUSTERED INDEX idx_dw_ri_id_ri ON DW_Rapport_Intervention (id_ri);
+
+alter table DW_BC_Appro add numero_da varchar(11);

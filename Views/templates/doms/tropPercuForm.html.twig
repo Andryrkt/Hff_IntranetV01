@@ -30,6 +30,7 @@
 				<input type="hidden" id="oldDateFin" value="{{criteria.oldDateFin}}">
 				<input type="hidden" id="oldNombreJour" value="{{criteria.oldNombreJour}}">
 				<input type="hidden" id="nombreJourTropPercu" value="{{criteria.nombreJourTropPercu}}">
+				<input type="hidden" id="oldTotalGeneral" value="{{criteria.totalGeneral}}">
 
 				{{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}})}}
 
@@ -220,7 +221,7 @@
 				<div class="row">
 					<div class="mt-2 ">
 						<a onclick="return confirm('Voulez-vous envoyer la demande ?')">
-							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-boldle=" tooltip">
+							<button type="submit" name="Envoyer" class="btn btn-info md-5 fw-bold" data-bs-toggle="tooltip">
 								<i class="fa fa-print"></i>
 								Envoyer
 							</button>

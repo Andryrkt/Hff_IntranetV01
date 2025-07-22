@@ -198,6 +198,11 @@ class DemandeApproLR
 
     private $verouille = false;
 
+    /**
+     * @ORM\Column(type="datetime", name="date_livraison_prevue", nullable=true)
+     */
+    private $dateLivraisonPrevue;
+
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -952,6 +957,26 @@ class DemandeApproLR
     public function setNumeroLigne($numeroLigne)
     {
         $this->numeroLigne = $numeroLigne;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateLivraisonPrevue
+     */
+    public function getDateLivraisonPrevue()
+    {
+        return $this->dateLivraisonPrevue;
+    }
+
+    /**
+     * Set the value of dateLivraisonPrevue
+     *
+     * @return  self
+     */
+    public function setDateLivraisonPrevue($dateLivraisonPrevue)
+    {
+        $this->dateLivraisonPrevue = $dateLivraisonPrevue;
 
         return $this;
     }
