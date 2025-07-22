@@ -30,7 +30,7 @@ trait PlanningAtelierModelTrait {
     }
     private function ressource($criteria){
          if (!empty($criteria->getResource())) {
-           $ressource = "AND sitv_numor = '".$criteria->getResource(). "'  ";
+           $ressource = "AND skr_name = '".$criteria->getResource(). "'  ";
         }else{
             $ressource = "";
         }
