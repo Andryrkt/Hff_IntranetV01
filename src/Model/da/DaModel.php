@@ -152,7 +152,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '')
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', string $numOr)
     {
         $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
 
@@ -202,10 +202,21 @@ class DaModel extends Model
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
+                        )
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
+                        )
+                        and slor_numor = '$numOr'
                         and slor_refp = '$ref'
                                     and slor.slor_desi = '$designation'
                                     and seor.seor_refdem = '$numDit'
-                                    and c.fcde_cdeext ='$numDa'
+                                    order by slor_nolign asc
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -228,7 +239,7 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '')
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', string $numOr)
     {
         $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
 
@@ -278,10 +289,21 @@ class DaModel extends Model
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
+                        )
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
+                        )
+                        and slor_numor = '$numOr'
                         and seor.seor_refdem = '$numDit'
-                        and c.fcde_cdeext ='$numDa'
                         AND slor_refp = '$ref'
                 and slor_desi = '$designation'
+                order by slor_nolign asc
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));

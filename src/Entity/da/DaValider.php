@@ -243,6 +243,11 @@ class DaValider
      */
     private $datePlannigOr;
 
+    /**
+     * @ORM\Column(type="boolean", name="bc_envoyer_fournisseur")
+     */
+    private $bcEnvoyerFournisseur = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1141,6 +1146,26 @@ class DaValider
         return $this;
     }
 
+    /**
+     * Get the value of bcEnvoyerFournisseur
+     */
+    public function getBcEnvoyerFournisseur()
+    {
+        return $this->bcEnvoyerFournisseur;
+    }
+
+    /**
+     * Set the value of bcEnvoyerFournisseur
+     *
+     * @return  self
+     */
+    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur)
+    {
+        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+
+        return $this;
+    }
+    
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
