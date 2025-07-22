@@ -155,15 +155,16 @@ class DitOrsSoumisAValidationController extends Controller
     private function modificationDaValider(string $numDit, string $numOr): void
     {
         $numDa = $this->demandeApproRepository->getNumDa($numDit);
-        if ($numDa) {
+        if (!empty($numDa)) {
             $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
             $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
             if (!empty($daValiders)) {
-
+                /** @var DaValider $daValider */
                 foreach ($daValiders as $daValider) {
                     $daValider
                         ->setNumeroOr($numOr)
                         ->setStatutOr('Soumis à validation')
+                        ->setOrResoumettre(false)
                     ;
                     self::$em->persist($daValider);
                 }
