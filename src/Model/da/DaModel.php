@@ -163,12 +163,12 @@ class DaModel extends Model
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                            WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                            WHEN slor_natcm = 'L' THEN cde.fcde_numcde
                         END AS num_cde,
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_posc
-                            WHEN slor_natcm = 'L' THEN cl.fcde_posc
+                            WHEN slor_natcm = 'L' THEN cde.fcde_posc
                         END AS position_bc
 
                     FROM Informix.sav_lor slor
@@ -193,10 +193,10 @@ class DaModel extends Model
                         ON slor.slor_natcm = 'L' 
                     AND llf.fllf_numliv = slor.slor_numcf
 
-                    LEFT JOIN Informix.frn_cde cl
-                        ON llf.fllf_numcde = cl.fcde_numcde
-                    AND llf.fllf_soc = cl.fcde_soc
-                    AND llf.fllf_succ = cl.fcde_succ
+                    LEFT JOIN Informix.frn_cde cde
+                        ON llf.fllf_numcde = cde.fcde_numcde
+                    AND llf.fllf_soc = cde.fcde_soc
+                    AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
                         slor.slor_constp = 'ZST' 
@@ -216,7 +216,6 @@ class DaModel extends Model
                         and slor_refp = '$ref'
                                     and slor.slor_desi = '$designation'
                                     and seor.seor_refdem = '$numDit'
-                                    order by slor_nolign asc
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -247,7 +246,7 @@ class DaModel extends Model
                 TRIM(seor_refdem) as num_dit,
                 CASE
                     WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                    WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                    WHEN slor_natcm = 'L' THEN cde.fcde_numcde
                 END AS num_cde,
                 TRIM(slor_refp) as reference,
                 TRIM(slor_desi) as designation,
@@ -280,10 +279,10 @@ class DaModel extends Model
                         ON slor.slor_natcm = 'L' 
                     AND llf.fllf_numliv = slor.slor_numcf
 
-                    LEFT JOIN Informix.frn_cde cl
-                        ON llf.fllf_numcde = cl.fcde_numcde
-                    AND llf.fllf_soc = cl.fcde_soc
-                    AND llf.fllf_succ = cl.fcde_succ
+                    LEFT JOIN Informix.frn_cde cde
+                        ON llf.fllf_numcde = cde.fcde_numcde
+                    AND llf.fllf_soc = cde.fcde_soc
+                    AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
                         slor.slor_constp = 'ZST' 
@@ -303,7 +302,6 @@ class DaModel extends Model
                         and seor.seor_refdem = '$numDit'
                         AND slor_refp = '$ref'
                 and slor_desi = '$designation'
-                order by slor_nolign asc
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));

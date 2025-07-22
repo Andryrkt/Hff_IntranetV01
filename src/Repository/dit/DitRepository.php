@@ -2,6 +2,7 @@
 
 namespace App\Repository\dit;
 
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
@@ -258,16 +259,34 @@ class DitRepository extends EntityRepository
 
     private function applyStatusFilter($queryBuilder, DitSearch $ditSearch)
     {
-        $statusesDefault = [50, 51, 53];
+        $statusesDefault = [
+            DemandeIntervention::STATUT_A_AFFECTER,
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
 
         if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
         } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
-
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
+    }
+
+    private function applyStatusFilterDa($queryBuilder, DitSearch $ditSearch)
+    {
+        $statusesDefault = [
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
+
+        if (!empty($ditSearch->getStatut())) {
+            $queryBuilder->andWhere('s.description LIKE :statut')
+                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+        }
+        $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+            ->setParameter('excludedStatuses', $statusesDefault);
     }
 
 
@@ -683,7 +702,7 @@ class DitRepository extends EntityRepository
             ->where('d.sectionAffectee <> :sectionAffectee')
             ->setParameter('sectionAffectee', '');
 
-        $this->applyStatusFilter($queryBuilder, $ditSearch);
+        $this->applyStatusFilterDa($queryBuilder, $ditSearch);
 
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
 
