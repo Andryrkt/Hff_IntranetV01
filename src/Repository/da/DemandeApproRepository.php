@@ -229,7 +229,7 @@ class DemandeApproRepository extends EntityRepository
                 ->where('da.numeroDemandeDit = :numDit')
                 ->setParameter('numDit', $numDit)
                 ->getQuery()
-                ->getSingleScalarResult();
+                ->getSingleColumnResult();
         } catch (\Doctrine\ORM\NoResultException $e) {
             $numDa = null; // ou une valeur par défaut
         }

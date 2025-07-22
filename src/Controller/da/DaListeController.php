@@ -445,11 +445,22 @@ class DaListeController extends Controller
     {
         /** @var DemandeAppro $data */
         foreach ($datas as $data) {
-            /** @var DitOrsSoumisAValidation $ditOrsSoumis */
+            /** @var DitOrsSoumisAValidation $ditOrsSoumis correspondant au "numéro de DIT" de la Demande Appro */
             $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($data->getNumeroDemandeDit());
+            /** @var DaValider $daValider correspondant au "numéro de demande appro" avec "or à resoumettre" vrai */
+            $daValider = $this->daValiderRepository->findOneBy(['numeroDemandeAppro' => $data->getNumeroDemandeAppro(), 'orResoumettre' => true]);
+            /** 
+             * @var string $statutOr statut de l'OR tel que: 
+             *      - si $davalider (la DA est de statut `bon d'achats validé` et la colonne "or_a_resoumettre" est à 1) 
+             * alors prendre le statut dans la table "da_valider" 
+             *      - sinon si $ditOrsSoumis (il y a une ligne correspondant au numéro de DIT de la DA 
+             * dans la table "ors_soumis_a_validation") alors prendre le statut dans cette table
+             *      - sinon prendre $statutOr = ''
+             */
+            $statutOr = $daValider ? $daValider->getStatutOr() : ($ditOrsSoumis ? $ditOrsSoumis->getStatut() : '');
             $data
                 ->setNumeroOr($ditOrsSoumis ? $ditOrsSoumis->getNumeroOR() : '')
-                ->setStatutOr($ditOrsSoumis ? $ditOrsSoumis->getStatut() : '')
+                ->setStatutOr($statutOr)
                 ->setDit($this->ditRepository->findOneBy(['numeroDemandeIntervention' => $data->getNumeroDemandeDit()]))
             ;
         }

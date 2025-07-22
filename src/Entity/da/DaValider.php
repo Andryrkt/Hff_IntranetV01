@@ -234,6 +234,11 @@ class DaValider
     private bool $achatDirect = false;
 
     /**
+     * @ORM\Column(type="boolean", name="or_a_resoumettre")
+     */
+    private bool $orResoumettre = false;
+
+    /**
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
     private ?string $positionBc;
@@ -1142,6 +1147,26 @@ class DaValider
     public function setDatePlannigOr($datePlannigOr)
     {
         $this->datePlannigOr = $datePlannigOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orResoumettre
+     */
+    public function getOrResoumettre()
+    {
+        return $this->orResoumettre;
+    }
+
+    /**
+     * Set the value of orResoumettre
+     *
+     * @return  self
+     */
+    public function setOrResoumettre($orResoumettre)
+    {
+        $this->orResoumettre = $orResoumettre;
 
         return $this;
     }

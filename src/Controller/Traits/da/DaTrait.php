@@ -206,7 +206,6 @@ trait DaTrait
 
         $daValider
             ->setNumeroOr($numOr)
-            ->setStatutOr($statutOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
     }
@@ -353,6 +352,8 @@ trait DaTrait
             $daValider
                 ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
                 ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
+                ->setStatutOr("A resoumettre à validation")
+                ->setOrResoumettre(true)
             ;
 
             $daValider->enregistrerDa($da); // enregistrement pour DA
