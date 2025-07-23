@@ -101,15 +101,30 @@ class ListCdeFrnController extends Controller
     {
         $numDits = $this->daRepository->getNumDit();
         $numDitString = TableauEnStringService::TableauEnString(',', $numDits);
-
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
         $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
         $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
         $numOrValideZstString = TableauEnStringService::TableauEnString(',', $numOrValideZst);
 
-        //recupération des données dans IPS
-        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString);
+        $daValiders = $this->daValiderRepository->findAll();
+        $constRefDesis = [];
+        $listeReferenceCatalogue = [];
+        foreach ($daValiders as $key => $daValider) {
+            $constRefDesis[] = $daValider->getConstructeurRefDesi();
+            $listeReferenceCatalogue[] = $daValider->getReferenceCataloguee();
+        }
 
+        foreach ($constRefDesis as &$row) {
+            $row = mb_convert_encoding($row, 'UTF-8', 'UTF-8'); // ou 'ISO-8859-1' selon ton origine
+        }
+        $constRefDesisString = TableauEnStringService::TableauEnString(',', $constRefDesis);
+        
+        $listeReferenceCatalogueString = TableauEnStringService::TableauEnString(',', $listeReferenceCatalogue);
+
+
+        //recupération des données dans IPS
+        $datas =  $this->daListeCdeFrnModel->getInfoCdeFrn($criteria, $numDitString, $numOrValideZstString, $constRefDesisString,$listeReferenceCatalogueString);
+// dd($datas);
         //ajout des données utile
         $datas = $this->ajoutDonnerUtile($datas, $criteria);
 
