@@ -36,3 +36,5 @@
 [2025-03-04T14:22:17.102172+03:00] app.INFO: Connexion réussie pour l'utilisateur : lanto [] []
 [2025-03-04T14:23:51.260737+03:00] app.INFO: Authentification réussie pour l'utilisateur : lanto@fraise.hff.mg [] []
 [2025-03-04T14:23:52.049012+03:00] app.INFO: Connexion réussie pour l'utilisateur : lanto [] []
+[2025-07-23T09:00:14.010134+03:00] app.WARNING: Tentative de connexion avec des champs vides. {"ip":"172.20.11.32"} []
+[2025-07-23T09:02:48.614653+03:00] app.WARNING: Tentative de connexion avec des champs vides. {"ip":"172.20.11.32"} []
