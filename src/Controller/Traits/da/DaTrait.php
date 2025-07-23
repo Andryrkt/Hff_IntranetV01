@@ -224,19 +224,6 @@ trait DaTrait
         return $dateObj ?? null;
     }
 
-    private function getDaValider(string $numDa, string $numDit, string $ref, string $designation): DaValider
-    {
-        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $conditionDeRecuperation = [
-            'numeroDemandeAppro' => $numDa,
-            'numeroDemandeDit' => $numDit,
-            'artRefp' => $ref,
-            'artDesi' => $designation,
-            'numeroVersion' => $numeroVersionMax
-        ];
-        return $this->daValiderRepository->findOneBy($conditionDeRecuperation);
-    }
-
     private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): DaValider
     {
         $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
@@ -496,31 +483,59 @@ trait DaTrait
     private function getAllDAFile($tab): array
     {
         return [
-            'BA'    => [
-                'type' => 'Bon d\'achat',
-                'nom'  => $tab['baPath'] == '-' ? '' : basename($tab['baPath']),
+            'BA' => [
+                'type' => "Bon d'achat",
                 'icon' => 'fa-solid fa-file-signature',
-                'path' => $tab['baPath']
+                'fichiers' => $this->normalizePaths($tab['baPath']),
             ],
-            'OR'    => [
+            'OR' => [
                 'type' => 'Ordre de réparation',
-                'nom'  => $tab['orPath'] == '-' ? '' : basename($tab['orPath']),
                 'icon' => 'fa-solid fa-wrench',
-                'path' => $tab['orPath']
+                'fichiers' => $this->normalizePaths($tab['orPath']),
             ],
-            'BC'    => [
+            'BC' => [
                 'type' => 'Bon de commande',
-                'nom'  => $tab['bcPath'] == '-' ? '' : basename($tab['bcPath']),
                 'icon' => 'fa-solid fa-file-circle-check',
-                'path' => $tab['bcPath']
+                'fichiers' => $this->normalizePathsForBC($tab['bcPath']),
             ],
             'FACBL' => [
                 'type' => 'Facture / Bon de livraison',
-                'nom'  => $tab['facblPath'] == '-' ? '' : basename($tab['facblPath']),
                 'icon' => 'fa-solid fa-file-invoice',
-                'path' => $tab['facblPath']
+                'fichiers' => $this->normalizePaths($tab['facblPath']),
             ],
         ];
+    }
+
+    private function normalizePaths($paths): array
+    {
+        if ($paths === '-' || empty($paths)) {
+            return [];
+        }
+
+        if (!is_array($paths)) {
+            $paths = [$paths];
+        }
+
+        return array_map(function ($path) {
+            return [
+                'nom'  => basename($path),
+                'path' => $path
+            ];
+        }, $paths);
+    }
+
+    private function normalizePathsForBC($allDocs): array
+    {
+        if ($allDocs === '-' || empty($allDocs)) {
+            return [];
+        }
+
+        return array_map(function ($doc) {
+            return [
+                'nom'  => $doc['numeroBc'],
+                'path' => $doc['path']
+            ];
+        }, $allDocs);
     }
 
     /** 
