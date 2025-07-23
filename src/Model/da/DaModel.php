@@ -154,7 +154,7 @@ class DaModel extends Model
 
     public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '')
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
@@ -230,7 +230,7 @@ class DaModel extends Model
 
     public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '')
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,

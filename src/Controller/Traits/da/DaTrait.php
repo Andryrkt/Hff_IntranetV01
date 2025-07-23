@@ -228,6 +228,19 @@ trait DaTrait
         return $this->daValiderRepository->findOneBy($conditionDeRecuperation);
     }
 
+    private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): DaValider
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $conditionDeRecuperation = [
+            'numeroDemandeAppro' => $numDa,
+            'numeroDemandeDit' => $numDit,
+            'artRefp' => $ref,
+            'artDesi' => $designation,
+            'numeroVersion' => $numeroVersionMax
+        ];
+        return $this->daValiderRepository->findOneBy($conditionDeRecuperation);
+    }
+
 
     private function creationPdf(string $numDa, int $numeroVersionMax)
     {
