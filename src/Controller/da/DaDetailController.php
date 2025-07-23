@@ -13,6 +13,7 @@ use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dw\DwBcAppro;
+use App\Entity\dw\DwFacBl;
 use App\Form\da\DaObservationType;
 use App\Model\dit\DitModel;
 use App\Model\dw\DossierInterventionAtelierModel;
@@ -21,6 +22,7 @@ use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\dw\DwBcApproRepository;
+use App\Repository\dw\DwFactureBonLivraisonRepository;
 use App\Service\EmailService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,6 +40,7 @@ class DaDetailController extends Controller
 	private DaObservationRepository $daObservationRepository;
 	private DemandeApproLRepository $daLRepository;
 	private DwBcApproRepository $dwBcApproRepository;
+	private DwFactureBonLivraisonRepository $dwFacBlRepository;
 	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
@@ -48,6 +51,7 @@ class DaDetailController extends Controller
 		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
 		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
 		$this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
+		$this->dwFacBlRepository = self::$em->getRepository(DwFacBl::class);
 		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
 		$this->daLRepository = self::$em->getRepository(DemandeApproL::class);
 		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
@@ -77,11 +81,10 @@ class DaDetailController extends Controller
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		$fichiers = $this->getAllDAFile([
-			'baPath' => $this->getBaPath($demandeAppro),
-			'orPath' => $this->getOrPath($demandeAppro),
-			'bcPath' => $this->getBcPath($demandeAppro),
-			'blPath' => $this->getBlPath(),
-			'facPath' => $this->getFacPath(),
+			'baPath'    => $this->getBaPath($demandeAppro),
+			'orPath'    => $this->getOrPath($demandeAppro),
+			'bcPath'    => $this->getBcPath($demandeAppro),
+			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
 
 		self::$twig->display('da/detail.html.twig', [
