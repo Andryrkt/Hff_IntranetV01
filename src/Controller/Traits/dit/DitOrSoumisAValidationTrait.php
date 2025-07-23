@@ -77,18 +77,10 @@ trait DitOrSoumisAValidationTrait
         FormInterface $form,
         $ditfacture,
         $fusionPdf,
-        $suffix
+        $suffix,
+        $mainPdf
     ): void {
         $pdfFiles = [];
-
-        // Ajouter le fichier PDF principal en tête du tableau
-        $mainPdf = sprintf(
-            '%s/vor/oRValidation_%s-%s#%s.pdf',
-            $_ENV['BASE_PATH_FICHIER'],
-            $ditfacture->getNumeroOR(),
-            $ditfacture->getNumeroVersion(),
-            $suffix
-        );
 
 
         // Vérifier que le fichier principal existe avant de l'ajouter
@@ -96,6 +88,7 @@ trait DitOrSoumisAValidationTrait
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
+        // Ajouter le fichier PDF principal en tête du tableau
         array_unshift($pdfFiles, $mainPdf);
 
         // Récupérer tous les champs de fichiers du formulaire
@@ -419,9 +412,9 @@ trait DitOrSoumisAValidationTrait
 
     private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr);//première soumission
-        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr);//return bloquer si type piece ou pas bloquer  si non
-        
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
+        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr); //return bloquer si type piece ou pas bloquer  si non
+
         if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
             $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
             $dateDuJour = new DateTime('now');
