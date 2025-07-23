@@ -119,4 +119,15 @@ class DaValiderRepository extends EntityRepository
 
         return $qb->getQuery()->getSingleResult();
     }
+
+    public function getConstructeurRefDesi(): array
+{
+    $result = $this->createQueryBuilder('dav')
+        ->select("CONCAT(dav.artConstp, '_', dav.artRef, '_', dav.artDesi) AS refDesi")
+        ->getQuery()
+        ->getScalarResult();
+
+    return array_column($result, 'refDesi');
+}
+    
 }

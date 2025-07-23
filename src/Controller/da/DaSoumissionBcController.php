@@ -27,7 +27,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
  */
 class DaSoumissionBcController extends Controller
 {
-    const STATUT_SOUMISSION = 'Soumis à validation';
 
     private  DaSoumissionBc $daSoumissionBc;
     private TraitementDeFichier $traitementDeFichier;
@@ -133,7 +132,7 @@ class DaSoumissionBcController extends Controller
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
-                    ->setStatutCde(self::STATUT_SOUMISSION)
+                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION)
                     ->setNumeroCde($numCde)
                 ;
                 self::$em->persist($daValider);
@@ -148,9 +147,9 @@ class DaSoumissionBcController extends Controller
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
         $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionBc->setNumeroCde($numCde)
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+            ->setUtilisateur($this->getUserNameUser())
             ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(self::STATUT_SOUMISSION)
+            ->setStatut(DaSoumissionBc::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
@@ -169,7 +168,7 @@ class DaSoumissionBcController extends Controller
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
-            'statut' => $statut === self::STATUT_SOUMISSION,
+            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];
     }

@@ -66,6 +66,17 @@ trait DaTrait
             "Partiellement livré",
         ];
 
+        $statutBcDw = [
+            DaSoumissionBc::STATUT_SOUMISSION,
+            DaSoumissionBc::STATUT_A_VALIDER_DA,
+            DaSoumissionBc::STATUT_VALIDE,
+            DaSoumissionBc::STATUT_CLOTURE,
+            DaSoumissionBc::STATUT_REFUSE
+        ];
+
+        $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+// dump($numDa, $numDit, $ref, $designation);
+// dump((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !in_array($statutBc, $statutBcDw) && !$bcExiste);
         $statut_bc = '';
         if (!array_key_exists(0, $situationCde)) {
             $statut_bc = $statutBc;
@@ -73,11 +84,12 @@ trait DaTrait
             $statut_bc = 'A générer';
         } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_TERMINER) {
             $statut_bc = 'A éditer';
-        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !$bcExiste) {
+        } elseif ((int)$situationCde[0]['num_cde'] > 0 && $situationCde[0]['slor_natcm'] == 'C' && $situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && !in_array($statutBc, $statutBcDw) && !$bcExiste) {
             $statut_bc = 'A soumettre à validation';
-        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && !in_array(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR, $statutsBcEnvoyer) ) {
+        } elseif ($situationCde[0]['position_bc'] == DaSoumissionBc::POSITION_EDITER && (DaSoumissionBc::STATUT_VALIDE == $statutBc || DaSoumissionBc::STATUT_CLOTURE == $statutBc) && !$daValider->getBcEnvoyerFournisseur() ) {
             $statut_bc = 'A envoyer au fournisseur';
-        } elseif ($partiellementDispo) {
+        }  
+        elseif ($partiellementDispo) {
             $statut_bc = 'Partiellement dispo';
         } elseif ($completNonLivrer) {
             $statut_bc = 'Complet non livré';
@@ -85,11 +97,27 @@ trait DaTrait
             $statut_bc = 'Tous livrés';
         } elseif ($partiellementLivre) {
             $statut_bc = 'Partiellement livré';
-        } else {
+        } elseif ($daValider->getBcEnvoyerFournisseur()) {
+            $statut_bc = 'BC envoyé au fournisseur';
+        } 
+        else {
             $statut_bc = $statutBc;
         }
 
         return $statut_bc;
+    }
+
+    private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): DaValider
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
+        $conditionDeRecuperation = [
+            'numeroDemandeAppro' => $numDa,
+            'numeroDemandeDit' => $numDit,
+            'artRefp' => $ref,
+            'artDesi' => $designation,
+            'numeroVersion' => $numeroVersionMax
+        ];
+        return $this->daValiderRepository->findOneBy($conditionDeRecuperation);
     }
 
 

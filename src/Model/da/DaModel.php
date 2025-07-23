@@ -98,7 +98,7 @@ class DaModel extends Model
             trim(abse_fams2) as codesousfamille,
             trim(abse_refp) as referencepiece,
             trim(abse_desi) as designation,
-            abse_pxstd as prix,
+            afrn_pxach as prix,
             fbse_numfou as numerofournisseur,
             trim(fbse_nomfou) as fournisseur
             FROM art_frn
@@ -135,8 +135,9 @@ class DaModel extends Model
     public function getPrixUnitaire($referencePiece)
     {
         $statement = "SELECT 
-            abse_pxstd as prix
-            FROM art_bse
+            afrn_pxach as prix,
+            FROM art_frn
+            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             WHERE abse_constp = 'ZST'
             and abse_refp = '$referencePiece'
             ";
@@ -153,7 +154,7 @@ class DaModel extends Model
 
     public function getSituationCde(?string $ref = '', string $numDit, ?string $designation = '')
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
 
         $statement = " SELECT DISTINCT
@@ -175,8 +176,8 @@ class DaModel extends Model
                 slor_constp = 'ZST' 
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
-                and slor_refp = '$ref'
-                and slor_desi = '$designation'
+                and REPLACE(slor_refp, '	','') = '$ref'
+                and REPLACE(slor_desi, '	','') = '$designation'
                 and seor_refdem = '$numDit'
         ";
 
@@ -202,8 +203,8 @@ class DaModel extends Model
 
     public function getEvolutionQte(?string $numDit, $plusPrecie = false, string $ref = '', string $designation = '')
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
-        
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,
                 CASE

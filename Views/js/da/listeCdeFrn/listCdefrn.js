@@ -120,6 +120,7 @@ document.addEventListener("contextmenu", function (event) {
   const positionCdeFacturer = ["FC", "FA", "CP"].includes(positionCde);
 
   const statutsTelechargeBC = [
+    "Validé",
     "A envoyer au fournisseur",
     "BC envoyé au fournisseur",
     "Partiellement dispo",
