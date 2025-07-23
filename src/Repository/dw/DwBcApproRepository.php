@@ -32,6 +32,7 @@ class DwBcApproRepository extends EntityRepository
             ->select('d.path', 'd.numeroBc')
             ->where('d.numeroDa = :numeroDa')
             ->setParameter('numeroDa', $numeroDa)
+            ->orderBy('d.numeroBc', 'ASC')
             ->getQuery()
             ->getResult();
     }

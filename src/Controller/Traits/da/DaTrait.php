@@ -486,21 +486,25 @@ trait DaTrait
             'BA' => [
                 'type' => "Bon d'achat",
                 'icon' => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-ba',
                 'fichiers' => $this->normalizePaths($tab['baPath']),
             ],
             'OR' => [
                 'type' => 'Ordre de réparation',
                 'icon' => 'fa-solid fa-wrench',
+                'colorClass' => 'border-left-or',
                 'fichiers' => $this->normalizePaths($tab['orPath']),
             ],
             'BC' => [
                 'type' => 'Bon de commande',
                 'icon' => 'fa-solid fa-file-circle-check',
+                'colorClass' => 'border-left-bc',
                 'fichiers' => $this->normalizePathsForBC($tab['bcPath']),
             ],
             'FACBL' => [
                 'type' => 'Facture / Bon de livraison',
                 'icon' => 'fa-solid fa-file-invoice',
+                'colorClass' => 'border-left-facbl',
                 'fichiers' => $this->normalizePaths($tab['facblPath']),
             ],
         ];
