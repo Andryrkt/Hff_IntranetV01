@@ -92,17 +92,17 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
      */
-    private ?string $artConstp;
+    private ?string $artConstp = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
      */
-    private ?string $artRefp;
+    private ?string $artRefp = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="art_desi")
      */
-    private ?string $artDesi;
+    private ?string $artDesi = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_fams1")
@@ -224,6 +224,11 @@ class DaValider
     private ?string $demandeur = '';
 
     /**
+     * @ORM\Column(type="boolean", name="bc_envoyer_fournisseur")
+     */
+    private $bcEnvoyerFournisseur = false;
+
+    /**
      * @ORM\Column(type="integer", name="id_da")
      */
     private int $idDa;
@@ -234,6 +239,11 @@ class DaValider
     private bool $achatDirect = false;
 
     /**
+     * @ORM\Column(type="boolean", name="or_a_resoumettre")
+     */
+    private bool $orResoumettre = false;
+
+    /**
      * @ORM\Column(type="string", length=100, name="position_bc")
      */
     private ?string $positionBc;
@@ -242,6 +252,11 @@ class DaValider
      * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
      */
     private $datePlannigOr;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_ligne_ips")
+     */
+    private int $numeroLigneIps;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1061,6 +1076,53 @@ class DaValider
         return $this;
     }
 
+    public function getConstructeurRefDesi(): ?string
+    {
+        if (!empty($this->artConstp) && !empty($this->artRefp) && !empty($this->artDesi)) {
+            $designation = mb_convert_encoding($this->artDesi, 'ISO-8859-1', 'UTF-8');
+            $designation = str_replace(["'", '^'], ["''", ''], $designation);
+
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $this->artConstp . '_' . $ref . '_' . $designation;
+        }
+
+
+        return null;
+    }
+
+    public function getReferenceCataloguee(): ?string
+    {
+        if (!empty($this->artRefp)) {
+
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $ref;
+        }
+
+
+    return null;
+}
+
+/**
+     * Get the value of bcEnvoyerFournisseur
+     */
+    public function getBcEnvoyerFournisseur()
+    {
+        return $this->bcEnvoyerFournisseur;
+    }
+
+    /**
+     * Set the value of bcEnvoyerFournisseur
+     */
+    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur): self
+    {
+        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+
+        return $this;
+    }
+
+
     /**
      * Get the value of idDa
      */
@@ -1137,6 +1199,66 @@ class DaValider
     public function setDatePlannigOr($datePlannigOr)
     {
         $this->datePlannigOr = $datePlannigOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orResoumettre
+     */
+    public function getOrResoumettre()
+    {
+        return $this->orResoumettre;
+    }
+
+    /**
+     * Set the value of orResoumettre
+     *
+     * @return  self
+     */
+    public function setOrResoumettre($orResoumettre)
+    {
+        $this->orResoumettre = $orResoumettre;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of bcEnvoyerFournisseur
+     */
+    public function getBcEnvoyerFournisseur()
+    {
+        return $this->bcEnvoyerFournisseur;
+    }
+
+    /**
+     * Set the value of bcEnvoyerFournisseur
+     *
+     * @return  self
+     */
+    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur)
+    {
+        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroLigneIps
+     */
+    public function getNumeroLigneIps()
+    {
+        return $this->numeroLigneIps;
+    }
+
+    /**
+     * Set the value of numeroLigneIps
+     *
+     * @return  self
+     */
+    public function setNumeroLigneIps($numeroLigneIps)
+    {
+        $this->numeroLigneIps = $numeroLigneIps;
 
         return $this;
     }

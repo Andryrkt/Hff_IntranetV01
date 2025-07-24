@@ -27,7 +27,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
  */
 class DaSoumissionBcController extends Controller
 {
-    const STATUT_SOUMISSION = 'Soumis à validation';
 
     private  DaSoumissionBc $daSoumissionBc;
     private TraitementDeFichier $traitementDeFichier;
@@ -101,7 +100,7 @@ class DaSoumissionBcController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'BCAppro#' . $numCde . '_' . $numDa . '_' . $numOr . '_' . $numeroVersionMax . '.pdf';
+                $nomPdfFusionner =  'BCAppro!' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -133,7 +132,7 @@ class DaSoumissionBcController extends Controller
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
-                    ->setStatutCde(self::STATUT_SOUMISSION)
+                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION)
                     ->setNumeroCde($numCde)
                 ;
                 self::$em->persist($daValider);
@@ -150,7 +149,7 @@ class DaSoumissionBcController extends Controller
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserNameUser())
             ->setPieceJoint1($nomPdfFusionner)
-            ->setStatut(self::STATUT_SOUMISSION)
+            ->setStatut(DaSoumissionBc::STATUT_SOUMISSION)
             ->setNumeroVersion($numeroVersionMax)
             ->setNumeroDemandeAppro($numDa)
             ->setNumeroDemandeDit($numDit)
@@ -169,7 +168,7 @@ class DaSoumissionBcController extends Controller
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
-            'statut' => $statut === self::STATUT_SOUMISSION,
+            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];
     }

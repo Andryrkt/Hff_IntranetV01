@@ -51,12 +51,12 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(50, 6, $ditInsertionOr->getNumeroOR(), 0, 1, '', false, '', 0, false, 'T', 'M');
 
-        // sortie pol
-        // $pdf->setAbsX(130);
-        // $pdf->setFont('helvetica', 'B', 10);
-        // $pdf->cell(20, 6, 'Sortie POL :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        // $pdf->setFont('helvetica', '', 10);
-        // $pdf->cell(0, 6, $quelqueaffichage['pol'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        //sortie pol
+        $pdf->setAbsX(130);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->cell(20, 6, 'Sortie POL :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(0, 6, $quelqueaffichage['pol'], 0, 0, '', false, '', 0, false, 'T', 'M');
 
         // Version à valider
         $pdf->SetXY($startX, $pdf->GetY() + 2);

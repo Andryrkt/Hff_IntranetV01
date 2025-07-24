@@ -125,8 +125,22 @@ class DitOrsSoumisAValidationController extends Controller
                 $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
+                // creation du nom du pdf pricipal avec chemin
+                $mainPdf = sprintf(
+                    '%s/vor/oRValidation_%s-%s#%s.pdf',
+                    $_ENV['BASE_PATH_FICHIER'],
+                    $ditInsertionOrSoumis->getNumeroOR(),
+                    $ditInsertionOrSoumis->getNumeroVersion(),
+                    $suffix
+                );
+
                 //envoie des pièce jointe dans une dossier et la fusionner
-                $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix);
+                $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix, $mainPdf);
+
+                //fusion de pdf Demande appro avec le pdf OR fusionner
+                $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
+
+                // envoyer le pdf fusionner dans DW
                 $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
                 /** modifier la colonne numero_or dans la table demande_intervention */
@@ -154,21 +168,45 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function modificationDaValider(string $numDit, string $numOr): void
     {
-        $numDa = $this->demandeApproRepository->getNumDa($numDit);
-        if ($numDa) {
-            $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
-            $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-            if (!empty($daValiders)) {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
+        $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+        if (!empty($daValiders)) {
 
-                foreach ($daValiders as $daValider) {
-                    $daValider
-                        ->setNumeroOr($numOr)
-                        ->setStatutOr('Soumis à validation')
-                    ;
-                    self::$em->persist($daValider);
-                }
-                self::$em->flush();
+            /** @var DaValider $daValider */
+            foreach ($daValiders as $daValider) {
+                // recuperation du numéro de ligne
+                $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);
+                //modification des informations necessaire
+                $daValider
+                    ->setNumeroOr($numOr)
+                    ->setStatutOr('Soumis à validation')
+                    ->setOrResoumettre(false)
+                    ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
+                ;
+                self::$em->persist($daValider);
             }
+            self::$em->flush();
+        }
+    }
+
+    private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf): void
+    {
+        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
+        $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+        if (!empty($daValiders)) {
+            //recupération du nom et chemin du PDF DA
+            $cheminNomFichierDa = sprintf(
+                '%s/da/%s/%s.pdf',
+                $_ENV['BASE_PATH_FICHIER'],
+                $daValiders[0]->getNumeroDemandeAppro(),
+                $daValiders[0]->getNumeroDemandeAppro()
+            );
+            //ajout des chemin et nom de fichier à fusionnner dans un tableau 
+            $pdfFiles = [$mainPdf, $cheminNomFichierDa];
+            //conversion des fichiers
+            $this->ConvertirLesPdf($pdfFiles);
+            //fusion des fichiers
+            $this->fusionPdf->mergePdfs($pdfFiles, $mainPdf);
         }
     }
 

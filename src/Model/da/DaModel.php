@@ -152,9 +152,9 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '')
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', string $numOr)
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
@@ -163,12 +163,12 @@ class DaModel extends Model
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                            WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                            WHEN slor_natcm = 'L' THEN cde.fcde_numcde
                         END AS num_cde,
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_posc
-                            WHEN slor_natcm = 'L' THEN cl.fcde_posc
+                            WHEN slor_natcm = 'L' THEN cde.fcde_posc
                         END AS position_bc
 
                     FROM Informix.sav_lor slor
@@ -193,19 +193,29 @@ class DaModel extends Model
                         ON slor.slor_natcm = 'L' 
                     AND llf.fllf_numliv = slor.slor_numcf
 
-                    LEFT JOIN Informix.frn_cde cl
-                        ON llf.fllf_numcde = cl.fcde_numcde
-                    AND llf.fllf_soc = cl.fcde_soc
-                    AND llf.fllf_succ = cl.fcde_succ
+                    LEFT JOIN Informix.frn_cde cde
+                        ON llf.fllf_numcde = cde.fcde_numcde
+                    AND llf.fllf_soc = cde.fcde_soc
+                    AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
+                        )
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
+                        )
+                        and slor_numor = '$numOr'
                         and slor_refp = '$ref'
                                     and slor.slor_desi = '$designation'
                                     and seor.seor_refdem = '$numDit'
-                                    and c.fcde_cdeext ='$numDa'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -228,15 +238,15 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '')
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', string $numOr)
     {
-        $designation = mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8');
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = " SELECT
                 TRIM(seor_refdem) as num_dit,
                 CASE
                     WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                    WHEN slor_natcm = 'L' THEN cl.fcde_numcde
+                    WHEN slor_natcm = 'L' THEN cde.fcde_numcde
                 END AS num_cde,
                 TRIM(slor_refp) as reference,
                 TRIM(slor_desi) as designation,
@@ -269,17 +279,27 @@ class DaModel extends Model
                         ON slor.slor_natcm = 'L' 
                     AND llf.fllf_numliv = slor.slor_numcf
 
-                    LEFT JOIN Informix.frn_cde cl
-                        ON llf.fllf_numcde = cl.fcde_numcde
-                    AND llf.fllf_soc = cl.fcde_soc
-                    AND llf.fllf_succ = cl.fcde_succ
+                    LEFT JOIN Informix.frn_cde cde
+                        ON llf.fllf_numcde = cde.fcde_numcde
+                    AND llf.fllf_soc = cde.fcde_soc
+                    AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
+                        )
+                        AND 
+                        (
+                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
+                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
+                        )
+                        and slor_numor = '$numOr'
                         and seor.seor_refdem = '$numDit'
-                        and c.fcde_cdeext ='$numDa'
                         AND slor_refp = '$ref'
                 and slor_desi = '$designation'
         ";
