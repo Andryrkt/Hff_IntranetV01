@@ -171,12 +171,17 @@ class DitOrsSoumisAValidationController extends Controller
         $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
         $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
         if (!empty($daValiders)) {
+
             /** @var DaValider $daValider */
             foreach ($daValiders as $daValider) {
+                // recuperation du numéro de ligne
+                $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);
+                //modification des informations necessaire
                 $daValider
                     ->setNumeroOr($numOr)
                     ->setStatutOr('Soumis à validation')
                     ->setOrResoumettre(false)
+                    ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
                 ;
                 self::$em->persist($daValider);
             }

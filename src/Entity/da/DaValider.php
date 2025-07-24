@@ -253,6 +253,11 @@ class DaValider
      */
     private $datePlannigOr;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_ligne_ips")
+     */
+    private int $numeroLigneIps;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1096,7 +1101,25 @@ class DaValider
         }
 
 
-        return null;
+    return null;
+}
+
+/**
+     * Get the value of bcEnvoyerFournisseur
+     */
+    public function getBcEnvoyerFournisseur()
+    {
+        return $this->bcEnvoyerFournisseur;
+    }
+
+    /**
+     * Set the value of bcEnvoyerFournisseur
+     */
+    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur): self
+    {
+        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+
+        return $this;
     }
 
 
@@ -1216,6 +1239,26 @@ class DaValider
     public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur)
     {
         $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroLigneIps
+     */
+    public function getNumeroLigneIps()
+    {
+        return $this->numeroLigneIps;
+    }
+
+    /**
+     * Set the value of numeroLigneIps
+     *
+     * @return  self
+     */
+    public function setNumeroLigneIps($numeroLigneIps)
+    {
+        $this->numeroLigneIps = $numeroLigneIps;
 
         return $this;
     }

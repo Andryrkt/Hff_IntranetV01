@@ -462,4 +462,26 @@ class DitOrSoumisAValidationModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'num_itv');
     }
+
+    public function getNumeroLigne(string $ref, string $designation, string $numOr)
+    {
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statement = "  SELECT 
+                MAX(slor_nolign) as numero_ligne
+                from informix.sav_lor
+                WHERE slor_constp = 'ZST' 
+                and slor_typlig = 'P'
+                and slor_refp not like ('PREST%')
+                and REPLACE(slor_refp, '	','') = '$ref'
+                and REPLACE(slor_desi, '	','') = '$designation'
+                and slor_numor ='$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
