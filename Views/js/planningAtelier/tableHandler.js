@@ -13,6 +13,8 @@ export function mergeCellsTable(cellPivotIndex) {
   let previousDap = null; // initialiser à null la valeur précédente de Dap
   let firstRowInGroup = null; // initialiser à null la première ligne dans le groupe
 
+    if (rows.length == 0)  return;
+
   rows.forEach((currentRow, index) => {
     let cells = currentRow.getElementsByTagName('td');
     let currentDap = cells[cellPivotIndex]?.textContent.trim() || null;
