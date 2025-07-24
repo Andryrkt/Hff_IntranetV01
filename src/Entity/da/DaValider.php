@@ -1101,27 +1101,8 @@ class DaValider
         }
 
 
-    return null;
-}
-
-/**
-     * Get the value of bcEnvoyerFournisseur
-     */
-    public function getBcEnvoyerFournisseur()
-    {
-        return $this->bcEnvoyerFournisseur;
+        return null;
     }
-
-    /**
-     * Set the value of bcEnvoyerFournisseur
-     */
-    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur): self
-    {
-        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
-
-        return $this;
-    }
-
 
     /**
      * Get the value of idDa
