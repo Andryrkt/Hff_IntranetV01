@@ -39,7 +39,7 @@ class planningAtelierModel extends Model
                     $ressource
                     $section
 
-                    order by   numOR,itv,ressource
+                    order by   section,numOR,itv,ressource
         ";
         // dump($statement);
         $result = $this->connect->executeQuery($statement);
