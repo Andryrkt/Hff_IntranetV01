@@ -156,6 +156,7 @@ class DaPropositionRefController extends Controller
         /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
         $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
         $this->envoyerMailObservation([
+            'idDa'          => $demandeAppro->getId(),
             'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
             'mailDemandeur' => $demandeAppro->getUser()->getMail(),
             'observation'   => $daObservation->getObservation(),
@@ -186,6 +187,7 @@ class DaPropositionRefController extends Controller
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
             $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
             $this->envoyerMailObservation([
+                'idDa'          => $demandeAppro->getId(),
                 'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'observation'   => $observation,
@@ -497,7 +499,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "validationDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'ATELIER",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ],
             'attachments' => [
                 $tab['filePath'] => $tab['fileName'],
@@ -548,7 +550,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "commente",
                 'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

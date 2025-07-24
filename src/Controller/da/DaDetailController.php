@@ -148,6 +148,7 @@ class DaDetailController extends Controller
 			$service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
 			$this->envoyerMailObservation([
 				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+				'idDa'          => $demandeAppro->getId(),
 				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
@@ -193,7 +194,7 @@ class DaDetailController extends Controller
 				'statut'     => "commente",
 				'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
 				'tab'        => $tab,
-				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
 			]
 		];
 		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

@@ -89,7 +89,7 @@ class ListeController extends Controller
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $data = $this->recupData($result, $back);
-            // dump($data);
+        //    dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
             // dump($data['data'], $data['data_excel']);

@@ -196,6 +196,7 @@ class DaListeController extends Controller
             self::$em->flush();
 
             $this->envoyerMailAuxAte([
+                'idDa'          => $idDa,
                 'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'userConnecter' => Controller::getUser()->getNomUtilisateur(),
@@ -498,8 +499,9 @@ class DaListeController extends Controller
                 self::$em->flush();
 
                 $this->envoyerMailAuxAppro([
-                    'numDa' => $demandeAppro->getNumeroDemandeAppro(),
-                    'motif' => $historiqueModifDA->getMotif(),
+                    'idDa'          => $idDa,
+                    'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                    'motif'         => $historiqueModifDA->getMotif(),
                     'userConnecter' => Controller::getUser()->getNomUtilisateur(),
                 ]);
 
@@ -525,7 +527,7 @@ class DaListeController extends Controller
                 'statut'     => "confirmationDeverrouillage",
                 'subject'    => "{$tab['numDa']} - demande déverouillée par l'Appro ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
@@ -547,7 +549,7 @@ class DaListeController extends Controller
                 'statut'     => "demandeDeverouillage",
                 'subject'    => "{$tab['numDa']} - demande de déverouillage par l'ATE ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

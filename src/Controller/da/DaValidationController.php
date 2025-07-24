@@ -166,7 +166,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ],
             'attachments' => [
                 $tab['filePath'] => $tab['fileName'],
@@ -192,7 +192,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationAteDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
