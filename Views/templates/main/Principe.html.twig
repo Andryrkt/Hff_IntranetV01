@@ -29,6 +29,7 @@
 				{% set hasINV = false %}
 				{% set hasMUT = false %}
 				{% set hasLCF = false %}
+				{% set hasPAT = false %}
 
 					{% for item in App.user.Applications %}
 						{% if item.codeApp == 'BDM' %}
@@ -55,6 +56,8 @@
 						{% set hasMUT = true %}
 					{% elseif item.codeApp == 'LCF' %}
 						{% set hasLCF = true %}
+					{% elseif item.codeApp == 'PAT' %}
+						{% set hasPAT = true %}
 					{% endif %}
 				{% endfor %}
 
@@ -107,9 +110,11 @@
 							<li>
 								<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
 							</li>
+							{% if hasPAT %}
 							<li>
 								<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
 							</li>
+							{% endif %}
 
 						</ul>
 					</li>
