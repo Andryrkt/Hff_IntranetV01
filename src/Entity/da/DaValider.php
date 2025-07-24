@@ -254,9 +254,9 @@ class DaValider
     private $datePlannigOr;
 
     /**
-     * @ORM\Column(type="boolean", name="bc_envoyer_fournisseur")
+     * @ORM\Column(type="integer", name="numero_ligne_ips")
      */
-    private $bcEnvoyerFournisseur = false;
+    private int $numeroLigneIps;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1077,51 +1077,33 @@ class DaValider
     }
 
     public function getConstructeurRefDesi(): ?string
-{
-    if (!empty($this->artConstp) && !empty($this->artRefp) && !empty($this->artDesi)) {
-        $designation = mb_convert_encoding($this->artDesi, 'ISO-8859-1', 'UTF-8');
-        $designation = str_replace(["'", '^'], ["''", ''], $designation);
-    
-        $ref = str_replace(' ', '', $this->artRefp);
-    
-        return $this->artConstp . '_' . $ref . '_' . $designation;
-    }
-    
-
-    return null;
-}
-
-public function getReferenceCataloguee(): ?string
-{
-    if (!empty($this->artRefp)) {
-    
-        $ref = str_replace(' ', '', $this->artRefp);
-    
-        return $ref;
-    }
-    
-
-    return null;
-}
-
-/**
-     * Get the value of bcEnvoyerFournisseur
-     */
-    public function getBcEnvoyerFournisseur()
     {
-        return $this->bcEnvoyerFournisseur;
+        if (!empty($this->artConstp) && !empty($this->artRefp) && !empty($this->artDesi)) {
+            $designation = mb_convert_encoding($this->artDesi, 'ISO-8859-1', 'UTF-8');
+            $designation = str_replace(["'", '^'], ["''", ''], $designation);
+
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $this->artConstp . '_' . $ref . '_' . $designation;
+        }
+
+
+        return null;
     }
 
-    /**
-     * Set the value of bcEnvoyerFournisseur
-     */
-    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur): self
+    public function getReferenceCataloguee(): ?string
     {
-        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
+        if (!empty($this->artRefp)) {
 
-        return $this;
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $ref;
+        }
+
+
+        return null;
     }
-    
+
 
     /**
      * Get the value of idDa
@@ -1242,7 +1224,27 @@ public function getReferenceCataloguee(): ?string
 
         return $this;
     }
-    
+
+    /**
+     * Get the value of numeroLigneIps
+     */
+    public function getNumeroLigneIps()
+    {
+        return $this->numeroLigneIps;
+    }
+
+    /**
+     * Set the value of numeroLigneIps
+     *
+     * @return  self
+     */
+    public function setNumeroLigneIps($numeroLigneIps)
+    {
+        $this->numeroLigneIps = $numeroLigneIps;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1306,6 +1308,4 @@ public function getReferenceCataloguee(): ?string
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
     }
-
-    
 }
