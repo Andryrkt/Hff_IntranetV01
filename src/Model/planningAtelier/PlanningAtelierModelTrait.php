@@ -20,6 +20,14 @@ trait PlanningAtelierModelTrait {
         }
         return $agenceDeb;
     }
+    private function serviceDebite($criteria){
+        if(!empty($criteria->getServiceDebite())){
+            $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
+          } else{
+            $serviceDebite = "";
+          } 
+          return  $serviceDebite;
+    } 
     private function numOR($criteria){
          if (!empty($criteria->getNumOr())) {
            $numOR = "AND sitv_numor = '".$criteria->getNumOr(). "'  ";
@@ -31,6 +39,14 @@ trait PlanningAtelierModelTrait {
     private function ressource($criteria){
          if (!empty($criteria->getResource())) {
            $ressource = "AND skr_name = '".$criteria->getResource(). "'  ";
+        }else{
+            $ressource = "";
+        }
+        return $ressource;
+    }
+    private function section($criteria){
+         if (!empty($criteria->getSection())) {
+           $ressource = "AND skg_name = '".$criteria->getSection(). "'  ";
         }else{
             $ressource = "";
         }

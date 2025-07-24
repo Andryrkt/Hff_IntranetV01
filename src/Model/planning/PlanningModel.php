@@ -434,7 +434,26 @@ class PlanningModel extends Model
                             sitv_interv as Intv,
                             trim(sitv_comment) as commentaire,
                             --slor_datel as datePlanning,
-                            sitv_datepla as datePlanning,
+                            --sitv_datepla as datePlanning,
+                            CASE WHEN 
+
+
+                                   ( SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = slor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) is Null 
+
+ 
+                                THEN
+
+
+                                    DATE(sitv_datepla) 
+
+
+                                ELSE
+
+
+                                    (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = slor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
+
+ 
+                                END   as datePlanning,
                             trim(slor_constp) as cst,
                             trim(slor_refp) as ref,
                             trim(slor_desi) as desi,

@@ -34,6 +34,7 @@ class planningAtelierControler extends Controller
             ['method' => 'GET']
         )->getForm();
         $form->handleRequest($request);
+        $criteria = $this->planningAtelierSearch;
 
         $output = [];
         $filteredDates = [];
@@ -64,9 +65,11 @@ class planningAtelierControler extends Controller
                         "itv" => $item["itv"],
                         "ressource" => $item["ressource"],
                         "nbjour" => $item["nbjour"],
+                        "nbTotalJ" => 0,
                         "presence" => [] // clef: 'Y-m-d', valeur: ['matin' => bool, 'apm' => bool]
                     ];
                 }
+                $output[$key]['nbTotalJ'] += $item["nbjour"];
 
                 $debut = new \DateTime($item["datedebut"]);
                 $fin = new \DateTime($item["datefin"]);

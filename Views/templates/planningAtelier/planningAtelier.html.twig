@@ -57,7 +57,7 @@
                 <td>{{ row.numor }}</td>
                 <td>{{ row.itv }}</td>
                 <td>{{ row.ressource }}</td>
-                <td>{{ row.nbjour }}</td>
+                <td>{{ row.nbTotalJ }}</td>
                 {% for date in dates %}
                     {% set dateStr = date|date('Y-m-d') %}
                     <td {% if row.presence[dateStr].matin %}style="background:yellow;"{% endif %}></td>
@@ -73,4 +73,5 @@
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="{{ App.base_path }}/Views/js/planningAtelier/semaine.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/planningAtelier/planningPositionSticky.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planningAtelier/agServPlanning.js" type="module"></script>
 {% endblock %}

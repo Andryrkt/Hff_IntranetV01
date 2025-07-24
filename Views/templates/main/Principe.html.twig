@@ -107,6 +107,9 @@
 							<li>
 								<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
 							</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
+							</li>
 
 						</ul>
 					</li>
@@ -326,9 +329,7 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
 							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
-							</li>
+							
 						</ul>
 					</li>
 				{% endif %}

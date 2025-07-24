@@ -7,7 +7,7 @@
 		</h2>
 		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
 			<div class="accordion-body">
-				{{ form_start(form, { 'attr': { 'id': 'planningAtelier_search_form' } }) }}
+				{{ form_start(form, { 'attr': { 'id': 'planning_atelier_search_form' } }) }}
 
 				<div class="row">
 					<div class="col-12 col-md-2">
@@ -16,6 +16,7 @@
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.numeroSemaine)}}
+						{{form_row(form.serviceDebite)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{form_row(form.dateDebut)}}
@@ -24,6 +25,9 @@
 					<div class="col-12 col-md-2">
 						{{form_row(form.numOr)}}
 						{{form_row(form.resource)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.section)}}
 					</div>
 
 				</div>

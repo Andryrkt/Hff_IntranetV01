@@ -3,6 +3,8 @@
 namespace App\Form\planningAtelier;
 
 use App\Model\planning\PlanningModel;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -53,6 +55,10 @@ class planningAtelierSearchType extends AbstractType
                 'label' => "resource",
                 'required' => false
             ])
+            ->add('section', TextType::class, [
+                'label' => "section",
+                'required' => false
+            ])
             ->add('agenceEm', ChoiceType::class, [
                 'label' =>  'Agence Travaux',
                 'required' => false,
@@ -65,7 +71,29 @@ class planningAtelierSearchType extends AbstractType
                 'choices' => $agenceDebite,
                 'placeholder' => " -- Choisir une agence --",
 
-            ]);
+            ])
+            ->add('serviceDebite', ChoiceType::class, [
+                'label' => 'Service Débiteur',
+                'multiple' => true,
+                'choices' => [],
+                'placeholder' => " -- Choisir un service--",
+                'expanded' => true,
+            ])
+            ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
+                $form = $event->getForm();
+                $data = $event->getData();
+
+                $serviceDebite = $this->transformEnSeulTableauAvecKeyService($this->planningModel->recuperationServiceDebite($data['agenceDebite']));
+
+                $form->add('serviceDebite', ChoiceType::class, [
+                    'label' => 'Service Débiteur : ',
+                    'multiple' => true,
+                    'choices' => $serviceDebite,
+                    'placeholder' => " -- choisir service--",
+                    'expanded' => true,
+                ]);
+            })
+            ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

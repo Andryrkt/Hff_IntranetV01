@@ -9,9 +9,10 @@ class planningAtelierSearch
     private  $dateFin = null;
     private $agenceEm;
     private $agenceDebite;
+    private $serviceDebite;
     private $numOr;
     private $resource;
-
+    private $section;
    
 
     /**
@@ -150,6 +151,46 @@ class planningAtelierSearch
     public function setResource($resource)
     {
         $this->resource = $resource;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceDebite
+     */ 
+    public function getServiceDebite()
+    {
+        return $this->serviceDebite;
+    }
+
+    /**
+     * Set the value of serviceDebite
+     *
+     * @return  self
+     */ 
+    public function setServiceDebite($serviceDebite)
+    {
+        $this->serviceDebite = $serviceDebite;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of section
+     */ 
+    public function getSection()
+    {
+        return $this->section;
+    }
+
+    /**
+     * Set the value of section
+     *
+     * @return  self
+     */ 
+    public function setSection($section)
+    {
+        $this->section = $section;
 
         return $this;
     }
