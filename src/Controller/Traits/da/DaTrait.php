@@ -224,19 +224,6 @@ trait DaTrait
         return $dateObj ?? null;
     }
 
-    private function getDaValider(string $numDa, string $numDit, string $ref, string $designation): DaValider
-    {
-        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $conditionDeRecuperation = [
-            'numeroDemandeAppro' => $numDa,
-            'numeroDemandeDit' => $numDit,
-            'artRefp' => $ref,
-            'artDesi' => $designation,
-            'numeroVersion' => $numeroVersionMax
-        ];
-        return $this->daValiderRepository->findOneBy($conditionDeRecuperation);
-    }
-
     private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): DaValider
     {
         $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
@@ -497,36 +484,62 @@ trait DaTrait
     {
         return [
             'BA' => [
-                'type' => 'Bon d\'achat',
-                'nom'  => $tab['baPath'] == '-' ? '' : basename($tab['baPath']),
+                'type' => "Bon d'achat",
                 'icon' => 'fa-solid fa-file-signature',
-                'path' => $tab['baPath']
+                'colorClass' => 'border-left-ba',
+                'fichiers' => $this->normalizePaths($tab['baPath']),
             ],
             'OR' => [
                 'type' => 'Ordre de réparation',
-                'nom'  => $tab['orPath'] == '-' ? '' : basename($tab['orPath']),
                 'icon' => 'fa-solid fa-wrench',
-                'path' => $tab['orPath']
+                'colorClass' => 'border-left-or',
+                'fichiers' => $this->normalizePaths($tab['orPath']),
             ],
             'BC' => [
                 'type' => 'Bon de commande',
-                'nom'  => $tab['bcPath'] == '-' ? '' : basename($tab['bcPath']),
                 'icon' => 'fa-solid fa-file-circle-check',
-                'path' => $tab['bcPath']
+                'colorClass' => 'border-left-bc',
+                'fichiers' => $this->normalizePathsForBC($tab['bcPath']),
             ],
-            'BL' => [
-                'type' => 'Bon de livraison',
-                'nom'  => $tab['blPath'] == '-' ? '' : basename($tab['blPath']),
-                'icon' => 'fa-solid fa-box',
-                'path' => $tab['blPath']
-            ],
-            'FAC' => [
-                'type' => 'Facture',
-                'nom'  => $tab['facPath'] == '-' ? '' : basename($tab['facPath']),
+            'FACBL' => [
+                'type' => 'Facture / Bon de livraison',
                 'icon' => 'fa-solid fa-file-invoice',
-                'path' => $tab['facPath']
-            ]
+                'colorClass' => 'border-left-facbl',
+                'fichiers' => $this->normalizePaths($tab['facblPath']),
+            ],
         ];
+    }
+
+    private function normalizePaths($paths): array
+    {
+        if ($paths === '-' || empty($paths)) {
+            return [];
+        }
+
+        if (!is_array($paths)) {
+            $paths = [$paths];
+        }
+
+        return array_map(function ($path) {
+            return [
+                'nom'  => basename($path),
+                'path' => $path
+            ];
+        }, $paths);
+    }
+
+    private function normalizePathsForBC($allDocs): array
+    {
+        if ($allDocs === '-' || empty($allDocs)) {
+            return [];
+        }
+
+        return array_map(function ($doc) {
+            return [
+                'nom'  => $doc['numeroBc'],
+                'path' => $doc['path']
+            ];
+        }, $allDocs);
     }
 
     /** 
@@ -560,32 +573,34 @@ trait DaTrait
     /** 
      * Obtenir l'url du bon de commande
      */
-    private function getBcPath(DemandeAppro $demandeAppro): string
+    private function getBcPath(DemandeAppro $demandeAppro)
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $path = $this->dwBcApproRepository->getPathByNumDa($numDa);
+        $allDocs = $this->dwBcApproRepository->getPathAndNumeroBCByNumDa($numDa);
 
-        if ($path) {
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $path;
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) {
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
         }
 
         return "-";
     }
 
-
     /** 
-     * Obtenir l'url du bon de livraison
+     * Obtenir l'url du bon de livraison + facture
      */
-    private function getBlPath(): string
+    private function getFacBlPath(DemandeAppro $demandeAppro): string
     {
-        return "-";
-    }
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $path = $this->dwFacBlRepository->getPathByNumDa($numDa);
 
-    /** 
-     * Obtenir l'url de la facture
-     */
-    private function getFacPath(): string
-    {
+        if ($path) {
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $path;
+        }
+
         return "-";
     }
 }
