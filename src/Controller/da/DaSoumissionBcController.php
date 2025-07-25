@@ -119,7 +119,7 @@ class DaSoumissionBcController extends Controller
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
-                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
+                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
             }
         }
     }
@@ -181,15 +181,15 @@ class DaSoumissionBcController extends Controller
 
         if ($conditions['nomDeFichier']) {
             $message = "Le fichier '{$nomdeFichier}' soumis a été renommé ou ne correspond pas à un BC";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } elseif ($conditions['statut']) {
             $message = "Echec lors de la soumission, un BC est déjà en cours de validation ";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } elseif ($conditions['numDaEgale']) {
             $message = "Le numéro de DA '$numDa' ne correspond pas pour le BC '$numCde'";
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
         } else {
             $okey = true; // Aucune condition de blocage n'est remplie

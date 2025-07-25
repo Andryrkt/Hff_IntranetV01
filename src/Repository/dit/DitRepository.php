@@ -692,7 +692,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options, array $numDits)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -732,16 +732,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-        $placeholders = [];
-        foreach ($numDits as $index => $value) {
-            $placeholder = ':numDit' . $index;
-            $placeholders[] = $placeholder;
-            $queryBuilder->setParameter($placeholder, $value);
-        }
 
-        if (!empty($placeholders)) {
-            $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (' . implode(', ', $placeholders) . ')');
-        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');

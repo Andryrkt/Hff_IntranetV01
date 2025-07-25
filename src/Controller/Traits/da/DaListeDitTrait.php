@@ -173,7 +173,7 @@ trait DaListeDitTrait
         // $numDits = [];
 
         //recupération des données filtrée
-        $paginationData = $this->criteriaIsObjectEmpty($criteria) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option, $numDits);
+        $paginationData = $this->criteriaIsObjectEmpty($criteria) ? [] : $this->ditRepository->findPaginatedAndFilteredDa($page, $limit, $criteria, $option);
 
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data'] ?? []);

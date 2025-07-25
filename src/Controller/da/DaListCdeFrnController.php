@@ -17,15 +17,27 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Model\da\DaModel;
+use App\Repository\da\DemandeApproRepository;
+use App\Entity\da\DemandeAppro;
+use App\Repository\da\DaSoumissionBcRepository;
+use App\Entity\da\DaSoumissionBc;
+
 
 /**
  * @Route("/demande-appro")
  */
 class DaListCdeFrnController extends Controller
 {
+    use DaTrait;
+
     private DaValiderRepository $daValiderRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaListeCdeFrnModel $daListeCdeFrnModel;
+    private DaModel $daModel;
+    private DemandeApproRepository $daRepository;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    
 
     public function __construct()
     {
@@ -33,6 +45,9 @@ class DaListCdeFrnController extends Controller
         $this->daValiderRepository = self::$em->getRepository(DaValider::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
+        $this->daModel = new DaModel();
+        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
 
     /**
@@ -57,6 +72,11 @@ class DaListCdeFrnController extends Controller
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
+        /** Actualisation donner davalier */
+        foreach ($daValides as $key => $davalide) {
+            $statutBC = $this->statutBc( $davalide->getArtRefp(), $davalide->getNumeroDemandeDit(), $davalide->getNumeroDemandeAppro(), $davalide->getArtDesi(), $davalide->getNumeroOr());
+            $davalide->setStatutCde($statutBC);
+        }
         self::$twig->display('da/daListCdeFrn.html.twig', [
             'daValides' => $daValides,
             'formSoumission' => $formSoumission->createView(),
