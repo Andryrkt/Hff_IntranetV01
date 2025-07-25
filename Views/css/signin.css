@@ -8,10 +8,6 @@
   margin-bottom: 5%;
 }
 
-.navbar .nav-link {
-  color: #fff !important;
-}
-
 .notice {
   background-color: #fbbb01; /* Couleur de fond douce */
   border-left: 4px solid #000000; /* Bordure colorée sur le côté gauche */
