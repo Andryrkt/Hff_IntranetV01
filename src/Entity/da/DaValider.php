@@ -1101,10 +1101,10 @@ class DaValider
         }
 
 
-    return null;
-}
+        return null;
+    }
 
-/**
+    /**
      * Get the value of bcEnvoyerFournisseur
      */
     public function getBcEnvoyerFournisseur()
@@ -1219,26 +1219,6 @@ class DaValider
     public function setOrResoumettre($orResoumettre)
     {
         $this->orResoumettre = $orResoumettre;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of bcEnvoyerFournisseur
-     */
-    public function getBcEnvoyerFournisseur()
-    {
-        return $this->bcEnvoyerFournisseur;
-    }
-
-    /**
-     * Set the value of bcEnvoyerFournisseur
-     *
-     * @return  self
-     */
-    public function setBcEnvoyerFournisseur($bcEnvoyerFournisseur)
-    {
-        $this->bcEnvoyerFournisseur = $bcEnvoyerFournisseur;
 
         return $this;
     }
