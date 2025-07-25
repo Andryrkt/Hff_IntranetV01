@@ -28,6 +28,19 @@
   pointer-events: none !important;
   opacity: 1;
 }
+.champ-surligne-jaune {
+  background-color: #fff;
+  border-color: #fbbb01;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(251, 187, 1, 0.25);
+}
+.champ-surligne-jaune:focus {
+  background-color: #fff;
+  border-color: #fbbb01;
+  outline: 0;
+  box-shadow: 0 0 0 0.4rem rgba(251, 187, 1, 0.35); /* halo plus marqué */
+}
+
 a.choix {
   width: 300px;
   background: #fbbb01;
@@ -133,12 +146,20 @@ a.choix:hover {
   width: 5% !important;
 }
 
+.w-7 {
+  width: 7% !important;
+}
+
 .w-9 {
   width: 9% !important;
 }
 
 .w-10 {
   width: 10% !important;
+}
+
+.w-13 {
+  width: 13% !important;
 }
 
 .w-15 {

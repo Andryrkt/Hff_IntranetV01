@@ -33,6 +33,8 @@ export function createFieldAndAppendTo(
 
   if (fieldName === "dateFinSouhaite") {
     field.value = dateFinSouhaitee;
+  } else if (fieldName === "artRefp") {
+    field.classList.add("non-modifiable");
   } else if (fieldName === "artConstp") {
     field.value = "ZST";
   } else if (fieldName === "numeroLigne") {
@@ -168,6 +170,7 @@ export function createFieldAutocompleteAndAppendTo(
   spinnerContainer.style.display = "none";
   spinnerContainer.classList.add("text-center");
   if (fieldName === "artDesi") {
+    field.classList.add("champ-surligne-jaune");
     spinnerContainer.innerHTML = `<div class="text-overlay">Veuillez patienter s'il vous plaît! Chargement des données </div><div class="loader-points"></div>`;
   }
 
