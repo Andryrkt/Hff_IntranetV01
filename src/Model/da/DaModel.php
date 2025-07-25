@@ -98,13 +98,30 @@ class DaModel extends Model
             trim(abse_fams2) as codesousfamille,
             trim(abse_refp) as referencepiece,
             trim(abse_desi) as designation,
-            afrn_pxach as prix,
-            fbse_numfou as numerofournisseur,
-            trim(fbse_nomfou) as fournisseur
-            FROM art_frn
-            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
-            INNER JOIN frn_bse ON fbse_numfou = afrn_numf
-            WHERE abse_constp = 'ZST'";
+            abse_numf as numerofournisseur,
+            (
+                SELECT trim(fbse_nomfou) 
+                    FROM frn_bse 
+                    WHERE fbse_numfou = a.abse_numf
+            ) AS fournisseur,
+            (
+                SELECT c.afrn_pxach
+                    FROM art_frn c 
+                    WHERE c.afrn_refp = a.abse_refp 
+                    AND c.afrn_numf = a.abse_numf
+                    AND c.afrn_constp = a.abse_constp
+                    AND c.afrn_dated = (
+                        SELECT MAX(d.afrn_dated) 
+                            FROM Informix.art_frn d 
+                            WHERE d.afrn_refp = a.abse_refp 
+                            AND d.afrn_numf = a.abse_numf
+                            AND d.afrn_constp = a.abse_constp
+                        )
+            ) AS prix
+                FROM art_bse a
+                    WHERE abse_constp = 'ZST'                    
+                    AND abse_refp <> 'ST' 
+                    ";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
             if ($codeSousFamille !== '-') {
@@ -134,12 +151,21 @@ class DaModel extends Model
 
     public function getPrixUnitaire($referencePiece)
     {
-        $statement = "SELECT 
-            afrn_pxach as prix,
-            FROM art_frn
-            INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
-            WHERE abse_constp = 'ZST'
-            and abse_refp = '$referencePiece'
+        $statement = "SELECT c.afrn_pxach as prix
+            FROM art_frn c
+            INNER JOIN art_bse a 
+                ON c.afrn_refp = a.abse_refp 
+                AND c.afrn_numf = a.abse_numf
+                AND c.afrn_constp = a.abse_constp
+            WHERE c.afrn_dated = (
+                SELECT MAX(d.afrn_dated) 
+                FROM art_frn d 
+                WHERE d.afrn_refp = a.abse_refp 
+                AND d.afrn_numf = a.abse_numf
+                AND d.afrn_constp = a.abse_constp
+            )
+            and a.abse_constp = 'ZST'
+            and a.abse_refp = '$referencePiece'
             ";
 
         $result = $this->connect->executeQuery($statement);
