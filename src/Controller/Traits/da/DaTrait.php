@@ -103,7 +103,7 @@ trait DaTrait
             return 'A soumettre à validation';
         }
 
-        if ($this->doitEnvoyerBc($situationCde, $statutBc, $daValider)) {
+        if ($this->doitEnvoyerBc($situationCde, $statutBc, $daValider, $statutSoumissionBc)) {
             return 'A envoyer au fournisseur';
         }
 
@@ -172,12 +172,13 @@ trait DaTrait
             && !$bcExiste;
     }
 
-    private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaValider $daValider): bool
+    private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaValider $daValider, string $statutSoumissionBc): bool
     {
         // numero de commande existe && ... && position editer && BC n'est pas encore soumis
         return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-            && in_array($statutBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
-            && !$daValider->getBcEnvoyerFournisseur();
+            && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+            && !$daValider->getBcEnvoyerFournisseur()
+            ;
     }
 
     private function evaluerQuantites(array $qte): array

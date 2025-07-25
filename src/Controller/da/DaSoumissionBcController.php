@@ -167,7 +167,7 @@ class DaSoumissionBcController extends Controller
         $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde);
 
         return [
-            'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' && explode('_', $nomdeFichier)[1] <> $numCde,
+            'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
             'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];

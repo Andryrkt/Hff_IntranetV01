@@ -165,7 +165,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{ item.statutOr }}</td>
-							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
+							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold {{classe}}">{{dal.statutBc}}</td>
 							<td class="text-center">{{ dal.datePlanningOR }}</td>
 							<td class="text-start">{{ dal.nomFournisseur }}</td>
 							{% if not serviceAtelier %}
@@ -187,7 +187,7 @@
 									<i class="fas fa-xmark text-danger"></i>
 								{% endif %}
 							</td>
-							<td class="text-center {{classe}}">{{ dal.qteDem }}</td>
+							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">{{ dal.qteEnAttent == 0 ? '-': dal.qteEnAttent}}</td>
 							<td class="text-center">{{ dal.qteALivrer == 0 ? '-': dal.qteALivrer}}</td>
 							<td class="text-center">{{ dal.qteLivee == 0 ? '-': dal.qteLivee}}</td>

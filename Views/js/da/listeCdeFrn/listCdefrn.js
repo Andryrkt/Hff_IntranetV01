@@ -227,7 +227,7 @@ document.addEventListener("click", function (event) {
 function telechargerBcValide(commandeId) {
   const bcValideTelecharger = document.getElementById("bcValideTelecharger");
   bcValideTelecharger.innerHTML =
-    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"> BC VALIDE</button> <hr/>';
+    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"></i> BC VALIDE</button> <hr/>';
 
   document
     .getElementById("downloadBcBtn")
