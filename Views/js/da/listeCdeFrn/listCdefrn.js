@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
+    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
     { pivotIndex: 8, columns: [8], insertSeparator: true },
   ]);
@@ -227,7 +227,7 @@ document.addEventListener("click", function (event) {
 function telechargerBcValide(commandeId) {
   const bcValideTelecharger = document.getElementById("bcValideTelecharger");
   bcValideTelecharger.innerHTML =
-    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"> BC VALIDE</button> <hr/>';
+    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"></i> BC VALIDE</button> <hr/>';
 
   document
     .getElementById("downloadBcBtn")

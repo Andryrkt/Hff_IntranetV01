@@ -110,7 +110,7 @@ class DaSoumissionFacBlController extends Controller
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'list_cde_frn', true);
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
         }
     }
 

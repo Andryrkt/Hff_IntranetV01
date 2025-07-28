@@ -373,10 +373,10 @@ class DaListeController extends Controller
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
                 $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
-                $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
-                foreach ($daValiders as $daValider) {
-                    $davp->setStatutBc($daValider->getStatutCde());
-                }
+                $daValider= $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'artRefp' => $davp->getArtRefp() , 'artDesi' => $davp->getArtDesi(), 'numeroVersion' => $numeroVersionMax]);
+                if(array_key_exists(0, $daValider)) {
+                    $davp->setStatutBc($daValider[0]->getStatutCde());
+                }   
             }
         }
     }
@@ -432,6 +432,7 @@ class DaListeController extends Controller
             $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax]);
             if (!empty($daValiders)) {
                 foreach ($daValiders as $daValider) {
+
                     $statutBc = $this->statutBc($daValider->getArtRefp(), $dasFiltered->getNumeroDemandeDit(), $dasFiltered->getNumeroDemandeAppro(), $daValider->getArtDesi(), $daValider->getNumeroOr());
                     $daValider->setStatutCde($statutBc);
                     self::$em->persist($daValider);

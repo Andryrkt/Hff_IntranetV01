@@ -184,8 +184,8 @@ class DaModel extends Model
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
-                        slor_refp,
-                        seor_refdem,
+                        TRIM(slor_refp),
+                        TRIM(seor_refdem),
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_numcde
@@ -228,19 +228,9 @@ class DaModel extends Model
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
-                        AND 
-                        (
-                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
-                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
-                        )
-                        AND 
-                        (
-                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
-                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
-                        )
                         and slor_numor = '$numOr'
-                        and slor_refp = '$ref'
-                                    and slor.slor_desi = '$designation'
+                        and TRIM(slor_refp) LIKE '%$ref%'
+                                    and TRIM(slor.slor_desi) like '%$designation%'
                                     and seor.seor_refdem = '$numDit'
             ";
 
@@ -314,16 +304,6 @@ class DaModel extends Model
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
-                        AND 
-                        (
-                            (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
-                            (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
-                        )
-                        AND 
-                        (
-                            (slor_natcm = 'C' AND c.fcde_cdeext = '$numDa') OR
-                            (slor_natcm = 'L' AND cde.fcde_cdeext = '$numDa')
-                        )
                         and slor_numor = '$numOr'
                         and seor.seor_refdem = '$numDit'
                         AND slor_refp = '$ref'

@@ -46,43 +46,64 @@ trait DaTrait
     {
 
         $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
+
+        if($daValider == null) {
+            return '';
+        };
         $statutBc = $daValider->getStatutCde();
+
         if ($numeroOr == null) {
             return $statutBc;
         }
 
+    
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
-
+        $statutDaIntanert = [
+            DemandeAppro::STATUT_SOUMIS_ATE,
+            DemandeAppro::STATUT_SOUMIS_APPRO,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE
+        ];
         $statutDa = $this->daRepository->getStatutDa($numDa);
+        if (in_array($statutDa, $statutDaIntanert)) {
+            return '';
+        }
 
         $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
-
+        $statutSoumissionBc = self::$em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte);
 
         $this->updateInfoOR($numDit, $daValider);
-        $this->updateSituationCdeDansDaValider($situationCde, $daValider);
+        $this->updateSituationCdeDansDaValider($situationCde, $daValider, $numcde);
         $this->updateQteCdeDansDaValider($qte, $daValider);
 
-        if (!$this->aSituationCde($situationCde)) {
-            return $statutBc;
-        }
+        $statutBcDw = [
+            DaSoumissionBc::STATUT_SOUMISSION,
+            DaSoumissionBc::STATUT_A_VALIDER_DA,
+            DaSoumissionBc::STATUT_VALIDE,
+            DaSoumissionBc::STATUT_CLOTURE,
+            DaSoumissionBc::STATUT_REFUSE
+        ];
 
         if ($this->doitGenererBc($situationCde, $statutDa, $daValider->getStatutOr())) {
             return 'A générer';
+        }
+
+        if (!$this->aSituationCde($situationCde)) {
+            return $statutBc;
         }
 
         if ($this->doitEditerBc($situationCde)) {
             return 'A éditer';
         }
 
-        if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc)) {
+        if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw)) {
             return 'A soumettre à validation';
         }
 
-        if ($this->doitEnvoyerBc($situationCde, $statutBc, $daValider)) {
+        if ($this->doitEnvoyerBc($situationCde, $statutBc, $daValider, $statutSoumissionBc)) {
             return 'A envoyer au fournisseur';
         }
 
@@ -106,7 +127,7 @@ trait DaTrait
             return 'BC envoyé au fournisseur';
         }
 
-        return $statutBc;
+        return $statutSoumissionBc;
     }
 
     private function aSituationCde(array $situationCde): bool
@@ -116,29 +137,33 @@ trait DaTrait
 
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr): bool
     {
-        return $situationCde[0]['num_cde'] === ''
-            && $statutDa === DemandeAppro::STATUT_VALIDE
-            && $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE;
+        $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
+        $orValide = $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE;
+
+        // Si aucune situation de commande n'est présente
+        if (empty($situationCde)) {
+            return $daValide && $orValide;
+        }
+
+        // Si une situation existe mais sans numéro de commande
+        $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+
+
+        return $numCdeVide && $daValide && $orValide;
     }
+
 
     private function doitEditerBc(array $situationCde): bool
     {
         // numero de commande existe && ... && position terminer
         return (int)$situationCde[0]['num_cde'] > 0
             && $situationCde[0]['slor_natcm'] === 'C'
-            && $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER;
+            && 
+            ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
     }
 
-    private function doitSoumettreBc(array $situationCde, bool $bcExiste, string $statutBc): bool
+    private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw): bool
     {
-        $statutBcDw = [
-            DaSoumissionBc::STATUT_SOUMISSION,
-            DaSoumissionBc::STATUT_A_VALIDER_DA,
-            DaSoumissionBc::STATUT_VALIDE,
-            DaSoumissionBc::STATUT_CLOTURE,
-            DaSoumissionBc::STATUT_REFUSE
-        ];
-
         // numero de commande existe && ... && position editer && BC n'est pas encore soumis
         return (int)$situationCde[0]['num_cde'] > 0
             && $situationCde[0]['slor_natcm'] === 'C'
@@ -147,12 +172,13 @@ trait DaTrait
             && !$bcExiste;
     }
 
-    private function doitEnvoyerBc(array $situationCde, string $statutBc, DaValider $daValider): bool
+    private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaValider $daValider, string $statutSoumissionBc): bool
     {
         // numero de commande existe && ... && position editer && BC n'est pas encore soumis
         return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-            && in_array($statutBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
-            && !$daValider->getBcEnvoyerFournisseur();
+            && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+            && !$daValider->getBcEnvoyerFournisseur()
+            ;
     }
 
     private function evaluerQuantites(array $qte): array
@@ -193,10 +219,13 @@ trait DaTrait
     }
 
 
-    private function updateSituationCdeDansDaValider(array $situationCde, DaValider $daValider): void
+    private function updateSituationCdeDansDaValider(array $situationCde, DaValider $daValider, ?string $numcde): void
     {
-        $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
-        $daValider->setPositionBc($positionBc);
+        if(!empty($situationCde)){
+            $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
+            $daValider->setPositionBc($positionBc)
+            ->setNumeroCde($numcde);
+        }
     }
 
     private function updateInfoOR(string $numDit, DaValider $daValider)
@@ -208,6 +237,10 @@ trait DaTrait
             ->setNumeroOr($numOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
+
+        if($daValider->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
+            $daValider->setStatutOr($statutOr);
+        }
     }
 
     private function getDatePlannigOr(?string $numOr)
@@ -224,7 +257,7 @@ trait DaTrait
         return $dateObj ?? null;
     }
 
-    private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): DaValider
+    private function getDaValider(string $numDa, string $numDit,  string $ref, string $designation): ?DaValider
     {
         $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($numDa);
         $conditionDeRecuperation = [
@@ -352,7 +385,7 @@ trait DaTrait
             $daValider
                 ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
                 ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
-                ->setStatutOr("A resoumettre à validation")
+                ->setStatutOr(DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION)
                 ->setOrResoumettre(true)
             ;
 
