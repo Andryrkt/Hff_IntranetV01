@@ -483,29 +483,29 @@ trait DaTrait
     private function getAllDAFile($tab): array
     {
         return [
-            'BA' => [
-                'type' => "Bon d'achat",
-                'icon' => 'fa-solid fa-file-signature',
+            'BA'    => [
+                'type'       => "Bon d'achat",
+                'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
-                'fichiers' => $this->normalizePaths($tab['baPath']),
+                'fichiers'   => $this->normalizePaths($tab['baPath']),
             ],
-            'OR' => [
-                'type' => 'Ordre de réparation',
-                'icon' => 'fa-solid fa-wrench',
+            'OR'    => [
+                'type'       => 'Ordre de réparation',
+                'icon'       => 'fa-solid fa-wrench',
                 'colorClass' => 'border-left-or',
-                'fichiers' => $this->normalizePaths($tab['orPath']),
+                'fichiers'   => $this->normalizePathsForManyFiles([$tab['orPath']], 'numeroOr'),
             ],
-            'BC' => [
-                'type' => 'Bon de commande',
-                'icon' => 'fa-solid fa-file-circle-check',
+            'BC'    => [
+                'type'       => 'Bon de commande',
+                'icon'       => 'fa-solid fa-file-circle-check',
                 'colorClass' => 'border-left-bc',
-                'fichiers' => $this->normalizePathsForBC($tab['bcPath']),
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
             ],
             'FACBL' => [
-                'type' => 'Facture / Bon de livraison',
-                'icon' => 'fa-solid fa-file-invoice',
+                'type'       => 'Facture / Bon de livraison',
+                'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers' => $this->normalizePaths($tab['facblPath']),
+                'fichiers'   => $this->normalizePaths($tab['facblPath']),
             ],
         ];
     }
@@ -522,21 +522,21 @@ trait DaTrait
 
         return array_map(function ($path) {
             return [
-                'nom'  => basename($path),
+                'nom'  => pathinfo($path, PATHINFO_FILENAME),
                 'path' => $path
             ];
         }, $paths);
     }
 
-    private function normalizePathsForBC($allDocs): array
+    private function normalizePathsForManyFiles($allDocs, string $numKey): array
     {
         if ($allDocs === '-' || empty($allDocs)) {
             return [];
         }
 
-        return array_map(function ($doc) {
+        return array_map(function ($doc) use ($numKey) {
             return [
-                'nom'  => $doc['numeroBc'],
+                'nom'  => $doc[$numKey],
                 'path' => $doc['path']
             ];
         }, $allDocs);
@@ -557,7 +557,7 @@ trait DaTrait
     /** 
      * Obtenir l'url de l'ordre de réparation
      */
-    private function getOrPath(DemandeAppro $demandeAppro): string
+    private function getOrPath(DemandeAppro $demandeAppro)
     {
         $numeroDit = $demandeAppro->getNumeroDemandeDit();
         $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
@@ -565,7 +565,10 @@ trait DaTrait
         $statutOr = $ditOrsSoumis ? $ditOrsSoumis->getStatut() : '';
         if ($statutOr == 'Validé') {
             $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin'];
+            return [
+                'numeroOr' => $numeroOr,
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
+            ];
         }
         return "-";
     }
