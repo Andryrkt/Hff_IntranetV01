@@ -286,10 +286,10 @@ class ListCdeFrnController extends Controller
             self::$em->flush();
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
-            $this->redirectToRoute("list_cde_frn");
+            $this->redirectToRoute("da_list_cde_frn");
         } else {
             $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
-            $this->redirectToRoute("list_cde_frn");
+            $this->redirectToRoute("da_list_cde_frn");
         }
     }
 }

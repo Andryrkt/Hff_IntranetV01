@@ -256,7 +256,7 @@ class DaValider
     /**
      * @ORM\Column(type="integer", name="numero_ligne_ips")
      */
-    private int $numeroLigneIps;
+    private ?int $numeroLigneIps;
 
     /**==============================================================================
      * GETTERS & SETTERS

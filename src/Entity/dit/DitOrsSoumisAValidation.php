@@ -17,6 +17,8 @@ class DitOrsSoumisAValidation
 {
 
     public const STATUT_VALIDE = 'Validé';
+    public const STATUT_A_RESOUMETTRE_A_VALIDATION = 'A resoumettre à validation';
+    
 
     /**
      * @ORM\Id

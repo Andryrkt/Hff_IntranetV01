@@ -25,6 +25,7 @@ class DaSoumissionBc
     public const STATUT_PAR = 'BC envoyé au fournisseur';
 
     public const POSITION_TERMINER = 'TE';
+    public const POSITION_ENCOUR = 'EC';
     public const POSITION_EDITER = 'ED';
 
     /**
