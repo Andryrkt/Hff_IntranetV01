@@ -245,7 +245,8 @@ class DaModel extends Model
                 END) as qte_dem,
                 ROUND(slor_qterel) as qte_reliquat,
                 ROUND(slor_qteres) as qte_a_livrer,
-                ROUND(slor_qterea) as qte_livee
+                ROUND(slor_qterea) as qte_livee,
+                ROUND(slor_qtedisp) as qte_dispo
 
                 FROM Informix.sav_lor slor
                     INNER JOIN Informix.sav_eor seor 
@@ -280,8 +281,8 @@ class DaModel extends Model
                         AND slor.slor_refp NOT LIKE 'PREST%'
                         and slor_numor = '$numOr'
                         and seor.seor_refdem = '$numDit'
-                        AND slor_refp = '$ref'
-                and slor_desi = '$designation'
+                        AND TRIM(slor.slor_refp) = '$ref'
+                and TRIM(slor.slor_desi) = '$designation'
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));

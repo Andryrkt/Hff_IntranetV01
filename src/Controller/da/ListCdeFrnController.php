@@ -256,40 +256,5 @@ class ListCdeFrnController extends Controller
         }
     }
 
-    /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
-     *
-     * @return void
-     */
-    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
-    {
-        $this->verifierSessionUtilisateur();
-
-        if ($estEnvoyer) {
-            // modification de statut dans la soumission bc
-            $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-            $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
-            if ($soumissionBc) {
-                $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
-                self::$em->persist($soumissionBc);
-            }
-
-            //modification dans la table da_valider
-            $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daValiderRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
-            foreach ($daValider as $valider) {
-                $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
-                    ->setDateLivraisonPrevue(new \DateTime($datePrevue))
-                ;
-                self::$em->persist($valider);
-            }
-            self::$em->flush();
-            // envoyer une notification de succès
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
-            $this->redirectToRoute("da_list_cde_frn");
-        } else {
-            $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
-            $this->redirectToRoute("da_list_cde_frn");
-        }
-    }
+   
 }

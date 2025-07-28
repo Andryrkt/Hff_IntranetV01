@@ -209,11 +209,14 @@ trait DaTrait
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_a_livrer'];
             $qteLivee = (int)$q['qte_livee'];
-            $qteReliquat = (int)$q['qte_reliquat'];
+            $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
+            $qteDispo = (int)$q['qte_reliquat'];
 
-            $daValider->setQteDispo($qteReliquat)
+            $daValider
+                ->setQteEnAttent($qteReliquat)
                 ->setQteALivrer($qteALivrer)
                 ->setQteLivrer($qteLivee)
+                ->setQteDispo($qteDispo)
             ;
         }
     }
