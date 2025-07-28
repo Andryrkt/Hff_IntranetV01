@@ -3,7 +3,6 @@
 namespace App\Service\dit\transfer;
 
 use App\Entity\dit\BcSoumis;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitDevisSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\ORM\EntityManagerInterface;
@@ -12,8 +11,11 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class TransformerEnObjetService
 {
     private DitOrsSoumisAValidation $ditOrsSoumis;
+
     private DitDevisSoumisAValidation $ditDevisSoumis;
+
     private BcSoumis $bcSoumis;
+
     private RecupDataAncienDitService $RecupDataAncienDitService;
 
     public function __construct(EntityManagerInterface $entityManagerInterface)
@@ -31,12 +33,12 @@ class TransformerEnObjetService
      * @return array tableau d'ojet demande d'intervention
      */
     public function transformDitEnObjet(array $ancienDits, ProgressBar $progressBar): array
-    {  
+    {
         $ditAnciens = [];
-        foreach ($ancienDits as  $ancienDit) {
+        foreach ($ancienDits as $ancienDit) {
             // $ditAnciens[] = $this->ditEnObjet($ancienDit);
             $ditAnciens[] = $this->RecupDataAncienDitService->ditEnObjet($ancienDit);
-            
+
             // Faire avancer la barre de progression
             $progressBar->advance();
         }
@@ -44,13 +46,12 @@ class TransformerEnObjetService
         return $ditAnciens;
     }
 
-
     public function transformDevisEnObjet(array $ancienDevis, ProgressBar $progressBar): array
-    {  
+    {
         $devisAnciens = [];
-        foreach ($ancienDevis as  $ancienDevi) {
+        foreach ($ancienDevis as $ancienDevi) {
             $devisAnciens[] = $this->devisEnObjet($ancienDevi);
-            
+
             // Faire avancer la barre de progression
             $progressBar->advance();
         }
@@ -83,11 +84,11 @@ class TransformerEnObjetService
     }
 
     public function transformBcEnObjet(array $ancienBcs, ProgressBar $progressBar): array
-    {  
+    {
         $ancienBcs = [];
-        foreach ($ancienBcs as  $ancienBc) {
+        foreach ($ancienBcs as $ancienBc) {
             $ancienBcs[] = $this->bcEnObjet($ancienBc);
-            
+
             // Faire avancer la barre de progression
             $progressBar->advance();
         }
@@ -111,11 +112,11 @@ class TransformerEnObjetService
     }
 
     public function transformOrEnObjet(array $ancienOrs, ProgressBar $progressBar): array
-    {  
+    {
         $OrAnciens = [];
-        foreach ($ancienOrs as  $ancienOr) {
+        foreach ($ancienOrs as $ancienOr) {
             $OrAnciens[] = $this->orEnObjet($ancienOr);
-            
+
             // Faire avancer la barre de progression
             $progressBar->advance();
         }

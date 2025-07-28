@@ -15,9 +15,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class HistoriqueOperationDocumentSearchType extends AbstractType
 {
-    const TYPE_STATUT = [
+    public const TYPE_STATUT = [
         'SUCCES' => 'Succès',
-        'ECHEC'  => 'Echec',
+        'ECHEC' => 'Echec',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)

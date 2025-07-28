@@ -4,15 +4,14 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Entity\admin\Agence;
-use App\Entity\admin\utilisateur\User;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
+use App\Entity\admin\utilisateur\User;
 use App\Form\admin\utilisateur\ContactAgenceAteType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ContactAgenceAteController extends Controller
 {
-
     /**
      * @Route("/admin/contact-agence-ate-index", name="contact_agence_ate_index")
      *
@@ -26,7 +25,7 @@ class ContactAgenceAteController extends Controller
         $data = self::$em->getRepository(ContactAgenceAte::class)->findBy([]);
 
         self::$twig->display('admin/contactAgenceAte/index.html.twig', [
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
@@ -44,28 +43,27 @@ class ContactAgenceAteController extends Controller
         $form = self::$validator->createBuilder(ContactAgenceAteType::class)->getForm();
 
         $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $data = $form->getData();
-                
-                $contactAgenceAte 
-                    ->setAgenceString($data->getAgence()->getCodeAgence())
-                    ->setMatriculeString($data->getMatricule()->getMatricule())
-                    ->setNomString($data->getNom()->getPersonnels()->getNom())
-                    ->setEmailString($data->getEmail()->getMail())
-                    ->setTelephone($data->getTelephone())
-                    ->setAtelier($data->getAtelier())
-                    ->setPrenom($data->getPrenom())
-                ;
 
-                self::$em->persist($contactAgenceAte);
-                self::$em->flush();
-                $this->redirectToRoute("contact_agence_ate_index");
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+
+            $contactAgenceAte
+                ->setAgenceString($data->getAgence()->getCodeAgence())
+                ->setMatriculeString($data->getMatricule()->getMatricule())
+                ->setNomString($data->getNom()->getPersonnels()->getNom())
+                ->setEmailString($data->getEmail()->getMail())
+                ->setTelephone($data->getTelephone())
+                ->setAtelier($data->getAtelier())
+                ->setPrenom($data->getPrenom())
+            ;
+
+            self::$em->persist($contactAgenceAte);
+            self::$em->flush();
+            $this->redirectToRoute("contact_agence_ate_index");
+        }
 
         self::$twig->display('admin/contactAgenceAte/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -84,32 +82,31 @@ class ContactAgenceAteController extends Controller
 
         $contactAgenceAte ->setAgence($agence)
         ->setMatricule($user)
-        ->setEmail($user) 
+        ->setEmail($user)
         ->setNom($user)
         ;
         $form = self::$validator->createBuilder(ContactAgenceAteType::class, $contactAgenceAte)->getForm();
 
         $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $data = $form->getData();
-                $contactAgenceAte 
-                    ->setAgenceString($data->getAgence()->getCodeAgence())
-                    ->setMatriculeString($data->getMatricule()->getMatricule())
-                    ->setNomString($data->getNom()->getPersonnels()->getNom())
-                    ->setEmailString($data->getEmail()->getMail())
-                    ->setTelephone($data->getTelephone())
-                    ->setAtelier($data->getAtelier())
-                    ->setPrenom($data->getPrenom())
-                ;
 
-                self::$em->flush();
-                $this->redirectToRoute("contact_agence_ate_index");
-            }
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $contactAgenceAte
+                ->setAgenceString($data->getAgence()->getCodeAgence())
+                ->setMatriculeString($data->getMatricule()->getMatricule())
+                ->setNomString($data->getNom()->getPersonnels()->getNom())
+                ->setEmailString($data->getEmail()->getMail())
+                ->setTelephone($data->getTelephone())
+                ->setAtelier($data->getAtelier())
+                ->setPrenom($data->getPrenom())
+            ;
+
+            self::$em->flush();
+            $this->redirectToRoute("contact_agence_ate_index");
+        }
 
         self::$twig->display('admin/contactAgenceAte/edit.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -118,13 +115,13 @@ class ContactAgenceAteController extends Controller
      */
     public function delete($id)
     {
-         //verification si user connecter
+        //verification si user connecter
         $this->verifierSessionUtilisateur();
 
         $contactAgenceAte = self::$em->getRepository(ContactAgenceAte::class)->find($id);
 
         self::$em->remove($contactAgenceAte);
-            self::$em->flush();
-            $this->redirectToRoute("contact_agence_ate_index");
+        self::$em->flush();
+        $this->redirectToRoute("contact_agence_ate_index");
     }
 }

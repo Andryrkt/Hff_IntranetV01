@@ -5,7 +5,6 @@ namespace App\Api\dit;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class DataDitApi extends Controller
 {

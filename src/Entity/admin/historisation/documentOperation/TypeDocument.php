@@ -2,10 +2,9 @@
 
 namespace App\Entity\admin\historisation\documentOperation;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\historisation\documentOperation\TypeDocumentRepository;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TypeDocumentRepository::class)
@@ -50,7 +49,6 @@ class TypeDocument
      */
     private $historiqueOperationDoc;
     //==========================================================================================
-
 
     public function __construct()
     {
@@ -160,7 +158,7 @@ class TypeDocument
 
     public function addHistoriqueOperationDoc(HistoriqueOperationDocument $historiqueOperationDoc): self
     {
-        if (!$this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
+        if (! $this->historiqueOperationDoc->contains($historiqueOperationDoc)) {
             $this->historiqueOperationDoc[] = $historiqueOperationDoc;
             $historiqueOperationDoc->setIdTypeDocument($this);
         }

@@ -8,9 +8,9 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class agenceServiceInformixApi extends Controller
 {
-    /** 
+    /**
      * RECUPERATION SERVICE INFORMIX
-     * @Route("/service-informix-fetch/{agence}", name="service_informix_fetch") 
+     * @Route("/service-informix-fetch/{agence}", name="service_informix_fetch")
      * */
     public function agenceInformix($agence)
     {

@@ -2,30 +2,25 @@
 
 namespace App\Form\dit;
 
-
-
-use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitRiSoumisAValidation;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DitRiSoumisAValidationType extends AbstractType
 {
-
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $itvAfficher = $options['itvAfficher'];
         $tab = [];
-        foreach ($itvAfficher as  $value) {
+        foreach ($itvAfficher as $value) {
             $tab[] = (int)$value['numeroitv'];
         }
 
@@ -40,8 +35,8 @@ class DitRiSoumisAValidationType extends AbstractType
                     'label' => 'Numéro DIT',
                     'data' => $options['data']->getNumeroDit(),
                     'attr' => [
-                        'disabled' => true
-                    ]
+                        'disabled' => true,
+                    ],
                 ]
             )
             ->add(
@@ -79,7 +74,7 @@ class DitRiSoumisAValidationType extends AbstractType
                                 'application/pdf',
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                        ])
+                        ]),
                     ],
                 ]
             )

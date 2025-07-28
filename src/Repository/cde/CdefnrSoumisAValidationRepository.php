@@ -4,7 +4,7 @@ namespace App\Repository\cde;
 
 use Doctrine\ORM\EntityRepository;
 
-class CdefnrSoumisAValidationRepository extends EntityRepository 
+class CdefnrSoumisAValidationRepository extends EntityRepository
 {
     public function findNumeroVersionMax(string $numCde)
     {
@@ -13,8 +13,8 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             ->where('cde.numCdeFournisseur = :numCdeFournisseur')
             ->setParameter('numCdeFournisseur', $numCde)
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 
@@ -36,5 +36,4 @@ class CdefnrSoumisAValidationRepository extends EntityRepository
             return null;
         }
     }
-
 }

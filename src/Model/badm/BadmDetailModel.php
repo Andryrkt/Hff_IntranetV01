@@ -8,6 +8,7 @@ use App\Model\Traits\ConversionModel;
 class BadmDetailModel extends Model
 {
     use ConversionModel;
+
     /**
      * informix
      */
@@ -84,5 +85,4 @@ class BadmDetailModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-
 }

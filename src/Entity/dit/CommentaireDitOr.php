@@ -2,9 +2,9 @@
 
 namespace App\Entity\dit;
 
-use DateTime;
 use App\Entity\admin\utilisateur\User;
 use App\Repository\dit\CommentaireDitOrRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -14,7 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class CommentaireDitOr
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -22,10 +21,10 @@ class CommentaireDitOr
      */
     private $id;
 
-     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="commentaireDitOr")
-     * @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
-     */
+    /**
+    * @ORM\ManyToOne(targetEntity=User::class, inversedBy="commentaireDitOr")
+    * @ORM\JoinColumn(name="utilisateur_id", referencedColumnName="id")
+    */
     private $utilisateurId;
 
     /**
@@ -53,7 +52,7 @@ class CommentaireDitOr
      */
     private $dateCreation;
 
-   //==============================================================================================================================
+    //==============================================================================================================================
     public function getId()
     {
         return $this->id;
@@ -61,7 +60,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of utilisateurId
-     */ 
+     */
     public function getUtilisateurId()
     {
         return $this->utilisateurId;
@@ -71,7 +70,7 @@ class CommentaireDitOr
      * Set the value of utilisateurId
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateurId($utilisateurId)
     {
         $this->utilisateurId = $utilisateurId;
@@ -81,7 +80,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of numDit
-     */ 
+     */
     public function getNumDit()
     {
         return $this->numDit;
@@ -91,7 +90,7 @@ class CommentaireDitOr
      * Set the value of numDit
      *
      * @return  self
-     */ 
+     */
     public function setNumDit($numDit)
     {
         $this->numDit = $numDit;
@@ -101,7 +100,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -111,7 +110,7 @@ class CommentaireDitOr
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -121,7 +120,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of typeCommentaire
-     */ 
+     */
     public function getTypeCommentaire()
     {
         return $this->typeCommentaire;
@@ -131,7 +130,7 @@ class CommentaireDitOr
      * Set the value of typeCommentaire
      *
      * @return  self
-     */ 
+     */
     public function setTypeCommentaire($typeCommentaire)
     {
         $this->typeCommentaire = $typeCommentaire;
@@ -141,7 +140,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of commentaire
-     */ 
+     */
     public function getCommentaire()
     {
         return $this->commentaire;
@@ -151,7 +150,7 @@ class CommentaireDitOr
      * Set the value of commentaire
      *
      * @return  self
-     */ 
+     */
     public function setCommentaire($commentaire)
     {
         $this->commentaire = $commentaire;
@@ -161,7 +160,7 @@ class CommentaireDitOr
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;

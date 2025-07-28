@@ -3,7 +3,6 @@
 namespace App\Service\genererPdf;
 
 use TCPDF;
-use App\Service\GlobalVariablesService;
 
 class GeneratePdfDom extends GeneratePdf
 {
@@ -19,7 +18,7 @@ class GeneratePdfDom extends GeneratePdf
 
         $pdf->AddPage();
 
-        // tête de page 
+        // tête de page
         $pdf->setY(0);
         $pdf->SetFont('pdfatimesbi', '', 8);
         $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
@@ -225,6 +224,7 @@ class GeneratePdfDom extends GeneratePdf
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
 
         $usable_width = $w_total - $margins['left'] - $margins['right'];
+
         return $usable_width / 2;
     }
 }

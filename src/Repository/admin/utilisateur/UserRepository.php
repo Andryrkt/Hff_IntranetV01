@@ -2,14 +2,10 @@
 
 namespace App\Repository\admin\utilisateur;
 
-
-
 use Doctrine\ORM\EntityRepository;
-
 
 class UserRepository extends EntityRepository
 {
-
     // Ajoutez des méthodes personnalisées ici
     public function findByExampleField($value)
     {
@@ -22,9 +18,9 @@ class UserRepository extends EntityRepository
         ;
     }
 
-    /** 
+    /**
      * Fonction pour obtenir la liste des utilisateurs ayant un role spécifique
-     * 
+     *
      * @param string $roleName nom du role à chercher
      */
     public function findByRole(string $roleName)

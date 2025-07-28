@@ -2,12 +2,12 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
+use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
-use App\Form\badm\BadmForm1Type;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\badm\Badm;
+use App\Form\badm\BadmForm1Type;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +19,7 @@ class BadmsController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService();
     }
 
     /**
@@ -58,7 +58,7 @@ class BadmsController extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
             }
 
-            if ($badm->getIdMateriel() === null &&  $badm->getNumParc() === null && $badm->getNumSerie() === null) {
+            if ($badm->getIdMateriel() === null && $badm->getNumParc() === null && $badm->getNumSerie() === null) {
                 $message = " Renseigner l'un des champs (Id Matériel, numéro Série et numéro Parc)";
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
@@ -87,9 +87,9 @@ class BadmsController extends Controller
 
 
                     if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
+                        $serviceMaterilId = self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
                     } else {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
+                        $serviceMaterilId = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
                     }
                     // dd($agenceMaterielId, $serviceMaterilId);
                     //condition de blocage
@@ -140,13 +140,13 @@ class BadmsController extends Controller
                     'idMateriel' => $badm->getIdMateriel(),
                     'numParc' => $badm->getNumParc(),
                     'numSerie' => $badm->getNumSerie(),
-                    'typeMouvemnt' => $badm->getTypeMouvement()
+                    'typeMouvemnt' => $badm->getTypeMouvement(),
                 ];
                 //envoie des donner dan la session
                 $this->sessionService->set('badmform1Data', $formData);
                 if ($conditionRoleUtilisateur) {
                     $this->redirectToRoute("badms_newForm2");
-                } elseif (!$conditionAgenceServiceAutoriser) {
+                } elseif (! $conditionAgenceServiceAutoriser) {
                     $message = " vous n'êtes pas autoriser à consulter ce matériel";
 
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
@@ -161,7 +161,7 @@ class BadmsController extends Controller
         self::$twig->display(
             'badm/firstForm.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }

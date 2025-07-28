@@ -2,7 +2,6 @@
 
 namespace App\Model\dit;
 
-
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
@@ -10,6 +9,7 @@ use App\Service\GlobalVariablesService;
 class DitOrSoumisAValidationModel extends Model
 {
     use ConversionModel;
+
     public function recupOrSoumisValidation($numOr)
     {
         $statement = "SELECT
@@ -121,13 +121,12 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
     public function recupererNumdevis($numOr)
     {
         $statement = "SELECT  seor_numdev  
                 from sav_eor
                 where seor_numor = '".$numOr."'"
-                ;
+        ;
 
         $result = $this->connect->executeQuery($statement);
 
@@ -229,7 +228,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function recupRefClient($numOr)
     {
-        $statement =" SELECT seor_lib  
+        $statement = " SELECT seor_lib  
                     from sav_eor 
                     where seor_numor='".$numOr."'
                     ";

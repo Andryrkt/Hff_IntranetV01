@@ -3,12 +3,11 @@
 namespace App\Entity\admin\dit;
 
 use App\Entity\dit\AncienDit;
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=WorTypeDocumentRepository::class)
@@ -25,7 +24,7 @@ class WorTypeDocument
      * @ORM\Column(type="integer")
      */
     private int $id;
-    
+
     /**
      * @ORM\Column(type="string", length=3, name="code_document")
      */
@@ -46,25 +45,22 @@ class WorTypeDocument
      */
     private $ancienDit;
 
-    
     public function __construct()
     {
         $this->ancienDit = new ArrayCollection();
         $this->demandeInterventions = new ArrayCollection();
     }
-    
+
     public function getId(): int
     {
         return $this->id;
     }
 
-    
     public function getCodeDocument()
     {
         return $this->codeDocument;
     }
 
-  
     public function setCodeDocument($codeDocument): self
     {
         $this->codeDocument = $codeDocument;
@@ -102,7 +98,7 @@ class WorTypeDocument
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+        if (! $this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setTypeDocument($this);
         }
@@ -121,13 +117,13 @@ class WorTypeDocument
 
         return $this;
     }
+
     public function setDemandeInterventions($demandeInterventions)
     {
         $this->demandeInterventions = $demandeInterventions;
 
         return $this;
     }
-    
 
     /**
      * Get the value of demandeInterventions
@@ -139,7 +135,7 @@ class WorTypeDocument
 
     public function addAncienDit(AncienDit $ancienDit): self
     {
-        if (!$this->ancienDit->contains($ancienDit)) {
+        if (! $this->ancienDit->contains($ancienDit)) {
             $this->ancienDit[] = $ancienDit;
             $ancienDit->setTypeDocument($this);
         }
@@ -158,6 +154,7 @@ class WorTypeDocument
 
         return $this;
     }
+
     public function setAncienDit($ancienDit)
     {
         $this->ancienDit = $ancienDit;
@@ -165,9 +162,8 @@ class WorTypeDocument
         return $this;
     }
 
-
     public function __toString()
     {
-        return $this->description ?? 'N/A'; 
+        return $this->description ?? 'N/A';
     }
 }

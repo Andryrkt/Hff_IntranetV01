@@ -5,6 +5,7 @@ namespace App\Service\fichier;
 class JsonFileService
 {
     private $filePath;
+
     private $data = [];
 
     /**
@@ -21,9 +22,10 @@ class JsonFileService
      */
     private function load()
     {
-        if (!file_exists($this->filePath)) {
+        if (! file_exists($this->filePath)) {
             // Si le fichier n'existe pas, on initialise $data à un tableau vide
             $this->data = [];
+
             return;
         }
 
@@ -81,11 +83,11 @@ class JsonFileService
      */
     public function addElementToSection($section, $element)
     {
-        if (!isset($this->data[$section])) {
+        if (! isset($this->data[$section])) {
             $this->data[$section] = [];
         }
 
-        if (!in_array($element, $this->data[$section])) {
+        if (! in_array($element, $this->data[$section])) {
             $this->data[$section][] = $element;
         }
     }
@@ -101,5 +103,4 @@ class JsonFileService
             });
         }
     }
-
 }

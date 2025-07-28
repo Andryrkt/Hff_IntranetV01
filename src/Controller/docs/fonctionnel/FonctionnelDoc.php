@@ -17,9 +17,9 @@ class FonctionnelDoc extends Controller
         // Chemin vers votre fichier Markdown
         $markdownFile = dirname(dirname(dirname(dirname(__DIR__)))). DIRECTORY_SEPARATOR .'docs/fonctionnel/index.md';
 
- 
+
         // Vérifiez si le fichier existe avant de tenter de le lire
-        if (!file_exists($markdownFile)) {
+        if (! file_exists($markdownFile)) {
             die("Le fichier $markdownFile n'existe pas.");
         }
 
@@ -30,9 +30,11 @@ class FonctionnelDoc extends Controller
         $htmlContent = $this->parsedown->text($markdownContent);
 
         // Rendre le template avec le contenu HTML
-        self::$twig->display('doc/fonctionnel/fonctionnel.html.twig', 
-        [
-            'content' => $htmlContent
-        ]);
+        self::$twig->display(
+            'doc/fonctionnel/fonctionnel.html.twig',
+            [
+            'content' => $htmlContent,
+        ]
+        );
     }
 }

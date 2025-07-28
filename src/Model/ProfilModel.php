@@ -2,18 +2,14 @@
 
 namespace App\Model;
 
-use App\Model\Model;
-
 class ProfilModel extends Model
 {
-
-
     // public function getProfilUser($Username)
     // {
-    //     $Sql_username = "SELECT 
-    //                         Utilisateur 
+    //     $Sql_username = "SELECT
+    //                         Utilisateur
     //                         FROM Profil_user
-    //                         WHERE Utilisateur = '" . $Username . "' 
+    //                         WHERE Utilisateur = '" . $Username . "'
     //                         AND App = 'DOM'
     //                         ";
     //     $exec_sql_username = $this->connexion->query($Sql_username);
@@ -32,10 +28,11 @@ class ProfilModel extends Model
                                 
                                 ";
         $exec_InfoAllUserCours = $this->connexion->query($sql_infoAllUsercous);
-        $InfoAllUsercours = array();
+        $InfoAllUsercours = [];
         while ($row = odbc_fetch_array($exec_InfoAllUserCours)) {
             $InfoAllUsercours[] = $row;
         }
+
         return $InfoAllUsercours;
     }
 }

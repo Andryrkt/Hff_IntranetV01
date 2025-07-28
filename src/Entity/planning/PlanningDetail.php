@@ -1,27 +1,44 @@
 <?php
+
 namespace App\Entity\planning;
-class PlanningDetail{
+
+class PlanningDetail
+{
     private $numOr;
+
     private $Intv;
+
     private $cst;
+
     private $ref;
+
     private $desi;
+
     private $QteReliquat;
+
     private $Qteliv;
+
     private $QteAll;
+
     private $rmq;
+
     private $numrmq;
+
     private $typeP;
+
     private $numligne;
+
     private $grp;
+
     private $numeroCmd;
+
     private $Statut;
+
     private $date_statut;
-   
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -31,7 +48,7 @@ class PlanningDetail{
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -41,7 +58,7 @@ class PlanningDetail{
 
     /**
      * Get the value of Intv
-     */ 
+     */
     public function getIntv()
     {
         return $this->Intv;
@@ -51,7 +68,7 @@ class PlanningDetail{
      * Set the value of Intv
      *
      * @return  self
-     */ 
+     */
     public function setIntv($Intv)
     {
         $this->Intv = $Intv;
@@ -61,7 +78,7 @@ class PlanningDetail{
 
     /**
      * Get the value of cst
-     */ 
+     */
     public function getCst()
     {
         return $this->cst;
@@ -71,7 +88,7 @@ class PlanningDetail{
      * Set the value of cst
      *
      * @return  self
-     */ 
+     */
     public function setCst($cst)
     {
         $this->cst = $cst;
@@ -81,7 +98,7 @@ class PlanningDetail{
 
     /**
      * Get the value of ref
-     */ 
+     */
     public function getRef()
     {
         return $this->ref;
@@ -91,7 +108,7 @@ class PlanningDetail{
      * Set the value of ref
      *
      * @return  self
-     */ 
+     */
     public function setRef($ref)
     {
         $this->ref = $ref;
@@ -101,7 +118,7 @@ class PlanningDetail{
 
     /**
      * Get the value of desi
-     */ 
+     */
     public function getDesi()
     {
         return $this->desi;
@@ -111,7 +128,7 @@ class PlanningDetail{
      * Set the value of desi
      *
      * @return  self
-     */ 
+     */
     public function setDesi($desi)
     {
         $this->desi = $desi;
@@ -121,7 +138,7 @@ class PlanningDetail{
 
     /**
      * Get the value of QteReliquat
-     */ 
+     */
     public function getQteReliquat()
     {
         return $this->QteReliquat;
@@ -131,7 +148,7 @@ class PlanningDetail{
      * Set the value of QteReliquat
      *
      * @return  self
-     */ 
+     */
     public function setQteReliquat($QteReliquat)
     {
         $this->QteReliquat = $QteReliquat;
@@ -141,7 +158,7 @@ class PlanningDetail{
 
     /**
      * Get the value of Qteliv
-     */ 
+     */
     public function getQteliv()
     {
         return $this->Qteliv;
@@ -151,7 +168,7 @@ class PlanningDetail{
      * Set the value of Qteliv
      *
      * @return  self
-     */ 
+     */
     public function setQteliv($Qteliv)
     {
         $this->Qteliv = $Qteliv;
@@ -161,7 +178,7 @@ class PlanningDetail{
 
     /**
      * Get the value of QteAll
-     */ 
+     */
     public function getQteAll()
     {
         return $this->QteAll;
@@ -171,7 +188,7 @@ class PlanningDetail{
      * Set the value of QteAll
      *
      * @return  self
-     */ 
+     */
     public function setQteAll($QteAll)
     {
         $this->QteAll = $QteAll;
@@ -181,7 +198,7 @@ class PlanningDetail{
 
     /**
      * Get the value of rmq
-     */ 
+     */
     public function getRmq()
     {
         return $this->rmq;
@@ -191,7 +208,7 @@ class PlanningDetail{
      * Set the value of rmq
      *
      * @return  self
-     */ 
+     */
     public function setRmq($rmq)
     {
         $this->rmq = $rmq;
@@ -201,7 +218,7 @@ class PlanningDetail{
 
     /**
      * Get the value of numrmq
-     */ 
+     */
     public function getNumrmq()
     {
         return $this->numrmq;
@@ -211,7 +228,7 @@ class PlanningDetail{
      * Set the value of numrmq
      *
      * @return  self
-     */ 
+     */
     public function setNumrmq($numrmq)
     {
         $this->numrmq = $numrmq;
@@ -221,7 +238,7 @@ class PlanningDetail{
 
     /**
      * Get the value of typeP
-     */ 
+     */
     public function getTypeP()
     {
         return $this->typeP;
@@ -231,7 +248,7 @@ class PlanningDetail{
      * Set the value of typeP
      *
      * @return  self
-     */ 
+     */
     public function setTypeP($typeP)
     {
         $this->typeP = $typeP;
@@ -241,7 +258,7 @@ class PlanningDetail{
 
     /**
      * Get the value of numligne
-     */ 
+     */
     public function getNumligne()
     {
         return $this->numligne;
@@ -251,7 +268,7 @@ class PlanningDetail{
      * Set the value of numligne
      *
      * @return  self
-     */ 
+     */
     public function setNumligne($numligne)
     {
         $this->numligne = $numligne;
@@ -261,7 +278,7 @@ class PlanningDetail{
 
     /**
      * Get the value of grp
-     */ 
+     */
     public function getGrp()
     {
         return $this->grp;
@@ -271,7 +288,7 @@ class PlanningDetail{
      * Set the value of grp
      *
      * @return  self
-     */ 
+     */
     public function setGrp($grp)
     {
         $this->grp = $grp;
@@ -281,7 +298,7 @@ class PlanningDetail{
 
     /**
      * Get the value of numeroCmd
-     */ 
+     */
     public function getNumeroCmd()
     {
         return $this->numeroCmd;
@@ -291,7 +308,7 @@ class PlanningDetail{
      * Set the value of numeroCmd
      *
      * @return  self
-     */ 
+     */
     public function setNumeroCmd($numeroCmd)
     {
         $this->numeroCmd = $numeroCmd;
@@ -301,7 +318,7 @@ class PlanningDetail{
 
     /**
      * Get the value of Statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->Statut;
@@ -311,7 +328,7 @@ class PlanningDetail{
      * Set the value of Statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($Statut)
     {
         $this->Statut = $Statut;
@@ -321,7 +338,7 @@ class PlanningDetail{
 
     /**
      * Get the value of date_statut
-     */ 
+     */
     public function getDate_statut()
     {
         return $this->date_statut;
@@ -331,7 +348,7 @@ class PlanningDetail{
      * Set the value of date_statut
      *
      * @return  self
-     */ 
+     */
     public function setDate_statut($date_statut)
     {
         $this->date_statut = $date_statut;

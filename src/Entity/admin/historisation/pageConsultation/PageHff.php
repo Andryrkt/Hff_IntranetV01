@@ -2,12 +2,11 @@
 
 namespace App\Entity\admin\historisation\pageConsultation;
 
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\ArrayCollection;
-use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Repository\admin\historisation\pageConsultation\PageHffRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\Mapping as ORM;
 
-/** 
+/**
  * @ORM\Entity(repositoryClass=PageHffRepository::class)
  * @ORM\Table(name="Hff_pages")
  */
@@ -35,7 +34,7 @@ class PageHff
      */
     private string $nomRoute;
 
-    /** 
+    /**
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="page", cascade={"persist", "remove"})
      */
     private $userLoggers;
@@ -144,6 +143,7 @@ class PageHff
     {
         $this->userLoggers[] = $userLogger;
         $userLogger->setPage($this); // Synchronisation inverse
+
         return $this;
     }
 

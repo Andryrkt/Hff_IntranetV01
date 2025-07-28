@@ -2,7 +2,6 @@
 
 namespace App\Repository\admin\historisation\pageConsultation;
 
-<<<<<<< HEAD
 use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
@@ -28,17 +27,17 @@ class UserLoggerRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         return [
-            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
-            'totalItems'  => $totalItems,
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
             'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'lastPage' => $lastPage,
         ];
     }
 
     private function dateFinDebut($queryBuilder, PageConsultationSearch $pageConsultationSearch)
     {
         //filtre date debut
-        if (!empty($pageConsultationSearch->getDateDebut())) {
+        if (! empty($pageConsultationSearch->getDateDebut())) {
             $queryBuilder
                 ->andWhere('ul.dateConsultation >= :dateDebut')
                 ->setParameter('dateDebut', $pageConsultationSearch->getDateDebut())
@@ -46,7 +45,7 @@ class UserLoggerRepository extends EntityRepository
         }
 
         //filtre date fin
-        if (!empty($pageConsultationSearch->getDateFin())) {
+        if (! empty($pageConsultationSearch->getDateFin())) {
             $queryBuilder
                 ->andWhere('ul.dateConsultation <= :dateFin')
                 ->setParameter('dateFin', $pageConsultationSearch->getDateFin())
@@ -57,7 +56,7 @@ class UserLoggerRepository extends EntityRepository
     private function conditionSaisieLibre($queryBuilder, PageConsultationSearch $pageConsultationSearch)
     {
         //filtre utilisateur
-        if (!empty($pageConsultationSearch->getUtilisateur())) {
+        if (! empty($pageConsultationSearch->getUtilisateur())) {
             $queryBuilder
                 ->andWhere('ul.utilisateur LIKE :user')
                 ->setParameter('user', '%' . $pageConsultationSearch->getUtilisateur() . '%')
@@ -65,7 +64,7 @@ class UserLoggerRepository extends EntityRepository
         }
 
         //filtre nom de page
-        if (!empty($pageConsultationSearch->getNomPage())) {
+        if (! empty($pageConsultationSearch->getNomPage())) {
             $queryBuilder
                 ->andWhere('ul.nom_page LIKE :pagename')
                 ->setParameter('pagename', '%' . $pageConsultationSearch->getNomPage() . '%')
@@ -73,7 +72,7 @@ class UserLoggerRepository extends EntityRepository
         }
 
         //filtre nom de machine
-        if (!empty($pageConsultationSearch->getMachineUser())) {
+        if (! empty($pageConsultationSearch->getMachineUser())) {
             $queryBuilder
                 ->andWhere('ul.machineUser LIKE :machine')
                 ->setParameter('machine', '%' . $pageConsultationSearch->getMachineUser() . '%')
@@ -81,9 +80,3 @@ class UserLoggerRepository extends EntityRepository
         }
     }
 }
-=======
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
-
-class UserLoggerRepository extends EntityRepository {}
->>>>>>> e2449b113a26f4a16e2de08d779a4e263ca62975

@@ -2,11 +2,10 @@
 
 namespace App\Entity\tik;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\Traits\DateTrait;
 use App\Repository\tik\TkiPlanningRepository;
-use App\Entity\tik\DemandeSupportInformatique;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TkiPlanningRepository::class)
@@ -16,7 +15,7 @@ use App\Entity\tik\DemandeSupportInformatique;
 class TkiPlanning
 {
     use DateTrait;
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -29,7 +28,7 @@ class TkiPlanning
      */
     private $numeroTicket;
 
-        /**
+    /**
      * @ORM\Column(type="string", length=100, name="Objet_Demande")
      */
     private string $objetDemande;
@@ -38,7 +37,6 @@ class TkiPlanning
      * @ORM\Column(type="string", length=5000, name="Detail_Demande")
      */
     private string $detailDemande;
-
 
     /**
      * @ORM\Column(type="datetime", name="date_heure_debut_planning")
@@ -59,19 +57,19 @@ class TkiPlanning
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tikPlanningUser")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     * 
+     *
      */
     private $userId;
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
-    
+
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -79,7 +77,7 @@ class TkiPlanning
 
     /**
      * Get the value of numeroTicket
-     */ 
+     */
     public function getNumeroTicket()
     {
         return $this->numeroTicket;
@@ -89,7 +87,7 @@ class TkiPlanning
      * Set the value of numeroTicket
      *
      * @return  self
-     */ 
+     */
     public function setNumeroTicket($numeroTicket)
     {
         $this->numeroTicket = $numeroTicket;
@@ -99,7 +97,7 @@ class TkiPlanning
 
     /**
      * Get the value of objetDemande
-     */ 
+     */
     public function getObjetDemande()
     {
         return $this->objetDemande;
@@ -109,7 +107,7 @@ class TkiPlanning
      * Set the value of objetDemande
      *
      * @return  self
-     */ 
+     */
     public function setObjetDemande($objetDemande)
     {
         $this->objetDemande = $objetDemande;
@@ -119,7 +117,7 @@ class TkiPlanning
 
     /**
      * Get the value of detailDemande
-     */ 
+     */
     public function getDetailDemande()
     {
         return $this->detailDemande;
@@ -129,7 +127,7 @@ class TkiPlanning
      * Set the value of detailDemande
      *
      * @return  self
-     */ 
+     */
     public function setDetailDemande($detailDemande)
     {
         $this->detailDemande = $detailDemande;
@@ -139,7 +137,7 @@ class TkiPlanning
 
     /**
      * Get the value of dateDebutPlanning
-     */ 
+     */
     public function getDateDebutPlanning()
     {
         return $this->dateDebutPlanning;
@@ -149,7 +147,7 @@ class TkiPlanning
      * Set the value of dateDebutPlanning
      *
      * @return  self
-     */ 
+     */
     public function setDateDebutPlanning($dateDebutPlanning)
     {
         $this->dateDebutPlanning = $dateDebutPlanning;
@@ -159,7 +157,7 @@ class TkiPlanning
 
     /**
      * Get the value of dateFinPlanning
-     */ 
+     */
     public function getDateFinPlanning()
     {
         return $this->dateFinPlanning;
@@ -169,7 +167,7 @@ class TkiPlanning
      * Set the value of dateFinPlanning
      *
      * @return  self
-     */ 
+     */
     public function setDateFinPlanning($dateFinPlanning)
     {
         $this->dateFinPlanning = $dateFinPlanning;
@@ -179,7 +177,7 @@ class TkiPlanning
 
     /**
      * Get the value of demandeId
-     */ 
+     */
     public function getDemandeId()
     {
         return $this->demandeId;
@@ -189,7 +187,7 @@ class TkiPlanning
      * Set the value of demandeId
      *
      * @return  self
-     */ 
+     */
     public function setDemandeId($demandeId)
     {
         $this->demandeId = $demandeId;
@@ -199,7 +197,7 @@ class TkiPlanning
 
     /**
      * Get the value of userId
-     */ 
+     */
     public function getUserId()
     {
         return $this->userId;
@@ -209,7 +207,7 @@ class TkiPlanning
      * Set the value of userId
      *
      * @return  self
-     */ 
+     */
     public function setUserId($userId)
     {
         $this->userId = $userId;

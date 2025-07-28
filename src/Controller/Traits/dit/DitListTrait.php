@@ -2,18 +2,17 @@
 
 namespace App\Controller\Traits\dit;
 
-
 use App\Entity\admin\Agence;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
-use App\Entity\dit\DitSearch;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dit\DitRiSoumisAValidation;
+use App\Entity\dit\DitSearch;
 
 trait DitListTrait
 {
@@ -31,6 +30,7 @@ trait DitListTrait
         }
         $idMateriels .= ')';
         $idMateriels = substr_replace($idMateriels, '', strrpos($idMateriels, ','), 1);
+
         return $idMateriels;
     }
 
@@ -43,7 +43,7 @@ trait DitListTrait
      */
     private function ajoutAgenceServiceDebiteur($form, $ditSearch)
     {
-        if ($form->get('agenceDebiteur')->getData() === null  && $form->get('serviceDebiteur')->getData() === null) {
+        if ($form->get('agenceDebiteur')->getData() === null && $form->get('serviceDebiteur')->getData() === null) {
             $ditSearch
                 ->setAgenceDebiteur(null)
                 ->setServiceDebiteur(null);
@@ -81,8 +81,6 @@ trait DitListTrait
         ;
         $this->ajoutAgenceServiceDebiteur($form, $ditSearch);
     }
-
-
 
     /**
      * function pour l'initialisation des donners
@@ -174,27 +172,27 @@ trait DitListTrait
 
         return [
             'agence' => $agence,
-            'service' => $service
+            'service' => $service,
         ];
     }
 
     private function ajoutNumSerieNumParc($data)
     {
-        if (!empty($data)) {
+        if (! empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
-                if (!empty($data[$i]->getIdMateriel())) {
-                
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
-                if (!empty($numSerieParc)) {
-                    $numSerie = $numSerieParc[0]['num_serie'];
-                    $numParc = $numSerieParc[0]['num_parc'];
-                    $data[$i]->setNumSerie($numSerie);
-                    $data[$i]->setNumParc($numParc);
-                } else {
-                    $data[$i]->setNumSerie('');
-                    $data[$i]->setNumParc('');
-                }
+                if (! empty($data[$i]->getIdMateriel())) {
+
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    if (! empty($numSerieParc)) {
+                        $numSerie = $numSerieParc[0]['num_serie'];
+                        $numParc = $numSerieParc[0]['num_parc'];
+                        $data[$i]->setNumSerie($numSerie);
+                        $data[$i]->setNumParc($numParc);
+                    } else {
+                        $data[$i]->setNumSerie('');
+                        $data[$i]->setNumParc('');
+                    }
                 }
             }
         }
@@ -202,32 +200,33 @@ trait DitListTrait
 
     private function ajoutMarqueCasierMateriel($data)
     {
-        if (!empty($data)) {
+        if (! empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
-                if (!empty($data[$i]->getIdMateriel())) {
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
-                if (!empty($marqueCasier)) {
-                    $marque = $marqueCasier[0]['marque'];
-                    $casier = $marqueCasier[0]['casier'];
-                    $data[$i]->setMarque($marque);
-                    $data[$i]->setCasier($casier);
-                } else {
-                    $data[$i]->setMarque('');
-                    $data[$i]->setCasier('');
+                if (! empty($data[$i]->getIdMateriel())) {
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                    if (! empty($marqueCasier)) {
+                        $marque = $marqueCasier[0]['marque'];
+                        $casier = $marqueCasier[0]['casier'];
+                        $data[$i]->setMarque($marque);
+                        $data[$i]->setCasier($casier);
+                    } else {
+                        $data[$i]->setMarque('');
+                        $data[$i]->setCasier('');
+                    }
                 }
-            }
             }
         }
     }
 
-    private function ajoutStatutAchatPiece($data){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
-         
+    private function ajoutStatutAchatPiece($data)
+    {
+        for ($i = 0 ; $i < count($data) ; $i++) {
+
             if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
 
-                if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
-                    
+                if (! empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+
                     foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
@@ -249,7 +248,7 @@ trait DitListTrait
     {
         for ($i = 0; $i < count($data); $i++) {
             if ($data[$i]->getNumeroOR() !== null) {
-                if (!empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
+                if (! empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
                     foreach ($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
@@ -267,13 +266,13 @@ trait DitListTrait
         }
     }
 
-    private function ajoutNbrPj($data, $em){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
+    private function ajoutNbrPj($data, $em)
+    {
+        for ($i = 0 ; $i < count($data) ; $i++) {
             $nbrJr = $em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention());
             $data[$i]->setNbrPj($nbrJr);
         }
     }
-
 
     private function autorisationRole($em): bool
     {
@@ -281,6 +280,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
+
         return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
     }
 
@@ -290,9 +290,9 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
+
         return in_array(5, $roleIds);
     }
-
 
     private function ajoutQuatreStatutOr($data)
     {
@@ -304,7 +304,7 @@ trait DitListTrait
                 $data[$i]->setQuantiteLivree(0);
 
                 $quantites = $this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
-                if (!empty($quantites)) {
+                if (! empty($quantites)) {
                     foreach ($quantites as $value) {
                         $data[$i]->setQuantiteDemander((int)$value['quantitedemander']);
                         $data[$i]->setQuantiteReserver((int)$value['quantitereserver']);
@@ -342,7 +342,7 @@ trait DitListTrait
     {
         $nbNumor = $this->ditModel->recupNbNumor($numDit);
         $estRelier = false;
-        if (!empty($nbNumor) && $nbNumor[0]['nbor'] !== "0") {
+        if (! empty($nbNumor) && $nbNumor[0]['nbor'] !== "0") {
             $estRelier = true;
         }
 
@@ -383,7 +383,7 @@ trait DitListTrait
     private function transformEnSeulTableau(array $tabs): array
     {
         $tab = [];
-        foreach ($tabs as  $values) {
+        foreach ($tabs as $values) {
             if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
@@ -395,7 +395,6 @@ trait DitListTrait
 
         return $tab;
     }
-
 
     private function donnerAAfficher($ditListeModel, $ditSearch, $option, $page, $limit, $em)
     {
@@ -437,7 +436,7 @@ trait DitListTrait
     //         } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
     //             $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
     //         }
-    //     } 
+    //     }
     // }
 
     private function Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds): array
@@ -447,7 +446,7 @@ trait DitListTrait
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
+            'serviceAutoriserIds' => $serviceIds,
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
     }
@@ -532,7 +531,7 @@ trait DitListTrait
                 $entity->getNbrPj(),
                 $entity->getUtilisateurDemandeur(),
                 $entity->getMarque(),
-                $entity->getCasier()
+                $entity->getCasier(),
             ];
         }
 
@@ -556,18 +555,18 @@ trait DitListTrait
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
-        
+
 
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
-        
+
         //ajout nombre de pièce joint
         $this->ajoutNbrPj($paginationData['data'], $em);
-      
+
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
-        
+
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
@@ -586,40 +585,38 @@ trait DitListTrait
             // dd($value);
             $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
 
-            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+            if ($value->getIdStatutDemande()->getId() === 51 && ! $estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+            } elseif ($value->getIdStatutDemande()->getId() === 53 && ! $estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
             } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
-            } 
+            }
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
-            // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57 ) {
+            // }
+            elseif ($value->getIdStatutDemande()->getId() === 57) {
                 $value->setEstOrASoumi(true);
-            }
-            else {
+            } else {
                 $value->setEstOrASoumi(false);
             }
         }
     }
 
-
     private function criteriaTab(array $criteria): array
     {
         $criteriaTab = $criteria;
 
-        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
-        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
-        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['typeDocument'] = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence'] = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut'] = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut'] = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin'] = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur'] = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
         $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
-        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['agenceDebiteur'] = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
         $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
-        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+        $criteriaTab['categorie'] = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);

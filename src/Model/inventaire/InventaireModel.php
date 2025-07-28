@@ -2,15 +2,16 @@
 
 namespace App\Model\inventaire;
 
+use App\Controller\Traits\FormatageTrait;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
-use App\Controller\Traits\FormatageTrait;
 
 class InventaireModel extends Model
 {
     use ConversionModel;
     use FormatageTrait;
     use InventaireModelTrait;
+
     public function recuperationAgenceIrium()
     {
         $statement = " SELECT  trim(asuc_num) as asuc_num ,
@@ -33,6 +34,7 @@ class InventaireModel extends Model
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $dataUtf8 = $this->convertirEnUtf8($data);
+
         return
             array_map(function ($item) {
                 return [$item['asuc_num'] . '-' . $item['asuc_lib'] => $item['asuc_num']];
@@ -106,6 +108,7 @@ class InventaireModel extends Model
         //  dd($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
 
@@ -118,6 +121,7 @@ class InventaireModel extends Model
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
 
@@ -149,8 +153,10 @@ class InventaireModel extends Model
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
+
     public function inventaireDetail($numInv)
     {
         $statement = "SELECT    ainvp_datecpt as dateInv,  
@@ -184,9 +190,9 @@ class InventaireModel extends Model
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
-
 
     public function countSequenceInvent($numInv)
     {
@@ -198,6 +204,7 @@ class InventaireModel extends Model
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
 
@@ -217,6 +224,7 @@ class InventaireModel extends Model
         //  dump($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
+
         return $resultat;
     }
 }

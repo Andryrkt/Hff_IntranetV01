@@ -2,30 +2,32 @@
 
 namespace App\Controller\inventaire;
 
-use DateTime;
 use App\Controller\Controller;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
-use App\Model\inventaire\InventaireModel;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use App\Entity\inventaire\InventaireSearch;
 use App\Entity\inventaire\InventaireDetailSearch;
+use App\Entity\inventaire\InventaireSearch;
 use App\Form\inventaire\InventaireDetailSearchType;
 use App\Form\inventaire\InventaireSearchType;
+use App\Model\inventaire\InventaireModel;
 use App\Service\genererPdf\GeneretePdfInventaire;
+use DateTime;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\VarDumper\Cloner\Data;
-use TCPDF;
 
 class InventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
+
     private InventaireModel $inventaireModel;
+
     private InventaireSearch $inventaireSearch;
+
     private InventaireDetailSearch $inventaireDetailSearch;
+
     private GeneretePdfInventaire $generetePdfInventaire;
 
     public function __construct()
@@ -39,7 +41,7 @@ class InventaireController extends Controller
 
     /**
      * @Route("/inventaire", name = "liste_inventaire")
-     * 
+     *
      * @return void
      */
     public function listeInventaire(Request $request)
@@ -51,7 +53,7 @@ class InventaireController extends Controller
             InventaireSearchType::class,
             $this->inventaireSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
             ]
         )->getForm();
 
@@ -60,7 +62,7 @@ class InventaireController extends Controller
         $criteria = $this->inventaireSearch;
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria =  $form->getdata();
+            $criteria = $form->getdata();
         }
         $criteriaTAb = [];
         //transformer l'objet ditSearch en tableau
@@ -68,7 +70,7 @@ class InventaireController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('inventaire_search_criteria', $criteriaTAb);
 
-        $data  = [];
+        $data = [];
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent);
@@ -76,9 +78,10 @@ class InventaireController extends Controller
         }
         self::$twig->display('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
-            'data' => $data
+            'data' => $data,
         ]);
     }
+
     /**
      * @Route("/detailInventaire/{numinv}",name = "detail_inventaire")
      */
@@ -90,14 +93,14 @@ class InventaireController extends Controller
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
             ]
         )->getForm();
         $form->handleRequest($request);
 
         $criteria = $this->inventaireDetailSearch;
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria =  $form->getdata();
+            $criteria = $form->getdata();
         }
         $criteriaTAb = [];
         //transformer l'objet InventaireDetailSearch en tableau
@@ -110,7 +113,7 @@ class InventaireController extends Controller
         // dump($dataDetail);
         self::$twig->display('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
-            'data' => $dataDetail
+            'data' => $dataDetail,
         ]);
     }
 
@@ -175,13 +178,14 @@ class InventaireController extends Controller
             'montant_inventaire' => 'Mont. Inventaire',
             'montant_ajuste' => 'Mont. Ajusté',
             'pourcentage_ecart' => '% mont. écart',
-            'dateInv'=> 'Date invetaire'
+            'dateInv' => 'Date invetaire',
         ];
 
         array_unshift($data, $header);
 
         $this->exportDonneesExcel($data);
     }
+
     /**
      * @Route("/export_pdf_liste_inventaire_detail/{numinv}", name = "export_pdf_liste_inventaire_detail")
      */
@@ -196,11 +200,10 @@ class InventaireController extends Controller
         $this->generetePdfInventaire->genererPDF($data);
     }
 
-
     public function recupDataList($listInvent)
     {
         $data = [];
-        if (!empty($listInvent)) {
+        if (! empty($listInvent)) {
             for ($i = 0; $i < count($listInvent); $i++) {
                 $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
                 $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
@@ -218,10 +221,11 @@ class InventaireController extends Controller
                     'total_nbre_ref_ecarts' => $invLigne[0]['total_nbre_ref_ecarts'],
                     'pourcentage_ref_avec_ecart' => $invLigne[0]['pourcentage_ref_avec_ecart'],
                     'montant_ecart' => $this->formatNumber($invLigne[0]['montant_ecart']),
-                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart']
+                    'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'],
                 ];
             }
         }
+
         return $data;
     }
 
@@ -236,7 +240,7 @@ class InventaireController extends Controller
 
         $data = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
-        if (!empty($detailInvent)) {
+        if (! empty($detailInvent)) {
             // dump($detailInvent);
             for ($j = 0; $j < count($detailInvent); $j++) {
                 $data[] = [
@@ -251,22 +255,24 @@ class InventaireController extends Controller
                     "qte_comptee_3" => "0",
                     "ecart" => $detailInvent[$j]["ecart"],
                     "pourcentage_nbr_ecart" => $detailInvent[$j]["pourcentage_nbr_ecart"],
-                    "pmp" =>  $this->formatNumber($detailInvent[$j]["pmp"]),
+                    "pmp" => $this->formatNumber($detailInvent[$j]["pmp"]),
                     "montant_inventaire" => $this->formatNumber($detailInvent[$j]["montant_inventaire"]),
                     "montant_ajuste" => $this->formatNumber($detailInvent[$j]["montant_ajuste"]),
-                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
-                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
+                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"],
+                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y'),
                 ];
-                if (!empty($countSequence)) {
+                if (! empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
-                        $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
+                        $qteCompte = $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
                         $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
                     }
                 }
             }
         }
+
         return $data;
     }
+
     public function dataDetailExcel($countSequence, $numinv)
     {
         $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
@@ -278,7 +284,7 @@ class InventaireController extends Controller
 
         $data = [];
         $detailInvent = $this->inventaireModel->inventaireDetail($numinv);
-        if (!empty($detailInvent)) {
+        if (! empty($detailInvent)) {
             // dump($detailInvent);
             for ($j = 0; $j < count($detailInvent); $j++) {
                 $data[] = [
@@ -296,20 +302,20 @@ class InventaireController extends Controller
                     "pmp" => $detailInvent[$j]["pmp"],
                     "montant_inventaire" => $detailInvent[$j]["montant_inventaire"],
                     "montant_ajuste" => $detailInvent[$j]["montant_ajuste"],
-                    "pourcentage_ecart" =>$detailInvent[$j]["pourcentage_ecart"],
-                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y')
+                    "pourcentage_ecart" => $detailInvent[$j]["pourcentage_ecart"],
+                    "dateInv" => (new DateTime($detailInvent[$j]['dateinv']))->format('d/m/Y'),
                 ];
-                if (!empty($countSequence)) {
+                if (! empty($countSequence)) {
                     for ($i = 0; $i < count($countSequence); $i++) {
-                        $qteCompte =  $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
+                        $qteCompte = $this->inventaireModel->qteCompte($numinv, $countSequence[$i]['nb_sequence'], $detailInvent[$j]['refp']);
                         $data[$j]["qte_comptee_" . ($i + 1)] = $qteCompte[0]['qte_comptee'];
                     }
                 }
             }
         }
+
         return $data;
     }
-
 
     private function exportDonneesExcel($data)
     {

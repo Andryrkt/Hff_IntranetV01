@@ -2,12 +2,12 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\cas\Casier;
 use App\Controller\Controller;
+use App\Controller\Traits\Transformation;
+use App\Entity\admin\StatutDemande;
+use App\Entity\cas\Casier;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
-use App\Entity\admin\StatutDemande;
-use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,7 +24,7 @@ class CasierListTemporaireController extends Controller
         $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
-            'method' => 'GET'
+            'method' => 'GET',
         ])->getForm();
 
         $form->handleRequest($request);
@@ -60,8 +60,6 @@ class CasierListTemporaireController extends Controller
             ]
         );
     }
-
-
 
     /**
      * @Route("/btnValide/{id}", name="CasierListTemporaire_btnValide")

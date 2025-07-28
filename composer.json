@@ -91,6 +91,8 @@
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.43",
-        "doctrine/orm": "^2.19"
+        "doctrine/orm": "^2.19",
+        "friendsofphp/php-cs-fixer": "^3.84",
+        "phpunit/phpunit": "^9.6"
     }
 }

@@ -3,10 +3,9 @@
 namespace App\Entity\admin\dom;
 
 use App\Entity\dom\Dom;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\Indemnite;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -57,7 +56,6 @@ class SousTypeDocument
      */
     private $doms;
 
-
     public function __construct()
     {
         $this->catg = new ArrayCollection();
@@ -78,6 +76,7 @@ class SousTypeDocument
     public function setCodeDocument(string $codeDocument): self
     {
         $this->codeDocument = $codeDocument;
+
         return $this;
     }
 
@@ -89,6 +88,7 @@ class SousTypeDocument
     public function setCodeSousType(?string $codeSousType): self
     {
         $this->codeSousType = $codeSousType;
+
         return $this;
     }
 
@@ -100,6 +100,7 @@ class SousTypeDocument
     public function setDescription(?string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -111,6 +112,7 @@ class SousTypeDocument
     public function setDateCreation(string $dateCreation): self
     {
         $this->dateCreation = $dateCreation;
+
         return $this;
     }
 
@@ -124,10 +126,11 @@ class SousTypeDocument
 
     public function addCatg(Catg $catg): self
     {
-        if (!$this->catg->contains($catg)) {
+        if (! $this->catg->contains($catg)) {
             $this->catg[] = $catg;
             $catg->setSousTypeDocument($this);
         }
+
         return $this;
     }
 
@@ -139,6 +142,7 @@ class SousTypeDocument
                 $catg->setSousTypeDocument(null);
             }
         }
+
         return $this;
     }
 
@@ -152,10 +156,11 @@ class SousTypeDocument
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (!$this->indemnites->contains($indemnite)) {
+        if (! $this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setSousTypeDoc($this);
         }
+
         return $this;
     }
 
@@ -171,7 +176,6 @@ class SousTypeDocument
         return $this;
     }
 
-
     public function getDoms()
     {
         return $this->doms;
@@ -179,7 +183,7 @@ class SousTypeDocument
 
     public function addDom(Dom $doms): self
     {
-        if (!$this->doms->contains($doms)) {
+        if (! $this->doms->contains($doms)) {
             $this->doms[] = $doms;
             $doms->setSousTypeDocument($this);
         }

@@ -2,38 +2,40 @@
 
 namespace App\Form\admin\utilisateur;
 
-use App\Entity\admin\utilisateur\Role;
-use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\Permission;
-use Symfony\Component\Form\FormBuilderInterface;
+use App\Entity\admin\utilisateur\Role;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class RoleType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-       
-        ->add('role_name', 
-            TextType::class, 
+
+        ->add(
+            'role_name',
+            TextType::class,
             [
                 'label' => 'Nom',
-            ])
-        ->add('permissions',
+            ]
+        )
+        ->add(
+            'permissions',
             EntityType::class,
             [
                 'label' => 'permission',
                 'class' => Permission::class,
                 'choice_label' => 'permissionName',
                 'multiple' => true,
-                'expanded' => false
+                'expanded' => false,
             ]
         )
-    
-    ;
+
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -42,6 +44,4 @@ class RoleType extends AbstractType
             'data_class' => Role::class,
         ]);
     }
-
-
 }

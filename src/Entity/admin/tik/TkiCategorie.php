@@ -2,12 +2,11 @@
 
 namespace App\Entity\admin\tik;
 
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\tik\TkiSousCategorie;
-use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Repository\admin\tik\TkiCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TkiCategorieRepository::class)
@@ -27,7 +26,6 @@ class TkiCategorie
      */
     private string $description;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=TkiSousCategorie::class, inversedBy="categories")
      * @ORM\JoinTable(name="categorie_souscategorie")
@@ -39,7 +37,6 @@ class TkiCategorie
      */
     private Collection $supportInfo;
 
-
     public function __construct()
     {
         $this->sousCategories = new ArrayCollection();
@@ -47,7 +44,7 @@ class TkiCategorie
     }
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
@@ -65,9 +62,9 @@ class TkiCategorie
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
-
 
     /**
      * @return Collection
@@ -79,7 +76,7 @@ class TkiCategorie
 
     public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if (!$this->sousCategories->contains($sousCategorie)) {
+        if (! $this->sousCategories->contains($sousCategorie)) {
             $this->sousCategories[] = $sousCategorie;
             $sousCategorie->addCategorie($this);
         }
@@ -87,10 +84,10 @@ class TkiCategorie
         return $this;
     }
 
-    
     public function setSousCategories(Collection $sousCategorie): self
     {
         $this->sousCategories = $sousCategorie;
+
         return $this;
     }
 
@@ -103,7 +100,6 @@ class TkiCategorie
         return $this;
     }
 
-
     public function getSupportInfo(): Collection
     {
         return $this->supportInfo;
@@ -111,7 +107,7 @@ class TkiCategorie
 
     public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
     {
-        if (!$this->supportInfo->contains($supportInfo)) {
+        if (! $this->supportInfo->contains($supportInfo)) {
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setCategorie($this);
         }
@@ -127,7 +123,7 @@ class TkiCategorie
                 $supportInfo->setCategorie(null);
             }
         }
-        
+
         return $this;
     }
 }

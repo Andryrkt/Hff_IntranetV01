@@ -2,9 +2,8 @@
 
 namespace App\Entity\dw;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\dw\DwRapportInterventionRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DwRapportInterventionRepository::class)
@@ -13,14 +12,12 @@ use App\Repository\dw\DwRapportInterventionRepository;
  */
 class DwRapportIntervention
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private int $id;
-
 
     /**
      * @ORM\Column(type="integer", name="id_ri")
@@ -93,16 +90,16 @@ class DwRapportIntervention
      * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=false)
      */
     private $tiroir;
-    
-/** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -110,7 +107,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of idRi
-     */ 
+     */
     public function getIdRi()
     {
         return $this->idRi;
@@ -120,17 +117,17 @@ class DwRapportIntervention
      * Set the value of idRi
      *
      * @return  self
-     */ 
+     */
     public function setIdRi($idRi)
     {
         $this->idRi = $idRi;
 
         return $this;
     }
-    
+
     /**
      * Get the value of numeroRi
-     */ 
+     */
     public function getNumeroRi()
     {
         return $this->numeroRi;
@@ -140,7 +137,7 @@ class DwRapportIntervention
      * Set the value of numeroRi
      *
      * @return  self
-     */ 
+     */
     public function setNumeroRi($numeroRi)
     {
         $this->numeroRi = $numeroRi;
@@ -150,7 +147,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of idTiroir
-     */ 
+     */
     public function getIdTiroir()
     {
         return $this->idTiroir;
@@ -160,7 +157,7 @@ class DwRapportIntervention
      * Set the value of idTiroir
      *
      * @return  self
-     */ 
+     */
     public function setIdTiroir($idTiroir)
     {
         $this->idTiroir = $idTiroir;
@@ -170,7 +167,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -180,7 +177,7 @@ class DwRapportIntervention
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -190,7 +187,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -200,7 +197,7 @@ class DwRapportIntervention
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -210,7 +207,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -220,7 +217,7 @@ class DwRapportIntervention
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -230,7 +227,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -240,7 +237,7 @@ class DwRapportIntervention
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -250,7 +247,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -260,7 +257,7 @@ class DwRapportIntervention
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -270,7 +267,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -280,7 +277,7 @@ class DwRapportIntervention
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -290,7 +287,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -300,7 +297,7 @@ class DwRapportIntervention
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -310,7 +307,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -320,7 +317,7 @@ class DwRapportIntervention
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -330,7 +327,7 @@ class DwRapportIntervention
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -340,7 +337,7 @@ class DwRapportIntervention
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
@@ -375,6 +372,4 @@ class DwRapportIntervention
 
         return $this;
     }
-
-    
 }

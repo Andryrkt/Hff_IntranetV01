@@ -3,26 +3,30 @@
 namespace App\Service\historiqueOperation;
 
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
-use App\Service\SessionManagerService;
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class HistoriqueOperationService implements HistoriqueOperationInterface
 {
     private $em;
+
     private $userRepository;
+
     private $typeOperationRepository;
+
     private $typeDocumentRepository;
+
     protected $sessionService;
+
     private int $typeDocumentId;
 
-    /** 
+    /**
      * Constructeur pour l'historique des opérations de document par type
-     * 
+     *
      * @param int $typeDocumentId ID du type de document
      *  - 1 : DIT - Demande d'intervention
      *  - 2 : OR - Ordre de réparation
@@ -40,23 +44,21 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      */
     public function __construct(SessionInterface $session, EntityManagerInterface $em)
     {
-        $this->em                      = $em;
-        $this->userRepository          = $em->getRepository(User::class);
+        $this->em = $em;
+        $this->userRepository = $em->getRepository(User::class);
         $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
-        $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
+        $this->typeDocumentRepository = $em->getRepository(TypeDocument::class);
         $this->sessionService = $session;
     }
-
-    
 
     public function setIdTypeDocument(int $typeDocumentId): void
     {
         $this->typeDocumentId = $typeDocumentId;
     }
 
-    /** 
+    /**
      * Méthode pour enregistrer l'historique de l'opération
-     * 
+     *
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
      *  - 1 : SOUMISSION
@@ -72,7 +74,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      */
     public function enregistrer(string $numeroDocument, int $typeOperationId, bool $statutOperation, ?string $libelleOperation = null): void
     {
-        $historique    = new HistoriqueOperationDocument();
+        $historique = new HistoriqueOperationDocument();
         $utilisateurId = $this->sessionService->get('user_id');
         $historique
             ->setNumeroDocument($numeroDocument)
@@ -88,8 +90,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->em->flush();
     }
 
-
-    /** 
+    /**
      * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
      *  - 1 : SOUMISSION
      *  - 2 : VALIDATION
@@ -101,7 +102,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     private function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
     {
         $this->sessionService->set('notification', [
-            'type'    => $success ? 'success' : 'danger',
+            'type' => $success ? 'success' : 'danger',
             'message' => $message,
         ]);
         $this->enregistrer($numeroDocument, $typeOperationId, $success, $message);
@@ -110,9 +111,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         exit();
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la SOUMISSION dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
@@ -125,9 +126,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->sendNotification($message, $numeroDocument, $routeName, 1, $success);
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la VALIDATION dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
@@ -140,9 +141,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->sendNotification($message, $numeroDocument, $routeName, 2, $success);
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la MODIFICATION dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
@@ -155,9 +156,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->sendNotification($message, $numeroDocument, $routeName, 3, $success);
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la SUPPRESSION dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
@@ -170,9 +171,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->sendNotification($message, $numeroDocument, $routeName, 4, $success);
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la CREATION dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection
@@ -185,9 +186,9 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
         $this->sendNotification($message, $numeroDocument, $routeName, 5, $success);
     }
 
-    /** 
+    /**
      * Méthode pour envoyer une notification et enregistrer l'historique de la CLOTURE dU document
-     * 
+     *
      * @param string $message message pour la notification
      * @param string $numeroDocument numéro du document, mettre '-' s'il n'y en a pas
      * @param string $routeName nom de la route pour la redirection

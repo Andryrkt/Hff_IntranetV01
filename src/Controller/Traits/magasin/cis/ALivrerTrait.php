@@ -10,8 +10,7 @@ trait ALivrerTrait
     {
         $agenceServiceUser = $this->agenceServiceIpsObjet();
 
-        if($autoriser)
-        {
+        if ($autoriser) {
             $agenceUser = null;
         } else {
             $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
@@ -26,6 +25,7 @@ trait ALivrerTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
+
         return in_array(1, $roleIds) || in_array(6, $roleIds);
     }
 
@@ -39,15 +39,15 @@ trait ALivrerTrait
     public function transformEnSeulTableau(array $tabs): array
     {
         $tab = [];
-        foreach ($tabs as  $values) {
-            if(is_array($values)){
+        foreach ($tabs as $values) {
+            if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
                 }
             } else {
                 $tab[] = $values;
             }
-            
+
         }
 
         return $tab;

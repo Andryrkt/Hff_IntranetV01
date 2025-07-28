@@ -2,23 +2,22 @@
 
 namespace App\Controller\Traits\dit;
 
-use FileException;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\FormInterface;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Entity\dit\DitFactureSoumisAValidation;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use Symfony\Component\Form\FormInterface;
 
 trait DitFactureSoumisAValidationtrait
 {
-
     private function nomUtilisateur($em)
     {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
+
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),
-            'emailUtilisateur' => $user->getMail()
+            'emailUtilisateur' => $user->getMail(),
         ];
     }
 
@@ -33,45 +32,44 @@ trait DitFactureSoumisAValidationtrait
         }
     }
 
-
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em, $ditFactureSoumiAValidation): array
-    {   
+    {
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
 
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
-        
+
         $factureSoumisAValidation = [];
-            foreach ($infoFacture as $value) {
-                $factureSoumis = new DitFactureSoumisAValidation();
-                //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
-                
-                // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
-                
-                $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
-                
-                $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
-                
-                //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
-                $factureSoumis
-                        ->setNumeroDit($numDit)
-                        ->setNumeroOR($dataForm->getNumeroOR())
-                        ->setNumeroFact($dataForm->getNumeroFact())
-                        ->setHeureSoumission($this->getTime())
-                        ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                        ->setNumeroSoumission($numeroSoumission)
-                        ->setNumeroItv($value['numeroitv'])
-                        ->setMontantFactureitv($value['montantfactureitv'])
-                        ->setAgenceDebiteur($value['agencedebiteur'])
-                        ->setServiceDebiteur($value['servicedebiteur'])
-                        ->setMttItv($montantValide)
-                        ->setLibelleItv($value['libelleitv'] === null ? '' : $value['libelleitv'])
-                        ->setStatut('')
-                        ->setStatutItv($statutOrsSoumisValidation)
-                        ->setAgServDebDit($agServDebDit)
-                ;
-                $factureSoumisAValidation[] = $factureSoumis;
-            }
-            
+        foreach ($infoFacture as $value) {
+            $factureSoumis = new DitFactureSoumisAValidation();
+            //$nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
+
+            // $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
+
+            $statutOrsSoumisValidation = $this->statutOrsSoumisValidation($ditFactureSoumiAValidationModel, $value['numeroor'], (int)$value['numeroitv']);
+
+            $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($dataForm->getNumeroOR(), (int)$value['numeroitv']);
+
+            //$statutFacControle = $this->affectationStatutFac($statutOrsSoumisValidation, $nombreItv, $agServDebDit, $value, $nombreStatutControle);
+            $factureSoumis
+                    ->setNumeroDit($numDit)
+                    ->setNumeroOR($dataForm->getNumeroOR())
+                    ->setNumeroFact($dataForm->getNumeroFact())
+                    ->setHeureSoumission($this->getTime())
+                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                    ->setNumeroSoumission($numeroSoumission)
+                    ->setNumeroItv($value['numeroitv'])
+                    ->setMontantFactureitv($value['montantfactureitv'])
+                    ->setAgenceDebiteur($value['agencedebiteur'])
+                    ->setServiceDebiteur($value['servicedebiteur'])
+                    ->setMttItv($montantValide)
+                    ->setLibelleItv($value['libelleitv'] === null ? '' : $value['libelleitv'])
+                    ->setStatut('')
+                    ->setStatutItv($statutOrsSoumisValidation)
+                    ->setAgServDebDit($agServDebDit)
+            ;
+            $factureSoumisAValidation[] = $factureSoumis;
+        }
+
         return  $factureSoumisAValidation;
     }
 
@@ -106,7 +104,7 @@ trait DitFactureSoumisAValidationtrait
             $nombreItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNbrItv($value['numeroor']);
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
             $montantValide = $em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv']);
-            if(empty($statutOrsSoumisValidation)|| $statutOrsSoumisValidation === null || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
+            if (empty($statutOrsSoumisValidation) || $statutOrsSoumisValidation === null || $nombreItv === 0 || ($statutOrsSoumisValidation <> 'Livré' && $statutOrsSoumisValidation <> 'Validé' && $statutOrsSoumisValidation <> 'Livré partiellement') || $statutOrsSoumisValidation === 'Refusée') {
                 $statutFac[] = 'Itv non validée';
                 $nombreStatutControle['nbrNonValideFacture']++;
             } elseif (($statutOrsSoumisValidation === 'Validé' || $statutOrsSoumisValidation === 'Livré' || $statutOrsSoumisValidation === 'Livré partiellement') && $agServDebDit <> ($value['agencedebiteur'] . '-' . $value['servicedebiteur'])) {
@@ -124,9 +122,10 @@ trait DitFactureSoumisAValidationtrait
                 $statutFac[] = 'OK';
             }
         }
+
         return [
             'statutFac' => $statutFac,
-            'nombreStatutControle' => $nombreStatutControle
+            'nombreStatutControle' => $nombreStatutControle,
         ];
     }
 
@@ -143,7 +142,7 @@ trait DitFactureSoumisAValidationtrait
                 'mttFac' => $value->getMontantFactureitv(),
                 'AgServDebDit' => $value->getAgServDebDit(),
                 'AgServDebFac' => $value->getAgenceDebiteur() . '-' . $value->getServiceDebiteur(),
-                'controleAFaire' => $value->getStatut()
+                'controleAFaire' => $value->getStatut(),
             ];
         }
 
@@ -153,8 +152,6 @@ trait DitFactureSoumisAValidationtrait
 
         return $infoItvFac;
     }
-
-
 
     private function calculeSommeItvFacture($factureSoumisAValidation)
     {
@@ -166,9 +163,9 @@ trait DitFactureSoumisAValidationtrait
             'totalMttFac' => 0,
             'AgServDebDit' => '',
             'AgServDebFac' => '',
-            'controleAFaire' => ''
+            'controleAFaire' => '',
         ];
-        foreach ($factureSoumisAValidation as  $value) {
+        foreach ($factureSoumisAValidation as $value) {
             $totalItvFacture['totalMttItv'] += $value->getMttItv();
             $totalItvFacture['totalMttFac'] += $value->getMontantFactureitv();
         }
@@ -184,10 +181,9 @@ trait DitFactureSoumisAValidationtrait
             'totalItvFac' => $this->calculeSommeItvFacture($factureSoumisAValidation),
             'recapOr' => $this->recapitulationOr($orSoumisFact),
             'totalRecapOr' => $this->calculeSommeMontant($orSoumisFact),
-            'controleAFaire' => $statut['nombreStatutControle']
+            'controleAFaire' => $statut['nombreStatutControle'],
         ];
     }
-
 
     private function orSoumisValidataion($orSoumisValidationModel, $ditInsertionOrSoumis)
     {
@@ -214,9 +210,9 @@ trait DitFactureSoumisAValidationtrait
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
 
         }
+
         return $orSoumisValidataion;
     }
-
 
     private function recapitulationOr($orSoumisFact)
     {
@@ -232,6 +228,7 @@ trait DitFactureSoumisAValidationtrait
                 'mttAutres' => $orSoumis['montant_divers'],
             ];
         }
+
         return $recapOr;
     }
 
@@ -259,7 +256,6 @@ trait DitFactureSoumisAValidationtrait
         return $totalRecapOr;
     }
 
-
     /**
      * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
      *
@@ -280,9 +276,9 @@ trait DitFactureSoumisAValidationtrait
         $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
         if (
-            !$file->isValid() ||
-            !in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
-            !in_array($file->getMimeType(), $allowedMimeTypes, true)
+            ! $file->isValid() ||
+            ! in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
+            ! in_array($file->getMimeType(), $allowedMimeTypes, true)
         ) {
             throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName.");
         }
@@ -301,7 +297,7 @@ trait DitFactureSoumisAValidationtrait
         $destination = $_ENV['BASE_PATH_FICHIER'].'/vfac/fichier/';
 
         // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+        if (! is_dir($destination) && ! mkdir($destination, 0755, true) && ! is_dir($destination)) {
             throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
         }
 
@@ -318,6 +314,7 @@ trait DitFactureSoumisAValidationtrait
 
         return null;
     }
+
     /**
      * Envoie des pièces jointes et fusionne les PDF
      */
@@ -325,8 +322,7 @@ trait DitFactureSoumisAValidationtrait
         FormInterface $form,
         DitFactureSoumisAValidation $ditfacture,
         $fusionPdf
-    ): array 
-    {
+    ): array {
         $pdfFiles = [];
 
         // Ajouter le fichier PDF principal en tête du tableau
@@ -338,7 +334,7 @@ trait DitFactureSoumisAValidationtrait
         );
 
         // Vérifier que le fichier principal existe avant de l'ajouter
-        if (!file_exists($mainPdf)) {
+        if (! file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
@@ -368,9 +364,10 @@ trait DitFactureSoumisAValidationtrait
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
+        if (! empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+
         return $pdfFiles;
     }
 }

@@ -10,26 +10,26 @@ class CisALivrerModel extends Model
 {
     use ConversionModel;
     use ConditionModelTrait;
-    
+
     public function listOrALivrer(array $criteria = [], string $numORItvValides): array
     {
         $orValide = $this->conditionOrValide($criteria['orValide'], $numORItvValides);
-        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
-        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
-        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
-        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece', $criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur', $criteria);
+        $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
         $numCis = $this->conditionSigne('slor_numcf', 'numCis', '=', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
-        $dateDebutCis = $this->conditionDateSigne( 'nlig_datecde', 'dateDebutCis', $criteria, '>=');
-        $dateFinCis = $this->conditionDateSigne( 'nlig_datecde', 'dateFinCis', $criteria, '<=');
-        $dateDebutOr = $this->conditionDateSigne( 'seor_dateor', 'dateDebutOr', $criteria, '>=');
-        $dateFinOr = $this->conditionDateSigne( 'seor_dateor', 'dateFinOr', $criteria, '<=');
+        $dateDebutCis = $this->conditionDateSigne('nlig_datecde', 'dateDebutCis', $criteria, '>=');
+        $dateFinCis = $this->conditionDateSigne('nlig_datecde', 'dateFinCis', $criteria, '<=');
+        $dateDebutOr = $this->conditionDateSigne('seor_dateor', 'dateDebutOr', $criteria, '>=');
+        $dateFinOr = $this->conditionDateSigne('seor_dateor', 'dateFinOr', $criteria, '<=');
         $piece = $this->conditionPiece('pieces', $criteria);
-        $orCompletOuNon = $this->conditionOrCompletOuNonCis('orCompletNon',$criteria);
+        $orCompletOuNon = $this->conditionOrCompletOuNonCis('orCompletNon', $criteria);
         $agence = $this->conditionAgenceService("(CASE slor_natop 
                         WHEN 'CES' THEN TRIM(slor_succdeb)
                         WHEN 'VTE' THEN TRIM(TO_CHAR(slor_numcli))
-                    END)", 'agence',$criteria);
+                    END)", 'agence', $criteria);
 
         $service = $this->conditionAgenceService("(CASE slor_natop 
                         WHEN 'CES' THEN TRIM(slor_servdeb)
@@ -39,7 +39,7 @@ class CisALivrerModel extends Model
                             WHERE csoc_soc = slor_soc 
                             AND cbse_numcli = slor_numcli 
                             AND cbse_numcli = csoc_numcli)
-                    END)", 'service',$criteria);
+                    END)", 'service', $criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
 
         //requête
@@ -129,5 +129,4 @@ class CisALivrerModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-
 }

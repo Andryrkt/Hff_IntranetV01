@@ -2,7 +2,6 @@
 
 namespace App\Controller\admin;
 
-
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Form\admin\ApplicationType;
@@ -19,14 +18,16 @@ class ApplicationController extends Controller
     public function index()
     {    //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
-        $data = self::$em->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
-    
+
+        $data = self::$em->getRepository(Application::class)->findBy([], ['id' => 'DESC']);
+
         //  dd($data[0]->getDerniereId());
-        self::$twig->display('admin/application/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        self::$twig->display(
+            'admin/application/list.html.twig',
+            [
+            'data' => $data,
+        ]
+        );
     }
 
     /**
@@ -38,19 +39,20 @@ class ApplicationController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $application= $form->getData();
-            
+        if ($form->isSubmitted() && $form->isValid()) {
+            $application = $form->getData();
+
             self::$em->persist($application);
             self::$em->flush();
             $this->redirectToRoute("application_index");
         }
 
-        self::$twig->display('admin/application/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        self::$twig->display(
+            'admin/application/new.html.twig',
+            [
+            'form' => $form->createView(),
+        ]
+        );
     }
 
     /**
@@ -61,7 +63,7 @@ class ApplicationController extends Controller
     public function edit(Request $request, $id)
     {
         $user = self::$em->getRepository(Application::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(ApplicationType::class, $user)->getForm();
 
         $form->handleRequest($request);
@@ -71,17 +73,19 @@ class ApplicationController extends Controller
 
             self::$em->flush();
             $this->redirectToRoute("application_index");
-            
+
         }
 
-        self::$twig->display('admin/application/edit.html.twig', 
-        [
+        self::$twig->display(
+            'admin/application/edit.html.twig',
+            [
             'form' => $form->createView(),
-        ]);
+        ]
+        );
 
     }
 
-     /**
+    /**
     * @Route("/admin/application/delete/{id}", name="application_delete")
     *
     * @return void
@@ -102,12 +106,12 @@ class ApplicationController extends Controller
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();
-        
-                self::$em->remove($application);
-                self::$em->flush();
+
+            self::$em->remove($application);
+            self::$em->flush();
         }
-        
-        
+
+
         $this->redirectToRoute("application_index");
     }
 }

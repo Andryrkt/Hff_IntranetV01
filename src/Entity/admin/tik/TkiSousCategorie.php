@@ -2,14 +2,12 @@
 
 namespace App\Entity\admin\tik;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\tik\TkiCategorie;
-use Doctrine\Common\Collections\Collection;
-use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\tik\TkiSousCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TkiSousCategorieRepository::class)
@@ -55,11 +53,11 @@ class TkiSousCategorie
     }
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
-    
+
     public function getId()
     {
         return $this->id;
@@ -73,6 +71,7 @@ class TkiSousCategorie
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -83,16 +82,18 @@ class TkiSousCategorie
 
     public function addCategorie(TkiCategorie $categorie): self
     {
-        if (!$this->categories->contains($categorie)) {
+        if (! $this->categories->contains($categorie)) {
             $this->categories[] = $categorie;
             $categorie->addSousCategorie($this);
         }
+
         return $this;
     }
 
     public function setCategories(Collection $categorie): self
     {
         $this->categories = $categorie;
+
         return $this;
     }
 
@@ -112,16 +113,18 @@ class TkiSousCategorie
 
     public function addAutresCategorie(TkiAutresCategorie $autresCategorie): self
     {
-        if (!$this->autresCategories->contains($autresCategorie)) {
+        if (! $this->autresCategories->contains($autresCategorie)) {
             $this->autresCategories[] = $autresCategorie;
             $autresCategorie->addSousCategorie($this);
         }
+
         return $this;
     }
 
     public function setAutresCategories(Collection $autresCategorie): self
     {
         $this->autresCategories = $autresCategorie;
+
         return $this;
     }
 
@@ -131,6 +134,7 @@ class TkiSousCategorie
             $this->autresCategories->removeElement($autresCategorie);
             $autresCategorie->removeSousCategorie($this);
         }
+
         return $this;
     }
 
@@ -141,10 +145,11 @@ class TkiSousCategorie
 
     public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
     {
-        if (!$this->supportInfo->contains($supportInfo)) {
+        if (! $this->supportInfo->contains($supportInfo)) {
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setSousCategorie($this);
         }
+
         return $this;
     }
 
@@ -156,6 +161,7 @@ class TkiSousCategorie
                 $supportInfo->setSousCategorie(null);
             }
         }
+
         return $this;
     }
 }

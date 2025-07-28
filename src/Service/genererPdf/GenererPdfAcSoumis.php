@@ -2,16 +2,14 @@
 
 namespace App\Service\genererPdf;
 
-use IntlDateFormatter;
-use App\Entity\dit\AcSoumis;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\dit\AcSoumis;
 
 class GenererPdfAcSoumis extends GeneratePdf
 {
     use FormatageTrait;
 
-    function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax, $nomFichier)
+    public function genererPdfAc(AcSoumis $acSoumis, string $numeroDunom, string $numeroVersionMax, $nomFichier)
     {
         // Création de l'objet PDF
         $pdf = new HeaderFooterAcPdf(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -26,7 +24,7 @@ class GenererPdfAcSoumis extends GeneratePdf
 
         // Définir les marges
         $pdf->SetMargins(25, 20, 25); // Marges : gauche = 25mm, haut = 20mm, droite = 25mm
-        $pdf->SetAutoPageBreak(TRUE, 20);
+        $pdf->SetAutoPageBreak(true, 20);
 
         //  afficher l'en-tête et Supprimerle pied de page automatique
         $pdf->setPrintHeader(false);

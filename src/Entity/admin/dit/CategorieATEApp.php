@@ -2,13 +2,13 @@
 
 namespace App\Entity\admin\dit;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
 use App\Entity\dit\DemandeIntervention;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\dit\CategorieAteAppRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CategorieAteAppRepository::class)
@@ -19,6 +19,7 @@ use App\Repository\admin\dit\CategorieAteAppRepository;
 class CategorieAteApp
 {
     use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -35,25 +36,21 @@ class CategorieAteApp
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="categorieDemande")
      */
     private $demandeInterventions;
-    
 
-       /**
+    /**
      * @ORM\ManyToMany(targetEntity=Application::class, inversedBy="categorieAtes")
      * @ORM\JoinTable(name="categorieAteApp_applications")
      */
     private $applications;
 
-
-
     public function __construct()
     {
-        
+
         $this->demandeInterventions = new ArrayCollection();
         $this->applications = new ArrayCollection();
-        
+
     }
 
-    
     public function getId()
     {
         return $this->id;
@@ -64,7 +61,6 @@ class CategorieAteApp
         return $this->libelleCategorieAteApp;
     }
 
-  
     public function setLibelleCategorieAteApp($libelleCategorieAteApp): self
     {
         $this->libelleCategorieAteApp = $libelleCategorieAteApp;
@@ -72,9 +68,6 @@ class CategorieAteApp
         return $this;
     }
 
-    
-
-   
     public function getDemandeInterventions(): Collection
     {
         return $this->demandeInterventions;
@@ -82,7 +75,7 @@ class CategorieAteApp
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+        if (! $this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setCategorieDemande($this);
         }
@@ -98,7 +91,7 @@ class CategorieAteApp
                 $demandeIntervention->setCategorieDemande(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -109,8 +102,6 @@ class CategorieAteApp
         return $this;
     }
 
-
-     
     public function getApplications(): Collection
     {
         return $this->applications;
@@ -118,7 +109,7 @@ class CategorieAteApp
 
     public function addApplication(Application $application): self
     {
-        if (!$this->applications->contains($application)) {
+        if (! $this->applications->contains($application)) {
             $this->applications[] = $application;
         }
 
@@ -136,7 +127,6 @@ class CategorieAteApp
 
     public function __toString(): string
     {
-        return $this->libelleCategorieAteApp ?? 'Unknown'; 
+        return $this->libelleCategorieAteApp ?? 'Unknown';
     }
-
 }

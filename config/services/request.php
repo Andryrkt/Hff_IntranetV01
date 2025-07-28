@@ -1,10 +1,10 @@
 <?php
 
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 return function (ContainerBuilder $containerBuilder) {
     // 1) Définition du service "request"
@@ -21,7 +21,7 @@ return function (ContainerBuilder $containerBuilder) {
     // On empile la requête via un appel de méthode
     $requestStackDefinition->addMethodCall('push', [
         // Référence au service "request"
-        new Reference('request')
+        new Reference('request'),
     ]);
     $requestStackDefinition->setPublic(true);
 

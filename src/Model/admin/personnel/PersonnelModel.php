@@ -6,25 +6,26 @@ use App\Model\Model;
 
 class PersonnelModel extends Model
 {
-
     public function getDatesystem()
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
+
         return $Date_system;
     }
-
 
     public function recupInfoPersonnel()
     {
         $statement = "SELECT ID_Personnel,  Nom, Prenoms, Matricule, Code_AgenceService_Sage, Code_AgenceService_IRIUM, Numero_Fournisseur_IRIUM, Qualification FROM Personnel";
         $execCompte = $this->connexion->query($statement);
-        $compte = array();
+        $compte = [];
         while ($tab_compt = odbc_fetch_array($execCompte)) {
             $compte[] = $tab_compt;
         }
+
         return $compte;
     }
+
     /**
      * récupération personnel avec identifiant
      */
@@ -35,10 +36,11 @@ class PersonnelModel extends Model
         FROM Personnel
         WHERE Matricule = '" . $matricule . "'";
         $execCompte = $this->connexion->query($statement);
-        $compte = array();
+        $compte = [];
         while ($tab_compt = odbc_fetch_array($execCompte)) {
             $compte[] = $tab_compt;
         }
+
         return $compte;
     }
 
@@ -49,10 +51,11 @@ class PersonnelModel extends Model
     {
         $statement = "SELECT DISTINCT Code_AgenceService_IRIUM FROM Personnel WHERE Code_AgenceService_IRIUM IS NOT NULL ORDER BY Code_AgenceService_IRIUM ASC";
         $execCompte = $this->connexion->query($statement);
-        $compte = array();
+        $compte = [];
         while ($tab_compt = odbc_fetch_array($execCompte)) {
             $compte[] = $tab_compt;
         }
+
         return $compte;
     }
 
@@ -63,10 +66,11 @@ class PersonnelModel extends Model
     {
         $statement = "SELECT DISTINCT  Code_AgenceService_Sage FROM Personnel ORDER BY  Code_AgenceService_Sage ASC";
         $execCompte = $this->connexion->query($statement);
-        $compte = array();
+        $compte = [];
         while ($tab_compt = odbc_fetch_array($execCompte)) {
             $compte[] = $tab_compt;
         }
+
         return $compte;
     }
 
@@ -77,10 +81,11 @@ class PersonnelModel extends Model
     {
         $statement = "SELECT DISTINCT service_ips FROM Agence_Service_Irium asi, Personnel p WHERE asi.agence_ips = p. Code_AgenceService_IRIUM and asi.service_sage_paie = p.Code_AgenceService_Sage";
         $execCompte = $this->connexion->query($statement);
-        $compte = array();
+        $compte = [];
         while ($tab_compt = odbc_fetch_array($execCompte)) {
             $compte[] = $tab_compt;
         }
+
         return $compte;
     }
 }

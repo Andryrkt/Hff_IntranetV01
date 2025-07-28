@@ -7,4 +7,3 @@ return function (\Symfony\Component\DependencyInjection\ContainerBuilder $contai
     // $containerBuilder->setParameter('app_name', 'HFF Intranet');
     // $containerBuilder->setParameter('pagination_limit', 10); // Nombre d'éléments par page
 };
-

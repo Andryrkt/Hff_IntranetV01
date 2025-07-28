@@ -18,6 +18,7 @@ class DocSoumisDwApi extends Controller
 
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
     }
+
     /**
      * @Route("/constraint-soumission/{numDit}", name="constraint_soumission")
      *
@@ -42,7 +43,7 @@ class DocSoumisDwApi extends Controller
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
 
 
-        if(empty($constraitDevis)){
+        if (empty($constraitDevis)) {
             $client = "";
             $statutDit = "";
         } else {
@@ -50,7 +51,7 @@ class DocSoumisDwApi extends Controller
             $statutDit = $constraitDevis[0]['statut'];
         }
 
-        if(empty($numOrBaseDonner)) {
+        if (empty($numOrBaseDonner)) {
             $numeroOR = '';
         } else {
             $numeroOR = $numOrBaseDonner[0]['numor'];
@@ -60,8 +61,7 @@ class DocSoumisDwApi extends Controller
             "client" => $client,
             "statutDit" => $statutDit,
             "statutDevis" => $statutDevis,
-            "numeroOR" => $numeroOR
+            "numeroOR" => $numeroOR,
         ];
     }
-
 }

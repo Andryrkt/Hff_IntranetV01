@@ -2,14 +2,10 @@
 
 namespace App\Repository\admin\badm;
 
-
-
 use Doctrine\ORM\EntityRepository;
-
 
 class TypeMouvementRepository extends EntityRepository
 {
-
     // Ajoutez des méthodes personnalisées ici
     public function findByExampleField($value)
     {

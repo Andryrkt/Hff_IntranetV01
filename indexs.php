@@ -3,13 +3,12 @@
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
-
 require __DIR__ . '/config/bootstrap.php';
 require_once __DIR__ . '/config/dotenv.php';
 require __DIR__ . '/config/listeConstructeur.php';
 
 try {
-   
+
 
     $curentRoute = $matcher->match($request->getPathInfo());
     $request->attributes->add($curentRoute);

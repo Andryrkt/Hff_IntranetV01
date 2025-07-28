@@ -2,9 +2,8 @@
 
 namespace App\security;
 
-
-use app\security\PermissionDebugger;
 use App\Entity\admin\utilisateur\User;
+use app\security\PermissionDebugger;
 
 final class Permission
 {
@@ -17,7 +16,6 @@ final class Permission
 
     private ?PermissionDebugger $debugger;
 
-
     public function __construct(?PermissionDebugger $debugger = null)
     {
         $this->debugger = $debugger;
@@ -25,12 +23,11 @@ final class Permission
 
     public function can(User $user, string $permission, $subject = null): bool
     {
-        
-        foreach($this->voters as $voter) {
-            if($voter->canVote($permission, $subject)) 
-            {
+
+        foreach ($this->voters as $voter) {
+            if ($voter->canVote($permission, $subject)) {
                 $vote = $voter->vote($user, $permission, $subject);
-                if($this->debugger) {
+                if ($this->debugger) {
                     $this->debugger->debug($voter, $vote, $permission, $user, $subject);
                 }
                 if ($vote === true) {
@@ -38,9 +35,9 @@ final class Permission
                 }
             }
         }
+
         return false;
     }
-
 
     public function addvoter($voter)
     {

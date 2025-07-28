@@ -8,7 +8,7 @@ class DemandeInterventionValidator
 {
     public static function validateTextarea($object, ExecutionContextInterface $context)
     {
-        
+
         $textareaContent = $object->getYourTextareaField();
         $lines = explode("\n", $textareaContent);
 

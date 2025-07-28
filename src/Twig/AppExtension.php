@@ -2,17 +2,19 @@
 
 namespace App\Twig;
 
-use Twig\Extension\AbstractExtension;
-use Twig\Extension\GlobalsInterface;
 use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Doctrine\ORM\EntityManagerInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\Extension\GlobalsInterface;
 
 class AppExtension extends AbstractExtension implements GlobalsInterface
 {
     private SessionInterface $session;
+
     private RequestStack $requestStack;
+
     private EntityManagerInterface $em;
 
     public function __construct(SessionInterface $session, RequestStack $requestStack, EntityManagerInterface $em)
@@ -39,6 +41,3 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         ];
     }
 }
-
-
-

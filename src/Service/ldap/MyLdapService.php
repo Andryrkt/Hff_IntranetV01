@@ -2,14 +2,16 @@
 
 namespace App\Service\ldap;
 
-use Symfony\Component\Ldap\Ldap;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Ldap\Exception\InvalidCredentialsException;
+use Symfony\Component\Ldap\Ldap;
 
 class MyLdapService
 {
     private Ldap $ldap;
+
     private string $domainSuffix;
+
     private LoggerInterface $logger;
 
     public function __construct(
@@ -33,9 +35,11 @@ class MyLdapService
             return true;
         } catch (InvalidCredentialsException $e) {
             $this->logger->warning("Échec d'authentification pour l'utilisateur : {$usernameWithDomain}");
+
             return false;
         } catch (\Exception $e) {
             $this->logger->error("Erreur lors de l'authentification LDAP pour l'utilisateur : {$usernameWithDomain}. Erreur : " . $e->getMessage());
+
             return false;
         }
     }
@@ -57,5 +61,3 @@ class MyLdapService
         }
     }
 }
-
-

@@ -2,12 +2,10 @@
 
 namespace App\Controller\admin;
 
-
-
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Permission;
-use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\utilisateur\PermissionType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PermissionController extends Controller
@@ -27,7 +25,7 @@ class PermissionController extends Controller
         self::$twig->display(
             'admin/permission/list.html.twig',
             [
-                'data' => $data
+                'data' => $data,
             ]
         );
     }
@@ -56,7 +54,7 @@ class PermissionController extends Controller
         self::$twig->display(
             'admin/permission/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }

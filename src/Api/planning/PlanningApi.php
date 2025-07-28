@@ -3,9 +3,8 @@
 namespace App\Api\planning;
 
 use App\Controller\Controller;
-use App\Model\planning\PlanningModel;
 use App\Entity\dit\DemandeIntervention;
-use App\Model\planning\ModalPlanningModel;
+use App\Model\planning\PlanningModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PlanningApi extends Controller
@@ -34,7 +33,6 @@ class PlanningApi extends Controller
         echo json_encode($serviceDebiteur);
     }
 
-
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -43,7 +41,7 @@ class PlanningApi extends Controller
     public function detailModal($numOr)
     {
         $criteria = $this->sessionService->get('planning_search_criteria', []);
-        //RECUPERATION DE LISTE DETAIL 
+        //RECUPERATION DE LISTE DETAIL
         $orCIS = [];
         if ($numOr === '') {
             $details = [];
@@ -67,7 +65,7 @@ class PlanningApi extends Controller
 
                 if ($numOr[0] == '5') {
 
-                    if ($details[$i]['numcis'] !== "0"  || $details[$i]['numerocdecis'] == "0") {
+                    if ($details[$i]['numcis'] !== "0" || $details[$i]['numerocdecis'] == "0") {
 
                         $recupGot = [];
                         $qteCIS[] = $this->planningModel->recupeQteCISlig($details[$i]['numor'], $details[$i]['intv'], $details[$i]['ref']);
@@ -93,9 +91,9 @@ class PlanningApi extends Controller
                     }
                 }
 
-                if (!empty($detailes[0])) {
+                if (! empty($detailes[0])) {
                     $details[$i]['Eta_ivato'] = $detailes[0][0]['Eta_ivato'];
-                    $details[$i]['Eta_magasin'] =  $detailes[0][0]['Eta_magasin'];
+                    $details[$i]['Eta_magasin'] = $detailes[0][0]['Eta_magasin'];
                     $detailes = [];
                 } else {
                     $details[$i]['Eta_ivato'] = "";
@@ -103,7 +101,7 @@ class PlanningApi extends Controller
                     $detailes = [];
                 }
 
-                if (!empty($recupPariel[$i])) {
+                if (! empty($recupPariel[$i])) {
                     $details[$i]['qteSlode'] = $recupPariel[$i]['0']['solde'];
                     $details[$i]['qte'] = $recupPariel[$i]['0']['qte'];
                 } else {
@@ -112,19 +110,19 @@ class PlanningApi extends Controller
                 }
 
 
-                if (!empty($recupGot)) {
+                if (! empty($recupGot)) {
                     $details[$i]['Ord'] = $recupGot['ord'] === false ? '' : $recupGot['ord']['Ord'];
                 } else {
                     $details[$i]['Ord'] = "";
                 }
 
-                if (!empty($dateLivLig[0])) {
+                if (! empty($dateLivLig[0])) {
                     $details[$i]['dateLivLIg'] = $dateLivLig[$i]['0']['datelivlig'];
                 } else {
                     $details[$i]['dateLivLIg'] = "";
                 }
 
-                if (!empty($dateAllLig[0])) {
+                if (! empty($dateAllLig[0])) {
                     $details[$i]['dateAllLIg'] = $dateAllLig[$i]['0']['datealllig'];
                 } else {
                     $details[$i]['dateAllLIg'] = "";
@@ -140,14 +138,14 @@ class PlanningApi extends Controller
 
         for ($i = 0; $i < count($details); $i++) {
 
-            if (!empty($qteCIS)) {
-                if (!empty($qteCIS[$i])) {
+            if (! empty($qteCIS)) {
+                if (! empty($qteCIS[$i])) {
 
                     $details[$i]['qteORlig'] = $qteCIS[$i]['0']['qteorlig'];
                     $details[$i]['qtealllig'] = $qteCIS[$i]['0']['qtealllig'];
                     $details[$i]['qterlqlig'] = $qteCIS[$i]['0']['qtereliquatlig'];
                     $details[$i]['qtelivlig'] = $qteCIS[$i]['0']['qtelivlig'];
-                } elseif (!empty($qteCIS[$i - 1])) {
+                } elseif (! empty($qteCIS[$i - 1])) {
                     $details[$i]['qteORlig'] = $qteCIS[$i - 1]['0']['qteorlig'];
                     $details[$i]['qtealllig'] = $qteCIS[$i - 1]['0']['qtealllig'];
                     $details[$i]['qterlqlig'] = $qteCIS[$i - 1]['0']['qtereliquatlig'];

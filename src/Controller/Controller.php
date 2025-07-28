@@ -2,58 +2,64 @@
 
 namespace App\Controller;
 
-
-
-
-use Parsedown;
-
-
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
-use App\Model\dom\DomModel;
 use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Model\badm\BadmModel;
-use App\Service\ExcelService;
-use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
-use App\Model\dom\DomDetailModel;
-use App\Model\TransferDonnerModel;
-use App\Service\AccessControlService;
-use App\Entity\admin\utilisateur\User;
-use App\Model\dom\DomDuplicationModel;
-use App\Service\SessionManagerService;
-//use App\Model\admin\user\ProfilUserModel;
-use App\Model\admin\personnel\PersonnelModel;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-
+use App\Entity\admin\Service;
+use App\Entity\admin\utilisateur\User;
+use App\Model\admin\personnel\PersonnelModel;
+use App\Model\badm\BadmModel;
+use App\Model\dit\DitModel;
+use App\Model\dom\DomDetailModel;
+use App\Model\dom\DomDuplicationModel;
+use App\Model\dom\DomListModel;
+use App\Model\dom\DomModel;
+use App\Model\LdapModel;
+use App\Model\ProfilModel;
+use App\Model\TransferDonnerModel;
+use App\Service\AccessControlService;
+use App\Service\ExcelService;
+//use App\Model\admin\user\ProfilUserModel;
+use App\Service\FusionPdf;
+use App\Service\SessionManagerService;
+use Parsedown;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class Controller
 {
     protected $fusionPdf;
 
     protected $ldap;
+
     protected $profilModel;
+
     protected $casier;
+
     protected $badm;
+
     protected $Person;
+
     protected $DomModel;
+
     protected $detailModel;
+
     protected $duplicata;
+
     protected $domList;
+
     protected $ProfilModel;
 
     protected static $generator;
+
     protected static $twig;
+
     protected $loader;
 
     protected $request;
+
     protected $response;
 
     protected static $validator;
@@ -63,6 +69,7 @@ class Controller
     protected $profilUser;
 
     protected static $em;
+
     protected static $paginator;
 
     protected $ditModel;
@@ -78,48 +85,49 @@ class Controller
     public function __construct()
     {
 
-        $this->fusionPdf        = new FusionPdf();
+        $this->fusionPdf = new FusionPdf();
 
-        $this->ldap             = new LdapModel();
+        $this->ldap = new LdapModel();
 
-        $this->profilModel      = new ProfilModel();
+        $this->profilModel = new ProfilModel();
 
 
-        $this->badm             = new BadmModel();
+        $this->badm = new BadmModel();
 
-        $this->Person           = new PersonnelModel();
+        $this->Person = new PersonnelModel();
 
-        $this->DomModel         = new DomModel();
-        $this->detailModel      = new DomDetailModel();
-        $this->duplicata        = new DomDuplicationModel();
-        $this->domList          = new DomListModel();
+        $this->DomModel = new DomModel();
+        $this->detailModel = new DomDetailModel();
+        $this->duplicata = new DomDuplicationModel();
+        $this->domList = new DomListModel();
 
-        $this->ProfilModel      = new ProfilModel();
+        $this->ProfilModel = new ProfilModel();
 
-        $this->request          = Request::createFromGlobals();
+        $this->request = Request::createFromGlobals();
 
-        $this->response         = new Response();
+        $this->response = new Response();
 
-        $this->parsedown        = new Parsedown();
+        $this->parsedown = new Parsedown();
 
         //$this->profilUser     = new ProfilUserModel();
 
-        $this->ditModel         = new DitModel();
+        $this->ditModel = new DitModel();
 
-        $this->transfer04       = new TransferDonnerModel();
+        $this->transfer04 = new TransferDonnerModel();
 
 
         // $this->sessionService   = new SessionManagerService();
 
         // $this->accessControl    = new AccessControlService();
 
-        $this->excelService     = new ExcelService();
+        $this->excelService = new ExcelService();
     }
 
     public static function setTwig($twig)
     {
         self::$twig = $twig;
     }
+
     public static function getTwig()
     {
         return self::$twig;
@@ -155,7 +163,6 @@ class Controller
         self::$paginator = $paginator;
     }
 
-
     protected function SessionDestroy()
     {
         // Commence la session si elle n'est pas déjà démarrée
@@ -188,6 +195,7 @@ class Controller
     protected function getTime()
     {
         date_default_timezone_set('Indian/Antananarivo');
+
         return date("H:i");
     }
 
@@ -199,6 +207,7 @@ class Controller
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
+
         return $Date_system;
     }
 
@@ -215,6 +224,7 @@ class Controller
                 $array[$key] = iconv('Windows-1252', 'UTF-8', $value);
             }
         }
+
         return $array;
     }
 
@@ -229,7 +239,7 @@ class Controller
     /**
      * redirigé l'utilisateur vers la route donnée en paramètre
      *
-     * @param string $routeName nom de la route en question 
+     * @param string $routeName nom de la route en question
      *      Exemple: $routeName = "profil_acceuil"
      * @param array $params tableau de paramètres à ajouter dans la route
      * @return void
@@ -240,7 +250,6 @@ class Controller
         header("Location: $url");
         exit();
     }
-
 
     protected function testJson($jsonData)
     {
@@ -286,9 +295,9 @@ class Controller
                 }
             }
         }
+
         return $ChaineComplet;
     }
-
 
     /**
      * Incrimentation de Numero_Applications (DOMAnnéeMoisNuméro)
@@ -307,14 +316,14 @@ class Controller
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
         //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        $vNumSequential = substr($Max_Num, -4); // lay 4chiffre msincrimente
         //var_dump($vNumSequential);
         $DateAnneemoisnum = substr($Max_Num, -8);
         //var_dump($DateAnneemoisnum);
         $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
         //var_dump($DateYearsMonthOfMax);
         if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
+            $vNumSequential = $vNumSequential + 1;
         } else {
             if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
                 $vNumSequential = 1;
@@ -354,14 +363,14 @@ class Controller
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
         //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        $vNumSequential = substr($Max_Num, -4); // lay 4chiffre msincrimente
         //dump($vNumSequential);
         $DateAnneemoisnum = substr($Max_Num, -8);
         //dump($DateAnneemoisnum);
         $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
         //dump($DateYearsMonthOfMax);
         if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
+            $vNumSequential = $vNumSequential - 1;
         } else {
             if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
                 $vNumSequential = 9999;
@@ -371,17 +380,17 @@ class Controller
         //dump($vNumSequential);
         //var_dump($vNumSequential);
         $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
+
         //var_dump($Result_Num);
         //dd($Result_Num);
         return $Result_Num;
     }
 
-
     protected function arrayToObjet(User $user): User
     {
 
         $superieurs = [];
-        foreach ($user->getSuperieurs() as  $value) {
+        foreach ($user->getSuperieurs() as $value) {
             if (empty($value)) {
                 return $user;
             } else {
@@ -393,7 +402,6 @@ class Controller
         return $user;
     }
 
-
     /**
      * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
      *
@@ -404,39 +412,40 @@ class Controller
         try {
             $userId = $this->sessionService->get('user_id');
 
-            if (!$userId) {
+            if (! $userId) {
                 throw new \Exception("User ID not found in session");
             }
 
             $user = self::$em->getRepository(User::class)->find($userId);
 
-            if (!$user) {
+            if (! $user) {
                 throw new \Exception("User not found with ID $userId");
             }
 
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
-            if (!$agenceIps) {
+            if (! $agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
             $codeService = $user->getAgenceServiceIrium()->getServiceIps();
             $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
+            if (! $serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
 
             return [
                 'agenceIps' => $agenceIps,
-                'serviceIps' => $serviceIps
+                'serviceIps' => $serviceIps,
             ];
         } catch (\Exception $e) {
             // Gérer l'erreur ici, par exemple en loguant l'erreur et en retournant une réponse par défaut ou vide.
             error_log($e->getMessage());
+
             return [
                 'agenceIps' => null,
-                'serviceIps' => null
+                'serviceIps' => null,
             ];
         }
     }
@@ -450,36 +459,37 @@ class Controller
     {
         try {
             $userId = $this->sessionService->get('user_id');
-            if (!$userId) {
+            if (! $userId) {
                 throw new \Exception("User ID not found in session");
             }
 
             $user = self::$em->getRepository(User::class)->find($userId);
-            if (!$user) {
+            if (! $user) {
                 throw new \Exception("User not found with ID $userId");
             }
 
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
             $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
-            if (!$agenceIps) {
+            if (! $agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
             $codeService = $user->getAgenceServiceIrium()->getServiceips();
             $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
-            if (!$serviceIps) {
+            if (! $serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
 
             return [
                 'agenceIps' => $agenceIps->getCodeAgence() . ' ' . $agenceIps->getLibelleAgence(),
-                'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService()
+                'serviceIps' => $serviceIps->getCodeService() . ' ' . $serviceIps->getLibelleService(),
             ];
         } catch (\Throwable $e) {
             error_log($e->getMessage());
+
             return [
                 'agenceIps' => '',
-                'serviceIps' => ''
+                'serviceIps' => '',
             ];
         }
     }

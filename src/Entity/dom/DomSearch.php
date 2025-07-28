@@ -5,24 +5,32 @@ namespace App\Entity\dom;
 class DomSearch
 {
     private $statut;
+
     private $sousTypeDocument;
+
     private $numDom;
+
     private $matricule;
+
     private $dateDebut;
+
     private $dateFin;
+
     private $dateMissionDebut;
+
     private $dateMissionFin;
 
     private $agenceEmetteur;
-    private $serviceEmetteur;
-    private $agenceDebiteur;
-    private $serviceDebiteur;
 
-    
+    private $serviceEmetteur;
+
+    private $agenceDebiteur;
+
+    private $serviceDebiteur;
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -32,7 +40,7 @@ class DomSearch
      * Set the value of statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
@@ -42,7 +50,7 @@ class DomSearch
 
     /**
      * Get the value of sousTypeDocument
-     */ 
+     */
     public function getSousTypeDocument()
     {
         return $this->sousTypeDocument;
@@ -52,7 +60,7 @@ class DomSearch
      * Set the value of sousTypeDocument
      *
      * @return  self
-     */ 
+     */
     public function setSousTypeDocument($sousTypeDocument)
     {
         $this->sousTypeDocument = $sousTypeDocument;
@@ -62,7 +70,7 @@ class DomSearch
 
     /**
      * Get the value of numDom
-     */ 
+     */
     public function getNumDom()
     {
         return $this->numDom;
@@ -72,7 +80,7 @@ class DomSearch
      * Set the value of numDom
      *
      * @return  self
-     */ 
+     */
     public function setNumDom($numDom)
     {
         $this->numDom = $numDom;
@@ -82,7 +90,7 @@ class DomSearch
 
     /**
      * Get the value of matricule
-     */ 
+     */
     public function getMatricule()
     {
         return $this->matricule;
@@ -92,7 +100,7 @@ class DomSearch
      * Set the value of matricule
      *
      * @return  self
-     */ 
+     */
     public function setMatricule($matricule)
     {
         $this->matricule = $matricule;
@@ -102,7 +110,7 @@ class DomSearch
 
     /**
      * Get the value of dateDebut
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -112,7 +120,7 @@ class DomSearch
      * Set the value of dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -122,7 +130,7 @@ class DomSearch
 
     /**
      * Get the value of dateFin
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -132,7 +140,7 @@ class DomSearch
      * Set the value of dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -142,7 +150,7 @@ class DomSearch
 
     /**
      * Get the value of dateMissionDebut
-     */ 
+     */
     public function getDateMissionDebut()
     {
         return $this->dateMissionDebut;
@@ -152,7 +160,7 @@ class DomSearch
      * Set the value of dateMissionDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateMissionDebut($dateMissionDebut)
     {
         $this->dateMissionDebut = $dateMissionDebut;
@@ -162,7 +170,7 @@ class DomSearch
 
     /**
      * Get the value of dateMissionFin
-     */ 
+     */
     public function getDateMissionFin()
     {
         return $this->dateMissionFin;
@@ -172,7 +180,7 @@ class DomSearch
      * Set the value of dateMissionFin
      *
      * @return  self
-     */ 
+     */
     public function setDateMissionFin($dateMissionFin)
     {
         $this->dateMissionFin = $dateMissionFin;
@@ -182,7 +190,7 @@ class DomSearch
 
     /**
      * Get the value of agenceEmetteur
-     */ 
+     */
     public function getAgenceEmetteur()
     {
         return $this->agenceEmetteur;
@@ -192,7 +200,7 @@ class DomSearch
      * Set the value of agenceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceEmetteur($agenceEmetteur)
     {
         $this->agenceEmetteur = $agenceEmetteur;
@@ -202,7 +210,7 @@ class DomSearch
 
     /**
      * Get the value of serviceEmetteur
-     */ 
+     */
     public function getServiceEmetteur()
     {
         return $this->serviceEmetteur;
@@ -212,7 +220,7 @@ class DomSearch
      * Set the value of serviceEmetteur
      *
      * @return  self
-     */ 
+     */
     public function setServiceEmetteur($serviceEmetteur)
     {
         $this->serviceEmetteur = $serviceEmetteur;
@@ -222,7 +230,7 @@ class DomSearch
 
     /**
      * Get the value of agenceDebiteur
-     */ 
+     */
     public function getAgenceDebiteur()
     {
         return $this->agenceDebiteur;
@@ -232,7 +240,7 @@ class DomSearch
      * Set the value of agenceDebiteur
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebiteur($agenceDebiteur)
     {
         $this->agenceDebiteur = $agenceDebiteur;
@@ -242,7 +250,7 @@ class DomSearch
 
     /**
      * Get the value of serviceDebiteur
-     */ 
+     */
     public function getServiceDebiteur()
     {
         return $this->serviceDebiteur;
@@ -252,7 +260,7 @@ class DomSearch
      * Set the value of serviceDebiteur
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebiteur($serviceDebiteur)
     {
         $this->serviceDebiteur = $serviceDebiteur;

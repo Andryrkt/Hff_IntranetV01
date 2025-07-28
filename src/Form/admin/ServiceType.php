@@ -2,31 +2,33 @@
 
 namespace App\Form\admin;
 
-
 use App\Entity\admin\Service;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-
 
 class ServiceType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-       
-        ->add('codeService', 
-            TextType::class, 
+
+        ->add(
+            'codeService',
+            TextType::class,
             [
                 'label' => 'Code service',
-            ])
-            ->add('libelleService', 
-            TextType::class, 
-            [
+            ]
+        )
+            ->add(
+                'libelleService',
+                TextType::class,
+                [
                 'label' => 'Libelle service',
-            ])
-    ;
+            ]
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -35,6 +37,4 @@ class ServiceType extends AbstractType
             'data_class' => Service::class,
         ]);
     }
-
-
 }

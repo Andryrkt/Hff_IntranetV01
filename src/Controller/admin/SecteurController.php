@@ -2,10 +2,8 @@
 
 namespace App\Controller\admin;
 
-
-
-use App\Entity\admin\Secteur;
 use App\Controller\Controller;
+use App\Entity\admin\Secteur;
 use App\Form\admin\SecteurType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,43 +20,44 @@ class SecteurController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Secteur::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Secteur::class)->findBy([], ['id' => 'DESC']);
 
 
         self::$twig->display('admin/secteur/list.html.twig', [
-        
-            'data' => $data
+
+            'data' => $data,
         ]);
     }
 
     /**
          * @Route("/admin/secteur/new", name="secteur_new")
          */
-        public function new(Request $request)
-        {
-            //verification si user connecter
+    public function new(Request $request)
+    {
+        //verification si user connecter
         $this->verifierSessionUtilisateur();
-    
-            $form = self::$validator->createBuilder(SecteurType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $secteur= $form->getData();
-                    
-                self::$em->persist($secteur);
-                self::$em->flush();
-                $this->redirectToRoute("secteur_index");
-            }
-    
-            self::$twig->display('admin/secteur/new.html.twig', 
-            [
-                'form' => $form->createView()
-            ]);
+
+        $form = self::$validator->createBuilder(SecteurType::class)->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $secteur = $form->getData();
+
+            self::$em->persist($secteur);
+            self::$em->flush();
+            $this->redirectToRoute("secteur_index");
         }
 
-                   /**
+        self::$twig->display(
+            'admin/secteur/new.html.twig',
+            [
+            'form' => $form->createView(),
+            ]
+        );
+    }
+
+    /**
      * @Route("/admin/secteur/edit/{id}", name="secteur_update")
      *
      * @return void
@@ -68,9 +67,9 @@ class SecteurController extends Controller
 
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $secteur = self::$em->getRepository(Secteur::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(SecteurType::class, $secteur)->getForm();
 
         $form->handleRequest($request);
@@ -80,15 +79,15 @@ class SecteurController extends Controller
 
             self::$em->flush();
             $this->redirectToRoute("secteur_index");
-            
+
         }
 
-        self::$twig->display('admin/secteur/edit.html.twig', 
-        [
+        self::$twig->display(
+            'admin/secteur/edit.html.twig',
+            [
             'form' => $form->createView(),
-        ]);
+        ]
+        );
 
     }
-
-   
 }

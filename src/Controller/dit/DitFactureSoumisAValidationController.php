@@ -6,35 +6,40 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
+use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\FormInterface;
-use App\Entity\dit\DitRiSoumisAValidation;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Service\fichier\FileUploaderService;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\dit\DitFactureSoumisAValidation;
-use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitFactureSoumisAValidationType;
 use App\Model\dit\DitFactureSoumisAValidationModel;
+use App\Service\fichier\FileUploaderService;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
-use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DitFactureSoumisAValidationController extends Controller
 {
-
     use DitFactureSoumisAValidationtrait;
+
     private $historiqueOperation;
+
     private $ditFactureSoumiAValidationModel;
+
     private $genererPdfFacture;
+
     private $ditFactureSoumiAValidation;
+
     private $fileUploaderService;
+
     private $ditRepository;
-    
+
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationFACService;
+        $this->historiqueOperation = new HistoriqueOperationFACService();
         $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
@@ -52,15 +57,15 @@ class DitFactureSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        
+
         $numOrBaseDonner = $this->ditFactureSoumiAValidationModel->recupNumeroOr($numDit);
-    
+
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore du numéro OR";
 
             $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
         }
-       
+
         $this->ditFactureSoumiAValidation->setNumeroDit($numDit);
         $this->ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
 
@@ -82,9 +87,9 @@ class DitFactureSoumisAValidationController extends Controller
             }
 
             $this->ditFactureSoumiAValidation->setNumeroFact(explode('_', $originalName)[1]);
-            
+
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
-           
+
             $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
             if ($numOrBaseDonner[0]['numor'] !== $this->ditFactureSoumiAValidation->getNumeroOR()) {
@@ -106,7 +111,7 @@ class DitFactureSoumisAValidationController extends Controller
                 $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
                 $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $this->ditFactureSoumiAValidation);
-            
+
                 $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
                 if ($estRi) {
@@ -123,7 +128,7 @@ class DitFactureSoumisAValidationController extends Controller
                     /**
                      * TODO : facture pour le client externe
                      */
-                    if($interneExterne === 'INTERNE') {
+                    if ($interneExterne === 'INTERNE') {
                         $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
                         $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
                         $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
@@ -131,7 +136,7 @@ class DitFactureSoumisAValidationController extends Controller
                         $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                         $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers);
                     }
-                    
+
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
                     // Persist les entités liées
@@ -165,21 +170,21 @@ class DitFactureSoumisAValidationController extends Controller
         $this->modificationEtatFacturDit($etatOr, $numDit);
 
         return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur'], $interneExterne);
-        
+
     }
 
-    public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission): array 
+    public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission): array
     {
-        
+
         $options = [
             'prefixFichier' => 'factureValidation',
             'numeroDoc' => $numeroFac,
             'numeroVersion' => $numeroSoumission,
         ];
+
         return $this->fileUploaderService->getPathFiles($form, $options);
 
     }
-
 
     private function ajoutDataFactureAValidation(array $factureSoumisAValidation): void
     {
@@ -211,12 +216,13 @@ class DitFactureSoumisAValidationController extends Controller
         } else {
 
             for ($i = 0; $i < count($infoFacture); $i++) {
-                if (!in_array($infoFacture[$i]['numeroitv'], $riSoumis)) {
+                if (! in_array($infoFacture[$i]['numeroitv'], $riSoumis)) {
                     $estRi = true;
                     break;
                 }
             }
         }
+
         return $estRi;
     }
 

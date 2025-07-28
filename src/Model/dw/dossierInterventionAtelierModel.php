@@ -7,13 +7,11 @@ use App\Model\Model;
 
 class DossierInterventionAtelierModel extends Model
 {
-
     use ConversionTrait;
-
 
     private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
     {
-        if(!empty($criteria[$indexCriteria])) {
+        if (! empty($criteria[$indexCriteria])) {
             $condition = " AND {$colonneBase} LIKE '%".$criteria[$indexCriteria]."%'";
         } else {
             $condition = "";
@@ -24,7 +22,7 @@ class DossierInterventionAtelierModel extends Model
 
     private function conditionDateSigne(string $colonneBase, string $indexCriteria, array $criteria, string $signe)
     {
-        if (!empty($criteria[$indexCriteria])) {
+        if (! empty($criteria[$indexCriteria])) {
             // Vérifie si $criteria['dateDebut'] est un objet DateTime
             if ($criteria[$indexCriteria] instanceof \DateTime) {
                 // Formate la date au format SQL (par exemple, 'Y-m-d')
@@ -33,17 +31,18 @@ class DossierInterventionAtelierModel extends Model
                 // Si ce n'est pas un objet DateTime, le considérer comme une chaîne
                 $formattedDate = $criteria[$indexCriteria];
             }
-        
+
             $condition = " AND {$colonneBase} {$signe} '" . $formattedDate . "'";
         } else {
             $condition = "";
         }
+
         return $condition;
     }
 
     public function findAllDwDit($criteria = [])
     {
-    
+
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
         $numeroOr = $this->conditionLike('ord.numero_or', 'numOr', $criteria);
         $designation = $this->conditionLike('dit.designation_materiel', 'designation', $criteria);
@@ -51,12 +50,12 @@ class DossierInterventionAtelierModel extends Model
         $numParc = $this->conditionLike('dit.numero_parc', 'numParc', $criteria);
         $numSerie = $this->conditionLike('dit.numero_serie', 'numSerie', $criteria);
 
-        $dateDebut = $this->conditionDateSigne( 'dit.date_creation', 'dateDebut', $criteria, '>=');
-        $dateFin = $this->conditionDateSigne( 'dit.date_creation', 'dateFin', $criteria, '<=');
+        $dateDebut = $this->conditionDateSigne('dit.date_creation', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne('dit.date_creation', 'dateFin', $criteria, '<=');
 
 
-        
-        $sql =" SELECT 
+
+        $sql = " SELECT 
             dit.date_creation AS date_creation_intervention,
             dit.numero_dit AS numero_dit_intervention,
             dit.type_reparation AS type_reparation_intervention,
@@ -81,12 +80,12 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
         ;
-        
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -158,13 +157,14 @@ class DossierInterventionAtelierModel extends Model
 
         $exec = $this->connexion->query($sql);
 
-     $result = odbc_fetch_array($exec);
+        $result = odbc_fetch_array($exec);
+
         return $this->ConvertirEnUtf_8($result);
     }
 
     public function findDwDit($numDit)
     {
-        $sql =" SELECT 
+        $sql = " SELECT 
         -- DEMANDE D'INTERVENTION
         dit.numero_dit AS numero_doc,
         dit.date_creation AS date_creation,
@@ -179,17 +179,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-        
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findDwOr($numDit)
     {
-        $sql =" SELECT 
+        $sql = " SELECT 
         --ORDRE DE REPARATION
         ord.numero_or AS numero_doc,
         ord.date_creation AS date_creation,
@@ -207,16 +207,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findDwFac($numOr)
     {
-        $sql =" SELECT 
+        $sql = " SELECT 
         --FACTURE
         fac.numero_fac AS numero_doc,
         fac.date_creation AS date_creation,
@@ -231,16 +232,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findDwRi($numOr)
     {
-        $sql =" SELECT 
+        $sql = " SELECT 
             --RAPORT D'INTERVENTION
             ri.numero_ri AS numero_doc,
             ri.date_creation AS date_creation,
@@ -255,16 +257,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findDwCde($numOr)
     {
-        $sql =" SELECT 
+        $sql = " SELECT 
             --COMMANDE
             cde.numero_cde AS numero_doc,
             cde.date_creation AS date_creation,
@@ -279,17 +282,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
-
     public function findCheminDit($numDoc)
     {
-        $sql =" SELECT DISTINCT 
+        $sql = " SELECT DISTINCT 
         dit.path AS chemin
 
         FROM DW_Demande_Intervention dit
@@ -297,17 +300,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-        
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findCheminOr($numDoc, $numVersion)
     {
-        $sql =" SELECT DISTINCT 
+        $sql = " SELECT DISTINCT 
         ord.path AS chemin
 
         FROM DW_Ordre_De_Reparation ord
@@ -316,16 +319,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findCheminFac($numDoc)
     {
-        $sql =" SELECT DISTINCT 
+        $sql = " SELECT DISTINCT 
         --FACTURE
         fac.path AS chemin
 
@@ -334,16 +338,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findCheminRi($numDoc)
     {
-        $sql =" SELECT DISTINCT 
+        $sql = " SELECT DISTINCT 
             --RAPORT D'INTERVENTION
             ri.path AS chemin
 
@@ -352,16 +357,17 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 
     public function findCheminCde($numDoc)
     {
-        $sql =" SELECT DISTINCT 
+        $sql = " SELECT DISTINCT 
             --COMMANDE
             cde.path AS chemin
 
@@ -370,10 +376,11 @@ class DossierInterventionAtelierModel extends Model
         ";
 
         $exec = $this->connexion->query($sql);
-        $tab =[];
+        $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return $this->ConvertirEnUtf_8($tab);
     }
 }

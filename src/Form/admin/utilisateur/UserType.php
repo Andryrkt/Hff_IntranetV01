@@ -2,33 +2,35 @@
 
 namespace App\Form\admin\utilisateur;
 
-use App\Model\LdapModel;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\Societte;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\Role;
-use App\Entity\admin\utilisateur\User;
-use App\Service\SessionManagerService;
+use App\Entity\admin\Agence;
 use App\Entity\admin\AgenceServiceIrium;
-use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\Application;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\Service;
+use App\Entity\admin\Societte;
 use App\Entity\admin\utilisateur\Fonction;
 use App\Entity\admin\utilisateur\Permission;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
+use App\Model\LdapModel;
 use App\Repository\admin\utilisateur\RoleRepository;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use App\Service\SessionManagerService;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserType extends AbstractType
 {
     private $ldap;
+
     private $em;
+
     private $sessionService;
 
     public function __construct()
@@ -37,8 +39,6 @@ class UserType extends AbstractType
         $this->em = Controller::getEntity();
         $this->sessionService = new SessionManagerService();
     }
-
-
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -54,42 +54,53 @@ class UserType extends AbstractType
 
 
         $builder
-        ->add('nom_utilisateur', 
-        ChoiceType::class, 
-        [
+        ->add(
+            'nom_utilisateur',
+            ChoiceType::class,
+            [
             'label' => "Nom d'utilisateur *",
             'choices' => array_combine($nom, $nom),
             'placeholder' => '-- Choisir un nom d\'utilisateur --',
-            
-        ])
-        ->add('matricule', 
+
+        ]
+        )
+        ->add(
+            'matricule',
             NumberType::class,
             [
                 'label' => 'Numero Matricule *',
-                'required'=>true,
-                
-            ])
-        ->add('mail', 
-            EmailType::class, [
+                'required' => true,
+
+            ]
+        )
+        ->add(
+            'mail',
+            EmailType::class,
+            [
                 'label' => 'Email *',
-                'required' =>true,
-                
-            ])
-        ->add('roles', 
-            EntityType::class, [
+                'required' => true,
+
+            ]
+        )
+        ->add(
+            'roles',
+            EntityType::class,
+            [
                 'label' => 'Role *',
                 'placeholder' => '-- Choisir une role --',
                 'class' => Role::class,
-                'choice_label' =>'role_name',
-                'query_builder' => function(RoleRepository $roleRepository) {
+                'choice_label' => 'role_name',
+                'query_builder' => function (RoleRepository $roleRepository) {
                     return $roleRepository->createQueryBuilder('r')->orderBy('r.role_name', 'ASC');
                 },
                 'multiple' => true,
                 'expanded' => true,
                 'required' => true,
-                
-            ])
-        ->add('applications',
+
+            ]
+        )
+        ->add(
+            'applications',
             EntityType::class,
             [
                 'label' => 'Applications *',
@@ -98,8 +109,10 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
                 'required' => true,
-            ])
-        ->add('societtes',
+            ]
+        )
+        ->add(
+            'societtes',
             EntityType::class,
             [
                 'label' => 'Sociétes *',
@@ -109,45 +122,56 @@ class UserType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une sociétés--',
                 'required' => true,
-            ])
-            ->add('personnels', 
-            EntityType::class,
-            [
+            ]
+        )
+            ->add(
+                'personnels',
+                EntityType::class,
+                [
                 'label' => 'Nom Personnel *',
                 'class' => Personnel::class,
                 'choice_label' => 'Matricule',
                 'placeholder' => '-- Choisir une matricuel --',
                 'required' => true,
-            ])
-            ->add('superieurs', 
-            EntityType::class, [
+            ]
+            )
+            ->add(
+                'superieurs',
+                EntityType::class,
+                [
                 'label' => 'Supérieurs',
                 'class' => User::class,
                 'choice_label' => 'nom_utilisateur',
                 'required' => false,
                 'multiple' => true,
-                'expanded' => false                
-            ])
-            ->add('fonction',
-            EntityType::class,
-            [
+                'expanded' => false,
+            ]
+            )
+            ->add(
+                'fonction',
+                EntityType::class,
+                [
                 'label' => 'Fonction de l\'utilisateur',
                 'class' => Fonction::class,
                 'choice_label' => 'description',
-                'required' => false
-            ])
-            ->add('agenceServiceIrium',
-            EntityType::class,
-            [
+                'required' => false,
+            ]
+            )
+            ->add(
+                'agenceServiceIrium',
+                EntityType::class,
+                [
                 'label' => 'Code Sage *',
                 'class' => AgenceServiceIrium::class,
                 'choice_label' => 'service_sage_paie',
                 'placeholder' => "-- choisir une code sage --",
                 'required' => true,
-            ])
-            ->add('agencesAutorisees',
-            EntityType::class,
-            [
+            ]
+            )
+            ->add(
+                'agencesAutorisees',
+                EntityType::class,
+                [
                 'label' => 'Agence autoriser *',
                 'class' => Agence::class,
                 'choice_label' => function (Agence $agence): string {
@@ -156,11 +180,13 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'required' => true,
-            
-            ])
-            ->add('serviceAutoriser',
-            EntityType::class,
-            [
+
+            ]
+            )
+            ->add(
+                'serviceAutoriser',
+                EntityType::class,
+                [
                 'label' => 'Service autoriser *',
                 'class' => Service::class,
                 'choice_label' => function (Service $service): string {
@@ -169,26 +195,30 @@ class UserType extends AbstractType
                 'multiple' => true,
                 'expanded' => false,
                 'required' => true,
-                
-            ])
-            ->add('permissions', 
-            EntityType::class,
-            [
+
+            ]
+            )
+            ->add(
+                'permissions',
+                EntityType::class,
+                [
                 'label' => "Permission utilisateur",
                 'class' => Permission::class,
                 'choice_label' => 'permissionName',
                 'multiple' => true,
                 'expanded' => false,
-                'required' => false
-            ])
-            ->add('numTel', 
+                'required' => false,
+            ]
+            )
+            ->add(
+                'numTel',
                 TextType::class,
                 [
                     'label' => 'N° Telephone',
-                    'required' => false
+                    'required' => false,
                 ]
             )
-    ;
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)

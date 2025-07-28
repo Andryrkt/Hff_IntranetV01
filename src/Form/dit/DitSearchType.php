@@ -2,42 +2,42 @@
 
 namespace App\Form\dit;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use Doctrine\ORM\EntityRepository;
-use App\Entity\admin\StatutDemande;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\Agence;
 use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitSearch;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
-use Symfony\Component\Form\FormBuilderInterface;
 use App\Repository\admin\StatutDemandeRepository;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DitSearchType extends AbstractType
 {
-    const INTERNE_EXTERNE = [
+    public const INTERNE_EXTERNE = [
         'INTERNE' => 'INTERNE',
-        'EXTERNE' => 'EXTERNE'
+        'EXTERNE' => 'EXTERNE',
     ];
 
-    const ETAT_FACTURE = [
+    public const ETAT_FACTURE = [
         'Complètement facturé' => 'Complètement facturé',
         'Partiellement facturé' => 'Partiellement facturé',
-        'A valider client interne' => 'A valider client interne'
+        'A valider client interne' => 'A valider client interne',
     ];
 
     private $agenceRepository;
@@ -65,6 +65,7 @@ class DitSearchType extends AbstractType
         $sectionAffecte = $this->ditSearchRepository->findSectionAffectee();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionAffectee = str_replace($groupes, "", $sectionAffecte);
+
         return array_combine($sectionAffectee, $sectionAffectee);
     }
 
@@ -73,6 +74,7 @@ class DitSearchType extends AbstractType
         $sectionSupport1 = $this->ditSearchRepository->findSectionSupport1();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport1 = str_replace($groupes, "", $sectionSupport1);
+
         return array_combine($sectionSupport1, $sectionSupport1);
     }
 
@@ -81,6 +83,7 @@ class DitSearchType extends AbstractType
         $sectionSupport2 = $this->ditSearchRepository->findSectionSupport2();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport2 = str_replace($groupes, "", $sectionSupport2);
+
         return array_combine($sectionSupport2, $sectionSupport2);
     }
 
@@ -89,6 +92,7 @@ class DitSearchType extends AbstractType
         $sectionSupport3 = $this->ditSearchRepository->findSectionSupport3();
         $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots à supprimer
         $sectionSupport3 = str_replace($groupes, "", $sectionSupport3);
+
         return array_combine($sectionSupport3, $sectionSupport3);
     }
 
@@ -111,8 +115,8 @@ class DitSearchType extends AbstractType
                         ->orderBy('n.description', 'DESC');
                 },
                 'attr' => [
-                    'class' => 'niveauUrgence'
-                ]
+                    'class' => 'niveauUrgence',
+                ],
             ])
             ->add('statut', EntityType::class, [
                 'label' => 'Statut',
@@ -121,7 +125,7 @@ class DitSearchType extends AbstractType
                 'placeholder' => '-- Choisir un statut --',
                 'required' => false,
                 'attr' => [
-                    'class' => 'statut'
+                    'class' => 'statut',
                 ],
                 'query_builder' => function (StatutDemandeRepository $er) {
                     return $er->createQueryBuilder('s')
@@ -148,7 +152,7 @@ class DitSearchType extends AbstractType
                     'choices' => self::INTERNE_EXTERNE,
                     'placeholder' => '-- Choisir --',
                     'required' => false,
-                    'attr' => ['class' => 'interneExterne']
+                    'attr' => ['class' => 'interneExterne'],
                 ]
             )
             ->add('dateDebut', DateType::class, [
@@ -163,11 +167,11 @@ class DitSearchType extends AbstractType
             ])
             ->add('numParc', TextType::class, [
                 'label' => "N° Parc",
-                'required' => false
+                'required' => false,
             ])
             ->add('numSerie', TextType::class, [
                 'label' => "N° Série",
-                'required' => false
+                'required' => false,
             ])
 
             ->add(
@@ -175,7 +179,7 @@ class DitSearchType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'N° DIT',
-                    'required' => false
+                    'required' => false,
                 ]
             )
             ->add(
@@ -183,7 +187,7 @@ class DitSearchType extends AbstractType
                 NumberType::class,
                 [
                     'label' => 'N° OR',
-                    'required' => false
+                    'required' => false,
                 ]
             )
             ->add(
@@ -193,7 +197,7 @@ class DitSearchType extends AbstractType
                     'label' => 'Statut OR',
                     'required' => false,
                     'choices' => $this->statutOr(),
-                    'placeholder' => '-- choisir une statut --'
+                    'placeholder' => '-- choisir une statut --',
                 ]
             )
             ->add(
@@ -201,7 +205,7 @@ class DitSearchType extends AbstractType
                 CheckboxType::class,
                 [
                     'label' => 'DIT sans OR',
-                    'required' => false
+                    'required' => false,
                 ]
             )
 
@@ -221,7 +225,7 @@ class DitSearchType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'Utilisateur',
-                    'required' => false
+                    'required' => false,
                 ]
             )
             ->add(
@@ -231,7 +235,7 @@ class DitSearchType extends AbstractType
                     'label' => 'Section affectée',
                     'required' => false,
                     'choices' => $this->sectionAffectee(),
-                    'placeholder' => '-- choisir une section --'
+                    'placeholder' => '-- choisir une section --',
                 ]
             )
             ->add(
@@ -282,7 +286,7 @@ class DitSearchType extends AbstractType
                 TextType::class,
                 [
                     'label' => 'N° devis',
-                    'required' => false
+                    'required' => false,
                 ]
             )
         ;
@@ -302,7 +306,7 @@ class DitSearchType extends AbstractType
                         ->setParameter('codes', ['90', '91', '92'])
                         ->orderBy('a.codeAgence', 'ASC');
                 },
-                'attr' => ['class' => 'agenceEmetteur']
+                'attr' => ['class' => 'agenceEmetteur'],
             ])
                 ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                     $form = $event->getForm();
@@ -326,7 +330,7 @@ class DitSearchType extends AbstractType
                         'query_builder' => function (ServiceRepository $serviceRepository) {
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
-                        'attr' => ['class' => 'serviceEmetteur']
+                        'attr' => ['class' => 'serviceEmetteur'],
                     ]);
                 })
                 ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -358,7 +362,7 @@ class DitSearchType extends AbstractType
                         'query_builder' => function (ServiceRepository $serviceRepository) {
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
-                        'attr' => ['class' => 'serviceEmetteur']
+                        'attr' => ['class' => 'serviceEmetteur'],
                     ]);
                 });
         } else {
@@ -370,7 +374,7 @@ class DitSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => ['class' => 'agenceEmetteur']
+                'attr' => ['class' => 'agenceEmetteur'],
             ])
                 ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                     $form = $event->getForm();
@@ -394,7 +398,7 @@ class DitSearchType extends AbstractType
                         'query_builder' => function (ServiceRepository $serviceRepository) {
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
-                        'attr' => ['class' => 'serviceEmetteur']
+                        'attr' => ['class' => 'serviceEmetteur'],
                     ]);
                 })
                 ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -423,7 +427,7 @@ class DitSearchType extends AbstractType
                         'query_builder' => function (ServiceRepository $serviceRepository) {
                             return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                         },
-                        'attr' => ['class' => 'serviceEmetteur']
+                        'attr' => ['class' => 'serviceEmetteur'],
                     ]);
                 });
         }
@@ -437,7 +441,7 @@ class DitSearchType extends AbstractType
                 },
                 'placeholder' => '-- Choisir une agence--',
                 'required' => false,
-                'attr' => ['class' => 'agenceDebiteur']
+                'attr' => ['class' => 'agenceDebiteur'],
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
@@ -461,7 +465,7 @@ class DitSearchType extends AbstractType
                     'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => ['class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur'],
                 ]);
             })
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
@@ -493,7 +497,7 @@ class DitSearchType extends AbstractType
                     'query_builder' => function (ServiceRepository $serviceRepository) {
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
-                    'attr' => ['class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur'],
                 ]);
             });
     }

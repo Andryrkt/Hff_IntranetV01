@@ -3,12 +3,11 @@
 namespace App\Controller\Traits\dit;
 
 use App\Entity\admin\utilisateur\User;
-use Symfony\Component\Form\FormInterface;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Symfony\Component\Form\FormInterface;
 
 trait DitOrSoumisAValidationTrait
 {
-
     /**
      * Upload un fichier et retourne le chemin du fichier enregistré si c'est un PDF, sinon null.
      *
@@ -29,9 +28,9 @@ trait DitOrSoumisAValidationTrait
         $allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png'];
 
         if (
-            !$file->isValid() ||
-            !in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
-            !in_array($file->getMimeType(), $allowedMimeTypes, true)
+            ! $file->isValid() ||
+            ! in_array(strtolower($file->getClientOriginalExtension()), $allowedExtensions, true) ||
+            ! in_array($file->getMimeType(), $allowedMimeTypes, true)
         ) {
             throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName.");
         }
@@ -50,7 +49,7 @@ trait DitOrSoumisAValidationTrait
         $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
 
         // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+        if (! is_dir($destination) && ! mkdir($destination, 0755, true) && ! is_dir($destination)) {
             throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
         }
 
@@ -67,6 +66,7 @@ trait DitOrSoumisAValidationTrait
 
         return null;
     }
+
     /**
      * Envoie des pièces jointes et fusionne les PDF
      */
@@ -86,7 +86,7 @@ trait DitOrSoumisAValidationTrait
         );
 
         // Vérifier que le fichier principal existe avant de l'ajouter
-        if (!file_exists($mainPdf)) {
+        if (! file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
@@ -116,7 +116,7 @@ trait DitOrSoumisAValidationTrait
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
+        if (! empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
@@ -126,6 +126,7 @@ trait DitOrSoumisAValidationTrait
         if ($num === null) {
             $num = 0;
         }
+
         return $num + 1;
     }
 
@@ -156,7 +157,7 @@ trait DitOrSoumisAValidationTrait
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
 
-        if (!empty($OrSoumisAvantMax)) {
+        if (! empty($OrSoumisAvantMax)) {
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
             $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
@@ -196,15 +197,13 @@ trait DitOrSoumisAValidationTrait
         return $recapAvantApres;
     }
 
-
-
     private function affectationStatut($recapAvantApres)
     {
         $nombreStatutNouvEtSupp = [
             'nbrNouv' => 0,
             'nbrSupp' => 0,
             'nbrModif' => 0,
-            'mttModif' => 0
+            'mttModif' => 0,
         ];
         //dump($recapAvantApres);
         foreach ($recapAvantApres as &$value) { // Référence les éléments pour les modifier directement
@@ -224,14 +223,14 @@ trait DitOrSoumisAValidationTrait
                 $nombreStatutNouvEtSupp['mttModif'] = $nombreStatutNouvEtSupp['mttModif'] + ($value['mttTotalAp'] - $value['mttTotalAv']);
             }
         }
+
         //dd($recapAvantApres);
         // Retourner le tableau modifié et les statistiques de nouveaux et supprimés
         return [
             'recapAvantApres' => $recapAvantApres,
-            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp
+            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp,
         ];
     }
-
 
     private function calculeSommeAvantApres($recapAvantApres)
     {
@@ -243,9 +242,9 @@ trait DitOrSoumisAValidationTrait
             'totalNbLigAp' => 0,
             'totalMttTotalAv' => 0,
             'totalMttTotalAp' => 0,
-            'dernierLigne' => ''
+            'dernierLigne' => '',
         ];
-        foreach ($recapAvantApres as  $value) {
+        foreach ($recapAvantApres as $value) {
             $totalRecepAvantApres['totalNbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
             $totalRecepAvantApres['totalNbLigAp'] += $value['nbLigAp'];
             $totalRecepAvantApres['totalMttTotalAv'] += $value['mttTotalAv'] === '' ? 0 : $value['mttTotalAv'];
@@ -269,19 +268,20 @@ trait DitOrSoumisAValidationTrait
                 'mttAutres' => $orSoumis->getMontantFraisDivers(),
             ];
         }
+
         return $recapOr;
     }
-
 
     private function montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax)
     {
         $recapAvantApres = $this->recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant);
+
         return [
             'avantApres' => $this->affectationStatut($recapAvantApres)['recapAvantApres'],
             'totalAvantApres' => $this->calculeSommeAvantApres($recapAvantApres),
             'recapOr' => $this->recapitulationOr($orSoumisValidataion),
             'totalRecapOr' => $this->calculeSommeMontant($orSoumisValidataion),
-            'nombreStatutNouvEtSupp' => $this->affectationStatut($recapAvantApres)['nombreStatutNouvEtSupp']
+            'nombreStatutNouvEtSupp' => $this->affectationStatut($recapAvantApres)['nombreStatutNouvEtSupp'],
         ];
     }
 
@@ -328,7 +328,7 @@ trait DitOrSoumisAValidationTrait
                     break;
                 }
             }
-            if (!$trouve) {
+            if (! $trouve) {
                 $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
                 // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
                 $nouvelObjet = new DitOrsSoumisAValidation();
@@ -336,6 +336,7 @@ trait DitOrSoumisAValidationTrait
                 $manquants[] = $nouvelObjet;
             }
         }
+
         return $manquants;
     }
 
@@ -363,19 +364,21 @@ trait DitOrSoumisAValidationTrait
     }
 
     private function datePlanning($numOr)
-    { 
+    {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
         $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
-    
+
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }
 
-    private function nomUtilisateur($em){
+    private function nomUtilisateur($em)
+    {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
+
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'mailUtilisateur' => $user->getMail(),
         ];
     }
 }

@@ -8,7 +8,6 @@ use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class TkiAllCategorieController extends Controller
 {
     /**
@@ -16,16 +15,16 @@ class TkiAllCategorieController extends Controller
      */
     public function index()
     {
-        $dataCategorie      = self::$em->getRepository(TkiCategorie::class)->findBy([], ['id' => 'DESC']);
-        $dataSousCategorie  = self::$em->getRepository(TkiSousCategorie::class)->findBy([], ['id' => 'DESC']);
+        $dataCategorie = self::$em->getRepository(TkiCategorie::class)->findBy([], ['id' => 'DESC']);
+        $dataSousCategorie = self::$em->getRepository(TkiSousCategorie::class)->findBy([], ['id' => 'DESC']);
         $dataAutreCategorie = self::$em->getRepository(TkiAutresCategorie::class)->findBy([], ['id' => 'DESC']);
 
         self::$twig->display(
             'admin/tik/tousCategorie/List.html.twig',
             [
-                'dataCategorie'      => $dataCategorie,
-                'dataSousCategorie'  => $dataSousCategorie,
-                'dataAutreCategorie' => $dataAutreCategorie
+                'dataCategorie' => $dataCategorie,
+                'dataSousCategorie' => $dataSousCategorie,
+                'dataAutreCategorie' => $dataAutreCategorie,
             ]
         );
     }

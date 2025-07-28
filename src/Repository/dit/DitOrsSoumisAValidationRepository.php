@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityRepository;
 
 class DitOrsSoumisAValidationRepository extends EntityRepository
 {
-
     public function existsNumOr($numOr): bool
     {
         $qb = $this->createQueryBuilder('osv');
@@ -17,12 +16,12 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         try {
             $result = $qb->getQuery()->getOneOrNullResult();
+
             return $result !== null;
         } catch (\Exception $e) {
             return false;
         }
     }
-
 
     public function findNumOrItvValide()
     {
@@ -77,7 +76,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         return $nbrItv;
     }
 
-
     public function findStatutByNumeroVersionMax($numOr, $numItv)
     {
         // Étape 1 : Récupérer le numeroVersion maximum
@@ -104,7 +102,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $statut;
     }
-
 
     public function findNumeroVersionMax($numOr)
     {
@@ -163,7 +160,6 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         return $qb;
     }
-
 
     public function findMontantValide($numOr, $numItv)
     {

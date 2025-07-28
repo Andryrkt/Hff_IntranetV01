@@ -2,22 +2,19 @@
 
 namespace App\Controller\dit;
 
-
-use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
-use App\Form\dit\DitSearchType;
-use App\Form\dit\DocDansDwType;
-use App\Model\dit\DitListModel;
+use App\Controller\Traits\dit\DitListTrait;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\dit\DitListTrait;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Entity\dit\DitSearch;
+use App\Form\dit\DitSearchType;
+use App\Form\dit\DocDansDwType;
+use App\Model\dit\DitListModel;
+use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
 
 class DitListeController extends Controller
 {
@@ -51,12 +48,12 @@ class DitListeController extends Controller
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
-      
+
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
             //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
-            'autorisationRoleEnergie' => $autorisationRoleEnergie
+            'autorisationRoleEnergie' => $autorisationRoleEnergie,
         ])->getForm();
 
         $form->handleRequest($request);
@@ -64,9 +61,9 @@ class DitListeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
-            if (!empty($numParc) || !empty($numSerie)) {
+            if (! empty($numParc) || ! empty($numSerie)) {
                 $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
-                if (!empty($idMateriel)) {
+                if (! empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
                 }
@@ -86,7 +83,7 @@ class DitListeController extends Controller
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
-        
+
         //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
 
@@ -110,8 +107,8 @@ class DitListeController extends Controller
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
                 $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
-        } 
-        
+        }
+
         /** HISTORIQUE DES OPERATION */
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = $this->criteriaTab($criteria);
@@ -122,16 +119,16 @@ class DitListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        
+
         self::$twig->display('dit/list.html.twig', [
-            'data'          => $paginationData['data'],
-            'currentPage'   => $paginationData['currentPage'],
-            'totalPages'    => $paginationData['lastPage'],
-            'criteria'      => $criteria,
-            'resultat'      => $paginationData['totalItems'],
-            'statusCounts'  => $paginationData['statusCounts'],
-            'form'          => $form->createView(),
-            'formDocDansDW' => $formDocDansDW->createView()
+            'data' => $paginationData['data'],
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages' => $paginationData['lastPage'],
+            'criteria' => $criteria,
+            'resultat' => $paginationData['totalItems'],
+            'statusCounts' => $paginationData['statusCounts'],
+            'form' => $form->createView(),
+            'formDocDansDW' => $formDocDansDW->createView(),
         ]);
     }
 
@@ -143,7 +140,7 @@ class DitListeController extends Controller
                 $numeroDevisModel = $ditListModel->recupNumeroDevis($item->getNumeroDemandeIntervention());
 
                 // Vérification de la récupération du numéro de devis
-                $numeroDevis = !empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
+                $numeroDevis = ! empty($numeroDevisModel) ? $numeroDevisModel[0]['numdevis'] : null;
 
                 // Mise à jour de l'élément avec le numéro de devis
                 $item->setNumeroDevisRattache($numeroDevis);
@@ -164,9 +161,9 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        //recupères les critère dans la session 
+        //recupères les critère dans la session
         $criteria = $this->sessionService->get('dit_search_criteria', []);
-        //recupère les critères dans la session 
+        //recupère les critères dans la session
         $options = $this->sessionService->get('dit_search_option', []);
 
         //crée une objet à partir du tableau critère reçu par la session
@@ -179,7 +176,6 @@ class DitListeController extends Controller
         //creation du fichier excel
         $this->excelService->createSpreadsheet($data);
     }
-
 
     /**
      * @Route("/cloturer-annuler/{id}", name="cloturer_annuler_dit_liste")
@@ -199,7 +195,7 @@ class DitListeController extends Controller
         $headers = ['numéro DIT', 'statut'];
         $data = [
             $dit->getNumeroDemandeIntervention(),
-            'Clôturé annulé'
+            'Clôturé annulé',
         ];
         $this->ajouterDansCsv($filePath, $data, $headers);
 
@@ -210,8 +206,6 @@ class DitListeController extends Controller
         $this->notification($message);
         $this->redirectToRoute("dit_index");
     }
-
-   
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -236,7 +230,7 @@ class DitListeController extends Controller
         $dwCde = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
-        if (!empty($dwOr)) {
+        if (! empty($dwOr)) {
             $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
             $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
             $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
@@ -273,22 +267,22 @@ class DitListeController extends Controller
     {
         $criteriaTab = $criteria;
 
-        $criteriaTab['typeDocument']    = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
-        $criteriaTab['niveauUrgence']   = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
-        $criteriaTab['statut']          = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']       = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']         = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['agenceEmetteur']  = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
+        $criteriaTab['typeDocument'] = $criteria['typeDocument'] ? $criteria['typeDocument']->getDescription() : $criteria['typeDocument'];
+        $criteriaTab['niveauUrgence'] = $criteria['niveauUrgence'] ? $criteria['niveauUrgence']->getDescription() : $criteria['niveauUrgence'];
+        $criteriaTab['statut'] = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut'] = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin'] = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['agenceEmetteur'] = $criteria['agenceEmetteur'] ? $criteria['agenceEmetteur']->getLibelleAgence() : $criteria['agenceEmetteur'];
         $criteriaTab['serviceEmetteur'] = $criteria['serviceEmetteur'] ? $criteria['serviceEmetteur']->getLibelleService() : $criteria['serviceEmetteur'];
-        $criteriaTab['agenceDebiteur']  = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
+        $criteriaTab['agenceDebiteur'] = $criteria['agenceDebiteur'] ? $criteria['agenceDebiteur']->getLibelleAgence() : $criteria['agenceDebiteur'];
         $criteriaTab['serviceDebiteur'] = $criteria['serviceDebiteur'] ? $criteria['serviceDebiteur']->getLibelleService() : $criteria['serviceDebiteur'];
-        $criteriaTab['categorie']       = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
+        $criteriaTab['categorie'] = $criteria['categorie'] ? $criteria['categorie']->getLibelleCategorieAteApp() : $criteria['categorie'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
 
     }
-    
+
     private function changementStatutDit($dit, $statutCloturerAnnuler)
     {
         $dit->setIdStatutDemande($statutCloturerAnnuler);
@@ -304,12 +298,12 @@ class DitListeController extends Controller
         $handle = fopen($filePath, 'a');
 
         // Si le fichier est nouveau, ajoute un BOM UTF-8
-        if (!$fichierExiste) {
+        if (! $fichierExiste) {
             fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
         }
 
         // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
+        if (! $fichierExiste && $headers !== null) {
             // Force l'encodage UTF-8 pour les en-têtes
             fputcsv($handle, array_map(function ($header) {
                 return mb_convert_encoding($header, 'UTF-8');
@@ -324,6 +318,4 @@ class DitListeController extends Controller
         // Ferme le fichier
         fclose($handle);
     }
-
-
 }

@@ -2,12 +2,12 @@
 
 namespace App\Api\dit;
 
-use App\Model\dit\DitModel;
-use App\Entity\admin\Agence;
 use App\Controller\Controller;
+use App\Entity\admin\Agence;
+use App\Model\dit\DitModel;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AgenceServiceApi extends Controller
 {
@@ -16,22 +16,23 @@ class AgenceServiceApi extends Controller
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
-    public function agence($id) {
+    public function agence($id)
+    {
 
         $agence = self::$em->getRepository(Agence::class)->find($id);
-    
+
         $service = $agence->getServices();
 
         //   $services = $service->getValues();
-            $services = [];
+        $services = [];
         foreach ($service as $key => $value) {
             $services[] = [
                 'value' => $value->getId(),
-                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+                'text' => $value->getCodeService() . ' ' . $value->getLibelleService(),
             ];
         }
 
-        
+
         //dd($services);
         header("Content-type:application/json");
 
@@ -39,7 +40,6 @@ class AgenceServiceApi extends Controller
 
         //echo new JsonResponse($services);
     }
-
 
     /**
      * @Route("/fetch-materiel/{idMateriel?0}/{numParc?0}/{numSerie?}", name="fetch_materiel", methods={"GET"})
@@ -52,7 +52,7 @@ class AgenceServiceApi extends Controller
         $data = $ditModel->findAll($idMateriel, $numParc, $numSerie);
 
         // Vérifiez si les données existent
-        if (!$data) {
+        if (! $data) {
             return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
         }
         header("Content-type:application/json");

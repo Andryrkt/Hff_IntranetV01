@@ -1,19 +1,18 @@
 <?php
 
-
 namespace App\Controller\magasin\ors;
 
 // ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
-use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\Transformation;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrATraiterModel;
-use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Controller\Traits\Transformation;
+use App\Entity\dit\DemandeIntervention;
+use App\Form\magasin\MagasinListeOrATraiterSearchType;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class MagasinListeOrTraiterController extends Controller
 {
@@ -31,7 +30,7 @@ class MagasinListeOrTraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $magasinModel = new MagasinListeOrATraiterModel;
+        $magasinModel = new MagasinListeOrATraiterModel();
         $agenceServiceUser = $this->agenceServiceIpsObjet();
 
         /** CREATION D'AUTORISATION */
@@ -45,7 +44,7 @@ class MagasinListeOrTraiterController extends Controller
         }
 
         $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
         ])->getForm();
 
         $form->handleRequest($request);
@@ -63,12 +62,9 @@ class MagasinListeOrTraiterController extends Controller
 
         self::$twig->display('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
-
-
-
 
     /**
      * @Route("/magasin-list-or-traiter-export-excel", name="magasin_list_or_traiter")
@@ -80,8 +76,8 @@ class MagasinListeOrTraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $magasinModel = new MagasinListeOrATraiterModel;
-        //recupères les critère dans la session 
+        $magasinModel = new MagasinListeOrATraiterModel();
+        //recupères les critère dans la session
         $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
 
         $entities = $this->recupData($criteria, $magasinModel);
@@ -108,7 +104,7 @@ class MagasinListeOrTraiterController extends Controller
                 $entity['nomPrenom'],
                 $entity['idMateriel'],
                 $entity['marque'],
-                $entity['casier']
+                $entity['casier'],
             ];
         }
 
@@ -118,9 +114,10 @@ class MagasinListeOrTraiterController extends Controller
     private function innitialisationCriteria($agenceUser)
     {
         return [
-            "agenceUser" => $agenceUser
+            "agenceUser" => $agenceUser,
         ];
     }
+
     private function recupData($criteria, $magasinModel)
     {
         $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, self::$em);
@@ -136,9 +133,9 @@ class MagasinListeOrTraiterController extends Controller
             $data[$i]['nomPrenom'] = $magasinModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
             $datePlannig1 = $magasinModel->recupDatePlanning1($numeroOr);
             $datePlannig2 = $magasinModel->recupDatePlanning2($numeroOr);
-            if (!empty($datePlannig1)) {
+            if (! empty($datePlannig1)) {
                 $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if (!empty($datePlannig2)) {
+            } elseif (! empty($datePlannig2)) {
                 $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
             } else {
                 $data[$i]['datePlanning'] = '';
@@ -146,7 +143,7 @@ class MagasinListeOrTraiterController extends Controller
 
 
             $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
-            if (!empty($ditRepository)) {
+            if (! empty($ditRepository)) {
                 $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
                 $idMateriel = $ditRepository->getIdMateriel();

@@ -5,14 +5,10 @@ namespace App\Model\badm;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
-
 class BadmModel extends Model
 {
-
-
     use BadmModelTrait;
     use ConversionModel;
-
 
     /**
      * Informix: recupère l'agence
@@ -56,8 +52,6 @@ class BadmModel extends Model
     //     return $element;
     // }
 
-
-
     /**
      * Informix
      *
@@ -83,8 +77,6 @@ class BadmModel extends Model
 
         //return $tableauUtf8;
     }
-
-
 
     /**
      * INformix | recupère le code et le libeler agence
@@ -121,7 +113,6 @@ class BadmModel extends Model
         //return $services;
     }
 
-
     /**
      * sqlServer: recupération casier
      * @return  array
@@ -142,6 +133,7 @@ class BadmModel extends Model
             $tab[] = $donnee;
         }
         $tableauUtf8 = $this->convertirEnUtf8($tab);
+
         return $tableauUtf8;
     }
 
@@ -151,24 +143,24 @@ class BadmModel extends Model
     public function findAll($matricule = '',  $numParc = '', $numSerie = '')
     {
 
-        if($matricule === '' || $matricule === '0' || $matricule === null){
+        if ($matricule === '' || $matricule === '0' || $matricule === null) {
             $conditionNummat = "";
-           } else {
-             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-           }
-     
-     
-           if($numParc === '' || $numParc === '0' || $numParc === null){
-             $conditionNumParc = "";
-           } else {
-             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-           }
-     
-           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-             $conditionNumSerie = "";
-           } else {
-             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-           }
+        } else {
+            $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+        }
+
+
+        if ($numParc === '' || $numParc === '0' || $numParc === null) {
+            $conditionNumParc = "";
+        } else {
+            $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+        }
+
+        if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+            $conditionNumSerie = "";
+        } else {
+            $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+        }
 
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
@@ -234,15 +226,13 @@ class BadmModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
-
     /**
      * insertion dans le base de donner
      *
      * @param [type] $tab
      * @return void
      */
-    function insererDansBaseDeDonnees($tab)
+    public function insererDansBaseDeDonnees($tab)
     {
         $sql = "INSERT INTO Demande_Mouvement_Materiel (
             Numero_Demande_BADM,
@@ -276,8 +266,9 @@ class BadmModel extends Model
 
         // Exécution de la requête
         $stmt = odbc_prepare($this->connexion->getConnexion(), $sql);
-        if (!$stmt) {
+        if (! $stmt) {
             echo "Erreur de préparation : " . odbc_errormsg($this->connexion->getConnexion());
+
             return;
         }
 
@@ -307,6 +298,7 @@ class BadmModel extends Model
         while ($donnee = odbc_fetch_array($execTypeDoc)) {
             $tab[] = $donnee;
         }
+
         return $tab;
     }
 
@@ -322,14 +314,13 @@ class BadmModel extends Model
         while ($donnee = odbc_fetch_array($execTypeDoc)) {
             $tab[] = $donnee;
         }
+
         return $tab;
     }
 
-
-
     /**
      * récupération de OR
-     * 
+     *
      * @return array
      */
     public function recupeOr($numMat)
@@ -403,10 +394,9 @@ class BadmModel extends Model
         while ($donnee = odbc_fetch_array($execTypeDoc)) {
             $tab[] = $donnee;
         }
+
         return $tab;
     }
-
-    
 
     /**
      * recupérer l'agence et service destinataire selon l'id materiel
@@ -422,14 +412,15 @@ class BadmModel extends Model
         while ($donnee = odbc_fetch_array($execTypeDoc)) {
             $tab[] = $donnee;
         }
+
         return $tab;
     }
 
-/**
- * recuperation id_statut_demande OUVERT
- *
- * @return void
- */
+    /**
+     * recuperation id_statut_demande OUVERT
+     *
+     * @return void
+     */
     public function idOuvertStatutDemande()
     {
         $statement = "SELECT ID_Statut_Demande from Statut_demande Where Description='OUVERT' AND Code_Application='BDM'";
@@ -438,7 +429,4 @@ class BadmModel extends Model
 
         return odbc_fetch_array($execTypeDoc);
     }
-
-
-    
 }

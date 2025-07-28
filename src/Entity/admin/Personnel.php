@@ -2,13 +2,12 @@
 
 namespace App\Entity\admin;
 
-use DateTime;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\admin\AgenceServiceIrium;
-use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\PersonnelRepository;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -16,7 +15,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Entity(repositoryClass=PersonnelRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
-class Personnel 
+class Personnel
 {
     /**
      * @ORM\Id
@@ -100,7 +99,6 @@ class Personnel
      * @ORM\JoinColumn(name="agence_service_irium_id", referencedColumnName="id")
      */
     private $agenceServiceIriumId;
-    
 
     public function __construct()
     {
@@ -132,6 +130,7 @@ class Personnel
     public function setMatricule(int $Matricule): self
     {
         $this->Matricule = $Matricule;
+
         return $this;
     }
 
@@ -143,6 +142,7 @@ class Personnel
     public function setNom(?string $Nom): self
     {
         $this->Nom = $Nom;
+
         return $this;
     }
 
@@ -154,6 +154,7 @@ class Personnel
     public function setCodeAgenceServiceSage(?string $Code_AgenceService_Sage): self
     {
         $this->Code_AgenceService_Sage = $Code_AgenceService_Sage;
+
         return $this;
     }
 
@@ -165,6 +166,7 @@ class Personnel
     public function setNumeroFournisseurIRIUM(?int $Numero_Fournisseur_IRIUM): self
     {
         $this->Numero_Fournisseur_IRIUM = $Numero_Fournisseur_IRIUM;
+
         return $this;
     }
 
@@ -176,6 +178,7 @@ class Personnel
     public function setCodeAgenceServiceIRIUM(?int $Code_AgenceService_IRIUM): self
     {
         $this->Code_AgenceService_IRIUM = $Code_AgenceService_IRIUM;
+
         return $this;
     }
 
@@ -187,6 +190,7 @@ class Personnel
     public function setNumeroTelephone(?string $Numero_Telephone): self
     {
         $this->Numero_Telephone = $Numero_Telephone;
+
         return $this;
     }
 
@@ -198,6 +202,7 @@ class Personnel
     public function setNumeroCompteBancaire(string $Numero_Compte_Bancaire): self
     {
         $this->Numero_Compte_Bancaire = $Numero_Compte_Bancaire;
+
         return $this;
     }
 
@@ -209,6 +214,7 @@ class Personnel
     public function setDatecreation(?DateTime $Date_creation): self
     {
         $this->Date_creation = $Date_creation;
+
         return $this;
     }
 
@@ -220,6 +226,7 @@ class Personnel
     public function setLibelleAgenceServiceSage(?string $Libelle_AgenceService_Sage): self
     {
         $this->Libelle_AgenceService_Sage = $Libelle_AgenceService_Sage;
+
         return $this;
     }
 
@@ -231,6 +238,7 @@ class Personnel
     public function setCodeServiceAgenceIRIUM(?string $Code_Service_Agence_IRIUM): self
     {
         $this->Code_Service_Agence_IRIUM = $Code_Service_Agence_IRIUM;
+
         return $this;
     }
 
@@ -242,6 +250,7 @@ class Personnel
     public function setPrenoms(string $Prenoms): self
     {
         $this->Prenoms = $Prenoms;
+
         return $this;
     }
 
@@ -253,6 +262,7 @@ class Personnel
     public function setQualification(string $Qualification): self
     {
         $this->Qualification = $Qualification;
+
         return $this;
     }
 
@@ -264,13 +274,13 @@ class Personnel
     public function setLibelleServiceAgenceIRIUM(?string $Libelle_Service_Agence_IRIUM): self
     {
         $this->Libelle_Service_Agence_IRIUM = $Libelle_Service_Agence_IRIUM;
+
         return $this;
     }
 
-
-     /**
-     * @return Collection|User[]
-     */ 
+    /**
+    * @return Collection|User[]
+    */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -278,7 +288,7 @@ class Personnel
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users[] = $user;
             $user->setPersonnels($this);
         }
@@ -294,7 +304,7 @@ class Personnel
                 $user->setPersonnels(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -305,13 +315,11 @@ class Personnel
         return $this;
     }
 
-  
     public function getAgenceServiceIriumId()
     {
         return $this->agenceServiceIriumId;
     }
 
-  
     public function setAgenceServiceIriumId($agenceServiceIriumId): self
     {
         $this->agenceServiceIriumId = $agenceServiceIriumId;
@@ -322,10 +330,8 @@ class Personnel
     public function toArray(): array
     {
         return [
-            
-            'Matricule' => $this->Matricule
+
+            'Matricule' => $this->Matricule,
         ];
     }
-
-    
 }

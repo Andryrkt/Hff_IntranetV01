@@ -2,33 +2,32 @@
 
 namespace App\Controller\tik;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\lienGenerique;
-use App\Service\fichier\FileUploaderService;
-use Symfony\Component\HttpFoundation\Request;
-use App\Entity\tik\DemandeSupportInformatique;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Form\tik\DemandeSupportInformatiqueType;
-use App\Repository\admin\utilisateur\UserRepository;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\tik\DemandeSupportInformatique;
+use App\Form\tik\DemandeSupportInformatiqueType;
+use App\Service\EmailService;
+use App\Service\fichier\FileUploaderService;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->historiqueOperation = new HistoriqueOperationTIKService();
     }
 
     /**
@@ -64,10 +63,10 @@ class DemandeSupportInformatiqueController extends Controller
             self::$em->flush();
 
             $this->envoyerMailAuxValidateurs([
-                'id'            => $donnerForm->getId(),
-                'numTik'        => $donnerForm->getNumeroTicket(),
-                'objet'         => $donnerForm->getObjetDemande(),
-                'detail'        => $donnerForm->getDetailDemande(),
+                'id' => $donnerForm->getId(),
+                'numTik' => $donnerForm->getNumeroTicket(),
+                'objet' => $donnerForm->getObjetDemande(),
+                'detail' => $donnerForm->getDetailDemande(),
                 'userConnecter' => $user->getPersonnels()->getNom() . ' ' . $user->getPersonnels()->getPrenoms(),
             ]);
 
@@ -77,7 +76,7 @@ class DemandeSupportInformatiqueController extends Controller
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -139,7 +138,7 @@ class DemandeSupportInformatiqueController extends Controller
 
     private function rectificationDernierIdApplication($supportInfo)
     {
-        //RECUPERATION de la dernière NumeroDemandeIntervention 
+        //RECUPERATION de la dernière NumeroDemandeIntervention
         $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'TIK']);
         $application->setDerniereId($supportInfo->getNumeroTicket());
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
@@ -166,7 +165,7 @@ class DemandeSupportInformatiqueController extends Controller
                 $fileNames[] =
                     [
                         'name' => $fileName,
-                        'size' => $fileSize
+                        'size' => $fileSize,
                     ];
             }
         }
@@ -183,30 +182,31 @@ class DemandeSupportInformatiqueController extends Controller
         } else {
             $fileSize = 0; // ou autre valeur par défaut ou message d'erreur
         }
+
         return $fileSize;
     }
 
-    /** 
+    /**
      * Fonctions pour envoyer un mail aux validateurs
      */
     private function envoyerMailAuxValidateurs(array $tab)
     {
-        $email       = new EmailService;
+        $email = new EmailService();
 
         $emailValidateurs = array_map(function ($validateur) {
             return $validateur->getMail();
         }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
         $content = [
-            'to'        => $emailValidateurs[0],
-            'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'tik/email/emailTik.html.twig',
+            'to' => $emailValidateurs[0],
+            'cc' => array_slice($emailValidateurs, 1),
+            'template' => 'tik/email/emailTik.html.twig',
             'variables' => [
-                'statut'     => "newTik",
-                'subject'    => "{$tab['numTik']} - Nouveau ticket créé",
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}")
-            ]
+                'statut' => "newTik",
+                'subject' => "{$tab['numTik']} - Nouveau ticket créé",
+                'tab' => $tab,
+                'action_url' => $this->urlGenerique($_ENV['BASE_PATH_COURT']."/tik-detail/{$tab['id']}"),
+            ],
         ];
         $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }

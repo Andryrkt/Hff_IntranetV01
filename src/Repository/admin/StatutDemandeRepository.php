@@ -2,14 +2,10 @@
 
 namespace App\Repository\admin;
 
-
-
 use Doctrine\ORM\EntityRepository;
-
 
 class StatutDemandeRepository extends EntityRepository
 {
-
     // Ajoutez des méthodes personnalisées ici
     public function findByCodeStatut($value)
     {

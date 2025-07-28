@@ -2,32 +2,38 @@
 
 namespace App\Controller\dit;
 
+use App\Controller\Controller;
+use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Entity\dit\AcSoumis;
 use App\Entity\dit\BcSoumis;
-use App\Controller\Controller;
-use App\Form\dit\AcSoumisType;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitDevisSoumisAValidation;
+use App\Form\dit\AcSoumisType;
+use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Service\fichier\FileUploaderService;
+use App\Service\genererPdf\GenererPdfAcSoumis;
+use App\Service\historiqueOperation\HistoriqueOperationBCService;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\FormInterface;
-use App\Service\fichier\FileUploaderService;
-use App\Entity\dit\DitDevisSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
-use App\Service\genererPdf\GenererPdfAcSoumis;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dit\DitDevisSoumisAValidationModel;
-use App\Entity\admin\utilisateur\ContactAgenceAte;
-use App\Service\historiqueOperation\HistoriqueOperationBCService;
-use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 
 class AcBcSoumisController extends Controller
 {
     private $acSoumis;
+
     private $bcSoumis;
+
     private $bcRepository;
+
     private $genererPdfAc;
+
     private $historiqueOperation;
+
     private $contactAgenceAteRepository;
+
     private $ditRepository;
+
     private $ditDevisSoumisAValidationModel;
 
     public function __construct()
@@ -38,7 +44,7 @@ class AcBcSoumisController extends Controller
         $this->bcSoumis = new BcSoumis();
         $this->bcRepository = self::$em->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationBCService;
+        $this->historiqueOperation = new HistoriqueOperationBCService();
         $this->contactAgenceAteRepository = self::$em->getRepository(ContactAgenceAte::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
@@ -60,7 +66,7 @@ class AcBcSoumisController extends Controller
         //     $message = "Erreur lors de la soumission, Impossible de soumettre le BC . . . l'information du devis est vide pour le numero {$numDit}";
         //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
         // }
-        
+
         $acSoumis = $this->initialisation($devis, $numDit);
 
         $form = self::$validator->createBuilder(AcSoumisType::class, $acSoumis)->getForm();
@@ -69,7 +75,7 @@ class AcBcSoumisController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-           
+
             $acSoumis = $this->initialisation($devis, $numDit);
             $numBc = $acSoumis->getNumeroBc();
             $numDevis = $acSoumis->getNumeroDevis();
@@ -85,7 +91,7 @@ class AcBcSoumisController extends Controller
             $nomFichier = 'bc_'.$numClientBcDevis.'-'.$numeroVersionMaxDit.'#'.$suffix.'.pdf';
             //crée le pdf
             $this->genererPdfAc->genererPdfAc($acSoumis, $numClientBcDevis, $numeroVersionMaxDit, $nomFichier);
-            
+
             //fusionne le pdf
             $chemin = $_SERVER['DOCUMENT_ROOT'] . 'Upload/dit/ac_bc/';
             $fileUploader = new FileUploaderService($chemin);
@@ -106,7 +112,7 @@ class AcBcSoumisController extends Controller
         }
 
         self::$twig->display('dit/AcBcSoumis.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -114,15 +120,15 @@ class AcBcSoumisController extends Controller
     {
         $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
-        if(isset($constructeur[0])) {
+        if (isset($constructeur[0])) {
             $containsCAT = in_array("CAT", $constructeur[0]);
-            $containsOther = count(array_filter($constructeur[0], fn($el) => $el !== "CAT"));
+            $containsOther = count(array_filter($constructeur[0], fn ($el) => $el !== "CAT"));
 
-            if($containsOther === 0) {
+            if ($containsOther === 0) {
                 $suffix = 'C';
-            } else if(!$containsCAT) {
+            } elseif (! $containsCAT) {
                 $suffix = 'P';
-            } else if ($containsOther > 0 ) {
+            } elseif ($containsOther > 0) {
                 $suffix = 'CP';
             } else {
                 $suffix = 'N';
@@ -148,11 +154,11 @@ class AcBcSoumisController extends Controller
         $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/ac_bc/';
         $fileUploader = new FileUploaderService($chemin);
         $prefix = 'bc';
-        $options =[
+        $options = [
             'prefix' => $prefix,
             'numeroDoc' => $numClientBcDevis,
             'numeroVersion' => $numeroVersion,
-            'mainFirstPage' => true
+            'mainFirstPage' => true,
         ];
         $fileName = $fileUploader->chargerEtOuFusionneFichier($form, $options);
 
@@ -178,6 +184,7 @@ class AcBcSoumisController extends Controller
             ->setNumVersion($this->autoIncrement($numeroVersionMax))
             ->setStatut('Soumis à validation')
         ;
+
         return $this->bcSoumis;
     }
 
@@ -186,6 +193,7 @@ class AcBcSoumisController extends Controller
         if ($num === null) {
             $num = 0;
         }
+
         return $num + 1;
     }
 
@@ -206,17 +214,18 @@ class AcBcSoumisController extends Controller
             ->setDevise($devis[0]->getDevise())
             ->setDateExpirationDevis((clone $devis[0]->getDateHeureSoumission())->modify('+30 days'))
         ;
+
         return $this->acSoumis;
     }
 
     private function telephoneHff(array $atelier)
     {
-        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getTelephone(), $atelier), '');
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn ($el) => $el->getTelephone(), $atelier), '');
     }
 
     private function emailHff(array $atelier)
     {
-        return TableauEnStringService::TableauEnString(' / ', array_map(fn($el) => $el->getEmailString(), $atelier), '');
+        return TableauEnStringService::TableauEnString(' / ', array_map(fn ($el) => $el->getEmailString(), $atelier), '');
     }
 
     /**

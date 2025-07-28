@@ -14,6 +14,7 @@ trait ConversionModel
             // return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
             return iconv('ISO-8859-1', 'UTF-8', $element);
         }
+
         return $element;
     }
 
@@ -62,6 +63,7 @@ trait ConversionModel
                 $array[$key] = html_entity_decode($value);
             }
         }
+
         return $array;
     }
 }

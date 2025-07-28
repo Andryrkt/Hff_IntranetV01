@@ -2,18 +2,17 @@
 
 namespace App\Controller\dit;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
-use App\Form\dit\DitValidationType;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
+use App\Form\dit\DitValidationType;
+use App\Service\EmailService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DitValidationController extends Controller
 {
-
     /**
      * @Route("/ditValidation/{id<\d+>}/{numDit<\w+>}", name="dit_validationDit")
      *
@@ -124,19 +123,19 @@ class DitValidationController extends Controller
         // }
 
         // dd($dit);
-        //RECUPERATION DE LISTE COMMANDE 
+        //RECUPERATION DE LISTE COMMANDE
         $commandes = $this->ditModel->RecupereCommandeOr($dit->getNumeroOR());
 
         $this->logUserVisit('dit_validationDit', [
-            'id'     => $id,
+            'id' => $id,
             'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur       
+        ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/validation.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
             'autoriser' => $autoriser,
-            'commandes' => $commandes
+            'commandes' => $commandes,
         ]);
     }
 
@@ -151,6 +150,7 @@ class DitValidationController extends Controller
                 $emailSuperieurs[] = $value->getMail();
             }
         }
+
         return $emailSuperieurs;
     }
 
@@ -163,7 +163,7 @@ class DitValidationController extends Controller
             'numDit' => $dit->getNumeroDemandeIntervention(),
             'id' => $dit->getId(),
             'observation' => $dit->getObservationDirectionTechnique(),
-            'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
+            'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
         ];
     }
 
@@ -176,7 +176,7 @@ class DitValidationController extends Controller
             'numDit' => $dit->getNumeroDemandeIntervention(),
             'id' => $dit->getId(),
             'observation' => $dit->getObservationDirectionTechnique(),
-            'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms()
+            'nomPrenom' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
         ];
     }
 
@@ -191,8 +191,8 @@ class DitValidationController extends Controller
                 'subject' => " DEMANDE D'INTERVENTION REFUSE ({$tab['numDit']})",
                 'message' => "La demande d'intervention {$tab['numDit']} à été réfusée par {$tab['nomPrenom']}. ",
                 'observation' => $tab['observation'],
-                'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}"
-            ]
+                'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}",
+            ],
         ];
     }
 
@@ -206,8 +206,8 @@ class DitValidationController extends Controller
                 'subject' => " DEMANDE D'INTERVENTION VALIDE ({$tab['numDit']})",
                 'message' => "La demande d'intervention {$tab['numDit']} à été validée par {$tab['nomPrenom']}. En attente de devis.",
                 'observation' => $tab['observation'],
-                'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}"
-            ]
+                'action_url' => "http://172.20.11.32/Hffintranet/ditValidation/{$tab['id']}/{$tab['numDit']}",
+            ],
         ];
     }
 
@@ -219,8 +219,8 @@ class DitValidationController extends Controller
             'variables' => [
                 'subject' => 'Your Subject Here',
                 'message' => 'This is the body of your email.',
-                'action_url' => 'https://example.com/action'
-            ]
+                'action_url' => 'https://example.com/action',
+            ],
         ];
     }
 

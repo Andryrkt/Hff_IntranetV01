@@ -2,7 +2,6 @@
 
 namespace App\Form\admin\tik;
 
-
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -35,4 +34,3 @@ class TkiStatusTicketInformatiqueType extends AbstractType
         ]);
     }
 }
-?>

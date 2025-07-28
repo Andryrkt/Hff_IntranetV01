@@ -2,13 +2,11 @@
 
 namespace App\Controller\admin;
 
-
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 class UserController extends Controller
 {
@@ -16,9 +14,9 @@ class UserController extends Controller
     {
 
         $superieurs = [];
-        foreach ($data as  $values) {
+        foreach ($data as $values) {
 
-            foreach ($values->getSuperieurs() as  $value) {
+            foreach ($values->getSuperieurs() as $value) {
                 if (empty($value)) {
                     return $data;
                 } else {
@@ -28,9 +26,9 @@ class UserController extends Controller
             $values->setSuperieurs($superieurs);
             $superieurs = [];
         }
+
         return $data;
     }
-
 
     /**
      * @Route("/admin/utilisateur", name="utilisateur_index")
@@ -46,7 +44,7 @@ class UserController extends Controller
         $data = $this->transformIdEnObjetEntitySuperieur($data);
 
         self::$twig->display('admin/utilisateur/list.html.twig', [
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
@@ -97,11 +95,9 @@ class UserController extends Controller
         }
 
         self::$twig->display('admin/utilisateur/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
-
-
 
     /**
      * @Route("/admin/utilisateur/edit/{id}", name="utilisateur_update")
@@ -138,6 +134,7 @@ class UserController extends Controller
             $user->setSuperieurs($superieurIds);
 
             self::$em->flush();
+
             return $this->redirectToRoute("utilisateur_index");
         }
 
@@ -151,62 +148,61 @@ class UserController extends Controller
  *
  * @return void
  */
-public function delete($id)
-{
-    // Vérification de la session utilisateur
-    $this->verifierSessionUtilisateur();
+    public function delete($id)
+    {
+        // Vérification de la session utilisateur
+        $this->verifierSessionUtilisateur();
 
-    // Récupération de l'utilisateur
-    $user = self::$em->getRepository(User::class)->find($id);
+        // Récupération de l'utilisateur
+        $user = self::$em->getRepository(User::class)->find($id);
 
 
-    // Supprimer les relations manuellement avant suppression
-    foreach ($user->getRoles() as $role) {
-        $user->removeRole($role);
+        // Supprimer les relations manuellement avant suppression
+        foreach ($user->getRoles() as $role) {
+            $user->removeRole($role);
+        }
+
+        foreach ($user->getApplications() as $application) {
+            $user->removeApplication($application);
+        }
+
+        foreach ($user->getAgencesAutorisees() as $agence) {
+            $user->removeAgenceAutorise($agence);
+        }
+
+        foreach ($user->getServiceAutoriser() as $service) {
+            $user->removeServiceAutoriser($service);
+        }
+
+        foreach ($user->getPermissions() as $permission) {
+            $user->removePermission($permission);
+        }
+
+        foreach ($user->getUserLoggers() as $logger) {
+            self::$em->remove($logger);
+        }
+
+        // foreach ($user->getCommentaireDitOrs() as $commentaire) {
+        //     self::$em->remove($commentaire);
+        // }
+
+        // foreach ($user->getSupportInfoUser() as $support) {
+        //     self::$em->remove($support);
+        // }
+
+        // foreach ($user->getTikPlanningUser() as $planning) {
+        //     self::$em->remove($planning);
+        // }
+
+        // Appliquer les modifications en base
+        self::$em->flush();
+
+        // Supprimer l'utilisateur
+        self::$em->remove($user);
+        self::$em->flush();
+
+        return $this->redirectToRoute("utilisateur_index");
     }
-
-    foreach ($user->getApplications() as $application) {
-        $user->removeApplication($application);
-    }
-
-    foreach ($user->getAgencesAutorisees() as $agence) {
-        $user->removeAgenceAutorise($agence);
-    }
-
-    foreach ($user->getServiceAutoriser() as $service) {
-        $user->removeServiceAutoriser($service);
-    }
-
-    foreach ($user->getPermissions() as $permission) {
-        $user->removePermission($permission);
-    }
-
-    foreach ($user->getUserLoggers() as $logger) {
-        self::$em->remove($logger);
-    }
-
-    // foreach ($user->getCommentaireDitOrs() as $commentaire) {
-    //     self::$em->remove($commentaire);
-    // }
-
-    // foreach ($user->getSupportInfoUser() as $support) {
-    //     self::$em->remove($support);
-    // }
-
-    // foreach ($user->getTikPlanningUser() as $planning) {
-    //     self::$em->remove($planning);
-    // }
-
-    // Appliquer les modifications en base
-    self::$em->flush();
-
-    // Supprimer l'utilisateur
-    self::$em->remove($user);
-    self::$em->flush();
-
-    return $this->redirectToRoute("utilisateur_index");
-}
-
 
     /**
      * @Route("/admin/utilisateur/show/{id}", name="utilisateur_show")
@@ -221,7 +217,7 @@ public function delete($id)
         $data = self::$em->getRepository(User::class)->find($id);
 
         self::$twig->display('admin/utilisateur/details.html.twig', [
-            'data' => $data
+            'data' => $data,
         ]);
     }
 }

@@ -3,25 +3,31 @@
 namespace App\Service\dit\transfer;
 
 use App\Entity\admin\Agence;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\admin\dit\WorNiveauUrgence;
-
 
 class RecupDataAncienDitService
 {
     private $em;
+
     private $userRepository;
+
     private $statutDemandeRepository;
+
     private $typeDocumentRepository;
+
     private $niveauUregenceRepository;
+
     private $categorieDemandeRepository;
+
     private $agenceRepository;
+
     private $serviceRepository;
 
     public function __construct(EntityManagerInterface $entityManager)
@@ -36,17 +42,17 @@ class RecupDataAncienDitService
         $this->serviceRepository = $this->em->getRepository(Service::class);
     }
 
-    public  function ditEnObjet(array $ancienDit): DemandeIntervention
+    public function ditEnObjet(array $ancienDit): DemandeIntervention
     {
         $dit = new DemandeIntervention();
 
         return $dit
             ->setNumeroDemandeIntervention($ancienDit['NumeroDemandeIntervention'])
             ->setTypeDocument($this->typeDocumentRepository->find(7))
-            
+
             ->setTypeReparation('A REALISER')
             ->setReparationRealise('ATE TANA')
-            
+
             ->setCategorieDemande($this->categorieDemandeRepository->find(2))
             ->setInternetExterne('EXTERNE')
 
@@ -108,31 +114,30 @@ class RecupDataAncienDitService
         ;
 
     }
-    
 
     public function dataDevis(array $ancienDevis): array
     {
         $devisAnciens = [];
         foreach ($ancienDevis as $ancienDevi) {
             $devisAnciens[] = [
-                'NumeroDit'             => '',
-                'NumeroDevis'           => '',
-                'NumeroItv'             => '',
-                'NombreLigneItv'        => '',
-                'MontantItv'            => '',
-                'NumeroVersion'         => '',
-                'MontantPiece'          => '',
-                'MontantMo'             => '',
-                'MontantAchatLocaux'    => '',
-                'MontantFraisDivers'    => '',
-                'MontantLubrifiants'    => '',
-                'LibellelItv'           => '',
-                'Statut'                => '',
-                'DateHeureSoumission'   => '',
-                'MontantForfait'        => '',
-                'NatureOperation'       => '',
-                'Devise'                => '',
-                'DevisVenteOuForfait'   => '',
+                'NumeroDit' => '',
+                'NumeroDevis' => '',
+                'NumeroItv' => '',
+                'NombreLigneItv' => '',
+                'MontantItv' => '',
+                'NumeroVersion' => '',
+                'MontantPiece' => '',
+                'MontantMo' => '',
+                'MontantAchatLocaux' => '',
+                'MontantFraisDivers' => '',
+                'MontantLubrifiants' => '',
+                'LibellelItv' => '',
+                'Statut' => '',
+                'DateHeureSoumission' => '',
+                'MontantForfait' => '',
+                'NatureOperation' => '',
+                'Devise' => '',
+                'DevisVenteOuForfait' => '',
             ];
         }
 
@@ -144,15 +149,15 @@ class RecupDataAncienDitService
         $bcAnciens = [];
         foreach ($ancienBcs as $ancienBc) {
             $bcAnciens[] = [
-                'NumDit'                => '',
-                'NumDevis'              => '',
-                'NumBc'                 => '',
-                'NumVersion'            => '',
-                'DateBc'                => '',
-                'DateDevis'             => '',
-                'MontantDevis'          => '',
-                'DateHeureSoumission'   => '',
-                'NomFichier'            => '',
+                'NumDit' => '',
+                'NumDevis' => '',
+                'NumBc' => '',
+                'NumVersion' => '',
+                'DateBc' => '',
+                'DateDevis' => '',
+                'MontantDevis' => '',
+                'DateHeureSoumission' => '',
+                'NomFichier' => '',
             ];
         }
 
@@ -164,23 +169,24 @@ class RecupDataAncienDitService
         $orAnciens = [];
         foreach ($ancienOrs as $ancienOr) {
             $orAnciens[] = [
-                'NumeroOR'              => '',
-                'NumeroItv'             => '',
-                'NombreLigneItv'        => '',
-                'MontantItv'            => '',
-                'NumeroVersion'         => '',
-                'MontantPiece'          => '',
-                'MontantMo'             => '',
-                'MontantAchatLocaux'    => '',
-                'MontantFraisDivers'    => '',
-                'MontantLubrifiants'    => '',
-                'LibellelItv'           => '',
-                'DateSoumission'        => '',
-                'HeureSoumission'       => '',
-                'Statut'                => '',
-                'Migration'             => '',
+                'NumeroOR' => '',
+                'NumeroItv' => '',
+                'NombreLigneItv' => '',
+                'MontantItv' => '',
+                'NumeroVersion' => '',
+                'MontantPiece' => '',
+                'MontantMo' => '',
+                'MontantAchatLocaux' => '',
+                'MontantFraisDivers' => '',
+                'MontantLubrifiants' => '',
+                'LibellelItv' => '',
+                'DateSoumission' => '',
+                'HeureSoumission' => '',
+                'Statut' => '',
+                'Migration' => '',
             ];
         }
+
         return $orAnciens;
     }
 }

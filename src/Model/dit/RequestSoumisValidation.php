@@ -2,11 +2,8 @@
 
 namespace App\Model\dit;
 
-use App\Service\GlobalVariablesService;
-
 class RequestSoumisValidation
 {
-
     public static function getPrixReelCase()
     {
         return "
@@ -139,7 +136,7 @@ class RequestSoumisValidation
             self::getMontantAchatLocaux(),
             self::getMontantFraisDivers(),
             self::getMontantLubrifiants(),
-            self::getMontantForfait()
+            self::getMontantForfait(),
         ];
 
         $query = 'SELECT ' . implode(', ', $selectColumns) . ' 
@@ -151,7 +148,7 @@ class RequestSoumisValidation
         return $query;
     }
 
-/** FORFAIT */
+    /** FORFAIT */
     // public static function getConditionsForfait(array $condition)
     // {
     //     return '
@@ -188,9 +185,9 @@ class RequestSoumisValidation
     //         self::getMontantForfait()
     //     ];
 
-    //     $query = 'SELECT ' . implode(', ', $selectColumns) . ' 
+    //     $query = 'SELECT ' . implode(', ', $selectColumns) . '
     //                 FROM sav_eor, sav_lor, sav_itv
-    //                 WHERE ' . self::getConditionsForfait($condition) . ' 
+    //                 WHERE ' . self::getConditionsForfait($condition) . '
     //                 GROUP BY 1, 2, 3, 4, 5, 6, 7
     //                 ORDER BY slor_numor, sitv_interv';
 

@@ -1,7 +1,7 @@
 <?php
 
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Finder\Finder;
 
 return function (ContainerBuilder $containerBuilder) {
     $finder = new Finder();
@@ -17,11 +17,11 @@ return function (ContainerBuilder $containerBuilder) {
         $className = 'App\\' . str_replace(['/', '\\'], '\\', $relativePath);
 
         // Vérifier si la classe existe (évite les erreurs de chargement)
-        if (!class_exists($className, false)) {
+        if (! class_exists($className, false)) {
             require_once $file->getRealPath();
         }
 
-        if (!class_exists($className)) {
+        if (! class_exists($className)) {
             continue;
         }
 

@@ -7,9 +7,8 @@ use App\Model\Model;
 use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
 
-
 class MagasinListeOrLivrerModel extends Model
-{ 
+{
     use ConversionModel;
     use FormatageTrait;
     use ConditionModelTrait;
@@ -43,7 +42,7 @@ class MagasinListeOrLivrerModel extends Model
                         where ofh_id ='".$numOr."'
                         group by ofh_id 
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -60,7 +59,7 @@ class MagasinListeOrLivrerModel extends Model
                         where sitv_numor = '".$numOr."'
                         group by sitv_numor
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -126,7 +125,7 @@ class MagasinListeOrLivrerModel extends Model
                             --and sum(slor_qteres) > 0
                         order by slor_numor||'-'||TRUNC(slor_nogrp/100) asc
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -169,21 +168,21 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupereListeMaterielValider( array $criteria = [], array $lesOrSelonCondition)
+    public function recupereListeMaterielValider(array $criteria = [], array $lesOrSelonCondition)
     {
         //les condeition de filtre
-        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
-        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
-        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
-        $dateDebut = $this->conditionDateSigne( 'slor_datec', 'dateDebut', $criteria, '>=');
-        $dateFin = $this->conditionDateSigne( 'slor_datec', 'dateFin', $criteria, '<=');
-        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece', $criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur', $criteria);
+        $dateDebut = $this->conditionDateSigne('slor_datec', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne('slor_datec', 'dateFin', $criteria, '<=');
+        $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
         $piece = $this->conditionPiece('pieces', $criteria);
-        $agence = $this->conditionAgenceService("slor_succdeb", 'agence',$criteria);
-        $service = $this->conditionAgenceService("slor_servdeb", 'service',$criteria);
+        $agence = $this->conditionAgenceService("slor_succdeb", 'agence', $criteria);
+        $service = $this->conditionAgenceService("slor_servdeb", 'service', $criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
-        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon',$lesOrSelonCondition, $criteria);
+        $orCompletNom = $this->conditionOrCompletOuNonOrALivrer('orCompletNon', $lesOrSelonCondition, $criteria);
 
         //requête
         $statement = " SELECT 
@@ -258,7 +257,6 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
     public function recuperationConstructeur()
     {
         $statement = " SELECT DISTINCT
@@ -283,22 +281,21 @@ class MagasinListeOrLivrerModel extends Model
         return array_combine(array_column($this->convertirEnUtf8($data), 'constructeur'), array_column($this->convertirEnUtf8($data), 'constructeur'));
     }
 
-
     public function recupNumOr($criteria = [])
-    {   
-        if(!empty($criteria['niveauUrgence'])){
+    {
+        if (! empty($criteria['niveauUrgence'])) {
             $niveauUrgence = " and id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }
 
-        if(!empty($criteria['numDit'])){
+        if (! empty($criteria['numDit'])) {
             $numDit = " and numero_demande_dit = '" . $criteria['numDit'] ."'";
         } else {
             $numDit = null;
         }
 
-        if(!empty($criteria['numOr'])){
+        if (! empty($criteria['numOr'])) {
             $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
@@ -316,7 +313,7 @@ class MagasinListeOrLivrerModel extends Model
 
         $execQueryNumOr = $this->connexion->query($statement);
 
-        $numOr = array();
+        $numOr = [];
 
         while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
             $numOr[] = $row_num_or;
@@ -325,9 +322,8 @@ class MagasinListeOrLivrerModel extends Model
         return $numOr;
     }
 
-
     public function recupereAutocompletionDesignation($designations)
-    {      
+    {
         $statement = "SELECT DISTINCT
             
             trim(slor_desi) as designationi
@@ -352,10 +348,9 @@ class MagasinListeOrLivrerModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
     public function recuperAutocompletionRefPiece($refPiece)
     {
-        $statement ="SELECT 
+        $statement = "SELECT 
             
             trim(slor_refp) as referencePiece
            
@@ -410,15 +405,14 @@ class MagasinListeOrLivrerModel extends Model
 
         $dataUtf8 = $this->convertirEnUtf8($data);
 
-        return array_map(function($item) {
-       
+        return array_map(function ($item) {
+
             return [
-                "value" => $item['service'], 
-                "text"  => $item['service']
+                "value" => $item['service'],
+                "text" => $item['service'],
             ];
         }, $dataUtf8);
     }
-    
 
     public function agenceUser()
     {

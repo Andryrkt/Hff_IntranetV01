@@ -3,20 +3,18 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Form\dom\DomSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class DomsListeController extends Controller
 {
-
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
@@ -40,7 +38,7 @@ class DomsListeController extends Controller
 
         $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
         ])->getForm();
 
         $form->handleRequest($request);
@@ -58,7 +56,7 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser(self::$em),
         ];
 
         $repository = self::$em->getRepository(Dom::class);
@@ -71,11 +69,11 @@ class DomsListeController extends Controller
         $criteriaTab = $criteria;
 
         $criteriaTab['sousTypeDocument'] = $criteria['sousTypeDocument'] ? $criteria['sousTypeDocument']->getCodeSousType() : $criteria['sousTypeDocument'];
-        $criteriaTab['statut']           = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']        = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']          = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
+        $criteriaTab['statut'] = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
+        $criteriaTab['dateDebut'] = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
+        $criteriaTab['dateFin'] = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
         $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y') : $criteria['dateMissionDebut'];
-        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin'] ? $criteria['dateMissionFin']->format('d-m-Y') : $criteria['dateMissionFin'];
+        $criteriaTab['dateMissionFin'] = $criteria['dateMissionFin'] ? $criteria['dateMissionFin']->format('d-m-Y') : $criteria['dateMissionFin'];
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
@@ -98,7 +96,6 @@ class DomsListeController extends Controller
             ]
         );
     }
-
 
     /**
      * @Route("/export-dom-excel", name="export_dom_excel")
@@ -144,7 +141,7 @@ class DomsListeController extends Controller
             "Client",
             "Lieu d'intervention",
             "Total général payer",
-            "Devis"
+            "Devis",
         ];
 
         foreach ($entities as $entity) {
@@ -162,15 +159,13 @@ class DomsListeController extends Controller
                 $entity->getClient(),
                 $entity->getLieuIntervention(),
                 str_replace('.', '', $entity->getTotalGeneralPayer()),
-                $entity->getDevis()
+                $entity->getDevis(),
             ];
         }
 
         // Crée le fichier Excel
         $this->excelService->createSpreadsheet($data);
     }
-
-
 
     /**
      * @Route("/dom-list-annuler", name="dom_list_annuler")
@@ -190,7 +185,7 @@ class DomsListeController extends Controller
 
         $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
-            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
+            'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
         ])->getForm();
 
         $form->handleRequest($request);
@@ -208,7 +203,7 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser(self::$em),
         ];
         $repository = self::$em->getRepository(Dom::class);
         $paginationData = $repository->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);

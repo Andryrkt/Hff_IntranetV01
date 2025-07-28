@@ -2,30 +2,29 @@
 
 namespace App\Controller\dit;
 
-
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService();
     }
 
     /**
@@ -60,7 +59,7 @@ class DitController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $dits = $this->infoEntrerManuel($form, self::$em, $user);
 
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            //RECUPERATION de la dernière NumeroDemandeIntervention
             $this->modificationDernierIdApp($dits);
 
             /**CREATION DU PDF*/
@@ -91,7 +90,7 @@ class DitController extends Controller
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -108,12 +107,13 @@ class DitController extends Controller
     {
         //id pour DIT est 4
         $AppIds = $user->getApplicationsIds();
+
         return in_array(4, $AppIds);
     }
 
     private function autorisationAcces($user)
     {
-        if (!$this->autorisationApp($user)) {
+        if (! $this->autorisationApp($user)) {
             $message = "vous n'avez pas l'autorisation";
 
             $this->historiqueOperation->sendNotificationCreation($message, '-', 'profil_acceuil');

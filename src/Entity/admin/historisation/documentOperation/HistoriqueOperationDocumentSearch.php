@@ -165,13 +165,13 @@ class HistoriqueOperationDocumentSearch
     public function toArray(): array
     {
         return [
-            'numeroDocument'    => $this->numeroDocument,
-            'utilisateur'       => $this->utilisateur,
-            'statutOperation'   => $this->statutOperation,
-            'typeOperation'     => $this->typeOperation === null ? null : $this->typeOperation->getId(),
-            'typeDocument'      => $this->typeDocument === null ? null : $this->typeDocument->getId(),
+            'numeroDocument' => $this->numeroDocument,
+            'utilisateur' => $this->utilisateur,
+            'statutOperation' => $this->statutOperation,
+            'typeOperation' => $this->typeOperation === null ? null : $this->typeOperation->getId(),
+            'typeDocument' => $this->typeDocument === null ? null : $this->typeDocument->getId(),
             'dateOperationDebut' => $this->dateOperationDebut,
-            'dateOperationFin'  => $this->dateOperationFin,
+            'dateOperationFin' => $this->dateOperationFin,
         ];
     }
 }

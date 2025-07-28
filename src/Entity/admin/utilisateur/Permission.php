@@ -2,10 +2,9 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\utilisateur\Role;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -26,9 +25,9 @@ class Permission
      */
     private $permissionName;
 
-     /**
-     * @ORM\Column(type="date")
-     */
+    /**
+    * @ORM\Column(type="date")
+    */
     private $date_creation;
 
     /**
@@ -60,20 +59,17 @@ class Permission
         return $this->id;
     }
 
-
     public function getPermissionName()
     {
         return $this->permissionName;
     }
 
-    
     public function setPermissionName($permissionName): self
     {
         $this->permissionName = $permissionName;
 
         return $this;
     }
-   
 
     public function getDateCreation(): ?\DateTimeInterface
     {
@@ -99,7 +95,6 @@ class Permission
         return $this;
     }
 
-   
     /**
      * @ORM\PrePersist
      */
@@ -117,9 +112,9 @@ class Permission
         $this->date_modification = new \DateTime();
     }
 
-     /**
-     * @return Collection|Roles[]
-     */ 
+    /**
+    * @return Collection|Roles[]
+    */
     public function getRoles(): Collection
     {
         return $this->roles;
@@ -127,19 +122,21 @@ class Permission
 
     public function addRoles(Role $role): self
     {
-        if(!$this->roles->contains($role)){
+        if (! $this->roles->contains($role)) {
             $this->roles[] = $role;
             $role->addPermission($this);
         }
+
         return $this;
     }
 
     public function removeRoles(Role $role): self
     {
-        if($this->roles->contains($role)) {
+        if ($this->roles->contains($role)) {
             $this->roles->removeElement($role);
-          $role->removePermission($this);
+            $role->removePermission($this);
         }
+
         return $this;
     }
 
@@ -150,10 +147,11 @@ class Permission
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users[] = $user;
             $user->addPermisssion($this);
         }
+
         return $this;
     }
 
@@ -163,6 +161,7 @@ class Permission
             $this->users->removeElement($user);
             $user->removePermission($this);
         }
+
         return $this;
     }
 }

@@ -4,9 +4,11 @@ namespace App\Service\genererPdf;
 
 use App\Controller\Traits\FormatageTrait;
 use TCPDF;
+
 class GeneretePdfInventaire extends GeneratePdf
 {
     use FormatageTrait;
+
     /**
      * Genere le PDF INVENTAIRE
      */
@@ -23,7 +25,7 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->SetAuthor('Votre Nom');
         $pdf->SetTitle('Écart sur inventaire');
         $pdf->SetMargins(10, 10, 10);
-        $pdf->SetAutoPageBreak(TRUE, 10);
+        $pdf->SetAutoPageBreak(true, 10);
         $pdf->AddPage();
 
         // Ajout du logo
@@ -98,4 +100,3 @@ class GeneretePdfInventaire extends GeneratePdf
         $pdf->Output('ecart_inventaire.pdf', 'I');
     }
 }
-

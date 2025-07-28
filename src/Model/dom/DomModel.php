@@ -4,13 +4,11 @@ namespace App\Model\dom;
 
 use App\Model\Model;
 
-
 class DomModel extends Model
 {
-
     //TSY MAHAZO FAFANA
     /**
-     * Chevauchement : recuperation la minimum de la date de mission et le maximum de la mission 
+     * Chevauchement : recuperation la minimum de la date de mission et le maximum de la mission
      */
     public function getInfoDOMMatrSelet($matricule)
     {
@@ -20,8 +18,8 @@ class DomModel extends Model
         AND ID_Statut_Demande NOT IN (9, 33, 34, 35, 44)";
 
         $execSqlDate = $this->connexion->query($SqlDate);
-        
-        $DateM = array();
+
+        $DateM = [];
         while ($tab_list = odbc_fetch_array($execSqlDate)) {
             $DateM[] = $tab_list;
         }
@@ -31,7 +29,7 @@ class DomModel extends Model
 
 
     /**
-     * recuperer le nom et prenoms du matricule 
+     * recuperer le nom et prenoms du matricule
      */
     // public function getName($Matricule)
     // {
@@ -47,14 +45,14 @@ class DomModel extends Model
     // }
     // categorie
     /**
-     * recuperation des catégories selon le type de mission et code agence 
+     * recuperation des catégories selon le type de mission et code agence
      */
     // public function CategPers($TypeMiss, $codeAg)
     // {
     //     $SqlTypeMiss = "SELECT DISTINCT
-    //                     Catg 
-    //                     FROM Idemnity 
-    //                     WHERE Type = '" . $TypeMiss . "' 
+    //                     Catg
+    //                     FROM Idemnity
+    //                     WHERE Type = '" . $TypeMiss . "'
     //                     AND Rmq  in('STD','" . $codeAg . "')";
     //     $execSqlTypeMiss = $this->connexion->query($SqlTypeMiss);
     //     $ListCatg = array();
@@ -64,8 +62,8 @@ class DomModel extends Model
     //     return $ListCatg;
     // }
     /**
-     * recuperation catégorie Rental 
-     * @param default CodeR : 50 
+     * recuperation catégorie Rental
+     * @param default CodeR : 50
      */
     // public function catgeRental($CodeR)
     // {
@@ -77,11 +75,11 @@ class DomModel extends Model
     //     }
     //     return $ListCatge;
     // }
-    
+
     /**
-     * selection site (region ) 
-     * @param  TypeM: type de mission 
-     * @param catgPERs:  Catégorie du personnel selectionner 
+     * selection site (region )
+     * @param  TypeM: type de mission
+     * @param catgPERs:  Catégorie du personnel selectionner
      */
     // public function SelectSite($TypeM, $catgPERs)
     // {
@@ -98,13 +96,13 @@ class DomModel extends Model
     /**
      * recuperation Prix des idemnité
      * @param TypeM: Type de mission
-     * @param CategPers: Catgégorie du personnel selectionner 
+     * @param CategPers: Catgégorie du personnel selectionner
      * @param Dest : site (region) selectionner
-     * @param AgCode: Code agence 
+     * @param AgCode: Code agence
      */
     // public function SelectMUTPrixRental($TypeM, $CategPers, $Dest, $AgCode)
     // {
-    //     $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '" . $TypeM . "' 
+    //     $PrixRental = "SELECT DISTINCT Montant_idemnite FROM Idemnity WHERE Type = '" . $TypeM . "'
     //                 AND Catg = '" . $CategPers . "' AND Destination = '" . $Dest . "' AND Rmq = '" . $AgCode . "' ";
     //     $exPrixRental = $this->connexion->query($PrixRental);
     //     $Prix = array();
@@ -115,7 +113,7 @@ class DomModel extends Model
     // }
 
 
-    //count si 50 catg 
+    //count si 50 catg
     /**
      * test si le catgérie appartion à l'agence 50
      */
@@ -126,36 +124,36 @@ class DomModel extends Model
     //     return $exsqlcount ? odbc_fetch_array($exsqlcount)['nbCount'] : false;
     // }
 
-/*
-    public function agenceDebiteur()
-    {
-        $statement = " SELECT 
-        a.code_agence + ' ' + a.libelle_agence as agenceDebiteur 
-        FROM agences a";
+    /*
+        public function agenceDebiteur()
+        {
+            $statement = " SELECT
+            a.code_agence + ' ' + a.libelle_agence as agenceDebiteur
+            FROM agences a";
 
-        $sql= $this->connexion->query($statement);
-        $agences = array();
-        while ($tab = odbc_fetch_array($sql)) {
-            $agences[] = $tab;
+            $sql= $this->connexion->query($statement);
+            $agences = array();
+            while ($tab = odbc_fetch_array($sql)) {
+                $agences[] = $tab;
+            }
+            return $agences;
         }
-        return $agences;
-    }
-    
-    public function serviceDebiteur($agenceId)
-    {
-        $statement = "SELECT DISTINCT 
-        s.code_service + ' ' + s.libelle_service as serviceDebiteur
-        FROM services s
-        INNER JOIN agence_service ags ON s.id = ags.service_id
-        INNER JOIN agences a ON a.id = ags.agence_id
-        WHERE a.code_agence + ' ' + a.libelle_agence = '". $agenceId ."'
-        ";
-        $sql= $this->connexion->query($statement);
-        $services = array();
-        while ($tab = odbc_fetch_array($sql)) {
-            $services[] = $tab;
+
+        public function serviceDebiteur($agenceId)
+        {
+            $statement = "SELECT DISTINCT
+            s.code_service + ' ' + s.libelle_service as serviceDebiteur
+            FROM services s
+            INNER JOIN agence_service ags ON s.id = ags.service_id
+            INNER JOIN agences a ON a.id = ags.agence_id
+            WHERE a.code_agence + ' ' + a.libelle_agence = '". $agenceId ."'
+            ";
+            $sql= $this->connexion->query($statement);
+            $services = array();
+            while ($tab = odbc_fetch_array($sql)) {
+                $services[] = $tab;
+            }
+            return $services;
         }
-        return $services;
-    }
-        */
+            */
 }

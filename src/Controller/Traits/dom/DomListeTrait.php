@@ -2,21 +2,19 @@
 
 namespace App\Controller\Traits\dom;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
+use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\admin\dom\SousTypeDocument;
 
 trait DomListeTrait
 {
-
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
+
         return in_array(1, $roleIds);
         //FIN AUTORISATION
     }
@@ -26,10 +24,10 @@ trait DomListeTrait
         /** CREATION D'AUTORISATION */
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
+
         return $userConnecter->getAgenceAutoriserIds();
         //FIN AUTORISATION
     }
-
 
     private function initialisation($badmSearch, $em)
     {

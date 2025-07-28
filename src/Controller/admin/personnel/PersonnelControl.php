@@ -3,23 +3,18 @@
 namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
-
-
 use App\Controller\Traits\Transformation;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-
-
 
 class PersonnelControl extends Controller
 {
-
     use Transformation;
 
     /**
@@ -31,43 +26,42 @@ class PersonnelControl extends Controller
         $this->verifierSessionUtilisateur();
 
         $form = self::$validator->createBuilder()
-        ->add('firstName', TextType::class, array(
-            'constraints' => array(
+        ->add('firstName', TextType::class, [
+            'constraints' => [
                 new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('lastName', TextType::class, array(
-            'constraints' => array(
+                new Length(['min' => 4]),
+            ],
+        ])
+        ->add('lastName', TextType::class, [
+            'constraints' => [
                 new NotBlank(),
-                new Length(array('min' => 4)),
-            ),
-        ))
-        ->add('gender', ChoiceType::class, array(
-            'choices' => array('m' => 'Male', 'f' => 'Female'),
-        ))
-        ->add('newsletter', CheckboxType::class, array(
+                new Length(['min' => 4]),
+            ],
+        ])
+        ->add('gender', ChoiceType::class, [
+            'choices' => ['m' => 'Male', 'f' => 'Female'],
+        ])
+        ->add('newsletter', CheckboxType::class, [
             'required' => false,
-        ))
+        ])
         ->add('submit', SubmitType::class, [
-            'label' => 'Submit'
+            'label' => 'Submit',
         ])
         ->getForm();
 
         $form->handleRequest($request);
 
-         // Vérifier si le formulaire est soumis et valide
-         if ($form->isSubmitted() && $form->isValid()) {
+        // Vérifier si le formulaire est soumis et valide
+        if ($form->isSubmitted() && $form->isValid()) {
             // Traitement des données du formulaire
-           dd( $form->getData());
-          
+            dd($form->getData());
+
         }
 
         self::$twig->display('test.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
-}
-
+    }
 
     public function showPersonnelForm()
     {
@@ -87,7 +81,7 @@ class PersonnelControl extends Controller
                 [
                     'codeSage' => $codeSage,
                     'codeIrium' => $codeIrium,
-                    'serviceIrium' => $serviceIrium
+                    'serviceIrium' => $serviceIrium,
                 ]
             );
         }
@@ -108,7 +102,7 @@ class PersonnelControl extends Controller
         self::$twig->display(
             'admin/personnel/listPersonnel.html.twig',
             [
-                'infoPersonnel' => $infoPersonnel
+                'infoPersonnel' => $infoPersonnel,
             ]
         );
     }
@@ -117,7 +111,7 @@ class PersonnelControl extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $codeSage = $this->transformEnSeulTableau($this->Person->recupAgenceServiceSage());
         $codeIrium = $this->transformEnSeulTableau($this->Person->recupAgenceServiceIrium());
 
@@ -128,7 +122,7 @@ class PersonnelControl extends Controller
             [
                 'codeSage' => $codeSage,
                 'codeIrium' => $codeIrium,
-                'infoPersonnelId' => $infoPersonnelId
+                'infoPersonnelId' => $infoPersonnelId,
             ]
         );
     }

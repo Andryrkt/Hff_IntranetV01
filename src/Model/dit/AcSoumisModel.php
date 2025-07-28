@@ -11,6 +11,6 @@ class AcSoumisModel extends Model
 
     public function recupDeviseDevis()
     {
-        
+
     }
 }

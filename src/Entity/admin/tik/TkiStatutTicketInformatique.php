@@ -2,9 +2,9 @@
 
 namespace App\Entity\admin\tik;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
 use App\Repository\admin\tik\TkiStatusTicketInformatiqueRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TkiStatusTicketInformatiqueRepository::class)
@@ -41,24 +41,24 @@ class TkiStatutTicketInformatique
      */
     private $idStatutDemande = null;
 
-    
+
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
     }
-    
+
     /**
      * Get the value of numeroTicket
-     */ 
+     */
     public function getNumeroTicket()
     {
         return $this->numeroTicket;
@@ -68,7 +68,7 @@ class TkiStatutTicketInformatique
      * Set the value of numeroTicket
      *
      * @return  self
-     */ 
+     */
     public function setNumeroTicket($numeroTicket)
     {
         $this->numeroTicket = $numeroTicket;
@@ -76,10 +76,9 @@ class TkiStatutTicketInformatique
         return $this;
     }
 
-
     /**
      * Get the value of codeStatut
-     */ 
+     */
     public function getCodeStatut()
     {
         return $this->codeStatut;
@@ -89,7 +88,7 @@ class TkiStatutTicketInformatique
      * Set the value of codeStatut
      *
      * @return  self
-     */ 
+     */
     public function setCodeStatut($codeStatut)
     {
         $this->codeStatut = $codeStatut;
@@ -99,7 +98,7 @@ class TkiStatutTicketInformatique
 
     /**
      * Get the value of dateStatut
-     */ 
+     */
     public function getDateStatut()
     {
         return $this->dateStatut;
@@ -109,7 +108,7 @@ class TkiStatutTicketInformatique
      * Set the value of dateStatut
      *
      * @return  self
-     */ 
+     */
     public function setDateStatut($dateStatut)
     {
         $this->dateStatut = $dateStatut;
@@ -128,7 +127,7 @@ class TkiStatutTicketInformatique
 
     /**
      * Get the value of idStatutDemande
-     */ 
+     */
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
@@ -138,7 +137,7 @@ class TkiStatutTicketInformatique
      * Set the value of idStatutDemande
      *
      * @return  self
-     */ 
+     */
     public function setIdStatutDemande($idStatutDemande)
     {
         $this->idStatutDemande = $idStatutDemande;

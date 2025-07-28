@@ -2,13 +2,10 @@
 
 namespace App\Repository\admin;
 
-
 use Doctrine\ORM\EntityRepository;
-
 
 class ApplicationRepository extends EntityRepository
 {
-
     // Ajoutez des méthodes personnalisées ici
     public function findByExampleField($value)
     {

@@ -2,12 +2,9 @@
 
 namespace App\Controller\admin;
 
-
-use App\Entity\Role;
-use App\Form\RoleType;
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\Societte;
+use App\Entity\Permission;
 use App\Form\admin\SocietteType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,46 +21,48 @@ class SocietteController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-    $data = self::$em->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
+        $data = self::$em->getRepository(Societte::class)->findBy([], ['id' => 'DESC']);
 
 
-    self::$twig->display('admin/societte/list.html.twig', 
-    [
-        'data' => $data
-    ]);
+        self::$twig->display(
+            'admin/societte/list.html.twig',
+            [
+            'data' => $data,
+    ]
+        );
     }
 
     /**
          * @Route("/admin/societte/new", name="societte_new")
          */
-        public function new(Request $request)
-        {
-            //verification si user connecter
+    public function new(Request $request)
+    {
+        //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-            $form = self::$validator->createBuilder(SocietteType::class)->getForm();
-    
-            $form->handleRequest($request);
-    
-            if($form->isSubmitted() && $form->isValid())
-            {
-                $societte= $form->getData();
-                
+        $form = self::$validator->createBuilder(SocietteType::class)->getForm();
 
-                self::$em->persist($societte);
-                self::$em->flush();
+        $form->handleRequest($request);
 
-                $this->redirectToRoute("societte_index");
-            }
-    
-            self::$twig->display('admin/societte/new.html.twig', 
-            [
-                'form' => $form->createView()
-            ]);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $societte = $form->getData();
+
+
+            self::$em->persist($societte);
+            self::$em->flush();
+
+            $this->redirectToRoute("societte_index");
         }
 
+        self::$twig->display(
+            'admin/societte/new.html.twig',
+            [
+            'form' => $form->createView(),
+            ]
+        );
+    }
 
-                /**
+    /**
      * @Route("/admin/societte/edit/{id}", name="societte_update")
      *
      * @return void
@@ -74,7 +73,7 @@ class SocietteController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(Societte::class)->find($id);
-        
+
         $form = self::$validator->createBuilder(SocietteType::class, $user)->getForm();
 
         $form->handleRequest($request);
@@ -84,13 +83,15 @@ class SocietteController extends Controller
 
             self::$em->flush();
             $this->redirectToRoute("societte_index");
-            
+
         }
 
-        self::$twig->display('admin/societte/edit.html.twig', 
-        [
+        self::$twig->display(
+            'admin/societte/edit.html.twig',
+            [
             'form' => $form->createView(),
-        ]);
+        ]
+        );
 
     }
 
@@ -103,7 +104,7 @@ class SocietteController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $societte = self::$em->getRepository(Societte::class)->find($id);
 
         if ($societte) {
@@ -118,11 +119,11 @@ class SocietteController extends Controller
 
             // Flush the entity manager to ensure the removal of the join table entries
             self::$em->flush();
-        
-                self::$em->remove($societte);
-                self::$em->flush();
+
+            self::$em->remove($societte);
+            self::$em->flush();
         }
-        
+
         $this->redirectToRoute("societte_index");
     }
 }

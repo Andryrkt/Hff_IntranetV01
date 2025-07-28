@@ -2,11 +2,11 @@
 
 namespace App\Controller\Traits;
 
-use App\Model\planning\PlanningModel;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\planning\PlanningSearch;
-use App\Entity\planning\PlanningMateriel;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\planning\PlanningMateriel;
+use App\Entity\planning\PlanningSearch;
+use App\Model\planning\PlanningModel;
 
 trait PlanningTraits
 {
@@ -19,23 +19,24 @@ trait PlanningTraits
 
     private function recupNumOrValider($criteria, $em)
     {
-        $PlanningModel  = new PlanningModel();
+        $PlanningModel = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
-        $numOrItvValide = $this->recupNumORItvValide($numeroOrs,$em);
+        $numOrItvValide = $this->recupNumORItvValide($numeroOrs, $em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
         $resNumor = $this->orEnString($numOrItvValide);
         $orSansItv = $this->orEnString($numeroOrs);
 
         return [
             'orAvecItv' => $resNumor,
-            'orSansItv' => $orSansItv
+            'orSansItv' => $orSansItv,
         ];
     }
 
     private function recupNumOrBackValider($criteria)
     {
-        $PlanningModel  = new PlanningModel();
+        $PlanningModel = new PlanningModel();
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
+
         return $numeroOrs;
     }
 
@@ -53,12 +54,13 @@ trait PlanningTraits
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
             // dump($numeroOr);
             // dump($numItv);
-            if (!empty($numItv)) {
-                foreach ($numItv as  $value) {
+            if (! empty($numItv)) {
+                foreach ($numItv as $value) {
                     $numOrValide[] = $numeroOr['numero_or'] . '-' . $value;
                 }
             }
         }
+
         return $numOrValide;
     }
     /*
@@ -78,7 +80,6 @@ trait PlanningTraits
         return $numOrValide;
     }
     */
-
 
     /**======================
      * Excel
@@ -191,6 +192,7 @@ trait PlanningTraits
             ;
             $objetPlanning[] = $planningMateriel;
         }
+
         return $objetPlanning;
     }
 
@@ -200,7 +202,7 @@ trait PlanningTraits
         $fusionResult = [];
         foreach ($objetPlanning as $materiel) {
             $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
-            if (!isset($fusionResult[$key])) {
+            if (! isset($fusionResult[$key])) {
                 $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
             } else {
                 // Si l'élément existe déjà, on fusionne les détails des mois
@@ -221,6 +223,7 @@ trait PlanningTraits
                 }
             }
         }
+
         return $fusionResult;
     }
 
@@ -228,7 +231,7 @@ trait PlanningTraits
      * fonction pour affichage des 12 mois glissantes (3 mois suivant, 6 mois suivant, Année encours, Année suivant)
      *
      * @param array $data
-     * @param integer $selectedOption
+     * @param int $selectedOption
      * @return array
      */
     private function prepareDataForDisplay(array $data, int $selectedOption): array
@@ -245,7 +248,7 @@ trait PlanningTraits
                 : [];
 
             $filteredMonths = array_filter(array_map(function ($detail) use ($months, $selectedMonths) {
-                if (!is_array($detail) || !isset($detail['orIntv'], $detail['mois']) || $detail['orIntv'] === "-") {
+                if (! is_array($detail) || ! isset($detail['orIntv'], $detail['mois']) || $detail['orIntv'] === "-") {
                     return null;
                 }
 
@@ -310,28 +313,28 @@ trait PlanningTraits
                 }
                 break;
 
-        case 11: // Année suivante
-            for ($i = 0; $i < 12; $i++) {
-                $selectedMonths[] = [
-                    'month' => $months[$i],
-                    'year' => $currentYear + 1,
-                    'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
-                ];
-            }
-            break;
-        case 12: // 12 mois suivant (à partir du mois suivant le mois courant)
-            for ($i = 0; $i < 12; $i++) {
-                $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
-            }
-            break;
+            case 11: // Année suivante
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = [
+                        'month' => $months[$i],
+                        'year' => $currentYear + 1,
+                        'key' => sprintf('%04d-%02d', $currentYear + 1, $i + 1),
+                    ];
+                }
+                break;
+            case 12: // 12 mois suivant (à partir du mois suivant le mois courant)
+                for ($i = 0; $i < 12; $i++) {
+                    $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
+                }
+                break;
 
-        case 13: // 12 mois précédent (jusqu'au mois précédent le mois courant)
-            for ($i = -11; $i <= 0; $i++) {
-                $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
-            }
-            break;
-    
-        case 14: // Année précédente
+            case 13: // 12 mois précédent (jusqu'au mois précédent le mois courant)
+                for ($i = -11; $i <= 0; $i++) {
+                    $selectedMonths[] = $this->generateMonthData($months, $currentMonth, $currentYear, $i);
+                }
+                break;
+
+            case 14: // Année précédente
                 $previousYear = $currentYear - 1;
                 for ($i = 0; $i < 12; $i++) {
                     $selectedMonths[] = [
@@ -340,8 +343,8 @@ trait PlanningTraits
                         'key' => sprintf('%04d-%02d', $previousYear, $i + 1),
                     ];
                 }
-            break;
-    }
+                break;
+        }
 
         return $selectedMonths;
     }

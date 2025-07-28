@@ -2,13 +2,12 @@
 
 namespace App\Entity\admin\badm;
 
-
 use App\Entity\badm\Badm;
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\admin\badm\TypeMouvementRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TypeMouvementRepository::class)
@@ -24,7 +23,7 @@ class TypeMouvement
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer", name="ID_Type_Mouvement")
      */
-    private $id; 
+    private $id;
 
     /**
      * @ORM\Column(type="string", length=3, name="Code_Mouvement")
@@ -48,7 +47,7 @@ class TypeMouvement
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -62,6 +61,7 @@ class TypeMouvement
     public function setCodeMouvement(string $codeMouvement): self
     {
         $this->codeMouvement = $codeMouvement;
+
         return $this;
     }
 
@@ -73,6 +73,7 @@ class TypeMouvement
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -83,10 +84,11 @@ class TypeMouvement
 
     public function addBadm(Badm $badm): self
     {
-        if (!$this->badms->contains($badm)) {
+        if (! $this->badms->contains($badm)) {
             $this->badms[] = $badm;
             $badm->setTypeMouvement($this);
         }
+
         return $this;
     }
 
@@ -98,17 +100,19 @@ class TypeMouvement
                 $badm->setTypeMouvement(null);
             }
         }
+
         return $this;
     }
 
     public function setBadms($badms): self
     {
         $this->badms = $badms;
+
         return $this;
     }
 
     public function __toString()
     {
-        return $this->description; 
+        return $this->description;
     }
 }

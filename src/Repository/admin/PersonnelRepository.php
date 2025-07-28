@@ -10,7 +10,7 @@ class PersonnelRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('b');
 
-        if (!empty($criteria['matricule'])) {
+        if (! empty($criteria['matricule'])) {
             $queryBuilder->andWhere('b.Matricule LIKE :matricule')
                 ->setParameter('matricule', '%'. $criteria['matricule'] . '%');
         }
@@ -18,7 +18,7 @@ class PersonnelRepository extends EntityRepository
         $queryBuilder->orderBy('b.Matricule', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
-            ;
+        ;
 
         return $queryBuilder->getQuery()->getResult();
     }
@@ -28,7 +28,7 @@ class PersonnelRepository extends EntityRepository
         $queryBuilder = $this->createQueryBuilder('b')
             ->select('COUNT(b.id)');
 
-        if (!empty($criteria['matricule'])) {
+        if (! empty($criteria['matricule'])) {
             $queryBuilder->andWhere('b.Matricule LIKE :matricule')
                 ->setParameter('matricule', '%' . $criteria['matricule'] .'%');
         }

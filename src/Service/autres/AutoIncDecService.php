@@ -7,7 +7,6 @@ use App\Entity\admin\Application;
 
 class AutoIncDecService
 {
-
     private $em;
 
     public function __construct()
@@ -32,14 +31,14 @@ class AutoIncDecService
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
         //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        $vNumSequential = substr($Max_Num, -4); // lay 4chiffre msincrimente
         //var_dump($vNumSequential);
         $DateAnneemoisnum = substr($Max_Num, -8);
         //var_dump($DateAnneemoisnum);
         $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
         //var_dump($DateYearsMonthOfMax);
         if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential + 1;
+            $vNumSequential = $vNumSequential + 1;
         } else {
             if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
                 $vNumSequential = 1;
@@ -79,14 +78,14 @@ class AutoIncDecService
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
         //num_sequentielless
-        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre msincrimente
+        $vNumSequential = substr($Max_Num, -4); // lay 4chiffre msincrimente
         //dump($vNumSequential);
         $DateAnneemoisnum = substr($Max_Num, -8);
         //dump($DateAnneemoisnum);
         $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
         //dump($DateYearsMonthOfMax);
         if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
-            $vNumSequential =  $vNumSequential - 1;
+            $vNumSequential = $vNumSequential - 1;
         } else {
             if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
                 $vNumSequential = 9999;
@@ -96,6 +95,7 @@ class AutoIncDecService
         //dump($vNumSequential);
         //var_dump($vNumSequential);
         $Result_Num = $nomDemande . $AnneMoisOfcours . $vNumSequential;
+
         //var_dump($Result_Num);
         //dd($Result_Num);
         return $Result_Num;
@@ -112,20 +112,22 @@ class AutoIncDecService
                 }
             }
         }
+
         return $ChaineComplet;
     }
 
     /**
      * Methode qui permet d'incrémenter un nombre de pas 1 lorqu'il est appeler
      *
-     * @param integer|null $num
-     * @return integer
+     * @param int|null $num
+     * @return int
      */
     public function autoIncrement(?int $num): int
     {
         if ($num === null) {
             $num = 0;
         }
+
         return $num + 1;
     }
 }

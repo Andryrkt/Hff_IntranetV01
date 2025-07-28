@@ -19,7 +19,7 @@ class Transfer04Controller extends Controller
         $allTransfersToBd = [];
         foreach ($data as $key => $value) {
             $transferToBd = [];
-           $transferToBd["numero_demande_dit"] = $value["NumeroDemandeIntervention"];
+            $transferToBd["numero_demande_dit"] = $value["NumeroDemandeIntervention"];
             $transferToBd["agence_service_emmeteur"] = $value["IDAgence"] .'-'. $value["IDService"];
             $transferToBd["utilisateur_demandeur"] = $value["UtilisateurDemandeur"];
             $transferToBd["ID_Materiel"] = $value["NumeroMateriel"];
@@ -62,39 +62,39 @@ class Transfer04Controller extends Controller
             $transferToBd["code_ate"] = $value["codeate"];
             $allTransfersToBd[] = $transferToBd;
         }
-       
+
 
         foreach ($allTransfersToBd as $key => $value) {
             # code...
             $this->transfer04->insert('demande_intervention', $value);
         }
 
-        
+
         /*$transferToBd = [
-         
-        
+
+
              "codeSociete" => "",
-           
-            
+
+
              "" => "",
              "" => "",
              "" => "",
               => "",
              "" => "",
              "numeroTel" => "",
-           
+
             "heureOR" => "",
             "datePrevueTravaux" => "",
             "" => "",
             "idNiveauUrgence" => "",
-         
+
             "livraisonPartiel" => "",
- 
+
             "mailDemandeur" => "",
-           
-         
-            
-       
+
+
+
+
             "idStatutDemande" => "",
             "" => "",
             "" => "",
@@ -119,22 +119,22 @@ class Transfer04Controller extends Controller
         ];*/
     }
 
-
     /**
  * Convertit un nombre de secondes en format h:min.
  *
  * @param int $seconds Le nombre de secondes à convertir.
  * @return string Une chaîne formatée en h:min.
  */
-private function convertSecondsToHoursAndMinutes($seconds) {
-    if($seconds !== null ) {
+    private function convertSecondsToHoursAndMinutes($seconds)
+    {
+        if ($seconds !== null) {
 
-        $hours = floor($seconds / 3600);
-        $minutes = floor(($seconds % 3600) / 60);
-        
-        return sprintf('%02d:%02d', $hours, $minutes);
-    } else {
-        return null;
+            $hours = floor($seconds / 3600);
+            $minutes = floor(($seconds % 3600) / 60);
+
+            return sprintf('%02d:%02d', $hours, $minutes);
+        } else {
+            return null;
+        }
     }
-}
 }

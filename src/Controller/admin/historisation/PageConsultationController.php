@@ -19,7 +19,7 @@ class PageConsultationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $pageConsultationSearch = new PageConsultationSearch;
+        $pageConsultationSearch = new PageConsultationSearch();
 
         $this->initialisationFormRecherche($pageConsultationSearch);
 
@@ -48,18 +48,18 @@ class PageConsultationController extends Controller
         $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : self::$em->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
 
         self::$twig->display('admin/historisation/consultation-page/index.html.twig', [
-            'form'        => $form->createView(),
-            'data'        => $paginationData['data'] ?? null,
+            'form' => $form->createView(),
+            'data' => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
-            'totalPages'  => $paginationData['lastPage'] ?? 0,
-            'resultat'    => $paginationData['totalItems'] ?? 0,
-            'criteria'    => $criteria,
+            'totalPages' => $paginationData['lastPage'] ?? 0,
+            'resultat' => $paginationData['totalItems'] ?? 0,
+            'criteria' => $criteria,
         ]);
     }
 
-    /** 
+    /**
      * Méthode pour vérifier si l'objet est vide
-     * 
+     *
      * @return bool
      */
     private function isObjectEmpty(PageConsultationSearch $pageConsultationSearch): bool
@@ -72,7 +72,7 @@ class PageConsultationController extends Controller
             $pageConsultationSearch->getDateFin() === null;
     }
 
-    /** 
+    /**
      * Méthode pour initialiser le recherche
      */
     private function initialisationFormRecherche(PageConsultationSearch $pageConsultationSearch)
@@ -81,7 +81,7 @@ class PageConsultationController extends Controller
         $criteria = $this->sessionService->get('page_consultation_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
-        if (!empty($criteria)) {
+        if (! empty($criteria)) {
             $pageConsultationSearch
                 ->setUtilisateur($criteria['utilisateur'])
                 ->setNomPage($criteria['nom_page'])

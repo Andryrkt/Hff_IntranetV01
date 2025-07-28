@@ -3,16 +3,13 @@
 namespace App\Service\genererPdf;
 
 use TCPDF;
-use App\Service\GlobalVariablesService;
 
 class GenererPdfCasier extends GeneratePdf
 {
-
-/**
-     * generer pdf changement de Casier
-     */
-
-    function genererPdfCasier(array $tab)
+    /**
+         * generer pdf changement de Casier
+         */
+    public function genererPdfCasier(array $tab)
     {
         $pdf = new TCPDF();
 
@@ -128,5 +125,4 @@ class GenererPdfCasier extends GeneratePdf
         $Dossier = $_ENV['BASE_PATH_FICHIER'].'/cas/';
         $pdf->Output($Dossier . $tab['Num_CAS'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
     }
-
 }

@@ -1,75 +1,54 @@
 <?php
 
-use Twig\Environment;
-
-use App\Model\ProfilModel;
-
-use App\Twig\AppExtension;
-use Doctrine\ORM\Tools\Setup;
 use App\Controller\Controller;
-use core\SimpleManagerRegistry;
-
-use Doctrine\ORM\EntityManager;
-use App\Twig\DeleteWordExtension;
-use Symfony\Component\Form\Forms;
-use Twig\Loader\FilesystemLoader;
-
-use PHPMailer\PHPMailer\PHPMailer;
-use Twig\Extension\DebugExtension;
-use Illuminate\Pagination\Paginator;
-use Symfony\Component\Asset\Packages;
-
-use Symfony\Component\Asset\PathPackage;
-use Symfony\Component\Form\FormRenderer;
-use Symfony\Component\Config\FileLocator;
-use Doctrine\Migrations\DependencyFactory;
 use App\Loader\CustomAnnotationClassLoader;
+use App\Twig\AppExtension;
 use App\Twig\CarbonExtension;
-use Symfony\Component\Validator\Validation;
-use Twig\RuntimeLoader\FactoryRuntimeLoader;
-
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\RequestContext;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Translation\Translator;
-use Symfony\Component\Form\FormFactoryBuilder;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\RouteCollection;
-use Symfony\Bridge\Twig\Extension\CsrfExtension;
-use Symfony\Bridge\Twig\Extension\FormExtension;
-use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use App\Twig\DeleteWordExtension;
+use core\SimpleManagerRegistry;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Symfony\Bridge\Twig\Extension\AssetExtension;
-use Symfony\Component\Routing\Matcher\UrlMatcher;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Symfony\Bridge\Twig\Extension\RoutingExtension;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Symfony\Component\Security\Csrf\CsrfTokenManager;
-use Symfony\Component\Translation\Loader\ArrayLoader;
+use Illuminate\Pagination\Paginator;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
-use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use Symfony\Component\Asset\Packages;
+use Symfony\Component\Asset\PathPackage;
+use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
-use Symfony\Component\Translation\Loader\XliffFileLoader;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
+use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Form\FormFactoryBuilder;
+use Symfony\Component\Form\FormRenderer;
+use Symfony\Component\Form\Forms;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
-use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Validator\Validation;
+use Twig\Environment;
+use Twig\Extension\DebugExtension;
+use Twig\Loader\FilesystemLoader;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
@@ -142,10 +121,10 @@ $formFactoryBuilder->addExtension(new HttpFoundationExtension());
 $formFactory = $formFactoryBuilder->getFormFactory();
 
 // Twig Environment
-$twig = new Environment(new FilesystemLoader(array(
+$twig = new Environment(new FilesystemLoader([
     VIEWS_DIR,
     VENDOR_TWIG_BRIDGE_DIR . '/Resources/views/Form',
-)), ['debug' => true]);
+]), ['debug' => true]);
 
 
 //configurer securite

@@ -4,8 +4,8 @@ namespace App\Controller\admin\tik;
 
 use App\Controller\Controller;
 use App\Entity\admin\tik\TkiAutresCategorie;
-use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\tik\TkiAutresCategorieType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TkiAutresCategoriesController extends Controller
@@ -33,7 +33,7 @@ class TkiAutresCategoriesController extends Controller
         self::$twig->display(
             'admin/tik/autresCategories/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }

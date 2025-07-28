@@ -14,9 +14,11 @@ class UtilisateurExceptionController extends Controller
      */
     public function utilisateurNonTrouver($message)
     {
-        self::$twig->display('admin/exception/utilisateurException.html.twig', 
-    [
+        self::$twig->display(
+            'admin/exception/utilisateurException.html.twig',
+            [
         'message' => $message,
-    ]);
+    ]
+        );
     }
 }

@@ -65,7 +65,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     private function numCdeO4(): string
     {
         $cde04 = $this->cdeFnrModel->findsCde04();
+
         return TableauEnStringService::TableauEnString(',', $cde04);
     }
-
 }

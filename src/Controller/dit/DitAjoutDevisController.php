@@ -6,5 +6,4 @@ use App\Controller\Controller;
 
 class DitAjoutDevisController extends Controller
 {
-
 }

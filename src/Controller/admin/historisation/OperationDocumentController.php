@@ -21,7 +21,7 @@ class OperationDocumentController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $historiqueOperationDocumentSearch = new HistoriqueOperationDocumentSearch;
+        $historiqueOperationDocumentSearch = new HistoriqueOperationDocumentSearch();
 
         $this->initialisationFormRecherche($historiqueOperationDocumentSearch);
 
@@ -50,12 +50,12 @@ class OperationDocumentController extends Controller
         $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : self::$em->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
 
         self::$twig->display('admin/historisation/operation-document/index.html.twig', [
-            'form'        => $form->createView(),
-            'data'        => $paginationData['data'] ?? null,
+            'form' => $form->createView(),
+            'data' => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
-            'totalPages'  => $paginationData['lastPage'] ?? 0,
-            'resultat'    => $paginationData['totalItems'] ?? 0,
-            'criteria'    => $criteria,
+            'totalPages' => $paginationData['lastPage'] ?? 0,
+            'resultat' => $paginationData['totalItems'] ?? 0,
+            'criteria' => $criteria,
         ]);
     }
 
@@ -79,9 +79,9 @@ class OperationDocumentController extends Controller
         );
     }
 
-    /** 
+    /**
      * Méthode pour vérifier si l'objet est vide
-     * 
+     *
      * @return bool
      */
     private function isObjectEmpty(HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch): bool
@@ -96,7 +96,7 @@ class OperationDocumentController extends Controller
             $historiqueOperationDocumentSearch->getDateOperationFin() === null;
     }
 
-    /** 
+    /**
      * Méthode pour initialiser le recherche
      */
     private function initialisationFormRecherche(HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
@@ -105,7 +105,7 @@ class OperationDocumentController extends Controller
         $criteria = $this->sessionService->get('historique_operation_document_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
-        if (!empty($criteria)) {
+        if (! empty($criteria)) {
             $typeOperation = isset($criteria['typeOperation']) && $criteria['typeOperation'] !== null ? self::$em->getRepository(TypeOperation::class)->find($criteria['typeOperation']) : null;
             $typeDocument = isset($criteria['typeDocument']) && $criteria['typeDocument'] !== null ? self::$em->getRepository(TypeDocument::class)->find($criteria['typeDocument']) : null;
 

@@ -11,6 +11,7 @@ class PdfTableGenerator
         $html .= $this->generateBody($headerConfig, $rows, $expre);
         $html .= $this->generateFooter($headerConfig, $totals);
         $html .= '</table>';
+
         return $html;
     }
 
@@ -21,6 +22,7 @@ class PdfTableGenerator
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $config['style'] . '">' . $config['label'] . '</th>';
         }
         $html .= '</tr></thead>';
+
         return $html;
     }
 
@@ -29,26 +31,27 @@ class PdfTableGenerator
      *
      * @param array $headerConfig
      * @param array $rows
-     * @param boolean $expre
+     * @param bool $expre
      * @return void
      */
     private function generateBody(array $headerConfig, array $rows, bool $expre = false)
     {
         $html = '<tbody>';
         // Vérifier si le tableau $rows est vide
-    
-        if (empty($rows) && !$expre) {
+
+        if (empty($rows) && ! $expre) {
             $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold;">N/A</td></tr>';
             $html .= '</tbody>';
+
             return $html;
         }
 
-        
+
         foreach ($rows as $row) {
 
             // Vérifier si tous les montants sont égaux à 0
-            $montantsKeys = array_filter(array_keys($row), fn($key) => stripos($key, 'mtt') !== false);
-            $allMontantsZero = array_reduce($montantsKeys, fn($acc, $key) => $acc && ((float) $row[$key] === 0), false);
+            $montantsKeys = array_filter(array_keys($row), fn ($key) => stripos($key, 'mtt') !== false);
+            $allMontantsZero = array_reduce($montantsKeys, fn ($acc, $key) => $acc && ((float) $row[$key] === 0), false);
 
             if ($allMontantsZero) {
                 // Afficher "N/A" si tous les montants sont égaux à 0
@@ -68,6 +71,7 @@ class PdfTableGenerator
             $html .= '</tr>';
         }
         $html .= '</tbody>';
+
         return $html;
     }
 
@@ -79,7 +83,7 @@ class PdfTableGenerator
             $style = $config['style'];
             $value = $totals[$key] ?? '';
 
-            if (!empty($value)) {
+            if (! empty($value)) {
                 // Formater uniquement si la valeur existe
                 $value = $this->formatValue($key, $value);
             }
@@ -87,9 +91,9 @@ class PdfTableGenerator
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
         }
         $html .= '</tr></tfoot>';
+
         return $html;
     }
-
 
     private function getDynamicStyle($key, $value)
     {
@@ -107,10 +111,11 @@ class PdfTableGenerator
                     break;
             }
         }
+
         return $styles;
     }
 
-        /**
+    /**
      * Méthode qui formate les valeurs (nombre ou date) au format approprié.
      * Pour les montants, la clé du tableau doit contenir "mtt".
      * Pour les dates, la clé du tableau doit contenir "date".
@@ -127,6 +132,7 @@ class PdfTableGenerator
             if (is_numeric($value)) {
                 return number_format((float) $value, 2, ',', '.');
             }
+
             return '0.00'; // Retourner un montant par défaut si ce n'est pas un nombre
         }
 
@@ -136,18 +142,18 @@ class PdfTableGenerator
             if (is_string($value) && $value !== '-') {
                 try {
                     $date = new \DateTime($value);
+
                     return $date->format('d/m/Y');
                 } catch (\Exception $e) {
                     // Si la date est invalide, retourner une valeur par défaut
                     return '-';
                 }
             }
+
             return '-'; // Si la valeur n'est pas valide, retourner un séparateur par défaut
         }
 
         // Retourner la valeur non modifiée si aucune condition ne s'applique
         return (string) $value;
     }
-
-
 }

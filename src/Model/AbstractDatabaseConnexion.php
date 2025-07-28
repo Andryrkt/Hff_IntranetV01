@@ -2,15 +2,18 @@
 
 namespace App\Model;
 
+use App\Controller\Controller;
 use PDO;
 use PDOException;
-use App\Controller\Controller;
 
 abstract class AbstractDatabaseConnexion
 {
     protected $dsn;
+
     protected $username;
+
     protected $password;
+
     protected $conn;
 
     public function __construct(string $dsn, string $username, string $password)
@@ -38,6 +41,7 @@ abstract class AbstractDatabaseConnexion
     {
         try {
             $stmt = $this->conn->query($sql);
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retourne les résultats sous forme de tableau associatif
         } catch (PDOException $e) {
             $this->logError($e->getMessage());
@@ -50,6 +54,7 @@ abstract class AbstractDatabaseConnexion
         try {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute($params);
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC); // Retourne les résultats sous forme de tableau associatif
         } catch (PDOException $e) {
             $this->logError($e->getMessage());

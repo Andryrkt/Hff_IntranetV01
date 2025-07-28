@@ -2,40 +2,37 @@
 
 namespace App\Form\dit;
 
-
-use App\Entity\dit\DitInsertionOr;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DitOrsSoumisAValidationType extends AbstractType
 {
-    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('numeroDit',
-            TextType::class,
-            [
+            ->add(
+                'numeroDit',
+                TextType::class,
+                [
                 'label' => 'Numéro DIT',
                 'data' => $options['data']->getNumeroDit(),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('numeroOR',
-            IntegerType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'numeroOR',
+                IntegerType::class,
+                [
                 'label' => 'Numéro OR *',
                 'required' => false,
                 'constraints' => [
@@ -47,12 +44,14 @@ class DitOrsSoumisAValidationType extends AbstractType
                 'attr' => [
                     'min' => 0,
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
-                    'disabled' => true
+                    'disabled' => true,
                 ],
-                'data' => $options['data']->getNumeroOR()
-            ])
-            ->add('pieceJoint01', 
-                FileType::class, 
+                'data' => $options['data']->getNumeroOR(),
+            ]
+            )
+            ->add(
+                'pieceJoint01',
+                FileType::class,
                 [
                     'label' => 'Upload File',
                     'required' => true,
@@ -67,12 +66,14 @@ class DitOrsSoumisAValidationType extends AbstractType
                                 'application/pdf',
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                        ])
+                        ]),
                     ],
-                ])
-            ->add('pieceJoint02', 
-            FileType::class, 
-            [
+                ]
+            )
+            ->add(
+                'pieceJoint02',
+                FileType::class,
+                [
                 'label' => 'Upload File',
                 'required' => false,
                 'constraints' => [
@@ -83,12 +84,14 @@ class DitOrsSoumisAValidationType extends AbstractType
                             'application/pdf',
                         ],
                         'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                    ])
+                    ]),
                 ],
-            ])
-            ->add('pieceJoint03', 
-            FileType::class, 
-            [
+            ]
+            )
+            ->add(
+                'pieceJoint03',
+                FileType::class,
+                [
                 'label' => 'Upload File',
                 'required' => false,
                 'constraints' => [
@@ -99,12 +102,14 @@ class DitOrsSoumisAValidationType extends AbstractType
                             'application/pdf',
                         ],
                         'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                    ])
+                    ]),
                 ],
-            ])
-            ->add('pieceJoint04', 
-            FileType::class, 
-            [
+            ]
+            )
+            ->add(
+                'pieceJoint04',
+                FileType::class,
+                [
                 'label' => 'Upload File',
                 'required' => false,
                 'constraints' => [
@@ -115,10 +120,11 @@ class DitOrsSoumisAValidationType extends AbstractType
                             'application/pdf',
                         ],
                         'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                    ])
+                    ]),
                 ],
-            ])
-       ;
+            ]
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -127,6 +133,4 @@ class DitOrsSoumisAValidationType extends AbstractType
             'data_class' => DitOrsSoumisAValidation::class,
         ]);
     }
-
-
 }

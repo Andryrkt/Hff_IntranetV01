@@ -2,9 +2,9 @@
 
 namespace App\Command;
 
+use App\Service\migration\MigrationDataDitService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
-use App\Service\migration\MigrationDataDitService;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -32,6 +32,7 @@ class MigrationDataCommand extends Command
     {
         $migrationPdfDitService = new MigrationDataDitService($this->em);
         $migrationPdfDitService->migrationDataDit($output);
+
         return Command::SUCCESS;
     }
 }

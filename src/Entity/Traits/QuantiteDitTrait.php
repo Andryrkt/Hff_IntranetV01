@@ -7,18 +7,18 @@ trait QuantiteDitTrait
     private $quantiteDemander = 0;
 
     private $quantiteReserver = 0;
-    
+
     private $quantiteLivree = 0;
 
     private $quantiteReliquat = 0;
 
     private $statutAchatPiece = '';
-    
+
     private $statutAchatLocaux = '';
 
     /**
      * Get the value of quantiteDemander
-     */ 
+     */
     public function getQuantiteDemander()
     {
         return $this->quantiteDemander;
@@ -28,7 +28,7 @@ trait QuantiteDitTrait
      * Set the value of quantiteDemander
      *
      * @return  self
-     */ 
+     */
     public function setQuantiteDemander($quantiteDemander)
     {
         $this->quantiteDemander = $quantiteDemander;
@@ -38,7 +38,7 @@ trait QuantiteDitTrait
 
     /**
      * Get the value of quantiteReserver
-     */ 
+     */
     public function getQuantiteReserver()
     {
         return $this->quantiteReserver;
@@ -48,7 +48,7 @@ trait QuantiteDitTrait
      * Set the value of quantiteReserver
      *
      * @return  self
-     */ 
+     */
     public function setQuantiteReserver($quantiteReserver)
     {
         $this->quantiteReserver = $quantiteReserver;
@@ -58,7 +58,7 @@ trait QuantiteDitTrait
 
     /**
      * Get the value of quantiteLivree
-     */ 
+     */
     public function getQuantiteLivree()
     {
         return $this->quantiteLivree;
@@ -68,7 +68,7 @@ trait QuantiteDitTrait
      * Set the value of quantiteLivree
      *
      * @return  self
-     */ 
+     */
     public function setQuantiteLivree($quantiteLivree)
     {
         $this->quantiteLivree = $quantiteLivree;
@@ -78,7 +78,7 @@ trait QuantiteDitTrait
 
     /**
      * Get the value of quantiteReliquat
-     */ 
+     */
     public function getQuantiteReliquat()
     {
         return $this->quantiteReliquat;
@@ -88,7 +88,7 @@ trait QuantiteDitTrait
      * Set the value of quantiteReliquat
      *
      * @return  self
-     */ 
+     */
     public function setQuantiteReliquat($quantiteReliquat)
     {
         $this->quantiteReliquat = $quantiteReliquat;
@@ -98,7 +98,7 @@ trait QuantiteDitTrait
 
     /**
      * Get the value of statutAchatPiece
-     */ 
+     */
     public function getStatutAchatPiece()
     {
         return $this->statutAchatPiece;
@@ -108,7 +108,7 @@ trait QuantiteDitTrait
      * Set the value of statutAchatPiece
      *
      * @return  self
-     */ 
+     */
     public function setStatutAchatPiece($statutAchatPiece)
     {
         $this->statutAchatPiece = $statutAchatPiece;
@@ -118,7 +118,7 @@ trait QuantiteDitTrait
 
     /**
      * Get the value of statutAchatLocaux
-     */ 
+     */
     public function getStatutAchatLocaux()
     {
         return $this->statutAchatLocaux;
@@ -128,7 +128,7 @@ trait QuantiteDitTrait
      * Set the value of statutAchatLocaux
      *
      * @return  self
-     */ 
+     */
     public function setStatutAchatLocaux($statutAchatLocaux)
     {
         $this->statutAchatLocaux = $statutAchatLocaux;

@@ -2,15 +2,14 @@
 
 namespace App\Controller\tik;
 
+use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
-use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class ModificationTikController extends Controller
 {
@@ -21,13 +20,13 @@ class ModificationTikController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        /** 
-         * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
+        /**
+         * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id
          */
         $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
-        if (!$this->canEdit($supportInfo->getNumeroTicket())) {
+        if (! $this->canEdit($supportInfo->getNumeroTicket())) {
             $this->redirectToRoute('liste_tik_index');
         }
 
@@ -59,25 +58,25 @@ class ModificationTikController extends Controller
         }
 
         $this->logUserVisit('tik_modification_edit', [
-            'id' => $id
-        ]); // historisation du page visité par l'utilisateur 
+            'id' => $id,
+        ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/edit.html.twig', [
             'fichiers' => $fichiers,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
-    /** 
+    /**
      * Fonction pour vérifier si l'utilisateur peut éditer le ticket
      */
     private function canEdit(string $numTik): bool
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur = $this->sessionService->get('user_id');
 
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();

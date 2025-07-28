@@ -2,13 +2,10 @@
 
 namespace App\Repository\admin\utilisateur;
 
-
 use Doctrine\ORM\EntityRepository;
-
 
 class AgenceServiceAutoriserRepository extends EntityRepository
 {
-
     // Ajoutez des méthodes personnalisées ici
     public function findByExampleField($value)
     {

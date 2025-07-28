@@ -2,13 +2,12 @@
 
 namespace App\Entity\admin\tik;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\tik\TkiSousCategorie;
-use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\tik\TkiAutreCategorieRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=TkiAutreCategorieRepository::class)
@@ -40,7 +39,6 @@ class TkiAutresCategorie
      */
     private Collection $supportInfo;
 
-
     public function __construct()
     {
         $this->sousCategories = new ArrayCollection();
@@ -48,14 +46,14 @@ class TkiAutresCategorie
     }
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -69,21 +67,21 @@ class TkiAutresCategorie
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
-   /**
-     * @return Collection
-     */
+    /**
+      * @return Collection
+      */
     public function getSousCategories(): Collection
     {
         return $this->sousCategories;
     }
 
-
     public function addSousCategorie(TkiSousCategorie $sousCategorie): self
     {
-        if (!$this->sousCategories->contains($sousCategorie)) {
+        if (! $this->sousCategories->contains($sousCategorie)) {
             $this->sousCategories[] = $sousCategorie;
             $sousCategorie->addAutresCategorie($this); // Maintenir la relation bidirectionnelle
         }
@@ -94,9 +92,10 @@ class TkiAutresCategorie
     public function setSousCategories(Collection $sousCategorie): self
     {
         $this->sousCategories = $sousCategorie;
+
         return $this;
     }
-    
+
     public function removeSousCategorie(TkiSousCategorie $sousCategorie): self
     {
         if ($this->sousCategories->removeElement($sousCategorie)) {
@@ -105,7 +104,6 @@ class TkiAutresCategorie
 
         return $this;
     }
-    
 
     public function getSupportInfo(): Collection
     {
@@ -114,7 +112,7 @@ class TkiAutresCategorie
 
     public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
     {
-        if (!$this->supportInfo->contains($supportInfo)) {
+        if (! $this->supportInfo->contains($supportInfo)) {
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setAutresCategorie($this);
         }
@@ -130,7 +128,7 @@ class TkiAutresCategorie
                 $supportInfo->setAutresCategorie(null);
             }
         }
-        
+
         return $this;
     }
 }

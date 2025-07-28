@@ -4,13 +4,13 @@ namespace App\Entity\Traits;
 
 trait BilanFinancierMaterielTrait
 {
- /**
-  * Undocumented variable
-  *
-  * @var float
-  */
+    /**
+     * Undocumented variable
+     *
+     * @var float
+     */
     private float $coutAcquisition = 0.0;
-    
+
     /**
      * Undocumented variable
      *
@@ -52,17 +52,12 @@ trait BilanFinancierMaterielTrait
      * @var float
      */
     private float $resultatExploitation = 0.0;
-   
-    
-    
 
-    
     public function getCoutAcquisition(): float
     {
         return $this->coutAcquisition;
     }
 
-    
     public function setCoutAcquisition(float $coutAcquisition): self
     {
         $this->coutAcquisition = $coutAcquisition;
@@ -70,13 +65,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getAmortissement(): float
     {
         return $this->amortissement;
     }
 
-    
     public function setAmortissement(float $amortissement): self
     {
         $this->amortissement = $amortissement;
@@ -84,13 +77,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getValeurNetComptable(): float
     {
         return $this->valeurNetComptable = $this->getCoutAcquisition() - $this->getAmortissement();
     }
 
-    
     public function setValeurNetComptable(float $valeurNetComptable)
     {
         $this->valeurNetComptable = $valeurNetComptable;
@@ -98,13 +89,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getChiffreAffaire(): float
     {
         return $this->chiffreAffaire;
     }
 
-    
     public function setChiffreAffaire(float $chiffreAffaire): self
     {
         $this->chiffreAffaire = $chiffreAffaire;
@@ -112,13 +101,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getChargeLocative(): float
     {
         return $this->chargeLocative;
     }
 
-    
     public function setChargeLocative(float $chargeLocative): self
     {
         $this->chargeLocative = $chargeLocative;
@@ -126,13 +113,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getChargeEntretient(): float
     {
         return $this->chargeEntretient;
     }
 
-    
     public function setChargeEntretient(float $chargeEntretient): self
     {
         $this->chargeEntretient = $chargeEntretient;
@@ -140,13 +125,11 @@ trait BilanFinancierMaterielTrait
         return $this;
     }
 
-    
     public function getResultatExploitation(): float
     {
         return $this->resultatExploitation = $this->getChiffreAffaire() - $this->getChargeLocative() - $this->getChargeEntretient();
     }
 
-   
     public function setResultatExploitation(float $resultatExploitation)
     {
         $this->resultatExploitation = $resultatExploitation;

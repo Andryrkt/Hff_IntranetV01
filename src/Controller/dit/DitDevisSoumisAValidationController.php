@@ -2,29 +2,32 @@
 
 namespace App\Controller\dit;
 
-use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\autres\MontantPdfService;
-use Symfony\Component\Form\FormInterface;
-use App\Service\fichier\FileUploaderService;
 use App\Entity\dit\DitDevisSoumisAValidation;
-use Symfony\Component\HttpFoundation\Request;
 use App\Form\dit\DitDevisSoumisAValidationType;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
-use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
+use App\Service\autres\MontantPdfService;
+use App\Service\fichier\FileUploaderService;
+use App\Service\fichier\GenererNonFichierService;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+use DateTime;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DitDevisSoumisAValidationController extends Controller
 {
     private $ditDevisSoumisAValidation;
+
     private $ditDevisSoumisAValidationModel;
+
     private $montantPdfService;
+
     private $generePdfDevis;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -37,7 +40,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
         $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
-        $this->historiqueOperation = new HistoriqueOperationDEVService;
+        $this->historiqueOperation = new HistoriqueOperationDEVService();
     }
 
     /**
@@ -52,8 +55,8 @@ class DitDevisSoumisAValidationController extends Controller
 
         $numDevis = $this->numeroDevis($numDit);
         $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
-        
-       
+
+
         $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
 
         $form->handleRequest($request);
@@ -70,33 +73,33 @@ class DitDevisSoumisAValidationController extends Controller
                 $numeroVersionMax = $devisRepository->findNumeroVersionMax($numDevis); // recuperation du numero version max
                 //ajout des informations vient dans informix dans l'entité devisSoumisAValidation
                 $devisSoumisValidataion = $this->devisSoumisValidataion($devisSoumisAValidationInformix, $numeroVersionMax, $numDevis, $numDit, $this->estCeVenteOuForfait($numDevis));
-                
-                
+
+
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($devisSoumisValidataion);
                 $this->editDevisRattacherDit($numDit, $numDevis); //ajout du numero devis dans la table demande_intervention
 
                 /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix= $this->pieceGererMagasinConstructeur($numDevis);
+                $suffix = $this->pieceGererMagasinConstructeur($numDevis);
                 $nomFichierCtrl = 'devis_ctrl_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion() . '#'. $suffix.'.pdf';
                 $this->creationPdf($devisSoumisValidataion, $this->generePdfDevis, $nomFichierCtrl);
-                
-                
+
+
                 $chemin = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
                 $fileUploader = new FileUploaderService($chemin);
-                $file =  $form->get('pieceJoint01')->getData();
+                $file = $form->get('pieceJoint01')->getData();
                 //generer le nom du fichier
                 $nomFichierGenerer = 'devis_' .$numDevis.'-'.$devisSoumisValidataion[0]->getNumeroVersion().'#'.$suffix.'.pdf';
                 // telecharger le fichier en copiant sur son repertoire
                 $fileUploader->uploadFileSansName($file, $nomFichierGenerer);
-                
-                
-                
+
+
+
                 // dd($files);
                 //envoie des fichiers dans docuware
                 $this->generePdfDevis->copyToDWDevisSoumis($nomFichierCtrl);// copier le fichier de controlle dans docuware
                 $this->generePdfDevis->copyToDWFichierDevisSoumis($nomFichierGenerer);// copier le fichier de devis dans docuware
-                
+
 
                 $message = 'Le devis a été soumis avec succès';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numDevis, 'dit_index', true);
@@ -106,7 +109,7 @@ class DitDevisSoumisAValidationController extends Controller
         self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'numDevis' => $numDevis,
-            'numDit' => $numDit
+            'numDit' => $numDit,
         ]);
     }
 
@@ -128,12 +131,12 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $numClientIps = $this->ditDevisSoumisAValidationModel->recupNumeroClient($numDevis)[0]['numero_client'];
             $numClientIntranet = $TrouverDansDit->getNumeroClient();
-            $numDevisNomFichier = !preg_match("/$numDevis/", $originalName);
+            $numDevisNomFichier = ! preg_match("/$numDevis/", $originalName);
             $idStatutDit = $TrouverDansDit->getIdStatutDemande()->getId();
             $statutDevis = $devisRepository->findDernierStatutDevis($numDevis);
             $numDitIps = $this->ditDevisSoumisAValidationModel->recupNumDitIps($numDevis)[0]['num_dit'];
             $servDebiteur = $this->ditDevisSoumisAValidationModel->recupServDebiteur($numDevis)[0]['serv_debiteur'];
-            $nomFichierCommence = !preg_match('/^devis/i', $originalName);
+            $nomFichierCommence = ! preg_match('/^devis/i', $originalName);
         }
 
         return  [
@@ -142,8 +145,8 @@ class DitDevisSoumisAValidationController extends Controller
             'conditionDitIpsDiffDitSqlServ' => $numDitIps <> $numDit, // n° dit ips <> n° dit intranet
             'conditionServDebiteurvide' => $servDebiteur <> '', // le service debiteur n'est pas vide
             'conditionStatutDit' => $idStatutDit <> 51, // le statut DIT est-il différent de AFFECTER SECTION
-            'conditionStatutDevis' => $statutDevis === 'Soumis à validation', // le statut de la dernière version de devis est-il Soumis à validation 
-            'conditionNomCommence' => $nomFichierCommence // le nom de fichier telechager commence-t-il par "DEVIS"
+            'conditionStatutDevis' => $statutDevis === 'Soumis à validation', // le statut de la dernière version de devis est-il Soumis à validation
+            'conditionNomCommence' => $nomFichierCommence, // le nom de fichier telechager commence-t-il par "DEVIS"
         ];
     }
 
@@ -152,7 +155,7 @@ class DitDevisSoumisAValidationController extends Controller
      *
      * @param array $blockages
      * @param string $numDevis
-     * @return boolean
+     * @return bool
      */
     public function blockageSoumission(array $blockages, string $numDevis): bool
     {
@@ -177,8 +180,7 @@ class DitDevisSoumisAValidationController extends Controller
         } elseif ($blockages['conditionNomCommence']) {
             $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . Le fichier soumis a été renommé ou ne correspond pas à un devis";
             $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-        } 
-        else {
+        } else {
             return true;
         }
     }
@@ -217,7 +219,7 @@ class DitDevisSoumisAValidationController extends Controller
      * est une Devis vente ou forfait
      *
      * @param string $numDevis
-     * @return boolean
+     * @return bool
      */
     public function estCeVenteOuForfait(string $numDevis): bool
     {
@@ -231,8 +233,6 @@ class DitDevisSoumisAValidationController extends Controller
         }
     }
 
-
-
     private function variationPrixRefPiece(string $numDevis): array
     {
         $infoPieceClients = $this->ditDevisSoumisAValidationModel->recupInfoPieceClient($numDevis);
@@ -244,9 +244,9 @@ class DitDevisSoumisAValidationController extends Controller
         // }
 
         $infoPrix = [];
-        if (!empty($infoPieces)) {
+        if (! empty($infoPieces)) {
             foreach ($infoPieces as $infoPiece) {
-                if (!empty($infoPiece)) {
+                if (! empty($infoPiece)) {
                     $infoPrix[] = [
                         'lineType' => isset($infoPiece[0]) ? ($infoPiece[0]['type_ligne'] ?? '-') : '-',
                         'cst' => isset($infoPiece[0]) ? ($infoPiece[0]['cst'] ?? '-') : '-',
@@ -272,8 +272,8 @@ class DitDevisSoumisAValidationController extends Controller
      * @param GenererPdfDevisSoumisAValidation $generePdfDevis
      * @return void
      */
-    private function creationPdf( array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, string $nomFichierCtrl)
-    {   
+    private function creationPdf(array $devisSoumisValidataion, GenererPdfDevisSoumisAValidation $generePdfDevis, string $nomFichierCtrl)
+    {
         $numDevis = $devisSoumisValidataion[0]->getNumeroDevis();
 
         $devisSoumisAvant = $this->donnerDevisSoumisAvant($numDevis, $devisSoumisValidataion);
@@ -287,7 +287,7 @@ class DitDevisSoumisAValidationController extends Controller
         $mailUtilisateur = $this->nomUtilisateur(self::$em)['mailUtilisateur'];
 
         // dd($montantPdf, $quelqueaffichage);
-        if($this->estCeVenteOuForfait($numDevis)) { // vente
+        if ($this->estCeVenteOuForfait($numDevis)) { // vente
             $generePdfDevis->GenererPdfDevisVente($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
         } else { // sinom forfait
             $generePdfDevis->GenererPdfDevisForfait($devisSoumisValidataion[0], $montantPdf, $quelqueaffichage, $variationPrixRefPiece, $mailUtilisateur, $nomFichierCtrl);
@@ -312,8 +312,8 @@ class DitDevisSoumisAValidationController extends Controller
     private function rectifierVenteAvantAvecForfait(string $numDevis)
     {
         $devisSoumisAvantVtes = self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis, 'VTE');
-    
-        if (!empty($devisSoumisAvantVtes)) {
+
+        if (! empty($devisSoumisAvantVtes)) {
             foreach ($devisSoumisAvantVtes as $value) { // Utilisez $key pour garder une référence à l'index
                 if ($value->getMontantForfait() !== null) {
                     $value->setMontantVente($value->getMontantITV() - $value->getMontantForfait());
@@ -329,9 +329,9 @@ class DitDevisSoumisAValidationController extends Controller
             // // Réindexer le tableau après suppression
             // $devisSoumisAvantVtes = array_values($devisSoumisAvantVtes);
         }
+
         return $devisSoumisAvantVtes;
     }
-
 
     private function rectifierVenteAvantMaxAvecForfait(string $numDevis)
     {
@@ -362,12 +362,12 @@ class DitDevisSoumisAValidationController extends Controller
 
         // Vérifier si tous les montants des éléments filtrés sont à zéro
         $tousMontantsZero = array_reduce($resultatFiltre, function ($acc, $item) {
-            $sommeMontants = 
-                $item->getMontantPiece() + 
-                $item->getMontantMo() + 
-                $item->getMontantAchatLocaux() + 
-                $item->getMontantFraisDivers() + 
-                $item->getMontantLubrifiants()+
+            $sommeMontants =
+                $item->getMontantPiece() +
+                $item->getMontantMo() +
+                $item->getMontantAchatLocaux() +
+                $item->getMontantFraisDivers() +
+                $item->getMontantLubrifiants() +
                 $item->getMontantVente();
 
             return $acc && ($sommeMontants == 0);
@@ -376,7 +376,6 @@ class DitDevisSoumisAValidationController extends Controller
         // Si tous les montants sont à zéro, retourner un tableau vide
         return $tousMontantsZero ? [] : $resultatFiltre;
     }
-
 
     /**
      * Methode pour filtrer les données de CES (recupère seulement les donnée de CES)
@@ -391,20 +390,19 @@ class DitDevisSoumisAValidationController extends Controller
         });
     }
 
-
     private function quelqueAffichage(string $numDevis): array
     {
         return [
             "numDevis" => $numDevis,
             "sortieMagasin" => $this->estCeSortieMagasin($numDevis),
-            "achatLocaux" => $this->estCeAchatLocaux($numDevis)
+            "achatLocaux" => $this->estCeAchatLocaux($numDevis),
         ];
     }
 
     private function estCeSortieMagasin(string $numDevis): string
     {
         $nbSotrieMagasin = $this->ditDevisSoumisAValidationModel->recupNbPieceMagasin($numDevis);
-        if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
+        if (! empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';
         } else {
             $sortieMagasin = 'NON';
@@ -416,7 +414,7 @@ class DitDevisSoumisAValidationController extends Controller
     private function estCeAchatLocaux(string $numDevis): string
     {
         $nbAchatLocaux = $this->ditDevisSoumisAValidationModel->recupNbAchatLocaux($numDevis);
-        if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
+        if (! empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
             $achatLocaux = 'NON';
@@ -425,13 +423,14 @@ class DitDevisSoumisAValidationController extends Controller
         return $achatLocaux;
     }
 
-    private function nomUtilisateur($em): array 
+    private function nomUtilisateur($em): array
     {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
+
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),
-            'mailUtilisateur' => $user->getMail()
+            'mailUtilisateur' => $user->getMail(),
         ];
     }
 
@@ -452,16 +451,14 @@ class DitDevisSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-
-
     /**
-     * Methode qui permet de transformer les données de l'informix en entité 
+     * Methode qui permet de transformer les données de l'informix en entité
      *
      * @param array $devisSoumisAValidationInformix
-     * @param integer|null $numeroVersionMax
+     * @param int|null $numeroVersionMax
      * @param string $numDevis
      * @param string $numDit
-     * @param boolean $estCeVenteOuForfait
+     * @param bool $estCeVenteOuForfait
      * @return array tableau d'objet devisSoumisAValidation
      */
     private function devisSoumisValidataion(array $devisSoumisAValidationInformix, ?int $numeroVersionMax, string $numDevis, string $numDit, bool $estCeVenteOuForfait): array
@@ -550,6 +547,7 @@ class DitDevisSoumisAValidationController extends Controller
         if ($num === null) {
             $num = 0;
         }
+
         return $num + 1;
     }
 
@@ -589,21 +587,21 @@ class DitDevisSoumisAValidationController extends Controller
         self::$em->flush();
     }
 
-    private function nomFichierUploder( string $numDevis, string $numeroVersion, string $suffix)
+    private function nomFichierUploder(string $numDevis, string $numeroVersion, string $suffix)
     {
         //generer le nom de fichier uploder
         $preparNom = [
             'prefix' => 'devis',
             'numeroDoc' => $numDevis,
             'numeroVersion' => $numeroVersion,
-            'suffixe' => $suffix
+            'suffixe' => $suffix,
         ];
-        $nomFichierGenerer = GenererNonFichierService::generationNomFichier( $preparNom);
+        $nomFichierGenerer = GenererNonFichierService::generationNomFichier($preparNom);
 
-        
+
 
         return  $nomFichierGenerer;
-        
+
     }
 
     public function nomFichierCtrl(string $numDevis, string $numeroVersion, string $suffix)
@@ -613,9 +611,9 @@ class DitDevisSoumisAValidationController extends Controller
             'prefix' => 'devis_ctrl',
             'numeroDoc' => $numDevis,
             'numeroVersion' => $numeroVersion,
-            'suffixe' => $suffix
+            'suffixe' => $suffix,
         ];
-        $fileName = GenererNonFichierService::generationNomFichier( $preparNomFichier);
+        $fileName = GenererNonFichierService::generationNomFichier($preparNomFichier);
 
         return  $fileName;
     }
@@ -624,10 +622,10 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $constructeur = $this->ditDevisSoumisAValidationModel->constructeurPieceMagasin($numDevis);
 
-        if(isset($constructeur[0])) {
-            if($constructeur[0]['constructeur'] === 'CAT') {
+        if (isset($constructeur[0])) {
+            if ($constructeur[0]['constructeur'] === 'CAT') {
                 $suffix = 'C';
-            } else if($constructeur[0]['constructeur'] <> 'CAT') {
+            } elseif ($constructeur[0]['constructeur'] <> 'CAT') {
                 $suffix = 'P';
             } else {
                 $suffix = 'N';
@@ -635,10 +633,8 @@ class DitDevisSoumisAValidationController extends Controller
         } else {
             $suffix = 'N';
         }
-       
+
 
         return $suffix;
     }
-
-    
 }

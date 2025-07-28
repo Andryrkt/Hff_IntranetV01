@@ -2,20 +2,21 @@
 
 namespace App\Form\admin\utilisateur;
 
-use App\Model\LdapModel;
 use App\Entity\admin\Application;
-use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\utilisateur\ProfilUser;
-use Symfony\Component\Form\FormBuilderInterface;
+use App\Model\LdapModel;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProfilUserType extends AbstractType
 {
     private $ldap;
+
     public function __construct()
     {
         $this->ldap = new LdapModel();
@@ -23,54 +24,65 @@ class ProfilUserType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        
+
         $users = $this->ldap->infoUser($_SESSION['user'], $_SESSION['password']);
 
         $nom = [];
         foreach ($users as $key => $value) {
-            $nom[]=$key;
+            $nom[] = $key;
         }
 
         $builder
-        ->add('utilisateur', 
-        ChoiceType::class, 
-        [
+        ->add(
+            'utilisateur',
+            ChoiceType::class,
+            [
             'label' => "Nom d'utilisateur",
             'choices' => array_combine($nom, $nom),
-            'placeholder' => '-- Choisir un nom d\'utilisateur --'
-           
-        ])
-    ->add('profil', 
-        ChoiceType::class, 
+            'placeholder' => '-- Choisir un nom d\'utilisateur --',
+
+        ]
+        )
+    ->add(
+        'profil',
+        ChoiceType::class,
         [
             'label' => 'Rôle',
             'choices' => [
                 'utilisateur' => 'utilisateur',
-                'validateur' => 'validateur'
+                'validateur' => 'validateur',
             ],
-            'placeholder' => '-- Choisir une rôle --'
-        ])
-    ->add('app', 
-        EntityType::class, 
+            'placeholder' => '-- Choisir une rôle --',
+        ]
+    )
+    ->add(
+        'app',
+        EntityType::class,
         [
             'label' => 'Applications',
             'class' => Application::class,
             'choice_label' => 'codeApp',
-            'placeholder' => '-- Choisir une Application --'
-        ])
-    ->add('matricule', 
+            'placeholder' => '-- Choisir une Application --',
+        ]
+    )
+    ->add(
+        'matricule',
         NumberType::class,
         [
             'label' => 'Numero Matricule',
-            'required'=>false
-        ])
-    ->add('mail', 
-        EmailType::class, [
+            'required' => false,
+        ]
+    )
+    ->add(
+        'mail',
+        EmailType::class,
+        [
             'label' => 'Email',
-        'required' =>false
-        ])
-    
-    ;
+        'required' => false,
+        ]
+    )
+
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -79,6 +91,4 @@ class ProfilUserType extends AbstractType
             'data_class' => ProfilUser::class,
         ]);
     }
-
-
 }

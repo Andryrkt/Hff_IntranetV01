@@ -3,13 +3,13 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Controller\Traits\magasin\cis\ALivrerTrait;
 use App\Entity\dit\DemandeIntervention;
-use App\Model\magasin\cis\CisALivrerModel;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\magasin\cis\ALivrerSearchtype;
+use App\Model\magasin\cis\CisALivrerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\magasin\cis\ALivrerTrait;
 
 class CisALivrerController extends Controller
 {
@@ -32,7 +32,7 @@ class CisALivrerController extends Controller
         $agenceUser = $this->agenceUser($autoriser);
 
         $form = self::$validator->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
         ])->getForm();
 
 
@@ -55,7 +55,7 @@ class CisALivrerController extends Controller
 
         self::$twig->display('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -69,7 +69,7 @@ class CisALivrerController extends Controller
 
         $cisATraiterModel = new CisALivrerModel();
 
-        //recupères les critère dans la session 
+        //recupères les critère dans la session
         $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
@@ -96,7 +96,7 @@ class CisALivrerController extends Controller
                 $entity['quantiterlivrer'],
                 $entity['idMateriel'],
                 $entity['marque'],
-                $entity['casier']
+                $entity['casier'],
             ];
         }
 
@@ -119,6 +119,7 @@ class CisALivrerController extends Controller
             $data[$i]['marque'] = $marqueCasier[0]['marque'];
             $data[$i]['casier'] = $marqueCasier[0]['casier'];
         }
+
         return $data;
     }
 }

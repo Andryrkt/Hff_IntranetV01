@@ -13,9 +13,9 @@ trait ConversionTrait
         } elseif (is_string($element)) {
             return mb_convert_encoding($element, 'UTF-8', 'Windows-1252');
         }
+
         return $element;
     }
-
 
     /**
      * convertir en UTF_8
@@ -29,6 +29,7 @@ trait ConversionTrait
         } elseif (is_string($element)) {
             return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
         }
+
         return $element;
     }
 }

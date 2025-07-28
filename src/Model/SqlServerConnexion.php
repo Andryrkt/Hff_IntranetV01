@@ -2,8 +2,6 @@
 
 namespace App\Model;
 
-
-
 class SqlServerConnexion extends AbstractDatabaseConnexion
 {
     public function __construct()

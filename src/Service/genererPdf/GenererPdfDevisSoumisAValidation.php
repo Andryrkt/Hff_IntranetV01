@@ -10,7 +10,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 {
     use FormatageTrait;
 
-    function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
+    public function GenererPdfDevisVente(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl): void
     {
         $pdf = new HeaderPdf();
         $pdf->setEmail($email);
@@ -47,7 +47,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
             ['key' => 'statut', 'label' => 'Statut', 'width' => 40, 'style' => 'font-weight: bold; text-align: center;'],
         ];
 
-        
+
         $html1 = $generator->generateTable($headerConfig1, $montantPdf['avantApresVte'], $montantPdf['totalAvantApresVte']);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
@@ -84,7 +84,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         $html2 = $generator->generateTable($headerConfig2, $montantPdf['recapVte'], $montantPdf['totalRecapVte']);
         $pdf->writeHTML($html2, true, false, true, false, '');
-      //=====================================================================================================================
+        //=====================================================================================================================
         /**=====================================================
          * tableau de variation de prix des références de pièces
          *=====================================================*/
@@ -114,13 +114,12 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
         $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
 
-        
-            $filePath = $nomFichierCtrl;
-       
+
+        $filePath = $nomFichierCtrl;
+
         $pdf->Output($Dossier .$filePath, 'F');
 
     }
-
 
     /**
      * Methode de création de pdf pour le devis forfait
@@ -132,7 +131,7 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
      * @param string $email
      * @return void
      */
-    function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl)
+    public function GenererPdfDevisForfait(DitDevisSoumisAValidation $devisSoumis, array $montantPdf, array $quelqueaffichage, array $variationPrixRefPiece, string $email, string $nomFichierCtrl)
     {
         // $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
@@ -271,17 +270,17 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
         $montantTotalForfaitApres = $montantPdf['totalAvantApresForfait']['mttTotalAp'];
         $montantTotalCesAvant = $montantPdf['totalAvantApresCes']['mttTotalAv'];
         $montantTotalCesApres = $montantPdf['totalAvantApresCes']['mttTotalAp'];
-        
-        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : (($montantTotalForfaitAvant - $montantTotalCesAvant)/$montantTotalCesAvant)*100;
-        $margeApres = $montantTotalCesApres === 0.00 ? 0.00 : (($montantTotalForfaitApres - $montantTotalCesApres)/$montantTotalCesApres)*100;
+
+        $margeAvant = $montantTotalCesAvant === 0.00 ? 0.00 : (($montantTotalForfaitAvant - $montantTotalCesAvant) / $montantTotalCesAvant) * 100;
+        $margeApres = $montantTotalCesApres === 0.00 ? 0.00 : (($montantTotalForfaitApres - $montantTotalCesApres) / $montantTotalCesApres) * 100;
 
         $footer = [
-            'colonne1' => 'TOTAL FORFAIT + VENTE :', 
-            'colonne2' =>  number_format((float) $montantTotalForfaitVenteAvant, 2, ',', '.'), 
-            'colonne3' => 'TOTAL FORFAIT + VENTE :', 
-            'colonne4' =>  number_format((float) $montantTotalForfaitVenteApres, 2, ',', '.'),
-            'colonne5' => 'AV : ' .  number_format((float) $margeAvant, 2, ',', '.'). ' %', 
-            'colonne6' => 'AP : ' . number_format((float) $margeApres, 2, ',', '.'). '%'
+            'colonne1' => 'TOTAL FORFAIT + VENTE :',
+            'colonne2' => number_format((float) $montantTotalForfaitVenteAvant, 2, ',', '.'),
+            'colonne3' => 'TOTAL FORFAIT + VENTE :',
+            'colonne4' => number_format((float) $montantTotalForfaitVenteApres, 2, ',', '.'),
+            'colonne5' => 'AV : ' .  number_format((float) $margeAvant, 2, ',', '.'). ' %',
+            'colonne6' => 'AP : ' . number_format((float) $margeApres, 2, ',', '.'). '%',
         ];
 
         $html5 = $generator->generateTable($headerConfig5, [], $footer, true);
@@ -338,11 +337,11 @@ class GenererPdfDevisSoumisAValidation extends GeneratePdf
 
 
         $Dossier = $_ENV['BASE_PATH_FICHIER'].'/dit/dev/';
-        
-            $filePath = $Dossier . $nomFichierCtrl;
-        
+
+        $filePath = $Dossier . $nomFichierCtrl;
+
         $pdf->Output($filePath, 'F');
 
-    
+
     }
 }

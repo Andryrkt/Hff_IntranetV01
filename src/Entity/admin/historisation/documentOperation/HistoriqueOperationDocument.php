@@ -2,10 +2,8 @@
 
 namespace App\Entity\admin\historisation\documentOperation;
 
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\historisation\documentOperation\TypeDocument;
-use App\Entity\admin\historisation\documentOperation\TypeOperation;
 use App\Repository\admin\historisation\documentOperation\HistoriqueOperationDocumentRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=HistoriqueOperationDocumentRepository::class)

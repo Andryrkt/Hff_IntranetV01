@@ -2,10 +2,8 @@
 
 namespace App\Entity\dw;
 
-
 class DossierInterventionAtelierSearch
 {
-
     private ?\Datetime $dateDebut;
 
     private ?\DateTime $dateFin;
@@ -22,7 +20,7 @@ class DossierInterventionAtelierSearch
 
     private ?string $numSerie = '';
 
-    private ?string $designation ='';
+    private ?string $designation = '';
 
     /** ===========================================================================
  * getteur and setteur
@@ -30,10 +28,9 @@ class DossierInterventionAtelierSearch
  * ================================================================================
  */
 
-
     /**
      * Get the value of dateDebut
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -43,7 +40,7 @@ class DossierInterventionAtelierSearch
      * Set the value of dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -53,7 +50,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of dateFin
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -63,7 +60,7 @@ class DossierInterventionAtelierSearch
      * Set the value of dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -73,7 +70,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of numDit
-     */ 
+     */
     public function getNumDit()
     {
         return $this->numDit;
@@ -83,7 +80,7 @@ class DossierInterventionAtelierSearch
      * Set the value of numDit
      *
      * @return  self
-     */ 
+     */
     public function setNumDit($numDit)
     {
         $this->numDit = $numDit;
@@ -93,7 +90,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -103,7 +100,7 @@ class DossierInterventionAtelierSearch
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -113,7 +110,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of typeIntervention
-     */ 
+     */
     public function getTypeIntervention()
     {
         return $this->typeIntervention;
@@ -123,7 +120,7 @@ class DossierInterventionAtelierSearch
      * Set the value of typeIntervention
      *
      * @return  self
-     */ 
+     */
     public function setTypeIntervention($typeIntervention)
     {
         $this->typeIntervention = $typeIntervention;
@@ -133,7 +130,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of idMateriel
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -143,7 +140,7 @@ class DossierInterventionAtelierSearch
      * Set the value of idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
@@ -153,7 +150,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of numParc
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -163,7 +160,7 @@ class DossierInterventionAtelierSearch
      * Set the value of numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -173,7 +170,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of numSerie
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -183,7 +180,7 @@ class DossierInterventionAtelierSearch
      * Set the value of numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -193,7 +190,7 @@ class DossierInterventionAtelierSearch
 
     /**
      * Get the value of designation
-     */ 
+     */
     public function getDesignation()
     {
         return $this->designation;
@@ -203,7 +200,7 @@ class DossierInterventionAtelierSearch
      * Set the value of designation
      *
      * @return  self
-     */ 
+     */
     public function setDesignation($designation)
     {
         $this->designation = $designation;

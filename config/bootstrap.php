@@ -1,22 +1,21 @@
 <?php
+
 // bootstrap.php
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $containerBuilder = new ContainerBuilder();
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
-use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
-use Symfony\Component\Form\Extension\Csrf\CsrfExtension as CsrfCsrfExtension;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
 use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
@@ -88,10 +87,10 @@ $formFactoryBuilder->addExtension(new HttpFoundationExtension());
 $formFactory = $formFactoryBuilder->getFormFactory();
 
 // Twig Environment
-$twig = new Environment(new FilesystemLoader(array(
+$twig = new Environment(new FilesystemLoader([
     VIEWS_DIR,
     VENDOR_TWIG_BRIDGE_DIR . '/Resources/views/Form',
-)), ['debug' => true]);
+]), ['debug' => true]);
 
 
 //configurer securite

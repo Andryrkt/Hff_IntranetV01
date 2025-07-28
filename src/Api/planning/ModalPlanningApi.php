@@ -17,7 +17,6 @@ class ModalPlanningApi extends Controller
         $this->planningModel = new ModalPlanningModel();
     }
 
-    
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -27,7 +26,7 @@ class ModalPlanningApi extends Controller
     {
         // Récupération de la liste de détails
         $details = $this->fusionData($numOr);
-        if(strpos($numOr, '-') !== false) {
+        if (strpos($numOr, '-') !== false) {
             $groupedDetails = $details; //recupe les informations avec intervention preci
         } elseif (strpos($numOr, '-') === false) {
             $groupedDetails = $this->regroupeParIntervention($details);// recupe tous les interventions en les regroupants dans des tableaus par intervenant
@@ -39,7 +38,7 @@ class ModalPlanningApi extends Controller
 
         echo json_encode($groupedDetails);
     }
-   
+
     /**
      * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
      */
@@ -47,8 +46,7 @@ class ModalPlanningApi extends Controller
     {
         $matriculeNom = $this->planningModel->recupTechnicientIntervenant($numOr, $numItv);
 
-        if(empty($matriculeNom))
-        {
+        if (empty($matriculeNom)) {
             $matriculeNom = $this->planningModel->recupTechnicien2($numOr, $numItv);
         }
 
@@ -56,7 +54,6 @@ class ModalPlanningApi extends Controller
 
         echo json_encode($matriculeNom);
     }
-
 
     private function fusionData(string $numOr): array
     {
@@ -86,9 +83,9 @@ class ModalPlanningApi extends Controller
             }
 
             // Ajouter les données récupérées au détail actuel
-            $details[$i]['Eta_ivato'] = !empty($etaMag[0]['Eta_ivato']) ? $etaMag[0]['Eta_ivato'] : "";
-            $details[$i]['Eta_magasin'] = !empty($etaMag[0]['Eta_magasin']) ? $etaMag[0]['Eta_magasin'] : "";
-            
+            $details[$i]['Eta_ivato'] = ! empty($etaMag[0]['Eta_ivato']) ? $etaMag[0]['Eta_ivato'] : "";
+            $details[$i]['Eta_magasin'] = ! empty($etaMag[0]['Eta_magasin']) ? $etaMag[0]['Eta_magasin'] : "";
+
             $recupParielCurrent = $recupPariel[$i] ?? null;
             $details[$i]['qteSlode'] = $recupParielCurrent['0']['solde'] ?? 0;
             $details[$i]['qte'] = $recupParielCurrent['0']['qte'] ?? 0;
@@ -99,20 +96,22 @@ class ModalPlanningApi extends Controller
             $details[$i]['numDit'] = $numDit;
             $details[$i]['migration'] = $migration;
         }
+
         return $details;
     }
 
-    private function regroupeParIntervention( array $details): array 
+    private function regroupeParIntervention(array $details): array
     {
         $groupedDetails = [];
 
         foreach ($details as $detail) {
             $intvKey = $detail['intv']; // La valeur de 'intv' utilisée comme clé
-            if (!isset($groupedDetails[$intvKey])) {
+            if (! isset($groupedDetails[$intvKey])) {
                 $groupedDetails[$intvKey] = [];
             }
             $groupedDetails[$intvKey][] = $detail; // Ajouter l'élément au groupe correspondant
         }
+
         return $groupedDetails;
     }
 }

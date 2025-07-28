@@ -23,4 +23,3 @@ foreach ($sqls as $sql) {
 
 // Commentez la ligne qui exécute la mise à jour
 // $schemaTool->updateSchema($metadata);
-

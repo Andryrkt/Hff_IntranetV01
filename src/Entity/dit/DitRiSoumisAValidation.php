@@ -2,9 +2,8 @@
 
 namespace App\Entity\dit;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\dit\DitRiSoumisAValidationRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DitRiSoumisAValidationRepository::class)
@@ -20,7 +19,6 @@ class DitRiSoumisAValidation
      */
     private $id;
 
-
     /**
      * @ORM\Column(type="string", length=11, name="numero_dit")
      */
@@ -34,7 +32,7 @@ class DitRiSoumisAValidation
     /**
      * @ORM\Column(type="date", name="date_soumission")
      */
-    private  $dateSoumission;
+    private $dateSoumission;
 
     /**
      * @ORM\Column(type="string", length=5, name="heureSoumission")
@@ -45,7 +43,6 @@ class DitRiSoumisAValidation
      * @ORM\Column(type="integer", name="numero_soumission")
      */
     private int $numeroSoumission = 0;
-
 
     /**
      * @ORM\Column(type="string", length=50, name="statut")
@@ -58,29 +55,27 @@ class DitRiSoumisAValidation
      * @ORM\Column(type="integer", name="numeroItv")
      */
     private $numeroItv;
-    
+
     private $pieceJoint01;
 
     private $action;
 
-
-/** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
     }
 
-
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -90,7 +85,7 @@ class DitRiSoumisAValidation
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -100,7 +95,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -110,7 +105,7 @@ class DitRiSoumisAValidation
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -120,7 +115,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of dateSoumission
-     */ 
+     */
     public function getDateSoumission()
     {
         return $this->dateSoumission;
@@ -130,7 +125,7 @@ class DitRiSoumisAValidation
      * Set the value of dateSoumission
      *
      * @return  self
-     */ 
+     */
     public function setDateSoumission($dateSoumission)
     {
         $this->dateSoumission = $dateSoumission;
@@ -140,7 +135,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of heureSoumission
-     */ 
+     */
     public function getHeureSoumission()
     {
         return $this->heureSoumission;
@@ -150,7 +145,7 @@ class DitRiSoumisAValidation
      * Set the value of heureSoumission
      *
      * @return  self
-     */ 
+     */
     public function setHeureSoumission($heureSoumission)
     {
         $this->heureSoumission = $heureSoumission;
@@ -160,7 +155,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of numeroSoumission
-     */ 
+     */
     public function getNumeroSoumission()
     {
         return $this->numeroSoumission;
@@ -170,7 +165,7 @@ class DitRiSoumisAValidation
      * Set the value of numeroSoumission
      *
      * @return  self
-     */ 
+     */
     public function setNumeroSoumission($numeroSoumission)
     {
         $this->numeroSoumission = $numeroSoumission;
@@ -178,10 +173,9 @@ class DitRiSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -189,7 +183,7 @@ class DitRiSoumisAValidation
 
     /**
      * Set the value of statut
-     */ 
+     */
     public function setStatut($statut): self
     {
         $this->statut = $statut;
@@ -199,7 +193,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of numeroItv
-     */ 
+     */
     public function getNumeroItv()
     {
         return $this->numeroItv;
@@ -209,7 +203,7 @@ class DitRiSoumisAValidation
      * Set the value of numeroItv
      *
      * @return  self
-     */ 
+     */
     public function setNumeroItv($numeroItv)
     {
         $this->numeroItv = $numeroItv;
@@ -219,7 +213,7 @@ class DitRiSoumisAValidation
 
     /**
      * Get the value of file
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -229,7 +223,7 @@ class DitRiSoumisAValidation
      * Set the value of file
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -237,10 +231,9 @@ class DitRiSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of action
-     */ 
+     */
     public function getAction()
     {
         return $this->action;
@@ -250,7 +243,7 @@ class DitRiSoumisAValidation
      * Set the value of action
      *
      * @return  self
-     */ 
+     */
     public function setAction($action)
     {
         $this->action = $action;

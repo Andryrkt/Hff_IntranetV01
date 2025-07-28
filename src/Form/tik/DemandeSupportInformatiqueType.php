@@ -2,32 +2,28 @@
 
 namespace App\Form\tik;
 
+use App\Controller\Controller;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
-use Symfony\Component\Form\FormEvent;
 use App\Entity\admin\tik\TkiCategorie;
-use Symfony\Component\Form\FormEvents;
 use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\AbstractType;
-use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\tik\DemandeSupportInformatique;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\admin\ServiceRepository;
-use App\Entity\tik\DemandeSupportInformatique;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\Callback;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Callback;
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DemandeSupportInformatiqueType extends AbstractType
@@ -38,6 +34,7 @@ class DemandeSupportInformatiqueType extends AbstractType
     {
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
     }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -49,9 +46,9 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'label' => 'Agence *',
                     'required' => false,
                     'attr' => [
-                        'readonly' => true
+                        'readonly' => true,
                     ],
-                    'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getAgenceEmetteur() : null
+                    'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getAgenceEmetteur() : null,
                 ]
             )
 
@@ -64,9 +61,9 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'required' => false,
                     'attr' => [
                         'readonly' => true,
-                        'disable' => true
+                        'disable' => true,
                     ],
-                    'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getServiceEmetteur() : null
+                    'data' => $options["data"] instanceof DemandeSupportInformatique ? $options["data"]->getServiceEmetteur() : null,
                 ]
             )
 
@@ -102,7 +99,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                         'placeholder' => 'Veuillez décrire les détails de votre demande ici...', // Texte indicatif
                         'maxlength' => 5000, // Limite de caractères
                         'data-toggle' => 'tooltip', // Activer un tooltip (si Bootstrap est utilisé)
-                        'title' => 'Indiquez tous les détails pertinents de la demande' // Texte d’aide pour le tooltip 
+                        'title' => 'Indiquez tous les détails pertinents de la demande', // Texte d’aide pour le tooltip
                     ],
                     'constraints' => [
                         new NotBlank([
@@ -111,7 +108,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                         new Length([
                             'max' => 500,
                             'maxMessage' => 'Le détail de la demande ne peut pas dépasser {{ limit }} caractères.',
-                        ])
+                        ]),
                     ],
                 ]
             )
@@ -134,7 +131,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                 'label' => 'Catégorie *',
                 'placeholder' => ' -- Choisir une catégorie',
                 'class' => TkiCategorie::class,
-                'choice_label' => 'description'
+                'choice_label' => 'description',
             ])
             ->add('parcInformatique', TextType::class, [
                 'label' => 'Parc informatique ',
@@ -143,7 +140,7 @@ class DemandeSupportInformatiqueType extends AbstractType
             ->add('codeSociete', TextType::class, [
                 'label' => 'Code Société',
                 'disabled' => true,
-                'data' => $options['data']->getCodeSociete()
+                'data' => $options['data']->getCodeSociete(),
             ])
             ->add(
                 'agence',
@@ -160,7 +157,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                     'query_builder' => function (AgenceRepository $agenceRepository) {
                         return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                     },
-                    'attr' => ['class' => 'agenceDebiteur']
+                    'attr' => ['class' => 'agenceDebiteur'],
                 ]
             )
 
@@ -193,7 +190,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                         return $serviceRepository->createQueryBuilder('s')->orderBy('s.codeService', 'ASC');
                     },
                     'data' => $options['data']->getService(),
-                    'attr' => ['class' => 'serviceDebiteur']
+                    'attr' => ['class' => 'serviceDebiteur'],
                 ]
             );
         });
@@ -216,7 +213,7 @@ class DemandeSupportInformatiqueType extends AbstractType
                 'attr' => [
                     'class' => 'serviceDebiteur',
                     'disabled' => false,
-                ]
+                ],
             ]);
         });
     }

@@ -5,7 +5,6 @@ namespace App\Form\admin\tik;
 use App\Entity\admin\tik\TkiCommentaires;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,22 +19,22 @@ class TkiCommentairesType extends AbstractType
         $builder
             ->add('commentaires', TextareaType::class, [
                 'label' => false,
-                'attr'  => [
-                    'row'         => 5,
+                'attr' => [
+                    'row' => 5,
                     'placeholder' => 'Entrer votre commentaire ici',
-                    'minlength'   => '1',
-                    'maxlength'   => '1500'
-                ]
+                    'minlength' => '1',
+                    'maxlength' => '1500',
+                ],
             ])
             ->add(
                 'fileNames',
                 FileType::class,
                 [
-                    'label'       => 'Pièces Jointes',
-                    'required'    => false,
-                    'multiple'    => true,
-                    'data_class'  => null,
-                    'mapped'      => false, // Indique que ce champ ne doit pas être lié à l'entité
+                    'label' => 'Pièces Jointes',
+                    'required' => false,
+                    'multiple' => true,
+                    'data_class' => null,
+                    'mapped' => false, // Indique que ce champ ne doit pas être lié à l'entité
                     'constraints' => [
                         new Callback([$this, 'validateFiles']),
                     ],

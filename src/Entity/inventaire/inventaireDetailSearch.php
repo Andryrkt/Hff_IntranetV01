@@ -1,11 +1,14 @@
-<?php 
+<?php
+
 namespace App\Entity\inventaire;
-class InventaireDetailSearch{
+
+class InventaireDetailSearch
+{
     private $numinv;
 
     /**
      * Get the value of numinv
-     */ 
+     */
     public function getNuminv()
     {
         return $this->numinv;
@@ -15,7 +18,7 @@ class InventaireDetailSearch{
      * Set the value of numinv
      *
      * @return  self
-     */ 
+     */
     public function setNuminv($numinv)
     {
         $this->numinv = $numinv;
@@ -29,11 +32,12 @@ class InventaireDetailSearch{
             'numinv' => $this->numinv,
         ];
     }
+
     public function arrayToObjet(array $criteriaTab)
     {
         $this
             ->setNuminv($criteriaTab['numinv'])
-            
+
         ;
     }
 }

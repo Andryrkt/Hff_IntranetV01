@@ -1,9 +1,8 @@
 <?php
 
+use App\Service\fichier\JsonFileService;
 use App\Service\GlobalVariablesService;
 use App\Service\TableauEnStringService;
-use App\Service\fichier\JsonFileService;
-use Symfony\Component\Finder\Glob;
 
 // Exemple d'utilisation de la classe
 
@@ -28,7 +27,7 @@ try {
 
     /**===================
      * CONSTRUCTEUR PIECES
-     *=====================*/  
+     *=====================*/
     $pieceMagasin = $jsonService->getSection("PIECES MAGASIN") === null ? [] : $jsonService->getSection("PIECES MAGASIN");
     $achatsLocaux = $jsonService->getSection('ACHATS LOCAUX') === null ? [] : $jsonService->getSection('ACHATS LOCAUX');
     $lub = $jsonService->getSection('LUB') === null ? [] : $jsonService->getSection('LUB');

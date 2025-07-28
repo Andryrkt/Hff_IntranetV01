@@ -2,14 +2,13 @@
 
 namespace App\Entity\admin\historisation\pageConsultation;
 
+use App\Entity\admin\utilisateur\User;
+use App\Repository\admin\historisation\pageConsultation\UserLoggerRepository;
 use DateTime;
 use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\admin\historisation\pageConsultation\PageHff;
-use App\Repository\admin\historisation\pageConsultation\UserLoggerRepository;
 
-/** 
+/**
  * @ORM\Entity(repositoryClass=UserLoggerRepository::class)
  * @ORM\Table(name="Log_utilisateur")
  * @ORM\HasLifecycleCallbacks
@@ -46,7 +45,7 @@ class UserLogger
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="userLoggers")
      * @ORM\JoinColumn(name="id_utilisateur", referencedColumnName="id")
-     * 
+     *
      */
     private $user;
 

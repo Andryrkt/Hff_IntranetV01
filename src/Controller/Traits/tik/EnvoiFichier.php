@@ -7,7 +7,7 @@ use App\Service\fichier\FileUploaderService;
 
 trait EnvoiFichier
 {
-    /** 
+    /**
      * Fonction pour le traitement de fichier
      */
     private function traitementEtEnvoiDeFichier($form, TkiCommentaires $commentaire)
@@ -15,13 +15,13 @@ trait EnvoiFichier
         //TRAITEMENT FICHIER
         $fileNames = [];
         // Récupérez les fichiers uploadés depuis le formulaire
-        $files        = $form->get('fileNames')->getData();
-        $chemin       = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
+        $files = $form->get('fileNames')->getData();
+        $chemin = $_SERVER['DOCUMENT_ROOT'] . '/Upload/tik/fichiers';
         $fileUploader = new FileUploaderService($chemin);
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
-                $prefix   = $commentaire->getNumeroTicket() . '_commentaire_';
+                $prefix = $commentaire->getNumeroTicket() . '_commentaire_';
                 $fileName = $fileUploader->upload($file, $prefix);
                 // Obtenir la taille du fichier dans l'emplacement final
                 $filePath = $chemin . '/' . $fileName;
@@ -34,7 +34,7 @@ trait EnvoiFichier
 
                 $fileNames[] = [
                     'name' => $fileName,
-                    'size' => $fileSize
+                    'size' => $fileSize,
                 ];
             }
         }

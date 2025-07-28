@@ -2,15 +2,16 @@
 
 namespace App\Service\log;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class UserActivityLoggerService
 {
     private SessionInterface $session;
+
     private EntityManagerInterface $em;
 
     public function __construct(SessionInterface $session, EntityManagerInterface $em)
@@ -22,7 +23,7 @@ class UserActivityLoggerService
     public function logUserVisit(string $nomRoute, ?array $params = null): void
     {
         $idUtilisateur = $this->session->get('user_id');
-        if (!$idUtilisateur) {
+        if (! $idUtilisateur) {
             throw new \Exception("Utilisateur non trouvé en session.");
         }
         $utilisateur = ($idUtilisateur !== '-') ? $this->em->getRepository(User::class)->find($idUtilisateur) : null;

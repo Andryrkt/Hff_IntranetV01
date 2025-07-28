@@ -2,9 +2,8 @@
 
 namespace App\Entity\dw;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\dw\DwArmoireRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DwArmoireRepository::class)
@@ -13,14 +12,12 @@ use App\Repository\dw\DwArmoireRepository;
  */
 class DwArmoire
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private int $id;
-
 
     /**
      * @ORM\Column(type="string", length=255,name="Nom")
@@ -45,7 +42,7 @@ class DwArmoire
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -53,7 +50,7 @@ class DwArmoire
 
     /**
      * Get the value of nom
-     */ 
+     */
     public function getNom()
     {
         return $this->nom;
@@ -63,7 +60,7 @@ class DwArmoire
      * Set the value of nom
      *
      * @return  self
-     */ 
+     */
     public function setNom($nom)
     {
         $this->nom = $nom;
@@ -73,7 +70,7 @@ class DwArmoire
 
     /**
      * Get the value of couleur
-     */ 
+     */
     public function getCouleur()
     {
         return $this->couleur;
@@ -83,7 +80,7 @@ class DwArmoire
      * Set the value of couleur
      *
      * @return  self
-     */ 
+     */
     public function setCouleur($couleur)
     {
         $this->couleur = $couleur;
@@ -93,7 +90,7 @@ class DwArmoire
 
     /**
      * Get the value of parDefaut
-     */ 
+     */
     public function getParDefaut()
     {
         return $this->parDefaut;
@@ -103,7 +100,7 @@ class DwArmoire
      * Set the value of parDefaut
      *
      * @return  self
-     */ 
+     */
     public function setParDefaut($parDefaut)
     {
         $this->parDefaut = $parDefaut;

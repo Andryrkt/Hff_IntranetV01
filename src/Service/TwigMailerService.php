@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-
 use Html2Text\Html2Text;
 use Pelago\Emogrifier\CssInliner;
 use PHPMailer\PHPMailer\Exception;
@@ -21,10 +20,12 @@ class TwigMailerService
      * @var PHPMailer
      */
     private $phpMailer;
+
     /**
      * @var Environment
      */
     private $twigEnvironment;
+
     private $assetFolder;
 
     public function __construct(Environment $twigEnvironment)
@@ -78,7 +79,7 @@ class TwigMailerService
      */
     public function setAssetFolder($assetFolder)
     {
-        if (!is_dir($assetFolder)) {
+        if (! is_dir($assetFolder)) {
             throw new \Exception("Cannot set assetFolder: $assetFolder is not a valid directory");
         }
         $this->assetFolder = $assetFolder;
@@ -132,10 +133,8 @@ class TwigMailerService
     public function send()
     {
         $res = $this->phpMailer->send();
-        if (!$res) {
+        if (! $res) {
             throw new \Exception("PHPMailer::send failed: " . $this->phpMailer->ErrorInfo);
         }
     }
-
-   
 }

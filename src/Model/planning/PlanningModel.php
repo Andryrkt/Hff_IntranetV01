@@ -2,23 +2,21 @@
 
 namespace App\Model\planning;
 
-
-use App\Model\Model;
-use App\Model\Traits\ConversionModel;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\planning\PlanningSearch;
+use App\Model\Model;
+use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
-
 
 class PlanningModel extends Model
 {
-  use ConversionModel;
-  use FormatageTrait;
-  use PlanningModelTrait;
+    use ConversionModel;
+    use FormatageTrait;
+    use PlanningModelTrait;
 
-  public function recuperationAgenceIrium()
-  {
-    $statement = " SELECT  trim(asuc_num) as asuc_num ,
+    public function recuperationAgenceIrium()
+    {
+        $statement = " SELECT  trim(asuc_num) as asuc_num ,
                                trim(asuc_lib) as asuc_lib
                       FROM agr_succ
                       WHERE asuc_codsoc = 'HF'
@@ -30,32 +28,34 @@ class PlanningModel extends Model
                        )
                       order by 1
         ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $dataUtf8 = $this->convertirEnUtf8($data);
-    return
-      array_map(function ($item) {
-        return [$item['asuc_num'] . '-' . $item['asuc_lib'] => $item['asuc_num']];
-      }, $dataUtf8);
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
 
+        return
+          array_map(function ($item) {
+              return [$item['asuc_num'] . '-' . $item['asuc_lib'] => $item['asuc_num']];
+          }, $dataUtf8);
+    }
 
-  public function recuperationAnneeplannification()
-  {
-    $query = " SELECT YEAR(ska_d_start) as Annee
+    public function recuperationAnneeplannification()
+    {
+        $query = " SELECT YEAR(ska_d_start) as Annee
                   FROM ska
                   INNER JOIN skw ON skw.skw_id = ska.skw_id
                   GROUP BY 1
                   ORDER BY YEAR(ska_d_start) DESC           
        ";
-    $result = $this->connect->executeQuery($query);
-    $data = $this->connect->fetchResults($result);
-    $dataUtf8 = $this->convertirEnUtf8($data);
-    return array_combine(array_column($dataUtf8, 'annee'), array_column($dataUtf8, 'annee'));
-  }
-  public function recuperationAgenceDebite()
-  {
-    $statement = "SELECT  trim(asuc_lib) as asuc_lib,
+        $result = $this->connect->executeQuery($query);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
+
+        return array_combine(array_column($dataUtf8, 'annee'), array_column($dataUtf8, 'annee'));
+    }
+
+    public function recuperationAgenceDebite()
+    {
+        $statement = "SELECT  trim(asuc_lib) as asuc_lib,
                             trim(asuc_num) as asuc_num
                     FROM  agr_succ , sav_itv 
                     WHERE asuc_num = sitv_succdeb 
@@ -64,46 +64,48 @@ class PlanningModel extends Model
                     AND asuc_num <> '10'
                     group by 1,2
                     order by 1";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $dataUtf8 = $this->convertirEnUtf8($data);
-    return array_combine(
-      array_column($dataUtf8, 'asuc_lib'),
-      array_map(function ($item) {
-        return $item['asuc_num'];
-      }, $dataUtf8)
-    );
-  }
-  public function recuperationSection()
-  {
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
 
-    $statement = "SELECT  DISTINCT TRIM(sitv_typitv) as sec_num,
+        return array_combine(
+            array_column($dataUtf8, 'asuc_lib'),
+            array_map(function ($item) {
+                return $item['asuc_num'];
+            }, $dataUtf8)
+        );
+    }
+
+    public function recuperationSection()
+    {
+
+        $statement = "SELECT  DISTINCT TRIM(sitv_typitv) as sec_num,
                                    TRIM(atab_lib2) as sec_Lib
                   FROM sav_itv
                   INNER JOIN agr_tab ON atab_nom = 'TYI'
                   AND atab_code = sitv_typitv ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $dataUtf8 = $this->convertirEnUtf8($data);
-    return array_combine(
-      array_column($dataUtf8, 'sec_lib'),
-      array_map(function ($item) {
-        return $item['sec_num'];
-      }, $dataUtf8)
-    );
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
 
-
-  public function recuperationServiceDebite($agence)
-  {
-
-    if ($agence === null) {
-      $codeAgence = "";
-    } else {
-      $codeAgence = " AND asuc_num = '" . $agence . "'";
+        return array_combine(
+            array_column($dataUtf8, 'sec_lib'),
+            array_map(function ($item) {
+                return $item['sec_num'];
+            }, $dataUtf8)
+        );
     }
 
-    $statement = " SELECT DISTINCT
+    public function recuperationServiceDebite($agence)
+    {
+
+        if ($agence === null) {
+            $codeAgence = "";
+        } else {
+            $codeAgence = " AND asuc_num = '" . $agence . "'";
+        }
+
+        $statement = " SELECT DISTINCT
                         trim(atab_code) as atab_code ,
                         trim(atab_lib) as atab_lib  
                         FROM agr_succ , agr_tab a 
@@ -111,55 +113,57 @@ class PlanningModel extends Model
                         and a.atab_code not in (select b.atab_code from agr_tab b where substr(b.atab_nom,10,2) = asuc_num and b.atab_nom like 'SERBLOSUC%') 
                         $codeAgence
         ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $dataUtf8 = $this->convertirEnUtf8($data);
-    return array_map(function ($item) {
-      return [
-        "value" => $item['atab_code'],
-        "text"  => $item['atab_lib']
-      ];
-    }, $dataUtf8);
-  }
-  public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back, $touslesOrItvSoumis)
-  {
-    if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
-    } else {
-      if (!empty($lesOrValides)) {
-        if ($criteria->getOrNonValiderDw() == true) {
-          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
-        } else {
-          $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
-        }
-      } else {
-        $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
-      }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $dataUtf8 = $this->convertirEnUtf8($data);
+
+        return array_map(function ($item) {
+            return [
+              "value" => $item['atab_code'],
+              "text" => $item['atab_lib'],
+            ];
+        }, $dataUtf8);
     }
 
+    public function recuperationMaterielplanifier($criteria, string $lesOrValides, string $back, $touslesOrItvSoumis)
+    {
+        if ($criteria->getOrBackOrder() == true) {
+            $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (" . $back . ") ";
+        } else {
+            if (! empty($lesOrValides)) {
+                if ($criteria->getOrNonValiderDw() == true) {
+                    $vOrvalDw = "AND seor_numor ||'-'||sitv_interv not in (" . $touslesOrItvSoumis . ") ";
+                } else {
+                    $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+                }
+            } else {
+                $vOrvalDw = " --AND seor_numor ||'-'||sitv_interv in ('')";
+            }
+        }
 
-    $vligneType = $this->typeLigne($criteria);
 
-    $vYearsStatutPlan =  $this->planAnnee($criteria);
-    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-    $vMonthStatutPlan = $this->planMonth($criteria);
-    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-    $vStatutFacture = $this->facture($criteria);
-    $annee =  $this->criterAnnee($criteria);
-    $agence = $this->agence($criteria);
-    $vStatutInterneExterne = $this->interneExterne($criteria);
-    $agenceDebite = $this->agenceDebite($criteria);
-    $serviceDebite = $this->serviceDebite($criteria);
-    $vconditionNumParc = $this->numParc($criteria);
-    $vconditionIdMat = $this->idMat($criteria);
-    $vconditionNumOr = $this->numOr($criteria);
-    $vconditionNumSerie = $this->numSerie($criteria);
-    $vconditionCasier = $this->casier($criteria);
-    $vsection = $this->section($criteria);
-    $vplan = $criteria->getPlan();
+        $vligneType = $this->typeLigne($criteria);
 
-    $statement = " SELECT
+        $vYearsStatutPlan = $this->planAnnee($criteria);
+        $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+        $vMonthStatutPlan = $this->planMonth($criteria);
+        $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+        $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+        $vStatutFacture = $this->facture($criteria);
+        $annee = $this->criterAnnee($criteria);
+        $agence = $this->agence($criteria);
+        $vStatutInterneExterne = $this->interneExterne($criteria);
+        $agenceDebite = $this->agenceDebite($criteria);
+        $serviceDebite = $this->serviceDebite($criteria);
+        $vconditionNumParc = $this->numParc($criteria);
+        $vconditionIdMat = $this->idMat($criteria);
+        $vconditionNumOr = $this->numOr($criteria);
+        $vconditionNumSerie = $this->numSerie($criteria);
+        $vconditionCasier = $this->casier($criteria);
+        $vsection = $this->section($criteria);
+        $vplan = $criteria->getPlan();
+
+        $statement = " SELECT
                       
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
@@ -220,27 +224,29 @@ class PlanningModel extends Model
 		                order by 10  ";
 
 
-    $result = $this->connect->executeQuery($statement);
-    // dump($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
-  public function backOrderPlanning($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
-  {
+        $result = $this->connect->executeQuery($statement);
+        // dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-    if (!empty($lesOrValides)) {
-      if ($criteria->getOrNonValiderDw() == true) {
-        $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
-      } else {
-        $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
-      }
-    } else {
-      $vOrvalDw = " AND  slor_numor in ('')";
+        return $resultat;
     }
 
+    public function backOrderPlanning($lesOrValides, PlanningSearch $criteria, $tousLesOrSoumis)
+    {
 
-    $statement = "SELECT distinct 
+        if (! empty($lesOrValides)) {
+            if ($criteria->getOrNonValiderDw() == true) {
+                $vOrvalDw = "AND slor_numor not in (" . $tousLesOrSoumis . ") ";
+            } else {
+                $vOrvalDw = "AND slor_numor in ('" . $lesOrValides . "') ";
+            }
+        } else {
+            $vOrvalDw = " AND  slor_numor in ('')";
+        }
+
+
+        $statement = "SELECT distinct 
                    sav.slor_numor || '-' || trunc(sav.slor_nogrp/100) AS intervention
                   FROM sav_lor AS sav
                   INNER JOIN gcot_acknow_cat AS cat
@@ -259,46 +265,46 @@ class PlanningModel extends Model
                   
       ";
 
-    $result = $this->connect->executeQuery($statement);
-    // dump($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
+        $result = $this->connect->executeQuery($statement);
+        // dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-    return array_map(function ($item) {
-      return $item['intervention'];
-    }, $resultat);
-  }
-
-  public function exportExcelPlanning($criteria, $lesOrValides)
-  {
-
-    if (!empty($lesOrValides)) {
-      $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
-    } else {
-      $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+        return array_map(function ($item) {
+            return $item['intervention'];
+        }, $resultat);
     }
-    $vplanification = "'" . $criteria->getPlan() . "'";
-    $vligneType = $this->typeLigne($criteria);
-    //$vPiecesSum = $this->sumPieces($criteria);
-    $vYearsStatutPlan =  $this->planAnnee($criteria);
-    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-    $vMonthStatutPlan = $this->planMonth($criteria);
-    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-    $vStatutFacture = $this->facture($criteria);
-    $annee =  $this->criterAnnee($criteria);
-    $agence = $this->agence($criteria);
-    $vStatutInterneExterne = $this->interneExterne($criteria);
-    $agenceDebite = $this->agenceDebite($criteria);
-    $serviceDebite = $this->serviceDebite($criteria);
-    $vconditionNumParc = $this->numParc($criteria);
-    $vconditionIdMat = $this->idMat($criteria);
-    $vconditionNumOr = $this->numOr($criteria);
-    $vconditionNumSerie = $this->numSerie($criteria);
-    $vconditionCasier = $this->casier($criteria);
-    $vsection = $this->section($criteria);
 
-    $statement = " SELECT
+    public function exportExcelPlanning($criteria, $lesOrValides)
+    {
+
+        if (! empty($lesOrValides)) {
+            $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('" . $lesOrValides . "') ";
+        } else {
+            $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+        }
+        $vplanification = "'" . $criteria->getPlan() . "'";
+        $vligneType = $this->typeLigne($criteria);
+        //$vPiecesSum = $this->sumPieces($criteria);
+        $vYearsStatutPlan = $this->planAnnee($criteria);
+        $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+        $vMonthStatutPlan = $this->planMonth($criteria);
+        $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+        $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+        $vStatutFacture = $this->facture($criteria);
+        $annee = $this->criterAnnee($criteria);
+        $agence = $this->agence($criteria);
+        $vStatutInterneExterne = $this->interneExterne($criteria);
+        $agenceDebite = $this->agenceDebite($criteria);
+        $serviceDebite = $this->serviceDebite($criteria);
+        $vconditionNumParc = $this->numParc($criteria);
+        $vconditionIdMat = $this->idMat($criteria);
+        $vconditionNumOr = $this->numOr($criteria);
+        $vconditionNumSerie = $this->numSerie($criteria);
+        $vconditionCasier = $this->casier($criteria);
+        $vsection = $this->section($criteria);
+
+        $statement = " SELECT
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -351,40 +357,42 @@ class PlanningModel extends Model
                     group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 		                order by 1,5  ";
 
-    // dump($statement);
+        // dump($statement);
 
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
-  public function recuperationDetailPieceInformix($numOrIntv, $criteria)
-  {
-    $vplan = "'" . $criteria['plan'] . "'";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-    if (!empty($criteria['typeligne'])) {
-      switch ($criteria['typeligne']) {
-        case "TOUTES":
-          $vtypeligne = " ";
-          break;
-        case "PIECES_MAGASIN":
-          $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
-          break;
-        case "ACHAT_LOCAUX":
-          $vtypeligne = " AND slor_constp  = 'ZST'";
-          break;
-        case "LUBRIFIANTS":
-          $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
-          break;
-        default:
-          $vtypeligne  = "";
-          break;
-      }
-    } else {
-      $vtypeligne = "";
+        return $resultat;
     }
 
-    $statement = " SELECT $vplan as plan,
+    public function recuperationDetailPieceInformix($numOrIntv, $criteria)
+    {
+        $vplan = "'" . $criteria['plan'] . "'";
+
+        if (! empty($criteria['typeligne'])) {
+            switch ($criteria['typeligne']) {
+                case "TOUTES":
+                    $vtypeligne = " ";
+                    break;
+                case "PIECES_MAGASIN":
+                    $vtypeligne = " AND  slor_constp  <> 'LUB'  AND slor_constp not like 'Z%'    AND slor_typlig = 'P'";
+                    break;
+                case "ACHAT_LOCAUX":
+                    $vtypeligne = " AND slor_constp  = 'ZST'";
+                    break;
+                case "LUBRIFIANTS":
+                    $vtypeligne = " AND slor_constp = 'LUB'   AND slor_typlig = 'P' ";
+                    break;
+                default:
+                    $vtypeligne = "";
+                    break;
+            }
+        } else {
+            $vtypeligne = "";
+        }
+
+        $statement = " SELECT $vplan as plan,
                             slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
@@ -562,59 +570,64 @@ class PlanningModel extends Model
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
                
       ";
-    // dump($statement);
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
-  /**
-   * eta mag
-   */
-  public function recuperationEtaMag($numcde, $refp, $cst)
-  {
-    if ($cst == 'CAT') {
-      $cst = 'K230';
-    } else {
-      $cst = $cst;
+        // dump($statement);
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+
+        return $resultat;
     }
-    $squery = " SELECT Eta_ivato,
+
+    /**
+     * eta mag
+     */
+    public function recuperationEtaMag($numcde, $refp, $cst)
+    {
+        if ($cst == 'CAT') {
+            $cst = 'K230';
+        } else {
+            $cst = $cst;
+        }
+        $squery = " SELECT Eta_ivato,
                     Eta_magasin
                     FROM Ces_magasin
                     WHERE Cust_ref = '" . $numcde . "'
                     AND Part_no = '" . $refp . "'
                     AND custCode = '" . $cst . "'
         ";
-    $sql = $this->connexion04->query($squery);
-    $data = array();
-    while ($tabType = odbc_fetch_array($sql)) {
-      $data[] = $tabType;
+        $sql = $this->connexion04->query($squery);
+        $data = [];
+        while ($tabType = odbc_fetch_array($sql)) {
+            $data[] = $tabType;
+        }
+
+        return $data;
     }
-    return $data;
-  }
-  /**
-   * Etat partiel piece
-   */
-  public function recuperationPartiel($numcde, $refp)
-  {
-    $statement = " SELECT fcdl_solde as solde,
+
+    /**
+     * Etat partiel piece
+     */
+    public function recuperationPartiel($numcde, $refp)
+    {
+        $statement = " SELECT fcdl_solde as solde,
                           fcdl_qte as qte
                   FROM FRN_CDL 
                   WHERE  fcdl_numcde = '$numcde' 
                   AND  fcdl_refp = '$refp'
     ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
-  /**
-   * qte CIS
-   */
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  public function recupeQteCISlig($numOr, $itv, $refp)
-  {
-    $statement = "SELECT 
+        return $resultat;
+    }
+
+    /**
+     * qte CIS
+     */
+    public function recupeQteCISlig($numOr, $itv, $refp)
+    {
+        $statement = "SELECT 
                   trunc(nvl(nlig_qtecde,0)) as qteorlig,
                   trunc(nvl(nlig_qtealiv,0) )as qtealllig,
                   trunc(nvl((nlig_qtecde - nlig_qtealiv - nlig_qteliv) ,0))as qtereliquatlig,
@@ -639,71 +652,74 @@ class PlanningModel extends Model
                   and trunc(slor_nogrp/100) = '" . $itv . "'
                   and slor_refp ='" . $refp . "'
         ";
-    // dump($statement);
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
-  /**
-   * gcot ORD
-   */
-  public function recuperationinfodGcot($numcde)
-  {
-    $statement = "SELECT Code_Statut  as Ord
+        // dump($statement);
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+
+        return $resultat;
+    }
+
+    /**
+     * gcot ORD
+     */
+    public function recuperationinfodGcot($numcde)
+    {
+        $statement = "SELECT Code_Statut  as Ord
 					FROM  GCOT_Statut_Dossier 
 					WHERE  Numero_Dossier = '$numcde'
 					AND Code_Statut = 'ORD' ";
-    $sql = $this->connexion04Gcot->query($statement);
-    $data = odbc_fetch_array($sql);
-    return $data;
-  }
+        $sql = $this->connexion04Gcot->query($statement);
+        $data = odbc_fetch_array($sql);
 
-  /**
-   * recuperation numOr valide dans DW (demande intervantion)
-   */
-  public function recuperationNumOrValider($criteria)
-  {
-
-    if (!empty($criteria->getNumParc())) {
-      $vconditionNumParc = " AND mmat_recalph = '" . $criteria->getNumParc() . "'";
-    } else {
-      $vconditionNumParc = "";
-    }
-    if (!empty($criteria->getNumSerie())) {
-      $vconditionNumSerie = " AND mmat_numserie = '" . $criteria->getNumSerie() . "' ";
-    } else {
-      $vconditionNumSerie = "";
-    }
-    if (!empty($criteria->getNumOr())) {
-      $vconditionNumOr = " AND numero_or ='" . $criteria->getNumOr() . "'";
-    } else {
-      $vconditionNumOr = "";
-    }
-    if (!empty($criteria->getTypeDocument())) {
-      $vconditionTypeDoc = " AND type_document ='" . $criteria->getTypeDocument()->getId() . "'";
-    } else {
-      $vconditionTypeDoc = "";
-    }
-    if (!empty($criteria->getReparationRealise())) {
-      $vconditionReparationPar = " AND reparation_realise ='" . $criteria->getReparationRealise() . "'";
-    } else {
-      $vconditionReparationPar = "";
+        return $data;
     }
 
-    $niveauUrgence = $criteria->getNiveauUrgence();
-    if (!empty($niveauUrgence)) {
-      $idUrgence = $niveauUrgence->getId();
-    }
+    /**
+     * recuperation numOr valide dans DW (demande intervantion)
+     */
+    public function recuperationNumOrValider($criteria)
+    {
 
-    if (!empty($idUrgence)) {
-      $nivUrg  = "AND id_niveau_urgence = '" . $idUrgence . "'";
-    } else {
-      $nivUrg = "";
-    }
+        if (! empty($criteria->getNumParc())) {
+            $vconditionNumParc = " AND mmat_recalph = '" . $criteria->getNumParc() . "'";
+        } else {
+            $vconditionNumParc = "";
+        }
+        if (! empty($criteria->getNumSerie())) {
+            $vconditionNumSerie = " AND mmat_numserie = '" . $criteria->getNumSerie() . "' ";
+        } else {
+            $vconditionNumSerie = "";
+        }
+        if (! empty($criteria->getNumOr())) {
+            $vconditionNumOr = " AND numero_or ='" . $criteria->getNumOr() . "'";
+        } else {
+            $vconditionNumOr = "";
+        }
+        if (! empty($criteria->getTypeDocument())) {
+            $vconditionTypeDoc = " AND type_document ='" . $criteria->getTypeDocument()->getId() . "'";
+        } else {
+            $vconditionTypeDoc = "";
+        }
+        if (! empty($criteria->getReparationRealise())) {
+            $vconditionReparationPar = " AND reparation_realise ='" . $criteria->getReparationRealise() . "'";
+        } else {
+            $vconditionReparationPar = "";
+        }
+
+        $niveauUrgence = $criteria->getNiveauUrgence();
+        if (! empty($niveauUrgence)) {
+            $idUrgence = $niveauUrgence->getId();
+        }
+
+        if (! empty($idUrgence)) {
+            $nivUrg = "AND id_niveau_urgence = '" . $idUrgence . "'";
+        } else {
+            $nivUrg = "";
+        }
 
 
-    $sql = "SELECT 
+        $sql = "SELECT 
                   numero_or 
                   FROM demande_intervention
                   WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
@@ -714,35 +730,34 @@ class PlanningModel extends Model
                   $nivUrg
             ORDER  BY  numero_or
                   ";
-    $execQueryNumOr = $this->connexion->query($sql);
-    $numOr = array();
+        $execQueryNumOr = $this->connexion->query($sql);
+        $numOr = [];
 
-    while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
-      $numOr[] = $row_num_or;
+        while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
+            $numOr[] = $row_num_or;
+        }
+
+        return $numOr;
     }
 
-    return $numOr;
-  }
-
-
-  public function recupNumeroItv($numOr, $stringItv)
-  {
-    $statement = " SELECT  
+    public function recupNumeroItv($numOr, $stringItv)
+    {
+        $statement = " SELECT  
                       COUNT(sitv_interv) as nbItv
                       FROM sav_itv 
                       where sitv_numor='" . $numOr . "'
                       AND sitv_interv NOT IN ('" . $stringItv . "')";
 
-    $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-    $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-    return $this->convertirEnUtf8($data);
-  }
+        return $this->convertirEnUtf8($data);
+    }
 
-  public function recupTechnicientIntervenant($numOr, $numItv)
-  {
-    $statement = " SELECT distinct 
+    public function recupTechnicientIntervenant($numOr, $numItv)
+    {
+        $statement = " SELECT distinct 
         --skr_id as numero_tech,
         ssal_numsal AS matricule, 
         ssal_nom AS matriculeNomPrenom
@@ -755,16 +770,16 @@ class PlanningModel extends Model
         where skw.ofh_id ='" . $numOr . "'
       ";
 
-    $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-    $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-    return $this->convertirEnUtf8($data);
-  }
+        return $this->convertirEnUtf8($data);
+    }
 
-  public function recupTechnicien2($numOr, $numItv)
-  {
-    $statement = " SELECT
+    public function recupTechnicien2($numOr, $numItv)
+    {
+        $statement = " SELECT
         ssal_numsal AS matricule, 
         ssal_nom AS matriculeNomPrenom 
         --sitv_numor 
@@ -775,42 +790,43 @@ class PlanningModel extends Model
         and ssal_numsal <> 9999
       ";
 
-    $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-    $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-    return $this->convertirEnUtf8($data);
-  }
+        return $this->convertirEnUtf8($data);
+    }
 
-  public function recupOrcis($numOritv)
-  {
-    // $statement = "SELECT  DISTINCT 
-    //       nlig_natop from sav_lor 
-    //       inner join neg_lig on 
-    //       nlig_soc = slor_soc 
-    //       and nlig_succd = slor_succ
-    //       and nlig_numcde = slor_numcf
-    //       and nlig_constp = slor_constp
-    //       and nlig_refp = slor_refp
-    //       where nlig_natop = 'CIS'
-    //       and slor_succ  <> '01'
-    //       and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
-    //  ";
-    $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') as succ
+    public function recupOrcis($numOritv)
+    {
+        // $statement = "SELECT  DISTINCT
+        //       nlig_natop from sav_lor
+        //       inner join neg_lig on
+        //       nlig_soc = slor_soc
+        //       and nlig_succd = slor_succ
+        //       and nlig_numcde = slor_numcf
+        //       and nlig_constp = slor_constp
+        //       and nlig_refp = slor_refp
+        //       where nlig_natop = 'CIS'
+        //       and slor_succ  <> '01'
+        //       and  slor_numor  || '-' || trunc(slor_nogrp/100) = '".$numOritv."'
+        //  ";
+        $statement = "SELECT  decode(seor_succ,'01','','60','','80','','CIS') as succ
             from sav_lor, sav_eor
             where slor_succ = seor_succ
             and slor_numor = seor_numor
             and  slor_numor  || '-' || trunc(slor_nogrp/100) = '" . $numOritv . "'
                      ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  public function dateLivraisonCIS($numCIS, $refp, $cst)
-  {
-    $statement = "SELECT  max(nliv_datexp) as datelivlig
+        return $resultat;
+    }
+
+    public function dateLivraisonCIS($numCIS, $refp, $cst)
+    {
+        $statement = "SELECT  max(nliv_datexp) as datelivlig
                   from neg_liv, neg_llf 
                   where nliv_soc = nllf_soc
                   and nliv_numcde = '" . $numCIS . "'
@@ -818,15 +834,16 @@ class PlanningModel extends Model
                   and nllf_constp = '" . $cst . "'
                   and nllf_refp = '" . $refp . "'
                  ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  public function dateAllocationCIS($numCIS, $refp, $cst)
-  {
-    $statement = " SELECT  max(npic_date) as datealllig
+        return $resultat;
+    }
+
+    public function dateAllocationCIS($numCIS, $refp, $cst)
+    {
+        $statement = " SELECT  max(npic_date) as datealllig
                   from neg_pic, neg_pil
                   where npic_soc = npil_soc
                   and npic_numcde = npil_numcde
@@ -834,57 +851,58 @@ class PlanningModel extends Model
                   and npil_constp = '" . $cst . "'
                   and npil_refp = '" . $refp . "'
                 ";
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  /**
-   * liste planning
-   */
-  public function recupMatListeTous($criteria, string $lesOrValides, string $back,$touslesOrSoumis)
-  {
-    if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
-    } else {
-      if (!empty($lesOrValides)) {
-        if ($criteria->getOrNonValiderDw() == true) {
-          $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
-        }else {
-          $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-          } 
-    } else {
-        $vOrvalDw = " AND seor_numor in ('')";
-        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
-      }
+        return $resultat;
     }
 
+    /**
+     * liste planning
+     */
+    public function recupMatListeTous($criteria, string $lesOrValides, string $back, $touslesOrSoumis)
+    {
+        if ($criteria->getOrBackOrder() == true) {
+            $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+            // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+        } else {
+            if (! empty($lesOrValides)) {
+                if ($criteria->getOrNonValiderDw() == true) {
+                    $vOrvalDw = "AND seor_numor  in (" . $touslesOrSoumis . ") ";
+                } else {
+                    $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+                    // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+                }
+            } else {
+                $vOrvalDw = " AND seor_numor in ('')";
+                // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+            }
+        }
 
-    $vligneType = $this->typeLigne($criteria);
 
-    $vYearsStatutPlan =  $this->planAnnee($criteria);
-    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-    $vMonthStatutPlan = $this->planMonth($criteria);
-    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-    $vStatutFacture = $this->facture($criteria);
-    $annee =  $this->criterAnnee($criteria);
-    $agence = $this->agence($criteria);
-    $vStatutInterneExterne = $this->interneExterne($criteria);
-    $agenceDebite = $this->agenceDebite($criteria);
-    $serviceDebite = $this->serviceDebite($criteria);
-    $vconditionNumParc = $this->numParc($criteria);
-    $vconditionIdMat = $this->idMat($criteria);
-    $vconditionNumOr = $this->numOr($criteria);
-    $vconditionNumSerie = $this->numSerie($criteria);
-    $vconditionCasier = $this->casier($criteria);
-    $vsection = $this->section($criteria);
-    $vplan = $criteria->getPlan();
+        $vligneType = $this->typeLigne($criteria);
 
-    $statement = " SELECT 
+        $vYearsStatutPlan = $this->planAnnee($criteria);
+        $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+        $vMonthStatutPlan = $this->planMonth($criteria);
+        $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+        $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+        $vStatutFacture = $this->facture($criteria);
+        $annee = $this->criterAnnee($criteria);
+        $agence = $this->agence($criteria);
+        $vStatutInterneExterne = $this->interneExterne($criteria);
+        $agenceDebite = $this->agenceDebite($criteria);
+        $serviceDebite = $this->serviceDebite($criteria);
+        $vconditionNumParc = $this->numParc($criteria);
+        $vconditionIdMat = $this->idMat($criteria);
+        $vconditionNumOr = $this->numOr($criteria);
+        $vconditionNumSerie = $this->numSerie($criteria);
+        $vconditionCasier = $this->casier($criteria);
+        $vsection = $this->section($criteria);
+        $vplan = $criteria->getPlan();
+
+        $statement = " SELECT 
                 trim(seor_succ) as codeSuc, 
                 trim(asuc_lib) as libSuc, 
                 trim(seor_servcrt) as codeServ, 
@@ -1181,55 +1199,56 @@ TRIM('COMPLET NON LIVRE')
       group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36
       order by 10,14 
   ";
-    $result = $this->connect->executeQuery($statement);
-    // dump($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        // dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
-  {
-    if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
-    } else {
-      if (!empty($lesOrValides)) {
-        $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-      } else {
-        $vOrvalDw = " AND seor_numor in ('')";
-        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
-      }
+        return $resultat;
     }
 
+    public function recuperationMaterielplanifierListe($criteria, string $lesOrValides, string $back, $page, $limit, $export = false)
+    {
+        if ($criteria->getOrBackOrder() == true) {
+            $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+            // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+        } else {
+            if (! empty($lesOrValides)) {
+                $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+                // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+            } else {
+                $vOrvalDw = " AND seor_numor in ('')";
+                // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+            }
+        }
 
-    $vligneType = $this->typeLigne($criteria);
 
-    $vYearsStatutPlan =  $this->planAnnee($criteria);
-    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-    $vMonthStatutPlan = $this->planMonth($criteria);
-    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-    $vStatutFacture = $this->facture($criteria);
-    $annee =  $this->criterAnnee($criteria);
-    $agence = $this->agence($criteria);
-    $vStatutInterneExterne = $this->interneExterne($criteria);
-    $agenceDebite = $this->agenceDebite($criteria);
-    $serviceDebite = $this->serviceDebite($criteria);
-    $vconditionNumParc = $this->numParc($criteria);
-    $vconditionIdMat = $this->idMat($criteria);
-    $vconditionNumOr = $this->numOr($criteria);
-    $vconditionNumSerie = $this->numSerie($criteria);
-    $vconditionCasier = $this->casier($criteria);
-    $vsection = $this->section($criteria);
-    $vplan = $criteria->getPlan();
+        $vligneType = $this->typeLigne($criteria);
 
-    $offset = ($page - 1) * $limit;
+        $vYearsStatutPlan = $this->planAnnee($criteria);
+        $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+        $vMonthStatutPlan = $this->planMonth($criteria);
+        $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+        $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+        $vStatutFacture = $this->facture($criteria);
+        $annee = $this->criterAnnee($criteria);
+        $agence = $this->agence($criteria);
+        $vStatutInterneExterne = $this->interneExterne($criteria);
+        $agenceDebite = $this->agenceDebite($criteria);
+        $serviceDebite = $this->serviceDebite($criteria);
+        $vconditionNumParc = $this->numParc($criteria);
+        $vconditionIdMat = $this->idMat($criteria);
+        $vconditionNumOr = $this->numOr($criteria);
+        $vconditionNumSerie = $this->numSerie($criteria);
+        $vconditionCasier = $this->casier($criteria);
+        $vsection = $this->section($criteria);
+        $vplan = $criteria->getPlan();
 
-    $conditionPagination = $export === false ? "SKIP $offset FIRST $limit" : "";
+        $offset = ($page - 1) * $limit;
 
-    $statement = " SELECT $conditionPagination
+        $conditionPagination = $export === false ? "SKIP $offset FIRST $limit" : "";
+
+        $statement = " SELECT $conditionPagination
                       
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
@@ -1372,50 +1391,51 @@ TRIM('COMPLET NON LIVRE')
 		                order by 10,14  ";
 
 
-    $result = $this->connect->executeQuery($statement);
-    dump($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  /**
-   * nombre total de matériel planifié
-   */
-  public function recuperationNombreMaterielplanifier($criteria, string $lesOrValides, string $back)
-  {
-    if ($criteria->getOrBackOrder() == true) {
-      $vOrvalDw = "AND seor_numor in (" . $back . ") ";
-      // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
-    } else {
-      if (!empty($lesOrValides)) {
-        $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
-        // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
-      } else {
-        $vOrvalDw = " AND seor_numor in ('')";
-        // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
-      }
+        return $resultat;
     }
 
+    /**
+     * nombre total de matériel planifié
+     */
+    public function recuperationNombreMaterielplanifier($criteria, string $lesOrValides, string $back)
+    {
+        if ($criteria->getOrBackOrder() == true) {
+            $vOrvalDw = "AND seor_numor in (" . $back . ") ";
+            // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in (".$back.") ";
+        } else {
+            if (! empty($lesOrValides)) {
+                $vOrvalDw = "AND seor_numor in ('" . $lesOrValides . "') ";
+                // $vOrvalDw = "AND seor_numor ||'-'||sitv_interv in ('".$lesOrValides."') ";
+            } else {
+                $vOrvalDw = " AND seor_numor in ('')";
+                // $vOrvalDw = " AND seor_numor ||'-'||sitv_interv in ('')";
+            }
+        }
 
-    $vligneType = $this->typeLigne($criteria);
 
-    $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
-    $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
-    $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
-    $vStatutFacture = $this->facture($criteria);
-    $agence = $this->agence($criteria);
-    $vStatutInterneExterne = $this->interneExterne($criteria);
-    $agenceDebite = $this->agenceDebite($criteria);
-    $serviceDebite = $this->serviceDebite($criteria);
-    $vconditionNumParc = $this->numParc($criteria);
-    $vconditionIdMat = $this->idMat($criteria);
-    $vconditionNumOr = $this->numOr($criteria);
-    $vconditionNumSerie = $this->numSerie($criteria);
-    $vconditionCasier = $this->casier($criteria);
-    $vsection = $this->section($criteria);
+        $vligneType = $this->typeLigne($criteria);
 
-    $statement = " SELECT COUNT(*) as total FROM  ( SELECT 
+        $vConditionNoPlanning = $this->nonplannfierSansDatePla($criteria);
+        $vDateDMonthPlan = $this->dateDebutMonthPlan($criteria);
+        $vDateFMonthPlan = $this->dateFinMonthPlan($criteria);
+        $vStatutFacture = $this->facture($criteria);
+        $agence = $this->agence($criteria);
+        $vStatutInterneExterne = $this->interneExterne($criteria);
+        $agenceDebite = $this->agenceDebite($criteria);
+        $serviceDebite = $this->serviceDebite($criteria);
+        $vconditionNumParc = $this->numParc($criteria);
+        $vconditionIdMat = $this->idMat($criteria);
+        $vconditionNumOr = $this->numOr($criteria);
+        $vconditionNumSerie = $this->numSerie($criteria);
+        $vconditionCasier = $this->casier($criteria);
+        $vsection = $this->section($criteria);
+
+        $statement = " SELECT COUNT(*) as total FROM  ( SELECT 
 
 
                       trim(seor_succ) as codeSuc, 
@@ -1555,41 +1575,42 @@ TRIM('COMPLET NON LIVRE')
                     group by codeSuc ,libSuc,codeServ,libServ,commentaire,idMat,markMat,typeMat,numSerie,numParc,casier,annee,mois,orIntv,QteCdm,QtLiv,QteALL,Itv,numOR)";
 
 
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    // dump($statement);
-    // Retourne le nombre total d'éléments
-    return (int) $data[0]['total'];
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
 
-  public function recuperationDetailPieceInformixListe($numOr, $criteria, $itv)
-  {
-    $vplan = "'" . $criteria['plan'] . "'";
-
-    if (!empty($criteria['typeligne'])) {
-      switch ($criteria['typeligne']) {
-        case "TOUTES":
-          $vtypeligne = " ";
-          break;
-        case "PIECES_MAGASIN":
-          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' ";
-          break;
-        case "ACHAT_LOCAUX":
-          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
-          break;
-        case "LUBRIFIANTS":
-          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")  AND slor_typlig = 'P'";
-          break;
-        default:
-          $vtypeligne = " ";
-          break;
-      }
-    } else {
-      $vtypeligne = "";
+        // dump($statement);
+        // Retourne le nombre total d'éléments
+        return (int) $data[0]['total'];
     }
 
+    public function recuperationDetailPieceInformixListe($numOr, $criteria, $itv)
+    {
+        $vplan = "'" . $criteria['plan'] . "'";
 
-    $statement = " SELECT  $vplan as plan,
+        if (! empty($criteria['typeligne'])) {
+            switch ($criteria['typeligne']) {
+                case "TOUTES":
+                    $vtypeligne = " ";
+                    break;
+                case "PIECES_MAGASIN":
+                    $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' ";
+                    break;
+                case "ACHAT_LOCAUX":
+                    $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
+                    break;
+                case "LUBRIFIANTS":
+                    $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")  AND slor_typlig = 'P'";
+                    break;
+                default:
+                    $vtypeligne = " ";
+                    break;
+            }
+        } else {
+            $vtypeligne = "";
+        }
+
+
+        $statement = " SELECT  $vplan as plan,
                             slor_numor as numOr,
                             slor_numcf as numCis,
                             sitv_interv as Intv,
@@ -1766,11 +1787,12 @@ TRIM('COMPLET NON LIVRE')
                 GROUP BY 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20
       ";
 
-    $result = $this->connect->executeQuery($statement);
-    $data = $this->connect->fetchResults($result);
-    $resultat = $this->convertirEnUtf8($data);
-    return $resultat;
-  }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
 
-  //
+        return $resultat;
+    }
+
+    //
 }

@@ -2,14 +2,12 @@
 
 namespace App\Controller\Traits;
 
-use App\Entity\badm\Badm;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Entity\cas\CasierValider;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Service\GlobalVariablesService;
-use Symfony\Component\Finder\Glob;
+use App\Entity\badm\Badm;
+use App\Entity\cas\CasierValider;
 
 trait BadmsForm2Trait
 {
@@ -36,6 +34,7 @@ trait BadmsForm2Trait
 
             $dateMiseLocation = \DateTime::createFromFormat('Y-m-d', $data[0]["date_location"]);
         }
+
         return $dateMiseLocation;
     }
 
@@ -66,7 +65,7 @@ trait BadmsForm2Trait
         if ($data[0]["casier_emetteur"] === null) {
             $casierEmetteur = '';
         } else {
-            $casierEmetteur =  $data[0]["casier_emetteur"];
+            $casierEmetteur = $data[0]["casier_emetteur"];
         }
 
 
@@ -131,11 +130,11 @@ trait BadmsForm2Trait
     /**
      * TRAITEMENT DES FICHIER UPLOAD
      *(copier le fichier uploder dans une repertoire et le donner un nom)
-     * 
+     *
      */
     private function uplodeFile($form, $badm, $nomFichier)
     {
-        /** @var UploadedFile $file*/
+        /** @var UploadedFile $file */
         $file = $form->get($nomFichier)->getData();
         $fileName = $badm->getNumBadm() . '.' . $file->getClientOriginalExtension();
 
@@ -165,7 +164,7 @@ trait BadmsForm2Trait
 
         $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '\/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
         // Vérifier que le fichier principal existe avant de l'ajouter
-        if (!file_exists($mainPdf)) {
+        if (! file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
@@ -190,11 +189,10 @@ trait BadmsForm2Trait
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
+        if (! empty($pdfFiles)) {
             $fusionPdf->mergePdfsAndImages($pdfFiles, $mergedPdfFile);
         }
     }
-
 
     private function ouiNonOr($orDb): string
     {
@@ -234,7 +232,7 @@ trait BadmsForm2Trait
         if ($data[0]["casier_emetteur"] === null) {
             $casierEmetteur = '';
         } else {
-            $casierEmetteur =  $data[0]["casier_emetteur"];
+            $casierEmetteur = $data[0]["casier_emetteur"];
         }
 
 
@@ -350,7 +348,7 @@ trait BadmsForm2Trait
             'Agence_Service_Emetteur_Non_separer' => substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3),
             'image' => $image,
             'extension' => $extension,
-            'OR' => $OR
+            'OR' => $OR,
         ];
 
         return $generPdfBadm;

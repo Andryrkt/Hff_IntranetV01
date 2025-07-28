@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityRepository;
 
 class DitFactureSoumisAValidationRepository extends EntityRepository
 {
-
     public function findNbrFact($numfact)
     {
         $nbrfact = $this->createQueryBuilder('fsv')

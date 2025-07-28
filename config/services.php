@@ -22,7 +22,7 @@ $services = [
 ];
 
 foreach ($services as $serviceFile) {
-    $serviceLoader = require __DIR__ . "/services/{$serviceFile}.php"; 
+    $serviceLoader = require __DIR__ . "/services/{$serviceFile}.php";
     $serviceLoader($containerBuilder); // Exécuter la fonction retournée
 }
 

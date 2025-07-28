@@ -2,18 +2,17 @@
 
 namespace App\Service\genererPdf;
 
-use TCPDF;
-use App\Service\GlobalVariablesService;
 use App\Controller\Traits\FormatageTrait;
+use TCPDF;
 
 class GenererPdfBadm extends GeneratePdf
 {
     use FormatageTrait;
 
     /**
-     * Generer pdf badm 
+     * Generer pdf badm
      */
-    function genererPdfBadm(array $tab, array $orDb = [], array $or2 = [])
+    public function genererPdfBadm(array $tab, array $orDb = [], array $or2 = [])
     {
 
         $pdf = new TCPDF();
@@ -287,7 +286,6 @@ class GenererPdfBadm extends GeneratePdf
         //$pdf->Output('exemple.pdf', 'I');
     }
 
-
     /**
      * Ajout d'image dans le pdf
      *
@@ -298,17 +296,16 @@ class GenererPdfBadm extends GeneratePdf
     public function AjoutImage($pdf, $tab)
     {
         $pdf->AddPage();
-            $imagePath = $tab['image'];
-            if ($tab['extension'] === 'JPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'JEPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'PNG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
-            }
+        $imagePath = $tab['image'];
+        if ($tab['extension'] === 'JPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'JEPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'PNG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+        }
     }
 
-    
     /**
      * Recuperation et affichage des or dans une tableau
      *

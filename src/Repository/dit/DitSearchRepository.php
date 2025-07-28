@@ -2,10 +2,7 @@
 
 namespace App\Repository\dit;
 
-use App\Entity\dit\DitSearch;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
-
 
 class DitRepository extends EntityRepository
 {
@@ -20,6 +17,7 @@ class DitRepository extends EntityRepository
         ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
+
         return array_column($result, 'sectionSupport1');
     }
 
@@ -34,6 +32,7 @@ class DitRepository extends EntityRepository
         ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
+
         return array_column($result, 'sectionSupport2');
     }
 
@@ -48,6 +47,7 @@ class DitRepository extends EntityRepository
         ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
+
         return array_column($result, 'sectionSupport3');
     }
 
@@ -62,6 +62,7 @@ class DitRepository extends EntityRepository
         ->setParameter('sectionAffecte', 'Autres')
         ->getQuery()
         ->getScalarResult();
+
         return array_column($result, 'sectionAffectee');
     }
 
@@ -72,6 +73,7 @@ class DitRepository extends EntityRepository
             ->where('d.statutOr IS NOT NULL')
             ->getQuery()
             ->getScalarResult();
+
         return array_column($result, 'statutOr');
     }
 }

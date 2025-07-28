@@ -4,7 +4,6 @@ namespace App\Api\magasin;
 
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
-use App\Repository\dit\DitRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 class NumMatMarqCasierApi extends Controller
@@ -13,9 +12,9 @@ class NumMatMarqCasierApi extends Controller
      * @Route("/api/numMat-marq-casier/{numOr}", name="api_numMat_marq_casier")
      */
     public function NumMatMarqCasier($numOr)
-    {   
+    {
         $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numOr]);
-        if($ditRepository != null){
+        if ($ditRepository != null) {
             $idMateriel = $ditRepository->getIdMateriel();
 
             $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
@@ -29,7 +28,7 @@ class NumMatMarqCasierApi extends Controller
                     'marque' => $item['marque'],
                     'model' => $item['modele'],
                     'designation' => $item['designation'],
-                    'casier' => $item['casier']
+                    'casier' => $item['casier'],
                 ];
             }, $marqueCasier);
 
@@ -40,6 +39,6 @@ class NumMatMarqCasierApi extends Controller
 
             echo json_encode($numMatMarqCasier);
         }
-        
+
     }
 }

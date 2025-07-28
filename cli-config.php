@@ -1,11 +1,12 @@
 <?php
+
 // cli-config.php
 
-use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
-use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Configuration\Migration\PhpFile;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
+use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Symfony\Component\Console\Application;
 
 require_once "doctrineBootstrap.php";
@@ -31,6 +32,3 @@ $cli->setHelperSet($helperSet);
 
 // Exécutez l'application
 $cli->run();
-
-
-

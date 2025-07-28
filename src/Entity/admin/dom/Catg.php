@@ -3,12 +3,11 @@
 namespace App\Entity\admin\dom;
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\dom\CatgRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="Catg")
@@ -53,7 +52,6 @@ class Catg
      */
     private $domCatg;
 
-
     public function __construct()
     {
         $this->sites = new ArrayCollection();
@@ -74,6 +72,7 @@ class Catg
     public function setDescription(string $description): self
     {
         $this->description = $description;
+
         return $this;
     }
 
@@ -85,6 +84,7 @@ class Catg
     public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
+
         return $this;
     }
 
@@ -95,7 +95,7 @@ class Catg
 
     public function addSite(Site $site): self
     {
-        if (!$this->sites->contains($site)) {
+        if (! $this->sites->contains($site)) {
             $this->sites[] = $site;
         }
 
@@ -110,9 +110,10 @@ class Catg
 
         return $this;
     }
-/**
-     * @return Collection|Indemnite[]
-     */
+
+    /**
+         * @return Collection|Indemnite[]
+         */
     public function getIndemnites(): Collection
     {
         return $this->indemnites;
@@ -120,10 +121,11 @@ class Catg
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (!$this->indemnites->contains($indemnite)) {
+        if (! $this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setCategorie($this);
         }
+
         return $this;
     }
 
@@ -139,8 +141,6 @@ class Catg
         return $this;
     }
 
-
-   
     public function getDomCatgs()
     {
         return $this->domCatg;
@@ -148,7 +148,7 @@ class Catg
 
     public function addDomCatg(Dom $domCatg): self
     {
-        if (!$this->domCatg->contains($domCatg)) {
+        if (! $this->domCatg->contains($domCatg)) {
             $this->domCatg[] = $domCatg;
             $domCatg->setCategoryId($this);
         }
@@ -164,7 +164,7 @@ class Catg
                 $domCatg->setCategoryId(null);
             }
         }
-        
+
         return $this;
     }
 

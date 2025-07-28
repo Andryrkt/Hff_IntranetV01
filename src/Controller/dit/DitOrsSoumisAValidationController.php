@@ -6,17 +6,17 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
-use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Controller\Traits\FormatageTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\dit\DitOrsSoumisAValidationType;
-use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitOrSoumisAValidationModel;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
-use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DitOrsSoumisAValidationController extends Controller
 {
@@ -24,13 +24,14 @@ class DitOrsSoumisAValidationController extends Controller
     use DitOrSoumisAValidationTrait;
 
     private $magasinListOrLivrerModel;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
-        $this->historiqueOperation      = new HistoriqueOperationORService();
+        $this->historiqueOperation = new HistoriqueOperationORService();
     }
 
     /**
@@ -72,14 +73,14 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** DEBUT CONDITION DE BLOCAGE */
             $ditInsertionOrSoumis->setNumeroOR($numOrBaseDonner[0]['numor']);
-            
+
             $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
             $idMateriel = $ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
             $agServDebiteurBDSql = $demandeIntervention->getAgenceServiceDebiteur();
             $agServInformix = $this->ditModel->recupAgenceServiceDebiteur($ditInsertionOrSoumis->getNumeroOR());
-            
+
             $datePlanning = $this->verificationDatePlanning($ditInsertionOrSoumis, $ditOrsoumisAValidationModel);
 
             $pos = $ditOrsoumisAValidationModel->recupPositonOr($ditInsertionOrSoumis->getNumeroOR());
@@ -94,7 +95,7 @@ class DitOrsSoumisAValidationController extends Controller
             } elseif ($datePlanning) {
                 $message = "Echec de la soumission car il existe une ou plusieurs interventions non planifiées dans l'OR";
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-            } elseif (!in_array($agServDebiteurBDSql, $agServInformix)) {
+            } elseif (! in_array($agServDebiteurBDSql, $agServInformix)) {
                 $message = "Echec de la soumission car l'agence / service débiteur de l'OR ne correspond pas à l'agence / service de la DIT";
                 $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
             } elseif (in_array($pos[0]['position'], $invalidPositions)) {
@@ -114,18 +115,18 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setHeureSoumission($this->getTime())
                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
                 ;
-                
+
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
                 //dump($orSoumisValidationModel);
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis);
                 //dump($orSoumisValidataion);
-                
+
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 $this->envoieDonnerDansBd($orSoumisValidataion);
-                
+
                 /** CREATION , FUSION, ENVOIE DW du PDF */
                 $genererPdfDit = new GenererPdfOrSoumisAValidation();
                 $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $ditOrsoumisAValidationModel, $genererPdfDit);
@@ -202,12 +203,12 @@ class DitOrsSoumisAValidationController extends Controller
         $nbSotrieMagasin = $ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr);
 
         $nbAchatLocaux = $ditOrsoumisAValidationModel->recupNbAchatLocaux($numOr);
-        if (!empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
+        if (! empty($nbSotrieMagasin) && $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0") {
             $sortieMagasin = 'OUI';
         } else {
             $sortieMagasin = 'NON';
         }
-        if (!empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
+        if (! empty($nbAchatLocaux) && $nbAchatLocaux[0]['nbr_achat_locaux'] !== "0") {
             $achatLocaux = 'OUI';
         } else {
             $achatLocaux = 'NON';
@@ -216,7 +217,7 @@ class DitOrsSoumisAValidationController extends Controller
         return [
             "numDevis" => $numDevis,
             "sortieMagasin" => $sortieMagasin,
-            "achatLocaux" => $achatLocaux
+            "achatLocaux" => $achatLocaux,
         ];
     }
 }

@@ -8,29 +8,30 @@ use App\Model\Traits\ConversionModel;
 class CasierModel extends Model
 {
     use ConversionModel;
+
     /**
      * informix
      */
     public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
     {
 
-          if($matricule === '' || $matricule === '0' || $matricule === null){
+        if ($matricule === '' || $matricule === '0' || $matricule === null) {
             $conditionNummat = "";
-           } else {
-             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-           }
+        } else {
+            $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+        }
 
-           if($numParc === '' || $numParc === '0' || $numParc === null){
-             $conditionNumParc = "";
-           } else {
-             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-           }
-     
-           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-             $conditionNumSerie = "";
-           } else {
-             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-           }
+        if ($numParc === '' || $numParc === '0' || $numParc === null) {
+            $conditionNumParc = "";
+        } else {
+            $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+        }
+
+        if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+            $conditionNumSerie = "";
+        } else {
+            $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+        }
 
         $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
@@ -97,6 +98,4 @@ class CasierModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-
-    
 }

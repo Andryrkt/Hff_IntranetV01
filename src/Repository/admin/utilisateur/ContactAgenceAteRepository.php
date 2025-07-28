@@ -2,13 +2,10 @@
 
 namespace App\Repository\admin\utilisateur;
 
-
 use Doctrine\ORM\EntityRepository;
-
 
 class ContactAgenceAteRepository extends EntityRepository
 {
-
     public function findContactSelonAtelier(?string $atelier)
     {
         $qb = $this->createQueryBuilder('ca');
@@ -22,5 +19,4 @@ class ContactAgenceAteRepository extends EntityRepository
 
         return $qb->getQuery()->getResult();
     }
-
 }

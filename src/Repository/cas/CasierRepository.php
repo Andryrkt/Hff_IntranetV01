@@ -11,27 +11,27 @@ class CasierRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
-        if (!empty($criteria['casier'])) {
+        if (! empty($criteria['casier'])) {
             $queryBuilder->andWhere('c.casier LIKE :casier')
-                ->setParameter('casier',  $criteria['casier'] );
+                ->setParameter('casier',  $criteria['casier']);
         }
 
         //filtre selon l'agence debiteur
-        if (!empty($criteria['agence'])) {
+        if (! empty($criteria['agence'])) {
             $queryBuilder->andWhere('c.agenceRattacher = :agRatch')
-                ->setParameter('agRatch',  $criteria['agence']->getId() );
+                ->setParameter('agRatch',  $criteria['agence']->getId());
         }
 
         $queryBuilder->orderBy('c.numeroCas', 'DESC');
         $queryBuilder->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
-            ;
+        ;
 
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
 
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        
+
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
             'totalItems' => $totalItems,
@@ -44,15 +44,15 @@ class CasierRepository extends EntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('c');
 
-        if (!empty($criteria['casier'])) {
+        if (! empty($criteria['casier'])) {
             $queryBuilder->andWhere('c.casier LIKE :casier')
-                ->setParameter('casier',  $criteria['casier'] );
+                ->setParameter('casier',  $criteria['casier']);
         }
 
         //filtre selon l'agence debiteur
-        if (!empty($criteria['agence'])) {
+        if (! empty($criteria['agence'])) {
             $queryBuilder->andWhere('c.agenceRattacher = :agRatch')
-                ->setParameter('agRatch',  $criteria['agence']->getId() );
+                ->setParameter('agRatch',  $criteria['agence']->getId());
         }
 
         $queryBuilder
@@ -67,7 +67,7 @@ class CasierRepository extends EntityRepository
 
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        
+
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
             'totalItems' => $totalItems,

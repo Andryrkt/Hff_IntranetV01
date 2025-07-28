@@ -24,7 +24,7 @@ class MigrationDataDitService
         foreach ($ancienDits as $ancienDit) {
             $this->migrationDataModel->insertDit($ancienDit);
         }
+
         return "Insertion terminée avec succès.";
     }
-
 }

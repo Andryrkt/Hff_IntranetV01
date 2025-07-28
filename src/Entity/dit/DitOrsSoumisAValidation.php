@@ -2,11 +2,8 @@
 
 namespace App\Entity\dit;
 
-use DateTime;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DitOrsSoumisAValidationRepository::class)
@@ -21,7 +18,6 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="integer")
      */
     private $id;
-
 
     private ?string $numeroDit = null;
 
@@ -38,7 +34,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="date")
      */
-    private  $dateSoumission;
+    private $dateSoumission;
 
     /**
      * @ORM\Column(type="string", length=5)
@@ -54,7 +50,6 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="float", scale="2")
      */
     private ?float $montantItv = 0.00;
-
 
     /**
      * @ORM\Column(type="integer")
@@ -91,8 +86,6 @@ class DitOrsSoumisAValidation
      */
     private ?string $libellelItv = '';
 
-
-
     private $pieceJoint01;
 
     private $pieceJoint02;
@@ -111,8 +104,6 @@ class DitOrsSoumisAValidation
      */
     private $migration;
     //==========================================================================================
-
-
 
     /**
      * Get the value of id
@@ -162,7 +153,6 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of numeroItv
      */
@@ -202,7 +192,6 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
-
 
     /**
      * Get the value of heureSoumission
@@ -264,8 +253,6 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
-
-
 
     /**
      * Get the value of numeroVersion
@@ -412,7 +399,6 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of file
      */
@@ -432,8 +418,6 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
-
-
 
     /**
      * Get the value of pieceJoint02
@@ -495,7 +479,6 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of statut
      */
@@ -516,10 +499,9 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
-
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -529,7 +511,7 @@ class DitOrsSoumisAValidation
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;

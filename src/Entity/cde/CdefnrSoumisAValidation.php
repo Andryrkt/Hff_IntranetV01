@@ -37,7 +37,7 @@ class CdefnrSoumisAValidation
      * @ORM\Column(type="integer", name="numeroVersion")
      */
     private int $numVersion = 0;
-    
+
     /**
      * @ORM\Column(type="date", name="date_commande")
      */
@@ -56,7 +56,7 @@ class CdefnrSoumisAValidation
     /**
      * @ORM\Column(type="datetime", name="date_heure_soumission")
      */
-    private  $dateHeureSoumission;
+    private $dateHeureSoumission;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut")
@@ -71,7 +71,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -79,7 +79,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of numCdeFournisseur
-     */ 
+     */
     public function getNumCdeFournisseur()
     {
         return $this->numCdeFournisseur;
@@ -89,7 +89,7 @@ class CdefnrSoumisAValidation
      * Set the value of numCdeFournisseur
      *
      * @return  self
-     */ 
+     */
     public function setNumCdeFournisseur($numCdeFournisseur)
     {
         $this->numCdeFournisseur = $numCdeFournisseur;
@@ -99,7 +99,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of codeFournisseur
-     */ 
+     */
     public function getCodeFournisseur()
     {
         return $this->codeFournisseur;
@@ -109,7 +109,7 @@ class CdefnrSoumisAValidation
      * Set the value of codeFournisseur
      *
      * @return  self
-     */ 
+     */
     public function setCodeFournisseur($codeFournisseur)
     {
         $this->codeFournisseur = $codeFournisseur;
@@ -119,7 +119,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of libelleFournisseur
-     */ 
+     */
     public function getLibelleFournisseur()
     {
         return $this->libelleFournisseur;
@@ -129,7 +129,7 @@ class CdefnrSoumisAValidation
      * Set the value of libelleFournisseur
      *
      * @return  self
-     */ 
+     */
     public function setLibelleFournisseur($libelleFournisseur)
     {
         $this->libelleFournisseur = $libelleFournisseur;
@@ -139,7 +139,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of numVersion
-     */ 
+     */
     public function getNumVersion()
     {
         return $this->numVersion;
@@ -149,7 +149,7 @@ class CdefnrSoumisAValidation
      * Set the value of numVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumVersion($numVersion)
     {
         $this->numVersion = $numVersion;
@@ -159,7 +159,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of dateCommande
-     */ 
+     */
     public function getDateCommande()
     {
         return $this->dateCommande;
@@ -169,7 +169,7 @@ class CdefnrSoumisAValidation
      * Set the value of dateCommande
      *
      * @return  self
-     */ 
+     */
     public function setDateCommande($dateCommande)
     {
         $this->dateCommande = $dateCommande;
@@ -179,7 +179,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of montantCommande
-     */ 
+     */
     public function getMontantCommande()
     {
         return $this->montantCommande;
@@ -189,7 +189,7 @@ class CdefnrSoumisAValidation
      * Set the value of montantCommande
      *
      * @return  self
-     */ 
+     */
     public function setMontantCommande($montantCommande)
     {
         $this->montantCommande = $montantCommande;
@@ -199,7 +199,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of deviseCommande
-     */ 
+     */
     public function getDeviseCommande()
     {
         return $this->deviseCommande;
@@ -209,7 +209,7 @@ class CdefnrSoumisAValidation
      * Set the value of deviseCommande
      *
      * @return  self
-     */ 
+     */
     public function setDeviseCommande($deviseCommande)
     {
         $this->deviseCommande = $deviseCommande;
@@ -219,7 +219,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of dateHeureSoumission
-     */ 
+     */
     public function getDateHeureSoumission()
     {
         return $this->dateHeureSoumission;
@@ -229,7 +229,7 @@ class CdefnrSoumisAValidation
      * Set the value of dateHeureSoumission
      *
      * @return  self
-     */ 
+     */
     public function setDateHeureSoumission($dateHeureSoumission)
     {
         $this->dateHeureSoumission = $dateHeureSoumission;
@@ -239,7 +239,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -249,7 +249,7 @@ class CdefnrSoumisAValidation
      * Set the value of statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
@@ -259,7 +259,7 @@ class CdefnrSoumisAValidation
 
     /**
      * Get the value of pieceJoint01
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -269,7 +269,7 @@ class CdefnrSoumisAValidation
      * Set the value of pieceJoint01
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;

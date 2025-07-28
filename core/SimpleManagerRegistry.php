@@ -2,8 +2,8 @@
 
 namespace core;
 
-use Doctrine\Persistence\AbstractManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\AbstractManagerRegistry;
 
 class SimpleManagerRegistry extends AbstractManagerRegistry
 {

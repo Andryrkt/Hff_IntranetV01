@@ -2,15 +2,15 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Form\badm\BadmForm2Type;
+use App\Controller\Traits\BadmsForm2Trait;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\Agence;
 use App\Entity\admin\Application;
 use App\Entity\admin\badm\TypeMouvement;
-use App\Controller\Traits\FormatageTrait;
-use App\Controller\Traits\BadmsForm2Trait;
+use App\Entity\admin\Service;
+use App\Entity\badm\Badm;
+use App\Form\badm\BadmForm2Type;
 use App\Service\genererPdf\GenererPdfBadm;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,12 +20,13 @@ class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService();
     }
 
     /**
@@ -88,7 +89,7 @@ class BadmsForm2Controller extends Controller
 
                 $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
 
-                //RECUPERATION de la dernière NumeroDemandeIntervention 
+                //RECUPERATION de la dernière NumeroDemandeIntervention
                 $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
@@ -135,7 +136,7 @@ class BadmsForm2Controller extends Controller
             [
                 'items' => $data,
                 'form1Data' => $form1Data,
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }

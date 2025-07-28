@@ -9,14 +9,15 @@ class DitRiSoumisAValidationModel extends Model
 {
     use ConversionTrait;
 
-    public function recupNumeroSoumission($numOr) {
+    public function recupNumeroSoumission($numOr)
+    {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM ri_soumis_a_validation
                 WHERE numero_or = '".$numOr."'";
-        
+
         $exec = $this->connexion->query($sql);
         $result = odbc_fetch_array($exec);
-        
+
         return $result['numSoumissionEncours'];
     }
 
@@ -33,12 +34,13 @@ class DitRiSoumisAValidationModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return array_column($tab, 'numeroItv');
     }
 
     public function findItvDejaSoumis($numOr)
     {
-        $sql ="SELECT DISTINCT numeroitv AS numeroItv
+        $sql = "SELECT DISTINCT numeroitv AS numeroItv
             FROM ri_soumis_a_validation
             WHERE numero_oR = '".$numOr."'
             ";
@@ -48,17 +50,18 @@ class DitRiSoumisAValidationModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
+
         return array_column($tab, 'numeroItv');
     }
 
     public function recupInterventionOr($numOr, $itvDejaSoumis)
     {
 
-        if(!empty($itvDejaSoumis)){
+        if (! empty($itvDejaSoumis)) {
             $chaine = implode(",", $itvDejaSoumis);
             $condition = "  and sitv_interv not in (".$chaine.")";
         } else {
-            $condition ="";
+            $condition = "";
         }
 
         $statement = "SELECT 
@@ -92,6 +95,4 @@ class DitRiSoumisAValidationModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-
 }
-

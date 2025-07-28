@@ -2,16 +2,16 @@
 
 namespace App\Controller\dit;
 
-use App\Model\dit\DitModel;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
+use App\Model\dit\DitModel;
 use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -101,7 +101,7 @@ class DitDuplicationController extends Controller
             //envoie des pièce jointe dans une dossier
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
 
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            //RECUPERATION de la dernière NumeroDemandeIntervention
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
 
             $application->setDerniereId($dits->getNumeroDemandeIntervention());
@@ -135,7 +135,7 @@ class DitDuplicationController extends Controller
         }
 
         $this->logUserVisit('dit_duplication', [
-            'id'     => $id,
+            'id' => $id,
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 

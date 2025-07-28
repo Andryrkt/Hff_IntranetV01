@@ -46,7 +46,7 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
 
     private function conditionDemandeur($queryBuilder, $option)
     {
-        if (!$option['autorisation']['autoriserIntervenant'] && !$option['autorisation']['autoriserValidateur']) {
+        if (! $option['autorisation']['autoriserIntervenant'] && ! $option['autorisation']['autoriserValidateur']) {
             $queryBuilder
                 ->andWhere('tki.idStatutDemande NOT IN (:tab)')
                 ->setParameter('tab', ['62', '64'])
@@ -57,26 +57,26 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     private function conditionListeDeChoix($queryBuilder, $tikSearch, $option)
     {
         //filtre pour le niveau d'urgence
-        if (!empty($tikSearch->getNiveauUrgence())) {
+        if (! empty($tikSearch->getNiveauUrgence())) {
             $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
                 ->setParameter('niveauUrgence', '%' . $tikSearch->getNiveauUrgence() . '%');
         }
 
         //filtre selon le statut
-        if (!empty($tikSearch->getStatut())) {
+        if (! empty($tikSearch->getStatut())) {
             $queryBuilder->andWhere('tki.idStatutDemande = :idStatut')
                 ->setParameter('idStatut',  $tikSearch->getStatut()->getId());
         }
 
         if ($option['autorisation']['autoriserIntervenant']) {
             //figer pour l'intervenant
-            if (!empty($tikSearch->getNomIntervenant())) {
+            if (! empty($tikSearch->getNomIntervenant())) {
                 $queryBuilder->andWhere('tki.nomIntervenant = :interv')
                     ->setParameter('interv', $option['user']->getNomUtilisateur());
             }
         } else {
             //filtrer selon le nom d'intervenant
-            if (!empty($tikSearch->getNomIntervenant())) {
+            if (! empty($tikSearch->getNomIntervenant())) {
                 $queryBuilder->andWhere('tki.nomIntervenant = :interv')
                     ->setParameter('interv', $tikSearch->getNomIntervenant());
             }
@@ -86,19 +86,19 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     private function conditionSaisieLibre($queryBuilder, $tikSearch)
     {
         //filtre selon le numero ticket
-        if (!empty($tikSearch->getNumeroTicket())) {
+        if (! empty($tikSearch->getNumeroTicket())) {
             $queryBuilder->andWhere('tki.numeroTicket LIKE :numtik')
                 ->setParameter('numtik', '%' . $tikSearch->getNumeroTicket() . '%');
         }
 
         //filtre selon l'utilisateur demandeur
-        if (!empty($tikSearch->getDemandeur())) {
+        if (! empty($tikSearch->getDemandeur())) {
             $queryBuilder->andWhere('tki.utilisateurDemandeur LIKE :utilisateur')
                 ->setParameter('utilisateur', '%' . $tikSearch->getDemandeur() . '%');
         }
 
         //filtre selon le numero parc informatique
-        if (!empty($tikSearch->getNumParc())) {
+        if (! empty($tikSearch->getNumParc())) {
             $queryBuilder->andWhere('tki.parcInformatique LIKE :numParc')
                 ->setParameter('numParc', '%' . $tikSearch->getNumParc() . '%');
         }
@@ -107,13 +107,13 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     private function dateFinDebut($queryBuilder, $tikSearch)
     {
         //filtre date debut
-        if (!empty($tikSearch->getDateDebut())) {
+        if (! empty($tikSearch->getDateDebut())) {
             $queryBuilder->andWhere('tki.dateCreation >= :dateDebut')
                 ->setParameter('dateDebut', $tikSearch->getDateDebut());
         }
 
         //filtre date fin
-        if (!empty($tikSearch->getDateFin())) {
+        if (! empty($tikSearch->getDateFin())) {
             $queryBuilder->andWhere('tki.dateCreation <= :dateFin')
                 ->setParameter('dateFin', $tikSearch->getDateFin());
         }
@@ -123,23 +123,23 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     {
         if ($option['autorisation']['autoriser']) {
             //filtre selon l'agence emettteur
-            if (!empty($tikSearch->getAgenceEmetteur())) {
+            if (! empty($tikSearch->getAgenceEmetteur())) {
                 $queryBuilder->andWhere('tki.agenceEmetteurId = :agEmet')
                     ->setParameter('agEmet',  $tikSearch->getAgenceEmetteur()->getId());
             }
             //filtre selon le service emetteur
-            if (!empty($tikSearch->getServiceEmetteur())) {
+            if (! empty($tikSearch->getServiceEmetteur())) {
                 $queryBuilder->andWhere('tki.serviceEmetteurId = :agServEmet')
                     ->setParameter('agServEmet', $tikSearch->getServiceEmetteur()->getId());
             }
         } else {
             //filtre selon l'agence emettteur
-            if (!empty($tikSearch->getAgenceEmetteur())) {
+            if (! empty($tikSearch->getAgenceEmetteur())) {
                 $queryBuilder->andWhere('tki.agenceEmetteurId = :agEmet')
                     ->setParameter('agEmet',  $option['idAgence']);
             }
             //filtre selon le service emetteur
-            if (!empty($tikSearch->getServiceEmetteur())) {
+            if (! empty($tikSearch->getServiceEmetteur())) {
                 $queryBuilder->andWhere('tki.serviceEmetteurId = :agServEmet')
                     ->setParameter('agServEmet', $option['idService']);
             }
@@ -149,13 +149,13 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     private function agenceServiceDebiteur($queryBuilder, $tikSearch)
     {
         //filtre selon l'agence debiteur
-        if (!empty($tikSearch->getAgenceDebiteur())) {
+        if (! empty($tikSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('tki.agenceDebiteurId = :agDebit')
                 ->setParameter('agDebit',  $tikSearch->getAgenceDebiteur()->getId());
         }
 
         //filtre selon le service debiteur
-        if (!empty($tikSearch->getServiceDebiteur())) {
+        if (! empty($tikSearch->getServiceDebiteur())) {
             $queryBuilder->andWhere('tki.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $tikSearch->getServiceDebiteur()->getId());
         }
@@ -164,19 +164,19 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
     private function conditionCategorie($queryBuilder, $tikSearch)
     {
         //filtre selon la categorie
-        if (!empty($tikSearch->getCategorie())) {
+        if (! empty($tikSearch->getCategorie())) {
             $queryBuilder->andWhere('tki.categorie = :categorieId')
                 ->setParameter('categorieId', $tikSearch->getCategorie()->getId());
         }
 
         //filtre selon la sous categorie
-        if (!empty($tikSearch->getSousCategorie())) {
+        if (! empty($tikSearch->getSousCategorie())) {
             $queryBuilder->andWhere('tki.sousCategorie = :sousCategorieId')
                 ->setParameter('sousCategorieId', $tikSearch->getSousCategorie()->getId());
         }
 
         //filtre selon la autres categorie
-        if (!empty($tikSearch->getAutresCategories())) {
+        if (! empty($tikSearch->getAutresCategories())) {
             $queryBuilder->andWhere('tki.autresCategorie = :autresCategorieId')
                 ->setParameter('autresCategorieId', $tikSearch->getAutresCategories()->getId());
         }

@@ -2,11 +2,11 @@
 
 namespace App\Service\tik;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Service\EmailService;
 
 class EmailTikService
 {
@@ -19,26 +19,26 @@ class EmailTikService
         $this->em = Controller::getEntity();
     }
 
-    /** 
+    /**
      * Méthode pour préparer les données pour l'envoi d'email
      */
     public function prepareDonneeEmail(DemandeSupportInformatique $tik, User $userConnecter, string $variable = ''): array
     {
         return [
-            'id'                 => $tik->getId(),
-            'numTik'             => $tik->getNumeroTicket(),
-            'emailValidateur'    => $tik->getValidateur() ? $tik->getValidateur()->getMail() : null,
+            'id' => $tik->getId(),
+            'numTik' => $tik->getNumeroTicket(),
+            'emailValidateur' => $tik->getValidateur() ? $tik->getValidateur()->getMail() : null,
             'emailUserDemandeur' => $tik->getMailDemandeur(),
-            'emailIntervenant'   => $tik->getMailIntervenant(),
-            'variable'           => $variable,
-            'userConnecter'      => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
-            'template'           => 'tik/email/emailTik.html.twig',
+            'emailIntervenant' => $tik->getMailIntervenant(),
+            'variable' => $variable,
+            'userConnecter' => $userConnecter->getPersonnels()->getNom() . ' ' . $userConnecter->getPersonnels()->getPrenoms(),
+            'template' => 'tik/email/emailTik.html.twig',
         ];
     }
 
-    /** 
+    /**
      * Méthode pour préparer l'email selon le statut du ticket
-     * 
+     *
      * @param string $statut Statut du ticket
      *  - valide : Ticket validé
      *  - refuse : Ticket refusé
@@ -64,7 +64,7 @@ class EmailTikService
             case 'resolu':
             case 'planifie':
                 $to = $tab['emailUserDemandeur'];
-                $cc = !empty($tab['emailValidateur']) ? [$tab['emailValidateur']] : [];
+                $cc = ! empty($tab['emailValidateur']) ? [$tab['emailValidateur']] : [];
                 break;
 
             case 'valide':
@@ -95,19 +95,19 @@ class EmailTikService
         }
 
         return [
-            'to'        => $to,
-            'cc'        => $cc,
-            'template'  => $tab['template'],
+            'to' => $to,
+            'cc' => $cc,
+            'template' => $tab['template'],
             'variables' => [
-                'statut'      => $statut,
-                'subject'     => $subject,
-                'tab'         => $tab,
-                'action_url'  => $actionUrl
+                'statut' => $statut,
+                'subject' => $subject,
+                'tab' => $tab,
+                'action_url' => $actionUrl,
             ],
         ];
     }
 
-    /** 
+    /**
      * Méthode pour envoyer un email
      */
     public function envoyerEmail(array $content): void

@@ -2,14 +2,11 @@
 
 namespace App\Repository\admin;
 
-
 use App\Entity\admin\Agence;
 use Doctrine\ORM\EntityRepository;
 
-
 class ServiceRepository extends EntityRepository
 {
-
     public function findByAgence(Agence $agence)
     {
         return $this->createQueryBuilder('s')

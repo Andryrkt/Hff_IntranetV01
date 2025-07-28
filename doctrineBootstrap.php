@@ -1,12 +1,10 @@
 <?php
 
 use App\CustomSQLLogger;
-use Doctrine\ORM\Tools\Setup;
-use core\SimpleManagerRegistry;
-use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Doctrine\Common\Annotations\AnnotationRegistry;
+use Doctrine\ORM\Tools\Setup;
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 require_once __DIR__ . '/config/dotenv.php';
@@ -20,13 +18,13 @@ $isDevMode = true;
 
 // Configuration de la base de données
 $dbParams = [
-    'driver'   => 'pdo_sqlsrv',
-    'host'     => $_ENV["DB_HOST"], 
-    'port'     => '1433',
-    'user'     => $_ENV["DB_USERNAME"] ,
+    'driver' => 'pdo_sqlsrv',
+    'host' => $_ENV["DB_HOST"],
+    'port' => '1433',
+    'user' => $_ENV["DB_USERNAME"] ,
     'password' => $_ENV["DB_PASSWORD"],
-    'dbname'   => $_ENV["DB_NAME"],
-    'options'  => [],    
+    'dbname' => $_ENV["DB_NAME"],
+    'options' => [],
 ];
 
 // Configuration du lecteur d'annotations

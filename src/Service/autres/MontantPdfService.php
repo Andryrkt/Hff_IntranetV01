@@ -3,16 +3,15 @@
 namespace App\Service\autres;
 
 use App\Entity\dit\DitDevisSoumisAValidation;
-use App\Entity\dit\DitOrsSoumisAValidation;
 
 class MontantPdfService
 {
     public function montantpdf($devisSoumisAvant)
     {
-        $recapAvantApresVte =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
-        $recapAvantApresForfait =$this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxForfait'], $devisSoumisAvant['devisSoumisAvantForfait']);
-        $recapAvantApresCes =$this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxCes'], $devisSoumisAvant['devisSoumisAvantCes']);
-        
+        $recapAvantApresVte = $this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxVte'], $devisSoumisAvant['devisSoumisAvantVte']);
+        $recapAvantApresForfait = $this->recuperationAvantApresForfait($devisSoumisAvant['devisSoumisAvantMaxForfait'], $devisSoumisAvant['devisSoumisAvantForfait']);
+        $recapAvantApresCes = $this->recuperationAvantApres($devisSoumisAvant['devisSoumisAvantMaxCes'], $devisSoumisAvant['devisSoumisAvantCes']);
+
         return [
             'avantApresForfait' => $this->affectationStatut($recapAvantApresForfait)['recapAvantApres'],
             'totalAvantApresForfait' => $this->calculeSommeAvantApres($recapAvantApresForfait),
@@ -30,12 +29,10 @@ class MontantPdfService
         ];
     }
 
-    
-
     private function recuperationAvantApres($OrSoumisAvantMax, $OrSoumisAvant)
     {
-    
-        if(!empty($OrSoumisAvantMax)){
+
+        if (! empty($OrSoumisAvantMax)) {
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
             $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
@@ -48,22 +45,22 @@ class MontantPdfService
             $this->trierTableauParNumero($OrSoumisAvantMax);
             $this->trierTableauParNumero($OrSoumisAvant);
         }
-        
+
 
         $recapAvantApres = [];
 
         for ($i = 0; $i < count($OrSoumisAvant); $i++) {
             // dump($OrSoumisAvantMax[$i]);
-            if(null !== $OrSoumisAvant[$i]->getNatureOperation() ){
-                if($OrSoumisAvant[$i]->getNatureOperation() === 'VTE' && $OrSoumisAvant[$i]->getDevisVenteOuForfait() === 'DEVIS FORFAIT'){
-                    $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantVente() : 0.00;
+            if (null !== $OrSoumisAvant[$i]->getNatureOperation()) {
+                if ($OrSoumisAvant[$i]->getNatureOperation() === 'VTE' && $OrSoumisAvant[$i]->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
+                    $montantAvant = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantVente() : 0.00;
                     $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantVente() : 0.00;
                 } else {
-                    $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
-                $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0.00;
+                    $montantAvant = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
+                    $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0.00;
                 }
             } else {
-                $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
+                $montantAvant = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantItv() : 0.00;
                 $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantItv() : 0.00;
             }
             $itv = $OrSoumisAvant[$i]->getNumeroItv();
@@ -82,14 +79,15 @@ class MontantPdfService
                 'mttTotalAp' => $mttTotalAp,
             ];
         }
-// dump($recapAvantApres);
+
+        // dump($recapAvantApres);
         return $recapAvantApres;
     }
 
     private function recuperationAvantApresForfait($OrSoumisAvantMax, $OrSoumisAvant)
     {
-    
-        if(!empty($OrSoumisAvantMax)){
+
+        if (! empty($OrSoumisAvantMax)) {
             // Trouver les objets manquants par numero d'intervention dans chaque tableau
             $manquantDansOrSoumisAvantMax = $this->objetsManquantsParNumero($OrSoumisAvantMax, $OrSoumisAvant);
             $manquantDansOrSoumisAvant = $this->objetsManquantsParNumero($OrSoumisAvant, $OrSoumisAvantMax);
@@ -102,13 +100,13 @@ class MontantPdfService
             $this->trierTableauParNumero($OrSoumisAvantMax);
             $this->trierTableauParNumero($OrSoumisAvant);
         }
-        
+
 
         $recapAvantApres = [];
 
         for ($i = 0; $i < count($OrSoumisAvant); $i++) {
-            
-            $montantAvant = isset($OrSoumisAvantMax[$i])? $OrSoumisAvantMax[$i]->getMontantForfait() : 0.00;
+
+            $montantAvant = isset($OrSoumisAvantMax[$i]) ? $OrSoumisAvantMax[$i]->getMontantForfait() : 0.00;
             $montantApres = isset($OrSoumisAvant[$i]) ? $OrSoumisAvant[$i]->getMontantForfait() : 0.00;
 
             $itv = $OrSoumisAvant[$i]->getNumeroItv();
@@ -131,32 +129,34 @@ class MontantPdfService
         return $recapAvantApres;
     }
 
-   
     // Fonction pour trouver les numéros d'intervention manquants
-    private function objetsManquantsParNumero($tableauA, $tableauB) {
-    $manquants = [];
-    foreach ($tableauB as $objetB) {
-        $trouve = false;
-        foreach ($tableauA as $objetA) {
-            if ($objetA->estEgalParNumero($objetB)) {
-                $trouve = true;
-                break;
+    private function objetsManquantsParNumero($tableauA, $tableauB)
+    {
+        $manquants = [];
+        foreach ($tableauB as $objetB) {
+            $trouve = false;
+            foreach ($tableauA as $objetA) {
+                if ($objetA->estEgalParNumero($objetB)) {
+                    $trouve = true;
+                    break;
+                }
+            }
+            if (! $trouve) {
+                $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+                // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
+                $nouvelObjet = new DitDevisSoumisAValidation();
+                $nouvelObjet->setNumeroItv($numeroItvExist);
+                $manquants[] = $nouvelObjet;
             }
         }
-        if (!$trouve) {
-            $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
-            // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
-            $nouvelObjet = new DitDevisSoumisAValidation();
-            $nouvelObjet->setNumeroItv($numeroItvExist);
-            $manquants[] = $nouvelObjet;
-        }
-    }
-    return $manquants;
+
+        return $manquants;
     }
 
     // Fonction pour trier les tableaux par numero d'intervention
-    private function trierTableauParNumero(&$tableau) {
-        usort($tableau, function($a, $b) {
+    private function trierTableauParNumero(&$tableau)
+    {
+        usort($tableau, function ($a, $b) {
             return strcmp($a->getNumeroItv(), $b->getNumeroItv());
         });
     }
@@ -167,7 +167,7 @@ class MontantPdfService
             'nbrNouv' => 0,
             'nbrSupp' => 0,
             'nbrModif' => 0,
-            'mttModif' => 0.00
+            'mttModif' => 0.00,
         ];
 
 
@@ -176,10 +176,10 @@ class MontantPdfService
             if ($value['nbLigAv'] === $value['nbLigAp'] && $value['mttTotalAv'] === $value['mttTotalAp']) {
                 $value['statut'] = '';
             } elseif ($value['nbLigAv'] !== 0 && $value['mttTotalAv'] !== 0.00 && $value['nbLigAp'] === 0 && $value['mttTotalAp'] === 0.00) {
-               //dump($value);
+                //dump($value);
                 $value['statut'] = 'Supp';
                 $nombreStatutNouvEtSupp['nbrSupp']++;
-            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '' ) && $value['mttTotalAv'] === 0.00 || $value['mttTotalAv'] === 0.00) {
+            } elseif (($value['nbLigAv'] === 0 || $value['nbLigAv'] === '') && $value['mttTotalAv'] === 0.00 || $value['mttTotalAv'] === 0.00) {
                 $value['statut'] = 'Nouv';
                 $nombreStatutNouvEtSupp['nbrNouv']++;
             } elseif (($value['nbLigAv'] !== $value['nbLigAp'] || round($value['mttTotalAv'], 2) !== round($value['mttTotalAp'], 2)) && ($value['nbLigAv'] !== 0 || $value['nbLigAv'] !== '' || $value['nbLigAp'] !== 0)) {
@@ -189,17 +189,18 @@ class MontantPdfService
                 $nombreStatutNouvEtSupp['mttModif'] = $nombreStatutNouvEtSupp['mttModif'] + ($value['mttTotalAp'] - $value['mttTotalAv']);
             }
         }
-    //  die();
-// dd($recapAvantApres, $nombreStatutNouvEtSupp);
+
+        //  die();
+        // dd($recapAvantApres, $nombreStatutNouvEtSupp);
         // Retourner le tableau modifié et les statistiques de nouveaux et supprimés
         return [
             'recapAvantApres' => $recapAvantApres,
-            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp
+            'nombreStatutNouvEtSupp' => $nombreStatutNouvEtSupp,
         ];
     }
 
     /**
-     * Methode qui permet de calculer le total de chaque colonne 
+     * Methode qui permet de calculer le total de chaque colonne
      * ceci se mettre sur le footer du tableau
      *
      * @param array $recapAvantApres
@@ -214,9 +215,9 @@ class MontantPdfService
             'nbLigAp' => 0,
             'mttTotalAv' => 0.00,
             'mttTotalAp' => 0.00,
-            'statut' => ''
+            'statut' => '',
         ];
-        foreach ($recapAvantApres as  $value) {
+        foreach ($recapAvantApres as $value) {
             $totalRecepAvantApres['nbLigAv'] += $value['nbLigAv'] === '' ? 0 : $value['nbLigAv'];
             $totalRecepAvantApres['nbLigAp'] += $value['nbLigAp'];
             $totalRecepAvantApres['mttTotalAv'] += $value['mttTotalAv'] === '' ? 0.00 : $value['mttTotalAv'];
@@ -226,25 +227,35 @@ class MontantPdfService
         return $totalRecepAvantApres;
     }
 
-
     private function recapitulationOr($orSoumisValidataion)
     {
         $recapOr = [];
 
-        
+
         foreach ($orSoumisValidataion as $orSoumis) {
             if ($orSoumis->getNatureOperation() !== null) {
-               if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
-                $recapOr[] = [
-                    'itv' => $orSoumis->getNumeroItv(),
-                    'mttTotal' => $orSoumis->getMontantVente(),
-                    'mttPieces' => $orSoumis->getMontantPiece(),
-                    'mttMo' => $orSoumis->getMontantMo(),
-                    'mttSt' => $orSoumis->getMontantAchatLocaux(),
-                    'mttLub' => $orSoumis->getMontantLubrifiants(),
-                    'mttAutres' => $orSoumis->getMontantFraisDivers(),
-                ];
-               } else {
+                if ($orSoumis->getNatureOperation() === 'VTE' && $orSoumis->getDevisVenteOuForfait() === 'DEVIS FORFAIT') {
+                    $recapOr[] = [
+                        'itv' => $orSoumis->getNumeroItv(),
+                        'mttTotal' => $orSoumis->getMontantVente(),
+                        'mttPieces' => $orSoumis->getMontantPiece(),
+                        'mttMo' => $orSoumis->getMontantMo(),
+                        'mttSt' => $orSoumis->getMontantAchatLocaux(),
+                        'mttLub' => $orSoumis->getMontantLubrifiants(),
+                        'mttAutres' => $orSoumis->getMontantFraisDivers(),
+                    ];
+                } else {
+                    $recapOr[] = [
+                        'itv' => $orSoumis->getNumeroItv(),
+                        'mttTotal' => $orSoumis->getMontantItv(),
+                        'mttPieces' => $orSoumis->getMontantPiece(),
+                        'mttMo' => $orSoumis->getMontantMo(),
+                        'mttSt' => $orSoumis->getMontantAchatLocaux(),
+                        'mttLub' => $orSoumis->getMontantLubrifiants(),
+                        'mttAutres' => $orSoumis->getMontantFraisDivers(),
+                    ];
+                }
+            } else {
                 $recapOr[] = [
                     'itv' => $orSoumis->getNumeroItv(),
                     'mttTotal' => $orSoumis->getMontantItv(),
@@ -254,25 +265,15 @@ class MontantPdfService
                     'mttLub' => $orSoumis->getMontantLubrifiants(),
                     'mttAutres' => $orSoumis->getMontantFraisDivers(),
                 ];
-               }
-            } else {
-            $recapOr[] = [
-                'itv' => $orSoumis->getNumeroItv(),
-                'mttTotal' => $orSoumis->getMontantItv(),
-                'mttPieces' => $orSoumis->getMontantPiece(),
-                'mttMo' => $orSoumis->getMontantMo(),
-                'mttSt' => $orSoumis->getMontantAchatLocaux(),
-                'mttLub' => $orSoumis->getMontantLubrifiants(),
-                'mttAutres' => $orSoumis->getMontantFraisDivers(),
-            ];
+            }
         }
-        }
+
         return $recapOr;
     }
 
     /**
      * La methode calcule la somme de chaque colonne de tableau pour la recapitulation de l'or
-     * ceci se met sur le footer du tableau 
+     * ceci se met sur le footer du tableau
      *
      * @param array $orSoumisValidataion
      * @return arrary

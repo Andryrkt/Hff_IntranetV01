@@ -3,11 +3,11 @@
 // console.php
 require_once 'vendor/autoload.php';
 
+use Symfony\Bundle\MakerBundle\MakerBundle;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Bundle\MakerBundle\MakerBundle;
 
 $container = new ContainerBuilder();
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/config'));

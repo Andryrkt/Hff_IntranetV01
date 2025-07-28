@@ -7,6 +7,7 @@ class ConversionService
     public static function convertToDateTime(string $dateString, string $format = 'Y-m-d'): ?\DateTime
     {
         $dateTime = \DateTime::createFromFormat($format, $dateString);
+
         return ($dateTime && $dateTime->format($format) === $dateString) ? $dateTime : null;
     }
 

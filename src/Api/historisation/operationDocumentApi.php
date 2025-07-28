@@ -15,8 +15,8 @@ class operationDocumentApi extends Controller
      */
     public function allOperationDocument()
     {
-        /** 
-         * @var HistoriqueOperationDocument[] $operationDocuments tableau d'entité 
+        /**
+         * @var HistoriqueOperationDocument[] $operationDocuments tableau d'entité
          */
         $operationDocuments = self::$em->getRepository(HistoriqueOperationDocument::class)->findBy([], ['id' => 'DESC']);
 
@@ -24,12 +24,12 @@ class operationDocumentApi extends Controller
         foreach ($operationDocuments as $operationDocument) {
             $results[] = [
                 'numeroDocument' => $operationDocument->getNumeroDocument(),
-                'date'           => $operationDocument->getDateOperation()->format('d-m-Y') . ' ' . strstr($operationDocument->getHeureOperation(), '.', true), // strstr retourne la première occurence de la chaîne avant '.'
-                'username'       => $operationDocument->getUtilisateur(),
-                'operationType'  => $operationDocument->getIdTypeOperation()->getTypeOperation(),
-                'documentType'   => $operationDocument->getIdTypeDocument()->getLibelleDocument(),
-                'statut'         => $operationDocument->getStatutOperation(),
-                'libelle'        => $operationDocument->getLibelleOperation(),
+                'date' => $operationDocument->getDateOperation()->format('d-m-Y') . ' ' . strstr($operationDocument->getHeureOperation(), '.', true), // strstr retourne la première occurence de la chaîne avant '.'
+                'username' => $operationDocument->getUtilisateur(),
+                'operationType' => $operationDocument->getIdTypeOperation()->getTypeOperation(),
+                'documentType' => $operationDocument->getIdTypeDocument()->getLibelleDocument(),
+                'statut' => $operationDocument->getStatutOperation(),
+                'libelle' => $operationDocument->getLibelleOperation(),
             ];
         }
 

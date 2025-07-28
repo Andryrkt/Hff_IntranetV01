@@ -1,15 +1,16 @@
 <?php
+
 namespace App\Controller;
 
-use Twig\Environment;
 use App\Entity\admin\utilisateur\User;
+use App\Service\log\UserActivityLoggerService;
 use App\Service\session\SessionService;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\log\UserActivityLoggerService;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Environment;
 
 abstract class AbstractController
 {
@@ -19,8 +20,6 @@ abstract class AbstractController
     {
         $this->container = $container;
     }
-
-    
 
     /**
      * methode pour afficher une vue twig
@@ -91,7 +90,6 @@ abstract class AbstractController
         );
     }
 
-
     /**
      * Verification si l'utilisateur est connecter
      *
@@ -101,7 +99,7 @@ abstract class AbstractController
     {
         $session = $this->container->get(SessionInterface::class);
 
-        if (!$session->has('user_id')) {
+        if (! $session->has('user_id')) {
             return $this->redirectToRoute("security_login_form");
         }
 
@@ -127,8 +125,4 @@ abstract class AbstractController
     {
         return $this->container->getParameter('base_url');
     }
-
 }
-
-
-

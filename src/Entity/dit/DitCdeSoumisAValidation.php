@@ -2,11 +2,8 @@
 
 namespace App\Entity\dit;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\dit\DitCdeSoumisAValidationRepository;
-
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DitCdeSoumisAValidationRepository::class)
@@ -14,7 +11,7 @@ use App\Repository\dit\DitCdeSoumisAValidationRepository;
  * @ORM\HasLifecycleCallbacks
  */
 class DitCdeSoumisAValidation
-{    
+{
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -49,25 +46,22 @@ class DitCdeSoumisAValidation
 
     private $pieceJoint01;
 
-
-
-/** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
     }
 
-
     /**
      * Get the value of numeroCde
-     */ 
+     */
     public function getNumeroCde()
     {
         return $this->numeroCde;
@@ -77,7 +71,7 @@ class DitCdeSoumisAValidation
      * Set the value of numeroCde
      *
      * @return  self
-     */ 
+     */
     public function setNumeroCde($numeroCde)
     {
         $this->numeroCde = $numeroCde;
@@ -87,7 +81,7 @@ class DitCdeSoumisAValidation
 
     /**
      * Get the value of utilisateur
-     */ 
+     */
     public function getUtilisateur()
     {
         return $this->utilisateur;
@@ -97,7 +91,7 @@ class DitCdeSoumisAValidation
      * Set the value of utilisateur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateur($utilisateur)
     {
         $this->utilisateur = $utilisateur;
@@ -107,7 +101,7 @@ class DitCdeSoumisAValidation
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -117,7 +111,7 @@ class DitCdeSoumisAValidation
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
@@ -127,7 +121,7 @@ class DitCdeSoumisAValidation
 
     /**
      * Get the value of numeroOrs
-     */ 
+     */
     public function getNumeroOrs()
     {
         return $this->numeroOrs;
@@ -137,7 +131,7 @@ class DitCdeSoumisAValidation
      * Set the value of numeroOrs
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOrs($numeroOrs)
     {
         $this->numeroOrs = $numeroOrs;
@@ -147,7 +141,7 @@ class DitCdeSoumisAValidation
 
     /**
      * Get the value of statut
-     */ 
+     */
     public function getStatut()
     {
         return $this->statut;
@@ -157,7 +151,7 @@ class DitCdeSoumisAValidation
      * Set the value of statut
      *
      * @return  self
-     */ 
+     */
     public function setStatut($statut)
     {
         $this->statut = $statut;
@@ -167,7 +161,7 @@ class DitCdeSoumisAValidation
 
     /**
      * Get the value of file
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -177,7 +171,7 @@ class DitCdeSoumisAValidation
      * Set the value of file
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;

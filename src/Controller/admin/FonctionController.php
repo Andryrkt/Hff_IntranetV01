@@ -20,13 +20,15 @@ class FonctionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
-    
-    
-        self::$twig->display('admin/fonction/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        $data = self::$em->getRepository(Fonction::class)->findBy([], ['id' => 'DESC']);
+
+
+        self::$twig->display(
+            'admin/fonction/list.html.twig',
+            [
+            'data' => $data,
+        ]
+        );
     }
 
     /**
@@ -35,27 +37,27 @@ class FonctionController extends Controller
      * @return void
      */
     public function new(Request $request)
-    {    
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $form = self::$validator->createBuilder(FonctionType::class)->getForm();
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $fonction= $form->getData();
-                
+        if ($form->isSubmitted() && $form->isValid()) {
+            $fonction = $form->getData();
+
             self::$em->persist($fonction);
             self::$em->flush();
             $this->redirectToRoute("fonction_index");
         }
 
-        self::$twig->display('admin/fonction/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        self::$twig->display(
+            'admin/fonction/new.html.twig',
+            [
+            'form' => $form->createView(),
+        ]
+        );
     }
-
 }

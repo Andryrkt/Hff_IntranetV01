@@ -2,37 +2,37 @@
 
 namespace App\Form\dit;
 
-
-use Symfony\Component\Form\AbstractType;
 use App\Entity\dit\DitDevisSoumisAValidation;
+use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
-
+use Symfony\Component\Validator\Constraints\File;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class DitDevisSoumisAValidationType extends AbstractType
 {
-    
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('numeroDit',
-            TextType::class,
-            [
+            ->add(
+                'numeroDit',
+                TextType::class,
+                [
                 'label' => 'Numéro DIT',
                 'data' => $options['data']->getNumeroDit(),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('numeroDevis',
-            IntegerType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'numeroDevis',
+                IntegerType::class,
+                [
                 'label' => 'Numéro devis *',
                 'required' => false,
                 'constraints' => [
@@ -44,12 +44,14 @@ class DitDevisSoumisAValidationType extends AbstractType
                 'attr' => [
                     'min' => 0,
                     'pattern' => '\d*', // Permet uniquement l'entrée de chiffres
-                    'disabled' => true
+                    'disabled' => true,
                 ],
-                'data' => $options['data']->getNumeroDevis()
-            ])
-            ->add('pieceJoint01', 
-                FileType::class, 
+                'data' => $options['data']->getNumeroDevis(),
+            ]
+            )
+            ->add(
+                'pieceJoint01',
+                FileType::class,
                 [
                     'label' => 'Upload File',
                     'required' => true,
@@ -64,10 +66,11 @@ class DitDevisSoumisAValidationType extends AbstractType
                                 'application/pdf',
                             ],
                             'mimeTypesMessage' => 'Veuillez télécharger un fichier PDF valide.',
-                        ])
+                        ]),
                     ],
-                ])
-       ;
+                ]
+            )
+        ;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -76,6 +79,4 @@ class DitDevisSoumisAValidationType extends AbstractType
             'data_class' => DitDevisSoumisAValidation::class,
         ]);
     }
-
-
 }

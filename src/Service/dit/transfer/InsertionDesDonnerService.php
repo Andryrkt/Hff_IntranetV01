@@ -2,7 +2,6 @@
 
 namespace App\Service\dit\transfer;
 
-use App\Controller\Controller;
 use Doctrine\ORM\EntityManagerInterface;
 
 class InsertionDesDonnerService
@@ -30,7 +29,7 @@ class InsertionDesDonnerService
             }
             $i++;
         }
-        
+
         // Dernier flush
         $this->em->flush();
     }

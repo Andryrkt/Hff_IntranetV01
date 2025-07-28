@@ -3,8 +3,8 @@
 namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
@@ -46,7 +46,7 @@ class TikSearch
     private bool $autoriser;
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
@@ -374,21 +374,21 @@ class TikSearch
     public function toArray(): array
     {
         return [
-            'numeroTicket'    => $this->numeroTicket,
-            'demandeur'       => $this->demandeur,
-            'numParc'         => $this->numParc,
-            'statut'          => $this->statut === null ? null : $this->statut->getId(),
-            'niveauUrgence'   => $this->niveauUrgence === null ? null : $this->niveauUrgence->getId(),
-            'nomIntervenant'  => $this->nomIntervenant === null ? null : $this->nomIntervenant->getId(),
-            'dateDebut'       => $this->dateDebut,
-            'dateFin'         => $this->dateFin,
-            'agenceEmetteur'  => $this->agenceEmetteur === null ? null : $this->agenceEmetteur->getId(),
+            'numeroTicket' => $this->numeroTicket,
+            'demandeur' => $this->demandeur,
+            'numParc' => $this->numParc,
+            'statut' => $this->statut === null ? null : $this->statut->getId(),
+            'niveauUrgence' => $this->niveauUrgence === null ? null : $this->niveauUrgence->getId(),
+            'nomIntervenant' => $this->nomIntervenant === null ? null : $this->nomIntervenant->getId(),
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
+            'agenceEmetteur' => $this->agenceEmetteur === null ? null : $this->agenceEmetteur->getId(),
             'serviceEmetteur' => $this->serviceEmetteur === null ? null : $this->serviceEmetteur->getId(),
-            'agenceDebiteur'  => $this->agenceDebiteur === null ? null : $this->agenceDebiteur->getId(),
+            'agenceDebiteur' => $this->agenceDebiteur === null ? null : $this->agenceDebiteur->getId(),
             'serviceDebiteur' => $this->serviceDebiteur === null ? null : $this->serviceDebiteur->getId(),
-            'categorie'       => $this->categorie === null ? null : $this->categorie->getId(),
-            'sousCategorie'   => $this->sousCategorie === null ? null : $this->sousCategorie->getId(),
-            'autreCategorie'  => $this->autresCategories === null ? null : $this->autresCategories->getId()
+            'categorie' => $this->categorie === null ? null : $this->categorie->getId(),
+            'sousCategorie' => $this->sousCategorie === null ? null : $this->sousCategorie->getId(),
+            'autreCategorie' => $this->autresCategories === null ? null : $this->autresCategories->getId(),
         ];
     }
 }

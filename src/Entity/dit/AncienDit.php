@@ -2,25 +2,24 @@
 
 namespace App\Entity\dit;
 
-use DateTime;
 use App\Entity\admin\Agence;
+use App\Entity\admin\dit\CategorieATEApp;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Secteur;
 use App\Entity\admin\Service;
 use App\Entity\admin\Societte;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
-use App\Repository\dit\DitRepository;
-use App\Entity\Traits\QuantiteDitTrait;
-use App\Entity\admin\dit\CategorieATEApp;
-use App\Entity\admin\dit\WorTypeDocument;
-use App\Entity\Traits\AgenceServiceTrait;
-use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\Traits\BilanFinancierMaterielTrait;
 use App\Entity\Traits\CaracteristiqueMaterielTrait;
+use App\Entity\Traits\QuantiteDitTrait;
+use App\Repository\dit\DitRepository;
+use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
-
 
 /**
  * @ORM\Entity(repositoryClass=DitRepository::class)
@@ -30,12 +29,12 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 class AncienDit
 {
-   use AgenceServiceEmetteurTrait;
-   use AgenceServiceTrait;
-   use CaracteristiqueMaterielTrait;
-   use BilanFinancierMaterielTrait;
-   use QuantiteDitTrait;
-   
+    use AgenceServiceEmetteurTrait;
+    use AgenceServiceTrait;
+    use CaracteristiqueMaterielTrait;
+    use BilanFinancierMaterielTrait;
+    use QuantiteDitTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -43,7 +42,7 @@ class AncienDit
      * @Groups("intervention")
      */
     private $id;
-    
+
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit",nullable=true)
      * @Groups("intervention")
@@ -55,20 +54,20 @@ class AncienDit
      * @ORM\JoinColumn(name="type_document", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $typeDocument = null;//relation avec la table wor_type_document
+    private $typeDocument = null;//relation avec la table wor_type_document
 
     /**
      * @ORM\ManyToOne(targetEntity=Societte::class, inversedBy="demandeInterventions")
      * @ORM\JoinColumn(name="code_societe", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $codeSociete = null;// relation avec la table societe
+    private $codeSociete = null;// relation avec la table societe
 
     /**
      * @ORM\Column(type="string", length=30, name="type_reparation",nullable=true)
      * @Groups("intervention")
      */
-    private  $typeReparation = null;
+    private $typeReparation = null;
 
     /**
      * @ORM\Column(type="string", length=30, name="reparation_realise",nullable=true)
@@ -76,11 +75,11 @@ class AncienDit
      */
     private ?string $reparationRealise = null;
 
-   /**
-     * @ORM\ManyToOne(targetEntity=CategorieATEApp::class, inversedBy="demandeInterventions")
-     * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
-     * @Groups("intervention")
-     */
+    /**
+      * @ORM\ManyToOne(targetEntity=CategorieATEApp::class, inversedBy="demandeInterventions")
+      * @ORM\JoinColumn(name="categorie_demande", referencedColumnName="id")
+      * @Groups("intervention")
+      */
     private ?CategorieAteApp $categorieDemande = null;//relation avec la table categorie_ate_app
 
     /**
@@ -111,7 +110,7 @@ class AncienDit
      * @ORM\Column(type="string", length=10, name="numero_telephone",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $numeroTel= null;
+    private ?string $numeroTel = null;
 
     /**
      * @ORM\Column(type="datetime",  name="date_or",nullable=true)
@@ -142,7 +141,7 @@ class AncienDit
      * @ORM\JoinColumn(name="id_niveau_urgence", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $idNiveauUrgence = null;
+    private $idNiveauUrgence = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="avis_recouvrement",nullable=true)
@@ -164,7 +163,7 @@ class AncienDit
 
     /**
      * @ORM\Column(type="string", length=5000, name="detail_demande",nullable=true)
-     * 
+     *
      * @Groups("intervention")
      */
     private ?string $detailDemande = null;
@@ -193,12 +192,12 @@ class AncienDit
      */
     private ?datetime $dateDemande = null;
 
-/**
- * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
- * @Groups("intervention")
- *
- * @var string|null
- */
+    /**
+     * @ORM\Column(type="string", length=5, name="heure_demande", nullable=true)
+     * @Groups("intervention")
+     *
+     * @var string|null
+     */
     private ?string $heureDemande = null;
 
     /**
@@ -235,9 +234,9 @@ class AncienDit
      * )
      * @Groups("intervention")
      */
-    private ?string $pieceJoint01 =null;
+    private ?string $pieceJoint01 = null;
 
-        /**
+    /**
      * @ORM\Column(type="string", length=200, name="piece_joint2", nullable=true)
      * @Assert\File(
      *     maxSize="5M",
@@ -246,7 +245,7 @@ class AncienDit
      * )
      * @Groups("intervention")
      */
-    private ?string $pieceJoint02=null;
+    private ?string $pieceJoint02 = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="utilisateur_demandeur", nullable=true)
@@ -334,7 +333,7 @@ class AncienDit
      * @var datetime|null
      */
     private ?datetime $dateDevisRattache = null;
-    
+
     /**
      * @ORM\Column(type="string", length=3, name="devis_valide",nullable=true)
      * @Groups("intervention")
@@ -413,7 +412,6 @@ class AncienDit
      */
     private ?string $statutOr = null;
 
-
     /**
      * @ORM\Column(type="string", length=255, name="statut_commande")
      *
@@ -428,33 +426,33 @@ class AncienDit
      */
     private ?\DateTime $dateValidationOr = null;
 
-     /**
-     * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
-     * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
-     * @Groups("intervention")
-     */
-    private  $agenceEmetteurId;
+    /**
+    * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceEmetteur")
+    * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
+    * @Groups("intervention")
+    */
+    private $agenceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceEmetteur")
      * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $serviceEmetteurId;
+    private $serviceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceDebiteur")
      * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $agenceDebiteurId;
+    private $agenceDebiteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceDebiteur")
      * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
      * @Groups("intervention")
      */
-    private  $serviceDebiteurId;
+    private $serviceDebiteurId;
 
     //===================================================================================================================
 
@@ -463,13 +461,11 @@ class AncienDit
         return $this->id;
     }
 
-    
     public function getNumeroDemandeIntervention(): string
     {
         return $this->numeroDemandeIntervention;
     }
 
-   
     public function setNumeroDemandeIntervention(string $numeroDemandeIntervention): self
     {
         $this->numeroDemandeIntervention = $numeroDemandeIntervention;
@@ -477,27 +473,23 @@ class AncienDit
         return $this;
     }
 
-
     public function getTypeDocument()
     {
         return $this->typeDocument;
     }
 
-    
     public function setTypeDocument($typeDocument): self
     {
         $this->typeDocument = $typeDocument;
 
         return $this;
     }
-    
-     
+
     public function getCodeSociete()
     {
         return $this->codeSociete;
     }
 
-    
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
@@ -510,20 +502,18 @@ class AncienDit
         return $this->typeReparation;
     }
 
-    public function setTypeReparation( string $typeReparation): self
+    public function setTypeReparation(string $typeReparation): self
     {
         $this->typeReparation = $typeReparation;
 
         return $this;
     }
 
-    
     public function getReparationRealise()
     {
         return $this->reparationRealise;
     }
 
-    
     public function setReparationRealise($reparationRealise): self
     {
         $this->reparationRealise = $reparationRealise;
@@ -531,13 +521,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getCategorieDemande()
     {
         return $this->categorieDemande;
     }
 
-    
     public function setCategorieDemande($categorieDemande): self
     {
         $this->categorieDemande = $categorieDemande;
@@ -545,13 +533,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getInternetExterne()
     {
         return $this->internetExterne;
     }
 
-   
     public function setInternetExterne($internetExterne): self
     {
         $this->internetExterne = $internetExterne;
@@ -559,13 +545,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getAgenceServiceDebiteur()
     {
         return $this->agenceServiceDebiteur;
     }
 
-    
     public function setAgenceServiceDebiteur($agenceServiceDebiteur): self
     {
         $this->agenceServiceDebiteur = $agenceServiceDebiteur;
@@ -573,13 +557,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getAgenceServiceEmetteur()
     {
         return $this->agenceServiceEmetteur;
     }
 
-    
     public function setAgenceServiceEmetteur($agenceServiceEmetteur): self
     {
         $this->agenceServiceEmetteur = $agenceServiceEmetteur;
@@ -587,13 +569,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getNomClient()
     {
         return $this->nomClient;
     }
 
-    
     public function setNomClient($nomClient): self
     {
         $this->nomClient = $nomClient;
@@ -606,7 +586,6 @@ class AncienDit
         return $this->numeroTel;
     }
 
-    
     public function setNumeroTel($numeroTel): self
     {
         $this->numeroTel = $numeroTel;
@@ -614,13 +593,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getDateOr()
     {
         return $this->dateOr;
     }
 
-    
     public function setDateOr($dateOr): self
     {
         $this->dateOr = $dateOr;
@@ -628,13 +605,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getHeureOR()
     {
         return $this->heureOR;
     }
 
-    
     public function setHeureOR($heureOR): self
     {
         $this->heureOR = $heureOR;
@@ -642,13 +617,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getDatePrevueTravaux()
     {
         return $this->datePrevueTravaux;
     }
 
-    
     public function setDatePrevueTravaux($datePrevueTravaux): self
     {
         $this->datePrevueTravaux = $datePrevueTravaux;
@@ -656,13 +629,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getDemandeDevis()
     {
         return $this->demandeDevis;
     }
 
-    
     public function setDemandeDevis($demandeDevis): self
     {
         $this->demandeDevis = $demandeDevis;
@@ -670,13 +641,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getIdNiveauUrgence()
     {
         return $this->idNiveauUrgence;
     }
 
-    
     public function setIdNiveauUrgence($idNiveauUrgence): self
     {
         $this->idNiveauUrgence = $idNiveauUrgence;
@@ -684,13 +653,11 @@ class AncienDit
         return $this;
     }
 
-  
     public function getAvisRecouvrement()
     {
         return $this->avisRecouvrement;
     }
 
-    
     public function setAvisRecouvrement($avisRecouvrement): self
     {
         $this->avisRecouvrement = $avisRecouvrement;
@@ -698,13 +665,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getClientSousContrat()
     {
         return $this->clientSousContrat;
     }
 
-   
     public function setClientSousContrat($clientSousContrat): self
     {
         $this->clientSousContrat = $clientSousContrat;
@@ -712,7 +677,6 @@ class AncienDit
         return $this;
     }
 
-    
     public function getObjetDemande()
     {
         return $this->objetDemande;
@@ -725,13 +689,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getDetailDemande()
     {
         return $this->detailDemande;
     }
 
-   
     public function setDetailDemande($detailDemande): self
     {
         $this->detailDemande = $detailDemande;
@@ -739,13 +701,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getLivraisonPartiel()
     {
         return $this->livraisonPartiel;
     }
 
-    
     public function setLivraisonPartiel($livraisonPartiel): self
     {
         $this->livraisonPartiel = $livraisonPartiel;
@@ -753,13 +713,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getIdMateriel()
     {
         return $this->idMateriel;
     }
 
-    
     public function setIdMateriel($idMateriel): self
     {
         $this->idMateriel = $idMateriel;
@@ -767,13 +725,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getMailDemandeur()
     {
         return $this->mailDemandeur;
     }
 
-    
     public function setMailDemandeur($mailDemandeur): self
     {
         $this->mailDemandeur = $mailDemandeur;
@@ -781,12 +737,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateDemande()
     {
         return $this->dateDemande;
     }
-
 
     public function setDateDemande($dateDemande): self
     {
@@ -795,13 +749,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getHeureDemande()
     {
         return $this->heureDemande;
     }
 
-   
     public function setHeureDemande($heureDemande): self
     {
         $this->heureDemande = $heureDemande;
@@ -809,13 +761,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getDateCloture()
     {
         return $this->dateCloture;
     }
 
-   
     public function setDateCloture($dateCloture): self
     {
         $this->dateCloture = $dateCloture;
@@ -823,13 +773,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getHeureCloture()
     {
         return $this->heureCloture;
     }
 
-   
     public function setHeureCloture($heureCloture): self
     {
         $this->heureCloture = $heureCloture;
@@ -837,13 +785,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getPieceJoint03()
     {
         return $this->pieceJoint03;
     }
 
-    
     public function setPieceJoint03($pieceJoint03): self
     {
         $this->pieceJoint03 = $pieceJoint03;
@@ -851,13 +797,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
     }
 
-   
     public function setPieceJoint01($pieceJoint01): self
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -865,13 +809,11 @@ class AncienDit
         return $this;
     }
 
-   
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
     }
 
-    
     public function setPieceJoint02($pieceJoint02): self
     {
         $this->pieceJoint02 = $pieceJoint02;
@@ -879,13 +821,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getUtilisateurDemandeur()
     {
         return $this->utilisateurDemandeur;
     }
 
-   
     public function setUtilisateurDemandeur($utilisateurDemandeur): self
     {
         $this->utilisateurDemandeur = $utilisateurDemandeur;
@@ -893,13 +833,11 @@ class AncienDit
         return $this;
     }
 
-
     public function getObservations()
     {
         return $this->observations;
     }
 
-  
     public function setObservations($observations): self
     {
         $this->observations = $observations;
@@ -907,13 +845,11 @@ class AncienDit
         return $this;
     }
 
-
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
     }
 
-   
     public function setIdStatutDemande($idStatutDemande): self
     {
         $this->idStatutDemande = $idStatutDemande;
@@ -921,12 +857,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateValidation()
     {
         return $this->dateValidation;
     }
-
 
     public function setDateValidation($dateValidation): self
     {
@@ -935,12 +869,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getHeureValidation()
     {
         return $this->heureValidation;
     }
-
 
     public function setHeureValidation($heureValidation): self
     {
@@ -949,20 +881,17 @@ class AncienDit
         return $this;
     }
 
-
     public function getNumeroClient()
     {
         return $this->numeroClient;
     }
 
-   
     public function setNumeroClient($numeroClient): self
     {
         $this->numeroClient = $numeroClient;
 
         return $this;
     }
-
 
     public function getLibelleClient()
     {
@@ -976,12 +905,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateFinSouhaite()
     {
         return $this->dateFinSouhaite;
     }
-
 
     public function setDateFinSouhaite($dateFinSouhaite): self
     {
@@ -990,12 +917,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getNumeroOR()
     {
         return $this->numeroOR;
     }
-
 
     public function setNumeroOR($numeroOR): self
     {
@@ -1004,13 +929,11 @@ class AncienDit
         return $this;
     }
 
-
     public function getObservationDirectionTechnique()
     {
         return $this->observationDirectionTechnique;
     }
 
-    
     public function setObservationDirectionTechnique($observationDirectionTechnique): self
     {
         $this->observationDirectionTechnique = $observationDirectionTechnique;
@@ -1018,12 +941,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getObservationDevis()
     {
         return $this->observationDevis;
     }
-
 
     public function setObservationDevis($observationDevis): self
     {
@@ -1032,12 +953,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getNumeroDevisRattache()
     {
         return $this->numeroDevisRattache;
     }
-
 
     public function setNumeroDevisRattache($numeroDevisRattache): self
     {
@@ -1046,12 +965,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateSoumissionDevis()
     {
         return $this->dateSoumissionDevis;
     }
-
 
     public function setDateSoumissionDevis($dateSoumissionDevis): self
     {
@@ -1060,12 +977,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDevisValide()
     {
         return $this->devisValide;
     }
-
 
     public function setDevisValide($devisValide): self
     {
@@ -1074,13 +989,11 @@ class AncienDit
         return $this;
     }
 
- 
     public function getDateValidationDevis()
     {
         return $this->dateValidationDevis;
     }
 
-    
     public function setDateValidationDevis($dateValidationDevis): self
     {
         $this->dateValidationDevis = $dateValidationDevis;
@@ -1088,13 +1001,11 @@ class AncienDit
         return $this;
     }
 
-
     public function getIdServiceIntervenant()
     {
         return $this->idServiceIntervenant;
     }
 
-   
     public function setIdServiceIntervenant($idServiceIntervenant): self
     {
         $this->idServiceIntervenant = $idServiceIntervenant;
@@ -1102,12 +1013,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateDevisFinProbable()
     {
         return $this->dateDevisFinProbable;
     }
-
 
     public function setDateDevisFinProbable($dateDevisFinProbable): self
     {
@@ -1116,12 +1025,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getDateFinEstimationTravaux()
     {
         return $this->dateFinEstimationTravaux;
     }
-
 
     public function setDateFinEstimationTravaux($dateFinEstimationTravaux): self
     {
@@ -1130,12 +1037,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getCodeSection()
     {
         return $this->codeSection;
     }
-
 
     public function setCodeSection($codeSection): self
     {
@@ -1144,12 +1049,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getMasAte()
     {
         return $this->masAte;
     }
-
 
     public function setMasAte($masAte): self
     {
@@ -1158,12 +1061,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getCodeAte()
     {
         return $this->codeAte;
     }
-
 
     public function setCodeAte($codeAte): self
     {
@@ -1171,7 +1072,6 @@ class AncienDit
 
         return $this;
     }
-
 
     public function getSecteur()
     {
@@ -1185,12 +1085,10 @@ class AncienDit
         return $this;
     }
 
-
     public function getUtilisateurIntervenant()
     {
         return $this->utilisateurIntervenant;
     }
-
 
     public function setUtilisateurIntervenant($utilisateurIntervenant): self
     {
@@ -1207,6 +1105,7 @@ class AncienDit
     public function setSectionAffectee($sectionAffectee): self
     {
         $this->sectionAffectee = $sectionAffectee;
+
         return $this;
     }
 
@@ -1218,6 +1117,7 @@ class AncienDit
     public function setStatutOr($statutOr): self
     {
         $this->statutOr = $statutOr;
+
         return $this;
     }
 
@@ -1229,16 +1129,15 @@ class AncienDit
     public function setStatutCommande($statutCommande): self
     {
         $this->statutCommande = $statutCommande;
+
         return $this;
     }
 
-    
     public function getDateValidationOr()
     {
         return $this->dateValidationOr;
     }
 
-    
     public function setDateValidationOr(?\DateTime $dateValidationOr): self
     {
         $this->dateValidationOr = $dateValidationOr;
@@ -1246,13 +1145,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getAgenceEmetteurId()
     {
         return $this->agenceEmetteurId;
     }
 
-    
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -1260,13 +1157,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
 
-   
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
         $this->serviceEmetteurId = $serviceEmetteurId;
@@ -1274,13 +1169,11 @@ class AncienDit
         return $this;
     }
 
-  
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
 
-    
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
         $this->agenceDebiteurId = $agenceDebiteurId;
@@ -1288,13 +1181,11 @@ class AncienDit
         return $this;
     }
 
-    
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
 
-    
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
         $this->serviceDebiteurId = $serviceDebiteurId;

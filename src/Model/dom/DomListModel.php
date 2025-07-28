@@ -2,7 +2,6 @@
 
 namespace App\Model\dom;
 
-use Exception;
 use App\Model\Model;
 
 class DomListModel extends Model
@@ -40,9 +39,8 @@ class DomListModel extends Model
     //     return $array;
     // }
 
-
     /**
-     * récupere le code Statut et libelle statut 
+     * récupere le code Statut et libelle statut
      */
     public function getListStatut()
     {
@@ -58,6 +56,7 @@ class DomListModel extends Model
         while ($tabStat = odbc_fetch_array($exstat)) {
             $ListStat[] = $tabStat;
         }
+
         return $this->decode_entities_in_array($ListStat);
     }
 
@@ -76,19 +75,17 @@ class DomListModel extends Model
         return $sousType;
     }
 
-
-
     /**
-     * @Andryrkt 
-     * cette fonction récupère les données dans la base de donnée  
+     * @Andryrkt
+     * cette fonction récupère les données dans la base de donnée
      * rectifier les caractère spéciaux et return un tableau
      * pour listeDomRecherhce
      * limiter l'accées des utilisateurs
      */
-    public function RechercheModel( $tab, $page, $pageSize, $ConnectUser): array
+    public function RechercheModel($tab, $page, $pageSize, $ConnectUser): array
     {
-        $offset = intval(($page - 1) * $pageSize); 
-    
+        $offset = intval(($page - 1) * $pageSize);
+
         $sql = "SELECT 
             DOM.ID_Demande_Ordre_Mission, 
             SD.Description,
@@ -115,14 +112,14 @@ class DomListModel extends Model
         LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
         LEFT JOIN Agence_Service_Irium ASI ON ASI.agence_ips + ASI.service_ips = DOM.Code_AgenceService_Debiteur
         ";
-    
+
         // Build the WHERE clause based on provided filters
-       
+
         $conditions = $this->buildConditions($tab);
 
-    
 
-        if (!empty($conditions)) {
+
+        if (! empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
             $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
         FROM Agence_service_autorise 
@@ -134,28 +131,29 @@ class DomListModel extends Model
             WHERE Session_Utilisateur = '" . $ConnectUser . "' ) 
             ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
         }
-    
+
 
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);
-    
+
         // Fetch and clean results
         return $this->fetchAndCleanResults($statement);
     }
 
-    public function getTotalRecords($tab, $ConnectUser) {
-    
+    public function getTotalRecords($tab, $ConnectUser)
+    {
+
         $sql = "SELECT COUNT(*) AS total FROM Demande_ordre_mission DOM
                 LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
                 ";
-    
+
         $params = [];
         $conditions = [];
-    
+
         $conditions = $this->buildConditions($tab);
-    
-        if (!empty($conditions)) {
+
+        if (! empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
             $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM)  
         FROM Agence_service_autorise 
@@ -166,29 +164,29 @@ class DomListModel extends Model
         WHERE Session_Utilisateur = '{$ConnectUser}' )";
         }
 
-        
-    
+
+
         $statement = $this->connexion->query($sql);
-     
-    
+
+
         // Fetch the results
         $result = odbc_fetch_array($statement);
-    
+
         return $result['total'];
     }
 
     /**
-     * @Andryrkt 
-     * cette fonction récupère les données dans la base de donnée  
+     * @Andryrkt
+     * cette fonction récupère les données dans la base de donnée
      * rectifier les caractère spéciaux et return un tableau
      * pour listeDomRecherhce
      * limiter l'accées des utilisateurs
      */
     public function RechercheModelAll($tab, $page, $pageSize): array
     {
-            
-        $offset = intval(($page - 1) * $pageSize); 
-    
+
+        $offset = intval(($page - 1) * $pageSize);
+
         $sql = "SELECT 
             DOM.ID_Demande_Ordre_Mission, 
             SD.Description,
@@ -215,80 +213,74 @@ class DomListModel extends Model
         LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
         LEFT JOIN Agence_Service_Irium ASI ON ASI.agence_ips + ASI.service_ips = DOM.Code_AgenceService_Debiteur
         ";
-    
+
         // Build the WHERE clause based on provided filters
-       
+
         $conditions = $this->buildConditions($tab);
 
- 
 
-        if (!empty($conditions)) {
+
+        if (! empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
         }
-    
+
         $sql .= " ORDER BY Numero_Ordre_Mission DESC OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
 
-        
+
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);
-    
+
         // Fetch and clean results
         return $this->fetchAndCleanResults($statement);
     }
-    
-
 
     private function buildConditions(array $tab): array
-{
-    $conditions = [];
-   
-    
-    if(!empty($tab)){
-        if (!empty($tab['dateDemandeDebut'])) {
+    {
+        $conditions = [];
 
-            $conditions[]= "Date_Demande >=  '{$tab['dateDemandeDebut']}'";
-        }
-        if(!empty($tab['dateDemandeFin'])) {
-            $conditions[]= "Date_Demande <= '{$tab['dateDemandeFin']}'";
-        }
-        if(!empty($tab['dateMissionDebut'])){
-            $conditions[]= "Date_Debut >= '{$tab['dateMissionDebut']}'";
-        } 
-        if(!empty($tab['dateMissionFin'])){
-            $conditions[]= "Date_Fin <= '{$tab['dateMissionFin']}'";
+
+        if (! empty($tab)) {
+            if (! empty($tab['dateDemandeDebut'])) {
+
+                $conditions[] = "Date_Demande >=  '{$tab['dateDemandeDebut']}'";
+            }
+            if (! empty($tab['dateDemandeFin'])) {
+                $conditions[] = "Date_Demande <= '{$tab['dateDemandeFin']}'";
+            }
+            if (! empty($tab['dateMissionDebut'])) {
+                $conditions[] = "Date_Debut >= '{$tab['dateMissionDebut']}'";
+            }
+            if (! empty($tab['dateMissionFin'])) {
+                $conditions[] = "Date_Fin <= '{$tab['dateMissionFin']}'";
+            }
+
+            if (! empty($tab['Description'])) {
+                $conditions[] = "Description LIKE '%{$tab['Description']}%'";
+            }
+
+            if (! empty($tab['Sous_type_document'])) {
+                $conditions[] = "Sous_type_document LIKE '%{$tab['Sous_type_document']}%'";
+            }
+
+            if (! empty($tab['Matricule'])) {
+                $conditions[] = "Matricule LIKE '%{$tab['Matricule']}%'";
+            }
+
+            if (! empty($tab['Numero_Ordre_Mission'])) {
+                $conditions[] = "Numero_Ordre_Mission LIKE '%{$tab['Numero_Ordre_Mission']}%'";
+            }
+
+            if (isset($tab['exportExcel'])) {
+                return $conditions;
+            }
         }
 
-        if(!empty($tab['Description']))
-        {
-            $conditions[] = "Description LIKE '%{$tab['Description']}%'";
-        } 
 
-        if (!empty($tab['Sous_type_document'])) {
-            $conditions[] = "Sous_type_document LIKE '%{$tab['Sous_type_document']}%'";
-        }
 
-        if(!empty($tab['Matricule'])){
-            $conditions[] = "Matricule LIKE '%{$tab['Matricule']}%'";
-        }
-        
-        if(!empty($tab['Numero_Ordre_Mission'])){
-            $conditions[] = "Numero_Ordre_Mission LIKE '%{$tab['Numero_Ordre_Mission']}%'";
-        }
-        
-        if(isset($tab['exportExcel'])){
-            return $conditions;
-        }
+        return $conditions;
     }
 
-    
-    
-    return $conditions;
-}
-
-    
-   
-    
     private function fetchAndCleanResults($stmt): array
     {
         $result = [];
@@ -298,32 +290,33 @@ class DomListModel extends Model
             });
             $result[] = $this->decode_entities_in_array($row);
         }
+
         return $result;
     }
-    
 
-public function getTotalRecordsAll($tab) {
-    
-    $sql = "SELECT COUNT(*) AS total FROM Demande_ordre_mission DOM
+    public function getTotalRecordsAll($tab)
+    {
+
+        $sql = "SELECT COUNT(*) AS total FROM Demande_ordre_mission DOM
             LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande";
 
-    $params = [];
-    $conditions = [];
+        $params = [];
+        $conditions = [];
 
-    $conditions = $this->buildConditions($tab);
+        $conditions = $this->buildConditions($tab);
 
-    if (!empty($conditions)) {
-        $sql .= " WHERE " . implode(' AND ', $conditions);
+        if (! empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
+        }
+
+        $statement = $this->connexion->query($sql);
+
+
+        // Fetch the results
+        $result = odbc_fetch_array($statement);
+
+        return $result['total'];
     }
-
-    $statement = $this->connexion->query($sql);
- 
-
-    // Fetch the results
-    $result = odbc_fetch_array($statement);
-
-    return $result['total'];
-}
 
 
     // private function clean_string($string)
@@ -351,10 +344,9 @@ public function getTotalRecordsAll($tab) {
     //     }
     // }
 
-
     public function RechercheModelExcel($tab, $ConnectUser): array
     {
-            
+
         $sql = "SELECT 
             DOM.ID_Demande_Ordre_Mission, 
             SD.Description,
@@ -381,12 +373,12 @@ public function getTotalRecordsAll($tab) {
         LEFT JOIN Statut_demande SD ON DOM.ID_Statut_Demande = SD.ID_Statut_Demande
         LEFT JOIN Agence_Service_Irium ASI ON ASI.agence_ips + ASI.service_ips = DOM.Code_AgenceService_Debiteur
         ";
-    
+
         // Build the WHERE clause based on provided filters
-       
+
         $conditions = $this->buildConditions($tab);
 
-        if (!empty($conditions)) {
+        if (! empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
             $sql .= " AND DOM.Code_AgenceService_Debiteur IN (SELECT LOWER(Code_AgenceService_IRIUM) 
         
@@ -398,12 +390,12 @@ public function getTotalRecordsAll($tab) {
         FROM Agence_service_autorise 
         WHERE Session_Utilisateur = '" . $ConnectUser . "' ) ORDER BY Numero_Ordre_Mission DESC";
         }
-        
-    
+
+
         $statement = $this->connexion->query($sql);
         // Prepare and execute SQL statement
         //$stmt = $this->prepareAndExecute($conn, $sql, $params);
-    
+
         // Fetch and clean results
         return $this->fetchAndCleanResults($statement);
     }
@@ -411,7 +403,7 @@ public function getTotalRecordsAll($tab) {
     public function annulationCodestatut($numDom)
     {
         $sql = "UPDATE Demande_ordre_mission SET Code_Statut = ?, ID_Statut_Demande = ? WHERE Numero_Ordre_Mission = ?";
-        $params = array('ANN', 9,$numDom);
+        $params = ['ANN', 9,$numDom];
 
         $this->connexion->prepareAndExecute($sql, $params);
     }

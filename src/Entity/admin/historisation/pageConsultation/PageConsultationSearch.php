@@ -121,11 +121,11 @@ class PageConsultationSearch
     public function toArray(): array
     {
         return [
-            'utilisateur'    => $this->utilisateur,
-            'nom_page'       => $this->nom_page,
-            'machineUser'    => $this->machineUser,
-            'dateDebut'      => $this->dateDebut,
-            'dateFin'        => $this->dateFin,
+            'utilisateur' => $this->utilisateur,
+            'nom_page' => $this->nom_page,
+            'machineUser' => $this->machineUser,
+            'dateDebut' => $this->dateDebut,
+            'dateFin' => $this->dateFin,
         ];
     }
 }

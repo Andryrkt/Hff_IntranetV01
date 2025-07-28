@@ -9,7 +9,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class Autocomplete extends Controller
 {
-
     private DitAutocompleteModel $ditAutocompleteModel;
 
     public function __construct()

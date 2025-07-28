@@ -2,17 +2,15 @@
 
 namespace App\Entity\cas;
 
-use DateTime;
-use App\Entity\badm\Badm;
 use App\Entity\admin\Agence;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\badm\Badm;
 use App\Repository\cas\CasierRepository;
-use Doctrine\Common\Collections\Collection;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
-
-
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=CasierRepository::class)
@@ -21,7 +19,6 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class CasierValider
 {
-    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -35,7 +32,6 @@ class CasierValider
      * @var string
      */
     private string $casier;
-
 
     /**
      * @ORM\Column(type="date", name="Date_Creation")
@@ -53,7 +49,7 @@ class CasierValider
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="casiers")
      * @ORM\JoinColumn(name="Nom_Session_Utilisateur", referencedColumnName="id")
      */
-    private  $nomSessionUtilisateur;
+    private $nomSessionUtilisateur;
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="casiers")
@@ -67,24 +63,21 @@ class CasierValider
      */
     private $idStatutDemande = null;
 
-    
-     /**
-     * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="casierDestinataire")
-     */
+    /**
+    * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="casierDestinataire")
+    */
     private $badms;
 
     public function __construct()
     {
         $this->badms = new ArrayCollection();
     }
- 
 
     public function getId()
     {
         return $this->id;
     }
 
-    
     public function getCasier()
     {
         return $this->casier;
@@ -97,13 +90,11 @@ class CasierValider
         return $this;
     }
 
-
     public function getDateCreation()
     {
         return $this->dateCreation;
     }
 
-    
     public function setDateCreation($dateCreation): self
     {
         $this->dateCreation = $dateCreation;
@@ -111,13 +102,11 @@ class CasierValider
         return $this;
     }
 
-    
     public function getNumeroCas()
     {
         return $this->numeroCas;
     }
 
-   
     public function setNumeroCas(string $numeroCas): self
     {
         $this->numeroCas = $numeroCas;
@@ -125,13 +114,11 @@ class CasierValider
         return $this;
     }
 
-   
     public function getNomSessionUtilisateur()
     {
         return $this->nomSessionUtilisateur;
     }
 
-   
     public function setNomSessionUtilisateur($nomSessionUtilisateur): self
     {
         $this->nomSessionUtilisateur = $nomSessionUtilisateur;
@@ -139,26 +126,23 @@ class CasierValider
         return $this;
     }
 
-   
     public function getAgenceRattacher(): ?Agence
     {
         return $this->agenceRattacher;
     }
 
-   
     public function setAgenceRattacher(?Agence $agence): self
     {
         $this->agenceRattacher = $agence;
 
         return $this;
     }
- 
+
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
     }
 
-    
     public function setIdStatutDemande($idStatutDemande): self
     {
         $this->idStatutDemande = $idStatutDemande;
@@ -173,10 +157,11 @@ class CasierValider
 
     public function addBadm(Badm $badm): self
     {
-        if (!$this->badms->contains($badm)) {
+        if (! $this->badms->contains($badm)) {
             $this->badms[] = $badm;
             $badm->setCasierDestinataire($this);
         }
+
         return $this;
     }
 
@@ -188,12 +173,14 @@ class CasierValider
                 $badm->setCasierDestinataire(null);
             }
         }
+
         return $this;
     }
 
     public function setBadms($badms): self
     {
         $this->badms = $badms;
+
         return $this;
     }
 }

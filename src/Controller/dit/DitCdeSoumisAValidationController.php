@@ -3,11 +3,11 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Service\fichier\FileUploaderService;
 use App\Form\dit\DitCdeSoumisAValidationType;
+use App\Service\fichier\FileUploaderService;
+use App\Service\genererPdf\GenererPdfCdeSoumisAValidataion;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\genererPdf\GenererPdfCdeSoumisAValidataion;
 
 class DitCdeSoumisAValidationController extends Controller
 {
@@ -35,7 +35,7 @@ class DitCdeSoumisAValidationController extends Controller
         $this->logUserVisit('dit_insertion_cde'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dit/DitCdeSoumisAValidation.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 

@@ -11,7 +11,7 @@ class CdefnrSoumisAValidationModel extends Model
 
     public function recupListeFournissseur()
     {
-        $statement=" SELECT  
+        $statement = " SELECT  
                         FBSE_NUMFOU AS num_fournisseur,
                         UPPER(FBSE_NOMFOU) AS nom_fournisseur
                     FROM 
@@ -35,7 +35,7 @@ class CdefnrSoumisAValidationModel extends Model
 
     public function recupCdeFnrNonReceptionner($numFournisseur)
     {
-        $statement =" SELECT
+        $statement = " SELECT
                 FCDE_SUCC||FCDE_SERV  AS code_agence_service,
                 TRIM(ASUC_LIB)||' - '||trim(ATAB_LIB) AS libelle_agence_service,
                 FCDE_NUMCDE AS num_cde,
@@ -104,8 +104,8 @@ class CdefnrSoumisAValidationModel extends Model
 
     public function recupListeInitialCdeFrn($numFournisseur, $numCde = "")
     {
-        $numCde = !empty($numCde) ? " AND fcde_numcde = '".$numCde."'" : "";
-        
+        $numCde = ! empty($numCde) ? " AND fcde_numcde = '".$numCde."'" : "";
+
         $statement = " SELECT
                 fcde_numcde AS num_cde, 
                 fcde_date AS date_cde,
@@ -125,11 +125,11 @@ class CdefnrSoumisAValidationModel extends Model
                 order by fcde_date desc
         ";
 
-            $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-            $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-            return $this->convertirEnUtf8($data);
+        return $this->convertirEnUtf8($data);
     }
 
     public function recupListeCdeFrn(string $numCde04)
@@ -156,11 +156,11 @@ class CdefnrSoumisAValidationModel extends Model
                 order by fcde_date desc
         ";
 
-            $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-            $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-            return $this->convertirEnUtf8($data);
+        return $this->convertirEnUtf8($data);
     }
 
     public function recupNumCdeFrn(string $numCde04)
@@ -178,17 +178,17 @@ class CdefnrSoumisAValidationModel extends Model
                 order by fcde_date desc
         ";
 
-            $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
-            $data = $this->connect->fetchResults($result);
+        $data = $this->connect->fetchResults($result);
 
-            return $this->convertirEnUtf8($data);
+        return $this->convertirEnUtf8($data);
     }
 
     public function findsCde04()
     {
         $sqls = " SELECT Cust_ref from Ces_magasin where Eta_ivato = '1900-01-01' and Eta_magasin = '1900-01-01' ";
 
-        return array_column($this->retournerResult04($sqls),'Cust_ref');
+        return array_column($this->retournerResult04($sqls), 'Cust_ref');
     }
 }

@@ -2,11 +2,8 @@
 
 namespace App\Model;
 
-
-
 class OdbcCrudModel extends Model
 {
-
     public function create($tableName, $data)
     {
         $columns = implode(", ", array_keys($data));
@@ -15,9 +12,10 @@ class OdbcCrudModel extends Model
         }, array_values($data)));
         $sql = "INSERT INTO $tableName ($columns) VALUES ($values)";
         $result = odbc_exec($this->connexion, $sql);
-        if (!$result) {
+        if (! $result) {
             echo "Erreur lors de la création de l'enregistrement: " . odbc_errormsg($this->connexion);
         }
+
         return $result;
     }
 
@@ -37,13 +35,14 @@ class OdbcCrudModel extends Model
             $sql .= " ORDER BY $orderBy";
         }
 
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $sql .= " LIMIT $limit";
         }
 
         $result = odbc_exec($this->connexion, $sql);
-        if (!$result) {
+        if (! $result) {
             echo "Erreur lors de la lecture des données: " . odbc_errormsg($this->connexion);
+
             return false;
         }
 
@@ -55,8 +54,6 @@ class OdbcCrudModel extends Model
         return $rows;
     }
 
-
-
     public function update($tableName, $data, $conditions)
     {
         $updates = implode(", ", array_map(function ($key, $value) {
@@ -64,9 +61,10 @@ class OdbcCrudModel extends Model
         }, array_keys($data), array_values($data)));
         $sql = "UPDATE $tableName SET $updates WHERE $conditions";
         $result = odbc_exec($this->connexion, $sql);
-        if (!$result) {
+        if (! $result) {
             echo "Erreur lors de la mise à jour de l'enregistrement: " . odbc_errormsg($this->connexion);
         }
+
         return $result;
     }
 
@@ -74,9 +72,10 @@ class OdbcCrudModel extends Model
     {
         $sql = "DELETE FROM $tableName WHERE $conditions";
         $result = odbc_exec($this->connexion, $sql);
-        if (!$result) {
+        if (! $result) {
             echo "Erreur lors de la suppression de l'enregistrement: " . odbc_errormsg($this->connexion);
         }
+
         return $result;
     }
 }

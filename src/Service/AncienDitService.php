@@ -6,12 +6,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 
-use App\Model\dit\DitModel;
+use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\AncienDit;
 use App\Entity\dit\DemandeIntervention;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Controller\Traits\FormatageTrait;
+use App\Model\dit\DitModel;
 use App\Service\genererPdf\GenererPdfDit;
+use Doctrine\ORM\EntityManagerInterface;
 
 class AncienDitService
 {
@@ -125,6 +125,7 @@ class AncienDitService
                 }
             }
         }
+
         return $historiqueMateriel;
     }
 
@@ -206,7 +207,7 @@ class AncienDitService
             $mergedPdfFile = 'C:/wamp64/www/Upload/dit/' . $ancienDit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $ancienDit->getAgenceServiceEmetteur()) . '.pdf';
 
             // Appeler la fonction pour fusionner les fichiers PDF
-            if (!empty($pdfFiles)) {
+            if (! empty($pdfFiles)) {
                 $fusionPdf = new FusionPdf();
                 $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
             }

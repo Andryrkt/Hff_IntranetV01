@@ -3,14 +3,12 @@
 namespace App\Entity\admin\dom;
 
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\Indemnite;
 use App\Repository\admin\dom\RmqRepository;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
-
-  /**
+/**
  *   @ORM\Table(name="rmq")
  * @ORM\Entity(repositoryClass=RmqRepository::class)
  * @ORM\HasLifecycleCallbacks
@@ -19,7 +17,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Rmq
 {
     use DateTrait;
-
 
     /**
      * @ORM\Id
@@ -35,28 +32,26 @@ class Rmq
      */
     private string $description;
 
-     /**
-     * @ORM\OneToMany(targetEntity=Indemnite::class, mappedBy="rmqs")
-     */
+    /**
+    * @ORM\OneToMany(targetEntity=Indemnite::class, mappedBy="rmqs")
+    */
     private $indemnites;
 
-     public function __construct()
+    public function __construct()
     {
         $this->indemnites = new ArrayCollection();
     }
-    
+
     public function getId(): int
     {
         return $this->id;
     }
 
-   
     public function getDescription(): string
     {
         return $this->description;
     }
 
-   
     public function setDescription(string $description): self
     {
         $this->description = $description;
@@ -74,10 +69,11 @@ class Rmq
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (!$this->indemnites->contains($indemnite)) {
+        if (! $this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setRmq($this);
         }
+
         return $this;
     }
 

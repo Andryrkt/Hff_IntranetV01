@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Controller\magasin\ors;
 
 ini_set('max_execution_time', 10000);
@@ -10,12 +9,12 @@ ini_set('memory_limit', '1000M');
 use App\Controller\Controller;
 use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\Transformation;
+use App\Entity\dit\DemandeIntervention;
+use App\Form\magasin\MagasinListeOrALivrerSearchType;
+use App\Model\magasin\MagasinListeOrLivrerModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\MagasinListeOrLivrerModel;
-use App\Form\magasin\MagasinListeOrALivrerSearchType;
 
 class MagasinListeOrLivrerController extends Controller
 {
@@ -54,14 +53,14 @@ class MagasinListeOrLivrerController extends Controller
         }
 
         $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
         ])->getForm();
 
         $form->handleRequest($request);
         $criteria = [
             "agenceUser" => $agenceUser,
             "orCompletNon" => "ORs COMPLET",
-            "pieces" => "PIECES MAGASIN"
+            "pieces" => "PIECES MAGASIN",
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
@@ -76,11 +75,9 @@ class MagasinListeOrLivrerController extends Controller
 
         self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
-
-
 
     /**
      * @Route("/magasin-list-or-livrer-export-excel", name="magasin_list_or_livrer")
@@ -92,7 +89,7 @@ class MagasinListeOrLivrerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        //recupères les critère dans la session 
+        //recupères les critère dans la session
         $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
 
         $entities = $this->recupData($criteria);
@@ -123,7 +120,7 @@ class MagasinListeOrLivrerController extends Controller
                 $entity['nomPrenom'],
                 $entity['idMateriel'],
                 $entity['marque'],
-                $entity['casier']
+                $entity['casier'],
             ];
         }
 
@@ -143,9 +140,9 @@ class MagasinListeOrLivrerController extends Controller
             $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numeroOr);
             $data[$i]['nomPrenom'] = $this->magasinListOrLivrerModel->recupUserCreateNumOr($numeroOr)[0]['nomprenom'];
 
-            if (!empty($datePlannig1)) {
+            if (! empty($datePlannig1)) {
                 $data[$i]['datePlanning'] = $datePlannig1[0]['dateplanning1'];
-            } else if (!empty($datePlannig2)) {
+            } elseif (! empty($datePlannig2)) {
                 $data[$i]['datePlanning'] = $datePlannig2[0]['dateplanning2'];
             } else {
                 $data[$i]['datePlanning'] = '';
@@ -154,7 +151,7 @@ class MagasinListeOrLivrerController extends Controller
             //$dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
             $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
-            if (!empty($ditRepository)) {
+            if (! empty($ditRepository)) {
                 $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();
                 $idMateriel = $ditRepository->getIdMateriel();

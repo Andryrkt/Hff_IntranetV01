@@ -6,10 +6,8 @@ use App\Controller\Controller;
 use App\Entity\dom\Dom;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class DomsDetailController extends Controller
 {
-
     /**
      * @Route("/detailDom/{id}", name="Dom_detail")
      */
@@ -35,7 +33,7 @@ class DomsDetailController extends Controller
             'doms/detail.html.twig',
             [
                 'dom' => $dom,
-                'is_temporaire' => $is_temporaire
+                'is_temporaire' => $is_temporaire,
             ]
         );
     }

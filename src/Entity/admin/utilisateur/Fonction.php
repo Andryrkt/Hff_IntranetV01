@@ -2,11 +2,10 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use App\Entity\CategorieAteApp;
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -15,7 +14,8 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Fonction
 {
-   use DateTrait;
+    use DateTrait;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -28,18 +28,15 @@ class Fonction
      */
     private string $description;
 
-  
-
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="fonction")
      */
     private $users;
 
-
     public function __construct()
     {
         $this->users = new ArrayCollection();
-     
+
     }
 
     public function getDescription()
@@ -47,19 +44,16 @@ class Fonction
         return $this->description;
     }
 
-    
     public function setDescription($description): self
     {
         $this->description = $description;
 
         return $this;
     }
-    
-   
 
     /**
      * @return Collection|User[]
-     */ 
+     */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -67,7 +61,7 @@ class Fonction
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users[] = $user;
             $user->setFonction($this);
         }
@@ -83,7 +77,7 @@ class Fonction
                 $user->setFonction(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -93,6 +87,4 @@ class Fonction
 
         return $this;
     }
-
-    
 }

@@ -6,31 +6,29 @@ use Doctrine\ORM\EntityRepository;
 
 class DitDevisSoumisAValidationRepository extends EntityRepository
 {
-
-
     public function findDernierStatutDevis($numDevis)
-{
-    $queryBuilder = $this->createQueryBuilder('dev');
-    
-    $dernierStatut = $queryBuilder
-        ->select('dev.statut')
-        ->where('dev.numeroDevis = :numDevis')
-        ->andWhere('dev.numeroVersion = (
+    {
+        $queryBuilder = $this->createQueryBuilder('dev');
+
+        $dernierStatut = $queryBuilder
+            ->select('dev.statut')
+            ->where('dev.numeroDevis = :numDevis')
+            ->andWhere('dev.numeroVersion = (
             SELECT MAX(dev2.numeroVersion) 
             FROM App\Entity\dit\DitDevisSoumisAValidation dev2 
             WHERE dev2.numeroDevis = :numDevis
         )')
-        ->setParameter('numDevis', $numDevis)
-        ->setMaxResults(1) // Ajout d'une limite pour garantir un seul résultat
-        ->getQuery()
-        ->getOneOrNullResult();
+            ->setParameter('numDevis', $numDevis)
+            ->setMaxResults(1) // Ajout d'une limite pour garantir un seul résultat
+            ->getQuery()
+            ->getOneOrNullResult();
 
-    return $dernierStatut ? $dernierStatut['statut'] : null;
-}
+        return $dernierStatut ? $dernierStatut['statut'] : null;
+    }
 
     public function findDevisSoumiAvant($numDevis, $natureOperation)
     {
-            $qb = $this->createQueryBuilder('dev');
+        $qb = $this->createQueryBuilder('dev');
 
         $subquery = $this->createQueryBuilder('dev2')
             ->select('MAX(dev2.numeroVersion)')
@@ -50,7 +48,6 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
 
         return $orSoumisAvant;
     }
-
 
     public function findDevisSoumiAvantMax($numDevis, $natureOperation)
     {
@@ -103,14 +100,13 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         return $orSoumisAvant;
     }
 
-
     public function findDevisSoumiAvantMaxForfait($numDevis)
     {
-            // Étape 1: Récupérer la version maximale pour le numeroOR donné
-            $qbMax = $this->createQueryBuilder('dev2')
-            ->select('MAX(dev2.numeroVersion)')
-            ->where('dev2.numeroDevis = :numDevis')
-            ->setParameter('numDevis', $numDevis);
+        // Étape 1: Récupérer la version maximale pour le numeroOR donné
+        $qbMax = $this->createQueryBuilder('dev2')
+        ->select('MAX(dev2.numeroVersion)')
+        ->where('dev2.numeroDevis = :numDevis')
+        ->setParameter('numDevis', $numDevis);
 
         $maxVersion = $qbMax->getQuery()->getSingleScalarResult();
 
@@ -132,7 +128,6 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
         return $qb;
     }
 
-
     public function findNumeroVersionMax($numDevis)
     {
         $numeroVersionMax = $this->createQueryBuilder('dsv')
@@ -142,8 +137,8 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
             ->setParameter('numDevis', $numDevis)
             ->setParameter('statut', 'erreur client interne')
             ->getQuery()
-            ->getSingleScalarResult(); 
-    
+            ->getSingleScalarResult();
+
         return $numeroVersionMax;
     }
 
@@ -186,7 +181,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
     }
 
     /**
-     * Methode qui recupère tous les information du dernière devis soumis 
+     * Methode qui recupère tous les information du dernière devis soumis
      *
      * @param string $numDit
      * @return void
@@ -218,7 +213,7 @@ class DitDevisSoumisAValidationRepository extends EntityRepository
                 ->setParameters([
                     'numeroVersionMax' => $numeroVersionMax,
                     'numDit' => $numDit,
-                    'natureOperation' => 'VTE'
+                    'natureOperation' => 'VTE',
                 ])
                 ->getQuery()
                 ->getResult();

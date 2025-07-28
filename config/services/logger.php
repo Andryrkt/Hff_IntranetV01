@@ -1,7 +1,7 @@
 <?php
 
-use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 
 return function (\Symfony\Component\DependencyInjection\ContainerBuilder $containerBuilder) {

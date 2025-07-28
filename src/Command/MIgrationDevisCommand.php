@@ -22,6 +22,7 @@ class MigrationDevisCommand extends Command
     {
         $migrationDevis = new MigrationDevisService();
         $migrationDevis->migrationDevis($input, $output);
+
         return Command::SUCCESS;
     }
 }

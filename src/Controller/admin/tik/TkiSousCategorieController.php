@@ -8,7 +8,6 @@ use App\Form\admin\tik\TkiSousCategorieType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class TkiSousCategorieController extends Controller
 {
     /**
@@ -41,7 +40,7 @@ class TkiSousCategorieController extends Controller
         self::$twig->display(
             'admin/tik/sousCategorie/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
@@ -68,12 +67,12 @@ class TkiSousCategorieController extends Controller
 
             // Synchroniser les autres catégories
             foreach ($sousCategorie->getAutresCategories() as $autreCategorie) {
-                if (!$autresCategories->contains($autreCategorie)) {
+                if (! $autresCategories->contains($autreCategorie)) {
                     $sousCategorie->removeAutresCategorie($autreCategorie);
                 }
             }
             foreach ($autresCategories as $autreCategorie) {
-                if (!$sousCategorie->getAutresCategories()->contains($autreCategorie)) {
+                if (! $sousCategorie->getAutresCategories()->contains($autreCategorie)) {
                     $sousCategorie->addAutresCategorie($autreCategorie);
                 }
             }

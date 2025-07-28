@@ -5,29 +5,49 @@ namespace App\Entity\planning;
 use App\Entity\admin\dit\WorNiveauUrgence;
 
 class PlanningSearch
-
 {
     private $agence;
+
     private $annee;
+
     private $interneExterne;
+
     private $facture;
+
     private $plan;
+
     private $dateDebut;
+
     private $dateFin;
+
     private $numOr;
+
     private $numSerie;
+
     private $idMat;
+
     private $numParc;
+
     private $agenceDebite;
+
     private $serviceDebite;
+
     private $typeligne;
+
     private $casier;
+
     private ?WorNiveauUrgence $niveauUrgence = null;
+
     private $section;
+
     private $months;
+
     private ?bool $orBackOrder = false;
+
     private $typeDocument;
+
     private $reparationRealise;
+
     private $orNonValiderDw;
 
     public function getNiveauUrgence()
@@ -35,7 +55,6 @@ class PlanningSearch
         return $this->niveauUrgence;
     }
 
-    
     public function setNiveauUrgence($niveauUrgence): self
     {
         $this->niveauUrgence = $niveauUrgence;
@@ -45,7 +64,7 @@ class PlanningSearch
 
     /**
      * Get the value of agence
-     */ 
+     */
     public function getAgence()
     {
         return $this->agence;
@@ -55,7 +74,7 @@ class PlanningSearch
      * Set the value of agence
      *
      * @return  self
-     */ 
+     */
     public function setAgence($agence)
     {
         $this->agence = $agence;
@@ -65,7 +84,7 @@ class PlanningSearch
 
     /**
      * Get the value of annee
-     */ 
+     */
     public function getAnnee()
     {
         return $this->annee;
@@ -75,7 +94,7 @@ class PlanningSearch
      * Set the value of annee
      *
      * @return  self
-     */ 
+     */
     public function setAnnee($annee)
     {
         $this->annee = $annee;
@@ -85,7 +104,7 @@ class PlanningSearch
 
     /**
      * Get the value of interneExterne
-     */ 
+     */
     public function getInterneExterne()
     {
         return $this->interneExterne;
@@ -95,7 +114,7 @@ class PlanningSearch
      * Set the value of interneExterne
      *
      * @return  self
-     */ 
+     */
     public function setInterneExterne($interneExterne)
     {
         $this->interneExterne = $interneExterne;
@@ -105,7 +124,7 @@ class PlanningSearch
 
     /**
      * Get the value of facture
-     */ 
+     */
     public function getFacture()
     {
         return $this->facture;
@@ -115,7 +134,7 @@ class PlanningSearch
      * Set the value of facture
      *
      * @return  self
-     */ 
+     */
     public function setFacture($facture)
     {
         $this->facture = $facture;
@@ -125,7 +144,7 @@ class PlanningSearch
 
     /**
      * Get the value of plan
-     */ 
+     */
     public function getPlan()
     {
         return $this->plan;
@@ -135,7 +154,7 @@ class PlanningSearch
      * Set the value of plan
      *
      * @return  self
-     */ 
+     */
     public function setPlan($plan)
     {
         $this->plan = $plan;
@@ -145,7 +164,7 @@ class PlanningSearch
 
     /**
      * Get the value of dateDebut
-     */ 
+     */
     public function getDateDebut()
     {
         return $this->dateDebut;
@@ -155,7 +174,7 @@ class PlanningSearch
      * Set the value of dateDebut
      *
      * @return  self
-     */ 
+     */
     public function setDateDebut($dateDebut)
     {
         $this->dateDebut = $dateDebut;
@@ -165,7 +184,7 @@ class PlanningSearch
 
     /**
      * Get the value of dateFin
-     */ 
+     */
     public function getDateFin()
     {
         return $this->dateFin;
@@ -175,7 +194,7 @@ class PlanningSearch
      * Set the value of dateFin
      *
      * @return  self
-     */ 
+     */
     public function setDateFin($dateFin)
     {
         $this->dateFin = $dateFin;
@@ -185,7 +204,7 @@ class PlanningSearch
 
     /**
      * Get the value of numOr
-     */ 
+     */
     public function getNumOr()
     {
         return $this->numOr;
@@ -195,7 +214,7 @@ class PlanningSearch
      * Set the value of numOr
      *
      * @return  self
-     */ 
+     */
     public function setNumOr($numOr)
     {
         $this->numOr = $numOr;
@@ -205,7 +224,7 @@ class PlanningSearch
 
     /**
      * Get the value of numSerie
-     */ 
+     */
     public function getNumSerie()
     {
         return $this->numSerie;
@@ -215,7 +234,7 @@ class PlanningSearch
      * Set the value of numSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumSerie($numSerie)
     {
         $this->numSerie = $numSerie;
@@ -225,7 +244,7 @@ class PlanningSearch
 
     /**
      * Get the value of idMat
-     */ 
+     */
     public function getIdMat()
     {
         return $this->idMat;
@@ -235,7 +254,7 @@ class PlanningSearch
      * Set the value of idMat
      *
      * @return  self
-     */ 
+     */
     public function setIdMat($idMat)
     {
         $this->idMat = $idMat;
@@ -245,7 +264,7 @@ class PlanningSearch
 
     /**
      * Get the value of numParc
-     */ 
+     */
     public function getNumParc()
     {
         return $this->numParc;
@@ -255,7 +274,7 @@ class PlanningSearch
      * Set the value of numParc
      *
      * @return  self
-     */ 
+     */
     public function setNumParc($numParc)
     {
         $this->numParc = $numParc;
@@ -265,7 +284,7 @@ class PlanningSearch
 
     /**
      * Get the value of agenceDebite
-     */ 
+     */
     public function getAgenceDebite()
     {
         return $this->agenceDebite;
@@ -275,7 +294,7 @@ class PlanningSearch
      * Set the value of agenceDebite
      *
      * @return  self
-     */ 
+     */
     public function setAgenceDebite($agenceDebite)
     {
         $this->agenceDebite = $agenceDebite;
@@ -285,7 +304,7 @@ class PlanningSearch
 
     /**
      * Get the value of serviceDebite
-     */ 
+     */
     public function getServiceDebite()
     {
         return $this->serviceDebite;
@@ -295,7 +314,7 @@ class PlanningSearch
      * Set the value of serviceDebite
      *
      * @return  self
-     */ 
+     */
     public function setServiceDebite($serviceDebite)
     {
         $this->serviceDebite = $serviceDebite;
@@ -303,10 +322,9 @@ class PlanningSearch
         return $this;
     }
 
-    
     /**
      * Get the value of typeLigne
-     */ 
+     */
     public function getTypeLigne()
     {
         return $this->typeligne;
@@ -316,18 +334,17 @@ class PlanningSearch
      * Set the value of typeLigne
      *
      * @return  self
-     */ 
+     */
     public function setTypeLigne($typeligne)
     {
         $this->typeligne = $typeligne;
 
         return $this;
     }
-   
 
     /**
      * Get the value of casier
-     */ 
+     */
     public function getCasier()
     {
         return $this->casier;
@@ -337,7 +354,7 @@ class PlanningSearch
      * Set the value of casier
      *
      * @return  self
-     */ 
+     */
     public function setCasier($casier)
     {
         $this->casier = $casier;
@@ -347,7 +364,7 @@ class PlanningSearch
 
     /**
      * Get the value of section
-     */ 
+     */
     public function getSection()
     {
         return $this->section;
@@ -357,7 +374,7 @@ class PlanningSearch
      * Set the value of section
      *
      * @return  self
-     */ 
+     */
     public function setSection($section)
     {
         $this->section = $section;
@@ -365,10 +382,9 @@ class PlanningSearch
         return $this;
     }
 
-
     /**
      * Get the value of months
-     */ 
+     */
     public function getMonths()
     {
         return $this->months;
@@ -378,7 +394,7 @@ class PlanningSearch
      * Set the value of months
      *
      * @return  self
-     */ 
+     */
     public function setMonths($months)
     {
         $this->months = $months;
@@ -388,7 +404,7 @@ class PlanningSearch
 
     /**
      * Get the value of orBackOrder
-     */ 
+     */
     public function getOrBackOrder()
     {
         return $this->orBackOrder;
@@ -398,7 +414,7 @@ class PlanningSearch
      * Set the value of orBackOrder
      *
      * @return  self
-     */ 
+     */
     public function setOrBackOrder($orBackOrder)
     {
         $this->orBackOrder = $orBackOrder;
@@ -408,7 +424,7 @@ class PlanningSearch
 
     /**
      * Get the value of typeDocument
-     */ 
+     */
     public function getTypeDocument()
     {
         return $this->typeDocument;
@@ -418,7 +434,7 @@ class PlanningSearch
      * Set the value of typeDocument
      *
      * @return  self
-     */ 
+     */
     public function setTypeDocument($typeDocument)
     {
         $this->typeDocument = $typeDocument;
@@ -428,7 +444,7 @@ class PlanningSearch
 
     /**
      * Get the value of reparationRealise
-     */ 
+     */
     public function getReparationRealise()
     {
         return $this->reparationRealise;
@@ -438,7 +454,7 @@ class PlanningSearch
      * Set the value of reparationRealise
      *
      * @return  self
-     */ 
+     */
     public function setReparationRealise($reparationRealise)
     {
         $this->reparationRealise = $reparationRealise;
@@ -448,7 +464,7 @@ class PlanningSearch
 
     /**
      * Get the value of orNonValiderDw
-     */ 
+     */
     public function getOrNonValiderDw()
     {
         return $this->orNonValiderDw;
@@ -458,7 +474,7 @@ class PlanningSearch
      * Set the value of orNonValiderDw
      *
      * @return  self
-     */ 
+     */
     public function setOrNonValiderDw($orNonValiderDw)
     {
         $this->orNonValiderDw = $orNonValiderDw;
@@ -484,7 +500,7 @@ class PlanningSearch
             'serviceDebite' => $this->serviceDebite,
             'typeligne' => $this->typeligne,
             'orBackOrder' => $this->orBackOrder,
-            'orNonValiderDw' => $this->orNonValiderDw
+            'orNonValiderDw' => $this->orNonValiderDw,
         ];
     }
 }

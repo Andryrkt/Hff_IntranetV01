@@ -8,7 +8,7 @@ use App\Model\Traits\ConversionModel;
 class DitListModel extends Model
 {
     use ConversionModel;
-    
+
     public function recupNumeroDevis($numDit)
     {
         $statement = "SELECT 
@@ -58,7 +58,7 @@ class DitListModel extends Model
         $dataUtf8 = $this->convertirEnUtf8($data);
 
         // Vérifier si des données existent et retourner la première valeur de 'nbItv'
-        return !empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
+        return ! empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
     }
 
     public function recupItvNumFac($numOr)

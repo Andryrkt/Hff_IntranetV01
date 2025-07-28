@@ -2,18 +2,18 @@
 
 namespace App\Controller\tik;
 
-use App\Entity\tik\TikSearch;
 use App\Controller\Controller;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
-use App\Form\tik\TikSearchType;
 use App\Entity\admin\utilisateur\User;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TikSearch;
+use App\Form\tik\TikSearchType;
 use InvalidArgumentException;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListeTikController extends Controller
@@ -34,9 +34,9 @@ class ListeTikController extends Controller
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($user);
         $autorisation = [
-            'autoriser'            => $autoriser,
+            'autoriser' => $autoriser,
             'autoriserIntervenant' => $this->autorisationIntervenant($user),
-            'autoriserValidateur'  => $this->autorisationValidateur($user),
+            'autoriserValidateur' => $this->autorisationValidateur($user),
         ];
         //FIN AUTORISATION
 
@@ -68,9 +68,9 @@ class ListeTikController extends Controller
 
         $option = [
             'autorisation' => $autorisation,
-            'user'         => $user,
-            'idAgence'     => $tikSearch->getAgenceEmetteur() === null ? null :  $tikSearch->getAgenceEmetteur()->getId(),
-            'idService'    => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId()
+            'user' => $user,
+            'idAgence' => $tikSearch->getAgenceEmetteur() === null ? null : $tikSearch->getAgenceEmetteur()->getId(),
+            'idService' => $tikSearch->getServiceEmetteur() === null ? null : $tikSearch->getServiceEmetteur()->getId(),
         ];
 
         $paginationData = self::$em->getRepository(DemandeSupportInformatique::class)->findPaginatedAndFiltered($page, $limit, $tikSearch, $option);
@@ -83,13 +83,13 @@ class ListeTikController extends Controller
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('tik/demandeSupportInformatique/list.html.twig', [
-            'data'        => $paginationData['data'],
-            'tickets'     => $ticketsWithEditPermission,
+            'data' => $paginationData['data'],
+            'tickets' => $ticketsWithEditPermission,
             'currentPage' => $paginationData['currentPage'],
-            'totalPages'  => $paginationData['lastPage'],
-            'resultat'    => $paginationData['totalItems'],
-            'form'        => $form->createView(),
-            'criteria'    => $criteria,
+            'totalPages' => $paginationData['lastPage'],
+            'resultat' => $paginationData['totalItems'],
+            'form' => $form->createView(),
+            'criteria' => $criteria,
         ]);
     }
 
@@ -99,20 +99,20 @@ class ListeTikController extends Controller
         $criteria = $this->sessionService->get('tik_search_criteria', []) ?? [];
 
         // Définition des valeurs par défaut en fonction des autorisations
-        $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
+        $agenceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
         $serviceIpsEmetteur = $autorisation['autoriser'] ? null : $agenceServiceIps['serviceIps'];
 
         $entities['nomIntervenant'] = ($autorisation['autoriserIntervenant'] && empty($criteria)) ? $user : null; // pour intervenant: filtre sur intervenant utilisateur connecté
-        $entities['statut']         = ($autorisation['autoriserValidateur'] && empty($criteria)) ? self::$em->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
+        $entities['statut'] = ($autorisation['autoriserValidateur'] && empty($criteria)) ? self::$em->getRepository(StatutDemande::class)->find('79') : null; // pour validateur: filtre sur statut ouvert
 
         // Si des critères existent, les utiliser pour définir les entités associées
-        if (!empty(array_filter($criteria))) {
+        if (! empty(array_filter($criteria))) {
             $repositories = [
                 'nomIntervenant' => User::class,
-                'statut'         => StatutDemande::class,
-                'niveauUrgence'  => WorNiveauUrgence::class,
-                'categorie'      => TkiCategorie::class,
-                'sousCategorie'  => TkiSousCategorie::class,
+                'statut' => StatutDemande::class,
+                'niveauUrgence' => WorNiveauUrgence::class,
+                'categorie' => TkiCategorie::class,
+                'sousCategorie' => TkiSousCategorie::class,
                 'autreCategorie' => TkiAutresCategorie::class,
             ];
 
@@ -173,14 +173,14 @@ class ListeTikController extends Controller
         $roleIds = $user->getRoleIds();
 
         // S'assurer que $roleIds est un tableau avant de continuer.
-        if (!is_array($roleIds)) {
+        if (! is_array($roleIds)) {
             throw new InvalidArgumentException('Les rôles retournés doivent être un tableau.');
         }
 
         return in_array($roleId, $roleIds);
     }
 
-    /** 
+    /**
      * Fonction pour vérifier si l'utilisateur peut éditer le ticket
      */
     private function canEdit(string $numTik): array
@@ -188,14 +188,14 @@ class ListeTikController extends Controller
         $ticket = self::$em->getRepository(DemandeSupportInformatique::class)->findOneBy(['numeroTicket' => $numTik]);
         $result = [
             'monTicket' => 0,
-            'ouvert'    => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
+            'ouvert' => in_array($ticket->getIdStatutDemande()->getId(), [58, 65]) ? 1 : 0, // le statut du ticket est ouvert ou en attente
         ];
 
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur = $this->sessionService->get('user_id');
 
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
@@ -205,7 +205,7 @@ class ListeTikController extends Controller
         $allTik = $utilisateur->getSupportInfoUser();
 
         foreach ($allTik as $tik) {
-            // si le numéro du ticket appartient à l'utilisateur connecté et 
+            // si le numéro du ticket appartient à l'utilisateur connecté et
             if ($numTik === $tik->getNumeroTicket()) {
                 $result['monTicket'] = 1;
                 break;

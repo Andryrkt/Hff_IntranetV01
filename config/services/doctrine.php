@@ -1,13 +1,12 @@
 <?php
 
-use Doctrine\ORM\Tools\Setup;
 use core\SimpleManagerRegistry;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\Reference;
 
 return function (\Symfony\Component\DependencyInjection\ContainerBuilder $containerBuilder) {
     $containerBuilder->setParameter('doctrine.entity_paths', [
@@ -17,13 +16,13 @@ return function (\Symfony\Component\DependencyInjection\ContainerBuilder $contai
     $containerBuilder->setParameter('doctrine.is_dev_mode', true);
 
     $containerBuilder->setParameter('doctrine.db_params', [
-        'driver'   => 'pdo_sqlsrv',
-        'host'     => $_ENV["DB_HOST"], 
-        'port'     => 1433,
-        'user'     => $_ENV["DB_USERNAME"],
+        'driver' => 'pdo_sqlsrv',
+        'host' => $_ENV["DB_HOST"],
+        'port' => 1433,
+        'user' => $_ENV["DB_USERNAME"],
         'password' => $_ENV["DB_PASSWORD"],
-        'dbname'   => $_ENV["DB_NAME"],
-        'options'  => [],
+        'dbname' => $_ENV["DB_NAME"],
+        'options' => [],
     ]);
 
     $containerBuilder->register('doctrine.annotation_reader', AnnotationReader::class);
@@ -59,7 +58,7 @@ return function (\Symfony\Component\DependencyInjection\ContainerBuilder $contai
     //8) Manager registrery pour manipuler le formulaire
     $containerBuilder->register('manager_registry', SimpleManagerRegistry::class)
     ->setArguments([
-        new Reference('entity_manager')
+        new Reference('entity_manager'),
     ])
     ->setPublic(true);
 

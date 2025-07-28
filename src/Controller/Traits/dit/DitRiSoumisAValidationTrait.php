@@ -10,6 +10,7 @@ trait DitRiSoumisAValidationTrait
     {
         $userId = $this->sessionService->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
+
         return $user->getNomUtilisateur();
     }
 
@@ -20,7 +21,7 @@ trait DitRiSoumisAValidationTrait
     private function uplodeFile($form, $ditri, $nomFichier, &$pdfFiles)
     {
 
-        /** @var UploadedFile $file*/
+        /** @var UploadedFile $file */
         $file = $form->get($nomFichier)->getData();
         $fileName = 'RI_' . $ditri->getNumeroOR() . '_' . $ditri->getNumeroSoumission() . '-01.' . $file->getClientOriginalExtension();
 
@@ -51,7 +52,7 @@ trait DitRiSoumisAValidationTrait
         $mergedPdfFile = $_ENV['BASE_PATH_FICHIER'].'/vri/RI_' . $ditri->getNumeroOR() . '-' . $ditri->getNumeroSoumission() . '.pdf';
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
+        if (! empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }

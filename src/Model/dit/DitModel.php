@@ -2,13 +2,11 @@
 
 namespace App\Model\dit;
 
-
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
 class DitModel extends Model
 {
-
     use ConversionModel;
 
     /**
@@ -16,25 +14,25 @@ class DitModel extends Model
      */
     public function findAll($matricule = '0',  $numParc = '0', $numSerie = '0')
     {
-      if($matricule === '' || $matricule === '0' || $matricule === null){
-        $conditionNummat = "";
-      } else {
-        $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-      }
+        if ($matricule === '' || $matricule === '0' || $matricule === null) {
+            $conditionNummat = "";
+        } else {
+            $conditionNummat = "and mmat_nummat = '" . $matricule."'";
+        }
 
 
-      if($numParc === '' || $numParc === '0' || $numParc === null){
-        $conditionNumParc = "";
-      } else {
-        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-      }
+        if ($numParc === '' || $numParc === '0' || $numParc === null) {
+            $conditionNumParc = "";
+        } else {
+            $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+        }
 
-      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-        $conditionNumSerie = "";
-      } else {
-        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-      }
-      
+        if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+            $conditionNumSerie = "";
+        } else {
+            $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+        }
+
 
         $statement = "SELECT
 
@@ -73,10 +71,10 @@ class DitModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+    public function historiqueMateriel($idMateriel)
+    {
 
-    public function historiqueMateriel($idMateriel) {
-
-      $statement = " SELECT
+        $statement = " SELECT
 
             trim(seor_succ) as codeAgence,
             --trim(asuc_lib),
@@ -117,12 +115,10 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-    
-
 
     public function recuperationNumSerieNumParc($matricule)
     {
-     
+
         $statement = "SELECT
         mmat_nummat as num_matricule,
         trim(mmat_numserie) as num_serie,
@@ -165,17 +161,17 @@ class DitModel extends Model
 
     public function recuperationIdMateriel($numParc = '', $numSerie = '')
     {
-      if($numParc === '' || $numParc === '0' || $numParc === null){
-        $conditionNumParc = "";
-      } else {
-        $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-      }
+        if ($numParc === '' || $numParc === '0' || $numParc === null) {
+            $conditionNumParc = "";
+        } else {
+            $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
+        }
 
-      if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-        $conditionNumSerie = "";
-      } else {
-        $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-      }
+        if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+            $conditionNumSerie = "";
+        } else {
+            $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+        }
 
         $statement = "SELECT
         mmat_nummat as num_matricule
@@ -186,7 +182,7 @@ class DitModel extends Model
         ".$conditionNumSerie."
         ";
 
-      
+
         $result = $this->connect->executeQuery($statement);
 
 
@@ -195,11 +191,10 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-    
 
     public function recuperationSectionValidation()
     {
-     
+
         $statement = "SELECT trim(Atab_Code) AS ATAB_CODE,
                   trim(Atab_lib)  AS ATAB_LIB
                   FROM AGR_TAB
@@ -213,11 +208,9 @@ class DitModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    
-
     public function RecupereCommandeOr($numero_or)
     {
-       $statement = "SELECT
+        $statement = "SELECT
         slor_numcf,
         fcde_date,
         slor_typcf,
@@ -233,19 +226,18 @@ class DitModel extends Model
       and slor_numor in (select seor_numor from sav_eor where seor_serv = 'SAV')
       and slor_numor = '".$numero_or."'
       group by 1,2,3,4,5"
-      ;
+        ;
 
-      $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
-   
 
     public function recupQuantite($numOr)
     {
-      $statement = "SELECT 
+        $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -275,11 +267,10 @@ class DitModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-    
 
     public function recupQuantiteStatutAchatLocaux($numOr)
     {
-      $statement = "SELECT 
+        $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -312,7 +303,7 @@ class DitModel extends Model
 
     public function recupQuantiteQuatreStatutOr($numOr)
     {
-      $statement = "SELECT 
+        $statement = "SELECT 
             trim(seor_refdem) as referenceDIT,
             seor_numor as numeroOr,
             sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END) AS quantiteDemander,
@@ -345,7 +336,7 @@ class DitModel extends Model
 
     public function recupOrSoumisValidation($numOr)
     {
-      $statement = "SELECT
+        $statement = "SELECT
           slor_numor,
           sitv_datdeb,
           trim(seor_refdem) as NUMERo_DIT,
@@ -452,7 +443,7 @@ class DitModel extends Model
         $statement = "SELECT  seor_numdev  
                 from sav_eor
                 where seor_numor = '".$numOr."'"
-                ;
+        ;
 
         $result = $this->connect->executeQuery($statement);
 
@@ -463,7 +454,7 @@ class DitModel extends Model
 
     public function recupAgenceServiceDebiteur($numOr)
     {
-       $statement = " SELECT 
+        $statement = " SELECT 
           slor_succdeb || '-' || slor_servdeb AS agServDebiteur
           FROM sav_lor
           WHERE slor_numor = '".$numOr."'"

@@ -2,9 +2,8 @@
 
 namespace App\Entity\dw;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\dw\DwFactureRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DwFactureRepository::class)
@@ -13,7 +12,6 @@ use App\Repository\dw\DwFactureRepository;
  */
 class DwFacture
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -95,7 +93,7 @@ class DwFacture
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -103,7 +101,7 @@ class DwFacture
 
     /**
      * Get the value of idFac
-     */ 
+     */
     public function getIdFac()
     {
         return $this->idFac;
@@ -113,19 +111,19 @@ class DwFacture
      * Set the value of idFac
      *
      * @return  self
-     */ 
+     */
     public function setIdFac($idFac)
     {
         $this->idFac = $idFac;
 
         return $this;
     }
-    
+
     /**
      * Get the value of numeroFac
      *
      * @return  [type]
-     */ 
+     */
     public function getNumeroFac()
     {
         return $this->numeroFac;
@@ -137,7 +135,7 @@ class DwFacture
      * @param  [type]  $numeroFac
      *
      * @return  self
-     */ 
+     */
     public function setNumeroFac($numeroFac)
     {
         $this->numeroFac = $numeroFac;
@@ -145,9 +143,9 @@ class DwFacture
         return $this;
     }
 
-     /**
-     * Get the value of idTiroir
-     */ 
+    /**
+    * Get the value of idTiroir
+    */
     public function getIdTiroir()
     {
         return $this->idTiroir;
@@ -157,7 +155,7 @@ class DwFacture
      * Set the value of idTiroir
      *
      * @return  self
-     */ 
+     */
     public function setIdTiroir($idTiroir)
     {
         $this->idTiroir = $idTiroir;
@@ -167,7 +165,7 @@ class DwFacture
 
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -177,7 +175,7 @@ class DwFacture
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -187,7 +185,7 @@ class DwFacture
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -197,7 +195,7 @@ class DwFacture
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -207,7 +205,7 @@ class DwFacture
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -217,7 +215,7 @@ class DwFacture
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -227,7 +225,7 @@ class DwFacture
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -237,7 +235,7 @@ class DwFacture
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -247,7 +245,7 @@ class DwFacture
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -257,7 +255,7 @@ class DwFacture
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -267,7 +265,7 @@ class DwFacture
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -277,7 +275,7 @@ class DwFacture
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -287,7 +285,7 @@ class DwFacture
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -297,7 +295,7 @@ class DwFacture
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -307,7 +305,7 @@ class DwFacture
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -317,7 +315,7 @@ class DwFacture
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -327,7 +325,7 @@ class DwFacture
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -337,7 +335,7 @@ class DwFacture
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
@@ -357,5 +355,4 @@ class DwFacture
 
         return $this;
     }
-
 }

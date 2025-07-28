@@ -93,10 +93,10 @@ class MigrationDataModel extends Model
                 inner join StatutInfo on StatutInfo.IDStatutInfo = DemandeIntervention.IDStatutInfo
                 where CodeSection not in ('ASS','MAG') and InterneExterne='I' and LibelleStatutInfo in ('encours','attente devis','incomplet','devis à approuver')
                 and IDAgence in ('01','02','10','20','30','40','50','60','80','90','91','92')
-        ";        
+        ";
         $result = [];
         $query = odbc_exec($this->connexion04->getConnexion(), $sql);
-        if (!$query) {
+        if (! $query) {
             die("Erreur lors de l'exécution de la requête : " . odbc_errormsg($this->connexion));
         }
         while ($tab = odbc_fetch_array($query)) {
@@ -108,7 +108,7 @@ class MigrationDataModel extends Model
 
     public function insertDit($row)
     {
-        $sql=" INSERT INTO demande_intervention (
+        $sql = " INSERT INTO demande_intervention (
                     NumeroDemandeIntervention, type_document, code_societe, type_reparation, 
                     reparation_realise, categorie_demande, internet_externe, agence_service_debiteur, 
                     agence_service_emmeteur, nom_client, numero_telephone, date_or, heure_or, 
@@ -130,11 +130,11 @@ class MigrationDataModel extends Model
                 ) VALUES (
                     ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
                 )";
-        
+
         $stmt = odbc_prepare($this->connexion, $sql);
         $params = array_values($row);
 
-        if (!odbc_execute($stmt, $params)) {
+        if (! odbc_execute($stmt, $params)) {
             die("Erreur lors de l'insertion : " . odbc_errormsg($this->connexion));
         }
     }

@@ -2,39 +2,40 @@
 
 namespace App\Model\dit;
 
+use App\Controller\Traits\ConversionTrait;
 use App\Model\Model;
 use App\Service\GlobalVariablesService;
-use App\Controller\Traits\ConversionTrait;
 
 class DitFactureSoumisAValidationModel extends Model
 {
     use ConversionTrait;
 
-    public function recupNumeroSoumission($numOr) {
+    public function recupNumeroSoumission($numOr)
+    {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM facture_soumis_a_validation
                 WHERE numero_or = '".$numOr."'";
-        
-        $exec = $this->connexion->query($sql);
-        $result = odbc_fetch_array($exec);
-        
-        return $result['numSoumissionEncours'];
-    }
-    
-   /*
-    public function recupStatut($numOr, $numItv)
-    {
-        $sql = "SELECT statut 
-        FROM ors_soumis_a_validation 
-        WHERE numeroVersion IN (SELECT MAX(numeroVersion) FROM ors_soumis_a_validation WHERE numeroOR = '".$numOr."') 
-        AND numeroOR = '".$numOr."'
-        AND numeroItv = '".$numItv."'";
-            
+
         $exec = $this->connexion->query($sql);
         $result = odbc_fetch_array($exec);
 
-        return $result['statut'];
+        return $result['numSoumissionEncours'];
     }
+
+    /*
+     public function recupStatut($numOr, $numItv)
+     {
+         $sql = "SELECT statut
+         FROM ors_soumis_a_validation
+         WHERE numeroVersion IN (SELECT MAX(numeroVersion) FROM ors_soumis_a_validation WHERE numeroOR = '".$numOr."')
+         AND numeroOR = '".$numOr."'
+         AND numeroItv = '".$numItv."'";
+
+         $exec = $this->connexion->query($sql);
+         $result = odbc_fetch_array($exec);
+
+         return $result['statut'];
+     }
 */
     public function recupInfoFact($numOR, $numFact)
     {
@@ -69,13 +70,13 @@ class DitFactureSoumisAValidationModel extends Model
                     numeroItv;
             ";
 
-            $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
-    
+
     public function recupEtatOr($numOr)
     {
         $statement = " SELECT 
@@ -96,7 +97,7 @@ class DitFactureSoumisAValidationModel extends Model
 
     public function recupOrSoumisValidation($numOr, $numFact)
     {
-      $statement = "SELECT
+        $statement = "SELECT
         slor_numor,
         sitv_datdeb,
         trim(seor_refdem) as NUMERo_DIT,
@@ -200,10 +201,10 @@ class DitFactureSoumisAValidationModel extends Model
                     FROM sav_lor where slor_numor = '".$numOr."'
                     AND slor_numfac = '".$numFact."'
                     ";
-        
-                    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);    
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
@@ -273,7 +274,7 @@ class DitFactureSoumisAValidationModel extends Model
                 and TRUNC(slor_nogrp/100) in (".$numItv.")
                 group by 1,2
         ";
-    
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

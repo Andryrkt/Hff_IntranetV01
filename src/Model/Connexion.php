@@ -3,13 +3,15 @@
 namespace App\Model;
 
 use App\Controller\Controller;
-use App\Service\GlobalVariablesService;
 
 class Connexion
 {
     private $DB;
+
     private $User;
+
     private $pswd;
+
     private $conn;
 
     public function __construct()
@@ -21,7 +23,7 @@ class Connexion
 
 
             $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
-            if (!$this->conn) {
+            if (! $this->conn) {
                 throw new \Exception("ODBC Connection failed:" . odbc_error());
             }
         } catch (\Exception $e) {
@@ -40,10 +42,12 @@ class Connexion
     {
         try {
             $result = odbc_exec($this->conn, $sql);
-            if (!$result) {
+            if (! $result) {
                 $this->logError("ODBC Query failed: " . odbc_errormsg($this->conn));
+
                 throw new \Exception("ODBC Query failed: " . odbc_errormsg($this->conn));
             }
+
             return $result;
         } catch (\Exception $e) {
             // Capture de l'erreur et redirection vers la page d'erreur
@@ -56,14 +60,17 @@ class Connexion
     {
         try {
             $stmt = odbc_prepare($this->conn, $sql);
-            if (!$stmt) {
+            if (! $stmt) {
                 $this->logError("ODBC Prepare failed: " . odbc_errormsg($this->conn));
+
                 throw new \Exception("ODBC Prepare failed: " . odbc_errormsg($this->conn));
             }
-            if (!odbc_execute($stmt, $params)) {
+            if (! odbc_execute($stmt, $params)) {
                 $this->logError("ODBC Execute failed: " . odbc_errormsg($this->conn));
+
                 throw new \Exception("ODBC Execute failed: " . odbc_errormsg($this->conn));
             }
+
             return $stmt;
         } catch (\Exception $e) {
             // Capture de l'erreur et redirection vers la page d'erreur

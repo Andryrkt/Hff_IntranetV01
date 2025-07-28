@@ -2,11 +2,10 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\Traits\DateTrait;
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -16,11 +15,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Secteur
 {
     use DateTrait;
-/**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+
+    /**
+         * @ORM\Id
+         * @ORM\GeneratedValue
+         * @ORM\Column(type="integer")
+         */
     private $id;
 
     /**
@@ -28,47 +28,41 @@ class Secteur
      */
     private string $nom;
 
-     /**
-     * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="secteur")
-     */
+    /**
+    * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="secteur")
+    */
     private $demandeInterventions;
-
-
 
     public function __construct()
     {
-        
+
         $this->demandeInterventions = new ArrayCollection();
-        
+
     }
+
     /**
      * Get the value of id
-     */ 
-
+     */
     public function getId()
     {
         return $this->id;
     }
 
-
-    
     public function getNom()
     {
         return $this->nom;
     }
 
-    
     public function setNom($nom): self
     {
         $this->nom = $nom;
 
         return $this;
     }
-    
 
     /**
      * Get the value of demandeIntervention
-     */ 
+     */
     public function getDemandeIntervention()
     {
         return $this->demandeInterventions;
@@ -76,7 +70,7 @@ class Secteur
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+        if (! $this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setSecteur($this);
         }
@@ -92,16 +86,14 @@ class Secteur
                 $demandeIntervention->setSecteur(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setDemandeIntervention($demandeIntervention)
     {
         $this->demandeInterventions = $demandeIntervention;
 
         return $this;
     }
-
-    
 }

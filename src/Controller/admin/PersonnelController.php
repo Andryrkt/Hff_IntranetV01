@@ -5,8 +5,8 @@ namespace App\Controller\admin;
 use App\Controller\Controller;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\Personnel;
-use App\Form\admin\PersonnelType;
 use App\Form\admin\PersonnelSearchType;
+use App\Form\admin\PersonnelType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -97,11 +97,10 @@ class PersonnelController extends Controller
         self::$twig->display(
             'admin/Personnel/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
-
 
     /**
      * @Route("/admin/personnel/edit/{id}", name="personnel_update")
@@ -163,7 +162,7 @@ class PersonnelController extends Controller
         $user = self::$em->getRepository(Personnel::class)->find($id);
 
         self::$twig->display('admin/Personnel/show.html.twig', [
-            'personnel' => $user
+            'personnel' => $user,
         ]);
     }
 }

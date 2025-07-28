@@ -2,15 +2,13 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
 use App\Controller\Controller;
+use App\Entity\badm\Badm;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class BadmDetailController extends Controller
 {
-
     /**
      * @Route("/detailBadm/{id}", name="BadmDetail_detailBadm")
      */
@@ -25,14 +23,14 @@ class BadmDetailController extends Controller
         $data = $badmDetailModel->findAll($badm->getIdMateriel());
 
         $this->logUserVisit('BadmDetail_detailBadm', [
-            'id' => $id
+            'id' => $id,
         ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'badm/detail.html.twig',
             [
                 'badm' => $badm,
-                'data' => $data
+                'data' => $data,
             ]
         );
     }

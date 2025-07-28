@@ -1,17 +1,13 @@
 <?php
 
-
 namespace App\Twig;
 
-
-use Twig\TwigFilter;
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
 
-
-class DeleteWordExtension extends AbstractExtension 
+class DeleteWordExtension extends AbstractExtension
 {
-
-        public function getFilters(): array
+    public function getFilters(): array
     {
         return [
             new TwigFilter('remove_words', [$this, 'removeWords']),
@@ -30,6 +26,4 @@ class DeleteWordExtension extends AbstractExtension
 
         return trim(preg_replace('/\s+/', ' ', $text)); // Pour nettoyer les espaces multiples
     }
-    
 }
-

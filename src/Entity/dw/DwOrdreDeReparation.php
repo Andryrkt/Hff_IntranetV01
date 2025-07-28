@@ -2,13 +2,10 @@
 
 namespace App\Entity\dw;
 
-use App\Entity\dw\DwCommande;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\dw\DwDemandeIntervention;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\ArrayCollection;
 use App\Repository\dw\DwOrdreDeReparationRepository;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DwOrdreDeReparationRepository::class)
@@ -17,7 +14,6 @@ use App\Repository\dw\DwOrdreDeReparationRepository;
  */
 class DwOrdreDeReparation
 {
-
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -40,7 +36,6 @@ class DwOrdreDeReparation
      */
     private $idTiroir;
 
-
     /**
       * @ORM\Column(type="string", length=11, name="numero_dit")
       *
@@ -52,7 +47,6 @@ class DwOrdreDeReparation
      * @ORM\Column(type="integer", name="numero_version")
      */
     private $numeroVersion;
-
 
     /**
      * @ORM\Column(type="date", name="date_creation")
@@ -74,7 +68,6 @@ class DwOrdreDeReparation
      */
     private $heureDerniereModification;
 
-
     /**
      * @ORM\Column(type="string", length=50, name="statut_or")
      */
@@ -89,7 +82,6 @@ class DwOrdreDeReparation
      * @ORM\Column(type="integer", name="total_page")
      */
     private $totalPage;
-
 
     /**
      * @ORM\Column(type="integer", name="taille_fichier")
@@ -112,7 +104,7 @@ class DwOrdreDeReparation
      */
     private $commandes;
 
-      /**
+    /**
      * @ORM\OneToMany(targetEntity=DwFacture::class, mappedBy="ordreDeReparation")
      */
     private $factures;
@@ -133,8 +125,7 @@ class DwOrdreDeReparation
      *
      * ================================================================================
      */
-
-     public function __construct()
+    public function __construct()
     {
         $this->commandes = new ArrayCollection();
         $this->factures = new ArrayCollection();
@@ -143,7 +134,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -151,7 +142,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of idOr
-     */ 
+     */
     public function getIdOr()
     {
         return $this->idOr;
@@ -161,17 +152,17 @@ class DwOrdreDeReparation
      * Set the value of idOr
      *
      * @return  self
-     */ 
+     */
     public function setIdOr($idOr)
     {
         $this->idOr = $idOr;
 
         return $this;
     }
-    
+
     /**
      * Get the value of numeroOR
-     */ 
+     */
     public function getNumeroOR()
     {
         return $this->numeroOR;
@@ -181,7 +172,7 @@ class DwOrdreDeReparation
      * Set the value of numeroOR
      *
      * @return  self
-     */ 
+     */
     public function setNumeroOR($numeroOR)
     {
         $this->numeroOR = $numeroOR;
@@ -191,7 +182,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of idTiroir
-     */ 
+     */
     public function getIdTiroir()
     {
         return $this->idTiroir;
@@ -201,7 +192,7 @@ class DwOrdreDeReparation
      * Set the value of idTiroir
      *
      * @return  self
-     */ 
+     */
     public function setIdTiroir($idTiroir)
     {
         $this->idTiroir = $idTiroir;
@@ -211,7 +202,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -221,7 +212,7 @@ class DwOrdreDeReparation
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -231,7 +222,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -241,7 +232,7 @@ class DwOrdreDeReparation
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
@@ -251,7 +242,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -261,7 +252,7 @@ class DwOrdreDeReparation
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -271,7 +262,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -281,7 +272,7 @@ class DwOrdreDeReparation
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -291,7 +282,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -301,7 +292,7 @@ class DwOrdreDeReparation
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -311,7 +302,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -321,7 +312,7 @@ class DwOrdreDeReparation
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -331,7 +322,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of statutOr
-     */ 
+     */
     public function getStatutOr()
     {
         return $this->statutOr;
@@ -341,7 +332,7 @@ class DwOrdreDeReparation
      * Set the value of statutOr
      *
      * @return  self
-     */ 
+     */
     public function setStatutOr($statutOr)
     {
         $this->statutOr = $statutOr;
@@ -351,7 +342,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -361,7 +352,7 @@ class DwOrdreDeReparation
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -371,7 +362,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -381,7 +372,7 @@ class DwOrdreDeReparation
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -391,7 +382,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -401,7 +392,7 @@ class DwOrdreDeReparation
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -411,7 +402,7 @@ class DwOrdreDeReparation
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -421,15 +412,13 @@ class DwOrdreDeReparation
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
 
         return $this;
     }
-
-     
 
     // Getter et setter pour demandeIntervention
     public function getDemandeIntervention(): ?DwDemandeIntervention
@@ -440,12 +429,13 @@ class DwOrdreDeReparation
     public function setDemandeIntervention(?DwDemandeIntervention $demandeIntervention): self
     {
         $this->demandeIntervention = $demandeIntervention;
+
         return $this;
     }
 
-     /**
-     * @return Collection|DwCommande[]
-     */
+    /**
+    * @return Collection|DwCommande[]
+    */
     public function getCommandes(): Collection
     {
         return $this->commandes;
@@ -453,7 +443,7 @@ class DwOrdreDeReparation
 
     public function addCommande(DwCommande $commande): self
     {
-        if (!$this->commandes->contains($commande)) {
+        if (! $this->commandes->contains($commande)) {
             $this->commandes[] = $commande;
             $commande->addOrdreDeReparation($this);
         }
@@ -480,7 +470,7 @@ class DwOrdreDeReparation
 
     public function addFacture(DwFacture $facture): self
     {
-        if (!$this->factures->contains($facture)) {
+        if (! $this->factures->contains($facture)) {
             $this->factures[] = $facture;
             $facture->setOrdreDeReparation($this);
         }
@@ -523,7 +513,7 @@ class DwOrdreDeReparation
 
     public function addRapportIntervention(DwRapportIntervention $rapportIntervention): self
     {
-        if (!$this->rapportsIntervention->contains($rapportIntervention)) {
+        if (! $this->rapportsIntervention->contains($rapportIntervention)) {
             $this->rapportsIntervention[] = $rapportIntervention;
             $rapportIntervention->setOrdreDeReparation($this);
         }
@@ -542,5 +532,4 @@ class DwOrdreDeReparation
 
         return $this;
     }
-
 }

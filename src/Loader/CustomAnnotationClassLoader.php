@@ -12,7 +12,7 @@ class customAnnotationClassLoader extends AnnotationClassLoader
     protected function configureRoute(Route $route, ReflectionClass $class, ReflectionMethod $method, $annot)
     {
         $route->addDefaults([
-            '_controller' => $class->name . '::' . $method->name
+            '_controller' => $class->name . '::' . $method->name,
         ]);
     }
 }

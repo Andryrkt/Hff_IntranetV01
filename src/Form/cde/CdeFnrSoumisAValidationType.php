@@ -2,13 +2,13 @@
 
 namespace App\Form\cde;
 
-use Symfony\Component\Form\AbstractType;
 use App\Entity\cde\CdefnrSoumisAValidation;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class CdeFnrSoumisAValidationType extends AbstractType
 {
@@ -21,7 +21,7 @@ class CdeFnrSoumisAValidationType extends AbstractType
                 'attr' => [
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
-                ]
+                ],
             ])
             ->add('libelleFournisseur', TextType::class, [
                 'label' => 'Nom fournisseur *',
@@ -29,7 +29,7 @@ class CdeFnrSoumisAValidationType extends AbstractType
                 'attr' => [
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
-                ]
+                ],
             ])
             ->add('numCdeFournisseur', TextType::class, [
                 'label' => 'Numéro commande *',
@@ -37,9 +37,10 @@ class CdeFnrSoumisAValidationType extends AbstractType
                 'attr' => [
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
-                ]
+                ],
             ])
-            ->add('pieceJoint01',
+            ->add(
+                'pieceJoint01',
                 FileType::class,
                 [
                     'label' => 'Bon de commande (PDF) *',
@@ -54,12 +55,13 @@ class CdeFnrSoumisAValidationType extends AbstractType
                                 // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             ],
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ])
+                        ]),
                     ],
-            ])
+            ]
+            )
         ;
     }
-    
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([

@@ -2,30 +2,28 @@
 
 namespace App\Controller\Traits\dom;
 
-use DateTime;
-use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
-use App\Entity\admin\dom\Rmq;
-use App\Entity\admin\Service;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\Application;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
-use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
+use App\Entity\admin\Application;
+use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\dom\Rmq;
+use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\admin\Personnel;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dom\Dom;
 use App\Service\genererPdf\GeneratePdfDom;
-
+use DateTime;
 
 trait DomsTrait
 {
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
 
-        $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
+        $agenceServiceEmetteur = $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
         $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
@@ -50,7 +48,7 @@ trait DomsTrait
             $agenceEmetteur = $agenceServiceIrium->getAgenceips() . ' ' . strtoupper($agenceServiceIrium->getNomagencei100());
             $serviceEmetteur = $agenceServiceIrium->getServiceips() . ' ' . $agenceServiceIrium->getLibelleserviceips();
             $codeAgenceEmetteur = $agenceServiceIrium->getAgenceips();
-            $codeServiceEmetteur =  $agenceServiceIrium->getServiceips();
+            $codeServiceEmetteur = $agenceServiceIrium->getServiceips();
         }
         /** INITIALISATION AGENCE ET SERVICE Emetteur et Debiteur */
         $dom->setAgenceEmetteur($agenceEmetteur);
@@ -84,17 +82,18 @@ trait DomsTrait
         $sousTypedocument = $form1Data['sousTypeDocument'];
         $catg = $form1Data['categorie'];
 
-        $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
+        $agenceServiceEmetteur = $this->agenceServiceIpsObjet();
 
         if ($agenceServiceEmetteur['agenceIps']->getCodeAgence() == '50') {
             $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
         } else {
             $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
         }
+
         return  [
             'sousTypeDoc' => $sousTypedocument,
             'rmq' => $rmq,
-            'categorie' => $catg
+            'categorie' => $catg,
         ];
     }
 
@@ -142,7 +141,7 @@ trait DomsTrait
 
     //     $pdfFiles = [];
 
-    //     for ($i=1; $i < 2; $i++) { 
+    //     for ($i=1; $i < 2; $i++) {
     //         $nom = "pieceJoint{$i}";
     //         if($form->get($nom)->getData() !== null){
     //             $this->uplodeFile($form, $dom, $nom, $pdfFiles);
@@ -187,9 +186,9 @@ trait DomsTrait
         $allowedMimeTypes = ['application/pdf'];
 
         if (
-            !$file->isValid() ||
-            !in_array($extension, $allowedExtensions, true) ||
-            !in_array($mimeType, $allowedMimeTypes, true)
+            ! $file->isValid() ||
+            ! in_array($extension, $allowedExtensions, true) ||
+            ! in_array($mimeType, $allowedMimeTypes, true)
         ) {
             throw new \InvalidArgumentException("Type de fichier non autorisé pour le champ $fieldName. Extension: $extension, MIME type: $mimeType");
         }
@@ -206,7 +205,7 @@ trait DomsTrait
         $destination = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . '/Upload/dom/fichier/';
 
         // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true) && !is_dir($destination)) {
+        if (! is_dir($destination) && ! mkdir($destination, 0755, true) && ! is_dir($destination)) {
             throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
         }
 
@@ -223,7 +222,6 @@ trait DomsTrait
 
         return null;
     }
-
 
     /**
      * Envoie des pièces jointes et fusionne les PDF.
@@ -250,7 +248,7 @@ trait DomsTrait
         );
 
         // Vérifier que le fichier principal existe avant de l'ajouter
-        if (!file_exists($mainPdf)) {
+        if (! file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
@@ -278,11 +276,10 @@ trait DomsTrait
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (!empty($pdfFiles)) {
+        if (! empty($pdfFiles)) {
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
     }
-
 
     private function enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $em, $user)
     {
@@ -296,7 +293,7 @@ trait DomsTrait
                 $numTel = $form->get('mode')->getData();
                 $mode = $form->get('mode')->getData();
             }
-        } else if ($domForm->getModePayement() === 'VIREMENT BANCAIRE') {
+        } elseif ($domForm->getModePayement() === 'VIREMENT BANCAIRE') {
             $mode = $form->get('mode')->getData();
             $numTel = '';
         } else {
@@ -372,54 +369,55 @@ trait DomsTrait
     {
         if (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY' || explode(':', $dom->getModePayement())[0] === 'ESPECE') {
             $mode = 'TEL ' . explode(':', $dom->getModePayement())[1];
-        } else if (explode(':', $dom->getModePayement())[0] === 'VIREMENT BANCAIRE') {
+        } elseif (explode(':', $dom->getModePayement())[0] === 'VIREMENT BANCAIRE') {
             $mode = 'CPT ' . explode(':', $dom->getModePayement())[1];
         } else {
             $mode = 'TEL ' . explode(':', $dom->getModePayement())[1];
         }
 
         $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $user->getNomUtilisateur()])->getMail();
+
         return  [
-            "MailUser"              => $email,
-            "dateS"                 => $dom->getDateDemande()->format("d/m/Y"),
-            "NumDom"                => $dom->getNumeroOrdreMission(),
-            "typMiss"               => $dom->getSousTypeDocument()->getCodeSousType(),
-            "Site"                  => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
-            "Code_serv"             => $dom->getAgenceEmetteur(),
-            "serv"                  => $dom->getServiceEmetteur(),
-            "Nom"                   => $dom->getNom(),
-            "Prenoms"               => $dom->getPrenom(),
-            "matr"                  => $dom->getMatricule(),
-            "motif"                 => $dom->getMotifDeplacement(),
-            "CategoriePers"         => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
-            "NbJ"                   => $dom->getNombreJour(),
-            "dateD"                 => $dom->getDateDebut()->format("d/m/Y"),
-            "heureD"                => $dom->getHeureDebut(),
-            "dateF"                 => $dom->getDateFin()->format("d/m/Y"),
-            "heureF"                => $dom->getHeureFin(),
-            "lieu"                  => $dom->getLieuIntervention(),
-            "Client"                => $dom->getClient(),
-            "fiche"                 => $dom->getFiche(),
-            "vehicule"              => $dom->getVehiculeSociete(),
-            "numvehicul"            => $dom->getNumVehicule(),
-            "Devis"                 => $dom->getDevis(),
-            "idemn"                 => $this->formatMontant($dom->getIndemniteForfaitaire()),
-            "Bonus"                 => $this->formatMontant($dom->getDroitIndemnite()),
-            "Idemn_depl"            => $this->formatMontant($dom->getIdemnityDepl()),
-            "totalIdemn"            => $this->formatMontant($dom->getTotalIndemniteForfaitaire()),
-            "motifdep01"            => $dom->getMotifAutresDepense1(),
-            "motifdep02"            => $dom->getMotifAutresDepense2(),
-            "motifdep03"            => $dom->getMotifAutresDepense3(),
-            "montdep01"             => $this->formatMontant($dom->getAutresDepense1()),
-            "montdep02"             => $this->formatMontant($dom->getAutresDepense2()),
-            "montdep03"             => $this->formatMontant($dom->getAutresDepense3()),
-            "totaldep"              => $this->formatMontant($dom->getTotalAutresDepenses()),
-            "AllMontant"            => $this->formatMontant($dom->getTotalGeneralPayer()),
-            "libmodepaie"           => explode(':', $dom->getModePayement())[0],
-            "mode"                  => $mode,
-            "codeAg_serv"           => substr($domForm->getAgenceEmetteur(), 0, 2) . substr($domForm->getServiceEmetteur(), 0, 3),
-            "codeServiceDebitteur"  => $dom->getAgence()->getCodeAgence(),
-            "serviceDebitteur"      => $dom->getService()->getCodeService()
+            "MailUser" => $email,
+            "dateS" => $dom->getDateDemande()->format("d/m/Y"),
+            "NumDom" => $dom->getNumeroOrdreMission(),
+            "typMiss" => $dom->getSousTypeDocument()->getCodeSousType(),
+            "Site" => $dom->getSite() === null ? '' : $dom->getSite()->getNomZone(),
+            "Code_serv" => $dom->getAgenceEmetteur(),
+            "serv" => $dom->getServiceEmetteur(),
+            "Nom" => $dom->getNom(),
+            "Prenoms" => $dom->getPrenom(),
+            "matr" => $dom->getMatricule(),
+            "motif" => $dom->getMotifDeplacement(),
+            "CategoriePers" => $dom->getCategorie() === null ? '' : $dom->getCategorie()->getDescription(),
+            "NbJ" => $dom->getNombreJour(),
+            "dateD" => $dom->getDateDebut()->format("d/m/Y"),
+            "heureD" => $dom->getHeureDebut(),
+            "dateF" => $dom->getDateFin()->format("d/m/Y"),
+            "heureF" => $dom->getHeureFin(),
+            "lieu" => $dom->getLieuIntervention(),
+            "Client" => $dom->getClient(),
+            "fiche" => $dom->getFiche(),
+            "vehicule" => $dom->getVehiculeSociete(),
+            "numvehicul" => $dom->getNumVehicule(),
+            "Devis" => $dom->getDevis(),
+            "idemn" => $this->formatMontant($dom->getIndemniteForfaitaire()),
+            "Bonus" => $this->formatMontant($dom->getDroitIndemnite()),
+            "Idemn_depl" => $this->formatMontant($dom->getIdemnityDepl()),
+            "totalIdemn" => $this->formatMontant($dom->getTotalIndemniteForfaitaire()),
+            "motifdep01" => $dom->getMotifAutresDepense1(),
+            "motifdep02" => $dom->getMotifAutresDepense2(),
+            "motifdep03" => $dom->getMotifAutresDepense3(),
+            "montdep01" => $this->formatMontant($dom->getAutresDepense1()),
+            "montdep02" => $this->formatMontant($dom->getAutresDepense2()),
+            "montdep03" => $this->formatMontant($dom->getAutresDepense3()),
+            "totaldep" => $this->formatMontant($dom->getTotalAutresDepenses()),
+            "AllMontant" => $this->formatMontant($dom->getTotalGeneralPayer()),
+            "libmodepaie" => explode(':', $dom->getModePayement())[0],
+            "mode" => $mode,
+            "codeAg_serv" => substr($domForm->getAgenceEmetteur(), 0, 2) . substr($domForm->getServiceEmetteur(), 0, 3),
+            "codeServiceDebitteur" => $dom->getAgence()->getCodeAgence(),
+            "serviceDebitteur" => $dom->getService()->getCodeService(),
         ];
     }
 
@@ -434,7 +432,7 @@ trait DomsTrait
 
     public function recupAppEnvoiDbEtPdf($dom, $domForm, $form, $em, $fusionPdf, $user)
     {
-        //RECUPERATION de la dernière NumeroDordre de mission 
+        //RECUPERATION de la dernière NumeroDordre de mission
         $this->enregistreDernierNumDansApplication($dom, $em);
 
         //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE

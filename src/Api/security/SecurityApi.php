@@ -10,7 +10,7 @@ class SecurityApi extends Controller
     {
         $user = $this->sessionService->get('user_id', []);
 
-        if (!$user) {
+        if (! $user) {
             $statut = ['status' => 'active'];
         } else {
             $statut = ['status' => 'inactive'];

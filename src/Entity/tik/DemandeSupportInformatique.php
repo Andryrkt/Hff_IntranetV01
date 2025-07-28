@@ -3,21 +3,20 @@
 namespace App\Entity\tik;
 
 use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\tik\TkiPlanning;
-use DateTime as GlobalDateTime;
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiCategorie;
-use App\Entity\admin\utilisateur\User;
-use App\Entity\Traits\AgenceServiceTrait;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\Service;
+use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiAutresCategorie;
+use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiCommentaires;
+use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use App\Entity\Traits\AgenceServiceTrait;
+use App\Entity\Traits\DateTrait;
 use App\Repository\tik\DemandeSupportInformatiqueRepository;
+use DateTime as GlobalDateTime;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeSupportInformatiqueRepository::class)
@@ -178,33 +177,33 @@ class DemandeSupportInformatique
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      *
      */
-    private  $agenceEmetteurId;
+    private $agenceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceEmetteur")
      * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
-     * 
+     *
      */
-    private  $serviceEmetteurId;
+    private $serviceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="ditAgenceDebiteur")
      * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
-     * 
+     *
      */
-    private  $agenceDebiteurId;
+    private $agenceDebiteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="ditServiceDebiteur")
      * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
-     * 
+     *
      */
-    private  $serviceDebiteurId;
+    private $serviceDebiteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="supportInfoUser")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     * 
+     *
      */
     private $userId;
 
@@ -225,7 +224,7 @@ class DemandeSupportInformatique
     private $planning;
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/
@@ -518,8 +517,6 @@ class DemandeSupportInformatique
         return $this;
     }
 
-
-
     /**
      * Get the value of detailDemande
      */
@@ -753,7 +750,6 @@ class DemandeSupportInformatique
         return $this->agenceEmetteurId;
     }
 
-
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -761,12 +757,10 @@ class DemandeSupportInformatique
         return $this;
     }
 
-
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
-
 
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
@@ -775,12 +769,10 @@ class DemandeSupportInformatique
         return $this;
     }
 
-
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
-
 
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
@@ -789,12 +781,10 @@ class DemandeSupportInformatique
         return $this;
     }
 
-
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
-
 
     public function setServiceDebiteurId($serviceDebiteurId): self
     {

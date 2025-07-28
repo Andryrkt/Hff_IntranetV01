@@ -7,10 +7,8 @@ use App\Entity\admin\Service;
 
 trait AgenceServiceTrait
 {
-    
     private ?Agence $agence = null;
 
-    
     private ?Service $service = null;
 
     public function getAgence(): ?Agence

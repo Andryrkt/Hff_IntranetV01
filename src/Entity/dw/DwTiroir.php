@@ -2,14 +2,9 @@
 
 namespace App\Entity\dw;
 
-use App\Entity\dw\DwCommande;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\dw\DwOrdreDeReparation;
-use App\Entity\dw\DwDemandeIntervention;
-use App\Entity\dw\DwRapportIntervention;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -49,24 +44,22 @@ class DwTiroir
      */
     private $rapportsIntervention;
 
-/** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
-
+    /** ===========================================================================
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
     public function __construct()
     {
         $this->demandesIntervention = new ArrayCollection();
         $this->ordresDeReparation = new ArrayCollection();
         $this->rapportsIntervention = new ArrayCollection();
-        
-    }
 
+    }
 
     /**
      * Get the value of idTiroir
-     */ 
+     */
     public function getIdTiroir()
     {
         return $this->idTiroir;
@@ -76,7 +69,7 @@ class DwTiroir
      * Set the value of idTiroir
      *
      * @return  self
-     */ 
+     */
     public function setIdTiroir($idTiroir)
     {
         $this->idTiroir = $idTiroir;
@@ -86,7 +79,7 @@ class DwTiroir
 
     /**
      * Get the value of designationTiroir
-     */ 
+     */
     public function getDesignationTiroir()
     {
         return $this->designationTiroir;
@@ -96,7 +89,7 @@ class DwTiroir
      * Set the value of designationTiroir
      *
      * @return  self
-     */ 
+     */
     public function setDesignationTiroir($designationTiroir)
     {
         $this->designationTiroir = $designationTiroir;
@@ -104,9 +97,9 @@ class DwTiroir
         return $this;
     }
 
-  /**
-     * @return Collection|DwDemandeIntervention[]
-     */
+    /**
+       * @return Collection|DwDemandeIntervention[]
+       */
     public function getDemandesIntervention(): Collection
     {
         return $this->demandesIntervention;
@@ -114,7 +107,7 @@ class DwTiroir
 
     public function addDemandeIntervention(DwDemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandesIntervention->contains($demandeIntervention)) {
+        if (! $this->demandesIntervention->contains($demandeIntervention)) {
             $this->demandesIntervention[] = $demandeIntervention;
             $demandeIntervention->setTiroir($this);
         }
@@ -134,10 +127,9 @@ class DwTiroir
         return $this;
     }
 
-
-     /**
-     * @return Collection|DwCommande[]
-     */
+    /**
+    * @return Collection|DwCommande[]
+    */
     public function getCommande(): Collection
     {
         return $this->commande;
@@ -145,7 +137,7 @@ class DwTiroir
 
     public function addCommande(DwCommande $commande): self
     {
-        if (!$this->commande->contains($commande)) {
+        if (! $this->commande->contains($commande)) {
             $this->commande[] = $commande;
             $commande->setTiroir($this);
         }
@@ -175,7 +167,7 @@ class DwTiroir
 
     public function addOrdreDeReparation(DwOrdreDeReparation $ordreDeReparation): self
     {
-        if (!$this->ordresDeReparation->contains($ordreDeReparation)) {
+        if (! $this->ordresDeReparation->contains($ordreDeReparation)) {
             $this->ordresDeReparation[] = $ordreDeReparation;
             $ordreDeReparation->setTiroir($this);
         }
@@ -205,7 +197,7 @@ class DwTiroir
 
     public function addRapportIntervention(DwRapportIntervention $rapportIntervention): self
     {
-        if (!$this->rapportsIntervention->contains($rapportIntervention)) {
+        if (! $this->rapportsIntervention->contains($rapportIntervention)) {
             $this->rapportsIntervention[] = $rapportIntervention;
             $rapportIntervention->setTiroir($this);
         }
@@ -224,5 +216,4 @@ class DwTiroir
 
         return $this;
     }
-
 }

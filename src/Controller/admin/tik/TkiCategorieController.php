@@ -8,7 +8,6 @@ use App\Form\admin\tik\TkiCategorieType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class TkiCategorieController extends Controller
 {
     /**
@@ -39,7 +38,7 @@ class TkiCategorieController extends Controller
         self::$twig->display(
             'admin/tik/categorie/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
@@ -65,14 +64,14 @@ class TkiCategorieController extends Controller
 
             // Supprimer les sous-catégories qui ne sont plus sélectionnées
             foreach ($categorie->getSousCategories() as $sousCategorie) {
-                if (!$sousCategories->contains($sousCategorie)) {
+                if (! $sousCategories->contains($sousCategorie)) {
                     $categorie->removeSousCategorie($sousCategorie);
                 }
             }
 
             // Ajouter les nouvelles sous-catégories sélectionnées
             foreach ($sousCategories as $sousCategorie) {
-                if (!$categorie->getSousCategories()->contains($sousCategorie)) {
+                if (! $categorie->getSousCategories()->contains($sousCategorie)) {
                     $categorie->addSousCategorie($sousCategorie);
                 }
             }

@@ -3,12 +3,12 @@
 namespace App\Api\magasin;
 
 use App\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AutocompletionApi extends Controller
 {
-      /**
+    /**
      * @Route("/designation-fetch/{designation}")
      *
      * @return void
@@ -16,8 +16,8 @@ class AutocompletionApi extends Controller
     public function autocompletionDesignation($designation)
     {
 
-        if(!empty($designation)){
-            $magasinModel = new MagasinListeOrATraiterModel;
+        if (! empty($designation)) {
+            $magasinModel = new MagasinListeOrATraiterModel();
             $designations = $magasinModel->recupereAutocompletionDesignation($designation);
         } else {
             $designations = [];
@@ -28,7 +28,6 @@ class AutocompletionApi extends Controller
         echo json_encode($designations);
     }
 
-
     /**
      * @Route("/refpiece-fetch/{refPiece}")
      *
@@ -36,8 +35,8 @@ class AutocompletionApi extends Controller
      */
     public function autocompletionRefPiece($refPiece)
     {
-        if(!empty($refPiece)){
-            $magasinModel = new MagasinListeOrATraiterModel;
+        if (! empty($refPiece)) {
+            $magasinModel = new MagasinListeOrATraiterModel();
             $refPieces = $magasinModel->recuperAutocompletionRefPiece($refPiece);
         } else {
             $refPieces = [];

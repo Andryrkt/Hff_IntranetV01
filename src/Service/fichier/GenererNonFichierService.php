@@ -5,7 +5,7 @@ namespace App\Service\fichier;
 class GenererNonFichierService
 {
     /**
-     * Methode qui permet de generer un nom de fichier 
+     * Methode qui permet de generer un nom de fichier
      *
      * @param string $prefix
      * @param string $numeroDoc
@@ -14,18 +14,18 @@ class GenererNonFichierService
      * @param string $extension
      * @return string
      */
-    public static function  genererNonFichier(array $options): string
+    public static function genererNonFichier(array $options): string
     {
         $prefix = $options['prefix'] ?? '';
         $numeroDoc = $options['numeroDoc'] ?? '';
         $numeroVersion = $options['numeroVersion'] ?? '';
         $index = $option['index'] ?? '';
-        $extension = $option['extension']?? '.pdf';
+        $extension = $option['extension'] ?? '.pdf';
 
         return sprintf(
             '%s%s%s%s%s',
-            $prefix !== ''? "{$prefix}": '',
-            $numeroDoc !=='' ? "_{$numeroDoc}": '',
+            $prefix !== '' ? "{$prefix}" : '',
+            $numeroDoc !== '' ? "_{$numeroDoc}" : '',
             $numeroVersion !== '' ? "_{$numeroVersion}" : '',
             $index !== '' ? "_0{$index}" : '',
             $extension
@@ -54,44 +54,41 @@ class GenererNonFichierService
  * @param string $defaultExtension Extension par défaut (par défaut '.pdf').
  * @return string Nom de fichier généré.
  */
-public static function generationNomFichier(
-    array $options, 
-    string $separator = '_', 
-    string $suffixSeparator = '-', 
-    string $defaultExtension = '.pdf'
-): string {
-    // Définition de l'ordre des clés principales pour assurer une cohérence
-    $order = ['prefix', 'numeroDoc', 'numeroVersion'];
+    public static function generationNomFichier(
+        array $options,
+        string $separator = '_',
+        string $suffixSeparator = '-',
+        string $defaultExtension = '.pdf'
+    ): string {
+        // Définition de l'ordre des clés principales pour assurer une cohérence
+        $order = ['prefix', 'numeroDoc', 'numeroVersion'];
 
-    // Vérification et récupération des valeurs
-    $extension = $options['extension'] ?? $defaultExtension;
-    $suffixe = $options['suffixe'] ?? ''; // Peut être "C", "P" ou vide
+        // Vérification et récupération des valeurs
+        $extension = $options['extension'] ?? $defaultExtension;
+        $suffixe = $options['suffixe'] ?? ''; // Peut être "C", "P" ou vide
 
-    // Construction de la partie principale en respectant l'ordre défini
-    $parts = [];
-    foreach ($order as $key) {
-        if (!empty($options[$key])) {
-            $parts[] = $options[$key];
+        // Construction de la partie principale en respectant l'ordre défini
+        $parts = [];
+        foreach ($order as $key) {
+            if (! empty($options[$key])) {
+                $parts[] = $options[$key];
+            }
         }
+
+        // Ajout de l'index avec le préfixe #
+        if (! empty($options['index'])) {
+            $parts[] = $options['index'] . '#';
+        }
+
+        // Construction du nom de fichier
+        $filename = implode($separator, $parts);
+
+        // Ajout du suffixe si présent (ex: "-C", "-P")
+        if (! empty($suffixe)) {
+            $filename .= $suffixSeparator . $suffixe;
+        }
+
+        // Ajout de l'extension
+        return $filename . $extension;
     }
-
-    // Ajout de l'index avec le préfixe #
-    if (!empty($options['index'])) {
-        $parts[] = $options['index'] . '#';
-    }
-
-    // Construction du nom de fichier
-    $filename = implode($separator, $parts);
-
-    // Ajout du suffixe si présent (ex: "-C", "-P")
-    if (!empty($suffixe)) {
-        $filename .= $suffixSeparator . $suffixe;
-    }
-
-    // Ajout de l'extension
-    return $filename . $extension;
-}
-
-
-
 }

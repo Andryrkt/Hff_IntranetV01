@@ -1,14 +1,11 @@
 <?php
 
-
 namespace App\Model\dom;
 
 use App\Model\Model;
 
 class DomDuplicationModel extends Model
 {
-
-
     public function DuplicaftionFormModel($numDom, $IdDom)
     {
         $Sql = "SELECT 
@@ -58,10 +55,11 @@ class DomDuplicationModel extends Model
         AND ID_Demande_Ordre_Mission ='" . $IdDom . "' 
         ";
         $excecSelectDom = $this->connexion->query($Sql);
-        $ListselectDom = array();
+        $ListselectDom = [];
         while ($tablistselectDom = odbc_fetch_array($excecSelectDom)) {
             $ListselectDom[] = $tablistselectDom;
         }
+
         return $ListselectDom;
     }
 

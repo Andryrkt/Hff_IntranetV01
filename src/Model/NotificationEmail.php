@@ -1,24 +1,27 @@
 <?php
+
 namespace App\Model;
-use App\Model\Model;
 
-class NotificationEmail extends Model{
-
-     function getActiveUsermail($Mailuser){
-        $destinataires = array();
+class NotificationEmail extends Model
+{
+    public function getActiveUsermail($Mailuser)
+    {
+        $destinataires = [];
         $check_users = "SELECT  Mail FROM Profil_User WHERE  Utilisateur = '".$Mailuser."'";
         $exec = $this->connexion->query($check_users);
-        while($dest = odbc_fetch_array($exec)){
+        while ($dest = odbc_fetch_array($exec)) {
             $destinataires[] = $dest[0];
         }
-        return $destinataires;
-     }
 
-     function SendNOtificationEmail($User,$ObjetMail){
+        return $destinataires;
+    }
+
+    public function SendNOtificationEmail($User, $ObjetMail)
+    {
         $destination = $this->getActiveUsermail($User);
         $sujet_mail = $ObjetMail;
-        $boundary = md5(uniqid(microtime(),true));
-       
+        $boundary = md5(uniqid(microtime(), true));
+
         $headers = 'From: noreply <mail@server.com>' . "\r\n";
         $headers .= 'Mime-Version: 1.0' . "\r\n";
         $headers .= 'Content-Type: multipart/mixed;boundary=' . $boundary . "\r\n";
@@ -36,5 +39,5 @@ class NotificationEmail extends Model{
                 echo "<p>Test 1 : L'envoi par la fonction PHP mail() ne fonctionne pas ou est désactivé.</p>";
             }
         }
-     }
+    }
 }

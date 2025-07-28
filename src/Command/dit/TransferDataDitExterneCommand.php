@@ -2,11 +2,11 @@
 
 namespace App\Command\dit;
 
+use App\Service\dit\transfer\TraitementAncienDitService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use App\Service\dit\transfer\TraitementAncienDitService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class TransferDataDitExterneCommand extends Command
@@ -45,6 +45,7 @@ class TransferDataDitExterneCommand extends Command
         // Finir la barre
         $progressBar->finish();
         $output->writeln("\nTraitement terminé !");
+
         return Command::SUCCESS;
     }
 }

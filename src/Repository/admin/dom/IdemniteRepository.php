@@ -2,9 +2,7 @@
 
 namespace App\Repository\admin\dom;
 
-
 use Doctrine\ORM\EntityRepository;
-
 
 class IdemniteRepository extends EntityRepository
 {

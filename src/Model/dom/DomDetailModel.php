@@ -37,10 +37,11 @@ class DomDetailModel extends Model
                      WHERE Numero_Ordre_Mission = '" . $NumDOM . "'
                      AND ID_Demande_Ordre_Mission = '" . $IDDom . "'";
         $execSqlDetail = $this->connexion->query($SqlDetail);
-        $listDetail = array();
+        $listDetail = [];
         while ($TabDetail = odbc_fetch_array($execSqlDetail)) {
             $listDetail[] = $TabDetail;
         }
+
         return $listDetail;
     }
 }

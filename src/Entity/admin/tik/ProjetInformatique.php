@@ -4,7 +4,6 @@ namespace App\Entity\admin\tik;
 
 use Doctrine\ORM\Mapping as ORM;
 
-
 /**
  * @ORM\Entity(repositoryClass=ProjetInformatiqueRepository::class)
  * @ORM\Table(name="Projet_Informatique")

@@ -23,7 +23,7 @@ class AcSoumis
     private $dateDevis;
 
     private $montantDevis;
-    
+
     private $numeroDit;
 
     private $emailContactHff = '';
@@ -39,15 +39,14 @@ class AcSoumis
     private $numeroVersion = 0;
 
     /** ===================================================================================================================
-     * 
+     *
      * GETTER and SETTER
-     * 
+     *
      *===============================================================================================================*/
-
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -57,7 +56,7 @@ class AcSoumis
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -67,7 +66,7 @@ class AcSoumis
 
     /**
      * Get the value of nomClient
-     */ 
+     */
     public function getNomClient()
     {
         return $this->nomClient;
@@ -77,7 +76,7 @@ class AcSoumis
      * Set the value of nomClient
      *
      * @return  self
-     */ 
+     */
     public function setNomClient($nomClient)
     {
         $this->nomClient = $nomClient;
@@ -87,7 +86,7 @@ class AcSoumis
 
     /**
      * Get the value of emailClient
-     */ 
+     */
     public function getEmailClient()
     {
         return $this->emailClient;
@@ -97,7 +96,7 @@ class AcSoumis
      * Set the value of emailClient
      *
      * @return  self
-     */ 
+     */
     public function setEmailClient($emailClient)
     {
         $this->emailClient = $emailClient;
@@ -107,7 +106,7 @@ class AcSoumis
 
     /**
      * Get the value of numeroBc
-     */ 
+     */
     public function getNumeroBc()
     {
         return $this->numeroBc;
@@ -117,7 +116,7 @@ class AcSoumis
      * Set the value of numeroBc
      *
      * @return  self
-     */ 
+     */
     public function setNumeroBc($numeroBc)
     {
         $this->numeroBc = $numeroBc;
@@ -127,7 +126,7 @@ class AcSoumis
 
     /**
      * Get the value of dateBc
-     */ 
+     */
     public function getDateBc()
     {
         return $this->dateBc;
@@ -137,7 +136,7 @@ class AcSoumis
      * Set the value of dateBc
      *
      * @return  self
-     */ 
+     */
     public function setDateBc($dateBc)
     {
         $this->dateBc = $dateBc;
@@ -147,7 +146,7 @@ class AcSoumis
 
     /**
      * Get the value of descriptionBc
-     */ 
+     */
     public function getDescriptionBc()
     {
         return $this->descriptionBc;
@@ -157,7 +156,7 @@ class AcSoumis
      * Set the value of descriptionBc
      *
      * @return  self
-     */ 
+     */
     public function setDescriptionBc($descriptionBc)
     {
         $this->descriptionBc = $descriptionBc;
@@ -167,7 +166,7 @@ class AcSoumis
 
     /**
      * Get the value of numeroDevis
-     */ 
+     */
     public function getNumeroDevis()
     {
         return $this->numeroDevis;
@@ -177,7 +176,7 @@ class AcSoumis
      * Set the value of numeroDevis
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDevis($numeroDevis)
     {
         $this->numeroDevis = $numeroDevis;
@@ -187,7 +186,7 @@ class AcSoumis
 
     /**
      * Get the value of statutDevis
-     */ 
+     */
     public function getStatutDevis()
     {
         return $this->statutDevis;
@@ -197,7 +196,7 @@ class AcSoumis
      * Set the value of statutDevis
      *
      * @return  self
-     */ 
+     */
     public function setStatutDevis($statutDevis)
     {
         $this->statutDevis = $statutDevis;
@@ -207,7 +206,7 @@ class AcSoumis
 
     /**
      * Get the value of dateDevis
-     */ 
+     */
     public function getDateDevis()
     {
         return $this->dateDevis;
@@ -217,7 +216,7 @@ class AcSoumis
      * Set the value of dateDevis
      *
      * @return  self
-     */ 
+     */
     public function setDateDevis($dateDevis)
     {
         $this->dateDevis = $dateDevis;
@@ -227,7 +226,7 @@ class AcSoumis
 
     /**
      * Get the value of montantDevis
-     */ 
+     */
     public function getMontantDevis()
     {
         return $this->montantDevis;
@@ -237,7 +236,7 @@ class AcSoumis
      * Set the value of montantDevis
      *
      * @return  self
-     */ 
+     */
     public function setMontantDevis($montantDevis)
     {
         $this->montantDevis = $montantDevis;
@@ -247,7 +246,7 @@ class AcSoumis
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -257,7 +256,7 @@ class AcSoumis
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -267,7 +266,7 @@ class AcSoumis
 
     /**
      * Get the value of emailContactHff
-     */ 
+     */
     public function getEmailContactHff()
     {
         return $this->emailContactHff;
@@ -277,7 +276,7 @@ class AcSoumis
      * Set the value of emailContactHff
      *
      * @return  self
-     */ 
+     */
     public function setEmailContactHff($emailContactHff)
     {
         $this->emailContactHff = $emailContactHff;
@@ -287,7 +286,7 @@ class AcSoumis
 
     /**
      * Get the value of telephoneContactHff
-     */ 
+     */
     public function getTelephoneContactHff()
     {
         return $this->telephoneContactHff;
@@ -297,7 +296,7 @@ class AcSoumis
      * Set the value of telephoneContactHff
      *
      * @return  self
-     */ 
+     */
     public function setTelephoneContactHff($telephoneContactHff)
     {
         $this->telephoneContactHff = $telephoneContactHff;
@@ -307,7 +306,7 @@ class AcSoumis
 
     /**
      * Get the value of pieceJoint01
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -317,7 +316,7 @@ class AcSoumis
      * Set the value of pieceJoint01
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -327,7 +326,7 @@ class AcSoumis
 
     /**
      * Get the value of dateExpirationDevis
-     */ 
+     */
     public function getDateExpirationDevis()
     {
         return $this->dateExpirationDevis;
@@ -337,7 +336,7 @@ class AcSoumis
      * Set the value of dateExpirationDevis
      *
      * @return  self
-     */ 
+     */
     public function setDateExpirationDevis($dateExpirationDevis)
     {
         $this->dateExpirationDevis = $dateExpirationDevis;
@@ -347,7 +346,7 @@ class AcSoumis
 
     /**
      * Get the value of devise
-     */ 
+     */
     public function getDevise()
     {
         return $this->devise;
@@ -357,7 +356,7 @@ class AcSoumis
      * Set the value of devise
      *
      * @return  self
-     */ 
+     */
     public function setDevise($devise)
     {
         $this->devise = $devise;
@@ -367,7 +366,7 @@ class AcSoumis
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -377,7 +376,7 @@ class AcSoumis
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;

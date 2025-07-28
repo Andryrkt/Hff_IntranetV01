@@ -15,16 +15,16 @@ class CasierApi extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
-         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+        //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
         $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();
 
         $casierDestinataireSqlServer = [];
         foreach ($casierDestinataire as $value) {
             $casierDestinataireSqlServer[] = [
                 'Agence_Rattacher' => $value->getAgenceRattacher()->getCodeAgence(),
-                'Casier' => $value->getCasier()
+                'Casier' => $value->getCasier(),
             ];
         }
 
@@ -41,7 +41,7 @@ class CasierApi extends Controller
             }
 
             //Assurez-vous que chaque agence est présente même si elle n'a pas de casiers
-            if (!array_key_exists($agence['agence'], $resultat)) {
+            if (! array_key_exists($agence['agence'], $resultat)) {
                 $resultat[$agence['agence']] = [];
             }
         }

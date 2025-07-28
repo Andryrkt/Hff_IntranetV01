@@ -3,19 +3,20 @@
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
-use App\Form\dit\NatemaDitType;
 use App\Entity\dit\DemandeIntervention;
+use App\Form\dit\NatemaDitType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class NatemaDitController extends Controller
 {
-    public function index(){
-        $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
-    
-    
+    public function index()
+    {
+        $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id' => 'DESC']);
+
+
         self::$twig->display('natemadit/list.html.twig', [
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
@@ -25,8 +26,9 @@ class NatemaDitController extends Controller
      * @param Request $request
      * @return void
      */
-    public function new(Request $request){
-        
+    public function new(Request $request)
+    {
+
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -34,9 +36,8 @@ class NatemaDitController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $utilisateur= $form->getData(); 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $utilisateur = $form->getData();
 
             $selectedApplications = $form->get('applications')->getData();
 
@@ -53,7 +54,7 @@ class NatemaDitController extends Controller
         }
 
         self::$twig->display('natemadit/new.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 }

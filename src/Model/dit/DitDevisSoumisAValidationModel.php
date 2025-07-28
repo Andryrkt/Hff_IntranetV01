@@ -9,7 +9,7 @@ use App\Service\GlobalVariablesService;
 class DitDevisSoumisAValidationModel extends Model
 {
     use ConversionModel;
-    
+
     public function recupNumeroClient(string $numDevis)
     {
         $statement = " SELECT seor_numcli as numero_client
@@ -112,7 +112,7 @@ class DitDevisSoumisAValidationModel extends Model
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
      * @param string $numDevis
-     * @param boolean $estCeForfait
+     * @param bool $estCeForfait
      * @return void
      */
     public function recupDevisSoumisValidation(string $numDevis)
@@ -226,7 +226,7 @@ class DitDevisSoumisAValidationModel extends Model
     //     $condition = [
     //         'numDevis' => $numDevis
     //     ];
-        
+
     //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
     //     $result = $this->connect->executeQuery($statement);
@@ -249,7 +249,7 @@ class DitDevisSoumisAValidationModel extends Model
     //     $condition = [
     //         'numDevis' => $numDevis
     //     ];
-        
+
     //     $statement = RequestSoumisValidation::buildQueryForfait($condition);
 
     //     $result = $this->connect->executeQuery($statement);
@@ -258,7 +258,6 @@ class DitDevisSoumisAValidationModel extends Model
 
     //     return $this->convertirEnUtf8($data);
     // }
-
 
     public function recupNbrItvTypeVte($numDevis)
     {
@@ -320,7 +319,7 @@ class DitDevisSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupInfoPieceClient(string $numDevis) 
+    public function recupInfoPieceClient(string $numDevis)
     {
         $statement = " SELECT 
                         trim(slor_refp) as ref_piece,

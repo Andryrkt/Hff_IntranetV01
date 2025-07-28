@@ -2,13 +2,11 @@
 
 namespace App\Model\badm;
 
-
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 
 class BadmRechercheModel extends Model
 {
-
     use ConversionModel;
 
     public function findDesiSerieParc($matricule = ''): array
@@ -29,5 +27,4 @@ class BadmRechercheModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
-
 }

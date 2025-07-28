@@ -2,18 +2,14 @@
 
 namespace App\Controller\admin\user;
 
-
 use App\Controller\Controller;
-use App\Entity\ProfilUserEntity;
 use App\Entity\admin\utilisateur\ProfilUser;
-use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\utilisateur\ProfilUserType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 
 class ProfilUserController extends Controller
 {
-
     /**
      * Undocumented function
      *  @Route("/admin/user", name="user_index")
@@ -60,12 +56,12 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
+        $data = self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
 
         self::$twig->display(
             'admin/user/listProfilUser.html.twig',
             [
-                'data' => $data
+                'data' => $data,
             ]
         );
     }

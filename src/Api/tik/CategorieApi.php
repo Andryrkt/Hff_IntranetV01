@@ -22,7 +22,7 @@ class CategorieApi extends Controller
         foreach ($categorie->getSousCategories() as $value) {
             $sousCategorie[] = [
                 'value' => $value->getId(),
-                'text' => $value->getDescription()
+                'text' => $value->getDescription(),
             ];
         }
 
@@ -44,7 +44,7 @@ class CategorieApi extends Controller
         foreach ($sousCategorie->getAutresCategories() as $value) {
             $autreCategorie[] = [
                 'value' => $value->getId(),
-                'text' => $value->getDescription()
+                'text' => $value->getDescription(),
             ];
         }
 

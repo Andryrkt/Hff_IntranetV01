@@ -8,11 +8,10 @@ use App\Model\Traits\ConditionModelTrait;
 use App\Model\Traits\ConversionModel;
 
 class MagasinListeOrATraiterModel extends Model
-{ 
+{
     use ConversionModel;
     use FormatageTrait;
     use ConditionModelTrait;
-
 
     public function recupNumeroItv($numOr, $stringItv)
     {
@@ -21,7 +20,7 @@ class MagasinListeOrATraiterModel extends Model
                         FROM sav_itv 
                         where sitv_numor='".$numOr."'
                         AND sitv_interv NOT IN ('".$stringItv."')";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -30,7 +29,6 @@ class MagasinListeOrATraiterModel extends Model
 
     }
 
-    
     public function recupUserCreateNumOr($numOr)
     {
         $statement = " SELECT 
@@ -60,7 +58,7 @@ class MagasinListeOrATraiterModel extends Model
                         where ofh_id ='".$numOr."'
                         group by ofh_id 
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -76,7 +74,7 @@ class MagasinListeOrATraiterModel extends Model
                         where sitv_numor = '".$numOr."'
                         group by sitv_numor
                     ";
-        
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
@@ -84,20 +82,19 @@ class MagasinListeOrATraiterModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
     public function recupereListeMaterielValider($criteria = [], $lesOrSelonCondition)
     {
 
-        $designation = $this->conditionLike('slor_desi', 'designation',$criteria);
-        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece',$criteria);
-        $constructeur = $this->conditionLike('slor_constp', 'constructeur',$criteria);
-        $dateDebut = $this->conditionDateSigne( 'slor_datec', 'dateDebut', $criteria, '>=');
-        $dateFin = $this->conditionDateSigne( 'slor_datec', 'dateFin', $criteria, '<=');
-        $numDit = $this->conditionLike('seor_refdem', 'numDit',$criteria);
+        $designation = $this->conditionLike('slor_desi', 'designation', $criteria);
+        $referencePiece = $this->conditionLike('slor_refp', 'referencePiece', $criteria);
+        $constructeur = $this->conditionLike('slor_constp', 'constructeur', $criteria);
+        $dateDebut = $this->conditionDateSigne('slor_datec', 'dateDebut', $criteria, '>=');
+        $dateFin = $this->conditionDateSigne('slor_datec', 'dateFin', $criteria, '<=');
+        $numDit = $this->conditionLike('seor_refdem', 'numDit', $criteria);
         $numOr = $this->conditionSigne('slor_numor', 'numOr', '=', $criteria);
         $piece = $this->conditionPiece('pieces', $criteria);
-        $agence = $this->conditionAgenceService("slor_succdeb", 'agence',$criteria);
-        $service = $this->conditionAgenceService("slor_servdeb", 'service',$criteria);
+        $agence = $this->conditionAgenceService("slor_succdeb", 'agence', $criteria);
+        $service = $this->conditionAgenceService("slor_servdeb", 'service', $criteria);
         $agenceUser = $this->conditionAgenceUser('agenceUser', $criteria);
 
         $statement = "SELECT 
@@ -147,14 +144,13 @@ class MagasinListeOrATraiterModel extends Model
             and slor_qteres = 0 and slor_qterel = 0 and slor_qterea = 0
             order by numInterv ASC, seor_dateor DESC, slor_numor DESC, numeroLigne ASC
         ";
-// dd($statement);
+        // dd($statement);
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
-
 
     public function recuperationConstructeur()
     {
@@ -177,25 +173,25 @@ class MagasinListeOrATraiterModel extends Model
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
+
         return array_combine(array_column($this->convertirEnUtf8($data), 'constructeur'), array_column($this->convertirEnUtf8($data), 'constructeur'));
     }
 
-
     public function recupNumOr($criteria = [])
-    {   
-        if(!empty($criteria['niveauUrgence'])){
+    {
+        if (! empty($criteria['niveauUrgence'])) {
             $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }
 
-        if(!empty($criteria['numDit'])){
+        if (! empty($criteria['numDit'])) {
             $numDit = " and numero_demande_dit = '" . $criteria['numDit'] ."'";
         } else {
             $numDit = null;
         }
 
-        if(!empty($criteria['numOr'])){
+        if (! empty($criteria['numOr'])) {
             $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
@@ -213,7 +209,7 @@ class MagasinListeOrATraiterModel extends Model
 
         $execQueryNumOr = $this->connexion->query($statement);
 
-        $numOr = array();
+        $numOr = [];
 
         while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
             $numOr[] = $row_num_or;
@@ -222,9 +218,8 @@ class MagasinListeOrATraiterModel extends Model
         return $numOr;
     }
 
-
     public function recupereAutocompletionDesignation($designations)
-    {      
+    {
         $statement = "SELECT DISTINCT
             
             trim(slor_desi) as designationi
@@ -249,10 +244,9 @@ class MagasinListeOrATraiterModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-
     public function recuperAutocompletionRefPiece($refPiece)
     {
-        $statement ="SELECT 
+        $statement = "SELECT 
             
             trim(slor_refp) as referencePiece
            
@@ -292,8 +286,6 @@ class MagasinListeOrATraiterModel extends Model
         return array_column($this->convertirEnUtf8($data), 'agence');
     }
 
-
-
     public function service($agence)
     {
         // $statement = "  SELECT DISTINCT
@@ -304,13 +296,13 @@ class MagasinListeOrATraiterModel extends Model
         //                 AND slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) = '".$agence."'
         //             ";
 
-                    
+
         if ($agence === null) {
             $codeAgence = "";
         } else {
-        $codeAgence = " AND asuc_num = '" .$agence."'";
+            $codeAgence = " AND asuc_num = '" .$agence."'";
         }
-    
+
         $statement = " SELECT DISTINCT
                         trim(atab_code) || ' '||trim(atab_lib) as service  
                         FROM agr_succ , agr_tab a 
@@ -329,11 +321,11 @@ class MagasinListeOrATraiterModel extends Model
 
         $dataUtf8 = $this->convertirEnUtf8($data);
 
-        return array_map(function($item) {
-       
+        return array_map(function ($item) {
+
             return [
-                "value" => $item['service'], 
-                "text"  => $item['service']
+                "value" => $item['service'],
+                "text" => $item['service'],
             ];
         }, $dataUtf8);
     }
@@ -354,5 +346,4 @@ class MagasinListeOrATraiterModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'agence');
     }
-
 }

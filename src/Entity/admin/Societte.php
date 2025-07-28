@@ -2,15 +2,14 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\badm\Badm;
-use App\Entity\TypeReparation;
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\badm\Badm;
 use App\Entity\dit\DemandeIntervention;
-use Doctrine\Common\Collections\Collection;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\SocietteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=SocietteRepository::class)
@@ -38,7 +37,6 @@ class Societte
      */
     private $codeSociete;
 
-
     /**
      * @ORM\OneToMany(targetEntity=Badm::class, mappedBy="statutDemande")
      */
@@ -61,14 +59,11 @@ class Societte
         return $this->id;
     }
 
-
-
     public function getNom()
     {
         return $this->nom;
     }
 
-  
     public function setNom($nom): self
     {
         $this->nom = $nom;
@@ -81,14 +76,13 @@ class Societte
         return $this->codeSociete;
     }
 
-    
     public function setCodeSociete($codeSociete): self
     {
         $this->codeSociete = $codeSociete;
 
         return $this;
     }
-    
+
     public function getDemandeInterventions()
     {
         return $this->demandeInterventions;
@@ -96,10 +90,11 @@ class Societte
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+        if (! $this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setCodeSociete($this);
         }
+
         return $this;
     }
 
@@ -111,19 +106,20 @@ class Societte
                 $demandeIntervention->setCodeSociete(null);
             }
         }
+
         return $this;
     }
 
     public function setBadms($demandeIntervention): self
     {
         $this->demandeInterventions = $demandeIntervention;
+
         return $this;
     }
 
-    
-     /**
-     * @return Collection|User[]
-     */ 
+    /**
+    * @return Collection|User[]
+    */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -131,7 +127,7 @@ class Societte
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users[] = $user;
             $user->setSociettes($this);
         }
@@ -147,7 +143,7 @@ class Societte
                 $user->setSociettes(null);
             }
         }
-        
+
         return $this;
     }
 

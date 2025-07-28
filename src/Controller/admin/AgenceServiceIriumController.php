@@ -4,10 +4,9 @@ namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Entity\admin\AgenceServiceIrium;
+use App\Form\admin\utilisateur\AgenceServiceIriumType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Form\admin\utilisateur\AgenceServiceIriumType;
-
 
 /**
  * @Route("/admin/agServIrium")
@@ -29,7 +28,7 @@ class AgenceServiceIriumController extends Controller
         self::$twig->display(
             'admin/AgenceServiceIrium/list.html.twig',
             [
-                'data' => $data
+                'data' => $data,
             ]
         );
     }
@@ -59,11 +58,10 @@ class AgenceServiceIriumController extends Controller
         self::$twig->display(
             'admin/AgenceServiceIrium/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
-
 
     /**
      * @Route("/edit/{id}", name="AgServIrium_update")

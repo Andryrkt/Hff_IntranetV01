@@ -12,19 +12,25 @@ class AccuseReception
     private string $numeroDIT;      // numero du DIT rattaché
 
     private string $nomClient;      // nom du client
+
     private string $emailClient;    // adresse email du client
 
     private string $numeroBC;       // numéro du Bon de commande
+
     private DateTime $dateBC;       // date du Bon de commande
+
     private string $descriptionBC;  // déscription du Bon de commande
 
-    private string $numeroDevis;     // numéro du dernier devis soumis rattaché à la DIT 
-    private string $statutDevis;     // statut du dernier devis soumis rattaché à la DIT 
+    private string $numeroDevis;     // numéro du dernier devis soumis rattaché à la DIT
+
+    private string $statutDevis;     // statut du dernier devis soumis rattaché à la DIT
+
     private DateTime $dateDevis;     // date du Devis dans IPS
+
     private float $montantDevis;     // montant total devis dans IPS
 
-
     private string $emailContactHff;  // adresse email chef d’atelier / chef d’agence
+
     private string $numTelContactHff; // numéro tel contact
 
     public function __construct()

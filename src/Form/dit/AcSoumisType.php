@@ -5,15 +5,14 @@ namespace App\Form\dit;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\dit\AcSoumis;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class AcSoumisType extends AbstractType
 {
@@ -28,7 +27,7 @@ class AcSoumisType extends AbstractType
                 'attr' => [
                     'class' => 'autocomplete',
                     'autocomplete' => 'off',
-                ]
+                ],
             ])
             ->add('numeroBc', TextType::class, [
                 'label' => 'N° de bon de commande *',
@@ -39,20 +38,24 @@ class AcSoumisType extends AbstractType
                 'label' => 'Date du bon de commande *',
                 'required' => true,
             ])
-            ->add('descriptionBc', TextareaType::class,
-            [
+            ->add(
+                'descriptionBc',
+                TextareaType::class,
+                [
                 'label' => 'Description bon de commande *',
                 'required' => true,
                 'attr' => [
                     'rows' => 5,
-                    'class' => 'detailDemande'
+                    'class' => 'detailDemande',
                 ],
-            ])
+            ]
+            )
             ->add('emailClient', EmailType::class, [
                 'label' => 'Adress email client *',
-                'required' => true
+                'required' => true,
             ])
-            ->add('pieceJoint01',
+            ->add(
+                'pieceJoint01',
                 FileType::class,
                 [
                     'label' => 'Bon de commande (PDF) *',
@@ -67,77 +70,102 @@ class AcSoumisType extends AbstractType
                                 // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             ],
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ])
+                        ]),
                     ],
-            ])
+            ]
+            )
 
             //====================================================================================================================================
-            ->add('dateCreation', TextType::class,
-            [
+            ->add(
+                'dateCreation',
+                TextType::class,
+                [
                 'label' => 'Date',
                 'data' => $options['data']->getDateCreation()->format('d/m/Y'),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('numeroDevis', TextType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'numeroDevis',
+                TextType::class,
+                [
                 'label' => 'N° devis',
                 'data' => $options['data']->getNumeroDevis(),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('statutDevis', TextType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'statutDevis',
+                TextType::class,
+                [
                 'label' => 'Statut devis',
                 'data' => $options['data']->getStatutDevis(),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('numeroDit', TextType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'numeroDit',
+                TextType::class,
+                [
                 'label' => 'N° DIT',
                 'data' => $options['data']->getNumeroDit(),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('dateDevis', TextType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'dateDevis',
+                TextType::class,
+                [
                 'label' => 'Date devis',
                 'data' => $options['data']->getDateDevis()->format('d/m/Y'),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('montantDevis', TextType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'montantDevis',
+                TextType::class,
+                [
                 'label' => 'Montant devis',
                 'data' => $this->formatNumber($options['data']->getMontantDevis()),
                 'attr' => [
-                    'disabled' => true
-                ]
-            ])
-            ->add('emailContactHff', TextareaType::class,
-            [
+                    'disabled' => true,
+                ],
+            ]
+            )
+            ->add(
+                'emailContactHff',
+                TextareaType::class,
+                [
                 'label' => 'Adresse email contact HFF',
-                'data' => $options['data']->getEmailContactHff()?: 'L\'adresse email du chef atelier <réalisé_par> est introuvable',
+                'data' => $options['data']->getEmailContactHff() ?: 'L\'adresse email du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
                     'disabled' => true,
-                    'class' => $options['data']->getEmailContactHff() ? '' : 'text-danger'
-                ]
-            ])
-            ->add('telephoneContactHff', TextareaType::class,
-            [
+                    'class' => $options['data']->getEmailContactHff() ? '' : 'text-danger',
+                ],
+            ]
+            )
+            ->add(
+                'telephoneContactHff',
+                TextareaType::class,
+                [
                 'label' => 'N° téléphone contact HFF',
-                'data' => $options['data']->getTelephoneContactHff()?: 'Le téléphone du chef atelier <réalisé_par> est introuvable',
+                'data' => $options['data']->getTelephoneContactHff() ?: 'Le téléphone du chef atelier <réalisé_par> est introuvable',
                 'attr' => [
                     'disabled' => true,
-                    'class' => $options['data']->getTelephoneContactHff() ? '' : 'text-danger'
-                ]
-            ])
+                    'class' => $options['data']->getTelephoneContactHff() ? '' : 'text-danger',
+                ],
+            ]
+            )
         ;
     }
 
@@ -147,6 +175,4 @@ class AcSoumisType extends AbstractType
             'data_class' => AcSoumis::class,
         ]);
     }
-
-
 }

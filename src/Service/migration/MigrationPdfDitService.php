@@ -2,113 +2,136 @@
 
 namespace App\Service\migration;
 
-use App\Service\FusionPdf;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\dit\DemandeIntervention;
 use App\Model\dit\DitModel;
 use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Controller\Traits\FormatageTrait;
+use App\Service\FusionPdf;
 use App\Service\genererPdf\GenererPdfDit;
+use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class MigrationPdfDitService
 {
     use FormatageTrait;
-    
+
     private DitRepository $ditRepository;
+
     private DitModel $ditModel;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    private LoggerInterface $logger;
+
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
     {
-        $this->ditRepository =  $entityManager->getRepository(DemandeIntervention::class);
+        $this->ditRepository = $entityManager->getRepository(DemandeIntervention::class);
         $this->ditModel = new DitModel();
+        $this->logger = $logger;
     }
 
     public function migrationPdfDit($output)
-{
-    // Augmenter temporairement la limite de mémoire
-    ini_set('memory_limit', '1024M');
+    {
+        // Augmenter temporairement la limite de mémoire
+        ini_set('memory_limit', '1024M');
 
-    $dits = $this->recupDonnerDit();
-    
-    $total = count($dits);
-    $batchSize = 3; // Par exemple, 10 éléments par lot
+        $dits = $this->recupDonnerDit();
 
-    // Diviser les dits en lots
-    $batches = array_chunk($dits, $batchSize);
+        $total = count($dits);
+        $batchSize = 3; // Par exemple, 10 éléments par lot
 
-    $progressBar = new ProgressBar($output, $total);
-    $progressBar->start();
+        // Diviser les dits en lots
+        $batches = array_chunk($dits, $batchSize);
 
-    foreach ($batches as $batch) {
-        foreach ($batch as $dit) {
+        $progressBar = new ProgressBar($output, $total);
+        $progressBar->start();
 
-            // Créer l'objet de génération du PDF
-            $ditPdf = new GenererPdfDit();
+        foreach ($batches as $batch) {
+            foreach ($batch as $dit) {
+                try {
+                    // Créer l'objet de génération du PDF
+                    $ditPdf = new GenererPdfDit();
 
-            // Récupérer les données nécessaires
-            $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
+                    // Récupérer les données nécessaires
+                    $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
 
-            // Génération du PDF et sauvegarde sur disque
-            $ditPdf->genererPdfDit($dit, $historiqueMateriel);
-            // Supposons que le PDF est sauvegardé sur disque ici
+                    // Génération du PDF et sauvegarde sur disque
+                    $ditPdf->genererPdfDit($dit, $historiqueMateriel);
 
-            // Fusion du PDF et migration (vérifier que cette méthode utilise bien des fichiers temporaires)
-            // $this->fusionPdfmigrations($dit);
+                    // Fusion du PDF et migration
+                    $this->fusionPdfmigrations($dit);
 
-            // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
-            $ditPdf->copyInterneToDOCUWARE(
-                $dit->getNumeroDemandeIntervention(),
-                str_replace("-", "", $dit->getAgenceServiceEmetteur())
-            );
+                    // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
+                    $ditPdf->copyInterneToDOCUWARE(
+                        $dit->getNumeroDemandeIntervention(),
+                        str_replace("-", "", $dit->getAgenceServiceEmetteur())
+                    );
 
+                    $this->logger->info(sprintf('DIT %s traité avec succès.', $dit->getNumeroDemandeIntervention()));
 
-            // Avancer la barre de progression
-            $progressBar->advance();
+                } catch (\Exception $e) {
+                    $this->logger->error(sprintf('Erreur lors du traitement du DIT %s: %s', $dit->getNumeroDemandeIntervention(), $e->getMessage()));
+                    $output->writeln(sprintf('<error>Erreur lors du traitement du DIT %s: %s</error>', $dit->getNumeroDemandeIntervention(), $e->getMessage()));
+                }
 
-            // Libérer la mémoire de l'objet PDF
-            // unset($ditPdf);
+                // Avancer la barre de progression
+                $progressBar->advance();
+
+                // Libérer la mémoire de l'objet PDF
+                // unset($ditPdf);
+            }
+            // Forcer la collecte des cycles de garbage collection après chaque lot
+            gc_collect_cycles();
         }
-        // Forcer la collecte des cycles de garbage collection après chaque lot
-        gc_collect_cycles();
+
+        $output->writeln("\nNombre de résultats : " . $total);
+        $progressBar->finish();
+        $output->writeln("\nTerminé !");
     }
-
-    $output->writeln("\nNombre de résultats : " . $total);
-    $progressBar->finish();
-    $output->writeln("\nTerminé !");
-}
-
-
 
     private function fusionPdfmigrations($dit)
     {
-        $fusionPdf = new FusionPdf();
+        try {
+            $fusionPdf = new FusionPdf();
+            $uploadDir = 'C:/wamp64/www/Upload/dit/';
+            $migrationDir = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/';
 
-        $mainPdf = 'C:/wamp64/www/Upload/dit/'.$dit->getNumeroDemandeIntervention().'_'. str_replace("-", "", $dit->getAgenceServiceEmetteur()).'.pdf';
-        $files = [$mainPdf];
-        $extension01 = '.' . pathinfo($dit->getPieceJoint01(), PATHINFO_EXTENSION);
-        $extension02 = '.' . pathinfo($dit->getPieceJoint02(), PATHINFO_EXTENSION);
-        $extension03 = '.' . pathinfo($dit->getPieceJoint03(), PATHINFO_EXTENSION);
-        if(!empty($dit->getPieceJoint01()) && $extension01 === '.pdf'){
-            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint01();
+            $mainPdf = $uploadDir . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
+            $files = [$mainPdf];
+            $processedPjs = [];
+
+            for ($i = 1; $i <= 3; $i++) {
+                $pieceJointe = $dit->{'getPieceJoint0' . $i}();
+                if (! empty($pieceJointe) && ! in_array($pieceJointe, $processedPjs)) {
+                    $extension = '.' . pathinfo($pieceJointe, PATHINFO_EXTENSION);
+                    if ($extension === '.pdf') {
+                        $filePath = $migrationDir . $pieceJointe;
+                        if (file_exists($filePath)) {
+                            $files[] = $filePath;
+                            $processedPjs[] = $pieceJointe;
+                        } else {
+                            $this->logger->warning(sprintf('Fichier de pièce jointe manquant pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $filePath));
+                        }
+                    }
+                }
+            }
+
+            $outputFile = $uploadDir . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
+            $fusionPdf->mergePdfs($files, $outputFile);
+            $this->logger->info(sprintf('PDF fusionné avec succès pour DIT %s.', $dit->getNumeroDemandeIntervention()));
+        } catch (\Exception $e) {
+            $this->logger->error(sprintf('Erreur lors de la fusion des PDF pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $e->getMessage()));
+
+            throw $e; // Re-throw the exception after logging
         }
-        if(!empty($dit->getPieceJoint02() && $extension02 === '.pdf')){
-            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint02();
-        }
-        if(!empty($dit->getPieceJoint03()) && $extension03 === '.pdf'){
-            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/'.$dit->getPieceJoint03();
-        }
-        $outputFile = 'C:/wamp64/www/Upload/dit/'.$dit->getNumeroDemandeIntervention().'_'. str_replace("-", "", $dit->getAgenceServiceEmetteur()).'.pdf';
-        $fusionPdf->mergePdfs($files, $outputFile);
     }
 
     private function recupDonnerDit(): array
     {
         $dits = $this->ditRepository->findDitMigration();
-        
-        
+
+
         foreach ($dits as $dit) {
-            if(!empty($dit->getIdMateriel())){
+            if (! empty($dit->getIdMateriel())) {
                 $data = $this->ditModel->findAll($dit->getIdMateriel());
                 if (empty($data)) {
                     echo "Aucune donnée trouvée pour le matériel ayant pour id : " . $dit->getIdMateriel();
@@ -132,25 +155,26 @@ class MigrationPdfDitService
                     $dit->setKm($data[0]['km']);
                     $dit->setHeure($data[0]['heure']);
                 }
-                
+
             }
         }
+
         return $dits;
     }
 
     private function historiqueInterventionMateriel($dits): array
     {
         $historiqueMateriel = $this->ditModel->historiqueMateriel($dits->getIdMateriel());
-            foreach ($historiqueMateriel as $keys => $values) {
-                foreach ($values as $key => $value) {
-                    if ($key == "datedebut") {
-                        $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
-                    } elseif ($key === 'somme') {
-                        $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
-                    }
+        foreach ($historiqueMateriel as $keys => $values) {
+            foreach ($values as $key => $value) {
+                if ($key == "datedebut") {
+                    $historiqueMateriel[$keys]['datedebut'] = implode('/', array_reverse(explode("-", $value)));
+                } elseif ($key === 'somme') {
+                    $historiqueMateriel[$keys][$key] = explode(',', $this->formatNumber($value))[0];
                 }
             }
+        }
+
         return $historiqueMateriel;
     }
-    
 }

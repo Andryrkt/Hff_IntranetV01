@@ -6,7 +6,6 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\Traits\DateTrait;
 use App\Repository\admin\tik\TkiCommentaireRepository;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -73,12 +72,12 @@ class TkiCommentaires
 
     public function __construct($numeroTicket = '', $nomUtilisateur = '')
     {
-        $this->numeroTicket   = $numeroTicket;
+        $this->numeroTicket = $numeroTicket;
         $this->nomUtilisateur = $nomUtilisateur;
     }
 
     /**=====================================================================================
-     * 
+     *
      * GETTERS and SETTERS
      *
     =====================================================================================*/

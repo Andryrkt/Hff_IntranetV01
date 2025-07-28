@@ -6,24 +6,25 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
+use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitRiSoumisAValidationType;
-use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitRiSoumisAValidationModel;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class DitRiSoumisAValidationController extends Controller
 {
     use DitRiSoumisAValidationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService;
+        $this->historiqueOperation = new HistoriqueOperationRIService();
     }
 
     /**
@@ -51,7 +52,7 @@ class DitRiSoumisAValidationController extends Controller
         $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($ditRiSoumiAValidation->getNumeroOR(), $itvDejaSoumis);
 
         $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
-            'itvAfficher' => $itvAfficher
+            'itvAfficher' => $itvAfficher,
         ])->getForm();
 
 
@@ -77,7 +78,7 @@ class DitRiSoumisAValidationController extends Controller
                     $estSoumis = true;
                     break;
                 }
-                if (!in_array($value, $toutNumeroItv)) {
+                if (! in_array($value, $toutNumeroItv)) {
                     $existe = true;
                 }
             }
@@ -124,7 +125,7 @@ class DitRiSoumisAValidationController extends Controller
 
                             // Déplacer le fichier depuis la copie temporaire
                             $targetPath = $fileDossier . $fileName;
-                            if (!copy($tempFile, $targetPath)) {
+                            if (! copy($tempFile, $targetPath)) {
                                 throw new \Exception('Erreur lors de la copie du fichier.');
                             }
 
@@ -175,7 +176,7 @@ class DitRiSoumisAValidationController extends Controller
 
         self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
-            'itvAfficher' => $itvAfficher
+            'itvAfficher' => $itvAfficher,
         ]);
     }
 }

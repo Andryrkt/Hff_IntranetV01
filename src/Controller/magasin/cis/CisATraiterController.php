@@ -3,17 +3,18 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Controller\Traits\magasin\cis\AtraiterTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\magasin\cis\CisATraiterModel;
 use App\Form\magasin\cis\ATraiterSearchType;
+use App\Model\magasin\cis\CisATraiterModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\Traits\magasin\cis\AtraiterTrait;
 
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
+
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
@@ -31,13 +32,13 @@ class CisATraiterController extends Controller
         $agenceUser = $this->agenceUser($autoriser);
 
         $form = self::$validator->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
-            'method' => 'GET'
+            'method' => 'GET',
         ])->getForm();
 
         $form->handleRequest($request);
         $criteria = [
             "agenceUser" => $agenceUser,
-            'orValide' => true
+            'orValide' => true,
         ];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
@@ -52,7 +53,7 @@ class CisATraiterController extends Controller
 
         self::$twig->display('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 
@@ -66,7 +67,7 @@ class CisATraiterController extends Controller
 
         $cisATraiterModel = new CisATraiterModel();
 
-        //recupères les critère dans la session 
+        //recupères les critère dans la session
         $criteria = $this->sessionService->get('cis_a_traiter_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
@@ -91,13 +92,12 @@ class CisATraiterController extends Controller
                 $entity['qte_dem'],
                 $entity['idMateriel'],
                 $entity['marque'],
-                $entity['casier']
+                $entity['casier'],
             ];
         }
 
         $this->excelService->createSpreadsheet($data);
     }
-
 
     private function recupData($cisATraiterModel, $criteria)
     {

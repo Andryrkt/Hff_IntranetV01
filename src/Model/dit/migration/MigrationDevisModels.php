@@ -4,22 +4,21 @@ namespace App\Model\dit\migration;
 
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
-use App\Model\dit\RequestSoumisValidation;
 
 class MigrationDevisModels extends Model
 {
     use ConversionModel;
-    
+
     /**
      * Methode pour recupérer l'information du devis pour enregistrer dans le base de donnée
      *
      * @param string $numDevis
-     * @param boolean $estCeForfait
+     * @param bool $estCeForfait
      * @return void
      */
     public function recupDevisSoumisValidation(string $numDevis): array
     {
-        
+
         $statement = " SELECT sitv_succdeb as num_agence, slor_numor as numero_devis, sitv_datdeb, trim(seor_refdem) as numero_dit, sitv_interv as numero_itv, trim(sitv_comment) as libell_itv, trim(sitv_natop) as nature_operation, trim(seor_devise) as devise, count(slor_constp) as nombre_ligne, Sum(
             CASE
                 WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)

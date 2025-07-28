@@ -2,16 +2,15 @@
 
 namespace App\Controller\planning;
 
-
 use App\Controller\Controller;
-use App\Model\planning\PlanningModel;
-use App\Entity\planning\PlanningSearch;
-use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\planning\PlanningSearch;
 use App\Form\planning\PlanningSearchType;
+use App\Model\planning\PlanningModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,7 +20,9 @@ class PlanningController extends Controller
     use PlanningTraits;
 
     private PlanningModel $planningModel;
+
     private PlanningSearch $planningSearch;
+
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
@@ -34,7 +35,7 @@ class PlanningController extends Controller
 
     /**
      * @Route("/planning", name="planning_vue")
-     * 
+     *
      * @return void
      */
     public function listePlanning(Request $request)
@@ -57,7 +58,7 @@ class PlanningController extends Controller
             PlanningSearchType::class,
             $this->planningSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
             ]
         )->getForm();
 
@@ -67,7 +68,7 @@ class PlanningController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             // dd($form->getdata());
-            $criteria =  $form->getdata();
+            $criteria = $form->getdata();
         }
 
         /**
@@ -85,15 +86,15 @@ class PlanningController extends Controller
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria,$tousLesOrSoumis);
-            
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
+
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString, $touslesOrItvSoumis);
-   
+
         } else {
             $data = [];
             $back = [];
@@ -117,12 +118,12 @@ class PlanningController extends Controller
 
     private function allOrsItv()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
     }
 
     private function allOrs()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrAll());
+        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrAll());
     }
 
     /**
@@ -185,9 +186,6 @@ class PlanningController extends Controller
         $this->excelService->createSpreadsheet($data);
     }
 
-
-
-
     /**
      * @Route("/export_excel_planning01", name= "export_planning01")
      */
@@ -201,7 +199,7 @@ class PlanningController extends Controller
         $planningSearch = $this->creationObjetCriteria($criteria);
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
-        
+
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
         //  dd($data);
 
@@ -226,12 +224,11 @@ class PlanningController extends Controller
                 $entity->getCasier(),
                 $entity->getMois(),
                 $entity->getAnnee(),
-                $entity->getPos()
+                $entity->getPos(),
 
             ];
         }
 
         $this->excelService->createSpreadsheet($data);
     }
-
 }

@@ -2,36 +2,34 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\cas\Casier;
 use App\Controller\Controller;
-use App\Model\badm\CasierModel;
-use App\Entity\admin\Application;
-use App\Entity\cas\CasierValider;
-use App\Form\cas\CasierForm1Type;
-use App\Form\cas\CasierForm2Type;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
-use App\Controller\Traits\ConversionTrait;
+use App\Entity\admin\Application;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\cas\Casier;
+use App\Form\cas\CasierForm1Type;
+use App\Form\cas\CasierForm2Type;
+use App\Model\badm\CasierModel;
 use App\Service\genererPdf\GenererPdfCasier;
 use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
 class CasierController extends Controller
 {
-
     use Transformation;
     use ConversionTrait;
     use FormatageTrait;
+
     private $historiqueOperation;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationCASService;
+        $this->historiqueOperation = new HistoriqueOperationCASService();
     }
 
     /**
@@ -55,7 +53,7 @@ class CasierController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $casierModel = new CasierModel();
             $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
-            if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
+            if ($casier->getIdMateriel() === null && $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'casier_nouveau');
             } elseif (empty($data)) {
@@ -65,7 +63,7 @@ class CasierController extends Controller
                 $formData = [
                     'idMateriel' => $casier->getIdMateriel(),
                     'numParc' => $casier->getNumParc(),
-                    'numSerie' => $casier->getNumSerie()
+                    'numSerie' => $casier->getNumSerie(),
                 ];
                 $this->sessionService->set('casierform1Data', $formData);
 
@@ -78,7 +76,7 @@ class CasierController extends Controller
         self::$twig->display(
             'badm/casier/nouveauCasier.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
@@ -122,7 +120,7 @@ class CasierController extends Controller
         if ($form->isSubmitted()) {
 
             $casier->setNumeroCas($this->autoINcriment('CAS'));
-            //RECUPERATION de la dernière NumeroDemandeIntervention 
+            //RECUPERATION de la dernière NumeroDemandeIntervention
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
             $application->setDerniereId($casier->getNumeroCas());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
@@ -159,11 +157,10 @@ class CasierController extends Controller
         self::$twig->display(
             'badm/casier/formulaireCasier.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
-
 
     private function generPdfCasier($NumCAS, $dateDemande, $data, $casier, $MailUser, $agenceEmetteur, $serviceEmetteur): array
     {
@@ -186,8 +183,7 @@ class CasierController extends Controller
             'Client' => $casier->getClient(),
             'Chantier' => $casier->getChantier(),
             'Email_Emetteur' => $MailUser,
-            'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
+            'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur,
         ];
     }
-
 }

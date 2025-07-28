@@ -2,14 +2,9 @@
 
 namespace App\Entity\admin\dom;
 
-use App\Entity\admin\dom\Rmq;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\dom\SousTypeDocument;
 use App\Repository\admin\dom\IdemniteRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="idemnite")
@@ -69,6 +64,7 @@ class Indemnite
     public function setMontant(int $montant): self
     {
         $this->montant = $montant;
+
         return $this;
     }
 
@@ -80,6 +76,7 @@ class Indemnite
     public function setCategorie(?Catg $categorie): self
     {
         $this->categorie = $categorie;
+
         return $this;
     }
 
@@ -91,6 +88,7 @@ class Indemnite
     public function setSite(?Site $site): self
     {
         $this->site = $site;
+
         return $this;
     }
 
@@ -102,6 +100,7 @@ class Indemnite
     public function setRmq(?Rmq $rmq): self
     {
         $this->rmq = $rmq;
+
         return $this;
     }
 
@@ -113,6 +112,7 @@ class Indemnite
     public function setSousTypeDoc(?SousTypeDocument $sousTypeDoc): self
     {
         $this->sousTypeDoc = $sousTypeDoc;
+
         return $this;
     }
 }

@@ -2,17 +2,17 @@
 
 namespace App\Controller\badm;
 
-use App\Entity\badm\Badm;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Form\badm\BadmForm2Type;
-use App\Entity\admin\Application;
-use Illuminate\Support\Facades\Request;
-use App\Entity\admin\badm\TypeMouvement;
-use App\Controller\Traits\FormatageTrait;
-use App\Service\genererPdf\GenererPdfBadm;
 use App\Controller\Traits\BadmDuplicationTrait;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Application;
+use App\Entity\admin\badm\TypeMouvement;
+use App\Entity\admin\Service;
+use App\Entity\badm\Badm;
+use App\Form\badm\BadmForm2Type;
+use App\Service\genererPdf\GenererPdfBadm;
+use Illuminate\Support\Facades\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class BadmDupliController extends Controller
@@ -104,7 +104,7 @@ class BadmDupliController extends Controller
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
-                //RECUPERATION de la dernière NumeroDemandeIntervention 
+                //RECUPERATION de la dernière NumeroDemandeIntervention
                 $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
@@ -117,16 +117,16 @@ class BadmDupliController extends Controller
         }
 
         $this->logUserVisit('BadmDupli_dupliBadmnumBadm', [
-            'id'      => $id,
+            'id' => $id,
             'numBadm' => $numBadm,
-        ]); // historisation du page visité par l'utilisateur 
+        ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display(
             'badm/duplication.html.twig',
             [
                 'items' => $data,
                 'form1Data' => $dataDb->getTypeMouvement(),
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }

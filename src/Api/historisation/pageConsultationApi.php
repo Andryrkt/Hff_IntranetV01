@@ -15,7 +15,7 @@ class pageConsultationApi extends Controller
      */
     public function allConsultationPage()
     {
-        /** 
+        /**
          * @var UserLogger[] $historiques tableau d'entité
          */
         $historiques = self::$em->getRepository(UserLogger::class)->findBy([], ['id' => 'DESC']);
@@ -23,10 +23,10 @@ class pageConsultationApi extends Controller
         $results = [];
         foreach ($historiques as $historique) {
             $results[] = [
-                'user'    => $historique->getUtilisateur(),
-                'page'    => $historique->getNom_page(),
-                'date'    => $historique->getDateConsultation()->format('d-m-Y H:i:s'),
-                'params'  => $historique->getParams(),
+                'user' => $historique->getUtilisateur(),
+                'page' => $historique->getNom_page(),
+                'date' => $historique->getDateConsultation()->format('d-m-Y H:i:s'),
+                'params' => $historique->getParams(),
                 'machine' => $historique->getMachineUser(),
             ];
         }

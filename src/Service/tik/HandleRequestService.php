@@ -2,17 +2,14 @@
 
 namespace App\Service\tik;
 
-use Dom\Entity;
-use App\Controller\Controller;
-use App\Entity\tik\TkiPlanning;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
-use App\Service\SessionManagerService;
-use Doctrine\ORM\EntityManagerInterface;
-use App\Entity\admin\tik\TkiCommentaires;
 use App\Controller\Traits\tik\EnvoiFichier;
-use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiCommentaires;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiPlanning;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class HandleRequestService
@@ -20,36 +17,42 @@ class HandleRequestService
     use EnvoiFichier;
 
     private $emailTikService;
+
     private $tkiCommentaire;
+
     private $em;
+
     private $form;
+
     private SessionInterface $sessionService;
+
     private User $connectedUser;
+
     private DemandeSupportInformatique $supportInfo;
+
     private StatutDemande $statut;
 
-    public function __construct( SessionInterface $session, EntityManagerInterface $em)
+    public function __construct(SessionInterface $session, EntityManagerInterface $em)
     {
-        $this->emailTikService = new EmailTikService;
-        $this->tkiCommentaire = new TkiCommentaires;
+        $this->emailTikService = new EmailTikService();
+        $this->tkiCommentaire = new TkiCommentaires();
         $this->em = $em;
         $this->sessionService = $session;
         $this->connectedUser = $em->getRepository(User::class)->find($session->get('user_id'));
     }
 
-
-    /** 
+    /**
      * Méthode pour gérer la requête selon l'action
      */
     public function handleTheRequest(array $button, $form)
     {
         $actions = [
-            'refuser'    => 'refuserTicket',
-            'commenter'  => 'commenterTicketEnAttente', // statut en attente
-            'valider'    => 'validerTicket',
-            'planifier'  => 'planifierTicket',
+            'refuser' => 'refuserTicket',
+            'commenter' => 'commenterTicketEnAttente', // statut en attente
+            'valider' => 'validerTicket',
+            'planifier' => 'planifierTicket',
             'transferer' => 'transfererTicket',
-            'resoudre'   => 'resoudreTicket',
+            'resoudre' => 'resoudreTicket',
         ];
 
         $action = $button['action'];
@@ -60,7 +63,7 @@ class HandleRequestService
         $this->{$actions[$action]}();
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket validé
      */
     private function validerTicket()
@@ -96,12 +99,12 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('valide', $variableEmail));
 
         $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été validé."
+            'type' => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été validé.",
         ]);
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket refusé
      */
     private function refuserTicket()
@@ -132,12 +135,12 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('refuse', $variableEmail));
 
         $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été refusé."
+            'type' => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été refusé.",
         ]);
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket commenté (statut en attente)
      */
     private function commenterTicketEnAttente()
@@ -168,12 +171,12 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('suspendu', $variableEmail));
 
         $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été suspendu."
+            'type' => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été suspendu.",
         ]);
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket planifié
      */
     private function planifierTicket()
@@ -184,7 +187,7 @@ class HandleRequestService
 
         $planning = $this->em->getRepository(TkiPlanning::class)->findOneBy(['numeroTicket' => $this->form->getData()->getNumeroTicket()]);
 
-        $planning = $planning ?? new TkiPlanning;
+        $planning = $planning ?? new TkiPlanning();
 
         $planning
             ->setNumeroTicket($this->form->getData()->getNumeroTicket())
@@ -210,7 +213,7 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('planifie', $variableEmail));
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket transferé
      */
     private function transfererTicket()
@@ -234,12 +237,12 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('transfere', $variableEmail));
 
         $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été transféré."
+            'type' => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été transféré.",
         ]);
     }
 
-    /** 
+    /**
      * Méthode pour gérer un ticket résolu
      */
     private function resoudreTicket()
@@ -269,12 +272,12 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('resolu', $variableEmail));
 
         $this->sessionService->set('notification', [
-            'type'    => 'success',
-            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été résolu."
+            'type' => 'success',
+            'message' => "Le ticket " . $this->form->getData()->getNumeroTicket() . " a été résolu.",
         ]);
     }
 
-    /** 
+    /**
      * Fonction pour gérer le commentaire d'un ticket
      */
     public function commenterTicket($form, $commentaire)
@@ -300,7 +303,7 @@ class HandleRequestService
         $this->emailTikService->envoyerEmail($this->emailTikService->prepareEmail('comment', $variableEmail, $this->connectedUser->getMail()));
     }
 
-    /** 
+    /**
      * fonction pour historiser le statut du ticket
      */
     private function historiqueStatut()
@@ -379,7 +382,7 @@ class HandleRequestService
      * Set the value of supportInfo
      *
      * @return  self
-     */ 
+     */
     public function setSupportInfo($supportInfo)
     {
         $this->supportInfo = $supportInfo;

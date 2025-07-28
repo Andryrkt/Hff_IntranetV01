@@ -2,10 +2,7 @@
 
 namespace App\Controller\Traits\magasin\ors;
 
-
 use App\Entity\admin\utilisateur\User;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\magasin\MagasinListeOrATraiterModel;
 
 trait MagasinTrait
 {
@@ -15,6 +12,7 @@ trait MagasinTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
+
         return in_array(1, $roleIds) || in_array(6, $roleIds);
     }
 
@@ -24,5 +22,4 @@ trait MagasinTrait
 
         return implode("','", $numOrValide);
     }
-
 }

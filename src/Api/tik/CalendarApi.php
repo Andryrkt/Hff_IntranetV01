@@ -3,11 +3,10 @@
 namespace App\Api\tik;
 
 use App\Controller\Controller;
-use App\Entity\tik\TkiPlanning;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\tik\TkiPlanning;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class CalendarApi extends Controller
 {
@@ -49,7 +48,7 @@ class CalendarApi extends Controller
 
             // Validation des données
             if (isset($data['title'], $data['description'], $data['start'], $data['end'])) {
-                
+
                 $userId = $this->sessionService->get('user_id');
                 $user = self::$em->getRepository(User::class)->find($userId);
                 // Création de l'événement
@@ -65,7 +64,7 @@ class CalendarApi extends Controller
                 $entityManager->persist($event);
                 $entityManager->flush();
 
-                
+
                 echo json_encode(['success' => true]);
                 exit;
             }

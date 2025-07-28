@@ -2,7 +2,6 @@
 
 namespace App\Controller\Traits\magasin\ors;
 
-
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrATraiterModel;
 
@@ -12,10 +11,10 @@ trait MagasinOrALIvrerTrait
     {
         $magasinModel = new MagasinListeOrATraiterModel();
         $numeroOrs = $magasinModel->recupNumOr($criteria);
-    
+
         $numOrValideItvString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv']);
         $numOrValideString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr']);
-    
+
         $numOrLivrerComplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerComplet($numOrValideItvString, $numOrValideString, $criteria));
         $numOrLivrerIncomplet = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerIncomplet($numOrValideItvString, $numOrValideString, $criteria));
         $numOrLivrerTout = $this->orEnString($this->magasinListOrLivrerModel->recupOrLivrerTout($numOrValideItvString, $numOrValideString, $criteria));
@@ -24,7 +23,7 @@ trait MagasinOrALIvrerTrait
             "numOrLivrerComplet" => $numOrLivrerComplet,
             "numOrLivrerIncomplet" => $numOrLivrerIncomplet,
             "numOrLivrerTout" => $numOrLivrerTout,
-            "numOrValideString" => $numOrValideItvString
+            "numOrValideString" => $numOrValideItvString,
         ];
     }
 
@@ -50,17 +49,18 @@ trait MagasinOrALIvrerTrait
         $numOrValide = [];
         foreach ($numeroOrs as $numeroOr) {
             $numItv = $em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numeroOr['numero_or']);
-            
-            if(!empty($numItv)){
-                foreach ($numItv as  $value) {
+
+            if (! empty($numItv)) {
+                foreach ($numItv as $value) {
                     $numOrValideItv[] = $numeroOr['numero_or'].'-'.$value;
                     $numOrValide[] = $numeroOr['numero_or'];
                 }
             }
         }
+
         return [
             'numeroOr_itv' => $numOrValideItv,
-            'numeroOr' => $numOrValide
+            'numeroOr' => $numOrValide,
         ];
     }
 }

@@ -18,6 +18,7 @@ class CarbonExtension extends AbstractExtension
     public function diffForHumans($date): string
     {
         Carbon::setLocale('fr'); // Configure la langue
+
         return Carbon::parse($date)->diffForHumans();
     }
 }

@@ -2,14 +2,12 @@
 
 namespace App\Entity\admin;
 
-
-
-use App\Entity\Traits\DateTrait;
 use App\Entity\admin\dit\CategorieAteApp;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
-use Doctrine\Common\Collections\Collection;
+use App\Entity\Traits\DateTrait;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -19,7 +17,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Application
 {
     use DateTrait;
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -49,12 +47,10 @@ class Application
      */
     private $users;
 
-
     /**
      * @ORM\ManyToMany(targetEntity=CategorieAteApp::class, mappedBy="applications")
      */
     private $categorieAtes;
-
 
     public function __construct()
     {
@@ -62,7 +58,6 @@ class Application
         $this->categorieAtes = new ArrayCollection();
     }
 
-    
     public function getId(): ?int
     {
         return $this->id;
@@ -76,6 +71,7 @@ class Application
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
+
         return $this;
     }
 
@@ -87,17 +83,15 @@ class Application
     public function setCodeApp(string $codeApp): self
     {
         $this->codeApp = $codeApp;
+
         return $this;
     }
 
-   
-   
     public function getDerniereId()
     {
         return $this->derniereId;
     }
 
-  
     public function setDerniereId(?string $derniereId): self
     {
         $this->derniereId = $derniereId;
@@ -105,9 +99,9 @@ class Application
         return $this;
     }
 
-     /**
-     * @return Collection|User[]
-     */
+    /**
+    * @return Collection|User[]
+    */
     public function getUsers(): Collection
     {
         return $this->users;
@@ -115,10 +109,11 @@ class Application
 
     public function addUser(User $user): self
     {
-        if (!$this->users->contains($user)) {
+        if (! $this->users->contains($user)) {
             $this->users[] = $user;
             $user->addApplication($this);
         }
+
         return $this;
     }
 
@@ -128,10 +123,10 @@ class Application
             $this->users->removeElement($user);
             $user->removeApplication($this);
         }
+
         return $this;
     }
 
-  
     public function getCategorieAtes(): Collection
     {
         return $this->categorieAtes;
@@ -139,10 +134,11 @@ class Application
 
     public function addCategorieAte(CategorieAteApp $categorieAteApp): self
     {
-        if (!$this->categorieAtes->contains($$categorieAteApp)) {
+        if (! $this->categorieAtes->contains($$categorieAteApp)) {
             $this->categorieAtes[] = $$categorieAteApp;
             $$categorieAteApp->addApplication($this);
         }
+
         return $this;
     }
 
@@ -152,6 +148,7 @@ class Application
             $this->categorieAtes->removeElement($$categorieAteApp);
             $$categorieAteApp->removeApplication($this);
         }
+
         return $this;
     }
 

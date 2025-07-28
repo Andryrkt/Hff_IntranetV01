@@ -2,31 +2,20 @@
 
 namespace App\Form\dom;
 
-
-
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
-use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
-use Doctrine\ORM\EntityRepository;
-use App\Entity\admin\StatutDemande;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
-use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Repository\admin\ServiceRepository;
-use Symfony\Component\Form\FormBuilderInterface;
+use App\Entity\admin\StatutDemande;
+use App\Entity\dom\DomSearch;
 use App\Repository\admin\StatutDemandeRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-
-
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DomSearchType extends AbstractType
 {
-
     private $em;
 
     public function __construct()
@@ -59,7 +48,7 @@ class DomSearchType extends AbstractType
         ])
         ->add('numDom', TextType::class, [
             'label' => "N° DOM",
-            'required' => false
+            'required' => false,
         ])
         ->add('matricule', TextType::class, [
             'label' => 'Matricule',
@@ -86,17 +75,14 @@ class DomSearchType extends AbstractType
             'required' => false,
         ])
         ;
-        
+
     }
-    
-        public function configureOptions(OptionsResolver $resolver)
-        {
-            $resolver->setDefaults([
-                'data_class' => DomSearch::class,
-            ]);
-            $resolver->setDefined('idAgenceEmetteur');
-        }
 
-
+    public function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefaults([
+            'data_class' => DomSearch::class,
+        ]);
+        $resolver->setDefined('idAgenceEmetteur');
+    }
 }
-

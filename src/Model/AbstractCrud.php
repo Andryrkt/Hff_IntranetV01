@@ -8,6 +8,7 @@ use PDOException;
 abstract class AbstractCrud
 {
     protected $table;
+
     protected $conn;
 
     public function __construct(PDO $conn, string $table)
@@ -29,6 +30,7 @@ abstract class AbstractCrud
             $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(array_values($data));
+
             return (int)$this->conn->lastInsertId();
         } catch (PDOException $e) {
             throw new \Exception("Create failed: " . $e->getMessage());
@@ -47,11 +49,12 @@ abstract class AbstractCrud
             $columnsStr = implode(', ', $columns);
             $sql = "SELECT $columnsStr FROM {$this->table}";
             if ($criteria) {
-                $where = implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($criteria)));
+                $where = implode(' AND ', array_map(fn ($col) => "$col = ?", array_keys($criteria)));
                 $sql .= " WHERE $where";
             }
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(array_values($criteria));
+
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             throw new \Exception("Read failed: " . $e->getMessage());
@@ -67,11 +70,12 @@ abstract class AbstractCrud
     public function update(array $data, array $criteria): int
     {
         try {
-            $set = implode(', ', array_map(fn($col) => "$col = ?", array_keys($data)));
-            $where = implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($criteria)));
+            $set = implode(', ', array_map(fn ($col) => "$col = ?", array_keys($data)));
+            $where = implode(' AND ', array_map(fn ($col) => "$col = ?", array_keys($criteria)));
             $sql = "UPDATE {$this->table} SET $set WHERE $where";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(array_merge(array_values($data), array_values($criteria)));
+
             return $stmt->rowCount();
         } catch (PDOException $e) {
             throw new \Exception("Update failed: " . $e->getMessage());
@@ -86,10 +90,11 @@ abstract class AbstractCrud
     public function delete(array $criteria): int
     {
         try {
-            $where = implode(' AND ', array_map(fn($col) => "$col = ?", array_keys($criteria)));
+            $where = implode(' AND ', array_map(fn ($col) => "$col = ?", array_keys($criteria)));
             $sql = "DELETE FROM {$this->table} WHERE $where";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute(array_values($criteria));
+
             return $stmt->rowCount();
         } catch (PDOException $e) {
             throw new \Exception("Delete failed: " . $e->getMessage());

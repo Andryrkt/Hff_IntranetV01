@@ -2,7 +2,6 @@
 
 namespace App\Repository\admin\historisation\documentOperation;
 
-<<<<<<< HEAD
 use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
@@ -29,17 +28,17 @@ class HistoriqueOperationDocumentRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         return [
-            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
-            'totalItems'  => $totalItems,
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
             'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'lastPage' => $lastPage,
         ];
     }
 
     private function dateFinDebut($queryBuilder, HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         //filtre date debut
-        if (!empty($historiqueOperationDocumentSearch->getDateOperationDebut())) {
+        if (! empty($historiqueOperationDocumentSearch->getDateOperationDebut())) {
             $queryBuilder
                 ->andWhere('hod.dateOperation >= :dateDebut')
                 ->setParameter('dateDebut', $historiqueOperationDocumentSearch->getDateOperationDebut()->format('Y-m-d'))
@@ -49,7 +48,7 @@ class HistoriqueOperationDocumentRepository extends EntityRepository
         }
 
         //filtre date fin
-        if (!empty($historiqueOperationDocumentSearch->getDateOperationFin())) {
+        if (! empty($historiqueOperationDocumentSearch->getDateOperationFin())) {
             $queryBuilder
                 ->andWhere('hod.dateOperation <= :dateFin')
                 ->setParameter('dateFin', $historiqueOperationDocumentSearch->getDateOperationFin()->format('H:i:s.u'))
@@ -62,19 +61,19 @@ class HistoriqueOperationDocumentRepository extends EntityRepository
     private function conditionSaisieLibre($queryBuilder, HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         //filtre selon le numero du document
-        if (!empty($historiqueOperationDocumentSearch->getNumeroDocument())) {
+        if (! empty($historiqueOperationDocumentSearch->getNumeroDocument())) {
             $queryBuilder->andWhere('hod.numeroDocument LIKE :numDoc')
                 ->setParameter('numDoc', '%' . $historiqueOperationDocumentSearch->getNumeroDocument() . '%');
         }
 
         //filtre selon l'utilisateur
-        if (!empty($historiqueOperationDocumentSearch->getUtilisateur())) {
+        if (! empty($historiqueOperationDocumentSearch->getUtilisateur())) {
             $queryBuilder->andWhere('hod.utilisateur LIKE :utilisateur')
                 ->setParameter('utilisateur', '%' . $historiqueOperationDocumentSearch->getUtilisateur() . '%');
         }
 
         //filtre selon le statut de l'opération
-        if (!empty($historiqueOperationDocumentSearch->getStatutOperation())) {
+        if (! empty($historiqueOperationDocumentSearch->getStatutOperation())) {
             $queryBuilder->andWhere('hod.statutOperation LIKE :statut')
                 ->setParameter('statut', '%' . $historiqueOperationDocumentSearch->getStatutOperation() . '%');
         }
@@ -83,21 +82,15 @@ class HistoriqueOperationDocumentRepository extends EntityRepository
     private function conditionListeDeChoix($queryBuilder, HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         //filtre pour le niveau d'urgence
-        if (!empty($historiqueOperationDocumentSearch->getTypeDocument())) {
+        if (! empty($historiqueOperationDocumentSearch->getTypeDocument())) {
             $queryBuilder->andWhere('hod.idTypeDocument = :idDocument')
                 ->setParameter('idDocument', $historiqueOperationDocumentSearch->getTypeDocument()->getId());
         }
 
         //filtre selon le statut
-        if (!empty($historiqueOperationDocumentSearch->getTypeOperation())) {
+        if (! empty($historiqueOperationDocumentSearch->getTypeOperation())) {
             $queryBuilder->andWhere('hod.idTypeOperation = :idOperation')
                 ->setParameter('idOperation',  $historiqueOperationDocumentSearch->getTypeOperation()->getId());
         }
     }
 }
-=======
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
-
-class HistoriqueOperationDocumentRepository extends EntityRepository {}
->>>>>>> e2449b113a26f4a16e2de08d779a4e263ca62975

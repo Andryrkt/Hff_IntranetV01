@@ -15,7 +15,7 @@ class HeaderPdf extends TCPDF
 
     public function Header()
     {
-        if (!$this->email) {
+        if (! $this->email) {
             return; // Empêcher l'affichage si aucun email n'est défini
         }
 

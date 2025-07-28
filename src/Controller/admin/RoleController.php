@@ -2,10 +2,9 @@
 
 namespace App\Controller\admin;
 
-
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
+use App\Entity\Permission;
 use App\Form\admin\utilisateur\RoleType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +26,7 @@ class RoleController extends Controller
         self::$twig->display(
             'admin/role/list.html.twig',
             [
-                'data' => $data
+                'data' => $data,
             ]
         );
     }
@@ -63,11 +62,10 @@ class RoleController extends Controller
         self::$twig->display(
             'admin/role/new.html.twig',
             [
-                'form' => $form->createView()
+                'form' => $form->createView(),
             ]
         );
     }
-
 
     /**
      * @Route("/admin/role/edit/{id}", name="role_update")

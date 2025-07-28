@@ -2,13 +2,12 @@
 
 namespace App\Controller\dw;
 
-use DateTime;
 use App\Controller\Controller;
-use App\Entity\dw\DwDemandeIntervention;
+use App\Form\dw\DossierInterventionAtelierSearchType;
+use App\Model\dw\DossierInterventionAtelierModel;
+use DateTime;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Form\dw\DossierInterventionAtelierSearchType;
 
 class DossierInterventionAtelierController extends Controller
 {
@@ -62,7 +61,7 @@ class DossierInterventionAtelierController extends Controller
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
             'form' => $form->createView(),
             'dwDits' => $dwDits,
-            'date' => $date
+            'date' => $date,
         ]);
     }
 
@@ -80,7 +79,7 @@ class DossierInterventionAtelierController extends Controller
             $dwOr = $dwModel->findDwOr($dwDits[$i]['numero_dit_intervention']) ?? [];
 
             // Si un ordre de réparation est trouvé, récupérer les autres données liées
-            if (!empty($dwOr)) {
+            if (! empty($dwOr)) {
                 $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
                 $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
                 $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];

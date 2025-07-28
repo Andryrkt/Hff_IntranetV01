@@ -3,10 +3,10 @@
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\AgenceServiceAutoriser;
 use App\Form\admin\utilisateur\AgenceServiceAutoriserType;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AgenceServiceAutoriserController extends Controller
 {
@@ -21,7 +21,7 @@ class AgenceServiceAutoriserController extends Controller
         $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
 
         self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
@@ -47,7 +47,7 @@ class AgenceServiceAutoriserController extends Controller
 
         self::$twig->display('admin/AgenceServiceAutoriser/new.html.twig', [
 
-            'form' => $form->createView()
+            'form' => $form->createView(),
         ]);
     }
 

@@ -3,14 +3,16 @@
 namespace App\Service;
 
 use App\Controller\Controller;
-use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 
 class EmailService
 {
     private $mailer;
+
     private $twig;
+
     private $twigMailer;
 
     public function __construct()
@@ -74,6 +76,7 @@ class EmailService
         } catch (\Exception $e) {
             // Log the error message or handle it as needed
             dd('erreur: ' . $e->getMessage());
+
             return false;
         }
     }

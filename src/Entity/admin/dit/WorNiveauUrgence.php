@@ -2,33 +2,33 @@
 
 namespace App\Entity\admin\dit;
 
-
-use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Entity\dit\DemandeIntervention;
-use Doctrine\Common\Collections\Collection;
 use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\Traits\DateTrait;
 use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=WorNiveauUrgenceRepository::class)
  * @ORM\Table(name="wor_niveau_urgence")
  * @ORM\HasLifecycleCallbacks
  */
-class WorNiveauUrgence{
+class WorNiveauUrgence
+{
     use DateTrait;
-/**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+
+    /**
+         * @ORM\Id
+         * @ORM\GeneratedValue
+         * @ORM\Column(type="integer")
+         */
     private $id;
 
-     /**
-     * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="idNiveauUrgence")
-     */
+    /**
+    * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="idNiveauUrgence")
+    */
     private $demandeInterventions;
 
     /**
@@ -47,12 +47,11 @@ class WorNiveauUrgence{
         $this->supportInfo = new ArrayCollection();
     }
 
-     /**=====================================================================================
-     * 
-     * GETTERS and SETTERS
-     *
+    /**=====================================================================================
+    *
+    * GETTERS and SETTERS
+    *
     =====================================================================================*/
-
 
     public function getId()
     {
@@ -61,7 +60,7 @@ class WorNiveauUrgence{
 
     /**
      * Get the value of description
-     */ 
+     */
     public function getDescription()
     {
         return $this->description;
@@ -71,7 +70,7 @@ class WorNiveauUrgence{
      * Set the value of description
      *
      * @return  self
-     */ 
+     */
     public function setDescription($description)
     {
         $this->description = $description;
@@ -79,12 +78,9 @@ class WorNiveauUrgence{
         return $this;
     }
 
-    
-    
-
     /**
      * Get the value of demandeIntervention
-     */ 
+     */
     public function getDemandeIntervention()
     {
         return $this->demandeInterventions;
@@ -92,7 +88,7 @@ class WorNiveauUrgence{
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (!$this->demandeInterventions->contains($demandeIntervention)) {
+        if (! $this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setIdNiveauUrgence($this);
         }
@@ -108,16 +104,16 @@ class WorNiveauUrgence{
                 $demandeIntervention->setIdNiveauUrgence(null);
             }
         }
-        
+
         return $this;
     }
+
     public function setDemandeIntervention($demandeIntervention)
     {
         $this->demandeInterventions = $demandeIntervention;
 
         return $this;
     }
-
 
     public function getSupportInfo(): Collection
     {
@@ -126,7 +122,7 @@ class WorNiveauUrgence{
 
     public function addSupportInfo(?DemandeSupportInformatique $supportInfo): self
     {
-        if (!$this->supportInfo->contains($supportInfo)) {
+        if (! $this->supportInfo->contains($supportInfo)) {
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setNiveauUrgence($this);
         }
@@ -142,12 +138,12 @@ class WorNiveauUrgence{
                 $supportInfo->setNiveauUrgence(null);
             }
         }
+
         return $this;
     }
 
-
     public function __toString()
     {
-        return $this->description ?? 'N/A'; 
+        return $this->description ?? 'N/A';
     }
 }

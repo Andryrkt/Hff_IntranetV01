@@ -17,7 +17,7 @@ class BadmDoc extends Controller
         $markdownFile = dirname(dirname(dirname(dirname(dirname(__DIR__))))) . DIRECTORY_SEPARATOR . 'docs/fonctionnel/badm/formulaire2.md';
 
         // Vérifiez si le fichier existe avant de tenter de le lire
-        if (!file_exists($markdownFile)) {
+        if (! file_exists($markdownFile)) {
             die("Le fichier $markdownFile n'existe pas.");
         }
 
@@ -33,7 +33,7 @@ class BadmDoc extends Controller
         self::$twig->display(
             'doc/fonctionnel/badm/badm.html.twig',
             [
-                'content' => $htmlContent
+                'content' => $htmlContent,
             ]
         );
     }

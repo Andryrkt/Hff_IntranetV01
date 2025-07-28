@@ -40,12 +40,12 @@ class TableauEnStringService
         return $result;
     }
 
-     /**
-     * Methode general pour transformer un tableau en string
-     *
-     * @param array $tab
-     * @return string
-     */
+    /**
+    * Methode general pour transformer un tableau en string
+    *
+    * @param array $tab
+    * @return string
+    */
     public static function TableauEnString(string $separateur, array $tab, string $quote = "'"): string
     {
         // Fonction de validation et de transformation
@@ -55,16 +55,17 @@ class TableauEnStringService
         if (empty($flattenedArray)) {
             return $quote . $quote;
         }
-        
+
         // Échappe les caractères spéciaux si nécessaire
         $escapedArray = array_map(function ($el) use ($quote) {
             // Convertir en chaîne de caractères si ce n'est pas déjà une
-            if (!is_scalar($el)) {
+            if (! is_scalar($el)) {
                 throw new InvalidArgumentException("Tous les éléments du tableau doivent être scalaires.");
             }
+
             return $quote . $el . $quote;
         }, $flattenedArray);
-        
+
         // Joindre les éléments avec le séparateur
         return implode($separateur, $escapedArray);
     }

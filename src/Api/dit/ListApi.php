@@ -3,22 +3,22 @@
 namespace App\Api\dit;
 
 use App\Controller\Controller;
-use App\Model\dit\DitListModel;
 use App\Entity\dit\DemandeIntervention;
-use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitFactureSoumisAValidation;
+use App\Entity\dit\DitRiSoumisAValidation;
+use App\Model\dit\DitListModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ListApi extends Controller
 {
-     /**
-     * @Route("/command-modal/{numOr}", name="liste_commandModal")
-     *
-     * @return void
-     */
+    /**
+    * @Route("/command-modal/{numOr}", name="liste_commandModal")
+    *
+    * @return void
+    */
     public function commandModal($numOr)
     {
-        //RECUPERATION DE LISTE COMMANDE 
+        //RECUPERATION DE LISTE COMMANDE
         if ($numOr === '') {
             $commandes = [];
         } else {
@@ -41,7 +41,7 @@ class ListApi extends Controller
 
         // Récupération des données
         $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
-        
+
         // Parcourir chaque élément du tableau et supprimer les mots
         foreach ($sectionSupportAffectee as &$value) {
             foreach ($value as &$texte) {
@@ -58,9 +58,9 @@ class ListApi extends Controller
         echo json_encode($sectionSupportAffectee);
     }
 
-    /** 
+    /**
      * RECUPERATION numero intervention, numero facture et statut du facture
-     * @Route("/facturation-fetch/{numOr}", name="facturation_fetch") 
+     * @Route("/facturation-fetch/{numOr}", name="facturation_fetch")
      * */
     public function facturation($numOr)
     {
@@ -71,45 +71,46 @@ class ListApi extends Controller
         $result = [];
         foreach ($itvNumFac as $value) {
             $found = false;
-                foreach ($facture as $item) {
-                    if ($item['numeroItv'] == $value['itv']) {
-                        $result[] = $item;
-                        $found = true;
-                        break;
-                    }
+            foreach ($facture as $item) {
+                if ($item['numeroItv'] == $value['itv']) {
+                    $result[] = $item;
+                    $found = true;
+                    break;
                 }
-            
-            
-            if (!$found) {
+            }
+
+
+            if (! $found) {
                 $result[] = [
                     "numeroItv" => $value['itv'],
                     "numeroFact" => $value['numerofac'] ? $value['numerofac'] : "-",
-                    "statut" => "-"
+                    "statut" => "-",
                 ];
             }
         }
 
-        
+
         header("Content-type:application/json");
         echo json_encode($result);
     }
-    
-    /** 
+
+    /**
      * RECUPERATION numero intervention, numero facture et statut du facture
-     * @Route("/ri-fetch/{numOr}", name="ri_fetch") 
+     * @Route("/ri-fetch/{numOr}", name="ri_fetch")
      * */
     public function ri($numOr)
     {
-        if(empty($numOr)){
+        if (empty($numOr)) {
             header("Content-type:application/json");
             echo json_encode([]);
+
             return;
         }
-        
+
         $ditListeModel = new DitListModel();
         $ri = $ditListeModel->recupItvComment($numOr);
         $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);
-        
+
         foreach ($ri as &$value) {
             $estRiSoumis = in_array($value['numeroitv'], $riSoumis);
             $value['riSoumis'] = $estRiSoumis;
@@ -120,9 +121,9 @@ class ListApi extends Controller
         echo json_encode($ri);
     }
 
-    /** 
-     * 
-     * @Route("/niveau-urgence-fetch/{numDit}", name="niveau_urgnece_fetch") 
+    /**
+     *
+     * @Route("/niveau-urgence-fetch/{numDit}", name="niveau_urgnece_fetch")
      * */
     public function niveauUrgence($numDit)
     {
@@ -134,5 +135,4 @@ class ListApi extends Controller
         header("Content-type:application/json");
         echo json_encode($niveauUrgence);
     }
-
 }

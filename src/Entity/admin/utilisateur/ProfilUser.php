@@ -4,8 +4,8 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\admin\utilisateur\ProfilUserRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity
@@ -46,7 +46,7 @@ class ProfilUser
      */
     private $mail;
 
-      // Ajoutez ici les getters et setters pour chaque propriété
+    // Ajoutez ici les getters et setters pour chaque propriété
     public function getId()
     {
         return $this->id;
