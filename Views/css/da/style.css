@@ -29,16 +29,16 @@
   opacity: 1;
 }
 .champ-surligne-jaune {
-  background-color: #fff;
-  border-color: #fbbb01;
-  outline: 0;
-  box-shadow: 0 0 0 0.25rem rgba(251, 187, 1, 0.25);
+  background-color: #fff !important;
+  border-color: #fbbb01 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.25rem rgba(251, 187, 1, 0.25) !important;
 }
 .champ-surligne-jaune:focus {
-  background-color: #fff;
-  border-color: #fbbb01;
-  outline: 0;
-  box-shadow: 0 0 0 0.4rem rgba(251, 187, 1, 0.35); /* halo plus marqué */
+  background-color: #fff !important;
+  border-color: #fbbb01 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.4rem rgba(251, 187, 1, 0.35) !important; /* halo plus marqué */
 }
 
 a.choix {
