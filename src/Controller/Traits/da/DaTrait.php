@@ -47,7 +47,7 @@ trait DaTrait
 
         $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
 
-        if($daValider == null) {
+        if ($daValider == null) {
             return '';
         };
         $statutBc = $daValider->getStatutCde();
@@ -56,7 +56,7 @@ trait DaTrait
             return $statutBc;
         }
 
-    
+
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
@@ -158,7 +158,7 @@ trait DaTrait
         // numero de commande existe && ... && position terminer
         return (int)$situationCde[0]['num_cde'] > 0
             && $situationCde[0]['slor_natcm'] === 'C'
-            && 
+            &&
             ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
     }
 
@@ -177,8 +177,7 @@ trait DaTrait
         // numero de commande existe && ... && position editer && BC n'est pas encore soumis
         return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
             && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
-            && !$daValider->getBcEnvoyerFournisseur()
-            ;
+            && !$daValider->getBcEnvoyerFournisseur();
     }
 
     private function evaluerQuantites(array $qte): array
@@ -221,10 +220,10 @@ trait DaTrait
 
     private function updateSituationCdeDansDaValider(array $situationCde, DaValider $daValider, ?string $numcde): void
     {
-        if(!empty($situationCde)){
+        if (!empty($situationCde)) {
             $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
             $daValider->setPositionBc($positionBc)
-            ->setNumeroCde($numcde);
+                ->setNumeroCde($numcde);
         }
     }
 
@@ -238,7 +237,7 @@ trait DaTrait
             ->setDatePlannigOr($datePlanningOr)
         ;
 
-        if($daValider->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
+        if ($daValider->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
             $daValider->setStatutOr($statutOr);
         }
     }
@@ -385,8 +384,8 @@ trait DaTrait
             $daValider
                 ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
                 ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
-                ->setStatutOr(DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION)
-                ->setOrResoumettre(true)
+                ->setStatutOr($daValider->getNumeroOr() ? DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION : DitOrsSoumisAValidation::STATUT_VIDE)
+                ->setOrResoumettre($daValider->getNumeroOr() ? true : $daValider->getOrResoumettre())
             ;
 
             $daValider->enregistrerDa($da); // enregistrement pour DA
