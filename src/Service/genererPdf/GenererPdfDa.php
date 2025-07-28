@@ -171,11 +171,11 @@ class GenererPdfDa extends GeneratePdf
 
         $pdf->SetTextColor(0, 0, 0);
         $header = [
-            ['key' => 'reference', 'label' => 'Référence', 'width' => 110, 'style' => 'font-weight: bold; text-align: left;'],
+            ['key' => 'reference',   'label' => 'Référence',   'width' => 110, 'style' => 'font-weight: bold; text-align: left;'],
             ['key' => 'designation', 'label' => 'Désignation', 'width' => 190, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'pu1', 'label' => 'PU', 'width' => 80, 'style' => 'font-weight: bold; text-align: right;'],
-            ['key' => 'qte', 'label' => 'Qté', 'width' => 60, 'style' => 'font-weight: bold; text-align: center;'],
-            ['key' => 'mttTotal', 'label' => 'Montant', 'width' => 100, 'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'pu1',         'label' => 'PU',          'width' => 80,  'style' => 'font-weight: bold; text-align: right;'],
+            ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
+            ['key' => 'mttTotal',    'label' => 'Montant',     'width' => 100, 'style' => 'font-weight: bold; text-align: right;'],
         ];
         $html1 = $generator->generateTableForDA($header, $dals);
         $pdf->writeHTML($html1, true, false, true, false, '');

@@ -47,7 +47,7 @@ trait DaTrait
 
         $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
 
-        if($daValider == null) {
+        if ($daValider == null) {
             return '';
         };
         $statutBc = $daValider->getStatutCde();
@@ -56,7 +56,7 @@ trait DaTrait
             return $statutBc;
         }
 
-    
+
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
@@ -158,7 +158,7 @@ trait DaTrait
         // numero de commande existe && ... && position terminer
         return (int)$situationCde[0]['num_cde'] > 0
             && $situationCde[0]['slor_natcm'] === 'C'
-            && 
+            &&
             ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
     }
 
@@ -177,8 +177,7 @@ trait DaTrait
         // numero de commande existe && ... && position editer && BC n'est pas encore soumis
         return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
             && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
-            && !$daValider->getBcEnvoyerFournisseur()
-            ;
+            && !$daValider->getBcEnvoyerFournisseur();
     }
 
     private function evaluerQuantites(array $qte): array
@@ -224,10 +223,10 @@ trait DaTrait
 
     private function updateSituationCdeDansDaValider(array $situationCde, DaValider $daValider, ?string $numcde): void
     {
-        if(!empty($situationCde)){
+        if (!empty($situationCde)) {
             $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
             $daValider->setPositionBc($positionBc)
-            ->setNumeroCde($numcde);
+                ->setNumeroCde($numcde);
         }
     }
 
@@ -241,7 +240,7 @@ trait DaTrait
             ->setDatePlannigOr($datePlanningOr)
         ;
 
-        if($daValider->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
+        if ($daValider->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
             $daValider->setStatutOr($statutOr);
         }
     }
@@ -388,8 +387,8 @@ trait DaTrait
             $daValider
                 ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
                 ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
-                ->setStatutOr(DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION)
-                ->setOrResoumettre(true)
+                ->setStatutOr($daValider->getNumeroOr() ? DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION : DitOrsSoumisAValidation::STATUT_VIDE)
+                ->setOrResoumettre($daValider->getNumeroOr() ? true : $daValider->getOrResoumettre())
             ;
 
             $daValider->enregistrerDa($da); // enregistrement pour DA
@@ -519,29 +518,29 @@ trait DaTrait
     private function getAllDAFile($tab): array
     {
         return [
-            'BA' => [
-                'type' => "Bon d'achat",
-                'icon' => 'fa-solid fa-file-signature',
+            'BA'    => [
+                'type'       => "Bon d'achat",
+                'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
-                'fichiers' => $this->normalizePaths($tab['baPath']),
+                'fichiers'   => $this->normalizePaths($tab['baPath']),
             ],
-            'OR' => [
-                'type' => 'Ordre de réparation',
-                'icon' => 'fa-solid fa-wrench',
+            'OR'    => [
+                'type'       => 'Ordre de réparation',
+                'icon'       => 'fa-solid fa-wrench',
                 'colorClass' => 'border-left-or',
-                'fichiers' => $this->normalizePaths($tab['orPath']),
+                'fichiers'   => $this->normalizePathsForManyFiles([$tab['orPath']], 'numeroOr'),
             ],
-            'BC' => [
-                'type' => 'Bon de commande',
-                'icon' => 'fa-solid fa-file-circle-check',
+            'BC'    => [
+                'type'       => 'Bon de commande',
+                'icon'       => 'fa-solid fa-file-circle-check',
                 'colorClass' => 'border-left-bc',
-                'fichiers' => $this->normalizePathsForBC($tab['bcPath']),
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
             ],
             'FACBL' => [
-                'type' => 'Facture / Bon de livraison',
-                'icon' => 'fa-solid fa-file-invoice',
+                'type'       => 'Facture / Bon de livraison',
+                'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers' => $this->normalizePaths($tab['facblPath']),
+                'fichiers'   => $this->normalizePaths($tab['facblPath']),
             ],
         ];
     }
@@ -558,21 +557,21 @@ trait DaTrait
 
         return array_map(function ($path) {
             return [
-                'nom'  => basename($path),
+                'nom'  => pathinfo($path, PATHINFO_FILENAME),
                 'path' => $path
             ];
         }, $paths);
     }
 
-    private function normalizePathsForBC($allDocs): array
+    private function normalizePathsForManyFiles($allDocs, string $numKey): array
     {
         if ($allDocs === '-' || empty($allDocs)) {
             return [];
         }
 
-        return array_map(function ($doc) {
+        return array_map(function ($doc) use ($numKey) {
             return [
-                'nom'  => $doc['numeroBc'],
+                'nom'  => $doc[$numKey],
                 'path' => $doc['path']
             ];
         }, $allDocs);
@@ -593,7 +592,7 @@ trait DaTrait
     /** 
      * Obtenir l'url de l'ordre de réparation
      */
-    private function getOrPath(DemandeAppro $demandeAppro): string
+    private function getOrPath(DemandeAppro $demandeAppro)
     {
         $numeroDit = $demandeAppro->getNumeroDemandeDit();
         $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
@@ -601,7 +600,10 @@ trait DaTrait
         $statutOr = $ditOrsSoumis ? $ditOrsSoumis->getStatut() : '';
         if ($statutOr == 'Validé') {
             $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin'];
+            return [
+                'numeroOr' => $numeroOr,
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
+            ];
         }
         return "-";
     }

@@ -22,6 +22,25 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
   });
+
+  document.getElementById("info-icon").addEventListener("click", function () {
+    Swal.fire({
+      icon: "info",
+      title: "Information utile",
+      html: `
+      <p class="mb-2">
+        Pour faciliter votre recherche, vous pouvez saisir la <strong>référence de l’article</strong>
+        ou bien sa <strong>désignation complète ou partielle</strong> 
+        dans le champ <strong>surligné en jaune</strong> prévu à cet effet.
+      </p>
+    `,
+      confirmButtonText: "Compris",
+      confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
+      customClass: {
+        popup: "text-start", // alignement gauche professionnel
+      },
+    });
+  });
 });
 
 window.addEventListener("load", () => {

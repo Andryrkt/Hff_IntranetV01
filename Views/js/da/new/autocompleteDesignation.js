@@ -24,9 +24,9 @@ export function initializeAutoCompletionDesi(designation) {
       fetchDataCallback: () =>
         fetchDesignations(fields.famille, fields.sousFamille),
       displayItemCallback: (item) =>
-        `Fournisseur: ${item.fournisseur} - Désignation: ${item.designation} - Prix: ${item.prix}`,
+        `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Prix: ${item.prix} <br>Désignation: ${item.designation}`,
       itemToStringCallback: (item) =>
-        `${item.fournisseur} - ${item.designation}`,
+        `${item.referencepiece} - ${item.designation}`,
       itemToStringForBlur: (item) => `${item.designation}`,
       onBlurCallback: (found) => onBlurEvent(found, designation, fields),
       onSelectCallback: (item) =>

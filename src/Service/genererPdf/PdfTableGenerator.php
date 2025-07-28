@@ -87,8 +87,6 @@ class PdfTableGenerator
                 $value = $this->formatValue($key, $value);
             }
 
-
-
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $style . '">' . $value . '</th>';
         }
         $html .= '</tr></tfoot>';
@@ -155,6 +153,30 @@ class PdfTableGenerator
     }
 
     /**
+     * Méthode qui formate les valeurs (nombre ou date) au format approprié mais pour la DA.
+     * Pour les montants, la clé du tableau doit contenir "mtt".
+     * Pour les dates, la clé du tableau doit contenir "date".
+     *
+     * @param string $key La clé du tableau.
+     * @param mixed $value La valeur associée à la clé.
+     * @return string La valeur formatée.
+     */
+    private function formatValueForDA(string $key, $value): string
+    {
+        // Vérifier si la clé concerne un montant
+        if (in_array($key, ['mttTotal', 'mttPieces', 'mttMo', 'mttSt', 'mttLub', 'mttAutres', 'mttTotalAv', 'mttTotalAp', 'pu1', 'pu2', 'pu3']) || stripos($key, 'mtt') !== false) {
+            // Vérifier si la valeur est un nombre
+            if (is_numeric($value)) {
+                return $value == 0 ? '' : number_format((float) $value, 2, ',', '.');
+            }
+            return '0.00'; // Retourner un montant par défaut si ce n'est pas un nombre
+        }
+
+        // Retourner la valeur non modifiée si aucune condition ne s'applique
+        return (string) $value;
+    }
+
+    /**
      * Génère un tableau HTML pour les demandes d'approvisionnement (DA).
      *
      * @param array $headerConfig Configuration des en-têtes du tableau.
@@ -178,7 +200,7 @@ class PdfTableGenerator
      */
     private function generateHeaderForDA(array $headerConfig): string
     {
-        $html = '<thead><tr style="background-color: #000; color: #fff; font-weight: bold;">';
+        $html = '<thead><tr style="background-color: #5c5c5c; color: #fff; font-weight: bold;">';
         foreach ($headerConfig as $config) {
             $html .= '<th style="width: ' . $config['width'] . 'px; ' . $config['style'] . ' border:1px solid  #c4c4c4;">' . $config['label'] . '</th>';
         }
@@ -208,10 +230,10 @@ class PdfTableGenerator
         foreach ($dals as $dal) {
             $html .= '<tr>';
             $row = [
-                'reference' => $dal->getArtRefp(),
+                'reference'   => $dal->getArtRefp(),
                 'designation' => $dal->getArtDesi(),
-                'pu1' => $dal->getPrixUnitaire(),
-                'qte' => $dal->getQteDem(),
+                'pu1'         => $dal->getPrixUnitaire(),
+                'qte'         => $dal->getQteDem(),
             ];
             $row['mttTotal'] = $row['pu1'] * $row['qte'];
             foreach ($headerConfig as $config) {
@@ -221,14 +243,14 @@ class PdfTableGenerator
                 if ($dal->getDemandeApproLR()->isEmpty()) {
                     $style .= 'background-color: #fbbb01;';
                 }
-                $value = $this->formatValue($key, $value);
+                $value = $this->formatValueForDA($key, $value);
 
                 $html .= '<td style="width: ' . $config['width'] . 'px; border:1px solid  #c4c4c4; ' . $style . '">' . $value . '</td>';
             }
             $html .= '</tr>';
             if ($dal->getDemandeApproLR()->isEmpty()) {
                 $total += $row['mttTotal'];
-                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4;  color:#646464; border-left: 2px solid black;">Aucune proposition n’a été faite pour cet article.</td></tr>';
+                $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: normal; font-size: 8px; background-color:#e9e9e9; border:1px solid  #c4c4c4;  color:#646464; border-left: 2px solid #5c5c5c;">Aucune proposition n’a été faite pour cet article.</td></tr>';
             } else {
                 /** @var DemandeApproLR $dalr une demande appro LR dans dalrs */
                 foreach ($dal->getDemandeApproLR() as $dalr) {
@@ -251,9 +273,9 @@ class PdfTableGenerator
                             $style .= 'background-color: #e9e9e9;';
                         }
 
-                        $value = $this->formatValue($key, $value);
+                        $value = $this->formatValueForDA($key, $value);
                         if ($config['key'] === 'reference') {
-                            $style .= 'border-left: 2px solid black;';
+                            $style .= 'border-left: 2px solid #5c5c5c;';
                             $value = "   $value";
                         }
 
@@ -264,11 +286,17 @@ class PdfTableGenerator
             }
         }
         $html .= '</tbody>';
-        $html .= '<tfoot><tr style="background-color: #000; color: #fff; font-weight: bold;">';
+        $html .= $this->generateFooterForDA($total);
+
+        return $html;
+    }
+
+    private function generateFooterForDA($total): string
+    {
+        $html = '<tfoot><tr style="background-color: #5c5c5c; color: #fff; font-weight: bold;">';
         $html .= '<th colspan="4" style="border:1px solid  #c4c4c4;">Total de montants des articles validés</th>';
         $html .= '<th style="border:1px solid  #c4c4c4; text-align: right;">' . number_format($total, 2, ',', '.') . '</th>';
         $html .= '</tr></tfoot>';
-
         return $html;
     }
 }

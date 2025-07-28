@@ -68,9 +68,7 @@
 					<th class="text-center">Statut BC</th>
 					<th class="text-center">Date Planning OR</th>
 					<th>Fournisseur</th>
-					{% if not serviceAtelier %}
-						<th>Réference</th>
-					{% endif %}
+					<th>Réference</th>
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
 					<th class="text-center">Qté dem</th>
@@ -168,9 +166,7 @@
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold {{classe}}">{{dal.statutBc}}</td>
 							<td class="text-center">{{ dal.datePlanningOR }}</td>
 							<td class="text-start">{{ dal.nomFournisseur }}</td>
-							{% if not serviceAtelier %}
-								<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
-							{% endif %}
+							<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 							<td class="text-start {{ designationStyle }}">
 								{% if dal.verouille %}
 									{{ dal.artDesi }}
