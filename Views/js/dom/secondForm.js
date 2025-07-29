@@ -369,7 +369,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const matriculeInput_2 = document.querySelector("#dom_form2_matricule");
   modePayementInput.addEventListener("change", infoPersonnel);
   modeInput.addEventListener("input", () => {
-    modeInput.setAttribute("maxlength", 10);
+    if (modePayementInput.value === "MOBILE MONEY") {
+      modeInput.setAttribute("maxlength", 10);
+      modeInput.setAttribute("minlength", 10);
+    } else {
+      modeInput.removeAttribute("maxlength");
+      modeInput.removeAttribute("minlength");
+    }
   });
   function infoPersonnel() {
     const matricule = matriculeInput_2.value;

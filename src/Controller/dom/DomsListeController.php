@@ -57,7 +57,7 @@ class DomsListeController extends Controller
         $limit = 10;
 
         $option = [
-            'boolean' => $autoriser,
+            'boolean'  => $autoriser,
             'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
@@ -78,8 +78,8 @@ class DomsListeController extends Controller
         $criteriaTab['sousTypeDocument'] = $criteria['sousTypeDocument'] ? $criteria['sousTypeDocument']->getCodeSousType() : $criteria['sousTypeDocument'];
         $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y')   : $criteria['dateMissionDebut'];
 
-        // Filtrer les critères pour supprimer les valeurs "falsy"
-        $filteredCriteria = array_filter($criteriaTab);
+        // Filtrer les critères pour supprimer les valeurs null
+        $filteredCriteria = array_filter($criteriaTab, fn($v) => $v !== null);
 
         // Déterminer le type de log
         $logType = empty($filteredCriteria) ? ['doms_liste'] : ['doms_liste_search', $filteredCriteria];

@@ -2,6 +2,7 @@
 
 namespace App\Controller\Traits\dom;
 
+use App\Controller\Traits\FormatageTrait;
 use DateTime;
 use Exception;
 use App\Entity\dom\Dom;
@@ -22,6 +23,8 @@ use App\Service\genererPdf\GeneratePdfDom;
 
 trait DomsTrait
 {
+    use FormatageTrait;
+
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
 
@@ -367,6 +370,8 @@ trait DomsTrait
         $agenceEmetteur = $tropPercu ? $dom->getAgenceEmetteurId()->getCodeAgence() . ' ' . $dom->getAgenceEmetteurId()->getLibelleAgence() : $dom->getAgenceEmetteur();
         $serviceEmetteur = $tropPercu ? $dom->getServiceEmetteurId()->getCodeService() . ' ' . $dom->getServiceEmetteurId()->getLibelleService() : $dom->getServiceEmetteur();
 
+        $totalDepl_plus_Autre = $this->chaine_vers_nombre($dom->getTotalIndemniteForfaitaire()) + $this->chaine_vers_nombre($dom->getTotalAutresDepenses());
+
         return  [
             "MailUser"              => $email,
             "dateS"                 => $dom->getDateDemande()->format("d/m/Y"),
@@ -395,6 +400,7 @@ trait DomsTrait
             "idemn"                 => $this->formatMontant($dom->getIndemniteForfaitaire()),
             "Bonus"                 => $this->formatMontant($dom->getDroitIndemnite()),
             "Idemn_depl"            => $this->formatMontant($dom->getIdemnityDepl()),
+            "totalDeplAutre"        => $this->formatMontant($this->formatNumber($totalDepl_plus_Autre)),
             "totalIdemn"            => $this->formatMontant($dom->getTotalIndemniteForfaitaire()),
             "motifdep01"            => $dom->getMotifAutresDepense1(),
             "motifdep02"            => $dom->getMotifAutresDepense2(),
