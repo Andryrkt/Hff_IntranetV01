@@ -20,147 +20,91 @@ use App\Model\ProfilModel;
 use App\Model\TransferDonnerModel;
 use App\Service\AccessControlService;
 use App\Service\ExcelService;
-//use App\Model\admin\user\ProfilUserModel;
 use App\Service\FusionPdf;
-use App\Service\SessionManagerService;
+use App\Service\session\SessionService;
 use Parsedown;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Environment;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
+
 
 class Controller
 {
-    protected $fusionPdf;
-
-    protected $ldap;
-
-    protected $profilModel;
-
-    protected $casier;
-
-    protected $badm;
-
-    protected $Person;
-
-    protected $DomModel;
-
-    protected $detailModel;
-
-    protected $duplicata;
-
-    protected $domList;
-
-    protected $ProfilModel;
-
-    protected static $generator;
-
-    protected static $twig;
-
-    protected $loader;
-
-    protected $request;
-
-    protected $response;
-
-    protected static $validator;
-
-    protected $parsedown;
-
-    protected $profilUser;
-
-    protected static $em;
-
-    protected static $paginator;
-
-    protected $ditModel;
-
-    protected $transfer04;
-
-    protected $sessionService;
-
-    protected $accessControl;
-
-    protected $excelService;
-
-    public function __construct()
-    {
-
-        $this->fusionPdf = new FusionPdf();
-
-        $this->ldap = new LdapModel();
-
-        $this->profilModel = new ProfilModel();
+    protected FusionPdf $fusionPdf;
+    protected LdapModel $ldap;
+    protected ProfilModel $profilModel;
+    protected BadmModel $badm;
+    protected PersonnelModel $person;
+    protected DomModel $domModel;
+    protected DomDetailModel $detailModel;
+    protected DomDuplicationModel $duplicata;
+    protected DomListModel $domList;
+    protected Request $request;
+    protected Response $response;
+    protected Parsedown $parsedown;
+    protected DitModel $ditModel;
+    protected TransferDonnerModel $transfer04;
+    protected SessionService $sessionService;
+    protected AccessControlService $accessControl;
+    protected ExcelService $excelService;
+    protected UrlGeneratorInterface $generator;
+    protected Environment $twig;
+    protected ValidatorInterface $validator;
+    protected EntityManagerInterface $em;
+    protected DoctrinePaginator $paginator;
 
 
-        $this->badm = new BadmModel();
-
-        $this->Person = new PersonnelModel();
-
-        $this->DomModel = new DomModel();
-        $this->detailModel = new DomDetailModel();
-        $this->duplicata = new DomDuplicationModel();
-        $this->domList = new DomListModel();
-
-        $this->ProfilModel = new ProfilModel();
-
-        $this->request = Request::createFromGlobals();
-
-        $this->response = new Response();
-
-        $this->parsedown = new Parsedown();
-
-        //$this->profilUser     = new ProfilUserModel();
-
-        $this->ditModel = new DitModel();
-
-        $this->transfer04 = new TransferDonnerModel();
-
-
-        // $this->sessionService   = new SessionManagerService();
-
-        // $this->accessControl    = new AccessControlService();
-
-        $this->excelService = new ExcelService();
-    }
-
-    public static function setTwig($twig)
-    {
-        self::$twig = $twig;
-    }
-
-    public static function getTwig()
-    {
-        return self::$twig;
-    }
-
-    public static function setValidator($validator)
-    {
-        self::$validator = $validator;
-    }
-
-    public static function setGenerator($generator)
-    {
-        self::$generator = $generator;
-    }
-
-    public static function getGenerator()
-    {
-        return self::$generator;
-    }
-
-    public static function setEntity($em)
-    {
-        self::$em = $em;
-    }
-
-    public static function getEntity()
-    {
-        return self::$em;
-    }
-
-    public static function setPaginator($paginator)
-    {
-        self::$paginator = $paginator;
+    public function __construct(
+        FusionPdf $fusionPdf,
+        LdapModel $ldap,
+        ProfilModel $profilModel,
+        BadmModel $badm,
+        PersonnelModel $person,
+        DomModel $domModel,
+        DomDetailModel $detailModel,
+        DomDuplicationModel $duplicata,
+        DomListModel $domList,
+        Request $request,
+        Response $response,
+        Parsedown $parsedown,
+        DitModel $ditModel,
+        TransferDonnerModel $transfer04,
+        SessionManagerService $sessionService,
+        AccessControlService $accessControl,
+        ExcelService $excelService,
+        UrlGeneratorInterface $generator,
+        Environment $twig,
+        ValidatorInterface $validator,
+        EntityManagerInterface $em,
+        DoctrinePaginator $paginator
+    ) {
+        $this->fusionPdf = $fusionPdf;
+        $this->ldap = $ldap;
+        $this->profilModel = $profilModel;
+        $this->badm = $badm;
+        $this->person = $person;
+        $this->domModel = $domModel;
+        $this->detailModel = $detailModel;
+        $this->duplicata = $duplicata;
+        $this->domList = $domList;
+        $this->request = $request;
+        $this->response = $response;
+        $this->parsedown = $parsedown;
+        $this->ditModel = $ditModel;
+        $this->transfer04 = $transfer04;
+        $this->sessionService = $sessionService;
+        $this->accessControl = $accessControl;
+        $this->excelService = $excelService;
+        $this->generator = $generator;
+        $this->twig = $twig;
+        $this->validator = $validator;
+        $this->em = $em;
+        $this->paginator = $paginator;
     }
 
     protected function SessionDestroy()
@@ -246,7 +190,7 @@ class Controller
      */
     protected function redirectToRoute(string $routeName, array $params = [])
     {
-        $url = self::$generator->generate($routeName, $params);
+        $url = $this->generator->generate($routeName, $params);
         header("Location: $url");
         exit();
     }
@@ -311,7 +255,7 @@ class Controller
         //var_dump($AnneMoisOfcours);
         // dernier NumDOM dans la base
 
-        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+        $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
 
         //var_dump($Max_Num);
         //$Max_Num = 'CAS24040000';
@@ -355,7 +299,7 @@ class Controller
         //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
 
         if ($nomDemande === 'DIT') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
+            $Max_Num = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT'])->getDerniereId();
         } else {
             $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
         }
@@ -394,7 +338,7 @@ class Controller
             if (empty($value)) {
                 return $user;
             } else {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
+                $superieurs[] = $this->em->getRepository(user::class)->find($value);
                 $user->setSuperieurs($superieurs);
             }
         }
@@ -416,21 +360,21 @@ class Controller
                 throw new \Exception("User ID not found in session");
             }
 
-            $user = self::$em->getRepository(User::class)->find($userId);
+            $user = $this->em->getRepository(User::class)->find($userId);
 
             if (! $user) {
                 throw new \Exception("User not found with ID $userId");
             }
 
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceIps();
-            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+            $agenceIps = $this->em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
 
             if (! $agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
             $codeService = $user->getAgenceServiceIrium()->getServiceIps();
-            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            $serviceIps = $this->em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (! $serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
@@ -463,19 +407,19 @@ class Controller
                 throw new \Exception("User ID not found in session");
             }
 
-            $user = self::$em->getRepository(User::class)->find($userId);
+            $user = $this->em->getRepository(User::class)->find($userId);
             if (! $user) {
                 throw new \Exception("User not found with ID $userId");
             }
 
             $codeAgence = $user->getAgenceServiceIrium()->getAgenceips();
-            $agenceIps = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
+            $agenceIps = $this->em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeAgence]);
             if (! $agenceIps) {
                 throw new \Exception("Agence not found with code $codeAgence");
             }
 
             $codeService = $user->getAgenceServiceIrium()->getServiceips();
-            $serviceIps = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
+            $serviceIps = $this->em->getRepository(Service::class)->findOneBy(['codeService' => $codeService]);
             if (! $serviceIps) {
                 throw new \Exception("Service not found with code $codeService");
             }
@@ -494,31 +438,31 @@ class Controller
         }
     }
 
-    // protected function logUserVisit(string $nomRoute, ?array $params = null)
-    // {
-    //     $idUtilisateur  = $this->sessionService->get('user_id');
-    //     $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
-    //     $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
-    //     $page           = self::$em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
-    //     $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
+    protected function logUserVisit(string $nomRoute, ?array $params = null)
+    {
+        $idUtilisateur  = $this->sessionService->get('user_id');
+        $utilisateur    = $idUtilisateur !== '-' ? $this->em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
+        $page           = $this->em->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
+        $machine        = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];
 
-    //     $log            = new UserLogger();
+        $log            = new UserLogger();
 
-    //     $log->setUtilisateur($utilisateurNom ?: '-');
-    //     $log->setNom_page($page->getNom());
-    //     $log->setParams($params ?: null);
-    //     $log->setUser($utilisateur);
-    //     $log->setPage($page);
-    //     $log->setMachineUser($machine);
+        $log->setUtilisateur($utilisateurNom ?: '-');
+        $log->setNom_page($page->getNom());
+        $log->setParams($params ?: null);
+        $log->setUser($utilisateur);
+        $log->setPage($page);
+        $log->setMachineUser($machine);
 
-    //     self::$em->persist($log);
-    //     self::$em->flush();
-    // }
+        $this->em->persist($log);
+        $this->em->flush();
+    }
 
-    // public function verifierSessionUtilisateur()
-    // {
-    //     if (!$this->sessionService->has('user_id')) {
-    //         $this->redirectToRoute("security_signin");
-    //     }
-    // }
+    public function verifierSessionUtilisateur()
+    {
+        if (!$this->sessionService->has('user_id')) {
+            $this->redirectToRoute("security_signin");
+        }
+    }
 }

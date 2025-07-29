@@ -25,6 +25,11 @@ return function (ContainerBuilder $containerBuilder) {
             continue;
         }
 
+        // Exclure la classe Controller de l'autowiring automatique si elle est déjà définie ailleurs
+        if ($className === 'App\\Controller\\Controller') {
+            continue;
+        }
+
         // Enregistrement de la classe dans le conteneur
         $containerBuilder->register($className, $className)
             ->setAutowired(true) // Injection automatique des dépendances

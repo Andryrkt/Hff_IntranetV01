@@ -119,3 +119,39 @@ services:
     class: Symfony\Component\Translation\Translator
     arguments:
       - "fr_FR"
+
+  Parsedown:
+    class: Parsedown
+
+  Symfony\Component\HttpFoundation\Response:
+    class: Symfony\Component\HttpFoundation\Response
+
+  Doctrine\ORM\Tools\Pagination\Paginator:
+    class: Doctrine\ORM\Tools\Pagination\Paginator
+    arguments:
+      - "@doctrine.orm.entity_manager.query"
+
+  App\Controller\Controller:
+    arguments:
+      $fusionPdf: "@App\Service\FusionPdf"
+      $ldap: "@App\Model\LdapModel"
+      $profilModel: "@App\Model\ProfilModel"
+      $badm: "@App\Model\badm\BadmModel"
+      $person: "@App\Model\admin\personnel\PersonnelModel"
+      $domModel: "@App\Model\dom\DomModel"
+      $detailModel: "@App\Model\dom\DomDetailModel"
+      $duplicata: "@App\Model\dom\DomDuplicationModel"
+      $domList: "@App\Model\dom\DomListModel"
+      $request: "@request"
+      $response: "@Symfony\Component\HttpFoundation\Response"
+      $parsedown: "@Parsedown"
+      $ditModel: "@App\Model\dit\DitModel"
+      $transfer04: "@App\Model\TransferDonnerModel"
+      $sessionService: "@App\Service\session\SessionService"
+      $accessControl: "@App\Service\AccessControlService"
+      $excelService: "@App\Service\ExcelService"
+      $generator: "@router.generator"
+      $twig: "@twig.environment"
+      $validator: "@validator"
+      $em: "@doctrine.orm.entity_manager"
+      $paginator: "@Doctrine\ORM\Tools\Pagination\Paginator"

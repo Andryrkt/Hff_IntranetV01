@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use App\Model\dit\DitModel;
 
 class MigrationPdfCommand extends Command
 {
@@ -18,11 +19,14 @@ class MigrationPdfCommand extends Command
 
     private $logger;
 
-    public function __construct(EntityManagerInterface $em, LoggerInterface $logger)
+    private $ditModel;
+
+    public function __construct(EntityManagerInterface $em, LoggerInterface $logger, DitModel $ditModel)
     {
         parent::__construct();
         $this->em = $em;
         $this->logger = $logger;
+        $this->ditModel = $ditModel;
     }
 
     protected function configure()
@@ -34,7 +38,7 @@ class MigrationPdfCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $migrationPdfDitService = new MigrationPdfDitService($this->em, $this->logger);
+        $migrationPdfDitService = new MigrationPdfDitService($this->em, $this->logger, $this->ditModel, 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/', 'C:/wamp64/www/Upload/dit/');
         $migrationPdfDitService->migrationPdfDit($output);
 
         return Command::SUCCESS;

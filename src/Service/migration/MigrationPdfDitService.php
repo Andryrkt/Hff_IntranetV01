@@ -17,16 +17,18 @@ class MigrationPdfDitService
     use FormatageTrait;
 
     private DitRepository $ditRepository;
-
     private DitModel $ditModel;
-
     private LoggerInterface $logger;
+    private string $migrationDir;
+    private string $uploadDir;
 
-    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger)
+    public function __construct(EntityManagerInterface $entityManager, LoggerInterface $logger, DitModel $ditModel, string $migrationDir, string $uploadDir)
     {
-        $this->ditRepository = $entityManager->getRepository(DemandeIntervention::class);
-        $this->ditModel = new DitModel();
+        $this->ditRepository =  $entityManager->getRepository(DemandeIntervention::class);
+        $this->ditModel = $ditModel;
         $this->logger = $logger;
+        $this->migrationDir = $migrationDir;
+        $this->uploadDir = $uploadDir;
     }
 
     public function migrationPdfDit($output)
@@ -58,7 +60,7 @@ class MigrationPdfDitService
                     $ditPdf->genererPdfDit($dit, $historiqueMateriel);
 
                     // Fusion du PDF et migration
-                    $this->fusionPdfmigrations($dit);
+                $this->fusionPdfmigrations($dit, new FusionPdf());
 
                     // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
                     $ditPdf->copyInterneToDOCUWARE(
@@ -88,12 +90,11 @@ class MigrationPdfDitService
         $output->writeln("\nTerminé !");
     }
 
-    private function fusionPdfmigrations($dit)
+    private function fusionPdfmigrations($dit, FusionPdf $fusionPdf)
     {
         try {
-            $fusionPdf = new FusionPdf();
-            $uploadDir = 'C:/wamp64/www/Upload/dit/';
-            $migrationDir = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/';
+            $uploadDir = $this->uploadDir;
+            $migrationDir = $this->migrationDir;
 
             $mainPdf = $uploadDir . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
             $files = [$mainPdf];
@@ -101,14 +102,20 @@ class MigrationPdfDitService
 
             for ($i = 1; $i <= 3; $i++) {
                 $pieceJointe = $dit->{'getPieceJoint0' . $i}();
-                if (! empty($pieceJointe) && ! in_array($pieceJointe, $processedPjs)) {
+                // echo sprintf("DEBUG: PieceJointe%d: %s\n", $i, $pieceJointe);
+                if (!empty($pieceJointe) && !in_array($pieceJointe, $processedPjs)) {
                     $extension = '.' . pathinfo($pieceJointe, PATHINFO_EXTENSION);
+                    // echo sprintf("DEBUG: Extension: %s\n", $extension);
                     if ($extension === '.pdf') {
-                        $filePath = $migrationDir . $pieceJointe;
+                        $filePath = $this->migrationDir . DIRECTORY_SEPARATOR . $pieceJointe;
+                        // echo sprintf("DEBUG: FilePath: %s\n", $filePath);
+                        // echo sprintf("DEBUG: file_exists(%s): %s\n", $filePath, file_exists($filePath) ? 'true' : 'false');
                         if (file_exists($filePath)) {
                             $files[] = $filePath;
                             $processedPjs[] = $pieceJointe;
+                            // echo sprintf("DEBUG: Added to files: %s\n", $filePath);
                         } else {
+                            // echo sprintf("DEBUG: Fichier de pièce jointe manquant pour DIT %s: %s\n", $dit->getNumeroDemandeIntervention(), $filePath);
                             $this->logger->warning(sprintf('Fichier de pièce jointe manquant pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $filePath));
                         }
                     }
@@ -120,7 +127,6 @@ class MigrationPdfDitService
             $this->logger->info(sprintf('PDF fusionné avec succès pour DIT %s.', $dit->getNumeroDemandeIntervention()));
         } catch (\Exception $e) {
             $this->logger->error(sprintf('Erreur lors de la fusion des PDF pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $e->getMessage()));
-
             throw $e; // Re-throw the exception after logging
         }
     }
