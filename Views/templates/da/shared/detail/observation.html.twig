@@ -53,7 +53,7 @@
 				{{ form_start(formObservation) }}
 				{{ form_row(formObservation.observation) }}
 				<div class="d-flex justify-content-end align-items-end gap-3">
-					<div class="d-none">
+					<div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
 						{{ form_widget(formObservation.statutChange) }}
 					</div>
 					<button type="submit" class="btn bouton mt-2" name="observation">

@@ -48,6 +48,10 @@
 		'Validé': 'bg-bc-valide fw-bold',
 		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
+		'Tout livré':'tout-livre bg-success text-white',
+		'Partiellement livré':'partiellement-livre bg-warning text-white',
+		'Partiellement dispo':'partiellement-dispo bg-info text-white',
+		'Complet non livré':'complet-non-livre bg-primary text-white'
 	} %}
 
 	<div class="container-fluid">
@@ -89,23 +93,6 @@
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
 					{% for dal in item.daValiderOuProposer %}
-						{% set classe = '' %}
-						{% set qteCdm = dal.qteDem | default(0) * 1 %}
-						{% set qteLiv = dal.qteLivee | default(0) * 1 %}
-						{% set qteAll = dal.qteALivrer | default(0) * 1 %}
-						{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
-							{# Tout livré #}
-							{% set classe = 'tout-livre bg-success text-white' %}
-						{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
-							{# Partiellement livré #}
-							{% set classe = 'partiellement-livre bg-warning text-white' %}
-						{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
-							{# Partiellement dispo #}
-							{% set classe = 'partiellement-dispo bg-info text-white' %}
-						{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
-							{# complet non livré #}
-							{% set classe = 'complet-non-livre bg-primary text-white' %}
-						{% endif %}
 
 						{% set designationStyle = dal.demandeApproLR is iterable ? '' : 'mise-en-evidence' %}
 
@@ -163,7 +150,7 @@
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
 							<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{ item.statutOr }}</td>
-							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold {{classe}}">{{dal.statutBc}}</td>
+							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
 							<td class="text-center">{{ dal.datePlanningOR }}</td>
 							<td class="text-start">{{ dal.nomFournisseur }}</td>
 							<td class="text-start">{{ dal.artRefp ?? '-' }}</td>

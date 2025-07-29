@@ -421,7 +421,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
             ->andWhere('osav.numeroVersion = (' . $subQb . ')')
             ->setParameter('numeroDit', $numeroDit);
 
-        return $qb->getQuery()->getOneOrNullResult();
+        return $qb->getQuery()->getResult();
     }
 
     public function getNumeroEtStatutOr(string $numDit): array
@@ -440,7 +440,7 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
 
         // Étape 2 : Récupérer le statut et numero OR
         $result = $this->createQueryBuilder('osv')
-            ->select('osv.statut as statutOr', 'osv.numeroOR as numOr')
+            ->select('DISTINCT osv.statut as statutOr, osv.numeroOR as numOr')
             ->where('osv.numeroDit = :numDit')
             ->andWhere('osv.numeroVersion = :numeroVersionMax')
             ->setParameters([

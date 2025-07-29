@@ -528,7 +528,7 @@ trait DaTrait
                 'type'       => 'Ordre de réparation',
                 'icon'       => 'fa-solid fa-wrench',
                 'colorClass' => 'border-left-or',
-                'fichiers'   => $this->normalizePathsForManyFiles([$tab['orPath']], 'numeroOr'),
+                'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
             ],
             'BC'    => [
                 'type'       => 'Bon de commande',
@@ -561,6 +561,20 @@ trait DaTrait
                 'path' => $path
             ];
         }, $paths);
+    }
+
+    private function normalizePathsForOneFile($doc, string $numKey): array
+    {
+        $tabReturn = [];
+
+        if ($doc !== '-' && !empty($doc)) {
+            $tabReturn[] = [
+                'nom'  => $doc[$numKey],
+                'path' => $doc['path']
+            ];
+        }
+
+        return $tabReturn;
     }
 
     private function normalizePathsForManyFiles($allDocs, string $numKey): array
@@ -596,8 +610,8 @@ trait DaTrait
     {
         $numeroDit = $demandeAppro->getNumeroDemandeDit();
         $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
-        $numeroOr = $ditOrsSoumis ? $ditOrsSoumis->getNumeroOR() : '';
-        $statutOr = $ditOrsSoumis ? $ditOrsSoumis->getStatut() : '';
+        $numeroOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '';
+        $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
         if ($statutOr == 'Validé') {
             $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
             return [

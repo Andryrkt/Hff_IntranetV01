@@ -63,3 +63,9 @@ ALTER TABLE da_valider ADD date_planning_or DATETIME2(0);
 ALTER TABLE da_valider ADD or_a_resoumettre BIT DEFAULT 0;
 
 ALTER TABLE da_valider ADD numero_ligne_ips INT;
+
+
+UPDATE dv
+SET dv.id_da = da.id
+FROM da_valider dv
+JOIN Demande_Appro da ON dv.numero_demande_appro = da.numero_demande_appro;
