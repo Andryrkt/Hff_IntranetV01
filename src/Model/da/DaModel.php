@@ -258,8 +258,9 @@ class DaModel extends Model
     {
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
-        $statement = " SELECT
+        $statement = " SELECT DISTINCT
                 TRIM(seor_refdem) as num_dit,
+                slor_numor,
                 CASE
                     WHEN slor_natcm = 'C' THEN c.fcde_numcde
                     WHEN slor_natcm = 'L' THEN cde.fcde_numcde
@@ -272,7 +273,7 @@ class DaModel extends Model
                 ROUND(slor_qterel) as qte_reliquat,
                 ROUND(slor_qteres) as qte_a_livrer,
                 ROUND(slor_qterea) as qte_livee,
-                ROUND(slor_qtedisp) as qte_dispo
+                ROUND(fllf_qteaff) as qte_dispo
 
                 FROM Informix.sav_lor slor
                     INNER JOIN Informix.sav_eor seor 
