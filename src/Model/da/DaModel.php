@@ -135,7 +135,7 @@ class DaModel extends Model
     public function getPrixUnitaire($referencePiece)
     {
         $statement = "SELECT 
-            afrn_pxach as prix,
+            afrn_pxach as prix
             FROM art_frn
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             WHERE abse_constp = 'ZST'
@@ -176,6 +176,7 @@ class DaModel extends Model
                 slor_constp = 'ZST' 
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
+                and slor_numcf not in ('26434759')
                 and REPLACE(slor_refp, '	','') = '$ref'
                 and REPLACE(slor_desi, '	','') = '$designation'
                 and seor_refdem = '$numDit'
@@ -227,6 +228,7 @@ class DaModel extends Model
                 slor_constp = 'ZST' 
                 and slor_typlig = 'P'
                 and slor_refp not like ('PREST%')
+                and slor_numcf not in ('26434759')
                 and seor_refdem='$numDit'
         ";
 

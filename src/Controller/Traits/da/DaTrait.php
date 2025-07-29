@@ -51,6 +51,10 @@ trait DaTrait
         $statutBc = $this->daSoumissionBcRepository->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, true, $ref, $designation);
+        $partiellementDispo = false;
+            $completNonLivrer = false;
+            $tousLivres = false;
+            $partiellementLivre = false; 
         if (!empty($qte)) {
             $partiellementDispo = $qte[0]['qte_dem'] != $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] == 0 && $qte[0]['qte_a_livrer'] > 0;
             $completNonLivrer = ($qte[0]['qte_dem'] == $qte[0]['qte_a_livrer'] && $qte[0]['qte_livee'] < $qte[0]['qte_dem']) || ($qte[0]['qte_a_livrer'] > 0 && $qte[0]['qte_dem'] == ($qte[0]['qte_a_livrer'] + $qte[0]['qte_livee']));

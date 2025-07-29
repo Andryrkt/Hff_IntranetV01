@@ -114,11 +114,11 @@ class ListCdeFrnController extends Controller
             $listeReferenceCatalogue[] = $daValider->getReferenceCataloguee();
         }
 
-        foreach ($constRefDesis as &$row) {
-            $row = mb_convert_encoding($row, 'UTF-8', 'UTF-8'); // ou 'ISO-8859-1' selon ton origine
-        }
+        // foreach ($constRefDesis as &$row) {
+        //      $row = mb_convert_encoding($row, 'ISO-8859-1', 'UTF-8'); // ou 'ISO-8859-1' selon ton origine
+        // }
         $constRefDesisString = TableauEnStringService::TableauEnString(',', $constRefDesis);
-        
+        // dump($constRefDesisString);
         $listeReferenceCatalogueString = TableauEnStringService::TableauEnString(',', $listeReferenceCatalogue);
 
 

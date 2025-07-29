@@ -312,88 +312,34 @@ CASE
     ELSE
         (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
 END  as datePlanning,
-
-
 CASE
     when slor_natcm = 'C' then (select fcde_numfou from frn_cde where fcde_numcde = slor_numcf)
     when slor_natcm = 'L' then (select distinct fcde_numfou from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
 END as num_fournisseur,
-
-
 TRIM(CASE
     when slor_natcm = 'C' then (select distinct fbse_nomfou from frn_cde inner join frn_bse on fbse_numfou = fcde_numfou where fcde_numcde = slor_numcf)
     when slor_natcm = 'L' then (select distinct fbse_nomfou from frn_cde
                                 inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf
                                 inner join frn_bse on fbse_numfou = fcde_numfou)
-
-
 END) as nom_fournisseur,
-
-
 CASE
-
-
     when slor_natcm = 'C' then (select fcde_numcde from frn_cde where fcde_numcde = slor_numcf)
-
-
     when slor_natcm = 'L' then (select distinct fcde_numcde from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
-
-
 END as num_cde,
-
 
 TRIM(slor_refp) as reference,
 TRIM(slor_desi) as designation,
-
-
-ROUND(
-    SUM(
-        CASE
-            when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-        END
-    )
-) as qte_dem,
-ROUND(
-    SUM(
-        slor_qterel
-        )
-    ) as qte_reliquat,
-ROUND(
-    SUM(
-        slor_qteres
-        )
-) as qte_a_livrer,
-ROUND(
-    SUM(
-        slor_qterea
-        )
-    ) as qte_livee,
-
-
+ROUND(SUM(CASE when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END)) as qte_dem,
+ROUND(SUM(slor_qterel)) as qte_reliquat,
+ROUND(SUM(slor_qteres)) as qte_a_livrer,
+ROUND(SUM(slor_qterea)) as qte_livee,
 CASE
-
-
 when slor_natcm = 'L' then slor_numcf
-
-
 END as num_liv,
-
-
 slor_natcm,
-
-
 slor_nolign as numero_ligne,
-
-
 slor_constp as constructeur,
-
-
 (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) as position_cde
-
-
-
-
-
 FROM Informix.sav_lor slor
 
 INNER JOIN Informix.sav_eor seor 
@@ -439,11 +385,8 @@ slor_constp = 'ZST'
 and slor_typlig = 'P'
 and slor_refp not like ('PREST%')
 AND slor_desi not like ('%PRESTATION%')
-AND 
-(
-     (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
-     (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
-)
+and slor_numcf not in ('26434759')
+--AND ((slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR(slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%'))
 and TRIM(seor_refdem) IN ($numDitString)
 and slor_numor IN ($numOrString)
 and slor_refp = 'ST'
@@ -458,13 +401,9 @@ $numDit
                 $numCommande
                 $dateDebutOr
                 $dateFinOr
-
  group by 1,2,3,4,5,6,7,8,13,14,15,16,17
 
-
-
 UNION
-
 
 SELECT distinct
 TRIM(seor_refdem) as num_dit,
@@ -475,87 +414,33 @@ CASE
     ELSE
         (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) 
 END  as datePlanning,
-
-
 CASE
     when slor_natcm = 'C' then (select fcde_numfou from frn_cde where fcde_numcde = slor_numcf)
     when slor_natcm = 'L' then (select distinct fcde_numfou from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
 END as num_fournisseur,
-
-
 TRIM(CASE
     when slor_natcm = 'C' then (select distinct fbse_nomfou from frn_cde inner join frn_bse on fbse_numfou = fcde_numfou where fcde_numcde = slor_numcf)
     when slor_natcm = 'L' then (select distinct fbse_nomfou from frn_cde
                                 inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf
                                 inner join frn_bse on fbse_numfou = fcde_numfou)
-
-
 END) as nom_fournisseur,
-
-
 CASE
-
-
     when slor_natcm = 'C' then (select fcde_numcde from frn_cde where fcde_numcde = slor_numcf)
-
-
     when slor_natcm = 'L' then (select distinct fcde_numcde from frn_cde inner join frn_llf on fllf_numcde = fcde_numcde and fllf_soc = fcde_soc and fllf_succ = fcde_succ and fllf_numliv = slor_numcf)
-
-
 END as num_cde,
-
-
 TRIM(slor_refp) as reference,
 TRIM(slor_desi) as designation,
-
-
-ROUND(
-    SUM(
-        CASE
-            when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-        END
-    )
-) as qte_dem,
-ROUND(
-    SUM(
-        slor_qterel
-        )
-    ) as qte_reliquat,
-ROUND(
-    SUM(
-        slor_qteres
-        )
-) as qte_a_livrer,
-ROUND(
-    SUM(
-        slor_qterea
-        )
-    ) as qte_livee,
-
-
+ROUND(SUM(CASE when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END)) as qte_dem,
+ROUND(SUM(slor_qterel)) as qte_reliquat,
+ROUND(SUM(slor_qteres)) as qte_a_livrer,
+ROUND(SUM(slor_qterea)) as qte_livee,
 CASE
-
-
 when slor_natcm = 'L' then slor_numcf
-
-
 END as num_liv,
-
-
 slor_natcm,
-
-
 slor_nolign as numero_ligne,
-
-
 slor_constp as constructeur,
-
-
 (select fcde_posc from Informix.frn_cde where fcde_numcde = slor_numcf) as position_cde
-
-
-
-
 
 FROM Informix.sav_lor slor
 
@@ -601,11 +486,8 @@ slor_constp = 'ZST'
 and slor_typlig = 'P'
 and slor_refp not like ('PREST%')
 AND slor_desi not like ('%PRESTATION%')
-AND 
-(
-     (slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR
-     (slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%')
-)
+and slor_numcf not in ('26434759')
+--AND ((slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR(slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%'))
 and TRIM(seor_refdem) IN ($numDitString)
 and slor_numor IN ($numOrString)
 and slor_refp <> 'ST'
@@ -630,6 +512,7 @@ order by num_dit, num_or , num_fournisseur , nom_fournisseur , num_cde
 
 
 ";
+
 
 
         $result = $this->connect->executeQuery($statement);
