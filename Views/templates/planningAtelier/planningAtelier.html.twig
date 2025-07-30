@@ -41,6 +41,7 @@
 	<table class="table rounded table-plein-ecran">
 		<thead class="table-dark position-sticky align-middle">
 			<tr>
+				<th rowspan="2">Agence Travaux</th>
 				<th rowspan="2">Section</th>
 				<th rowspan="2">Intitulé Travaux</th>
 				<th rowspan="2">numOR</th>
@@ -61,6 +62,7 @@
 		<tbody id="tableBody">
 			{% for row in planning %}
 				<tr>
+					<td>{{ row.agenceem }}</td>
 					<td>{{ row.section }}</td>
 					<td>{{ row.intitule }}</td>
 					<td>{{ row.numor }}</td>

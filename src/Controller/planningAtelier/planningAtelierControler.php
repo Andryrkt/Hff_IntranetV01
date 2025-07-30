@@ -49,15 +49,15 @@ class planningAtelierControler extends Controller
             $end = $criteria->getDateFin();
 
             $result = $this->planningAtelierModel->recupData($criteria);
-
             $interval = new \DateInterval('P1D');
             $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
-
+            
             foreach ($period as $date) {
                 $dates[] = $date;
                 $filteredDates[] = $date->format('Y-m-d');
             }
             $output = $this->recupdata($result, $dates, $output);
+
             $this->sessionService->set('data_export_planningAtelier_excel', $output);
             $this->sessionService->set('dates_export_planningAtelier_excel', $dates);
         }
@@ -72,10 +72,11 @@ class planningAtelierControler extends Controller
     public function recupdata($result, $dates, $output)
     {
         foreach ($result as $item) {
-            $key = $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'] . '|' . $item['nbjour'];
+            $key = $item['agenceem'] . '|' . $item['section'] . '|' . $item['intitule'] . '|' . $item['numor'] . '|' . $item['itv'] . '|' . $item['ressource'] . '|' . $item['nbjour'];
 
             if (!isset($output[$key])) {
                 $output[$key] = [
+                    "agenceem" => $item["agenceem"],
                     "section" => $item["section"],
                     "intitule" => $item["intitule"],
                     "numor" => $item["numor"],
@@ -140,6 +141,7 @@ class planningAtelierControler extends Controller
     
     foreach ($data as $ligne) {
         $row = [
+            $ligne['agenceem'],
             $ligne['section'],
             $ligne['intitule'],
             $ligne['numor'],
@@ -168,7 +170,7 @@ class planningAtelierControler extends Controller
 
     private function generateTwoRowHeader(array $dates): array
     {
-        $fixedHeaders = ['Section', 'Intitulé Travaux', 'numOR', 'Itv', 'Ressource', 'Nb jour'];
+        $fixedHeaders = ['Agence Travaux','Section', 'Intitulé Travaux', 'numOR', 'Itv', 'Ressource', 'Nb jour'];
         $headerRow1 = $fixedHeaders;
         $headerRow2 = array_fill(0, count($fixedHeaders), '');
 
@@ -196,7 +198,7 @@ class planningAtelierControler extends Controller
         }
 
         // Fusion des cellules de la première ligne pour les dates
-        $colStart = 7; // A=1, donc G=7 → début des dates
+        $colStart = 8; // A=1, donc H=8 → début des dates
         for ($i = 0; $i < $nbDates; $i++) {
             $col1 = Coordinate::stringFromColumnIndex($colStart + $i * 2);
             $col2 = Coordinate::stringFromColumnIndex($colStart + $i * 2 + 1);
