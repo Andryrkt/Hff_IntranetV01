@@ -44,4 +44,12 @@ trait Transformation
         }
         return $tab;
     }
+
+    public function transformeValeur(array $tabs, string $keyLabel, string $keyValue): array{
+        $tab = [];
+        foreach ($tabs as $values) {
+            $tab[$values[$keyLabel]] = $values[$keyValue];
+        }
+        return $tab;
+    }
 }

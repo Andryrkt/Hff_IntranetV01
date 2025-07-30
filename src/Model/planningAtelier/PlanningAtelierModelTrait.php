@@ -46,7 +46,7 @@ trait PlanningAtelierModelTrait {
     }
     private function section($criteria){
          if (!empty($criteria->getSection())) {
-           $ressource = "AND skg_name = '".$criteria->getSection(). "'  ";
+           $ressource = "AND skg.skg_id = '".$criteria->getSection(). "'  ";
         }else{
             $ressource = "";
         }
