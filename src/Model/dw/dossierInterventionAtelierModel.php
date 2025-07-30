@@ -7,12 +7,14 @@ use App\Model\Model;
 
 class DossierInterventionAtelierModel extends Model
 {
+
     use ConversionTrait;
+
 
     private function conditionLike(string $colonneBase, string $indexCriteria, $criteria)
     {
-        if (! empty($criteria[$indexCriteria])) {
-            $condition = " AND {$colonneBase} LIKE '%".$criteria[$indexCriteria]."%'";
+        if (!empty($criteria[$indexCriteria])) {
+            $condition = " AND {$colonneBase} LIKE '%" . $criteria[$indexCriteria] . "%'";
         } else {
             $condition = "";
         }
@@ -20,9 +22,20 @@ class DossierInterventionAtelierModel extends Model
         return $condition;
     }
 
+    private function conditionLikeTypeIntervention($colonne, $criteria)
+    {
+        if (!empty($criteria["typeIntervention"])) {
+            $condition = "WHERE {$colonne} LIKE '%" . $criteria["typeIntervention"] . "%'";
+        } else {
+            $condition = "WHERE {$colonne} is not null";
+        }
+
+        return $condition;
+    }
+
     private function conditionDateSigne(string $colonneBase, string $indexCriteria, array $criteria, string $signe)
     {
-        if (! empty($criteria[$indexCriteria])) {
+        if (!empty($criteria[$indexCriteria])) {
             // Vérifie si $criteria['dateDebut'] est un objet DateTime
             if ($criteria[$indexCriteria] instanceof \DateTime) {
                 // Formate la date au format SQL (par exemple, 'Y-m-d')
@@ -36,7 +49,6 @@ class DossierInterventionAtelierModel extends Model
         } else {
             $condition = "";
         }
-
         return $condition;
     }
 
@@ -45,15 +57,14 @@ class DossierInterventionAtelierModel extends Model
 
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
         $numeroOr = $this->conditionLike('ord.numero_or', 'numOr', $criteria);
+        $numeroDev = $this->conditionLike('dd.numero_devis', 'numDev', $criteria);
         $designation = $this->conditionLike('dit.designation_materiel', 'designation', $criteria);
         $idMateriel = $this->conditionLike('dit.id_materiel', 'idMateriel', $criteria);
         $numParc = $this->conditionLike('dit.numero_parc', 'numParc', $criteria);
         $numSerie = $this->conditionLike('dit.numero_serie', 'numSerie', $criteria);
-
         $dateDebut = $this->conditionDateSigne('dit.date_creation', 'dateDebut', $criteria, '>=');
         $dateFin = $this->conditionDateSigne('dit.date_creation', 'dateFin', $criteria, '<=');
-
-
+        $typeIntervention = $this->conditionLikeTypeIntervention('dit.type_reparation', $criteria);
 
         $sql = " SELECT 
             dit.date_creation AS date_creation_intervention,
@@ -67,7 +78,10 @@ class DossierInterventionAtelierModel extends Model
             FROM DW_Demande_Intervention dit
             LEFT JOIN DW_Ordre_De_Reparation ord 
             ON dit.numero_dit = ord.numero_dit 
-            WHERE dit.type_reparation =  '".$criteria['typeIntervention']."'
+            LEFT JOIN DW_Devis dd
+            ON dit.numero_dit = dd.numero_dit 
+            $typeIntervention
+            $numeroDev
             $numeroDit
             $numeroOr
             $designation
@@ -83,8 +97,7 @@ class DossierInterventionAtelierModel extends Model
         $tab = [];
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
-        }
-        ;
+        };
 
         return $this->ConvertirEnUtf_8($tab);
     }
@@ -152,13 +165,12 @@ class DossierInterventionAtelierModel extends Model
 			ON ri.numero_or = ord.numero_or
 			LEFT JOIN DW_Commande cde
 			ON cde.numero_or = ord.numero_or
-			WHERE dit.numero_dit = '".$numDit."'
+			WHERE dit.numero_dit = '" . $numDit . "'
         ";
 
         $exec = $this->connexion->query($sql);
 
         $result = odbc_fetch_array($exec);
-
         return $this->ConvertirEnUtf_8($result);
     }
 
@@ -175,7 +187,7 @@ class DossierInterventionAtelierModel extends Model
         dit.path AS chemin
 
         FROM DW_Demande_Intervention dit
-        WHERE dit.numero_dit = '".$numDit."'
+        WHERE dit.numero_dit = '" . $numDit . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -202,7 +214,7 @@ class DossierInterventionAtelierModel extends Model
         ord.statut_or AS statut_or
 
         FROM DW_Ordre_De_Reparation ord
-        WHERE ord.numero_dit = '".$numDit."'
+        WHERE ord.numero_dit = '" . $numDit . "'
         ORDER BY ord.numero_version ASC
         ";
 
@@ -211,7 +223,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -228,7 +239,7 @@ class DossierInterventionAtelierModel extends Model
         fac.path AS chemin
 
         FROM DW_Facture fac
-        WHERE fac.numero_or = '".$numOr."'
+        WHERE fac.numero_or = '" . $numOr . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -236,7 +247,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -253,7 +263,7 @@ class DossierInterventionAtelierModel extends Model
             ri.path AS chemin
 
             FROM DW_Rapport_Intervention ri
-            WHERE ri.numero_or = '".$numOr."'
+            WHERE ri.numero_or = '" . $numOr . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -261,7 +271,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -278,7 +287,7 @@ class DossierInterventionAtelierModel extends Model
             cde.path AS chemin
 
             FROM DW_Commande cde
-            WHERE cde.numero_or = '".$numOr."'
+            WHERE cde.numero_or = '" . $numOr . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -286,9 +295,57 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
+
+    public function findDwBc($numDit)
+    {
+        $sql = " SELECT 
+            --BON DE COMMANDE CLIENT 
+            bcc.numero_bc AS numero_doc,
+            bcc.date_creation AS date_creation,
+            bcc.date_derniere_modification AS date_modification,
+            bcc.extension_fichier As extension_fichier,
+            bcc.total_page AS total_page,
+            bcc.taille_fichier AS taille_fichier,
+            bcc.path AS chemin
+
+            FROM DW_BC_Client bcc
+            WHERE bcc.numero_dit = '" . $numDit . "'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findDwDev($numDit)
+    {
+        $sql = " SELECT 
+            --DEVIS 
+            dev.numero_devis AS numero_doc,
+            dev.date_creation AS date_creation,
+            dev.date_derniere_modification AS date_modification,
+            dev.extension_fichier As extension_fichier,
+            dev.total_page AS total_page,
+            dev.taille_fichier AS taille_fichier,
+            dev.path AS chemin
+
+            FROM DW_Devis dev
+            WHERE dev.numero_dit = '" . $numDit . "'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
 
     public function findCheminDit($numDoc)
     {
@@ -296,7 +353,7 @@ class DossierInterventionAtelierModel extends Model
         dit.path AS chemin
 
         FROM DW_Demande_Intervention dit
-        WHERE dit.numero_dit = '".$numDoc."'
+        WHERE dit.numero_dit = '" . $numDoc . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -314,8 +371,8 @@ class DossierInterventionAtelierModel extends Model
         ord.path AS chemin
 
         FROM DW_Ordre_De_Reparation ord
-        WHERE ord.numero_or = '".$numDoc."'
-        AND ord.numero_version = '".$numVersion."'
+        WHERE ord.numero_or = '" . $numDoc . "'
+        AND ord.numero_version = '" . $numVersion . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -323,7 +380,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -334,7 +390,7 @@ class DossierInterventionAtelierModel extends Model
         fac.path AS chemin
 
         FROM DW_Facture fac
-        WHERE fac.numero_fac = '".$numDoc."'
+        WHERE fac.numero_fac = '" . $numDoc . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -342,7 +398,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -353,7 +408,7 @@ class DossierInterventionAtelierModel extends Model
             ri.path AS chemin
 
             FROM DW_Rapport_Intervention ri
-            WHERE ri.numero_ri = '".$numDoc."'
+            WHERE ri.numero_ri = '" . $numDoc . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -361,7 +416,6 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
     }
 
@@ -372,7 +426,7 @@ class DossierInterventionAtelierModel extends Model
             cde.path AS chemin
 
             FROM DW_Commande cde
-            WHERE cde.numero_cde = '".$numDoc."'
+            WHERE cde.numero_cde = '" . $numDoc . "'
         ";
 
         $exec = $this->connexion->query($sql);
@@ -380,7 +434,25 @@ class DossierInterventionAtelierModel extends Model
         while ($result = odbc_fetch_array($exec)) {
             $tab[] = $result;
         }
-
         return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findCheminOrVersionMax($numDoc)
+    {
+        if (!$numDoc) {
+            return [];
+        }
+        $sql = "
+            SELECT TOP 1
+                ord.path AS chemin
+            FROM DW_Ordre_De_Reparation ord
+            WHERE ord.numero_or = '" . $numDoc . "'
+            ORDER BY ord.numero_version DESC
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $result = odbc_fetch_array($exec);
+
+        return $this->ConvertirEnUtf_8($result ? $result : []);
     }
 }

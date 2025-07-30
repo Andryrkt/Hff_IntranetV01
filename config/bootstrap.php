@@ -1,17 +1,50 @@
 <?php
 
-// bootstrap.php
-
+use Twig\Environment;
+use App\Twig\AppExtension;
+use App\Twig\CarbonExtension;
+use App\Controller\Controller;
+use core\SimpleManagerRegistry;
+use App\Twig\DeleteWordExtension;
+use Symfony\Component\Form\Forms;
+use Twig\Loader\FilesystemLoader;
+use Twig\Extension\DebugExtension;
+use Illuminate\Pagination\Paginator;
+use Symfony\Component\Asset\Packages;
+use Symfony\Component\Asset\PathPackage;
+use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-
-require_once __DIR__ . '/../vendor/autoload.php';
-
-$containerBuilder = new ContainerBuilder();
+use App\Loader\CustomAnnotationClassLoader;
+use Symfony\Component\Validator\Validation;
+use Twig\RuntimeLoader\FactoryRuntimeLoader;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Translation\Translator;
+use Symfony\Component\Form\FormFactoryBuilder;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Bridge\Twig\Extension\FormExtension;
+use Symfony\Bridge\Twig\Form\TwigRendererEngine;
+use Doctrine\Common\Annotations\AnnotationReader;
+use Symfony\Bridge\Twig\Extension\AssetExtension;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Security\Csrf\CsrfTokenManager;
+use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;;
+use Symfony\Bridge\Twig\Extension\TranslationExtension;
+use Symfony\Component\Form\Extension\Core\CoreExtension;
+use Symfony\Component\Translation\Loader\XliffFileLoader;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
+use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\Asset\VersionStrategy\EmptyVersionStrategy;
 use Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension;
 use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManager;
@@ -129,15 +162,42 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
+$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+
+// Créer une instance de SimpleManagerRegistry
+$managerRegistry = new SimpleManagerRegistry($entityManager);
+// Set up the Form component
+$formFactory = Forms::createFormFactoryBuilder()
+    ->addExtension(new CsrfCsrfExtension($csrfTokenManager))
+    ->addExtension(new ValidatorExtension($validator))
+    ->addExtension(new CoreExtension())
+    ->addExtension(new HttpFoundationExtension())
+    ->addExtension(new DoctrineOrmExtension($managerRegistry))
+    ->getFormFactory();
+
+Paginator::useBootstrap();
+
+//envoyer twig au controller
+Controller::setTwig($twig);
+
+Controller::setValidator($formFactory);
+
+Controller::setGenerator($generator);
+
+Controller::setEntity($entityManager);
+
+//Controller::setPaginator($paginator);
 
 
 
-//Initialisation du conteneur de services
-// $containerBuilder = new ContainerBuilder();
-// $loader = new YamlFileLoader($containerBuilder, new FileLocator(__DIR__));
-// $loader->load('services.yaml');
 
-// On compile le container (résolution des dépendances)
-$containerBuilder->compile();
 
-return $containerBuilder;
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////

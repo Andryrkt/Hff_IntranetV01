@@ -2,18 +2,22 @@
 
 namespace App\Entity\dom;
 
-use App\Entity\admin\Agence;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Indemnite;
-use App\Entity\admin\dom\Site;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\admin\Service;
-use App\Entity\admin\StatutDemande;
-use App\Entity\Traits\AgenceServiceEmetteurTrait;
-use App\Entity\Traits\AgenceServiceTrait;
-use App\Repository\dom\DomRepository;
 use DateTime;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Entity\admin\dom\Catg;
+use App\Entity\admin\dom\Site;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\dom\Indemnite;
+use App\Entity\admin\dom\Rmq;
+use App\Entity\admin\StatutDemande;
+use App\Repository\dom\DomRepository;
+use App\Entity\Traits\AgenceServiceTrait;
+use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\Traits\AgenceServiceEmetteurTrait;
+use Symfony\Component\Validator\Constraints as Assert;
+
+
 
 /**
  * @ORM\Entity(repositoryClass=DomRepository::class)
@@ -37,10 +41,11 @@ class Dom
      */
     private string $numeroOrdreMission;
 
+
     /**
      * @ORM\Column(type="datetime", name="Date_Demande")
      */
-    private $dateDemande;
+    private  $dateDemande;
 
     /**
      * @ORM\Column(type="string", length=10, name="Type_Document")
@@ -52,6 +57,7 @@ class Dom
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
     private ?SousTypeDocument $sousTypeDocument; //relation avec la table sousTypeDocument
+
 
     /**
      * @ORM\Column(type="string", length=50, name="Autre_Type_Document",nullable=true)
@@ -76,22 +82,22 @@ class Dom
     /**
      * @ORM\Column(type="datetime", name="Date_Debut")
      */
-    private $dateDebut;
+    private  $dateDebut;
 
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Debut")
      */
-    private $heureDebut;
+    private  $heureDebut;
 
     /**
      * @ORM\Column(type="datetime", name="Date_Fin")
      */
-    private $dateFin;
+    private  $dateFin;
 
     /**
      * @ORM\Column(type="string", length=5, name="Heure_Fin")
      */
-    private $heureFin;
+    private  $heureFin;
 
     /**
      * @ORM\Column(type="integer", name="Nombre_Jour", nullable=true)
@@ -141,7 +147,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_1",nullable=true)
      */
-    private $autresDepense1 = null;
+    private  $autresDepense1 = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_2",nullable=true)
@@ -151,7 +157,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_2",nullable=true)
      */
-    private $autresDepense2 = null;
+    private  $autresDepense2 = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Motif_Autres_depense_3",nullable=true)
@@ -161,7 +167,7 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Autres_depense_3",nullable=true)
      */
-    private $autresDepense3 = null;
+    private  $autresDepense3 = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Total_Autres_Depenses",nullable=true)
@@ -206,7 +212,7 @@ class Dom
     /**
      * @ORM\Column(type="string",  name="Date_Modif",nullable=true)
      */
-    private ?string $dateModif = null;
+    private  ?string $dateModif = null;
 
     /**
      * @ORM\Column(type="string", length=3, name="Code_Statut",nullable=true)
@@ -223,10 +229,12 @@ class Dom
      */
     private ?string $nom = null;
 
+
     /**
      * @ORM\Column(type="string", length=100, name="Prenom",nullable=true)
      */
     private ?string $prenom = null;
+
 
     /**
      * @ORM\Column(type="string", length=3, name="Devis",nullable=true)
@@ -238,6 +246,7 @@ class Dom
      */
     private ?string $libelleCodeAgenceService = null;
 
+
     /**
      * @ORM\Column(type="string", length=50, name="Fiche",nullable=true)
      */
@@ -248,6 +257,7 @@ class Dom
      */
     private ?string $numVehicule = null;
 
+
     /**
      * @ORM\Column(type="string", length=50, name="Doit_indemnite",nullable=true)
      */
@@ -256,12 +266,13 @@ class Dom
     /**
      * @ORM\Column(type="string", length=50, name="Categorie",nullable=true)
      */
-    private $categorie = null;
+    private  $categorie = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="Site",nullable=true)
      */
-    private $site = null;
+    private  $site = null;
+
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="idemnity_depl")
@@ -293,6 +304,7 @@ class Dom
      */
     private ?string $debiteur = null;
 
+
     /**
      * @ORM\ManyToOne(targetEntity=StatutDemande::class, inversedBy="doms")
      * @ORM\JoinColumn(name="id_statut_demande", referencedColumnName="ID_Statut_Demande")
@@ -304,6 +316,7 @@ class Dom
      */
     private ?datetime $dateHeureModifStatut = null;
 
+
     private $cin = null;
 
     private string $salarier;
@@ -314,37 +327,39 @@ class Dom
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceEmetteur")
      * @ORM\JoinColumn(name="agence_emetteur_id", referencedColumnName="id")
      */
-    private $agenceEmetteurId;
+    private  $agenceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceEmetteur")
      * @ORM\JoinColumn(name="service_emetteur_id", referencedColumnName="id")
      */
-    private $serviceEmetteurId;
+    private  $serviceEmetteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Agence::class, inversedBy="domAgenceDebiteur")
      * @ORM\JoinColumn(name="agence_debiteur_id", referencedColumnName="id")
      */
-    private $agenceDebiteurId;
+    private  $agenceDebiteurId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Service::class, inversedBy="domServiceDebiteur")
      * @ORM\JoinColumn(name="service_debiteur_id", referencedColumnName="id")
      */
-    private $serviceDebiteurId;
+    private  $serviceDebiteurId;
+
 
     /**
      * @ORM\ManyToOne(targetEntity=Site::class, inversedBy="domSite")
      * @ORM\JoinColumn(name="site_id", referencedColumnName="id")
      */
-    private $siteId;
+    private  $siteId;
 
     /**
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
-    private $categoryId;
+    private  $categoryId;
+
 
     private $codeAgenceAutoriser;
 
@@ -352,11 +367,26 @@ class Dom
 
     private $rmq;
 
+    private $statutTropPercuOk = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_justificatif")
+     */
+    private $pieceJustificatif = false;
+
     //======================================================================================================================================================
     public function getId()
     {
         return $this->id;
     }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
+    }
+
 
     public function getNumeroOrdreMission(): string
     {
@@ -370,10 +400,12 @@ class Dom
         return $this;
     }
 
+
     public function getDateDemande()
     {
         return $this->dateDemande;
     }
+
 
     public function setDateDemande($dateDemande): self
     {
@@ -381,6 +413,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getTypeDocument(): string
     {
@@ -394,6 +428,8 @@ class Dom
         return $this;
     }
 
+
+
     public function getSousTypeDocument()
     {
         return $this->sousTypeDocument;
@@ -405,6 +441,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getAutreTypeDocument(): string
     {
@@ -418,6 +456,7 @@ class Dom
         return $this;
     }
 
+
     public function getMatricule(): ?string
     {
         return $this->matricule;
@@ -429,6 +468,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getNomSessionUtilisateur(): string
     {
@@ -442,6 +483,7 @@ class Dom
         return $this;
     }
 
+
     public function getCodeAgenceServiceDebiteur(): string
     {
         return $this->codeAgenceServiceDebiteur;
@@ -454,10 +496,12 @@ class Dom
         return $this;
     }
 
+
     public function getDateDebut()
     {
         return $this->dateDebut;
     }
+
 
     public function setDateDebut($dateDebut): self
     {
@@ -465,6 +509,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getHeureDebut()
     {
@@ -478,10 +524,13 @@ class Dom
         return $this;
     }
 
+
+
     public function getDateFin()
     {
         return $this->dateFin;
     }
+
 
     public function setDateFin($dateFin): self
     {
@@ -489,6 +538,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getHeureFin()
     {
@@ -502,17 +553,21 @@ class Dom
         return $this;
     }
 
+
     public function getNombreJour()
     {
         return $this->nombreJour;
     }
 
-    public function setNombreJour(string $nombreJour): self
+    public function setNombreJour(?string $nombreJour): self
     {
         $this->nombreJour = $nombreJour;
 
         return $this;
     }
+
+
+
 
     public function getMotifDeplacement()
     {
@@ -526,6 +581,7 @@ class Dom
         return $this;
     }
 
+
     public function getClient()
     {
         return $this->client;
@@ -537,6 +593,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getNumeroOr()
     {
@@ -550,6 +607,7 @@ class Dom
         return $this;
     }
 
+
     public function getLieuIntervention()
     {
         return $this->lieuIntervention;
@@ -561,6 +619,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getVehiculeSociete()
     {
@@ -574,6 +633,7 @@ class Dom
         return $this;
     }
 
+
     public function getIndemniteForfaitaire()
     {
         return $this->indemniteForfaitaire;
@@ -586,6 +646,7 @@ class Dom
         return $this;
     }
 
+
     public function getTotalIndemniteForfaitaire()
     {
         return $this->totalIndemniteForfaitaire;
@@ -597,6 +658,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getMotifAutresDepense1()
     {
@@ -622,6 +684,8 @@ class Dom
         return $this;
     }
 
+
+
     public function getMotifAutresDepense2()
     {
         return $this->motifAutresDepense2;
@@ -634,6 +698,8 @@ class Dom
         return $this;
     }
 
+
+
     public function getAutresDepense2()
     {
         return $this->autresDepense2;
@@ -645,6 +711,9 @@ class Dom
 
         return $this;
     }
+
+
+
 
     public function getMotifAutresDepense3()
     {
@@ -670,6 +739,7 @@ class Dom
         return $this;
     }
 
+
     public function getTotalAutresDepenses()
     {
         return $this->totalAutresDepenses;
@@ -681,6 +751,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getTotalGeneralPayer()
     {
@@ -694,6 +766,7 @@ class Dom
         return $this;
     }
 
+
     public function getModePayement(): string
     {
         return $this->modePayement;
@@ -705,6 +778,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getPieceJoint01()
     {
@@ -718,6 +792,8 @@ class Dom
         return $this;
     }
 
+
+
     public function getPieceJoint02()
     {
         return $this->pieceJoint02;
@@ -729,6 +805,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getPieceJoint3()
     {
@@ -742,6 +819,7 @@ class Dom
         return $this;
     }
 
+
     public function getUtilisateurCreation(): string
     {
         return $this->utilisateurCreation;
@@ -753,6 +831,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getUtilisateurModification(): string
     {
@@ -766,6 +845,7 @@ class Dom
         return $this;
     }
 
+
     public function getDateModif(): string
     {
         return $this->dateModif;
@@ -777,6 +857,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getCodeStatut(): string
     {
@@ -790,6 +872,7 @@ class Dom
         return $this;
     }
 
+
     public function getNumeroTel()
     {
         return $this->numeroTel;
@@ -801,6 +884,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getNom(): ?string
     {
@@ -814,6 +898,7 @@ class Dom
         return $this;
     }
 
+
     public function getPrenom(): ?string
     {
         return $this->prenom;
@@ -825,6 +910,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getDevis(): string
     {
@@ -838,6 +924,7 @@ class Dom
         return $this;
     }
 
+
     public function getLibelleCodeAgenceService(): string
     {
         return $this->libelleCodeAgenceService;
@@ -849,6 +936,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getFiche()
     {
@@ -862,6 +950,7 @@ class Dom
         return $this;
     }
 
+
     public function getNumVehicule()
     {
         return $this->numVehicule;
@@ -873,6 +962,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getDroitIndemnite()
     {
@@ -886,17 +977,19 @@ class Dom
         return $this;
     }
 
+
     public function getCategorie()
     {
         return $this->categorie;
     }
 
-    public function setCategorie(?Catg $categorie): self
+    public function setCategorie($categorie): self
     {
         $this->categorie = $categorie;
 
         return $this;
     }
+
 
     public function getSite()
     {
@@ -910,6 +1003,7 @@ class Dom
         return $this;
     }
 
+
     public function getIdemnityDepl()
     {
         return $this->idemnityDepl;
@@ -921,6 +1015,8 @@ class Dom
 
         return $this;
     }
+
+
 
     public function getDateCpt(): string
     {
@@ -934,6 +1030,7 @@ class Dom
         return $this;
     }
 
+
     public function getDatePay(): string
     {
         return $this->datePay;
@@ -945,6 +1042,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getDateAnn(): string
     {
@@ -958,6 +1056,7 @@ class Dom
         return $this;
     }
 
+
     public function getEmetteur(): string
     {
         return $this->emetteur;
@@ -969,6 +1068,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getDebiteur(): string
     {
@@ -982,6 +1082,7 @@ class Dom
         return $this;
     }
 
+
     public function getIdStatutDemande()
     {
         return $this->idStatutDemande;
@@ -994,10 +1095,12 @@ class Dom
         return $this;
     }
 
+
     public function getDateHeureModifStatut()
     {
         return $this->dateHeureModifStatut;
     }
+
 
     public function setDateHeureModifStatut($dateHeureModifStatut): self
     {
@@ -1005,6 +1108,7 @@ class Dom
 
         return $this;
     }
+
 
     public function getCin()
     {
@@ -1014,9 +1118,9 @@ class Dom
     public function setCin($cin): self
     {
         $this->cin = $cin;
-
         return $this;
     }
+
 
     public function getSalarier(): string
     {
@@ -1026,14 +1130,15 @@ class Dom
     public function setSalarier(string $salarier): self
     {
         $this->salarier = $salarier;
-
         return $this;
     }
+
 
     public function getIndemnite()
     {
         return $this->indemnite;
     }
+
 
     public function setIndemnite($indemnite): self
     {
@@ -1047,6 +1152,7 @@ class Dom
         return $this->agenceEmetteurId;
     }
 
+
     public function setAgenceEmetteurId($agenceEmetteurId): self
     {
         $this->agenceEmetteurId = $agenceEmetteurId;
@@ -1054,10 +1160,12 @@ class Dom
         return $this;
     }
 
+
     public function getServiceEmetteurId()
     {
         return $this->serviceEmetteurId;
     }
+
 
     public function setServiceEmetteurId($serviceEmetteurId): self
     {
@@ -1066,10 +1174,12 @@ class Dom
         return $this;
     }
 
+
     public function getAgenceDebiteurId()
     {
         return $this->agenceDebiteurId;
     }
+
 
     public function setAgenceDebiteurId($agenceDebiteurId): self
     {
@@ -1078,10 +1188,12 @@ class Dom
         return $this;
     }
 
+
     public function getServiceDebiteurId()
     {
         return $this->serviceDebiteurId;
     }
+
 
     public function setServiceDebiteurId($serviceDebiteurId): self
     {
@@ -1130,6 +1242,7 @@ class Dom
         return $this;
     }
 
+
     public function getCodeAgenceAutoriser()
     {
         return $this->codeAgenceAutoriser;
@@ -1138,7 +1251,6 @@ class Dom
     public function setCodeAgenceAutoriser($codeAgenceAutoriser): self
     {
         $this->codeAgenceAutoriser = $codeAgenceAutoriser;
-
         return $this;
     }
 
@@ -1150,7 +1262,6 @@ class Dom
     public function setCodeServiceAutoriser($codeServiceAutoriser): self
     {
         $this->codeServiceAutoriser = $codeServiceAutoriser;
-
         return $this;
     }
 
@@ -1162,7 +1273,6 @@ class Dom
     public function setRmq($rmq): self
     {
         $this->rmq = $rmq;
-
         return $this;
     }
 
@@ -1176,7 +1286,47 @@ class Dom
             'matricule' => $this->matricule,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
-            'cin' => $this->cin,
+            'cin' => $this->cin
         ];
+    }
+
+    /**
+     * Get the value of statutTropPercuOk
+     */
+    public function getStatutTropPercuOk()
+    {
+        return $this->statutTropPercuOk;
+    }
+
+    /**
+     * Set the value of statutTropPercuOk
+     *
+     * @return  self
+     */
+    public function setStatutTropPercuOk($statutTropPercuOk)
+    {
+        $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJustificatif
+     */
+    public function getPieceJustificatif()
+    {
+        return $this->pieceJustificatif;
+    }
+
+    /**
+     * Set the value of pieceJustificatif
+     *
+     * @return  self
+     */
+    public function setPieceJustificatif($pieceJustificatif)
+    {
+        $this->pieceJustificatif = $pieceJustificatif;
+
+        return $this;
     }
 }

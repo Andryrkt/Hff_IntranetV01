@@ -2,10 +2,12 @@
 
 namespace App\Entity\tik;
 
-use App\Entity\admin\utilisateur\User;
 use App\Entity\Traits\DateTrait;
-use App\Repository\tik\TkiPlanningRepository;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\utilisateur\User;
+use App\Repository\tik\TkiPlanningRepository;
+use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\tik\TkiReplannification;
 
 /**
  * @ORM\Entity(repositoryClass=TkiPlanningRepository::class)
@@ -38,6 +40,7 @@ class TkiPlanning
      */
     private string $detailDemande;
 
+
     /**
      * @ORM\Column(type="datetime", name="date_heure_debut_planning")
      */
@@ -52,17 +55,22 @@ class TkiPlanning
      * @ORM\OneToOne(targetEntity=DemandeSupportInformatique::class, inversedBy="planning", cascade={"persist", "remove"})
      * @ORM\JoinColumn(name="demande_id", referencedColumnName="ID_Demande_Support_Informatique", nullable=true)
      */
-    private $demandeId;
+    private $demandeSupportInfo;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="tikPlanningUser")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
-     *
+     * 
      */
-    private $userId;
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="planning")
+     */
+    private $replanificationPlanning;
 
     /**=====================================================================================
-     *
+     * 
      * GETTERS and SETTERS
      *
     =====================================================================================*/
@@ -176,41 +184,61 @@ class TkiPlanning
     }
 
     /**
-     * Get the value of demandeId
+     * Get the value of demandeSupportInfo
      */
-    public function getDemandeId()
+    public function getDemandeSupportInfo()
     {
-        return $this->demandeId;
+        return $this->demandeSupportInfo;
     }
 
     /**
-     * Set the value of demandeId
+     * Set the value of demandeSupportInfo
      *
      * @return  self
      */
-    public function setDemandeId($demandeId)
+    public function setDemandeSupportInfo($demandeSupportInfo)
     {
-        $this->demandeId = $demandeId;
+        $this->demandeSupportInfo = $demandeSupportInfo;
 
         return $this;
     }
 
     /**
-     * Get the value of userId
+     * Get the value of user
      */
-    public function getUserId()
+    public function getUser()
     {
-        return $this->userId;
+        return $this->user;
     }
 
     /**
-     * Set the value of userId
+     * Set the value of user
      *
      * @return  self
      */
-    public function setUserId($userId)
+    public function setUser($user)
     {
-        $this->userId = $userId;
+        $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationPlanning
+     */
+    public function getReplanificationPlanning()
+    {
+        return $this->replanificationPlanning;
+    }
+
+    /**
+     * Set the value of replanificationPlanning
+     *
+     * @return  self
+     */
+    public function setReplanificationPlanning($replanificationPlanning)
+    {
+        $this->replanificationPlanning = $replanificationPlanning;
 
         return $this;
     }

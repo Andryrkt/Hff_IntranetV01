@@ -2,16 +2,19 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\admin\utilisateur\User;
-use App\Entity\badm\Badm;
-use App\Entity\dit\DemandeIntervention;
+
 use App\Entity\dom\Dom;
-use App\Entity\tik\DemandeSupportInformatique;
+use App\Entity\badm\Badm;
+use App\Entity\admin\Agence;
 use App\Entity\Traits\DateTrait;
-use App\Repository\admin\ServiceRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
+use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
+use App\Repository\admin\ServiceRepository;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
@@ -23,6 +26,9 @@ class Service
 {
     use DateTrait;
 
+    public const ID_ATELIER = 3;
+    public const ID_APPRO = 16;
+    
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -49,6 +55,7 @@ class Service
      */
     private Collection $agences;
 
+
     /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="serviceEmetteurId")
      */
@@ -70,8 +77,8 @@ class Service
     private $badmServiceDebiteur;
 
     /**
-    * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="serviceEmetteurId")
-    */
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="serviceEmetteurId")
+     */
     private $domServiceEmetteur;
 
     /**
@@ -94,11 +101,21 @@ class Service
      */
     private Collection $tkiServiceDebiteur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="serviceEmetteur")
+     */
+    private $mutationServiceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="serviceDebiteur")
+     */
+    private $mutationServiceDebiteur;
+
     /**=====================================================================================
-      *
-      * GETTERS and SETTERS
-      *
-     =====================================================================================*/
+     * 
+     * GETTERS and SETTERS
+     *
+    =====================================================================================*/
 
     public function __construct()
     {
@@ -112,6 +129,8 @@ class Service
         $this->domServiceDebiteur = new ArrayCollection();
         $this->tkiServiceEmetteur = new ArrayCollection();
         $this->tkiServiceDebiteur = new ArrayCollection();
+        $this->mutationServiceEmetteur = new ArrayCollection();
+        $this->mutationServiceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -119,10 +138,13 @@ class Service
         return $this->id;
     }
 
+
+
     public function getCodeService()
     {
         return $this->codeService;
     }
+
 
     public function setCodeService($codeService): self
     {
@@ -131,10 +153,12 @@ class Service
         return $this;
     }
 
+
     public function getLibelleService()
     {
         return $this->libelleService;
     }
+
 
     public function setLibelleService(string $libelleService): self
     {
@@ -143,6 +167,7 @@ class Service
         return $this;
     }
 
+
     public function getAgences(): Collection
     {
         return $this->agences;
@@ -150,11 +175,10 @@ class Service
 
     public function addAgence(Agence $agence): self
     {
-        if (! $this->agences->contains($agence)) {
+        if (!$this->agences->contains($agence)) {
             $this->agences[] = $agence;
             $agence->addService($this);
         }
-
         return $this;
     }
 
@@ -164,7 +188,6 @@ class Service
             $this->agences->removeElement($agence);
             $agence->removeService($this);
         }
-
         return $this;
     }
 
@@ -183,7 +206,7 @@ class Service
 
     public function addDitServiceEmetteur(DemandeIntervention $demandeIntervention): self
     {
-        if (! $this->ditServiceEmetteur->contains($demandeIntervention)) {
+        if (!$this->ditServiceEmetteur->contains($demandeIntervention)) {
             $this->ditServiceEmetteur[] = $demandeIntervention;
             $demandeIntervention->setServiceEmetteurId($this);
         }
@@ -202,7 +225,6 @@ class Service
 
         return $this;
     }
-
     public function setDitServiceEmetteurs($ditAgenceEmetteur)
     {
         $this->ditServiceEmetteur = $ditAgenceEmetteur;
@@ -210,9 +232,11 @@ class Service
         return $this;
     }
 
+
+
     /**
-    * Get the value of demandeInterventions
-    */
+     * Get the value of demandeInterventions
+     */
     public function getDitServiceDebiteurs()
     {
         return $this->ditServiceDebiteur;
@@ -220,7 +244,7 @@ class Service
 
     public function addDitServiceDebiteurs(DemandeIntervention $demandeIntervention): self
     {
-        if (! $this->ditServiceDebiteur->contains($demandeIntervention)) {
+        if (!$this->ditServiceDebiteur->contains($demandeIntervention)) {
             $this->ditServiceDebiteur[] = $demandeIntervention;
             $demandeIntervention->setServiceDebiteurId($this);
         }
@@ -259,7 +283,7 @@ class Service
 
     public function addbadmServiceEmetteur(Badm $badm): self
     {
-        if (! $this->badmServiceEmetteur->contains($badm)) {
+        if (!$this->badmServiceEmetteur->contains($badm)) {
             $this->badmServiceEmetteur[] = $badm;
             $badm->setServiceEmetteurId($this);
         }
@@ -278,7 +302,6 @@ class Service
 
         return $this;
     }
-
     public function setbadmServiceEmetteurs($badmAgenceEmetteur)
     {
         $this->badmServiceEmetteur = $badmAgenceEmetteur;
@@ -286,9 +309,11 @@ class Service
         return $this;
     }
 
+
+
     /**
-    * Get the value of demandeInterventions
-    */
+     * Get the value of demandeInterventions
+     */
     public function getBadmServiceDebiteurs()
     {
         return $this->badmServiceDebiteur;
@@ -296,7 +321,7 @@ class Service
 
     public function addBadmServiceDebiteurs(Badm $badm): self
     {
-        if (! $this->badmServiceDebiteur->contains($badm)) {
+        if (!$this->badmServiceDebiteur->contains($badm)) {
             $this->badmServiceDebiteur[] = $badm;
             $badm->setServiceDebiteurId($this);
         }
@@ -323,6 +348,8 @@ class Service
         return $this;
     }
 
+
+
     public function getUserServiceAutoriser(): Collection
     {
         return $this->userServiceAutoriser;
@@ -330,11 +357,10 @@ class Service
 
     public function addUserServiceAutoriser(User $userServiceAutoriser): self
     {
-        if (! $this->userServiceAutoriser->contains($userServiceAutoriser)) {
+        if (!$this->userServiceAutoriser->contains($userServiceAutoriser)) {
             $this->userServiceAutoriser[] = $userServiceAutoriser;
             $userServiceAutoriser->addServiceAutoriser($this);
         }
-
         return $this;
     }
 
@@ -344,11 +370,13 @@ class Service
             $this->userServiceAutoriser->removeElement($userServiceAutoriser);
             $userServiceAutoriser->removeServiceAutoriser($this);
         }
-
         return $this;
     }
 
+
     /** DOM */
+
+
     public function getDomServiceEmetteurs()
     {
         return $this->domServiceEmetteur;
@@ -356,7 +384,7 @@ class Service
 
     public function addDomServiceEmetteur(Dom $domServiceEmetteur): self
     {
-        if (! $this->domServiceEmetteur->contains($domServiceEmetteur)) {
+        if (!$this->domServiceEmetteur->contains($domServiceEmetteur)) {
             $this->domServiceEmetteur[] = $domServiceEmetteur;
             $domServiceEmetteur->setServiceEmetteurId($this);
         }
@@ -375,7 +403,6 @@ class Service
 
         return $this;
     }
-
     public function setDomServiceEmetteurs($domServiceEmetteur)
     {
         $this->domServiceEmetteur = $domServiceEmetteur;
@@ -383,9 +410,11 @@ class Service
         return $this;
     }
 
+
+
     /**
-    * Get the value of demandeInterventions
-    */
+     * Get the value of demandeInterventions
+     */
     public function getDomServiceDebiteurs()
     {
         return $this->domServiceDebiteur;
@@ -393,7 +422,7 @@ class Service
 
     public function addDomServiceDebiteurs(Dom $domServiceDebiteur): self
     {
-        if (! $this->domServiceDebiteur->contains($domServiceDebiteur)) {
+        if (!$this->domServiceDebiteur->contains($domServiceDebiteur)) {
             $this->domServiceDebiteur[] = $domServiceDebiteur;
             $domServiceDebiteur->setServiceDebiteurId($this);
         }
@@ -433,7 +462,7 @@ class Service
 
     public function addTkiServiceEmetteur(DemandeSupportInformatique $tkiServiceEmetteur): self
     {
-        if (! $this->tkiServiceEmetteur->contains($tkiServiceEmetteur)) {
+        if (!$this->tkiServiceEmetteur->contains($tkiServiceEmetteur)) {
             $this->tkiServiceEmetteur[] = $tkiServiceEmetteur;
             $tkiServiceEmetteur->setServiceEmetteurId($this);
         }
@@ -453,9 +482,12 @@ class Service
         return $this;
     }
 
+
+
+
     /**
-    * Get the value of demandeInterventions
-    */
+     * Get the value of demandeInterventions
+     */
     public function getTkiServiceDebiteur()
     {
         return $this->tkiServiceDebiteur;
@@ -463,7 +495,7 @@ class Service
 
     public function addTkiServiceDebiteur(DemandeSupportInformatique $tkiServiceDebiteur): self
     {
-        if (! $this->tkiServiceDebiteur->contains($tkiServiceDebiteur)) {
+        if (!$this->tkiServiceDebiteur->contains($tkiServiceDebiteur)) {
             $this->tkiServiceDebiteur[] = $tkiServiceDebiteur;
             $tkiServiceDebiteur->setServiceDebiteurId($this);
         }
@@ -479,6 +511,91 @@ class Service
                 $tkiServiceDebiteur->setServiceDebiteurId(null);
             }
         }
+
+        return $this;
+    }
+
+    /** MUTATION */
+    /**
+     * Get the value of mutationServiceEmetteur
+     */
+    public function getMutationServiceEmetteur()
+    {
+        return $this->mutationServiceEmetteur;
+    }
+
+    public function addMutationServiceEmetteur(Mutation $mutation): self
+    {
+        if (!$this->mutationServiceEmetteur->contains($mutation)) {
+            $this->mutationServiceEmetteur[] = $mutation;
+            $mutation->setServiceEmetteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutationServiceEmetteur(Mutation $mutation): self
+    {
+        if ($this->mutationServiceEmetteur->contains($mutation)) {
+            $this->mutationServiceEmetteur->removeElement($mutation);
+            if ($mutation->getServiceEmetteur() === $this) {
+                $mutation->setServiceEmetteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutationServiceEmetteur
+     *
+     * @return  self
+     */
+    public function setMutationServiceEmetteur($mutationServiceEmetteur)
+    {
+        $this->mutationServiceEmetteur = $mutationServiceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutationServiceDebiteur
+     */
+    public function getMutationServiceDebiteur()
+    {
+        return $this->mutationServiceDebiteur;
+    }
+
+    public function addMutationServiceDebiteur(Mutation $mutation): self
+    {
+        if (!$this->mutationServiceDebiteur->contains($mutation)) {
+            $this->mutationServiceDebiteur[] = $mutation;
+            $mutation->setServiceDebiteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutationServiceDebiteur(Mutation $mutation): self
+    {
+        if ($this->mutationServiceDebiteur->contains($mutation)) {
+            $this->mutationServiceDebiteur->removeElement($mutation);
+            if ($mutation->getServiceDebiteur() === $this) {
+                $mutation->setServiceDebiteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutationServiceDebiteur
+     *
+     * @return  self
+     */
+    public function setMutationServiceDebiteur($mutationServiceDebiteur)
+    {
+        $this->mutationServiceDebiteur = $mutationServiceDebiteur;
 
         return $this;
     }

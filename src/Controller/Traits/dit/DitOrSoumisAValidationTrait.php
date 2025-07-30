@@ -2,6 +2,8 @@
 
 namespace App\Controller\Traits\dit;
 
+use DateTime;
+use Exception;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Form\FormInterface;
@@ -21,7 +23,7 @@ trait DitOrSoumisAValidationTrait
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    public function uploadFile($file,  $ditfacture, string $fieldName, int $index): ?string
+    public function uploadFile($file,  $ditfacture, string $fieldName, int $index, string $suffix): ?string
     {
         // Validation des extensions et types MIME
         $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
@@ -38,15 +40,16 @@ trait DitOrSoumisAValidationTrait
         // Générer un nom de fichier sécurisé et unique
 
         $fileName = sprintf(
-            'orValidation_%s_%s_%02d.%s',
+            'oRValidation_%s-%s_%02d#%s.%s',
             $ditfacture->getNumeroOR(),
             $ditfacture->getNumeroVersion(),
             $index,
+            $suffix,
             $file->guessExtension()
         );
 
         // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'].'/vor/fichier/';
+        $destination = $_ENV['BASE_PATH_FICHIER'] . '/vor/fichier/';
 
         // Assurer que le répertoire existe
         if (! is_dir($destination) && ! mkdir($destination, 0755, true) && ! is_dir($destination)) {
@@ -73,23 +76,19 @@ trait DitOrSoumisAValidationTrait
     private function envoiePieceJoint(
         FormInterface $form,
         $ditfacture,
-        $fusionPdf
+        $fusionPdf,
+        $suffix,
+        $mainPdf
     ): void {
         $pdfFiles = [];
 
-        // Ajouter le fichier PDF principal en tête du tableau
-        $mainPdf = sprintf(
-            '%s/Upload/vor/orValidation_%s_%s.pdf',
-            $_SERVER['DOCUMENT_ROOT'],
-            $ditfacture->getNumeroOR(),
-            $ditfacture->getNumeroVersion()
-        );
 
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (! file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');
         }
 
+        // Ajouter le fichier PDF principal en tête du tableau
         array_unshift($pdfFiles, $mainPdf);
 
         // Récupérer tous les champs de fichiers du formulaire
@@ -103,7 +102,7 @@ trait DitOrSoumisAValidationTrait
                     // Extraire l'index du champ (e.g., pieceJoint01 -> 1)
                     if (preg_match('/^pieceJoint(\d{2})$/', $fieldName, $matches)) {
                         $index = (int)$matches[1];
-                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index);
+                        $pdfPath = $this->uploadFile($file, $ditfacture, $fieldName, $index, $suffix);
                         if ($pdfPath !== null) {
                             $pdfFiles[] = $pdfPath;
                         }
@@ -116,9 +115,54 @@ trait DitOrSoumisAValidationTrait
         $mergedPdfFile = $mainPdf;
 
         // Appeler la fonction pour fusionner les fichiers PDF
-        if (! empty($pdfFiles)) {
+        if (!empty($pdfFiles)) {
+            $this->ConvertirLesPdf($pdfFiles);
             $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
         }
+    }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin)
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+
+        return $tousLesFichiers;
+    }
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
     }
 
     private function autoIncrement($num)
@@ -186,7 +230,7 @@ trait DitOrSoumisAValidationTrait
             $recapAvantApres[] = [
                 'itv' => $itv,
                 'libelleItv' => $libelleItv,
-                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR()),
+                'datePlanning' => $this->datePlanning($OrSoumisAvant[$i]->getNumeroOR(), $itv),
                 'nbLigAv' => $nbLigAv,
                 'nbLigAp' => $nbLigAp,
                 'mttTotalAv' => $mttTotalAv,
@@ -285,8 +329,9 @@ trait DitOrSoumisAValidationTrait
         ];
     }
 
-    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis)
+    private function orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit)
     {
+
         $orSoumisValidataion = []; // Tableau pour stocker les objets
 
         foreach ($orSoumisValidationModel as $orSoumis) {
@@ -308,6 +353,7 @@ trait DitOrSoumisAValidationTrait
                 ->setMontantLubrifiants($orSoumis['montant_lubrifiants'])
                 ->setLibellelItv($orSoumis['libelle_itv'])
                 ->setStatut('Soumis à validation')
+                ->setNumeroDit($numDit)
             ;
 
             $orSoumisValidataion[] = $ditInsertionOr; // Ajouter l'objet dans le tableau
@@ -330,8 +376,10 @@ trait DitOrSoumisAValidationTrait
             }
             if (! $trouve) {
                 $numeroItvExist = $objetB->getNumeroItv() === 0 ? $objetA->getNumeroItv() : $objetB->getNumeroItv();
+                $numeroOrExist = $objetB->getNumeroOR() === "" ? $objetA->getNumeroOR() : $objetB->getNumeroOR();
                 // Créer un nouvel objet avec uniquement le numero et les autres propriétés à null ou 0
                 $nouvelObjet = new DitOrsSoumisAValidation();
+                $nouvelObjet->setNumeroOR($numeroOrExist);
                 $nouvelObjet->setNumeroItv($numeroItvExist);
                 $manquants[] = $nouvelObjet;
             }
@@ -363,10 +411,32 @@ trait DitOrSoumisAValidationTrait
         return $aBlocker;
     }
 
-    private function datePlanning($numOr)
+    private function datePlanningInferieurDateDuJour($numOr): bool
     {
-        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanning1($numOr);
-        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanning2($numOr);
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
+        $estBloquer = $this->ditOrsoumisAValidationModel->getTypeLigne($numOr); //return bloquer si type piece ou pas bloquer  si non
+
+        if ((int)$nbrOrSoumis <= 0 && in_array('bloquer', $estBloquer)) { // si pas encore soumis et c'est une type piece
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) {
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
+
+    private function datePlanning($numOr, $numItv)
+    {
+        $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+        $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
 
         return empty($datePlannig1) ? $datePlannig2[0]['dateplanning2'] : $datePlannig1[0]['dateplanning1'];
     }

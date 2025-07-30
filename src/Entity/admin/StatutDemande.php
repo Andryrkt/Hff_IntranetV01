@@ -2,17 +2,19 @@
 
 namespace App\Entity\admin;
 
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use App\Entity\dom\Dom;
 use App\Entity\badm\Badm;
 use App\Entity\cas\Casier;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\dom\Dom;
-use App\Entity\tik\DemandeSupportInformatique;
 use App\Entity\Traits\DateTrait;
-use App\Repository\admin\StatutDemandeRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
+use App\Form\demandeInterventionType;
+use App\Entity\dit\DemandeIntervention;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\tik\DemandeSupportInformatique;
+use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\StatutDemandeRepository;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 /**
  * @ORM\Entity(repositoryClass=StatutDemandeRepository::class)
@@ -66,6 +68,11 @@ class StatutDemande
     private $doms;
 
     /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="statutDemande")
+     */
+    private $mutation;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="idStatutDemande")
      */
     private $supportInfo;
@@ -98,7 +105,6 @@ class StatutDemande
     public function setCodeApp(string $codeApp): self
     {
         $this->codeApp = $codeApp;
-
         return $this;
     }
 
@@ -110,7 +116,6 @@ class StatutDemande
     public function setCodeStatut(string $codeStatut): self
     {
         $this->codeStatut = $codeStatut;
-
         return $this;
     }
 
@@ -122,7 +127,6 @@ class StatutDemande
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -133,11 +137,10 @@ class StatutDemande
 
     public function addBadm(Badm $badm): self
     {
-        if (! $this->badms->contains($badm)) {
+        if (!$this->badms->contains($badm)) {
             $this->badms[] = $badm;
             $badm->setStatutDemande($this);
         }
-
         return $this;
     }
 
@@ -149,14 +152,12 @@ class StatutDemande
                 $badm->setStatutDemande(null);
             }
         }
-
         return $this;
     }
 
     public function setBadms($badms): self
     {
         $this->badms = $badms;
-
         return $this;
     }
 
@@ -175,7 +176,7 @@ class StatutDemande
 
     public function addDemandeIntervention(DemandeIntervention $demandeIntervention): self
     {
-        if (! $this->demandeInterventions->contains($demandeIntervention)) {
+        if (!$this->demandeInterventions->contains($demandeIntervention)) {
             $this->demandeInterventions[] = $demandeIntervention;
             $demandeIntervention->setIdStatutDemande($this);
         }
@@ -194,7 +195,6 @@ class StatutDemande
 
         return $this;
     }
-
     public function setDemandeInterventions($demandeInterventions)
     {
         $this->demandeInterventions = $demandeInterventions;
@@ -203,8 +203,8 @@ class StatutDemande
     }
 
     /**
-    * Get the value of demandeInterventions
-    */
+     * Get the value of demandeInterventions
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -212,7 +212,7 @@ class StatutDemande
 
     public function addCasier(Casier $casier): self
     {
-        if (! $this->casiers->contains($casier)) {
+        if (!$this->casiers->contains($casier)) {
             $this->casiers[] = $casier;
             $casier->setIdStatutDemande($this);
         }
@@ -239,6 +239,7 @@ class StatutDemande
         return $this;
     }
 
+
     /**
      * Get the value of demandeInterventions
      */
@@ -249,7 +250,7 @@ class StatutDemande
 
     public function addDom(Dom $doms): self
     {
-        if (! $this->doms->contains($doms)) {
+        if (!$this->doms->contains($doms)) {
             $this->doms[] = $doms;
             $doms->setIdStatutDemande($this);
         }
@@ -268,7 +269,6 @@ class StatutDemande
 
         return $this;
     }
-
     public function setDoms($doms)
     {
         $this->doms = $doms;
@@ -286,7 +286,7 @@ class StatutDemande
 
     public function addSupportInfo(DemandeSupportInformatique $supportInfo): self
     {
-        if (! $this->supportInfo->contains($supportInfo)) {
+        if (!$this->supportInfo->contains($supportInfo)) {
             $this->supportInfo[] = $supportInfo;
             $supportInfo->setIdStatutDemande($this);
         }
@@ -306,6 +306,7 @@ class StatutDemande
         return $this;
     }
 
+
     /**
      * Get the value of demandeInterventions
      */
@@ -316,7 +317,7 @@ class StatutDemande
 
     public function addStatutTik(TkiStatutTicketInformatique $statutTik): self
     {
-        if (! $this->statutTik->contains($statutTik)) {
+        if (!$this->statutTik->contains($statutTik)) {
             $this->statutTik[] = $statutTik;
             $statutTik->setIdStatutDemande($this);
         }
@@ -332,6 +333,48 @@ class StatutDemande
                 $statutTik->setIdStatutDemande($this);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutation
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    public function addMutation(Mutation $mutation): self
+    {
+        if (!$this->mutation->contains($mutation)) {
+            $this->mutation[] = $mutation;
+            $mutation->setStatutDemande($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutation(Mutation $mutation): self
+    {
+        if ($this->mutation->contains($mutation)) {
+            $this->mutation->removeElement($mutation);
+            if ($mutation->getStatutDemande() === $this) {
+                $mutation->setStatutDemande($this);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutation
+     *
+     * @return  self
+     */
+    public function setMutation($mutation)
+    {
+        $this->mutation = $mutation;
 
         return $this;
     }

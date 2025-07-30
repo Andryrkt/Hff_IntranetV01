@@ -1,0 +1,68 @@
+<div class="row mb-3">
+	<h3 class="perso-titre">
+		<span class="urgency-level">{{ dit.idNiveauUrgence.description }}</span>
+		Observations sur la Demande d'achat
+	</h3>
+</div>
+<div class="row mb-2">
+	<div class="col-8 col-md-8">
+		<div class="card">
+			<div class="card-body bg-light">
+				<div class="overflow-auto pe-1" style="max-height: 60vh;" id="conversationContainer">
+					<div class="conversation">
+						{% if observations is empty %}
+							<p class="align-self-center">Pas encore d'observations</p>
+						{% else %}
+							{% set dateTemp = null %}
+							{% for observation in observations %}
+								{% if dateTemp != observation.dateCreation|date('d/m/Y') %}
+									<span class="header-time">{{ observation.dateCreation|date('d/m/Y') }}</span>
+									{% set dateTemp = observation.dateCreation|date('d/m/Y') %}
+								{% endif %}
+
+								{% set isCurrentUser = connectedUser.nomUtilisateur == observation.utilisateur %}
+
+								<div class="talk {{ isCurrentUser ? 'right' : 'left' }} mb-2">
+									{% if not isCurrentUser %}
+										<div class="user">
+											<div class="icon-user d-flex align-items-end justify-content-center">
+												<i class="fa fa-user"></i>
+											</div>
+											<span>{{ observation.utilisateur }}</span>
+										</div>
+									{% endif %}
+
+									<div class="msg-file {{ isCurrentUser ? 'align-items-end' : 'align-items-start' }}">
+										<div class="msg">
+											<p>{{ observation.observation|raw }}</p>
+											<span class="time">{{ observation.dateCreation|date('H:i') }}</span>
+										</div>
+									</div>
+								</div>
+
+							{% endfor %}
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-4 col-md-4">
+		<div class="card">
+			<div class="card-body bg-light">
+				{{ form_start(formObservation) }}
+				{{ form_row(formObservation.observation) }}
+				<div class="d-flex justify-content-end align-items-end gap-3">
+					<div class="{{ estAppro and not statutAutoriserModifAte ? 'd-block' : 'd-none' }}">
+						{{ form_widget(formObservation.statutChange) }}
+					</div>
+					<button type="submit" class="btn bouton mt-2" name="observation">
+						Envoyer l'observation
+						<i class="fa-solid fa-paper-plane"></i>
+					</button>
+				</div>
+				{{ form_end(formObservation) }}
+			</div>
+		</div>
+	</div>
+</div>

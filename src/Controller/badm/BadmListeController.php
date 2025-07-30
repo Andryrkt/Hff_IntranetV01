@@ -82,7 +82,7 @@ class BadmListeController extends Controller
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage' => $paginationData['lastPage'],
                 'resultat' => $paginationData['totalItems'],
-                'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getCodeAgence() .' '. $agenceServiceIps['agenceIps']->getLibelleAgence(),
+                'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getCodeAgence() . ' ' . $agenceServiceIps['agenceIps']->getLibelleAgence()
             ]
         );
     }
@@ -224,15 +224,16 @@ class BadmListeController extends Controller
         $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
         $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
 
-        if (! empty($numParc) || ! empty($numSerie)) {
+        if (!empty($numParc) || !empty($numSerie)) {
 
             $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
 
-            if (! empty($idMateriel)) {
+            if (!empty($idMateriel)) {
                 $this->recuperationCriterie($badmSearch, $form);
                 $badmSearch->setIdMateriel($idMateriel[0]['num_matricule']);
-            } elseif (empty($idMateriel)) {
-                $empty = true;
+            } else {
+                $this->recuperationCriterie($badmSearch, $form);
+                $badmSearch->setIdMateriel('0');
             }
         } else {
             $this->recuperationCriterie($badmSearch, $form);
@@ -255,6 +256,5 @@ class BadmListeController extends Controller
                 }
             }
         }
-
     }
 }

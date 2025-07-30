@@ -2,8 +2,9 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use App\Repository\admin\utilisateur\AgenceServiceAutoriserRepository;
+
 use Doctrine\ORM\Mapping as ORM;
+use App\Repository\admin\utilisateur\AgenceServiceAutoriserRepository;
 
 /**
  * @ORM\Table(name="Agence_service_autorise")
@@ -17,13 +18,13 @@ class AgenceServiceAutoriser
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      *
-     * @var int
+     * @var integer
      */
     private int $id;
 
     /**
      * @ORM\Column(type="string", length=50)
-
+    
      * @var string
      */
     private string $Session_Utilisateur;
@@ -41,6 +42,9 @@ class AgenceServiceAutoriser
      */
     private $Date_creation;
 
+
+
+
     public function getId()
     {
         return $this->id;
@@ -57,6 +61,7 @@ class AgenceServiceAutoriser
 
         return $this;
     }
+
 
     public function getCodeAgenceServiceIrium(): ?string
     {
@@ -83,8 +88,8 @@ class AgenceServiceAutoriser
     }
 
     /**
-      * @ORM\PrePersist
-      */
+     * @ORM\PrePersist
+     */
     public function onPrePersist(): void
     {
         $this->Date_creation = new \DateTime();

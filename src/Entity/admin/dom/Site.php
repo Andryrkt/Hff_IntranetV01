@@ -4,10 +4,13 @@ namespace App\Entity\admin\dom;
 
 use App\Entity\dom\Dom;
 use App\Entity\Traits\DateTrait;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
+use App\Entity\admin\dom\Indemnite;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\dom\SiteRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+
 
 /**
  *   @ORM\Table(name="site")
@@ -17,6 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Site
 {
     use DateTrait;
+
 
     /**
      * @ORM\Id
@@ -43,9 +47,15 @@ class Site
     private $indemnites;
 
     /**
-    * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="siteId")
-    */
+     * @ORM\OneToMany(targetEntity=Dom::class, mappedBy="siteId")
+     */
     private $domSite;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="siteId")
+     */
+    private $mutation;
+
 
     public function __construct()
     {
@@ -63,12 +73,15 @@ class Site
         return $this->nomZone;
     }
 
+
     public function setNomZone(string $nomZone): self
     {
         $this->nomZone = $nomZone;
 
         return $this;
     }
+
+
 
     public function getCatgs(): Collection
     {
@@ -77,11 +90,10 @@ class Site
 
     public function addCatg(Catg $catg): self
     {
-        if (! $this->catgs->contains($catg)) {
+        if (!$this->catgs->contains($catg)) {
             $this->catgs[] = $catg;
             $catg->addSite($this);
         }
-
         return $this;
     }
 
@@ -91,13 +103,13 @@ class Site
             $this->catgs->removeElement($catg);
             $catg->removeSite($this);
         }
-
         return $this;
     }
 
+
     /**
-      * @return Collection|Indemnite[]
-      */
+     * @return Collection|Indemnite[]
+     */
     public function getIndemnites(): Collection
     {
         return $this->indemnites;
@@ -105,11 +117,10 @@ class Site
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (! $this->indemnites->contains($indemnite)) {
+        if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setSite($this);
         }
-
         return $this;
     }
 
@@ -132,7 +143,7 @@ class Site
 
     public function addDomSite(Dom $domSite): self
     {
-        if (! $this->domSite->contains($domSite)) {
+        if (!$this->domSite->contains($domSite)) {
             $this->domSite[] = $domSite;
             $domSite->setAgenceDebiteurId($this);
         }
@@ -155,6 +166,48 @@ class Site
     public function setDomSites($domSite)
     {
         $this->domSite = $domSite;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutation
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    public function addMutation(Mutation $mutation): self
+    {
+        if (!$this->mutation->contains($mutation)) {
+            $this->mutation[] = $mutation;
+            $mutation->setSite($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutation(Mutation $mutation): self
+    {
+        if ($this->mutation->contains($mutation)) {
+            $this->mutation->removeElement($mutation);
+            if ($mutation->getSite() === $this) {
+                $mutation->setSite(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutation
+     *
+     * @return  self
+     */
+    public function setMutation($mutation)
+    {
+        $this->mutation = $mutation;
 
         return $this;
     }

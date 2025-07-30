@@ -49,24 +49,25 @@ class MigrationPdfDitService
 
         foreach ($batches as $batch) {
             foreach ($batch as $dit) {
-                try {
-                    // Créer l'objet de génération du PDF
-                    $ditPdf = new GenererPdfDit();
 
-                    // Récupérer les données nécessaires
-                    $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
+                // Créer l'objet de génération du PDF
+                $ditPdf = new GenererPdfDit();
 
-                    // Génération du PDF et sauvegarde sur disque
-                    $ditPdf->genererPdfDit($dit, $historiqueMateriel);
+                // Récupérer les données nécessaires
+                $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
 
-                    // Fusion du PDF et migration
-                $this->fusionPdfmigrations($dit, new FusionPdf());
+                // Génération du PDF et sauvegarde sur disque
+                $ditPdf->genererPdfDit($dit, $historiqueMateriel);
+                // Supposons que le PDF est sauvegardé sur disque ici
 
-                    // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
-                    $ditPdf->copyInterneToDOCUWARE(
-                        $dit->getNumeroDemandeIntervention(),
-                        str_replace("-", "", $dit->getAgenceServiceEmetteur())
-                    );
+                // Fusion du PDF et migration (vérifier que cette méthode utilise bien des fichiers temporaires)
+                // $this->fusionPdfmigrations($dit);
+
+                // Envoi vers DWXCUWARE via streaming ou lecture par morceaux
+                // $ditPdf->copyInterneToDOCUWARE(
+                //     $dit->getNumeroDemandeIntervention(),
+                //     str_replace("-", "", $dit->getAgenceServiceEmetteur())
+                // );
 
                     $this->logger->info(sprintf('DIT %s traité avec succès.', $dit->getNumeroDemandeIntervention()));
 
@@ -96,39 +97,22 @@ class MigrationPdfDitService
             $uploadDir = $this->uploadDir;
             $migrationDir = $this->migrationDir;
 
-            $mainPdf = $uploadDir . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
-            $files = [$mainPdf];
-            $processedPjs = [];
-
-            for ($i = 1; $i <= 3; $i++) {
-                $pieceJointe = $dit->{'getPieceJoint0' . $i}();
-                // echo sprintf("DEBUG: PieceJointe%d: %s\n", $i, $pieceJointe);
-                if (!empty($pieceJointe) && !in_array($pieceJointe, $processedPjs)) {
-                    $extension = '.' . pathinfo($pieceJointe, PATHINFO_EXTENSION);
-                    // echo sprintf("DEBUG: Extension: %s\n", $extension);
-                    if ($extension === '.pdf') {
-                        $filePath = $this->migrationDir . DIRECTORY_SEPARATOR . $pieceJointe;
-                        // echo sprintf("DEBUG: FilePath: %s\n", $filePath);
-                        // echo sprintf("DEBUG: file_exists(%s): %s\n", $filePath, file_exists($filePath) ? 'true' : 'false');
-                        if (file_exists($filePath)) {
-                            $files[] = $filePath;
-                            $processedPjs[] = $pieceJointe;
-                            // echo sprintf("DEBUG: Added to files: %s\n", $filePath);
-                        } else {
-                            // echo sprintf("DEBUG: Fichier de pièce jointe manquant pour DIT %s: %s\n", $dit->getNumeroDemandeIntervention(), $filePath);
-                            $this->logger->warning(sprintf('Fichier de pièce jointe manquant pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $filePath));
-                        }
-                    }
-                }
-            }
-
-            $outputFile = $uploadDir . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
-            $fusionPdf->mergePdfs($files, $outputFile);
-            $this->logger->info(sprintf('PDF fusionné avec succès pour DIT %s.', $dit->getNumeroDemandeIntervention()));
-        } catch (\Exception $e) {
-            $this->logger->error(sprintf('Erreur lors de la fusion des PDF pour DIT %s: %s', $dit->getNumeroDemandeIntervention(), $e->getMessage()));
-            throw $e; // Re-throw the exception after logging
+        $mainPdf = 'C:/wamp64/www/Upload/dit/' . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
+        $files = [$mainPdf];
+        $extension01 = '.' . pathinfo($dit->getPieceJoint01(), PATHINFO_EXTENSION);
+        $extension02 = '.' . pathinfo($dit->getPieceJoint02(), PATHINFO_EXTENSION);
+        $extension03 = '.' . pathinfo($dit->getPieceJoint03(), PATHINFO_EXTENSION);
+        if (!empty($dit->getPieceJoint01()) && $extension01 === '.pdf') {
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/' . $dit->getPieceJoint01();
         }
+        if (!empty($dit->getPieceJoint02() && $extension02 === '.pdf')) {
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/' . $dit->getPieceJoint02();
+        }
+        if (!empty($dit->getPieceJoint03()) && $extension03 === '.pdf') {
+            $files[] = 'C:/wamp64/www/Hffintranet_DEV/migrations/DIT PJ/' . $dit->getPieceJoint03();
+        }
+        $outputFile = 'C:/wamp64/www/Upload/dit/' . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
+        $fusionPdf->mergePdfs($files, $outputFile);
     }
 
     private function recupDonnerDit(): array
@@ -137,7 +121,7 @@ class MigrationPdfDitService
 
 
         foreach ($dits as $dit) {
-            if (! empty($dit->getIdMateriel())) {
+            if (!empty($dit->getIdMateriel())) {
                 $data = $this->ditModel->findAll($dit->getIdMateriel());
                 if (empty($data)) {
                     echo "Aucune donnée trouvée pour le matériel ayant pour id : " . $dit->getIdMateriel();
@@ -161,7 +145,6 @@ class MigrationPdfDitService
                     $dit->setKm($data[0]['km']);
                     $dit->setHeure($data[0]['heure']);
                 }
-
             }
         }
 
@@ -180,7 +163,6 @@ class MigrationPdfDitService
                 }
             }
         }
-
         return $historiqueMateriel;
     }
 }

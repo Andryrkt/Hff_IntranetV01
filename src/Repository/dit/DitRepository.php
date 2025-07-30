@@ -2,20 +2,24 @@
 
 namespace App\Repository\dit;
 
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
+
 
 class DitRepository extends EntityRepository
 {
+
     /** LISTE DIT */
     /**
      * FONCTION Pour récupérer les donnée filtrer
      *
-     * @param int $page
-     * @param int $limit
+     * @param integer $page
+     * @param integer $limit
      * @param DitSearch $ditSearch
      * @param array $options
      * @return void
@@ -39,7 +43,9 @@ class DitRepository extends EntityRepository
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
 
-        if (! $options['boolean']) {
+
+
+        if (!$options['boolean']) {
             $queryBuilder
                 ->andWhere(
                     $queryBuilder->expr()->orX(
@@ -70,12 +76,23 @@ class DitRepository extends EntityRepository
 
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        //  $sql = $queryBuilder->getQuery()->getSQL();
-        //  echo $sql;
+        // $sql = $queryBuilder->getQuery()->getSQL();
+        // echo $sql;
+
+        // $query = $queryBuilder->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
+
 
         // Récupérer le nombre de lignes par statut
         $statusCounts = $this->countByStatus($ditSearch, $options);
-
         //return $queryBuilder->getQuery()->getResult();
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
@@ -97,6 +114,7 @@ class DitRepository extends EntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
+
     /** =====================================================
      * Undocumented function
      *
@@ -113,7 +131,7 @@ class DitRepository extends EntityRepository
             ->groupBy('s.description');
 
         // Appliquer le filtre par statut ou exclure les statuts par défaut
-        if (! empty($ditSearch->getStatut())) {
+        if (!empty($ditSearch->getStatut())) {
             // Si un statut spécifique est recherché, l'utiliser dans la requête
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
@@ -124,7 +142,7 @@ class DitRepository extends EntityRepository
         $this->applySection($queryBuilder, $ditSearch);
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
-        if (! $options['boolean']) {
+        if (!$options['boolean']) {
             $queryBuilder
                 ->andWhere(
                     $queryBuilder->expr()->orX(
@@ -166,7 +184,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le section affectée
         $sectionAffectee = $ditSearch->getSectionAffectee();
-        if (! empty($sectionAffectee)) {
+        if (!empty($sectionAffectee)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe']; // Les groupes de mots disponibles
             $resultatsSectionAffectee = [];
 
@@ -189,10 +207,9 @@ class DitRepository extends EntityRepository
             }
 
             // Si des résultats sont trouvés pour la section affectée, filtrer la liste
-            if (! empty($resultatsSectionAffectee)) {
+            if (!empty($resultatsSectionAffectee)) {
                 // Optionnel : enlever les doublons si nécessaire
                 $resultatsSectionAffectee = array_unique($resultatsSectionAffectee, SORT_REGULAR);
-
                 // Retourner les résultats trouvés
                 return $resultatsSectionAffectee;
             }
@@ -209,11 +226,11 @@ class DitRepository extends EntityRepository
     private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
         //if ($options['boolean']) {
-        if (! empty($ditSearch->getAgenceEmetteur())) {
+        if (!empty($ditSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet', $ditSearch->getAgenceEmetteur()->getId());
         }
-        if (! empty($ditSearch->getServiceEmetteur())) {
+        if (!empty($ditSearch->getServiceEmetteur())) {
             $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
                 ->setParameter('agServEmet', $ditSearch->getServiceEmetteur()->getId());
         }
@@ -225,7 +242,7 @@ class DitRepository extends EntityRepository
         //     }
         // }
 
-        if (! empty($ditSearch->getAgenceDebiteur())) {
+        if (!empty($ditSearch->getAgenceDebiteur())) {
             $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
                 //->andWhere('d.agenceEmetteurId = :agEmet')
                 ->setParameter('agDebit', $ditSearch->getAgenceDebiteur()->getId())
@@ -233,28 +250,49 @@ class DitRepository extends EntityRepository
             ;
         }
 
-        if (! empty($ditSearch->getServiceDebiteur())) {
+        if (!empty($ditSearch->getServiceDebiteur())) {
             $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $ditSearch->getServiceDebiteur()->getId());
         }
     }
 
+
     private function applyStatusFilter($queryBuilder, DitSearch $ditSearch)
     {
-        $statusesDefault = [50, 51, 53];
+        $statusesDefault = [
+            DemandeIntervention::STATUT_A_AFFECTER,
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
 
-        if (! empty($ditSearch->getStatut())) {
+        if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
-        } else {
+        } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
     }
 
+    private function applyStatusFilterDa($queryBuilder, DitSearch $ditSearch)
+    {
+        $statusesDefault = [
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
+
+        if (!empty($ditSearch->getStatut())) {
+            $queryBuilder->andWhere('s.description LIKE :statut')
+                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+        }
+        $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+            ->setParameter('excludedStatuses', $statusesDefault);
+    }
+
+
     private function applyniveauUrgenceFilters($queryBuilder, DitSearch $ditSearch)
     {
-        if (! empty($ditSearch->getNiveauUrgence())) {
+        if (!empty($ditSearch->getNiveauUrgence())) {
             $queryBuilder->andWhere('nu.description LIKE :niveauUrgence')
                 ->setParameter('niveauUrgence', '%' . $ditSearch->getNiveauUrgence()->getDescription() . '%');
         }
@@ -263,70 +301,70 @@ class DitRepository extends EntityRepository
     private function applyCommonFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
         // Filters for type, urgency, material, etc.
-        if (! empty($ditSearch->getTypeDocument())) {
+        if (!empty($ditSearch->getTypeDocument())) {
             $queryBuilder->andWhere('td.description LIKE :typeDocument')
                 ->setParameter('typeDocument', '%' . $ditSearch->getTypeDocument() . '%');
         }
 
-        if (! empty($ditSearch->getIdMateriel())) {
+        if (!empty($ditSearch->getIdMateriel())) {
             $queryBuilder->andWhere('d.idMateriel = :idMateriel')
                 ->setParameter('idMateriel', $ditSearch->getIdMateriel());
         }
 
-        if (! empty($ditSearch->getInternetExterne())) {
+        if (!empty($ditSearch->getInternetExterne())) {
             $queryBuilder->andWhere('d.internetExterne = :internetExterne')
                 ->setParameter('internetExterne', $ditSearch->getInternetExterne());
         }
 
-        if (! empty($ditSearch->getEtatFacture())) {
+        if (!empty($ditSearch->getEtatFacture())) {
             $queryBuilder->andWhere('d.etatFacturation = :etatFac')
                 ->setParameter('etatFac', $ditSearch->getEtatFacture());
         }
 
-        if (! empty($ditSearch->getDateDebut())) {
+        if (!empty($ditSearch->getDateDebut())) {
             $queryBuilder->andWhere('d.dateDemande >= :dateDebut')
                 ->setParameter('dateDebut', $ditSearch->getDateDebut());
         }
 
-        if (! empty($ditSearch->getDateFin())) {
+        if (!empty($ditSearch->getDateFin())) {
             $queryBuilder->andWhere('d.dateDemande <= :dateFin')
                 ->setParameter('dateFin', $ditSearch->getDateFin());
         }
 
         //filtrer selon le numero dit
-        if (! empty($ditSearch->getNumDit())) {
+        if (!empty($ditSearch->getNumDit())) {
 
             $queryBuilder->andWhere('d.numeroDemandeIntervention = :numDit')
                 ->setParameter('numDit', $ditSearch->getNumDit());
         }
 
         //filtrer selon le numero dit
-        if (! empty($ditSearch->getNumDevis())) {
+        if (!empty($ditSearch->getNumDevis())) {
 
             $queryBuilder->andWhere('d.numeroDevisRattache = :numDevis')
                 ->setParameter('numDevis', $ditSearch->getNumDevis());
         }
 
         //filtre selon le numero Or
-        if (! empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
+        if (!empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() !== 0) {
             $queryBuilder->andWhere('d.numeroOR = :numOr')
                 ->setParameter('numOr', $ditSearch->getNumOr());
         }
 
         //filtre selon le numero Or
-        if (! empty($ditSearch->getStatutOr())) {
+        if (!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr = :statutOr')
                 ->setParameter('statutOr',  $ditSearch->getStatutOr());
         }
 
         //filtre selon le categorie de demande
-        if (! empty($ditSearch->getCategorie())) {
+        if (!empty($ditSearch->getCategorie())) {
             $queryBuilder->andWhere('d.categorieDemande = :categorieDemande')
                 ->setParameter('categorieDemande', $ditSearch->getCategorie());
         }
 
         //filtre selon le categorie de demande
-        if (! empty($ditSearch->getUtilisateur())) {
+        if (!empty($ditSearch->getUtilisateur())) {
             $queryBuilder->andWhere('d.utilisateurDemandeur LIKE :utilisateur')
                 ->setParameter('utilisateur', '%' . $ditSearch->getUtilisateur() . '%');
         }
@@ -357,7 +395,7 @@ class DitRepository extends EntityRepository
     {
         // Filtrer selon la section affectée
         $sectionAffectee = $ditSearch->getSectionAffectee();
-        if (! empty($sectionAffectee)) {
+        if (!empty($sectionAffectee)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();
 
@@ -375,7 +413,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le section support 1
         $sectionSupport1 = $ditSearch->getSectionSupport1();
-        if (! empty($sectionSupport1)) {
+        if (!empty($sectionSupport1)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();
 
@@ -390,12 +428,12 @@ class DitRepository extends EntityRepository
 
         //filtre selon le section support 2
         $sectionSupport2 = $ditSearch->getSectionSupport2();
-        if (! empty($sectionSupport2)) {
+        if (!empty($sectionSupport2)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();
 
             foreach ($groupes as $groupe) {
-                $phraseConstruite = $groupe. $sectionSupport2;
+                $phraseConstruite = $groupe . $sectionSupport2;
                 $orX->add($queryBuilder->expr()->eq('d.sectionSupport2', ':sectionSupport2_' . md5($phraseConstruite)));
                 $queryBuilder->setParameter('sectionSupport2_' . md5($phraseConstruite), $phraseConstruite);
             }
@@ -405,7 +443,7 @@ class DitRepository extends EntityRepository
 
         //filtre selon le section support 3
         $sectionSupport3 = $ditSearch->getSectionSupport1();
-        if (! empty($sectionSupport3)) {
+        if (!empty($sectionSupport3)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();
 
@@ -418,6 +456,8 @@ class DitRepository extends EntityRepository
             $queryBuilder->andWhere($orX);
         }
     }
+
+
 
     public function findAgSevDebiteur($numdit)
     {
@@ -435,60 +475,56 @@ class DitRepository extends EntityRepository
     public function findSectionSupport1()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport1')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
-
+            ->select('DISTINCT d.sectionSupport1')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport1');
     }
 
     public function findSectionSupport2()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport2')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
-
+            ->select('DISTINCT d.sectionSupport2')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport2');
     }
 
     public function findSectionSupport3()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionSupport3')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
-
+            ->select('DISTINCT d.sectionSupport3')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionSupport3');
     }
 
     public function findSectionAffectee()
     {
         $result = $this->createQueryBuilder('d')
-        ->select('DISTINCT d.sectionAffectee')
-        ->where('d.sectionAffectee IS NOT NULL')
-        ->andWhere('d.sectionAffectee != :sectionAffectee')
-        ->setParameter('sectionAffectee', ' ')
-        ->andWhere('d.sectionAffectee != :sectionAffecte')
-        ->setParameter('sectionAffecte', 'Autres')
-        ->getQuery()
-        ->getScalarResult();
-
+            ->select('DISTINCT d.sectionAffectee')
+            ->where('d.sectionAffectee IS NOT NULL')
+            ->andWhere('d.sectionAffectee != :sectionAffectee')
+            ->setParameter('sectionAffectee', ' ')
+            ->andWhere('d.sectionAffectee != :sectionAffecte')
+            ->setParameter('sectionAffecte', 'Autres')
+            ->getQuery()
+            ->getScalarResult();
         return array_column($result, 'sectionAffectee');
     }
 
@@ -499,11 +535,11 @@ class DitRepository extends EntityRepository
             ->where('d.statutOr IS NOT NULL')
             ->getQuery()
             ->getScalarResult();
-
         return array_column($result, 'statutOr');
     }
 
     /** DIT SEARCH FIN */
+
     public function findSectionSupport($id)
     {
         $sectionSupport = $this->createQueryBuilder('d')
@@ -516,6 +552,7 @@ class DitRepository extends EntityRepository
         // Retourne toutes les sections sous forme d'un tableau
         return $sectionSupport;
     }
+
 
     /** recuperation de nombre de pièce jointe */
     public function findNbrPj($numDit)
@@ -536,13 +573,14 @@ class DitRepository extends EntityRepository
         return (int) $nombrePiecesJointes;
     }
 
+
+
     public function findAllNumeroDit()
     {
         $result = $this->createQueryBuilder('a')
             ->select('a.numeroDemandeIntervention')
             ->getQuery()
             ->getScalarResult();
-
         return array_column($result, 'numeroDemandeIntervention');
     }
 
@@ -557,7 +595,7 @@ class DitRepository extends EntityRepository
             ->setParameter('empty', '')
         ;
 
-        if (! empty($criteria['niveauUrgence'])) {
+        if (!empty($criteria['niveauUrgence'])) {
             $queryBuilder->andWhere('d.idNiveauUrgence = :idniveau')
                 ->setParameter('idniveau', $criteria['niveauUrgence']->getId());
         }
@@ -602,7 +640,7 @@ class DitRepository extends EntityRepository
     {
         return $this->createQueryBuilder('d')
             ->Where('d.numMigration = :numMigr')
-            ->setParameter('numMigr', 4)
+            ->setParameter('numMigr', 7)
             // ->andWhere('d.numeroDemandeIntervention = :numDit')
             // ->setParameter('numDit', 'DIT25010315')
             ->orderBy('d.numeroDemandeIntervention', 'ASC')
@@ -610,15 +648,16 @@ class DitRepository extends EntityRepository
             ->getResult();
     }
 
+
     /** RECUPERE interne exter pour facture */
     public function findInterneExterne($numDit)
     {
         return $this->createQueryBuilder('d')
-        ->select('d.internetExterne')
-        ->where('d.numeroDemandeIntervention = :numDit')
-        ->setParameter('numDit', $numDit)
-        ->getQuery()
-        ->getSingleScalarResult()
+            ->select('d.internetExterne')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
         ;
     }
 
@@ -631,5 +670,175 @@ class DitRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+    }
+
+    public function findNumeroOrDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+    }
+
+    /**
+     * FONCTION Pour récupérer les donnée filtrer  pour demande d'approvisionnement
+     *
+     * @param integer $page
+     * @param integer $limit
+     * @param DitSearch $ditSearch
+     * @param array $options
+     * @return void
+     */
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
+    {
+
+        $queryBuilder = $this->createQueryBuilder('d')
+            ->leftJoin('d.typeDocument', 'td')
+            ->leftJoin('d.idNiveauUrgence', 'nu')
+            ->leftJoin('d.idStatutDemande', 's')
+            ->where('d.sectionAffectee <> :sectionAffectee')
+            ->setParameter('sectionAffectee', '');
+
+        $this->applyStatusFilterDa($queryBuilder, $ditSearch);
+
+        $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
+
+        $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
+
+        // section affect et support section
+        $this->applySection($queryBuilder, $ditSearch);
+
+        $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
+
+        if (!$options['boolean']) {
+            $queryBuilder
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteurId = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $options['codeAgence'])
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
+
+
+        $queryBuilder->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroDemandeIntervention', 'ASC');
+
+        $queryBuilder->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+        ;
+
+        $paginator = new DoctrinePaginator($queryBuilder->getQuery());
+
+        $totalItems = count($paginator);
+        $lastPage = ceil($totalItems / $limit);
+        //  $sql = $queryBuilder->getQuery()->getSQL();
+        //  echo $sql;
+
+        // Récupérer le nombre de lignes par statut
+        $statusCounts = $this->countByStatus($ditSearch, $options);
+        //return $queryBuilder->getQuery()->getResult();
+        return [
+            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems' => $totalItems,
+            'currentPage' => $page,
+            'lastPage' => $lastPage,
+            'statusCounts' => $statusCounts,
+        ];
+    }
+
+    public function getNumDitAAnnuler()
+    {
+        $dateNow = new \DateTime(); // maintenant
+        $dateYesterday = (clone $dateNow)->modify('-1 day'); // 1 jour avant
+
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroDemandeIntervention')
+            ->where('d.aAnnuler = :aAnnuler')
+            ->andWhere('d.dateAnnulation BETWEEN :yesterday AND :now')
+            ->setParameters([
+                'aAnnuler' => 1,
+                'yesterday' => $dateYesterday,
+                'now' => $dateNow,
+            ])
+            ->getQuery()
+            ->getSingleColumnResult()
+        ;
+    }
+
+    public function getNumclient($numOr)
+    {
+        try {
+            $numcli =  $this->createQueryBuilder('d')
+                ->select('d.numeroClient')
+                ->where('d.numeroOR = :numOr')
+                ->setParameter('numOr', $numOr)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $numcli = null; // ou une valeur par défaut
+        }
+        return $numcli;
+    }
+
+    public function getInterneExterne($numOr)
+    {
+        try {
+            $intExt =  $this->createQueryBuilder('d')
+                ->select('d.internetExterne')
+                ->where('d.numeroOR = :numOr')
+                ->setParameter('numOr', $numOr)
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (\Doctrine\ORM\NoResultException $e) {
+            $intExt = null; // ou une valeur par défaut
+        }
+        return $intExt;
+    }
+
+    public function getStatutIdDit(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('s.id') // <-- un champ scalaire
+            ->join('d.idStatutDemande', 's') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNiveauUrgence(string $numDit)
+    {
+        $queryBuilder =  $this->createQueryBuilder('d')
+            ->select('nu.description') // <-- un champ scalaire
+            ->join('d.idNiveauUrgence', 'nu') // <-- jointure obligatoire
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit);
+
+        return $queryBuilder->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    public function getNumOr(string $numDit)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('d.numeroOR')
+            ->where('d.numeroDemandeIntervention = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

@@ -2,8 +2,11 @@
 
 namespace App\Entity\dit;
 
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DitOrsSoumisAValidationRepository::class)
@@ -12,6 +15,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class DitOrsSoumisAValidation
 {
+
+    public const STATUT_VALIDE = 'Validé';
+    public const STATUT_VIDE = '';
+    public const STATUT_A_RESOUMETTRE_A_VALIDATION = 'A resoumettre à validation';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -19,12 +27,15 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="string", length=11, name="numeroDIT")
+     */
     private ?string $numeroDit = null;
 
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -34,7 +45,7 @@ class DitOrsSoumisAValidation
     /**
      * @ORM\Column(type="date")
      */
-    private $dateSoumission;
+    private  $dateSoumission;
 
     /**
      * @ORM\Column(type="string", length=5)
@@ -50,6 +61,7 @@ class DitOrsSoumisAValidation
      * @ORM\Column(type="float", scale="2")
      */
     private ?float $montantItv = 0.00;
+
 
     /**
      * @ORM\Column(type="integer")
@@ -86,6 +98,8 @@ class DitOrsSoumisAValidation
      */
     private ?string $libellelItv = '';
 
+
+
     private $pieceJoint01;
 
     private $pieceJoint02;
@@ -104,6 +118,8 @@ class DitOrsSoumisAValidation
      */
     private $migration;
     //==========================================================================================
+
+
 
     /**
      * Get the value of id
@@ -153,6 +169,7 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
+
     /**
      * Get the value of numeroItv
      */
@@ -192,6 +209,7 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
+
 
     /**
      * Get the value of heureSoumission
@@ -253,6 +271,8 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
+
+
 
     /**
      * Get the value of numeroVersion
@@ -399,6 +419,7 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
+
     /**
      * Get the value of file
      */
@@ -418,6 +439,8 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
+
+
 
     /**
      * Get the value of pieceJoint02
@@ -479,6 +502,7 @@ class DitOrsSoumisAValidation
         return $this;
     }
 
+
     /**
      * Get the value of statut
      */
@@ -498,6 +522,7 @@ class DitOrsSoumisAValidation
 
         return $this;
     }
+
 
     /**
      * Get the value of migration

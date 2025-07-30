@@ -219,9 +219,19 @@ class DemandeSupportInformatique
     private $commentaires;
 
     /**
-     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeId", cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=TkiPlanning::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
      */
     private $planning;
+
+    /**
+     * @ORM\OneToOne(targetEntity=TkiReplannification::class, mappedBy="demandeSupportInfo", cascade={"persist", "remove"})
+     */
+    private $replanification;
+
+    /**
+     * @ORM\Column(type="string", length=2, nullable=true, name="part_day_planning")
+     */
+    private ?string $partOfDay;
 
     /**=====================================================================================
      *
@@ -861,8 +871,8 @@ class DemandeSupportInformatique
     public function setPlanning(?TkiPlanning $planning): self
     {
         // set the owning side of the relation if necessary
-        if ($planning && $planning->getDemandeId() !== $this) {
-            $planning->setDemandeId($this);
+        if ($planning && $planning->getDemandeSupportInfo() !== $this) {
+            $planning->setDemandeSupportInfo($this);
         }
 
         $this->planning = $planning;
@@ -906,6 +916,46 @@ class DemandeSupportInformatique
     public function setCommentaires($commentaires)
     {
         $this->commentaires = $commentaires;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of partOfDay
+     */
+    public function getPartOfDay()
+    {
+        return $this->partOfDay;
+    }
+
+    /**
+     * Set the value of partOfDay
+     *
+     * @return  self
+     */
+    public function setPartOfDay($partOfDay)
+    {
+        $this->partOfDay = $partOfDay;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanification
+     */
+    public function getReplanification()
+    {
+        return $this->replanification;
+    }
+
+    /**
+     * Set the value of replanification
+     *
+     * @return  self
+     */
+    public function setReplanification($replanification)
+    {
+        $this->replanification = $replanification;
 
         return $this;
     }

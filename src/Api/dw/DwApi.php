@@ -29,6 +29,8 @@ class DwApi extends Controller
         $dwfac = [];
         $dwRi = [];
         $dwCde = [];
+        $dwBc = [];
+        $dwDev = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (! empty($dwOr)) {
@@ -51,13 +53,23 @@ class DwApi extends Controller
                 $dwCde[$key]['nomDoc'] = 'Commande';
             }
         }
-        // dump($dwfac);
-        // dump($dwRi);
-        // dump($dwCde);
+
+        $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
+        $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
+
+        foreach ($dwBc as $key =>$value) {
+            $dwBc[$key]['nomDoc'] = 'Bon de Commande Client';
+        }
+        foreach ($dwDev as $key =>$value) {
+            $dwDev[$key]['nomDoc'] = 'Devis';
+        }
+// dump($dwfac);
+// dump($dwRi);
+// dump($dwCde);
 
         // Fusionner toutes les données dans un tableau associatif
-        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
-        // dd($data);
+        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
+// dd($data);
         header("Content-type:application/json");
 
         echo json_encode($data);

@@ -41,6 +41,7 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 11 : DEV - Devis
      *  - 12 : BC - Bon de commande
      *  - 13 : AC - Accusé de réception
+     *  - 16 : MUT - Demande de mutation
      */
     public function __construct(SessionInterface $session, EntityManagerInterface $em)
     {
@@ -91,6 +92,34 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
     }
 
     /**
+     * Methode qui permet d'enregistrer le message et le type dans une session
+     *
+     * @param string $message
+     * @param boolean $success
+     * @return void
+     */
+    protected function enregistrerDansSession(string $message,  bool $success = false) {
+        $this->sessionService->set('notification', [
+            'type'    => $success ? 'success' : 'danger',
+            'message' => $message,
+        ]);
+    }
+
+    /**
+     * Methode qui permet d'enregistrer les information de l'historique dans la table historique_des_operations
+     *
+     * @param string $message
+     * @param string $numeroDocument
+     * @param integer $typeOperationId
+     * @param boolean $success
+     * @return void
+     */
+    protected function sendNotificationCore(string $message, string $numeroDocument, int $typeOperationId, bool $success = false)
+    {
+        $this->enregistrer($numeroDocument, $typeOperationId, $success, $message);
+    }
+
+    /**
      * @param int $typeOperationId ID de l'opération effectué, avec les valeurs possibles:
      *  - 1 : SOUMISSION
      *  - 2 : VALIDATION
@@ -99,13 +128,11 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 5 : CREATION
      *  - 6 : CLOTURE
      */
-    private function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
+    protected function sendNotification(string $message, string $numeroDocument, string $routeName, int $typeOperationId, bool $success = false)
     {
-        $this->sessionService->set('notification', [
-            'type' => $success ? 'success' : 'danger',
-            'message' => $message,
-        ]);
-        $this->enregistrer($numeroDocument, $typeOperationId, $success, $message);
+        $this->enregistrerDansSession($message, $success);
+
+        $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
         header("Location: " . Controller::getGenerator()->generate($routeName));
         exit();

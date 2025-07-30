@@ -13,21 +13,22 @@ class MagasinListeOrATraiterModel extends Model
     use FormatageTrait;
     use ConditionModelTrait;
 
+
     public function recupNumeroItv($numOr, $stringItv)
     {
         $statement = " SELECT  
                         COUNT(sitv_interv) as nbItv
                         FROM sav_itv 
-                        where sitv_numor='".$numOr."'
-                        AND sitv_interv NOT IN ('".$stringItv."')";
+                        where sitv_numor='" . $numOr . "'
+                        AND sitv_interv NOT IN ('" . $stringItv . "')";
 
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
-
     }
+
 
     public function recupUserCreateNumOr($numOr)
     {
@@ -39,7 +40,7 @@ class MagasinListeOrATraiterModel extends Model
                         where seor_usr = ausr_num
                         and ausr_ope = atab_code 
                         and atab_nom = 'OPE'
-                        and seor_numor='".$numOr."'
+                        and seor_numor='" . $numOr . "'
                     ";
 
         $result = $this->connect->executeQuery($statement);
@@ -55,7 +56,7 @@ class MagasinListeOrATraiterModel extends Model
                             min(ska_d_start) as datePlanning1
                         from skw 
                         inner join ska on ska.skw_id = skw.skw_id 
-                        where ofh_id ='".$numOr."'
+                        where ofh_id ='" . $numOr . "'
                         group by ofh_id 
                     ";
 
@@ -71,7 +72,7 @@ class MagasinListeOrATraiterModel extends Model
         $statement = " SELECT
                             min(sitv_datepla) as datePlanning2 
                         from sav_itv 
-                        where sitv_numor = '".$numOr."'
+                        where sitv_numor = '" . $numOr . "'
                         group by sitv_numor
                     ";
 
@@ -81,6 +82,7 @@ class MagasinListeOrATraiterModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
 
     public function recupereListeMaterielValider($criteria = [], $lesOrSelonCondition)
     {
@@ -126,7 +128,7 @@ class MagasinListeOrATraiterModel extends Model
             slor_soc = 'HF'
             and seor_typeor not in('950', '501')
             -- and slor_succ in ('01', '50')
-            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('".$lesOrSelonCondition['numOrValideString']."')
+            and seor_numor||'-'||TRUNC(slor_nogrp/100) in ('" . $lesOrSelonCondition['numOrValideString'] . "')
             $agenceUser
             $designation
             $referencePiece 
@@ -152,6 +154,7 @@ class MagasinListeOrATraiterModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
+
     public function recuperationConstructeur()
     {
         $statement = " SELECT DISTINCT
@@ -173,25 +176,25 @@ class MagasinListeOrATraiterModel extends Model
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
-
         return array_combine(array_column($this->convertirEnUtf8($data), 'constructeur'), array_column($this->convertirEnUtf8($data), 'constructeur'));
     }
 
+
     public function recupNumOr($criteria = [])
     {
-        if (! empty($criteria['niveauUrgence'])) {
+        if (!empty($criteria['niveauUrgence'])) {
             $niveauUrgence = " AND id_niveau_urgence = '" . $criteria['niveauUrgence']->getId() . "'";
         } else {
             $niveauUrgence = null;
         }
 
-        if (! empty($criteria['numDit'])) {
-            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] ."'";
+        if (!empty($criteria['numDit'])) {
+            $numDit = " and numero_demande_dit = '" . $criteria['numDit'] . "'";
         } else {
             $numDit = null;
         }
 
-        if (! empty($criteria['numOr'])) {
+        if (!empty($criteria['numOr'])) {
             $numOr = " and numero_or = '" . $criteria['numOr'] . "'";
         } else {
             $numOr = null;
@@ -209,7 +212,7 @@ class MagasinListeOrATraiterModel extends Model
 
         $execQueryNumOr = $this->connexion->query($statement);
 
-        $numOr = [];
+        $numOr = array();
 
         while ($row_num_or = odbc_fetch_array($execQueryNumOr)) {
             $numOr[] = $row_num_or;
@@ -217,6 +220,7 @@ class MagasinListeOrATraiterModel extends Model
 
         return $numOr;
     }
+
 
     public function recupereAutocompletionDesignation($designations)
     {
@@ -243,6 +247,7 @@ class MagasinListeOrATraiterModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
 
     public function recuperAutocompletionRefPiece($refPiece)
     {
@@ -286,6 +291,8 @@ class MagasinListeOrATraiterModel extends Model
         return array_column($this->convertirEnUtf8($data), 'agence');
     }
 
+
+
     public function service($agence)
     {
         // $statement = "  SELECT DISTINCT
@@ -300,7 +307,7 @@ class MagasinListeOrATraiterModel extends Model
         if ($agence === null) {
             $codeAgence = "";
         } else {
-            $codeAgence = " AND asuc_num = '" .$agence."'";
+            $codeAgence = " AND asuc_num = '" . $agence . "'";
         }
 
         $statement = " SELECT DISTINCT
@@ -325,19 +332,19 @@ class MagasinListeOrATraiterModel extends Model
 
             return [
                 "value" => $item['service'],
-                "text" => $item['service'],
+                "text"  => $item['service']
             ];
         }, $dataUtf8);
     }
 
-    public function agenceUser()
+    public function agenceUser(string $codeAgence)
     {
         $statement = "  SELECT DISTINCT
                             slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) as agence
                         FROM sav_lor
                         WHERE slor_succdeb||'-'||(select trim(asuc_lib) from agr_succ where asuc_numsoc = slor_soc and asuc_num = slor_succdeb) <> ''
                         AND slor_soc = 'HF'
-                        --AND slor_succdeb IN ('01', '20', '50')
+                        AND slor_succdeb IN ($codeAgence)
                     ";
 
         $result = $this->connect->executeQuery($statement);

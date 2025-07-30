@@ -2,63 +2,66 @@
 
 namespace App\Form\dit;
 
-use App\Controller\Controller;
 use App\Entity\admin\Agence;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
-use App\Entity\dit\DemandeIntervention;
-use App\Repository\admin\AgenceRepository;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use App\Repository\admin\ServiceRepository;
+use App\Controller\Controller;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Component\Form\Extension\Core\Type\FileType;
-use Symfony\Component\Form\Extension\Core\Type\TelType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints as Assert;
+use App\Entity\dit\DemandeIntervention;
+use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\admin\ServiceRepository;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
 {
     private $serviceRepository;
-
     private $agenceRepository;
-    public const TYPE_REPARATION = [
+    const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
         'DEJA EFFECTUEE' => 'DEJA EFFECTUEE',
-        'A REALISER' => 'A REALISER',
+        'A REALISER' => 'A REALISER'
     ];
 
-    public const REPARATION_REALISE = [
+    const REPARATION_REALISE = [
         'ATE TANA' => 'ATE TANA',
         'ATE STAR' => 'ATE STAR',
         'ATE MAS' => 'ATE MAS',
         'ATE TMV' => 'ATE TMV',
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
+        'ENERGIE MAN' => 'ENERGIE MAN'
     ];
 
-    public const INTERNE_EXTERNE = [
+    const INTERNE_EXTERNE = [
         'INTERNE' => 'INTERNE',
-        'EXTERNE' => 'EXTERNE',
+        'EXTERNE' => 'EXTERNE'
     ];
 
-    public const OUI_NON = [
+    const OUI_NON = [
         'NON' => 'NON',
-        'OUI' => 'OUI',
+        'OUI' => 'OUI'
     ];
+
 
     public function __construct()
     {
@@ -102,7 +105,7 @@ class demandeInterventionType extends AbstractType
                         'attr' => [
                             'class' => 'serviceDebiteur',
                             'disabled' => empty($services),
-                        ],
+                        ]
                     ]
                 );
             })
@@ -134,7 +137,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'serviceDebiteur',
                         'disabled' => false,
-                    ],
+                    ]
                 ]);
             })
             ->add(
@@ -147,14 +150,14 @@ class demandeInterventionType extends AbstractType
                     'choice_label' => 'description',
                     'required' => true,
                     'constraints' => [
-                        new Assert\NotBlank(['message' => 'le type de document doit être sélectionné']),
+                        new Assert\NotBlank(['message' => 'le type de document doit être sélectionné'])
                     ],
                     'query_builder' => function (WorTypeDocumentRepository $repository) {
                         return $repository->createQueryBuilder('w')
                             ->where('w.id >= :id')
                             ->setParameter('id', 5)
                             ->orderBy('w.description', 'ASC');
-                    },
+                    }
                 ]
             )
 
@@ -168,8 +171,8 @@ class demandeInterventionType extends AbstractType
                     'required' => true,
                     'data' => 'A REALISER',
                     'constraints' => [
-                        new Assert\NotBlank(['message' => 'le type de réparation doit être sélectionné']),
-                    ],
+                        new Assert\NotBlank(['message' => 'le type de réparation doit être sélectionné'])
+                    ]
 
                 ]
             )
@@ -182,8 +185,8 @@ class demandeInterventionType extends AbstractType
                     'placeholder' => '-- Choisir le répartion réalisé --',
                     'required' => true,
                     'constraints' => [
-                        new Assert\NotBlank(['message' => 'le réparation réalisé par doit être sélectionné']),
-                    ],
+                        new Assert\NotBlank(['message' => 'le réparation réalisé par doit être sélectionné'])
+                    ]
                 ]
             )
             ->add(
@@ -196,8 +199,8 @@ class demandeInterventionType extends AbstractType
                     'choice_label' => 'libelleCategorieAteApp',
                     'required' => true,
                     'constraints' => [
-                        new Assert\NotBlank(['message' => 'le catégorie de demande doit être sélectionné']),
-                    ],
+                        new Assert\NotBlank(['message' => 'le catégorie de demande doit être sélectionné'])
+                    ]
                 ]
             )
             ->add(
@@ -211,8 +214,8 @@ class demandeInterventionType extends AbstractType
                     'required' => false,
                     'attr' => [
                         'class' => 'interneExterne',
-                        'data-informations' => json_encode(['agenceId' => $options['data']->getAgence()->getId(), 'serviceId' => $options['data']->getService()->getId()]),
-                    ],
+                        'data-informations' => json_encode(['agenceId' => $options['data']->getAgence()->getId(), 'serviceId' => $options['data']->getService()->getId()])
+                    ]
                 ]
             )
             ->add(
@@ -231,7 +234,7 @@ class demandeInterventionType extends AbstractType
                     'query_builder' => function (AgenceRepository $agenceRepository) {
                         return $agenceRepository->createQueryBuilder('a')->orderBy('a.codeAgence', 'ASC');
                     },
-                    'attr' => ['class' => 'agenceDebiteur'],
+                    'attr' => ['class' => 'agenceDebiteur']
                 ]
             )
 
@@ -243,9 +246,9 @@ class demandeInterventionType extends AbstractType
                     'label' => 'Agence *',
                     'required' => false,
                     'attr' => [
-                        'readonly' => true,
+                        'readonly' => true
                     ],
-                    'data' => $options["data"]->getAgenceEmetteur() ?? null,
+                    'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
 
@@ -258,12 +261,12 @@ class demandeInterventionType extends AbstractType
                     'required' => false,
                     'attr' => [
                         'readonly' => true,
-                        'disable' => true,
+                        'disable' => true
                     ],
-                    'data' => $options["data"]->getServiceEmetteur() ?? null,
+                    'data' => $options["data"]->getServiceEmetteur() ?? null
                 ]
             )
-            // ->add('service',
+            // ->add('service', 
             // EntityType::class,
             // [
 
@@ -286,8 +289,8 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client', // Mettez ici la route de l'autocomplétion
-                    ],
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                    ]
                 ]
             )
             ->add(
@@ -300,8 +303,8 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client', // Mettez ici la route de l'autocomplétion
-                    ],
+                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                    ]
                 ]
             )
             ->add(
@@ -313,8 +316,8 @@ class demandeInterventionType extends AbstractType
                     'required' => false,
                     'attr' => [
                         'disabled' => true,
-                        'class' => 'numTel',
-                    ],
+                        'class' => 'numTel'
+                    ]
                 ]
             )
             ->add(
@@ -338,8 +341,8 @@ class demandeInterventionType extends AbstractType
                 'data' => 'NON',
                 'attr' => [
                     'disabled' => true,
-                    'class' => 'clientSousContrat',
-                    ],
+                    'class' => 'clientSousContrat'
+                ]
             ])
 
             ->add('datePrevueTravaux', DateType::class, [
@@ -348,8 +351,8 @@ class demandeInterventionType extends AbstractType
                 'required' => true,
                 'attr' => ['class' => 'noEntrer'],
                 'constraints' => [
-                    new Assert\NotBlank(['message' => 'la date ne doit pas être vide']),
-                ],
+                    new Assert\NotBlank(['message' => 'la date ne doit pas être vide'])
+                ]
             ])
             ->add(
                 'demandeDevis',
@@ -362,7 +365,7 @@ class demandeInterventionType extends AbstractType
                     'data' => 'NON',
                     'attr' => [
                         'disabled' => true,
-                    ],
+                    ]
                 ]
             )
             ->add(
@@ -389,7 +392,7 @@ class demandeInterventionType extends AbstractType
                     'choices' => self::OUI_NON,
                     'placeholder' => false,
                     'required' => false,
-                    'data' => 'NON',
+                    'data' => 'NON'
                 ]
             )
 
@@ -415,7 +418,7 @@ class demandeInterventionType extends AbstractType
                     'required' => true,
                     'attr' => [
                         'rows' => 5,
-                        'class' => 'detailDemande',
+                        'class' => 'detailDemande'
                     ],
                     'constraints' => [
                         new NotBlank([
@@ -432,7 +435,7 @@ class demandeInterventionType extends AbstractType
                     'choices' => self::OUI_NON,
                     'placeholder' => false,
                     'required' => false,
-                    'data' => 'NON',
+                    'data' => 'NON'
                 ]
             )
             ->add(
@@ -445,6 +448,11 @@ class demandeInterventionType extends AbstractType
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
                     ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'l\id materiel ne peut pas être vide.', // Message d'erreur si le champ est vide
+                        ]),
+                    ],
                 ]
             )
             ->add(
@@ -456,8 +464,9 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
-                    ],
+                    ]
                 ]
+
             )
             ->add(
                 'numSerie',
@@ -468,7 +477,7 @@ class demandeInterventionType extends AbstractType
                     'attr' => [
                         'class' => 'noEntrer autocomplete',
                         'autocomplete' => 'off',
-                    ],
+                    ]
                 ]
             )
             ->add(
@@ -487,7 +496,7 @@ class demandeInterventionType extends AbstractType
                                 // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             ],
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ]),
+                        ])
                     ],
                 ]
             )
@@ -507,7 +516,7 @@ class demandeInterventionType extends AbstractType
                                 // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             ],
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ]),
+                        ])
                     ],
                 ]
             )
@@ -527,7 +536,7 @@ class demandeInterventionType extends AbstractType
                                 // 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                             ],
                             'mimeTypesMessage' => 'Please upload a valid PDF file.',
-                        ]),
+                        ])
                     ],
                 ]
             )

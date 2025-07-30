@@ -3,13 +3,17 @@
 namespace App\Entity\admin\dom;
 
 use App\Entity\dom\Dom;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
+use App\Entity\admin\dom\Indemnite;
+use App\Repository\admin\dom\SousTypeDocumentRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 
 /**
  * @ORM\Entity
  * @ORM\Table(name="Sous_type_document")
+ * @ORM\Entity(repositoryClass=SousTypeDocumentRepository::class)
  * @ORM\HasLifecycleCallbacks
  */
 class SousTypeDocument
@@ -56,11 +60,18 @@ class SousTypeDocument
      */
     private $doms;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="sousTypeDocument")
+     */
+    private $mutation;
+
+
     public function __construct()
     {
         $this->catg = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
         $this->doms = new ArrayCollection();
+        $this->mutation = new ArrayCollection();
     }
 
     public function getId(): int
@@ -76,7 +87,6 @@ class SousTypeDocument
     public function setCodeDocument(string $codeDocument): self
     {
         $this->codeDocument = $codeDocument;
-
         return $this;
     }
 
@@ -88,7 +98,6 @@ class SousTypeDocument
     public function setCodeSousType(?string $codeSousType): self
     {
         $this->codeSousType = $codeSousType;
-
         return $this;
     }
 
@@ -100,7 +109,6 @@ class SousTypeDocument
     public function setDescription(?string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -112,7 +120,6 @@ class SousTypeDocument
     public function setDateCreation(string $dateCreation): self
     {
         $this->dateCreation = $dateCreation;
-
         return $this;
     }
 
@@ -126,11 +133,10 @@ class SousTypeDocument
 
     public function addCatg(Catg $catg): self
     {
-        if (! $this->catg->contains($catg)) {
+        if (!$this->catg->contains($catg)) {
             $this->catg[] = $catg;
             $catg->setSousTypeDocument($this);
         }
-
         return $this;
     }
 
@@ -142,7 +148,6 @@ class SousTypeDocument
                 $catg->setSousTypeDocument(null);
             }
         }
-
         return $this;
     }
 
@@ -156,11 +161,10 @@ class SousTypeDocument
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (! $this->indemnites->contains($indemnite)) {
+        if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setSousTypeDoc($this);
         }
-
         return $this;
     }
 
@@ -176,6 +180,7 @@ class SousTypeDocument
         return $this;
     }
 
+
     public function getDoms()
     {
         return $this->doms;
@@ -183,7 +188,7 @@ class SousTypeDocument
 
     public function addDom(Dom $doms): self
     {
-        if (! $this->doms->contains($doms)) {
+        if (!$this->doms->contains($doms)) {
             $this->doms[] = $doms;
             $doms->setSousTypeDocument($this);
         }
@@ -213,5 +218,47 @@ class SousTypeDocument
     public function __toString()
     {
         return $this->codeSousType;
+    }
+
+    /**
+     * Get the value of mutation
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    public function addMutation(Mutation $mutation): self
+    {
+        if (!$this->mutation->contains($mutation)) {
+            $this->mutation[] = $mutation;
+            $mutation->setSousTypeDocument($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutation(Mutation $mutation): self
+    {
+        if ($this->mutation->contains($mutation)) {
+            $this->mutation->removeElement($mutation);
+            if ($mutation->getSousTypeDocument() === $this) {
+                $mutation->setSousTypeDocument(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutation
+     *
+     * @return  self
+     */
+    public function setMutation($mutation)
+    {
+        $this->mutation = $mutation;
+
+        return $this;
     }
 }

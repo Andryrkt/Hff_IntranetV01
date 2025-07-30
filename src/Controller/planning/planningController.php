@@ -2,15 +2,16 @@
 
 namespace App\Controller\planning;
 
+
 use App\Controller\Controller;
+use App\Model\planning\PlanningModel;
+use App\Entity\planning\PlanningSearch;
+use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Entity\planning\PlanningSearch;
 use App\Form\planning\PlanningSearchType;
-use App\Model\planning\PlanningModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Service\TableauEnStringService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -20,9 +21,7 @@ class PlanningController extends Controller
     use PlanningTraits;
 
     private PlanningModel $planningModel;
-
     private PlanningSearch $planningSearch;
-
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
@@ -35,7 +34,7 @@ class PlanningController extends Controller
 
     /**
      * @Route("/planning", name="planning_vue")
-     *
+     * 
      * @return void
      */
     public function listePlanning(Request $request)
@@ -59,6 +58,7 @@ class PlanningController extends Controller
             $this->planningSearch,
             [
                 'method' => 'GET',
+                'planningDetaille' => false,
             ]
         )->getForm();
 
@@ -68,7 +68,7 @@ class PlanningController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             // dd($form->getdata());
-            $criteria = $form->getdata();
+            $criteria =  $form->getdata();
         }
 
         /**
@@ -94,7 +94,6 @@ class PlanningController extends Controller
                 $backString = '';
             }
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString, $touslesOrItvSoumis);
-
         } else {
             $data = [];
             $back = [];
@@ -186,6 +185,9 @@ class PlanningController extends Controller
         $this->excelService->createSpreadsheet($data);
     }
 
+
+
+
     /**
      * @Route("/export_excel_planning01", name= "export_planning01")
      */
@@ -209,7 +211,7 @@ class PlanningController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Agence\Service', 'N°OR-Itv','libellé de l\'Itv','planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
+        $data[] = ['Agence\Service', 'N°OR-Itv', 'libellé de l\'Itv', 'planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning', 'Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
         foreach ($tabObjetPlanning as $entity) {
             $data[] = [
                 $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
@@ -224,7 +226,7 @@ class PlanningController extends Controller
                 $entity->getCasier(),
                 $entity->getMois(),
                 $entity->getAnnee(),
-                $entity->getPos(),
+                $entity->getPos()
 
             ];
         }

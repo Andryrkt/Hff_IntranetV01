@@ -5,9 +5,13 @@ namespace App\Controller\Traits\dom;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\dom\SousTypeDocument;
+use App\Entity\dom\Dom;
 
 trait DomListeTrait
 {
+    use DomsTrait;
+
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
@@ -49,5 +53,16 @@ trait DomListeTrait
             ->setDateMissionFin($criteria['dateMissionFin'] ?? null)
             ->setMatricule($criteria['matricule'] ?? null)
         ;
+    }
+
+    /** 
+     * Fonction pour voir si le statut du dom peut être trop perçu ou non
+     */
+    private function statutTropPercuDomList(array $data)
+    {
+        /** @var Dom $dom chaque Dom dans $data */
+        foreach ($data as $dom) {
+            $this->statutTropPercu($dom);
+        }
     }
 }

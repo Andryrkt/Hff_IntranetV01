@@ -6,25 +6,29 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Controller\Controller;
-use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Form\dit\DitRiSoumisAValidationType;
+use App\Service\fichier\TraitementDeFichier;
+use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitRiSoumisAValidationModel;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 class DitRiSoumisAValidationController extends Controller
 {
     use DitRiSoumisAValidationTrait;
-
     private $historiqueOperation;
+    private string $cheminDeBase;
+    private TraitementDeFichier $traitementDeFichier;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService();
+        $this->historiqueOperation = new HistoriqueOperationRIService;
+        $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
+        $this->traitementDeFichier = new TraitementDeFichier();
     }
 
     /**
@@ -42,69 +46,51 @@ class DitRiSoumisAValidationController extends Controller
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
 
-            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+            $this->historiqueOperation->sendNotificationSoumission($message, $numDit, 'dit_index');
         }
+        $numOr = $numOrBaseDonner[0]['numor'];
         $ditRiSoumiAValidation = new DitRiSoumisAValidation();
-        $ditRiSoumiAValidation->setNumeroDit($numDit);
-        $ditRiSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
+        $ditRiSoumiAValidation
+            ->setNumeroDit($numDit)
+            ->setNumeroOR($numOrBaseDonner[0]['numor']);
 
-        $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($ditRiSoumiAValidation->getNumeroOR());
-        $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($ditRiSoumiAValidation->getNumeroOR(), $itvDejaSoumis);
+        $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numOr);
+        $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($numOr, $itvDejaSoumis);
 
         $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
-            'itvAfficher' => $itvAfficher,
+            'itvAfficher' => $itvAfficher
         ])->getForm();
 
+        $this->traitementDuFormulaire($form, $request, $ditRiSoumiAValidation, $numDit, $numOr, $itvAfficher, $ditRiSoumisAValidationModel, $itvDejaSoumis);
 
+
+        $this->logUserVisit('dit_insertion_ri', [
+            'numDit' => $numDit,
+        ]); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
+            'form' => $form->createView(),
+            'itvAfficher' => $itvAfficher
+        ]);
+    }
+
+    private function traitementDuFormulaire($form, Request $request, $ditRiSoumiAValidation, $numDit, $numOr, $itvAfficher, $ditRiSoumisAValidationModel, $itvDejaSoumis)
+    {
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {
             $dataForm = $form->getData();
-            $itvCoches = [];
 
             // Récupérer les valeurs des cases cochées
-            for ($i = 0; $i < count($itvAfficher); $i++) {
-                $checkboxFieldName = 'checkbox_' . $i;
-                if ($form->has($checkboxFieldName) && $form->get($checkboxFieldName)->getData()) {
-                    $itvCoches[] = (int)$itvAfficher[$i]['numeroitv'];
-                }
-            }
-            $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor']);
+            $itvCoches = $this->itvCocher($itvAfficher, $form);
 
-            $existe = false;
-            $estSoumis = false;
-            foreach ($itvCoches as $value) {
-                if (in_array($value, $itvDejaSoumis)) {
-                    $estSoumis = true;
-                    break;
-                }
-                if (! in_array($value, $toutNumeroItv)) {
-                    $existe = true;
-                }
-            }
+            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis);
 
-            if ($numOrBaseDonner[0]['numor'] !== $ditRiSoumiAValidation->getNumeroOR()) {
-                $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+            if ($this->blocage($conditionDeBlocage)) {
 
-                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            } elseif ($estSoumis) {
-                $message = "Erreur lors de la soumission, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
-
-                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            } elseif ($existe) {
-                $message = "Erreur lors de la soumission, car certaines interventions n'ont pas encore été validées dans DocuWare.";
-
-                $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
-            } else {
-
+                // ajout des informations utiles dans l'entité ditRiSoumiAValidation
                 $numeroSoumission = $ditRiSoumisAValidationModel->recupNumeroSoumission($dataForm->getNumeroOR());
-                $ditRiSoumiAValidation
-                    ->setNumeroDit($numDit)
-                    ->setNumeroOR($dataForm->getNumeroOR())
-                    ->setHeureSoumission($this->getTime())
-                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                    ->setNumeroSoumission($numeroSoumission)
-                ;
+                $ditRiSoumiAValidation = $this->insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit);
 
                 $genererPdfRi = new GenererPdfRiSoumisAValidataion();
 
@@ -113,37 +99,45 @@ class DitRiSoumisAValidationController extends Controller
                 /** @var UploadedFile $file */
                 $file = $form->get("pieceJoint01")->getData();
 
-                foreach ($itvCoches as $value) {
-                    if ($file) { // Vérification si le fichier existe
-                        try {
-                            $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
-                            $fileDossier = $_ENV['BASE_PATH_FICHIER'].'/vri/';
+                $nomDesFichiers = []; // Pour stocker les noms de fichiers générés
 
-                            // Créer une copie temporaire du fichier
-                            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
-                            copy($file->getPathname(), $tempFile);
+                if ($file) {
+                    try {
+                        // Créer un fichier temporaire
+                        $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+                        copy($file->getPathname(), $tempFile);
 
-                            // Déplacer le fichier depuis la copie temporaire
-                            $targetPath = $fileDossier . $fileName;
-                            if (! copy($tempFile, $targetPath)) {
-                                throw new \Exception('Erreur lors de la copie du fichier.');
+                        foreach ($itvCoches as $value) {
+                            try {
+                                // Génération du nom de fichier unique
+                                $fileName = 'RI_' . $dataForm->getNumeroOR() . '-' . $value . '.' . $file->getClientOriginalExtension();
+                                $targetPath = $this->cheminDeBase . $fileName;
+
+                                // Copier vers la destination
+                                if (!copy($tempFile, $targetPath)) {
+                                    throw new \Exception('Erreur lors de la copie du fichier vers ' . $targetPath);
+                                }
+
+                                // Ajouter le nom du fichier au tableau
+                                $nomDesFichiers[] = $fileName;
+                            } catch (\Exception $e) {
+                                $message = 'Le fichier n\'a pas pu être copié pour la valeur : ' . $value;
+                                $this->historiqueOperation->sendNotificationSoumission($message, $fileName ?? '-', 'dit_index');
                             }
-
-                            // Supprimer la copie temporaire après l'utilisation
-                            unlink($tempFile);
-                        } catch (\Exception $e) {
-                            // Gestion de l'erreur de déplacement
-                            $message = 'Le fichier n\'a pas pu être téléchargé. Veuillez réessayer.';
-
-                            $this->historiqueOperation->sendNotificationSoumission($message, $fileName, 'dit_index');
                         }
-                    } else {
-                        // Message si aucun fichier n'a été téléchargé
-                        $message = 'Aucun fichier n\'a été sélectionné.';
 
+                        // Supprimer le fichier temporaire après usage
+                        unlink($tempFile);
+                    } catch (\Exception $e) {
+                        $message = 'Le fichier n\'a pas pu être traité.';
                         $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
                     }
+                } else {
+                    // Aucun fichier sélectionné
+                    $message = 'Aucun fichier n\'a été sélectionné.';
+                    $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
                 }
+
 
                 foreach ($itvCoches as $value) {
                     $riSoumisAValidation = new DitRiSoumisAValidation();
@@ -169,14 +163,115 @@ class DitRiSoumisAValidationController extends Controller
                 $this->historiqueOperation->sendNotificationSoumission('Le rapport d\'intervention a été soumis avec succès', 'RI_' . $dataForm->getNumeroOR(), 'dit_index', true);
             }
         }
+    }
 
-        $this->logUserVisit('dit_insertion_ri', [
-            'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur
+    private function insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit)
+    {
+        $ditRiSoumiAValidation
+            ->setNumeroDit($numDit)
+            ->setNumeroOR($dataForm->getNumeroOR())
+            ->setHeureSoumission($this->getTime())
+            ->setDateSoumission(new \DateTime($this->getDatesystem()))
+            ->setNumeroSoumission($numeroSoumission)
+        ;
+        return $ditRiSoumiAValidation;
+    }
 
-        self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
-            'form' => $form->createView(),
-            'itvAfficher' => $itvAfficher,
-        ]);
+    private function itvCocher($itvAfficher, $form)
+    {
+        $itvCoches = [];
+
+        for ($i = 0; $i < count($itvAfficher); $i++) {
+            $checkboxFieldName = 'checkbox_' . $i;
+            if ($form->has($checkboxFieldName) && $form->get($checkboxFieldName)->getData()) {
+                $itvCoches[] = (int)$itvAfficher[$i]['numeroitv'];
+            }
+        }
+        return $itvCoches;
+    }
+
+    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis): array
+    {
+        //tous les numéros d'intervention pour cette OR
+        $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOr);
+
+        $existe = false;
+        $estSoumis = false;
+        foreach ($itvCoches as $value) {
+            if (in_array($value, $itvDejaSoumis)) {
+                $estSoumis = true;
+                break;
+            }
+            if (!in_array($value, $toutNumeroItv)) {
+                $existe = true;
+            }
+        }
+
+        return [
+            'numOrIpsEgalenumOrSql' => $numOr !== $ditRiSoumiAValidation->getNumeroOR(), // le numero OR dans IPS est différent du numero OR dans SQL serveur
+            'estSoumis' => $estSoumis, // certaines interventions ont déjà été soumises
+            'existe' => $existe // le numero ITV n'existe pas pour le numero OR
+        ];
+    }
+
+    private function blocage($conditions): bool
+    {
+        if ($conditions['numOrIpsEgalenumOrSql']) {
+            $message = "Le numéro Or que vous avez saisie ne correspond pas à la DIT";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($conditions['estSoumis']) {
+            $message = "Erreur lors de la soumission RI, car certaines interventions ont déjà fait l'objet d'une soumission dans DocuWare.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } elseif ($conditions['existe']) {
+            $message = "Erreur lors de la soumission RI, car certaines interventions n'ont pas encore été validées dans DocuWare.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, '-', 'dit_index');
+        } else {
+            return true; // Aucune condition de blocage n'est remplie, la soumission peut continuer
+        }
+    }
+
+    /**
+     * Enregistrement des fichiers téléchagrer dans le dossier de destination
+     *
+     * @param [type] $form
+     * @return array
+     */
+    private function enregistrementFichier($form, $numOr): array
+    {
+        $fieldPattern = '/^pieceJoint(\d{2})$/';
+        $nomDesFichiers = [];
+        $compteur = 1; // Pour l’indexation automatique
+
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match($fieldPattern, $fieldName, $matches)) {
+                /** @var UploadedFile|UploadedFile[]|null $file */
+                $file = $field->getData();
+
+                if ($file !== null) {
+                    $fichiers = is_array($file) ? $file : [$file];
+
+                    foreach ($fichiers as $singleFile) {
+                        if ($singleFile !== null) {
+                            $extension = $singleFile->guessExtension() ?? $singleFile->getClientOriginalExtension();
+                            $nomDeFichier = sprintf('RI_%s-%04d.%s', $numOr, $compteur, $extension);
+
+                            $this->traitementDeFichier->upload(
+                                $singleFile,
+                                $this->cheminDeBase,
+                                $nomDeFichier
+                            );
+
+                            $nomDesFichiers[] = $nomDeFichier;
+                            $compteur++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $nomDesFichiers;
     }
 }

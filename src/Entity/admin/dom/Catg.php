@@ -3,11 +3,13 @@
 namespace App\Entity\admin\dom;
 
 use App\Entity\dom\Dom;
+use App\Entity\admin\dom\Site;
 use App\Entity\Traits\DateTrait;
+use Doctrine\ORM\Mapping as ORM;
+use App\Entity\mutation\Mutation;
+use Doctrine\Common\Collections\Collection;
 use App\Repository\admin\dom\CatgRepository;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Table(name="Catg")
@@ -52,11 +54,18 @@ class Catg
      */
     private $domCatg;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="categorieId")
+     */
+    private $mutCatg;
+
+
     public function __construct()
     {
         $this->sites = new ArrayCollection();
         $this->indemnites = new ArrayCollection();
         $this->domCatg = new ArrayCollection();
+        $this->mutCatg = new ArrayCollection();
     }
 
     public function getId(): int
@@ -72,7 +81,6 @@ class Catg
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
         return $this;
     }
 
@@ -84,7 +92,6 @@ class Catg
     public function setSousTypeDocument(?SousTypeDocument $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
-
         return $this;
     }
 
@@ -95,7 +102,7 @@ class Catg
 
     public function addSite(Site $site): self
     {
-        if (! $this->sites->contains($site)) {
+        if (!$this->sites->contains($site)) {
             $this->sites[] = $site;
         }
 
@@ -110,10 +117,9 @@ class Catg
 
         return $this;
     }
-
     /**
-         * @return Collection|Indemnite[]
-         */
+     * @return Collection|Indemnite[]
+     */
     public function getIndemnites(): Collection
     {
         return $this->indemnites;
@@ -121,11 +127,10 @@ class Catg
 
     public function addIndemnite(Indemnite $indemnite): self
     {
-        if (! $this->indemnites->contains($indemnite)) {
+        if (!$this->indemnites->contains($indemnite)) {
             $this->indemnites[] = $indemnite;
             $indemnite->setCategorie($this);
         }
-
         return $this;
     }
 
@@ -148,7 +153,7 @@ class Catg
 
     public function addDomCatg(Dom $domCatg): self
     {
-        if (! $this->domCatg->contains($domCatg)) {
+        if (!$this->domCatg->contains($domCatg)) {
             $this->domCatg[] = $domCatg;
             $domCatg->setCategoryId($this);
         }
@@ -178,5 +183,48 @@ class Catg
     public function __toString()
     {
         return $this->description;
+    }
+
+    /**
+     * Get the value of mutCatg
+     */
+    public function getMutCatg()
+    {
+        return $this->mutCatg;
+    }
+
+
+    public function addMutCatg(Mutation $mutCatg): self
+    {
+        if (!$this->mutCatg->contains($mutCatg)) {
+            $this->mutCatg[] = $mutCatg;
+            $mutCatg->setCategorie($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutCatg(Mutation $mutCatg): self
+    {
+        if ($this->mutCatg->contains($mutCatg)) {
+            $this->mutCatg->removeElement($mutCatg);
+            if ($mutCatg->getCategorie() === $this) {
+                $mutCatg->setCategorie(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutCatg
+     *
+     * @return  self
+     */
+    public function setMutCatg($mutCatg)
+    {
+        $this->mutCatg = $mutCatg;
+
+        return $this;
     }
 }

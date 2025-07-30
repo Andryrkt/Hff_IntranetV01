@@ -1,0 +1,214 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets%}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+	<div class=" container-fluid">
+		<div class="card">
+			<div class="card-body">
+				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
+				{{ form_errors(form)}}
+				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Formulaire Demande d'achat
+						</h3>
+					</div>
+
+					<div class="row">
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ form_row(form.objetDal)}}
+							<div class="mb-3 position-relative">
+								{{ form_row(form.detailDal) }}
+								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
+							</div>
+							{{ form_row(form.dateFinSouhaite) }}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Agence et service') }}
+							<div class="row">
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Emetteur') }}
+									{{ form_row(form.agenceEmetteur) }}
+									{{ form_row(form.serviceEmetteur) }}
+								</div>
+								<div class="col-6 col-md-6">
+									{{ macroForm.sousTitre('Débiteur') }}
+									{{ form_row(form.agenceDebiteur) }}
+									{{ form_row(form.serviceDebiteur) }}
+								</div>
+							</div>
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.sousTitre('Information Matériel / DIT') }}
+							<div class="row">
+								<div class="col-md-6 col-6">
+									{{ form_row(form.idMateriel) }}
+									{{ form_row(form.serie) }}
+								</div>
+								<div class="col-md-6 col-6">
+									{{ form_row(form.parc) }}
+									{{ form_row(form.dit) }}
+								</div>
+								{{ form_row(form.objetDit) }}
+							</div>
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="button" id="add-child" class="btn bouton mt-2">
+							<i class="fas fa-plus"></i>
+							Ajouter une ligne
+						</button>
+					</div>
+
+					<table class="table rounded table-plein-ecran mt-4">
+						<thead class="table-dark text-center">
+							<tr>
+								<th class="w-10 align-middle">Famille</th>
+								<th class="w-10 align-middle">Sous-famille</th>
+								<th class="w-7 align-middle">Référence</th>
+								<th class="w-20 align-middle">Désignation / Référence
+									<i class="fas fa-info-circle text-info fs-6 ms-2" id="info-icon" role="button"></i>
+								</th>
+								<th class="w-10 align-middle">Fournisseur</th>
+								<th class="w-10 align-middle">Date fin souhaitée</th>
+								<th class="w-5 align-middle text-end">Quantité</th>
+								<th class="w-13 align-middle">Commentaire</th>
+								<th class="w-10 align-middle">Pièces jointes</th>
+								<th class="w-2 align-middle">Fiche technique</th>
+								<th class="w-2 align-middle">
+									<i class="fas fa-times fs-5"></i>
+								</th>
+							</tr>
+						</thead>
+					</table>
+					<div id="children-container">
+						{% for DAL in form.DAL %}
+							{% set ligne = loop.index %}
+							<div id="demande_appro_form_DAL_{{ ligne }}">
+								<div class="row g-3">
+									<div class="w-10">
+										{{ form_widget(DAL.codeFams1) }}
+									</div>
+									<div class="w-10">
+										<div class="spinner-container">
+											<div class="spinner-load m-auto" id="spinner_{{ ligne }}_codeFams2" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+												<div></div>
+											</div>
+										</div>
+										<div id="container_{{ ligne }}_codeFams2">
+											{{ form_widget(DAL.codeFams2) }}
+										</div>
+									</div>
+									<div class="w-7">
+										{{ form_widget(DAL.artRefp) }}
+									</div>
+									<div class="w-20">
+										{{ form_widget(DAL.artDesi) }}
+										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
+										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
+											<div class="text-overlay">
+												Veuillez patienter s'il vous plaît! Chargement des données
+											</div>
+											<div class="loader-points"></div>
+										</div>
+									</div>
+									<div class="w-10">
+										{{ form_widget(DAL.nomFournisseur) }}
+										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
+										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
+									</div>
+									<div class="w-10">
+										{{ form_widget(DAL.dateFinSouhaite) }}
+									</div>
+									<div class="w-5">
+										{{ form_widget(DAL.qteDem) }}
+									</div>
+									<div class="w-13">
+										{{ form_widget(DAL.commentaire) }}
+									</div>
+									<div class="w-10">
+										{{ form_widget(DAL.fileNames) }}
+									</div>
+									<div class="w-2">
+										{{ form_widget(DAL.estFicheTechnique) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artConstp) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artFams1) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artFams2) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.numeroFournisseur) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.catalogue) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.deleted) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.numeroLigne) }}
+									</div>
+									<div class="w-2">
+										<span title="Supprimer la ligne de DA" style="cursor: pointer;">
+											<i class="fas fa-times fs-4"></i>
+										</span>
+									</div>
+								</div>
+								<div class="mt-3 mb-3"></div>
+							</div>
+						{% endfor %}
+					</div>
+
+					<div id="child-prototype" style="display: none;">
+						{{ form_widget(form.DAL.vars.prototype)|raw }}
+					</div>
+
+					<div class="row">
+						{{ form_row(form.observation)}}
+					</div>
+				</div>
+
+
+				<div class="d-flex justify-content-end">
+					<button type="submit" class="btn bouton mt-2">
+						<i class="fas fa-save"></i>
+						Enregistrer
+					</button>
+				</div>
+				{{ form_end(form) }}
+			</div>
+		</div>
+
+	</div>
+{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/new/new.js" type="module"></script>
+{% endblock %}

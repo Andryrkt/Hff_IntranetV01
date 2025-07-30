@@ -12,7 +12,8 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
     /**
      * generer pdf changement de Casier
      */
-    public function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $quelqueaffichage, $email)
+
+    function GenererPdfOrSoumisAValidation($ditInsertionOr, $montantPdf, $quelqueaffichage, $email, string $suffix)
     {
         $pdf = new TCPDF();
 
@@ -34,6 +35,8 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(45, 6, 'Date soumission : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(50, 6, $ditInsertionOr->getDateSoumission()->format('d/m/Y'), 0, 1, '', false, '', 0, false, 'T', 'M');
+
+        // numero devis
         $pdf->setAbsX(130);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(20, 6, 'N° Devis :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -46,6 +49,13 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(45, 6, 'Numéro OR : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(50, 6, $ditInsertionOr->getNumeroOR(), 0, 1, '', false, '', 0, false, 'T', 'M');
+
+        //sortie pol
+        $pdf->setAbsX(130);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->cell(20, 6, 'Sortie POL :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->setFont('helvetica', '', 10);
+        $pdf->cell(0, 6, $quelqueaffichage['pol'], 0, 0, '', false, '', 0, false, 'T', 'M');
 
         // Version à valider
         $pdf->SetXY($startX, $pdf->GetY() + 2);
@@ -72,7 +82,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Ln(10, true);
 
         // ================================================================================================
-        $header1 = ['ITV', 'Libellé ITV', 'Date pla','Nb Lig av','Nb Lig ap', 'Mtt Total av', 'Mtt total ap', 'Statut'];
+        $header1 = ['ITV', 'Libellé ITV', 'Date pla', 'Nb Lig av', 'Nb Lig ap', 'Mtt Total av', 'Mtt total ap', 'Statut'];
 
         $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
 
@@ -111,7 +121,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                 } elseif ($key === 'libelleItv') {
                     $html .= '<td style="width: 150px; text-align: left;"  >' . $cell . '</td>';
                 } elseif ($key === 'datePlanning') {
-                    $html .= '<td style="width: 50px; text-align: left;"  >' . $this->formatDateTime($cell). '</td>';
+                    $html .= '<td style="width: 50px; text-align: left;"  >' . $this->formatDateTime($cell) . '</td>';
                 } elseif ($key === 'nbLigAv') {
                     $html .= '<td style="width: 50px; "  >' . $cell . '</td>';
                 } elseif ($key === 'nbLigAp') {
@@ -131,7 +141,6 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
                         $html .= '<td style="width: 40px; text-align: left; "  >  ' . $cell . '</td>';
                     }
                 }
-
             }
             $html .= '</tr>';
         }
@@ -200,7 +209,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Ln(10, true);
 
         $pdf->setFont('helvetica', '', 12);
-        $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces','Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
+        $header1 = ['ITV', 'Mtt Total', 'Mtt Pièces', 'Mtt MO', 'Mtt ST', 'Mtt LUB', 'Mtt Autres'];
 
 
         $html = '<table border="0" cellpadding="0" cellspacing="0" align="center" style="font-size: 8px; ">';
@@ -268,7 +277,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
             } elseif ($key === 'montant_lubrifiants') {
                 $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
             } elseif ($key === 'montant_frais_divers') {
-                $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value). '</th>';
+                $html .= '<th style="width: 80px; font-weight: bold; text-align: right;" >' . $this->formatNumberDecimal($value) . '</th>';
             }
         }
         $html .= '</tr>';
@@ -283,7 +292,8 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(35, 6, $email, 0, 0, 'L');
 
 
-        $Dossier = $_ENV['BASE_PATH_FICHIER'].'/vor/';
-        $pdf->Output($Dossier.'oRValidation_' .$ditInsertionOr->getNumeroOR().'_'.$ditInsertionOr->getNumeroVersion(). '.pdf', 'F');
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/vor/';
+        $nomFichier = 'oRValidation_' . $ditInsertionOr->getNumeroOR() . '-' . $ditInsertionOr->getNumeroVersion() . '#' . $suffix . '.pdf';
+        $pdf->Output($Dossier . $nomFichier, 'F');
     }
 }

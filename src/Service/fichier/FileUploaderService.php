@@ -5,21 +5,19 @@ namespace App\Service\fichier;
 use App\Service\FusionPdf;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\Validator\Exception\InvalidArgumentException;
 use Symfony\Component\Validator\Exception\RuntimeException;
+use Symfony\Component\Validator\Exception\InvalidArgumentException;
 
 class FileUploaderService
 {
-    public const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png'];
-    public const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
-
+    const ALLOWED_EXTENSIONS = ['pdf', 'jpg', 'jpeg', 'png'];
+    const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
     private string $targetDirectory;
-
     private FusionPdf $fusionPdf;
 
-    public function __construct()
+    public function __construct(string $targetDirectory)
     {
-        $this->targetDirectory = 'uploads/';
+        $this->targetDirectory = $targetDirectory;
         $this->fusionPdf = new FusionPdf();
     }
 
@@ -46,28 +44,32 @@ class FileUploaderService
         return $this->targetDirectory;
     }
 
+
     /**
-     * Génère un nom de fichier
+     * Génère un nom de fichier 
      *
      * @param UploadedFile $file
      * @param string $prefix
      * @param string $index
      * @return string
      */
-    private function generateNomDeFichier(UploadedFile $file,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
+    private function generateNomDeFichier(?string $extension,  string $numeroDoc, string $index, string $prefix = '', string $numeroVersion = ''): string
     {
+        $extension = $extension ?? 'pdf';
+
         return sprintf(
             '%s_%s%s%s.%s',
             $prefix,
             $numeroDoc,
             $numeroVersion !== '' ? "_{$numeroVersion}" : '',
             $index !== '' ? "_0{$index}" : '',
-            $file->guessExtension()
+            $extension
         );
     }
 
+
     private function genererateCheminMainFichier(string $numeroDoc, string $prefix, string $numeroVersion = ''): string
-    {
+    { 
         return sprintf(
             '%s_%s%s.pdf',
             $prefix,
@@ -86,23 +88,32 @@ class FileUploaderService
      * @param string $numeroVersion
      * @return string|null
      */
-    private function uploadFile(
-        UploadedFile $file,
-        string $numeroDoc,
-        string $index,
-        string $prefix = '',
+    public function uploadFile(
+        UploadedFile $file,  
+        string $numeroDoc, 
+        string $index, 
+        string $prefixFichier = '', 
         string $numeroVersion = '',
         string $pathFichier = 'fichiers/'
-    ): ?string {
+        ): ?string
+    {
         if (
-            ! $file->isValid() ||
-            ! in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
-            ! in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
+            !in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
         ) {
             throw new InvalidArgumentException("Type de fichier non autorisé : {$file->getClientOriginalName()}.");
         }
 
-        $fileName = $this->generateNomDeFichier($file,  $numeroDoc, $index, $prefix, $numeroVersion);
+        $extension =$file->guessExtension();
+        $prepareNom = [
+            'prefix' => $prefixFichier,
+            'numeroDoc' => $numeroDoc,
+            'numeroVersion' => $numeroVersion,
+            'index' => $index,
+            'extension' => $extension
+        ];
+        $fileName = GenererNonFichierService::genererNonFichier($prepareNom );
         $destination = $this->targetDirectory . $pathFichier;
 
         try {
@@ -114,51 +125,53 @@ class FileUploaderService
         return $destination . $fileName;
     }
 
-    /**
-     * Méthode pour récupérer les fichiers téléchargés correspondant à un motif spécifique.
-     *
-     * @param FormInterface $form
-     * @param string $fieldPattern
-     * @param string $numeroDoc
-     * @param string $prefix
-     * @param string $numeroVersion
-     * @return array Liste des chemins des fichiers téléchargés
-     */
-    private function getUploadedFiles(
-        FormInterface $form,
-        string $fieldPattern,
-        string $numeroDoc,
-        string $prefix,
-        string $numeroVersion = '',
-        string $pathFichier = 'fichiers/',
-        bool $isIndex = true
-    ): array {
-        $uploadedFiles = [];
 
-        foreach ($form->all() as $fieldName => $field) {
-            if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|null $file */
-                $file = $field->getData();
-                if ($file !== null) {
-                    // Récupérer l'index ou identifiant depuis les correspondances
-                    if ($isIndex) {
-                        $index = isset($matches[1]) ? (string)$matches[1] : '';
-                    } else {
-                        $index = '';
-                    }
+/**
+ * Méthode pour récupérer les fichiers téléchargés correspondant à un motif spécifique.
+ *
+ * @param FormInterface $form
+ * @param string $fieldPattern
+ * @param string $numeroDoc
+ * @param string $prefix
+ * @param string $numeroVersion
+ * @return array Liste des chemins des fichiers téléchargés
+ */
+private function getUploadedFiles(
+    FormInterface $form,
+    string $fieldPattern = '/^pieceJoint(\d{2})$/',
+    string $numeroDoc,
+    string $prefixFichier,
+    string $numeroVersion = '',
+    string $pathFichier = 'fichiers/',
+    bool $isIndex = true
+): array {
+    $uploadedFiles = [];
 
-                    // Appeler la méthode uploadFile
-                    $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefix, $numeroVersion, $pathFichier);
+    foreach ($form->all() as $fieldName => $field) {
+        if (preg_match($fieldPattern, $fieldName, $matches)) {
+            /** @var UploadedFile|null $file */
+            $file = $field->getData();
+            if ($file !== null) {
+                // Récupérer l'index ou identifiant depuis les correspondances
+                if($isIndex){
+                    $index = isset($matches[1]) ? (string)$matches[1] : '';
+                } else {
+                    $index = '';
+                }
 
-                    if ($uploadedFilePath !== null) {
-                        $uploadedFiles[] = $uploadedFilePath;
-                    }
+                // Appeler la méthode uploadFile
+                $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefixFichier, $numeroVersion, $pathFichier);
+
+                if ($uploadedFilePath !== null) {
+                    $uploadedFiles[] = $uploadedFilePath;
                 }
             }
         }
-
-        return $uploadedFiles;
     }
+
+    return $uploadedFiles;
+}
+
 
     /**
      * Méthode qui permet d'enregistrer les fichiers telecharger ou le fusionner puis l'enregistrer après
@@ -182,8 +195,10 @@ class FileUploaderService
     public function chargerEtOuFusionneFichier(
         FormInterface $form,
         array $options = []
-    ): string {
+    ): string 
+    {
         $prefix = $options['prefix'] ?? '';
+        $prefixFichier = $options['prefixFichier'] ?? $prefix;
         $numeroDoc = $options['numeroDoc'] ?? '';
         $mergeFiles = $options['mergeFiles'] ?? true;
         $numeroVersion = $options['numeroVersion'] ?? '';
@@ -193,37 +208,117 @@ class FileUploaderService
         $isIndex = $options['isIndex'] ?? true;
 
         $uploadedFiles = [];
-        $mainFileName = $this->genererateCheminMainFichier($numeroDoc, $prefix, $numeroVersion);
+        $prepareNom = [
+            'prefix' => $prefix,
+            'numeroDoc' => $numeroDoc,
+            'numeroVersion' => $numeroVersion
+        ];
+        $mainFileName = GenererNonFichierService::genererNonFichier( $prepareNom);
         $mainFilePathName = $this->targetDirectory. $mainFileName;
         // dump($mainFilePathName);
         // dd(file_exists($mainFilePathName));
-
-        if ($mainFirstPage) {
+        
+        if($mainFirstPage){
             $uploadedFiles[] = $mainFilePathName;
-            $uploadedFiles = array_merge(
-                $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion, $pathFichier, $isIndex),
+            $uploadedFiles = array_merge( 
+                $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefixFichier, $numeroVersion, $pathFichier, $isIndex), 
                 $uploadedFiles
             );
         } else {
             $uploadedFiles[] = $mainFilePathName;
             $uploadedFiles = array_merge(
-                $uploadedFiles,
-                $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefix, $numeroVersion, $pathFichier, $isIndex),
+                $uploadedFiles, 
+                $this->getUploadedFiles($form, $fieldPattern, $numeroDoc, $prefixFichier, $numeroVersion, $pathFichier, $isIndex),
             );
         }
-
+        
         // Nom du fichier PDF fusionné
         $mergedPdfFile = $mainFilePathName;
 
         // Fusionner les fichiers si demandé
-        if ($mergeFiles && ! empty($uploadedFiles)) {
+        if ($mergeFiles && !empty($uploadedFiles)) {
             $this->fusionPdf->mergePdfs($uploadedFiles, $mergedPdfFile);
         }
 
         return $mainFileName;
     }
 
+
+
     /**
+     * Permet de récupérer les chemins des fichiers téléchargés correspondant à un motif spécifique dans un tableau
+     *
+     * @param FormInterface $form
+     * @param array $options
+     * @return array
+     */
+    public function getPathFiles(
+        FormInterface $form,
+        array $options
+    ): array {
+
+        $prefixFichier = $options['prefixFichier'] ?? '';
+        $numeroDoc = $options['numeroDoc'] ?? '';
+        $numeroVersion = $options['numeroVersion'] ?? '';
+        $fieldPattern = $options['fieldPattern'] ?? '/^pieceJoint(\d{2})$/';
+        $pathFichier = $options['pathFichier'] ?? 'fichiers/';
+        $isIndex = $options['isIndex'] ?? true;
+
+        $uploadedFiles = [];
+    
+        foreach ($form->all() as $fieldName => $field) {
+            if (preg_match($fieldPattern, $fieldName, $matches)) {
+                /** @var UploadedFile|null $file */
+                $file = $field->getData();
+                if ($file !== null) {
+                    // Récupérer l'index ou identifiant depuis les correspondances
+                    if($isIndex){
+                        $index = isset($matches[1]) ? (string)$matches[1] : '';
+                    } else {
+                        $index = '';
+                    }
+    
+                    // Appeler la méthode uploadFile
+                    $uploadedFilePath = $this->uploadFile($file, $numeroDoc, $index, $prefixFichier, $numeroVersion, $pathFichier);
+    
+                    if ($uploadedFilePath !== null) {
+                        $uploadedFiles[] = $uploadedFilePath;
+                    }
+                }
+            }
+        }
+    
+        return $uploadedFiles;
+    }
+
+    /**
+     * Methode qui permet de crée un tableau qui contient les chemis de fichier à fusionner
+     * il permet aussi de specifier le position du page principal
+     * position 0 si le fichier principal doit etre en premier page
+     * position 1 si le fichier principal doit etre en deuxieme page
+     *  ex : ['fichier1.pdf', 'fichier2.pdf', 'fichier3.pdf', 'fichier4.pdf']
+     *
+     * @param array $uploadedFiles
+     * @param string $mainFilePathName
+     * @param integer $position
+     * @return array
+     */
+    public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array {
+        // S'assurer que la position est valide
+        $position = max(0, min($position, count($uploadedFiles))); 
+    
+        // Insérer le fichier principal à la position spécifiée
+        array_splice($uploadedFiles, $position, 0, [$mainFilePathName]);
+    
+        return $uploadedFiles;
+    }
+
+    public function fusionFichers(array $uploadedFiles, $nomFichierFusioner)
+    {
+        $this->fusionPdf->mergePdfs($uploadedFiles, $nomFichierFusioner);
+    }
+    
+     /**
      * Upload un fichier après validation.
      *
      * @param UploadedFile $file
@@ -234,18 +329,19 @@ class FileUploaderService
      * @return string|null
      */
     public function uploadFileSansName(
-        UploadedFile $file,
+        UploadedFile $file,  
         string $fileName = '',
         string $pathFichier = 'fichiers/'
-    ): ?string {
+        ): ?string
+    {
         if (
-            ! $file->isValid() ||
-            ! in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
-            ! in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
+            !$file->isValid() ||
+            !in_array(strtolower($file->getClientOriginalExtension()), self::ALLOWED_EXTENSIONS, true) ||
+            !in_array($file->getMimeType(), self::ALLOWED_MIME_TYPES, true)
         ) {
             throw new InvalidArgumentException("Type de fichier non autorisé : {$file->getClientOriginalName()}.");
         }
-
+        
         $destination = $this->targetDirectory . $pathFichier;
 
         try {

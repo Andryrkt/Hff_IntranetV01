@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap");
 html {
   height: 100%;
 }
 
 body {
   background-color: #f8f9fa;
-  font-family: 'Noto Sans Nandinagari', sans-serif;
+  font-family: "Noto Sans Nandinagari", sans-serif;
   font-size: 0.6875rem;
   height: 100%;
 }
@@ -108,7 +108,6 @@ label {
   z-index: 9999;
 }
 
-
 /* Caché : avec une transition */
 /* #loading-overlay.hidden {
   visibility: hidden;
@@ -137,29 +136,45 @@ label {
   font-size: large;
 }
 
-.spinner-overlay {
+.little-spinner-overlay,
+.little-spinner-overlay::after {
+  width: 25px;
+  height: 25px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after {
   width: 48px;
   height: 48px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after,
+.little-spinner-overlay,
+.little-spinner-overlay::after {
   border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.spinner-overlay,
+.little-spinner-overlay {
   display: inline-block;
   border-top: 4px solid #fff;
   border-right: 4px solid transparent;
-  box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
-.spinner-overlay::after {
-  content: '';
-  box-sizing: border-box;
+
+.spinner-overlay::after,
+.little-spinner-overlay::after {
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
   border-left: 4px solid #d6a105;
   border-bottom: 4px solid transparent;
   animation: rotation 0.5s linear infinite reverse;
 }
+
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
@@ -167,4 +182,28 @@ label {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* Animation pour un effet fluide */
+.toast.show {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+div:where(.swal2-container) div:where(.swal2-popup) span {
+  font-size: 1rem !important;
+}
+
+button.swal2-styled {
+  font-size: 1em !important;
 }

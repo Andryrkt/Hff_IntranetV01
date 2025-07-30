@@ -1,0 +1,90 @@
+{% import "macroForm.html.twig" as macroForm %}
+<!-- DEBUT recherche -->
+{% set role_ids = App.user.roleIds %}
+<div class="accordion" id="accordionExample">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+			<div class="accordion-body">
+				{{ form_start(form, {'method': 'GET'}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ macroForm.agence_service_change(form.agenceEmetteur, form.serviceEmetteur, 'spinner-service-emetteur', 'service-container-emetteur')}}
+						{{ form_row(form.statutDA)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
+						<div class="d-none">
+							{{ form_row(form.statutOR)}}
+						</div>
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numDit) }}
+						{{ form_row(form.numDa) }}
+						<div class="d-none">
+							{{ form_row(form.statutBC)}}
+						</div>
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.idMateriel)}}
+						{{ form_row(form.demandeur) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDebutfinSouhaite) }}
+						{{ form_row(form.dateFinFinSouhaite) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDebutCreation) }}
+						{{ form_row(form.dateFinCreation) }}
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche</button>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+	<div class="container">
+		<div class="my-3 d-flex  justify-content-between">
+			<div class="d-flex flex-row align-items-center">
+				<a href="{{ path("da_export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+					<i class="fas fa-table"></i>
+					Excel
+				</a>
+				<div role="button" tabindex="0" id="tout-livre">
+					<i class="fa-solid fa-circle text-success"></i>
+					<small class="text-success">Tout livré |</small>
+				</div>
+				<div role="button" tabindex="0" id="partiellement-livre">
+					<i class="fa-solid fa-circle text-warning"></i>
+					<small class="text-warning">Partiellement livré |</small>
+				</div>
+				<div role="button" tabindex="0" id="partiellement-dispo">
+					<i class="fa-solid fa-circle text-info"></i>
+					<small class="text-info">Partiellement dispo |</small>
+				</div>
+				<div role="button" tabindex="0" id="complet-non-livre">
+					<i class="fa-solid fa-circle text-primary"></i>
+					<small class="text-primary">Complet non livré |</small>
+				</div>
+			</div>
+			{% if serviceAppro %}
+				<div class="d-flex flex-row">
+					<div role="button" tabindex="0">
+						<i class="fa-solid fa-circle text-danger"></i>
+						<small class="text-danger">DA à déverrouiller</small>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</div>

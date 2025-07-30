@@ -41,8 +41,10 @@
 			<tbody>
 				{% for item in data %}
 					{% set statutClass = "bg-success" %}
-					{% if item.statutOperation is same as("Echec") %} {% set statutClass = "bg-danger" %} {% endif %}
-					
+					{% if (item.statutOperation in ["Echec", "Erreur"]) %}
+						{% set statutClass = "bg-danger" %}
+					{% endif %}
+
 					<tr>
 						<td class="align-middle" style="padding: 0px">
 							<div class="dropdown">
@@ -55,7 +57,9 @@
 						<td>{{ item.idTypeDocument.libelleDocument }}</td>
 						<td>{{ item.numeroDocument }}</td>
 						<td>{{ item.utilisateur }}</td>
-						<td>{{ item.dateOperation|date('d/m/Y') }} - {{ item.heureOperation|date('H:i:s') }}</td>
+						<td>{{ item.dateOperation|date('d/m/Y') }}
+							-
+							{{ item.heureOperation|date('H:i:s') }}</td>
 						<td>{{ item.idTypeOperation.typeOperation }}</td>
 						<td class="{{ statutClass }}">{{ item.statutOperation }}</td>
 						<td>{{ item.libelleOperation }}</td>

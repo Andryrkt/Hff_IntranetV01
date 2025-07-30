@@ -1,0 +1,21 @@
+<p>
+	Une demande de déverrouillage de la DA n°
+	<b>{{ tab.numDa }}</b>
+	a été envoyée par
+	<b>{{ tab.userConnecter }}</b>.
+</p>
+<p>
+	<b>Détails de la demande:</b>
+	<ul>
+		<li>
+			<b>Numéro du DA :</b>
+			{{ tab.numDa }}
+		</li>
+		<li>
+			<b>Motif de la demande :</b>
+			<div class="espace">
+				{{ tab.motif | raw }}
+			</div>
+		</li>
+	</ul>
+</p>

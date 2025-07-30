@@ -34,6 +34,7 @@ class HistoriqueOperationDocumentSearchType extends AbstractType
             ->add('statutOperation', ChoiceType::class, [ // à changer
                 'label' => 'Statut de l\'opération',
                 'choices' => self::TYPE_STATUT,
+                'placeholder' => '-- Choisir un statut d\'opération --',
                 'required' => false,
             ])
             ->add('typeOperation', EntityType::class, [
@@ -46,7 +47,9 @@ class HistoriqueOperationDocumentSearchType extends AbstractType
             ->add('typeDocument', EntityType::class, [
                 'label' => 'Type de document',
                 'class' => TypeDocument::class,
-                'choice_label' => 'libelleDocument',
+                'choice_label' => function (TypeDocument $typeDocument) {
+                    return $typeDocument->getTypeDocument() . ' (' . $typeDocument->getLibelleDocument() . ')';
+                },
                 'placeholder' => '-- Choisir un type de document --',
                 'required' => false,
             ])

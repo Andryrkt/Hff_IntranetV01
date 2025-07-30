@@ -38,31 +38,38 @@ export function fetchDevis(
  */
 function valeurDocASoumettre(docDansDw) {
   let docASoumettre = [];
+  // && !docDansDw.numeroOR
+  // if (
+  //   docDansDw.client === "EXTERNE" &&
+  //   (docDansDw.statutDit === "AFFECTEE SECTION" ||
+  //     docDansDw.statutDevis !== "CLOTUREE VALIDEE") &&
+  //   docDansDw.statutDevis !== "Validé atelier"
+  // ) {
+  //   docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
+  // } else if (
+  //   docDansDw.client === "EXTERNE" &&
+  //   docDansDw.statutDevis === "Validé atelier"
+  // ) {
+  //   docASoumettre = [
+  //     { value: "DEVIS", text: "DEVIS" },
+  //     { value: "BC", text: "BC" },
+  //   ];
+  // } else {
+  //   docASoumettre = [
+  //     { value: "OR", text: "OR" },
+  //     { value: "RI", text: "RI" },
+  //     { value: "FACTURE", text: "FACTURE" },
+  //   ];
+  // }
 
-  if (
-    docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDit === "AFFECTEE SECTION" &&
-    docDansDw.statutDevis !== "Validé"
-  ) {
-    docASoumettre = [{ value: "DEVIS", text: "DEVIS" }];
-  } else if (
-    docDansDw.client === "EXTERNE" &&
-    docDansDw.statutDevis === "Validé" &&
-    !docDansDw.numeroOR
-  ) {
-    docASoumettre = [
-      { value: "DEVIS", text: "DEVIS" },
-      { value: "BC", text: "BC" },
-    ];
-  } else if (docDansDw.statutDit === "TERMINEE") {
-    docASoumettre = [{ value: "FACTURE", text: "FACTURE" }];
-  } else {
-    docASoumettre = [
-      { value: "OR", text: "OR" },
-      { value: "RI", text: "RI" },
-      { value: "FACTURE", text: "FACTURE" },
-    ];
-  }
+  docASoumettre = [
+    { value: "DEVIS-VP", text: "DEVIS - Vérification de prix" },
+    { value: "DEVIS-VA", text: "DEVIS - Validation atelier" },
+    { value: "BC", text: "BC - BON COMMANDE" },
+    { value: "OR", text: "OR - ORDRE DE REPARATION" },
+    { value: "RI", text: "RI - RAPPORT D'INTERVENTION" },
+    { value: "FACTURE", text: "FACTURE" },
+  ];
 
   return docASoumettre; // Retourne le tableau
 }

@@ -11,13 +11,13 @@
 <div class=" container">
 	<div class="card">
 		<div class="card-body">
-
 			<div class="container">
 				<div class="row">
 					<div class="col-12 col-md-11">
 						<h3 class="perso-titre">
 							Formulaire Demande d'intervention
 						</h3>
+						{% include "/partials/_notification.html.twig" %}
 					</div>
 
 					<div class=" col-12 col-md-1">
@@ -93,7 +93,7 @@
 								<div id="suggestion-idMateriel" class="suggestions-container"></div>
 								<div
 									id="loader-idMateriel" class="spinner d-flex align-items-center" style="display: none;">{# <i class="fas fa-spinner fa-spin me-2"></i>
-																																																																																																																																																																																																																																																																																																																																																																																																																																																																																					Chargement... #}
+																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																																													Chargement... #}
 								</div>
 
 							</div>
@@ -156,7 +156,7 @@
 					<div class="d-flex justify-content-end">
 						<button 
 							type="submit" 
-							class="btn bouton mt-2 ajout-overlay " 
+							class="btn bouton mt-2"
 							id="bouton-cde-fnr" 
 							data-confirmation 
 							data-form="#myForm"

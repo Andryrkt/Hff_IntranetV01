@@ -1,13 +1,14 @@
-import { fetchData } from './fetchUtils.js';
-import { resetDropdown, populateDropdown } from './dropdownUtils.js';
-import { toggleSpinner } from './spinnerUtils.js';
+import { fetchData } from "./fetchUtils.js";
+import { resetDropdown, populateDropdown } from "./dropdownUtils.js";
+import { toggleSpinner } from "./spinnerUtils.js";
 
 export async function updateDropdown(
   dropdown,
   url,
   defaultText,
   spinnerElement,
-  containerElement
+  containerElement,
+  values = ""
 ) {
   try {
     // Affiche le spinner avant de lancer le fetch
@@ -17,8 +18,12 @@ export async function updateDropdown(
 
     resetDropdown(dropdown, defaultText); // Réinitialise le dropdown
     populateDropdown(dropdown, data); // Ajoute les nouvelles options
+
+    if (values) {
+      dropdown.value = values; // Définit la valeur sélectionnée si fournie
+    }
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du dropdown:', error);
+    console.error("Erreur lors de la mise à jour du dropdown:", error);
   } finally {
     // Désactive le spinner une fois le traitement terminé
     toggleSpinner(spinnerElement, containerElement, false);

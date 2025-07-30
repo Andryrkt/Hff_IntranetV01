@@ -71,7 +71,7 @@ class DomRepository extends EntityRepository
             //ceci est figer pour les utilisateur autre que l'administrateur
             $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
             $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
         }
 
         // Ordre et pagination
@@ -151,11 +151,11 @@ class DomRepository extends EntityRepository
         }
 
 
-        if (! $options['boolean']) {
+        if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
             $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
             $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
         }
 
         // Ordre et pagination
@@ -224,11 +224,11 @@ class DomRepository extends EntityRepository
         }
 
 
-        if (! $options['boolean']) {
+        if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
             $agenceIdAutoriser = is_array($options['idAgence']) ? $options['idAgence'] : [$options['idAgence']];
             $queryBuilder->andWhere('d.agenceEmetteurId IN (:agenceIdAutoriser)')
-                            ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
+                ->setParameter('agenceIdAutoriser', $agenceIdAutoriser);
         }
 
 

@@ -3,12 +3,14 @@
 namespace App\Api\magasin;
 
 use App\Controller\Controller;
-use App\Model\magasin\MagasinListeOrATraiterModel;
+use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\MagasinListeOrATraiterModel;
+
 
 class AutocompletionApi extends Controller
 {
-    /**
+      /**
      * @Route("/designation-fetch/{designation}")
      *
      * @return void
@@ -16,8 +18,8 @@ class AutocompletionApi extends Controller
     public function autocompletionDesignation($designation)
     {
 
-        if (! empty($designation)) {
-            $magasinModel = new MagasinListeOrATraiterModel();
+        if(!empty($designation)){
+            $magasinModel = new MagasinListeOrATraiterModel;
             $designations = $magasinModel->recupereAutocompletionDesignation($designation);
         } else {
             $designations = [];
@@ -28,6 +30,7 @@ class AutocompletionApi extends Controller
         echo json_encode($designations);
     }
 
+
     /**
      * @Route("/refpiece-fetch/{refPiece}")
      *
@@ -35,8 +38,8 @@ class AutocompletionApi extends Controller
      */
     public function autocompletionRefPiece($refPiece)
     {
-        if (! empty($refPiece)) {
-            $magasinModel = new MagasinListeOrATraiterModel();
+        if(!empty($refPiece)){
+            $magasinModel = new MagasinListeOrATraiterModel;
             $refPieces = $magasinModel->recuperAutocompletionRefPiece($refPiece);
         } else {
             $refPieces = [];
@@ -46,5 +49,19 @@ class AutocompletionApi extends Controller
         header("Content-type:application/json");
 
         echo json_encode($refPieces);
+    }
+    /**
+     * @Route("/frs-non-place-fetch")
+     *
+     * @return void
+     */
+    public function autocompletionFrs()
+    {
+        $frsNonPlace = new ListeCdeFrnNonPlacerModel();
+        $data = $frsNonPlace->fournisseurIrum();
+
+        header("Content-type:application/json");
+
+        echo json_encode($data);
     }
 }

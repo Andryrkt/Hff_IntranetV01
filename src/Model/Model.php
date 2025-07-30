@@ -4,30 +4,28 @@ namespace App\Model;
 
 use App\Model\Traits\ConversionModel;
 
+
+
 class Model
 {
     use ConversionModel;
 
     protected $connexion;
-
     protected $connect;
-
     protected $sqlServer;
-
     protected $informix;
-
     protected $connexion04;
-
     protected $connexion04Gcot;
+
 
     public function __construct()
     {
-
         $this->connexion = new Connexion();
         $this->connect = new DatabaseInformix();
         $this->connexion04 = new ConnexionDote4();
         $this->connexion04Gcot = new connexionDote4Gcot();
     }
+
 
     /**
      * recuperation Mail de l'utilisateur connecter
@@ -36,9 +34,9 @@ class Model
     {
         $sqlMail = "SELECT Mail FROM Profil_User WHERE Utilisateur = '" . $Userconnect . "'";
         $exSqlMail = $this->connexion->query($sqlMail);
-
         return $exSqlMail ? odbc_fetch_array($exSqlMail)['Mail'] : false;
     }
+
 
     // Agence Sage to Irium
     /**
@@ -51,13 +49,12 @@ class Model
                             WHERE Personnel.Matricule = Profil_User.Matricule
                             AND Profil_User.utilisateur = '" . $Userconnect . "'";
         $exec_Sql_Agence = $this->connexion->query($sql_Agence);
-
         return $exec_Sql_Agence ? odbc_fetch_array($exec_Sql_Agence)['Code_AgenceService_Sage'] : false;
     }
 
     /**
-     * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter
-     * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter
+     * recuperation agence service dans iRium selon agenceService(Base PAIE) de l'utilisateur connecter 
+     * @param $CodeAgenceSage : Agence Service dans le BAse PAIE  $Userconnect: Utilisateur Connecter 
      */
     public function getAgenceServiceIriumofcours($CodeAgenceSage, $Userconnect)
     {
@@ -71,11 +68,10 @@ class Model
                                     AND Personnel.Matricule = Profil_User.Matricule
                                     AND Profil_User.utilisateur = '" . $Userconnect . "' ";
         $exec_sqlAgence_Service_Irium = $this->connexion->query($sqlAgence_Service_Irim);
-        $Tab_AgenceServiceIrium = [];
+        $Tab_AgenceServiceIrium = array();
         while ($row_Irium = odbc_fetch_array($exec_sqlAgence_Service_Irium)) {
             $Tab_AgenceServiceIrium[] = $row_Irium;
         }
-
         return $Tab_AgenceServiceIrium;
     }
 
@@ -86,7 +82,6 @@ class Model
     {
         $d = strtotime("now");
         $Date_system = date("Y-m-d", $d);
-
         return $Date_system;
     }
 
@@ -103,23 +98,21 @@ class Model
         // Préparer la requête
         $stmt = odbc_prepare($this->connexion->getConnexion(), $query);
 
-        if (! $stmt) {
+        if (!$stmt) {
             // Gérer les erreurs de préparation
             echo "Query preparation failed: " . odbc_errormsg($this->connexion->getConnexion());
             odbc_close($this->connexion->getConnexion());
-
             return false;
         }
 
         // Exécuter la requête avec les paramètres
-        $params = [$nomUtilisateur, $permission_name];
+        $params = array($nomUtilisateur, $permission_name);
         $result = odbc_execute($stmt, $params);
 
-        if (! $result) {
+        if (!$result) {
             // Gérer les erreurs d'exécution
             echo "Query execution failed: " . odbc_errormsg($this->connexion->getConnexion());
             odbc_close($this->connexion->getConnexion());
-
             return false;
         }
 
@@ -152,6 +145,16 @@ class Model
         $statement = "SELECT derniere_id FROM applications WHERE code_app = '{$codeApp}'";
     }
 
+    public function retournerResult28($sql)
+    {
+        $statement = $this->connexion->query($sql);
+        $data = [];
+        while ($tabType = odbc_fetch_array($statement)) {
+            $data[] = $tabType;
+        }
+        return $data;
+    }
+
     public function retournerResultGcot04($sql)
     {
         $statement = $this->connexion04Gcot->query($sql);
@@ -159,7 +162,6 @@ class Model
         while ($tabType = odbc_fetch_array($statement)) {
             $data[] = $tabType;
         }
-
         return $data;
     }
 
@@ -170,7 +172,6 @@ class Model
         while ($tabType = odbc_fetch_array($statement)) {
             $data[] = $tabType;
         }
-
         return $data;
     }
 }

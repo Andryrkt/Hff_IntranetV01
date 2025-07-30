@@ -1,4 +1,5 @@
-CREATE TABLE devis_soumis_a_validation (
+CREATE TABLE devis_soumis_a_validation
+(
     id INT IDENTITY (1, 1),
     numeroDit VARCHAR(11),
     numeroDevis VARCHAR(8),
@@ -41,3 +42,18 @@ ADD montantVente DECIMAL(18, 2)
 
 ALTER TABLE devis_soumis_a_validation
 ADD num_migr INT
+
+
+--12/03/2025
+ALTER TABLE devis_soumis_a_validation
+ADD montantRevient DECIMAL(18, 2)
+
+ALTER TABLE devis_soumis_a_validation
+ADD margeRevient INT
+--17/03/2025
+ALTER TABLE devis_soumis_a_validation
+ADD type VARCHAR(5)
+
+--19/03/2025
+ALTER TABLE devis_soumis_a_validation
+ADD nombreLignePiece INT

@@ -25,6 +25,7 @@ class DossierInterventionAtelierController extends Controller
 
         $dwModel = new DossierInterventionAtelierModel();
 
+        $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
             "idMateriel" => null,
             "typeIntervention" => "INTERNE",
@@ -41,9 +42,9 @@ class DossierInterventionAtelierController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
+            $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
         }
 
-        $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
 
         //dd($dwDits[0]->getOrdreDeReparation()->get);
 
@@ -65,13 +66,15 @@ class DossierInterventionAtelierController extends Controller
         ]);
     }
 
-    public function ajoutNbDoc($dwModel, $criteria)
+    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
     {
         $dwDits = $dwModel->findAllDwDit($criteria);
 
         $dwfac = [];
         $dwRi = [];
         $dwCde = [];
+        $dwBc = [];
+        $dwDev = [];
 
         for ($i = 0; $i < count($dwDits); $i++) {
             // Récupérer les données de la demande d'intervention et de l'ordre de réparation
@@ -84,9 +87,11 @@ class DossierInterventionAtelierController extends Controller
                 $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
                 $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
             }
+            $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
+            $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
 
             // Fusionner toutes les données dans un tableau associatif
-            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
+            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
 
             // Ajouter le nombre de documents à l'élément actuel de $dwDits
             $dwDits[$i]['nbDoc'] = count($data);

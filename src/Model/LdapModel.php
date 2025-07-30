@@ -4,31 +4,27 @@ namespace App\Model;
 
 class LdapModel
 {
-    private $ldapHost = '192.168.0.1';
-
-    private $ldapPort = 389;
-
+    private $ldapHost;
+    private $ldapPort;
     private $ldapconn;
-
-    private $Domain = "@fraise.hff.mg";
-
-    private $ldap_dn = "OU=HFF Users,DC=fraise,DC=hff,DC=mg";
-
-    private $Users;
-
-    private $Password;
+    private $Domain;
+    private $ldap_dn;
 
     public function __construct()
     {
-        $this->ldapconn = ldap_connect("ldap://192.168.0.1:389");
+        $this->ldapHost = $_ENV['LDAP_HOST'];
+        $this->ldapPort = $_ENV['LDAP_PORT'];
+        $this->Domain = $_ENV['LDAP_DOMAIN'];
+        $this->ldap_dn = $_ENV['LDAP_DN'];
 
-        if (! $this->ldapconn) {
+        $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
+
+        if (!$this->ldapconn) {
             die("Connexion au serveur LDAP échouée.");
         }
 
         ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
-
     }
 
     public function showconnect()
@@ -38,22 +34,20 @@ class LdapModel
 
     /**
      * @Andryrkt
-     *
+     * 
      * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
      *
      * @param string $user
      * @param string $password
-     * @return bool
+     * @return boolean
      */
     public function userConnect(string $user, string $password): bool
     {
-        $this->Users = $user;
-        $this->Password = $password;
         ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
-
         return $bind;
     }
+
 
     public function infoUser($user, $password): array
     {
@@ -62,9 +56,8 @@ class LdapModel
         $search_filter = "(objectClass=*)";
         $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
 
-        if (! $search_result) {
+        if (!$search_result) {
             echo "Échec de la recherche LDAP : " . ldap_error($this->ldapconn);
-
             return [];
         }
 
@@ -90,7 +83,7 @@ class LdapModel
                         "numeroTelephone" => $entries[$i]["telephonenumber"][0] ?? '',
                         "nomUtilisateur" => $entries[$i]["samaccountname"][0],
                         "email" => $entries[$i]["mail"][0] ?? '',
-                        "nameUserMain" => $entries[$i]["userprincipalname"][0],
+                        "nameUserMain" => $entries[$i]["userprincipalname"][0]
                     ];
                 }
             }

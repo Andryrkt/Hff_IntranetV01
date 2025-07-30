@@ -1,0 +1,141 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dit/liste.css">
+	<link href="{{ App.base_path }}/Views/css/signin.css" rel="stylesheet"/>
+{% endblock %}
+
+{% import "macroForm.html.twig" as macroForm %}
+
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% block content %}
+
+{% set role_ids = App.user.roleIds %}
+{% set user_connecter = App.user.nom_utilisateur %}
+
+<div class="container">
+	<h3 class="perso-titre">
+		Veuillez sélectionner un DIT parmi la liste
+	</h3>
+	{% include "/partials/_notification.html.twig" %}
+
+	{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
+</div>
+
+<div
+	class="container-fluid">
+	<!-- DEBUT tableau -->
+	<div class="container">
+		{% include "/da/shared/listeDIT/_pagination.html.twig" %}
+	</div>
+
+	<table class="table table-hover table-plein-ecran">
+		<thead class="table-dark">
+			<tr>
+				<th style="width: 2%;"></th>
+				<th>Statut</th>
+				<th>N° DIT</th>
+				<th>Type document</th>
+				<th>Niveau urgence</th>
+				<th>Catégorie</th>
+				<th>N° Série</th>
+				<th>N° Parc</th>
+				<th>Date Demande</th>
+				<th>Int / Ext</th>
+				<th>Emetteur</th>
+				<th>Débiteur</th>
+				<th>Objet</th>
+				<th>Section affectée</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% if data is not empty %}
+				{# DEBUT LOGIQUE #}
+				{% for item in data %}
+					{% set classeStatutDit = '' %}
+					{% set styleStatutDit = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
+						{% set classeStatutDit ='aAffecter' %}
+					{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+						{% set classeStatutDit ='affecterSection' %}
+					{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
+						{% set classeStatutDit ='cloturerValider' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
+						{% set classeStatutDit ='cloturerAnnuler' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+						{% set classeStatutDit ='cloturerHorsDelai' %}
+					{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
+						{% set classeStatutDit ='terminer' %}
+					{% else %}
+						{% set classeStatutDit = '' %}
+					{% endif %}
+					{# FIN LOGIQUE #}
+
+					<tr role="button">
+						<td class="text-center" style="width: 2%;">
+							<input type="checkbox" name="option" class="checkbox" value="{{item.id}}" role="button">
+						</td>
+						<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
+						<td>
+							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+						</td>
+						<td>{{ item.typeDocument.description}}</td>
+						<td class="text-center">
+							{{ item.idNiveauUrgence.description}}
+						</td>
+						<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+						<td>{{ item.numSerie}}</td>
+						<td>{{ item.numParc}}</td>
+						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td>{{ item.internetExterne}}</td>
+						<td>{{ item.agenceServiceEmetteur }}</td>
+						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>
+							{{ item.objetDemande}}</td>
+						{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
+						<td>
+							{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
+						</td>
+					</tr>
+				{% endfor %}
+			{% elseif data is empty and formIsSubmitted %}
+				<tr>
+					<td colspan="14" class="text-center fw-bold">Aucune donnée trouvée pour votre recherche.</td>
+				</tr>
+			{% endif %}
+		</tbody>
+	</table>
+	<div class="d-flex justify-content-end mb-2">
+		<button class="btn btn-warning fw-bold" id="suivant" data-uri="{{ path('da_new', { id:'__id__' } ) }}">
+			Suivant
+			<i class="fas fa-arrow-right"></i>
+		</button>
+	</div>
+	{% if not formIsSubmitted %}
+	<div class="container">
+		<div class="justify-content-center">
+			<div class="notice">
+				<span class="notice-icon">
+					<i class="fas fa-info-circle"></i>
+				</span>
+				<div class="notice-content">
+					Vous devez effectuer une recherche afin d’afficher les données disponibles. 
+				</div>
+			</div>
+		</div>
+	</div>
+	{% endif %}
+</div>
+
+	<!-- FIN tableau -->
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
+{% endblock %}  

@@ -107,6 +107,11 @@ label[for='historiqueStatut'] {
   font-weight: bold;
 }
 
+.enattente {
+  background-color: orange !important;
+  font-weight: bold;
+}
+
 .encours {
   background-color: #3799ff !important;
   color: #000 !important;
@@ -130,6 +135,10 @@ label[for='historiqueStatut'] {
 .cloture {
   background-color: #00ff00 !important;
   font-weight: bold;
+}
+
+.bg-cloturer {
+  background-color: rgba(40, 167, 69, 1) !important;
 }
 
 .nav-top span {
@@ -347,6 +356,13 @@ label[for='historiqueStatut'] {
 }
 
 /* **********FORM********** */
+
+.non-modifiable {
+  background-color: #e9ecef;
+  color: #212529;
+  pointer-events: none;
+  opacity: 1;
+}
 
 .chat-form {
   flex-shrink: 0;

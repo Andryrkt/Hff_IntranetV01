@@ -181,4 +181,16 @@ class DemandeSupportInformatiqueRepository extends EntityRepository
                 ->setParameter('autresCategorieId', $tikSearch->getAutresCategories()->getId());
         }
     }
+
+    public function countByStatutDemande(string $statutDemande, string $userId)
+    {
+        return $this->createQueryBuilder('d')
+            ->select('COUNT(d.id)') // On compte les ID
+            ->where('d.idStatutDemande = :statutDemande') // Condition sur le statut de la demande
+            ->setParameter('statutDemande', $statutDemande) // Paramètre pour sécuriser la requête
+            ->andWhere('d.userId = :userId') // Condition sur l'id du demandeur
+            ->setParameter('userId', $userId) // Paramètre pour sécuriser la requête
+            ->getQuery()
+            ->getSingleScalarResult(); // Retourne un entier
+    }
 }

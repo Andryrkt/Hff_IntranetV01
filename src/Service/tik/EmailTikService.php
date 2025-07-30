@@ -22,7 +22,7 @@ class EmailTikService
     /**
      * Méthode pour préparer les données pour l'envoi d'email
      */
-    public function prepareDonneeEmail(DemandeSupportInformatique $tik, User $userConnecter, string $variable = ''): array
+    public function prepareDonneeEmail(DemandeSupportInformatique $tik, User $userConnecter, $variable = ''): array
     {
         return [
             'id' => $tik->getId(),
@@ -53,7 +53,7 @@ class EmailTikService
     public function prepareEmail(string $statut, array $tab, ?string $emailUserConnected = null): array
     {
         $subject = "{$tab['numTik']} - Ticket {$statut}";
-        $actionUrl = $this->urlGenerique("Hffintranet/tik-detail/{$tab['id']}");
+        $actionUrl = $this->urlGenerique($_ENV['BASE_PATH_COURT'] . "/tik-detail/{$tab['id']}");
 
         $to = $tab['emailUserDemandeur'];
         $cc = [];
@@ -72,7 +72,14 @@ class EmailTikService
                 $cc = [$tab['emailIntervenant']];
                 break;
 
-            case 'comment':
+            case 'reouvert':
+            case 'cloture':
+                $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
+                $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));
+                $to = $cc[0] ?? $tab['emailUserDemandeur'];
+                break;
+
+            case 'commente':
                 if ($tab['emailValidateur']) {
                     $tabEmail = array_filter([$tab['emailValidateur'], $tab['emailUserDemandeur'], $tab['emailIntervenant']]);
                     $cc = array_values(array_diff($tabEmail, [$emailUserConnected]));

@@ -17,7 +17,7 @@ class DitListModel extends Model
                         WHEN seor_serv = 'SAV' AND seor_numor <> seor_numdev THEN CAST(seor_numor AS VARCHAR(255))
                     END AS numDevis
                     FROM sav_eor
-                    where seor_refdem = '".$numDit."'
+                    where seor_refdem = '" . $numDit . "'
                 ";
 
         $result = $this->connect->executeQuery($statement);
@@ -33,7 +33,7 @@ class DitListModel extends Model
                         sitv_interv as numeroItv,
                         TRIM(sitv_comment) as commentair
                     from sav_itv
-                    where sitv_numor = '".$numOr."'
+                    where sitv_numor = '" . $numOr . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -49,7 +49,7 @@ class DitListModel extends Model
         $statement = " SELECT 
                     COUNT(sitv_interv) as nbItv
                     from sav_itv
-                    where sitv_numor = '".$numOr."'
+                    where sitv_numor = '" . $numOr . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -58,7 +58,7 @@ class DitListModel extends Model
         $dataUtf8 = $this->convertirEnUtf8($data);
 
         // Vérifier si des données existent et retourner la première valeur de 'nbItv'
-        return ! empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
+        return !empty($dataUtf8) ? $dataUtf8[0]['nbitv'] : null;
     }
 
     public function recupItvNumFac($numOr)
@@ -72,7 +72,7 @@ class DitListModel extends Model
                         sav_lor ON sitv_numor = slor_numor
                         AND sitv_interv = slor_nogrp / 100
                     WHERE
-                        sitv_numor = '".$numOr."'
+                        sitv_numor = '" . $numOr . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -81,5 +81,20 @@ class DitListModel extends Model
         $dataUtf8 = $this->convertirEnUtf8($data);
 
         return $dataUtf8;
+    }
+
+    public function getNbNumor($numDit)
+    {
+        $statement = "SELECT 
+            count(seor_numor) AS nb_or
+            from sav_eor 
+            where seor_refdem='" . $numDit . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'nb_or')[0] ?? 0;
     }
 }

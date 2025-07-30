@@ -1,0 +1,80 @@
+<p>
+	Une nouvelle proposition a été créée par
+	<b>{{ tab.userConnecter }}</b>.
+</p>
+<p>
+	<b>Détails du demande :</b>
+	<ul>
+		<li>
+			<b>Numéro du DA :</b>
+			{{ tab.numDa }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ tab.objet }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ tab.detail | raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">
+				{{ tab.observation | raw }}
+			</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<p>Proposition de l'Appro</p>
+<table>
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dala in tab.dalAncien %}
+			<tr>
+				<td>{{ dala.artFams1 ?? '-'}}</td>
+				<td>{{ dala.artFams2 ?? '-'}}</td>
+				<td>{{ dala.artDesi }}</td>
+				<td>{{ dala.nomFournisseur }}</td>
+				<td>{{ dala.commentaire }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>
+<p>Demande modifiée par l'atelier</p>
+<table>
+	<thead style="background-color:#000; color:#f2f2f2;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for daln in tab.dalNouveau %}
+			<tr>
+				<td>{{ daln.artFams1 ?? '-'}}</td>
+				<td>{{ daln.artFams2 ?? '-'}}</td>
+				<td>{{ daln.artDesi }}</td>
+				<td>{{ daln.nomFournisseur }}</td>
+				<td>{{ daln.commentaire }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>

@@ -1,11 +1,19 @@
 <?php
 
-namespace app\security;
+namespace App\Security;
 
 use App\Entity\admin\utilisateur\User;
-use App\security\Voter;
+use app\Security\PermissionDebuggerInterface;
 
-interface PermissionDebugger
+class PermissionDebugger implements PermissionDebuggerInterface
 {
-    public function debug(Voter $voter, bool $vote, string $permission, User $user, $subject): void;
+    public function debug(PermissionVoterInterface $voter, bool $vote, string $permission, User $user, $subject): void
+    {
+        echo sprintf(
+            "[DEBUG] Voter: %s | Permission: %s | Result: %s\n",
+            get_class($voter),
+            $permission,
+            $vote ? 'GRANTED' : 'DENIED'
+        );
+    }
 }

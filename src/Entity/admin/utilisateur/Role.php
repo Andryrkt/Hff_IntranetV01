@@ -2,10 +2,12 @@
 
 namespace App\Entity\admin\utilisateur;
 
-use App\Repository\admin\utilisateur\RoleRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\utilisateur\User;
+use Doctrine\Common\Collections\Collection;
+use App\Entity\admin\utilisateur\Permission;
+use Doctrine\Common\Collections\ArrayCollection;
+use App\Repository\admin\utilisateur\RoleRepository;
 
 /**
  * @ORM\Entity
@@ -15,12 +17,17 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Role
 {
+    public const ROLE_ADMINISTRATEUR = 1;
+    public const ROLE_ATELIER = 4;
+    public const ROLE_MULTI_SUCURSALES = 6;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private $id;
+
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -36,6 +43,7 @@ class Role
      * @ORM\Column(type="date")
      */
     private $date_modification;
+
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="roles")
@@ -72,11 +80,10 @@ class Role
 
     public function addUser(User $user): self
     {
-        if (! $this->users->contains($user)) {
+        if (!$this->users->contains($user)) {
             $this->users[] = $user;
             $user->addRole($this);
         }
-
         return $this;
     }
 
@@ -86,9 +93,9 @@ class Role
             $this->users->removeElement($user);
             $user->removeRole($this);
         }
-
         return $this;
     }
+
 
     public function getRoleName(): ?string
     {
@@ -153,7 +160,7 @@ class Role
 
     public function addPermission(Permission $permission): self
     {
-        if (! $this->permissions->contains($permission)) {
+        if (!$this->permissions->contains($permission)) {
             $this->permissions[] = $permission;
         }
 

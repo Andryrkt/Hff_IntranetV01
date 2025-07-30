@@ -330,6 +330,37 @@ class Controller
         return $Result_Num;
     }
 
+    /**
+     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
+     *
+     * @param string $nomDemande
+     * @return string
+     */
+    protected function autoDecrement(string $nomDemande): string
+    {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
+
+        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre mdecremente
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential - 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 9999;
+            }
+        }
+
+        return $nomDemande . $AnneMoisOfcours . $vNumSequential;
+    }
+
+
     protected function arrayToObjet(User $user): User
     {
 
@@ -464,5 +495,52 @@ class Controller
         if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
         }
+    }
+
+    protected function getUserId(): int
+    {
+        return $this->sessionService->get('user_id');
+    }
+
+    public static function getUser(): User
+    {
+        $ctrl = new self();
+        //recuperation de l'utilisateur connecter
+        $userId = $ctrl->getUserId();
+        return  self::$em->getRepository(User::class)->find($userId);
+    }
+
+    protected function getEmail(): string
+    {
+        $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
+    protected function getUserNameUser(): string
+    {
+        $userId = $this->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+    }
+
+    public  static function getMailUser(): string
+    {
+        $ctrl = new self();
+
+        $userId = $ctrl->getUserId();
+        return self::$em->getRepository(User::class)->find($userId)->getMail();
+    }
+
+    public static function estUserDansServiceAtelier(): bool
+    {
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+    }
+
+    public static function estUserDansServiceAppro(): bool
+    {
+        $ctrl = new self();
+        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }
