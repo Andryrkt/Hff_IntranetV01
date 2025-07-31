@@ -173,6 +173,11 @@ class DitDevisSoumisAValidationController extends Controller
             elseif ($condition['conditionStatutDevisVa']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+            }
+            // statut devi prix réfuseé magasin, pas de nouvelle ligne et les montants a été changer
+            elseif (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ && (int)$montantINformix != (int)$montantSqlServer) {
+                $message = "Le prix a été modifier ... Merci de passer le devis à validation au magasin";
+                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             } else {
                 return false;
             }
