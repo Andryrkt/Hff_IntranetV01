@@ -1,4 +1,4 @@
-CREATE TABLE da_valider
+CREATE TABLE da_afficher
 (
     id int IDENTITY(1,1),
     numero_demande_appro varchar(11),
@@ -14,7 +14,7 @@ CREATE TABLE da_valider
     num_ligne_tableau int,
     qte_dem int,
     qte_dispo int,
-    qte_a_livrer int,
+    qte_en_attent int,
     qte_livrer int,
     art_constp varchar(3),
     art_refp varchar(50),
@@ -29,56 +29,28 @@ CREATE TABLE da_valider
     commentaire varchar(1000),
     prix_unitaire VARCHAR(100),
     total VARCHAR(100),
-    est_fiche_technique BIT DEFAULT 0,
+    est_fiche_technique BIT NOT NULL DEFAULT 0,
+    nom_fiche_technique VARCHAR(255),
     pj_fiche_technique VARCHAR(255),
     pj_new_ate text,
     pj_proposition_appro text,
     pj_bc text,
-    catalogue BIT,
+    catalogue BIT NOT NULL DEFAULT 0,
     date_livraison_prevue DATETIME2(0),
     valide_par VARCHAR(50),
     numero_version INT DEFAULT 0,
-    date_creation DATETIME2(0),
-    date_modification DATETIME2(0),
     niveau_urgence VARCHAR(5),
-    nom_fiche_technique VARCHAR(255),
     jours_dispo int,
-    qte_en_attent int,
     demandeur varchar(100),
     id_da INT,
     achat_direct BIT NOT NULL DEFAULT 0,
     position_bc varchar(10),
     date_planning_or DATETIME2(0),
-    or_a_resoumettre BIT NOT NULL DEFAULT 0, 
+    or_a_resoumettre BIT NOT NULL DEFAULT 0,
     numero_ligne_ips INT,
+    date_demande DATETIME2(0),
     est_dalr BIT NOT NULL DEFAULT 0,
-    CONSTRAINT PK_da_valider PRIMARY KEY (id)
+    date_creation DATETIME2(0),
+    date_modification DATETIME2(0),
+    CONSTRAINT PK_da_afficher PRIMARY KEY (id)
 );
-
-alter TABLE da_valider ADD niveau_urgence VARCHAR(50);
-alter TABLE da_valider ADD nom_fiche_technique VARCHAR(255);
-
-ALTER TABLE da_valider ADD jours_dispo int;
-
-ALTER TABLE da_valider ADD qte_en_attent int;
-
-ALTER TABLE da_valider ADD demandeur varchar(100);
-
-ALTER TABLE da_valider ADD id_da INT;
-
-ALTER TABLE da_valider ADD achat_direct BIT NOT NULL DEFAULT 0 WITH VALUES;
-
-ALTER TABLE da_valider ADD position_bc varchar(10);
-
-
-ALTER TABLE da_valider ADD date_planning_or DATETIME2(0);
-
-ALTER TABLE da_valider ADD or_a_resoumettre BIT DEFAULT 0;
-
-ALTER TABLE da_valider ADD numero_ligne_ips INT;
-
-
-UPDATE dv
-SET dv.id_da = da.id
-FROM da_valider dv
-JOIN Demande_Appro da ON dv.numero_demande_appro = da.numero_demande_appro;
