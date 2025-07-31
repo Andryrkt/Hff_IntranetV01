@@ -293,13 +293,14 @@ class DaPropositionRefController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
+        /** @var DemandeAppro $da la demande appro retourné par la fonction */
         $da = $this->modificationDesTable($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
 
-        /** Ajout non fichier de reference zst */
-        $da->setNonFichierRefZst($nomEtChemin['fileName']);
+        /** Ajout nom fichier du bon d'achat (excel) */
+        $da->setNomFichierBav($nomEtChemin['fileName']);
         self::$em->flush();
 
         return $nomEtChemin;

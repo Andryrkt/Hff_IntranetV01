@@ -35,11 +35,6 @@ class DemandeApproL
     private string $numeroLigne;
 
     /**
-     * @ORM\Column(type="boolean", name="art_rempl")
-     */
-    private $artRempl = false;
-
-    /**
      * @ORM\Column(type="integer", name="qte_dem")
      */
     private $qteDem;
@@ -275,26 +270,6 @@ class DemandeApproL
     public function setNumeroLigne(string $numeroLigne): self
     {
         $this->numeroLigne = $numeroLigne;
-        return $this;
-    }
-
-    /**
-     * Get the value of artRempl
-     */
-    public function getArtRempl()
-    {
-        return $this->artRempl;
-    }
-
-    /**
-     * Set the value of artRempl
-     *
-     * @return  self
-     */
-    public function setArtRempl($artRempl)
-    {
-        $this->artRempl = $artRempl;
-
         return $this;
     }
 
@@ -1009,7 +984,7 @@ class DemandeApproL
 
     /**
      * Get the value of dateLivraisonPrevue
-     */ 
+     */
     public function getDateLivraisonPrevue()
     {
         return $this->dateLivraisonPrevue;
@@ -1019,7 +994,7 @@ class DemandeApproL
      * Set the value of dateLivraisonPrevue
      *
      * @return  self
-     */ 
+     */
     public function setDateLivraisonPrevue($dateLivraisonPrevue)
     {
         $this->dateLivraisonPrevue = $dateLivraisonPrevue;

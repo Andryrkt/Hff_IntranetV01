@@ -147,9 +147,9 @@ class DemandeAppro
     private string $validePar;
 
     /**
-     * @ORM\Column(type="string", length=255, name="nom_fichier_reference_zst")
+     * @ORM\Column(type="string", length=255, name="nom_fichier_bav")
      */
-    private ?string $nonFichierRefZst = null;
+    private ?string $nomFichierBav = null;
 
     /**
      * @ORM\OneToMany(targetEntity=DaHistoriqueDemandeModifDA::class, mappedBy="demandeAppro")
@@ -701,26 +701,6 @@ class DemandeAppro
     }
 
     /**
-     * Get the value of nonFichierRefZst
-     */
-    public function getNonFichierRefZst()
-    {
-        return $this->nonFichierRefZst;
-    }
-
-    /**
-     * Set the value of nonFichierRefZst
-     *
-     * @return  self
-     */
-    public function setNonFichierRefZst($nonFichierRefZst)
-    {
-        $this->nonFichierRefZst = $nonFichierRefZst;
-
-        return $this;
-    }
-
-    /**
      * Get the value of historiqueDemandeModifDA
      */
     public function getHistoriqueDemandeModifDA()
@@ -876,6 +856,26 @@ class DemandeAppro
     public function setStatutOr($statutOr)
     {
         $this->statutOr = $statutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFichierBav
+     */
+    public function getNomFichierBav()
+    {
+        return $this->nomFichierBav;
+    }
+
+    /**
+     * Set the value of nomFichierBav
+     *
+     * @return  self
+     */
+    public function setNomFichierBav($nomFichierBav)
+    {
+        $this->nomFichierBav = $nomFichierBav;
 
         return $this;
     }

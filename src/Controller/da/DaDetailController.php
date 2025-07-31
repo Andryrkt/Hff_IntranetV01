@@ -97,7 +97,6 @@ class DaDetailController extends Controller
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> Controller::getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),
 			'estAte'            		=> Controller::estUserDansServiceAtelier(),
 			'estAppro'          		=> Controller::estUserDansServiceAppro(),
 		]);
