@@ -266,6 +266,7 @@ class DaAfficher
     private bool $estDalr = false;
 
     private $verouille = false;
+    private bool $demandeDeverouillage = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1288,6 +1289,26 @@ class DaAfficher
     public function setVerouille($verouille)
     {
         $this->verouille = $verouille;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeDeverouillage
+     */
+    public function getDemandeDeverouillage()
+    {
+        return $this->demandeDeverouillage;
+    }
+
+    /**
+     * Set the value of demandeDeverouillage
+     *
+     * @return  self
+     */
+    public function setDemandeDeverouillage($demandeDeverouillage)
+    {
+        $this->demandeDeverouillage = $demandeDeverouillage;
 
         return $this;
     }

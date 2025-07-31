@@ -7,6 +7,12 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
 {% endblock %}
 
+{% block overlay %}
+	{% include "/shared/_overlay.html.twig"  %}
+{% endblock %}
+
+{% set role_ids = App.user.roleIds %}
+
 {% set styleStatutDA = {
 		'Demande d’achats': 'bg-demande-achat fw-bold',
 		'Proposition achats': 'bg-proposition-achat fw-bold',
@@ -80,7 +86,8 @@
 			</thead>
 			<tbody id="tableBody" class="align-middle">
 				{% for item in data %}
-
+					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
+					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					<tr>
 						{# === Début Action ==== #}
@@ -89,7 +96,35 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style=""></ul>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									{% if ajouterDA %}
+										<li>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
+										</li>
+									{% endif %}
+									{% if item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
+										</li>
+									{% endif %}
+									{% if demandeDeverouiller %}
+										<li>
+											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Demander le déverrouillage de la DA</a>
+										</li>
+									{% elseif serviceAppro %}
+										{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
+											<li>
+												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
+											</li>
+										{% endif %}
+										{% if item.statutOr is same as "Validé" and get_path_or_max(item.numeroOR) is not empty%}
+											{% set chemin = get_path_or_max(item.numeroOR)['chemin'] %}
+											<li>
+												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
+											</li>
+										{% endif %}
+									{% endif %}
+								</ul>
 							</div>
 						</td>
 						{# === Fin Actions ==== #}
