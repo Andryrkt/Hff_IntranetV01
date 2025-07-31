@@ -4,7 +4,7 @@ namespace App\Repository\da;
 
 use Doctrine\ORM\EntityRepository;
 use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\QueryBuilder; 
+use Doctrine\ORM\QueryBuilder;
 use App\Entity\Da\DaValider;
 
 class DaValiderRepository extends EntityRepository
@@ -78,9 +78,9 @@ class DaValiderRepository extends EntityRepository
             ->andWhere('d.artDesi = :desi')
             ->setParameters([
                 'version' => $numeroVersion,
-                'ref'=> $reference,
-                'desi'=> $designation,
-                'numDit'=> $numeroDemandeDit
+                'ref' => $reference,
+                'desi' => $designation,
+                'numDit' => $numeroDemandeDit
             ]);
         if (empty($criteria['numDa'])) {
             $davalider->andWhere('d.statutDal != :statut')
@@ -126,123 +126,132 @@ class DaValiderRepository extends EntityRepository
     }
 
     public function getConstructeurRefDesi(): array
-{
-    $result = $this->createQueryBuilder('dav')
-        ->select("CONCAT(dav.artConstp, '_', dav.artRef, '_', dav.artDesi) AS refDesi")
-        ->getQuery()
-        ->getScalarResult();
+    {
+        $result = $this->createQueryBuilder('dav')
+            ->select("CONCAT(dav.artConstp, '_', dav.artRef, '_', dav.artDesi) AS refDesi")
+            ->getQuery()
+            ->getScalarResult();
 
-    return array_column($result, 'refDesi');
-}
-    
-
-public function getDaOrValider(array $numOrValideZst, ?array $criteria): array
-{
-    // Étape 1 : récupérer pour chaque OR la version maximale avec statut "validé"
-    $subQb = $this->_em->createQueryBuilder();
-    $subQb->select('dav.numeroOr', 'MAX(dav.numeroVersion) AS maxVersion', 'dav.numeroDemandeAppro')
-        ->from(DaValider::class, 'dav')
-        ->where('dav.statutDal = :statutValide')
-        ->groupBy('dav.numeroOr', 'dav.numeroDemandeAppro')
-        ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
-
-    $latestVersions = $subQb->getQuery()->getArrayResult();
-
-    if (empty($latestVersions)) {
-        return [];
+        return array_column($result, 'refDesi');
     }
 
-    // Étape 2 : requête principale avec conditions sur les couples (numeroOr, version, numeroDemandeAppro)
-    $qb = $this->_em->createQueryBuilder();
-    $qb->select('dav')
-        ->from(DaValider::class, 'dav')
-        ->where('dav.statutDal = :statutValide')
-        ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
 
-    $orX = $qb->expr()->orX();
+    public function getDaOrValider(array $numOrValideZst, ?array $criteria): array
+    {
+        // Étape 1 : récupérer pour chaque OR la version maximale avec statut "validé"
+        $subQb = $this->_em->createQueryBuilder();
+        $subQb->select('dav.numeroOr', 'MAX(dav.numeroVersion) AS maxVersion', 'dav.numeroDemandeAppro')
+            ->from(DaValider::class, 'dav')
+            ->where('dav.statutDal = :statutValide')
+            ->groupBy('dav.numeroOr', 'dav.numeroDemandeAppro')
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
 
-    foreach ($latestVersions as $i => $entry) {
-        if (!empty($numOrValideZst) && !in_array($entry['numeroOr'], $numOrValideZst)) {
-            continue;
+        $latestVersions = $subQb->getQuery()->getArrayResult();
+
+        if (empty($latestVersions)) {
+            return [];
         }
 
-        $orX->add(
-            $qb->expr()->andX(
-                $qb->expr()->eq('dav.numeroOr', ':numeroOr_' . $i),
-                $qb->expr()->eq('dav.numeroVersion', ':version_' . $i),
-                $qb->expr()->eq('dav.numeroDemandeAppro', ':numeroDemandeAppro_' . $i)
-            )
-        );
+        // Étape 2 : requête principale avec conditions sur les couples (numeroOr, version, numeroDemandeAppro)
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('dav')
+            ->from(DaValider::class, 'dav')
+            ->where('dav.statutDal = :statutValide')
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
 
-        $qb->setParameter('numeroOr_' . $i, $entry['numeroOr']);
-        $qb->setParameter('version_' . $i, $entry['maxVersion']);
-        $qb->setParameter('numeroDemandeAppro_' . $i, $entry['numeroDemandeAppro']);
+        $orX = $qb->expr()->orX();
+
+        foreach ($latestVersions as $i => $entry) {
+            if (!empty($numOrValideZst) && !in_array($entry['numeroOr'], $numOrValideZst)) {
+                continue;
+            }
+
+            $orX->add(
+                $qb->expr()->andX(
+                    $qb->expr()->eq('dav.numeroOr', ':numeroOr_' . $i),
+                    $qb->expr()->eq('dav.numeroVersion', ':version_' . $i),
+                    $qb->expr()->eq('dav.numeroDemandeAppro', ':numeroDemandeAppro_' . $i)
+                )
+            );
+
+            $qb->setParameter('numeroOr_' . $i, $entry['numeroOr']);
+            $qb->setParameter('version_' . $i, $entry['maxVersion']);
+            $qb->setParameter('numeroDemandeAppro_' . $i, $entry['numeroDemandeAppro']);
+        }
+
+        if ($orX->count() === 0) {
+            return [];
+        }
+
+        $qb->andWhere($orX);
+
+        // Étape 3 : appliquer des filtres dynamiques s'ils existent
+        $this->applyDynamicFilters($qb, $criteria);
+
+        $qb->orderBy('dav.numeroDemandeAppro', 'ASC');
+        return $qb->getQuery()->getResult();
     }
-
-    if ($orX->count() === 0) {
-        return [];
-    }
-
-    $qb->andWhere($orX);
-
-    // Étape 3 : appliquer des filtres dynamiques s'ils existent
-    $this->applyDynamicFilters($qb, $criteria);
-
-    $qb->orderBy('dav.numeroDemandeAppro', 'ASC');
-    return $qb->getQuery()->getResult();
-}
 
 
     private function applyDynamicFilters(QueryBuilder $qb, ?array $criteria): void
-{
-    if (empty($criteria)) {
-        return;
-    }
+    {
+        if (empty($criteria)) {
+            return;
+        }
 
-    $map = [
-        'numDa' => 'dav.numeroDemandeAppro',
-        'numDit' => 'dav.numeroDemandeDit',
-        'numFrn' => 'dav.numeroFournisseur',
-        'statutBc' => 'dav.statutCde',
-        'niveauUrgence' => 'dav.niveauUrgence',
-    ];
+        $map = [
+            'numDa' => 'dav.numeroDemandeAppro',
+            'numDit' => 'dav.numeroDemandeDit',
+            'numFrn' => 'dav.numeroFournisseur',
+            'statutBc' => 'dav.statutCde',
+            'niveauUrgence' => 'dav.niveauUrgence',
+        ];
 
-    foreach ($map as $key => $field) {
-        if (!empty($criteria[$key])) {
-            $qb->andWhere("$field = :$key")
-               ->setParameter($key, $criteria[$key]);
+        foreach ($map as $key => $field) {
+            if (!empty($criteria[$key])) {
+                $qb->andWhere("$field = :$key")
+                    ->setParameter($key, $criteria[$key]);
+            }
+        }
+
+        if (!empty($criteria['ref'])) {
+            $qb->andWhere('dav.artRefp LIKE :ref')
+                ->setParameter('ref', '%' . $criteria['ref'] . '%');
+        }
+
+        if (!empty($criteria['designation'])) {
+            $qb->andWhere('dav.artDesi LIKE :designation')
+                ->setParameter('designation', '%' . $criteria['designation'] . '%');
+        }
+
+        if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
+            $qb->andWhere('dav.datePlannigOr >= :dateDebutOR')
+                ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
+        }
+
+        if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
+            $qb->andWhere('dav.datePlannigOr <= :dateFinOR')
+                ->setParameter('dateFinOR', $criteria['dateFinOR']);
+        }
+
+        if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
+            $qb->andWhere('dav.dateFinSouhaite >= :dateDebutDAL')
+                ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
+        }
+
+        if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
+            $qb->andWhere('dav.dateFinSouhaite <= :dateFinDAL')
+                ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
         }
     }
 
-    if (!empty($criteria['ref'])) {
-        $qb->andWhere('dav.artRefp LIKE :ref')
-           ->setParameter('ref', '%' . $criteria['ref'] . '%');
+    public function getNbrDaValider(string $numeroOr): int
+    {
+        return $this->createQueryBuilder('dav')
+            ->select('COUNT(dav.id) AS nombreDaValider')
+            ->where('dav.numeroOr = :numOr')
+            ->setParameter('numOr', $numeroOr)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
-
-    if (!empty($criteria['designation'])) {
-        $qb->andWhere('dav.artDesi LIKE :designation')
-           ->setParameter('designation', '%' . $criteria['designation'] . '%');
-    }
-
-    if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-        $qb->andWhere('dav.datePlannigOr >= :dateDebutOR')
-           ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
-    }
-
-    if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-        $qb->andWhere('dav.datePlannigOr <= :dateFinOR')
-           ->setParameter('dateFinOR', $criteria['dateFinOR']);
-    }
-
-    if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
-        $qb->andWhere('dav.dateFinSouhaite >= :dateDebutDAL')
-           ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
-    }
-
-    if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
-        $qb->andWhere('dav.dateFinSouhaite <= :dateFinDAL')
-           ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
-    }
-}
-
 }

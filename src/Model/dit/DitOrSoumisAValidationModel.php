@@ -6,6 +6,7 @@ namespace App\Model\dit;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
+use App\Service\TableauEnStringService;
 use Symfony\Component\Validator\Constraints\IsNull;
 
 class DitOrSoumisAValidationModel extends Model
@@ -483,5 +484,30 @@ class DitOrSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getListeArticlesSavLorString(string $numOr): string
+    {
+        $statement = " SELECT TRIM(slor_refp) || TRIM(slor_desi) as refp_desi
+            from sav_lor where slor_constp = 'ZST' and slor_numor == '$numOr'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return TableauEnStringService::TableauEnString(',', array_column($data, 'refp_desi'));
+    }
+
+    public function getNbrComparaisonArticleDaValiderEtSavLor(string $listeArticlesSavLorString): int
+    {
+        $sql = "SELECT count(*) 
+            from da_valider dav  
+            where dav.numero_or = '16416467' 
+            and numero_version = (select max(numero_version) from da_valider where numero_or = dav.numero_or)
+            and concat(trim(art_refp),art_desi) in ($listeArticlesSavLorString)
+        ";
+
+        $data = $this->retournerResult28($sql);
+        return (int) ($data[0]['count'] ?? 0);
     }
 }
