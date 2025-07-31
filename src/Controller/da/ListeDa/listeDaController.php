@@ -75,7 +75,7 @@ class listeDaController extends Controller
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA();
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria);
 
         // Vérification du verrouillage des DA
         $daAffichers = $this->verouillerOuNonLesDa($daAffichers);

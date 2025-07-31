@@ -6,7 +6,7 @@ use App\Entity\da\DaAfficher;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\QueryBuilder;
-use App\Entity\Da\DaValider;
+use App\Entity\Da\Dalider;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -36,9 +36,9 @@ class DaAfficherRepository extends EntityRepository
      */
     public function getNumeroVersionMaxCde(string $numeroCde): int
     {
-        $numeroVersionMax = $this->createQueryBuilder('dav')
-            ->select('DISTINCT MAX(dav.numeroVersion)')
-            ->where('dav.numeroCde = :numCde')
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('DISTINCT MAX(d.numeroVersion)')
+            ->where('d.numeroCde = :numCde')
             ->setParameter('numCde', $numeroCde)
             ->getQuery()
             ->getSingleScalarResult();
@@ -57,9 +57,9 @@ class DaAfficherRepository extends EntityRepository
      */
     public function getNumeroVersionMaxDit(?string $numeroDit): int
     {
-        $numeroVersionMax = $this->createQueryBuilder('dav')
-            ->select('DISTINCT MAX(dav.numeroVersion)')
-            ->where('dav.numeroDemandeDit = :numDit')
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('DISTINCT MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeDit = :numDit')
             ->setParameter('numDit', $numeroDit)
             ->getQuery()
             ->getSingleScalarResult();
@@ -70,9 +70,9 @@ class DaAfficherRepository extends EntityRepository
         return $numeroVersionMax;
     }
 
-    public function getDaValider($numeroVersion, $numeroDemandeDit, $reference, $designation, $criteria = [])
+    public function getDalider($numeroVersion, $numeroDemandeDit, $reference, $designation, $criteria = [])
     {
-        $davalider =  $this->createQueryBuilder('d')
+        $dalider =  $this->createQueryBuilder('d')
             ->where('d.numeroVersion = :version')
             ->andWhere('d.numeroDemandeDit = :numDit')
             ->andWhere('d.artRefp = :ref')
@@ -84,11 +84,11 @@ class DaAfficherRepository extends EntityRepository
                 'numDit' => $numeroDemandeDit
             ]);
         if (empty($criteria['numDa'])) {
-            $davalider->andWhere('d.statutDal != :statut')
+            $dalider->andWhere('d.statutDal != :statut')
                 ->setParameter('statut', 'TERMINER');
         }
 
-        // $query = $davalider->getQuery();
+        // $query = $dalider->getQuery();
         // $sql = $query->getSQL();
         // $params = $query->getParameters();
 
@@ -97,16 +97,16 @@ class DaAfficherRepository extends EntityRepository
         //     dump($param->getName());
         //     dump($param->getValue());
         // }
-        return $davalider
+        return $dalider
             ->getQuery()
             ->getOneOrNullResult();
     }
 
     public function getSumQteDemEtLivrer(string $numDa): array
     {
-        $numeroVersionMax = $this->createQueryBuilder('dav')
-            ->select('MAX(dav.numeroVersion)')
-            ->where('dav.numeroDemandeAppro = :numDa')
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
             ->getQuery()
             ->getSingleScalarResult();
@@ -116,11 +116,11 @@ class DaAfficherRepository extends EntityRepository
                 'qteLivrer' => 0
             ];
         }
-        $qb = $this->createQueryBuilder('dav')
-            ->select('SUM(dav.qteDem) as qteDem, SUM(dav.qteLivrer) as qteLivrer')
-            ->where('dav.numeroDemandeAppro = :numDa')
+        $qb = $this->createQueryBuilder('d')
+            ->select('SUM(d.qteDem) as qteDem, SUM(d.qteLivrer) as qteLivrer')
+            ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numDa)
-            ->andWhere('dav.numeroVersion = :numVersion')
+            ->andWhere('d.numeroVersion = :numVersion')
             ->setParameter('numVersion', $numeroVersionMax);
 
         return $qb->getQuery()->getSingleResult();
@@ -128,8 +128,8 @@ class DaAfficherRepository extends EntityRepository
 
     public function getConstructeurRefDesi(): array
     {
-        $result = $this->createQueryBuilder('dav')
-            ->select("CONCAT(dav.artConstp, '_', dav.artRef, '_', dav.artDesi) AS refDesi")
+        $result = $this->createQueryBuilder('d')
+            ->select("CONCAT(d.artConstp, '_', d.artRef, '_', d.artDesi) AS refDesi")
             ->getQuery()
             ->getScalarResult();
 
@@ -141,10 +141,10 @@ class DaAfficherRepository extends EntityRepository
     {
         // Étape 1 : récupérer pour chaque OR la version maximale avec statut "validé"
         $subQb = $this->_em->createQueryBuilder();
-        $subQb->select('dav.numeroOr', 'MAX(dav.numeroVersion) AS maxVersion', 'dav.numeroDemandeAppro')
-            ->from(DaValider::class, 'dav')
-            ->where('dav.statutDal = :statutValide')
-            ->groupBy('dav.numeroOr', 'dav.numeroDemandeAppro')
+        $subQb->select('d.numeroOr', 'MAX(d.numeroVersion) AS maxVersion', 'd.numeroDemandeAppro')
+            ->from(DaAfficher::class, 'd')
+            ->where('d.statutDal = :statutValide')
+            ->groupBy('d.numeroOr', 'd.numeroDemandeAppro')
             ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
 
         $latestVersions = $subQb->getQuery()->getArrayResult();
@@ -155,9 +155,9 @@ class DaAfficherRepository extends EntityRepository
 
         // Étape 2 : requête principale avec conditions sur les couples (numeroOr, version, numeroDemandeAppro)
         $qb = $this->_em->createQueryBuilder();
-        $qb->select('dav')
-            ->from(DaValider::class, 'dav')
-            ->where('dav.statutDal = :statutValide')
+        $qb->select('d')
+            ->from(DaAfficher::class, 'd')
+            ->where('d.statutDal = :statutValide')
             ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
 
         $orX = $qb->expr()->orX();
@@ -169,9 +169,9 @@ class DaAfficherRepository extends EntityRepository
 
             $orX->add(
                 $qb->expr()->andX(
-                    $qb->expr()->eq('dav.numeroOr', ':numeroOr_' . $i),
-                    $qb->expr()->eq('dav.numeroVersion', ':version_' . $i),
-                    $qb->expr()->eq('dav.numeroDemandeAppro', ':numeroDemandeAppro_' . $i)
+                    $qb->expr()->eq('d.numeroOr', ':numeroOr_' . $i),
+                    $qb->expr()->eq('d.numeroVersion', ':version_' . $i),
+                    $qb->expr()->eq('d.numeroDemandeAppro', ':numeroDemandeAppro_' . $i)
                 )
             );
 
@@ -189,7 +189,7 @@ class DaAfficherRepository extends EntityRepository
         // Étape 3 : appliquer des filtres dynamiques s'ils existent
         $this->applyDynamicFilters($qb, $criteria);
 
-        $qb->orderBy('dav.numeroDemandeAppro', 'ASC');
+        $qb->orderBy('d.numeroDemandeAppro', 'ASC');
         return $qb->getQuery()->getResult();
     }
 
@@ -201,11 +201,11 @@ class DaAfficherRepository extends EntityRepository
         }
 
         $map = [
-            'numDa' => 'dav.numeroDemandeAppro',
-            'numDit' => 'dav.numeroDemandeDit',
-            'numFrn' => 'dav.numeroFournisseur',
-            'statutBc' => 'dav.statutCde',
-            'niveauUrgence' => 'dav.niveauUrgence',
+            'numDa' => 'd.numeroDemandeAppro',
+            'numDit' => 'd.numeroDemandeDit',
+            'numFrn' => 'd.numeroFournisseur',
+            'statutBc' => 'd.statutCde',
+            'niveauUrgence' => 'd.niveauUrgence',
         ];
 
         foreach ($map as $key => $field) {
@@ -216,47 +216,49 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (!empty($criteria['ref'])) {
-            $qb->andWhere('dav.artRefp LIKE :ref')
+            $qb->andWhere('d.artRefp LIKE :ref')
                 ->setParameter('ref', '%' . $criteria['ref'] . '%');
         }
 
         if (!empty($criteria['designation'])) {
-            $qb->andWhere('dav.artDesi LIKE :designation')
+            $qb->andWhere('d.artDesi LIKE :designation')
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
         if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-            $qb->andWhere('dav.datePlannigOr >= :dateDebutOR')
+            $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
                 ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
         }
 
         if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-            $qb->andWhere('dav.datePlannigOr <= :dateFinOR')
+            $qb->andWhere('d.datePlannigOr <= :dateFinOR')
                 ->setParameter('dateFinOR', $criteria['dateFinOR']);
         }
 
         if (!empty($criteria['dateDebutDAL']) && $criteria['dateDebutDAL'] instanceof \DateTimeInterface) {
-            $qb->andWhere('dav.dateFinSouhaite >= :dateDebutDAL')
+            $qb->andWhere('d.dateFinSouhaite >= :dateDebutDAL')
                 ->setParameter('dateDebutDAL', $criteria['dateDebutDAL']);
         }
 
         if (!empty($criteria['dateFinDAL']) && $criteria['dateFinDAL'] instanceof \DateTimeInterface) {
-            $qb->andWhere('dav.dateFinSouhaite <= :dateFinDAL')
+            $qb->andWhere('d.dateFinSouhaite <= :dateFinDAL')
                 ->setParameter('dateFinDAL', $criteria['dateFinDAL']);
         }
     }
 
-    public function findDerniereVersionDesDA(): array
+    public function findDerniereVersionDesDA(array $criteria): array
     {
         $qb = $this->createQueryBuilder('d');
 
         $qb->where(
-                'd.numeroVersion = (
+            'd.numeroVersion = (
                     SELECT MAX(d2.numeroVersion)
                     FROM ' . DaAfficher::class . ' d2
                     WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
                 )'
-            );
+        );
+
+        $this->applyDynamicFilters($qb, $criteria);
 
         return $qb->getQuery()->getResult();
     }
