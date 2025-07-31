@@ -11,9 +11,11 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -29,6 +31,7 @@ class DaValidationController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DitRepository $ditRepository;
 
     public function __construct()
@@ -38,6 +41,7 @@ class DaValidationController extends Controller
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -166,7 +170,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ],
             'attachments' => [
                 $tab['filePath'] => $tab['fileName'],
@@ -192,7 +196,7 @@ class DaValidationController extends Controller
                 'statut'     => "validationAteDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'APPRO",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

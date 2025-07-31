@@ -31,7 +31,7 @@ class DaSoumissionBcRepository extends EntityRepository
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
 
         if ($numeroVersionMax === null) {
-            return null; // ou une valeur par défaut, selon vos besoins
+            return ''; // ou une valeur par défaut, selon vos besoins
         }
 
         // Étape 2 : Récupérer le statut correspondant

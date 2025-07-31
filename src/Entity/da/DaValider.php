@@ -34,7 +34,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=11, name="numero_or")
      */
-    private string $numeroOr;
+    private ?string $numeroOr;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_cde")
@@ -49,7 +49,7 @@ class DaValider
     /**
      * @ORM\Column(type="string", length=50, name="statut_or")
      */
-    private string $statutOr;
+    private ?string $statutOr;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
@@ -227,6 +227,36 @@ class DaValider
      * @ORM\Column(type="boolean", name="bc_envoyer_fournisseur")
      */
     private $bcEnvoyerFournisseur = false;
+
+    /**
+     * @ORM\Column(type="integer", name="id_da")
+     */
+    private int $idDa;
+
+    /**
+     * @ORM\Column(type="boolean", name="achat_direct")
+     */
+    private bool $achatDirect = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="or_a_resoumettre")
+     */
+    private bool $orResoumettre = false;
+
+    /**
+     * @ORM\Column(type="string", length=100, name="position_bc")
+     */
+    private ?string $positionBc;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_planning_or", nullable=true)
+     */
+    private $datePlannigOr;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_ligne_ips")
+     */
+    private ?int $numeroLigneIps;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -999,7 +1029,7 @@ class DaValider
     /**
      * Set the value of statutOr
      */
-    public function setStatutOr(string $statutOr): self
+    public function setStatutOr(?string $statutOr): self
     {
         $this->statutOr = $statutOr;
 
@@ -1047,34 +1077,34 @@ class DaValider
     }
 
     public function getConstructeurRefDesi(): ?string
-{
-    if (!empty($this->artConstp) && !empty($this->artRefp) && !empty($this->artDesi)) {
-        $designation = mb_convert_encoding($this->artDesi, 'ISO-8859-1', 'UTF-8');
-        $designation = str_replace(["'", '^'], ["''", ''], $designation);
-    
-        $ref = str_replace(' ', '', $this->artRefp);
-    
-        return $this->artConstp . '_' . $ref . '_' . $designation;
+    {
+        if (!empty($this->artConstp) && !empty($this->artRefp) && !empty($this->artDesi)) {
+            $designation = mb_convert_encoding($this->artDesi, 'ISO-8859-1', 'UTF-8');
+            $designation = str_replace(["'", '^'], ["''", ''], $designation);
+
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $this->artConstp . '_' . $ref . '_' . $designation;
+        }
+
+
+        return null;
     }
-    
 
-    return null;
-}
+    public function getReferenceCataloguee(): ?string
+    {
+        if (!empty($this->artRefp)) {
 
-public function getReferenceCataloguee(): ?string
-{
-    if (!empty($this->artRefp)) {
-    
-        $ref = str_replace(' ', '', $this->artRefp);
-    
-        return $ref;
+            $ref = str_replace(' ', '', $this->artRefp);
+
+            return $ref;
+        }
+
+
+        return null;
     }
-    
 
-    return null;
-}
-
-/**
+    /**
      * Get the value of bcEnvoyerFournisseur
      */
     public function getBcEnvoyerFournisseur()
@@ -1091,7 +1121,127 @@ public function getReferenceCataloguee(): ?string
 
         return $this;
     }
-    
+
+
+    /**
+     * Get the value of idDa
+     */
+    public function getIdDa()
+    {
+        return $this->idDa;
+    }
+
+    /**
+     * Set the value of idDa
+     *
+     * @return  self
+     */
+    public function setIdDa($idDa)
+    {
+        $this->idDa = $idDa;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of achatDirect
+     */
+    public function getAchatDirect()
+    {
+        return $this->achatDirect;
+    }
+
+    /**
+     * Set the value of achatDirect
+     *
+     * @return  self
+     */
+    public function setAchatDirect($achatDirect)
+    {
+        $this->achatDirect = $achatDirect;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of positionBc
+     */
+    public function getPositionBc()
+    {
+        return $this->positionBc;
+    }
+
+    /**
+     * Set the value of positionBc
+     *
+     * @return  self
+     */
+    public function setPositionBc($positionBc)
+    {
+        $this->positionBc = $positionBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of datePlannigOr
+     */
+    public function getDatePlannigOr()
+    {
+        return $this->datePlannigOr;
+    }
+
+    /**
+     * Set the value of datePlannigOr
+     *
+     * @return  self
+     */
+    public function setDatePlannigOr($datePlannigOr)
+    {
+        $this->datePlannigOr = $datePlannigOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of orResoumettre
+     */
+    public function getOrResoumettre()
+    {
+        return $this->orResoumettre;
+    }
+
+    /**
+     * Set the value of orResoumettre
+     *
+     * @return  self
+     */
+    public function setOrResoumettre($orResoumettre)
+    {
+        $this->orResoumettre = $orResoumettre;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroLigneIps
+     */
+    public function getNumeroLigneIps()
+    {
+        return $this->numeroLigneIps;
+    }
+
+    /**
+     * Set the value of numeroLigneIps
+     *
+     * @return  self
+     */
+    public function setNumeroLigneIps($numeroLigneIps)
+    {
+        $this->numeroLigneIps = $numeroLigneIps;
+
+        return $this;
+    }
 
     public function enregistrerDa(DemandeAppro $da)
     {
@@ -1102,6 +1252,8 @@ public function getReferenceCataloguee(): ?string
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
+            ->setIdDa($da->getId())
+            ->setAchatDirect($da->getAchatDirect())
         ;
     }
 
@@ -1154,6 +1306,4 @@ public function getReferenceCataloguee(): ?string
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
         ;
     }
-
-    
 }

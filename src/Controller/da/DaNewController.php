@@ -174,7 +174,7 @@ class DaNewController extends Controller
                 'statut'     => "newDa",
                 'subject'    => "{$tab['numDa']} - Nouvelle demande d'approvisionnement créé",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list")
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

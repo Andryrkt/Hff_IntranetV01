@@ -2,6 +2,7 @@
 
 namespace App\Repository\dit;
 
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityRepository;
@@ -258,16 +259,34 @@ class DitRepository extends EntityRepository
 
     private function applyStatusFilter($queryBuilder, DitSearch $ditSearch)
     {
-        $statusesDefault = [50, 51, 53];
+        $statusesDefault = [
+            DemandeIntervention::STATUT_A_AFFECTER,
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
 
         if (!empty($ditSearch->getStatut())) {
             $queryBuilder->andWhere('s.description LIKE :statut')
                 ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
         } elseif (empty($ditSearch->getNumDit()) && (empty($ditSearch->getNumOr()) && $ditSearch->getNumOr() == 0) && empty($ditSearch->getEtatFacture())) {
-
             $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
                 ->setParameter('excludedStatuses', $statusesDefault);
         }
+    }
+
+    private function applyStatusFilterDa($queryBuilder, DitSearch $ditSearch)
+    {
+        $statusesDefault = [
+            DemandeIntervention::STATUT_AFFECTEE_SECTION,
+            DemandeIntervention::STATUT_CLOTUREE_VALIDER
+        ];
+
+        if (!empty($ditSearch->getStatut())) {
+            $queryBuilder->andWhere('s.description LIKE :statut')
+                ->setParameter('statut', '%' . $ditSearch->getStatut() . '%');
+        }
+        $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
+            ->setParameter('excludedStatuses', $statusesDefault);
     }
 
 
@@ -673,7 +692,7 @@ class DitRepository extends EntityRepository
      * @param array $options
      * @return void
      */
-    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options, array $numDits)
+    public function findPaginatedAndFilteredDa(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
 
         $queryBuilder = $this->createQueryBuilder('d')
@@ -683,7 +702,7 @@ class DitRepository extends EntityRepository
             ->where('d.sectionAffectee <> :sectionAffectee')
             ->setParameter('sectionAffectee', '');
 
-        $this->applyStatusFilter($queryBuilder, $ditSearch);
+        $this->applyStatusFilterDa($queryBuilder, $ditSearch);
 
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
 
@@ -713,16 +732,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
-        $placeholders = [];
-        foreach ($numDits as $index => $value) {
-            $placeholder = ':numDit' . $index;
-            $placeholders[] = $placeholder;
-            $queryBuilder->setParameter($placeholder, $value);
-        }
 
-        if (!empty($placeholders)) {
-            $queryBuilder->andWhere('d.numeroDemandeIntervention NOT IN (' . implode(', ', $placeholders) . ')');
-        }
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroDemandeIntervention', 'ASC');

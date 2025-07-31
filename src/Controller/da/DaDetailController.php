@@ -11,11 +11,18 @@ use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Entity\dw\DwBcAppro;
+use App\Entity\dw\DwFacBl;
 use App\Form\da\DaObservationType;
 use App\Model\dit\DitModel;
+use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Repository\dw\DwBcApproRepository;
+use App\Repository\dw\DwFactureBonLivraisonRepository;
 use App\Service\EmailService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,6 +39,10 @@ class DaDetailController extends Controller
 	private DitRepository $ditRepository;
 	private DaObservationRepository $daObservationRepository;
 	private DemandeApproLRepository $daLRepository;
+	private DwBcApproRepository $dwBcApproRepository;
+	private DwFactureBonLivraisonRepository $dwFacBlRepository;
+	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
 	public function __construct()
 	{
@@ -39,7 +50,11 @@ class DaDetailController extends Controller
 		$this->daRepository = self::$em->getRepository(DemandeAppro::class);
 		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
 		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
+		$this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
+		$this->dwFacBlRepository = self::$em->getRepository(DwFacBl::class);
+		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
 		$this->daLRepository = self::$em->getRepository(DemandeApproL::class);
+		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
 	}
 
 	/**
@@ -65,6 +80,13 @@ class DaDetailController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
+		$fichiers = $this->getAllDAFile([
+			'baPath'    => $this->getBaPath($demandeAppro),
+			'orPath'    => $this->getOrPath($demandeAppro),
+			'bcPath'    => $this->getBcPath($demandeAppro),
+			'facblPath' => $this->getFacBlPath($demandeAppro),
+		]);
+
 		self::$twig->display('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
@@ -72,6 +94,7 @@ class DaDetailController extends Controller
 			'numSerie'          		=> $dataModel[0]['num_serie'],
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'dit'               		=> $dit,
+			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> Controller::getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
 			'nomFichierRefZst'  		=> $demandeAppro->getNonFichierRefZst(),
@@ -125,6 +148,7 @@ class DaDetailController extends Controller
 			$service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
 			$this->envoyerMailObservation([
 				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+				'idDa'          => $demandeAppro->getId(),
 				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
@@ -170,7 +194,7 @@ class DaDetailController extends Controller
 				'statut'     => "commente",
 				'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
 				'tab'        => $tab,
-				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/list"),
+				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
 			]
 		];
 		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');

@@ -20,6 +20,7 @@ export function ajouterReference(addLineId) {
 
   const divValidation = document.getElementById(`validationButtons`);
   const envoyerSelections = document.getElementById(`envoyerSelections`);
+  const validerSelections = document.getElementById(`validerSelections`);
   if (iscatalogue == 1) {
     const nePasAjouter = Object.values(fields).some(handleFieldValue);
     if (!nePasAjouter) {
@@ -28,6 +29,9 @@ export function ajouterReference(addLineId) {
       }
       if (envoyerSelections) {
         envoyerSelections.classList.remove("d-none"); // On l'affiche
+      }
+      if (validerSelections) {
+        validerSelections.classList.remove("d-none"); // On l'affiche
       }
       ajouterUneLigne(line, fields, iscatalogue);
     }
@@ -68,6 +72,9 @@ export function ajouterReference(addLineId) {
       }
       if (envoyerSelections) {
         envoyerSelections.classList.remove("d-none"); // On l'affiche
+      }
+      if (validerSelections) {
+        validerSelections.classList.remove("d-none"); // On l'affiche
       }
       ajouterUneLigne(line, fields, iscatalogue);
     }

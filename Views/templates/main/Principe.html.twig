@@ -113,11 +113,10 @@
 							<li>
 								<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
 							</li>
-							{% endif %}
 							{% if hasPAT %}
-								<li>
-									<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
-								</li>
+							<li>
+								<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
+							</li>
 							{% endif %}
 
 						</ul>
@@ -209,7 +208,7 @@
 							</li>
 							{% if constant('App\\Entity\\admin\\Service::ID_APPRO') in serv_auto_ids or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids %}
 								<li>
-									<a class="dropdown-item" href="{{ path('list_cde_frn') }}">Liste des commandes fournisseurs</a>
+									<a class="dropdown-item" href="{{ path('da_list_cde_frn') }}">Liste des commandes fournisseurs</a>
 								</li>
 							{% endif %}
 						</ul>
@@ -338,7 +337,6 @@
 							<li>
 								<a class="dropdown-item" href="{{ path('liste_planning', {'action': 'oui'}) }}">Planning détaillé</a>
 							</li>
-
 						</ul>
 					</li>
 				{% endif %}

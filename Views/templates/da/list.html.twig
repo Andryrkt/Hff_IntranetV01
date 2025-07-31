@@ -17,6 +17,7 @@
 	{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 	{% set role_ids = App.user.roleIds %}
 
+		<div class="sticky-header-titre">
 	<div class="container mb-3">
 		<h3 class="perso-titre">
 			Liste des demandes d'achat
@@ -25,7 +26,7 @@
 		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
 	</div>
-
+</div>
 	{# Statut de la DA #}
 	{% set styleStatutDA = {
 		'Demande d’achats': 'bg-demande-achat fw-bold',
@@ -35,9 +36,10 @@
 	} %}
 
 	{% set styleStatutOR = {
-		'Refusé chef atelier': 'bg-or-non-valide fw-bold',
-		'Refusé client interne': 'bg-or-non-valide fw-bold',
-		'Validé': 'bg-danger fw-bold text-white',
+		'Refusé chef atelier': 'bg-or-non-valide',
+		'Refusé client interne': 'bg-or-non-valide',
+		'Validé': 'bg-danger text-white',
+		'A resoumettre à validation': 'bg-warning text-secondary',
 	} %}
 
 	{% set styleStatutBC = {
@@ -47,6 +49,10 @@
 		'Validé': 'bg-bc-valide fw-bold',
 		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
+		'Tout livré':'tout-livre bg-success text-white',
+		'Partiellement livré':'partiellement-livre bg-warning text-white',
+		'Partiellement dispo':'partiellement-dispo bg-info text-white',
+		'Complet non livré':'complet-non-livre bg-primary text-white'
 	} %}
 
 	<div class="container-fluid">
@@ -67,9 +73,7 @@
 					<th class="text-center">Statut BC</th>
 					<th class="text-center">Date Planning OR</th>
 					<th>Fournisseur</th>
-					{% if not serviceAtelier %}
-						<th>Réference</th>
-					{% endif %}
+					<th>Réference</th>
 					<th>Désignation</th>
 					<th class="text-center">Fiche technique</th>
 					<th class="text-center">Qté dem</th>
@@ -77,6 +81,7 @@
 					<th class="text-center">Qté Dispo (Qté à livrer)</th>
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Date livraison prévue</th>
 					<th class="text-center">Nbr Jour(s) dispo</th>
 					<th class="text-center">Suppression</th>
 				</tr>
@@ -89,23 +94,6 @@
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 
 					{% for dal in item.daValiderOuProposer %}
-						{% set classe = '' %}
-						{% set qteCdm = dal.qteDem | default(0) * 1 %}
-						{% set qteLiv = dal.qteLivee | default(0) * 1 %}
-						{% set qteAll = dal.qteALivrer | default(0) * 1 %}
-						{% if qteCdm == qteLiv and qteCdm != '' and qteLiv != '' %}
-							{# Tout livré #}
-							{% set classe = 'tout-livre bg-success text-white' %}
-						{% elseif qteLiv > 0 and qteLiv != qteCdm and qteCdm > (qteLiv + qteAll) %}
-							{# Partiellement livré #}
-							{% set classe = 'partiellement-livre bg-warning text-white' %}
-						{% elseif qteCdm != qteAll and qteLiv == 0 and qteAll > 0 %}
-							{# Partiellement dispo #}
-							{% set classe = 'partiellement-dispo bg-info text-white' %}
-						{% elseif (qteCdm == qteAll and qteLiv < qteCdm) or (qteAll > 0 and qteCdm == (qteAll + qteLiv)) %}
-							{# complet non livré #}
-							{% set classe = 'complet-non-livre bg-primary text-white' %}
-						{% endif %}
 
 						{% set designationStyle = dal.demandeApproLR is iterable ? '' : 'mise-en-evidence' %}
 
@@ -137,8 +125,8 @@
 													<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.id }}">Déverouiller la DA</a>
 												</li>
 											{% endif %}
-											{% if item.dit.statutOr is same as "Validé" and get_path_or_max(item.dit.numeroOR) is not empty%}
-												{% set chemin = get_path_or_max(item.dit.numeroOR)['chemin'] %}
+											{% if item.statutOr is same as "Validé" and get_path_or_max(item.numeroOR) is not empty%}
+												{% set chemin = get_path_or_max(item.numeroOR)['chemin'] %}
 												<li>
 													<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
 												</li>
@@ -158,17 +146,15 @@
 							</td>
 							<td>{{ item.numeroDemandeDit }}</td>
 							<td>{{ item.dit.idNiveauUrgence.description }}</td>
-							<td>{{ item.dit.numeroOR }}</td>
+							<td>{{ item.numeroOR }}</td>
 							<td>{{ item.demandeur }}</td>
 							<td>{{ item.dateCreation | date('d/m/Y') }}</td>
 							<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{ dal.statutDal }}</td>
-							<td class="text-start {{ styleStatutOR[item.dit.statutOr] }} fw-bold text-center">{{ item.dit.statutOr }}</td>
+							<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{ item.statutOr }}</td>
 							<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{dal.statutBc}}</td>
 							<td class="text-center">{{ dal.datePlanningOR }}</td>
 							<td class="text-start">{{ dal.nomFournisseur }}</td>
-							{% if not serviceAtelier %}
-								<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
-							{% endif %}
+							<td class="text-start">{{ dal.artRefp ?? '-' }}</td>
 							<td class="text-start {{ designationStyle }}">
 								{% if dal.verouille %}
 									{{ dal.artDesi }}
@@ -185,11 +171,12 @@
 									<i class="fas fa-xmark text-danger"></i>
 								{% endif %}
 							</td>
-							<td class="text-center {{classe}}">{{ dal.qteDem }}</td>
+							<td class="text-center">{{ dal.qteDem }}</td>
 							<td class="text-center">{{ dal.qteEnAttent == 0 ? '-': dal.qteEnAttent}}</td>
 							<td class="text-center">{{ dal.qteALivrer == 0 ? '-': dal.qteALivrer}}</td>
 							<td class="text-center">{{ dal.qteLivee == 0 ? '-': dal.qteLivee}}</td>
-							<td class="text-center">{{ dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.dateFinSouhaite == null ? '' :dal.dateFinSouhaite|date('d/m/Y') }}</td>
+							<td class="text-center">{{ dal.dateLivraisonPrevue == null ? '' : dal.dateLivraisonPrevue|date('d/m/Y') }}</td>
 							<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{ dal.joursDispo }}</td>
 							<td class="text-center">
 								{% if serviceAppro and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}
@@ -211,4 +198,5 @@
 
 {% block javascript %}
 	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/positionSticky.js" type="module"></script>
 {% endblock %}

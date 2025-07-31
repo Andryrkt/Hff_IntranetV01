@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
    *  2ᵉ appel : colonnes 4-5 selon la colonne 4.
    */
   mergeCellsRecursiveTable([
-    { pivotIndex: 3, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
+    { pivotIndex: 0, columns: [0, 1, 2, 3, 4, 5], insertSeparator: true },
     { pivotIndex: 6, columns: [6, 7], insertSeparator: true },
     { pivotIndex: 8, columns: [8], insertSeparator: true },
   ]);
@@ -146,7 +146,7 @@ document.addEventListener("contextmenu", function (event) {
       <p title="cliquer pour confirmer l'envoi"
          class="text-decoration-none text-dark cursor-pointer bg-success text-white border-0 rounded px-2 py-1">
          BC envoyé au fournisseur
-      </p>`;
+      </p> <hr/>`;
     if (statutBc !== "Tous livrés") {
       //active le formulaire
       Array.from(form.elements).forEach((el) => (el.disabled = false)); // active tous les champs du formulaire
@@ -165,7 +165,7 @@ document.addEventListener("contextmenu", function (event) {
     fetchManager
       .get(url, "text")
       .then((html) => {
-        statutAffiche.innerHTML = html;
+        statutAffiche.innerHTML = html + "<hr>";
 
         // Ajouter un écouteur sur la soumission du formulaire
         document
@@ -227,7 +227,7 @@ document.addEventListener("click", function (event) {
 function telechargerBcValide(commandeId) {
   const bcValideTelecharger = document.getElementById("bcValideTelecharger");
   bcValideTelecharger.innerHTML =
-    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"> BC VALIDE</button>';
+    '<button id="downloadBcBtn" class="btn btn-warning fw-bold"><i class="fas fa-download"></i> BC VALIDE</button> <hr/>';
 
   document
     .getElementById("downloadBcBtn")

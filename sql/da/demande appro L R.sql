@@ -76,3 +76,6 @@ ADD jours_dispo int;
 
 ALTER TABLE Demande_Appro_L_R
 ADD numero_demande_dit varchar(11);
+
+ALTER TABLE Demande_Appro_L_R
+ADD date_livraison_prevue DATETIME2(0)

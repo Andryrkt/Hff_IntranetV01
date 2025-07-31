@@ -13,26 +13,32 @@ class GeneratePdfDom extends GeneratePdf
         public function genererPDF(array $tab)
         {
                 $pdf = new TCPDF();
+                $font = "pdfatimesbi";
 
                 $w50 = $this->getHalfWidth($pdf);
                 $couleurTitre = [64, 64, 64]; // gris foncé
 
                 $pdf->AddPage();
 
+                $pieceJustificatif = $tab['pieceJustificatif'] ? 'PIÈCE À JUSTIFIER' : '';
+
                 // tête de page 
                 $pdf->setY(0);
-                $pdf->SetFont('pdfatimesbi', '', 8);
-                $pdf->Cell(0, 8, $tab['MailUser'], 0, 1, 'R');
+                $pdf->SetFont($font, '', 10);
+                $pdf->Cell($w50, 10, $pieceJustificatif, 0, 0, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetFont($font, '', 8);
+                $pdf->Cell($w50, 8, $tab['MailUser'], 0, 1, 'R');
 
                 // Logo HFF
                 $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
                 $pdf->Image($logoPath, 10, 10, 60, 0, 'jpg');
 
                 // Grand titre du pdf
-                $pdf->SetFont('pdfatimesbi', 'B', 16);
+                $pdf->SetFont($font, 'B', 16);
                 $pdf->setX($pdf->GetX() + 35);
                 $pdf->Cell(0, 10, 'ORDRE DE MISSION ', 0, 0, 'C');
-                $pdf->SetFont('pdfatimesbi', '', 12);
+                $pdf->SetFont($font, '', 12);
                 $pdf->Cell(0, 10, 'Le: ' . $tab['dateS'], 0, 1, 'R');
 
                 $pdf->SetTextColor(...$couleurTitre);
@@ -49,7 +55,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50 - 12, 10, $tab['typMiss'], 0, 0);
                 $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
-                $pdf->SetFont('pdfatimesbi', '', 10);
+                $pdf->SetFont($font, '', 10);
 
                 /** SITE */
                 $pdf->setTextColor(...$couleurTitre); // Bleu
@@ -59,7 +65,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
                 $pdf->Ln(); // Nouvelle ligne
-                $pdf->SetFont('pdfatimesbi', '', 12);
+                $pdf->SetFont($font, '', 12);
 
                 /** AGENCE */
                 $pdf->setTextColor(...$couleurTitre); // Bleu
@@ -68,7 +74,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell($w50 - 17, 10, $tab['Code_serv'], 0, 0);
                 $pdf->Rect($pdf->GetX() - $w50, $pdf->GetY(), $w50, 10);  // Bordure englobant tout
 
-                $pdf->SetFont('pdfatimesbi', '', 10);
+                $pdf->SetFont($font, '', 10);
 
                 /** SERVICE */
                 $pdf->setTextColor(...$couleurTitre); // Bleu
@@ -79,7 +85,7 @@ class GeneratePdfDom extends GeneratePdf
 
                 $pdf->Ln(); // Nouvelle ligne
 
-                $pdf->SetFont('pdfatimesbi', '', 12);
+                $pdf->SetFont($font, '', 12);
                 $pdf->Rect($pdf->GetX(), $pdf->GetY(), $w50 * 2, 10);  // Bordure englobant tout
                 $pdf->setTextColor(...$couleurTitre);
                 $pdf->Cell(12, 10, 'Nom : ', 0, 0);
@@ -210,7 +216,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell(80, 10, $tab['AllMontant'] . ' ' . $tab['Devis'], 1, 1, 'C');
 
                 /** Ligne de NB sur les montants */
-                $NB_1 = $tab['Idemn_depl'] === '0' ? '' : 'Montant total à payer = ' . $tab['totalIdemn'] . ' - (' . $tab['Idemn_depl'] . '*' . $tab['NbJ'] . ') = ' . $tab['AllMontant'];
+                $NB_1 = $tab['Idemn_depl'] === '0' ? '' : 'Montant total à payer = ' . $tab['totalDeplAutre'] . ' - (' . $tab['Idemn_depl'] . '*' . $tab['NbJ'] . ') = ' . $tab['AllMontant'];
                 $NB_2 = $tab['Idemn_depl'] === '0' ? '' : $tab['Idemn_depl'] . " étant l'indemnité journalière reçue mensuellement du fait que l'agent se trouve sur un site";
                 $pdf->setY(227);
                 $pdf->SetFont('helvetica', 'B', 10);
@@ -218,7 +224,7 @@ class GeneratePdfDom extends GeneratePdf
                 $pdf->Cell(0, 0, $NB_2, 0, 1);
 
                 /** Mode de paiement */
-                $pdf->SetFont('pdfatimesbi', '', 12);
+                $pdf->SetFont($font, '', 12);
                 $pdf->setTextColor(...$couleurTitre);
                 $pdf->Cell(35, 10, 'Mode de paiement: ', 0, 0);
                 $pdf->setTextColor(0, 0, 0); // Noir

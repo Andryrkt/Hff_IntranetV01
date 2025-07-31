@@ -389,8 +389,8 @@ and slor_numcf not in ('26434759')
 --AND ((slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR(slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%'))
 and TRIM(seor_refdem) IN ($numDitString)
 and slor_numor IN ($numOrString)
-and slor_refp = 'ST'
-AND trim(slor_constp) || '_' || TRIM(slor_refp) || '_' || slor_desi IN ($constRefDesisString)
+and TRIM(slor_refp) = 'ST'
+AND trim(slor_constp) || '_' || TRIM(slor_refp) || '_' || TRIM(slor_desi) IN ($constRefDesisString)
 
 $numDit
                 $numOr
@@ -490,8 +490,8 @@ and slor_numcf not in ('26434759')
 --AND ((slor_natcm = 'C' AND c.fcde_cdeext not like 'DAL%') OR(slor_natcm = 'L' AND cde.fcde_cdeext not like 'DAL%'))
 and TRIM(seor_refdem) IN ($numDitString)
 and slor_numor IN ($numOrString)
-and slor_refp <> 'ST'
-and slor_refp in ($listeReferenceCatalogueString)
+and TRIM(slor_refp) <> 'ST'
+and TRIM(slor_refp) in ($listeReferenceCatalogueString)
 
 
 

@@ -45,11 +45,27 @@ CREATE TABLE da_valider
 alter TABLE da_valider ADD niveau_urgence VARCHAR(50);
 alter TABLE da_valider ADD nom_fiche_technique VARCHAR(255);
 
-ALTER TABLE da_valider
-ADD jours_dispo int;
+ALTER TABLE da_valider ADD jours_dispo int;
 
-ALTER TABLE da_valider
-ADD qte_en_attent int;
+ALTER TABLE da_valider ADD qte_en_attent int;
 
-ALTER TABLE da_valider
-ADD demandeur varchar(100);
+ALTER TABLE da_valider ADD demandeur varchar(100);
+
+ALTER TABLE da_valider ADD id_da INT;
+
+ALTER TABLE da_valider ADD achat_direct BIT NOT NULL DEFAULT 0 WITH VALUES;
+
+ALTER TABLE da_valider ADD position_bc varchar(10);
+
+
+ALTER TABLE da_valider ADD date_planning_or DATETIME2(0);
+
+ALTER TABLE da_valider ADD or_a_resoumettre BIT DEFAULT 0;
+
+ALTER TABLE da_valider ADD numero_ligne_ips INT;
+
+
+UPDATE dv
+SET dv.id_da = da.id
+FROM da_valider dv
+JOIN Demande_Appro da ON dv.numero_demande_appro = da.numero_demande_appro;

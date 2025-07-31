@@ -132,10 +132,10 @@ class DomApi extends Controller
     public function personnelFetch($matricule)
     {
         $personne = self::$em->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
-        $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
+        // $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
         $tab = [
             'compteBancaire' => $personne->getNumeroCompteBancaire(),
-            'telephone' => $numTel
+            // 'telephone' => $numTel
         ];
 
         header("Content-type:application/json");

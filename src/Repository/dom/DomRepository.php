@@ -66,6 +66,11 @@ class DomRepository extends EntityRepository
                 ->setParameter('dateMissionFin', $domSearch->getDateMissionFin());
         }
 
+        // Filtre pour pièce justificatif
+        if (!is_null($domSearch->getPieceJustificatif())) {
+            $queryBuilder->andWhere('d.pieceJustificatif = :pieceJustificatif')
+                ->setParameter('pieceJustificatif', $domSearch->getPieceJustificatif());
+        }
 
         if (!$options['boolean']) {
             //ceci est figer pour les utilisateur autre que l'administrateur
@@ -85,10 +90,10 @@ class DomRepository extends EntityRepository
         $lastPage = ceil($totalItems / $limit);
 
         return [
-            'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
-            'totalItems' => $totalItems,
+            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems'  => $totalItems,
             'currentPage' => $page,
-            'lastPage' => $lastPage,
+            'lastPage'    => $lastPage,
         ];
     }
 

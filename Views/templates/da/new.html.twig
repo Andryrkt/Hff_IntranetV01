@@ -77,11 +77,14 @@
 							<tr>
 								<th class="w-10 align-middle">Famille</th>
 								<th class="w-10 align-middle">Sous-famille</th>
-								<th class="w-20 align-middle">Désignation</th>
+								<th class="w-7 align-middle">Référence</th>
+								<th class="w-20 align-middle">Désignation / Référence
+									<i class="fas fa-info-circle text-info fs-6 ms-2" id="info-icon" role="button"></i>
+								</th>
 								<th class="w-10 align-middle">Fournisseur</th>
 								<th class="w-10 align-middle">Date fin souhaitée</th>
-								<th class="w-5 align-middle">Quantité</th>
-								<th class="w-20 align-middle">Commentaire</th>
+								<th class="w-5 align-middle text-end">Quantité</th>
+								<th class="w-13 align-middle">Commentaire</th>
 								<th class="w-10 align-middle">Pièces jointes</th>
 								<th class="w-2 align-middle">Fiche technique</th>
 								<th class="w-2 align-middle">
@@ -119,6 +122,9 @@
 											{{ form_widget(DAL.codeFams2) }}
 										</div>
 									</div>
+									<div class="w-7">
+										{{ form_widget(DAL.artRefp) }}
+									</div>
 									<div class="w-20">
 										{{ form_widget(DAL.artDesi) }}
 										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
@@ -140,7 +146,7 @@
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem) }}
 									</div>
-									<div class="w-20">
+									<div class="w-13">
 										{{ form_widget(DAL.commentaire) }}
 									</div>
 									<div class="w-10">
@@ -151,9 +157,6 @@
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp) }}
-									</div>
-									<div class="d-none">
-										{{ form_widget(DAL.artRefp) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artFams1) }}

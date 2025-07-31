@@ -39,7 +39,20 @@ class DomTropPercuController extends Controller
         $user = self::$em->getRepository(User::class)->find($userId);
 
         $dom = new Dom;
+        /** 
+         * @var Dom $oldDom
+         */
         $oldDom = self::$em->getRepository(Dom::class)->find($id);
+
+        $this->statutTropPercu($oldDom);
+
+        if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission())) {
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
+            $this->redirectToRoute("doms_liste");
+        } elseif (!$oldDom->getStatutTropPercuOk()) {
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause de son statut.']);
+            $this->redirectToRoute("doms_liste");
+        }
 
         $this->initialisationFormTropPercu(self::$em, $dom, $oldDom);
         $criteria = [
@@ -47,6 +60,7 @@ class DomTropPercuController extends Controller
             'oldDateFin' => $oldDom->getDateFin()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
             'oldNombreJour' => $oldDom->getNombreJour(),
             'nombreJourTropPercu' => $this->DomModel->getNombreJourTropPercu($oldDom->getNumeroOrdreMission()),
+            'totalGeneral' => $oldDom->getTotalGeneralPayer(),
         ];
 
         $form = self::$validator->createBuilder(DomTropPercuFormType::class, $dom)->getForm();

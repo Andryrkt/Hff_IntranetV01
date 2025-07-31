@@ -21,4 +21,19 @@ class DwBcApproRepository extends EntityRepository
             ->getQuery()
             ->getOneOrNullResult(Query::HYDRATE_SINGLE_SCALAR);
     }
+
+    /** 
+     * Récupère le chemin du document associé à un numéro de demande Appro.
+     * @param string $numeroDa Le numéro de demande appro lequel on souhaite récupérer le chemin.
+     */
+    public function getPathAndNumeroBCByNumDa(string $numeroDa)
+    {
+        return  $this->createQueryBuilder('d')
+            ->select('d.path', 'd.numeroBc')
+            ->where('d.numeroDa = :numeroDa')
+            ->setParameter('numeroDa', $numeroDa)
+            ->orderBy('d.numeroBc', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

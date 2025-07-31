@@ -76,6 +76,12 @@
 		<div class="col-12 col-md-6">
 			{{ macroForm.affichage('Sous type document', dom.sousTypeDocument.codeSousType)}}
 		</div>
+		{% if dom.sousTypeDocument.codeSousType == "COMPLEMENT" %}
+			{% set piece_a_justifier = dom.pieceJustificatif ? 'OUI' : 'NON' %}
+			<div class="col-12 col-md-6">
+				{{ macroForm.affichage('Pièce à justifier', piece_a_justifier)}}
+			</div>
+		{% endif %}
 	</div>
 	<div class="row">
 		<div class="col-12 col-md-6" id="categ">

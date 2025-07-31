@@ -31,7 +31,7 @@ class DemandeAppro
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
     public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
     public const STATUT_TERMINER = 'TERMINER';
-    public const MAIL_APPRO = 'appro@hff.mg';
+    public const MAIL_APPRO = 'nomenjanahary.randrianantenaina@hff.mg';
 
     /**
      * @ORM\Id
@@ -44,6 +44,9 @@ class DemandeAppro
      * @ORM\Column(type="string", length=11, name="numero_demande_appro")
      */
     private string $numeroDemandeAppro;
+
+    private string $numeroOr;
+    private string $statutOr;
 
     /**
      * @ORM\Column(type="boolean", name="achat_direct")
@@ -833,6 +836,46 @@ class DemandeAppro
     public function setNiveauUrgence($niveauUrgence)
     {
         $this->niveauUrgence = $niveauUrgence;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroOr
+     */
+    public function getNumeroOr()
+    {
+        return $this->numeroOr;
+    }
+
+    /**
+     * Set the value of numeroOr
+     *
+     * @return  self
+     */
+    public function setNumeroOr($numeroOr)
+    {
+        $this->numeroOr = $numeroOr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutOr
+     */
+    public function getStatutOr()
+    {
+        return $this->statutOr;
+    }
+
+    /**
+     * Set the value of statutOr
+     *
+     * @return  self
+     */
+    public function setStatutOr($statutOr)
+    {
+        $this->statutOr = $statutOr;
 
         return $this;
     }

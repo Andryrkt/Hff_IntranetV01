@@ -29,6 +29,11 @@ class DwBcAppro
     private $numeroBc;
 
     /**
+     * @ORM\Column(type="string", length=50, name="numero_da", nullable=true)
+     */
+    private $numeroDa;
+
+    /**
      * @ORM\Column(type="string", length=8, name="numero_or", nullable=true)
      */
     private $numeroOr;
@@ -335,6 +340,26 @@ class DwBcAppro
     public function setPath($path)
     {
         $this->path = $path;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDa
+     */
+    public function getNumeroDa()
+    {
+        return $this->numeroDa;
+    }
+
+    /**
+     * Set the value of numeroDa
+     *
+     * @return  self
+     */
+    public function setNumeroDa($numeroDa)
+    {
+        $this->numeroDa = $numeroDa;
 
         return $this;
     }

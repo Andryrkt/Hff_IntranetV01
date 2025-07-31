@@ -67,6 +67,22 @@
   border-top-left-radius: 0 !important;
 }
 
+.nav-top span {
+  font-size: 1rem !important;
+}
+.nav-top {
+  margin-top: 0;
+  display: block;
+  color: white;
+  background-color: #212529;
+  font-size: 1rem;
+  text-align: center;
+  padding: 10px;
+  font-weight: bold;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
 /* CONVERSATION */
 .conversation {
   margin: 0;
@@ -186,4 +202,94 @@
   font-family: FontAwesome;
   display: inline-block;
   margin-right: 4px;
+}
+
+.list-file-item {
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background-color: #ffffff;
+  transition: background-color 0.2s, box-shadow 0.2s, border-left-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.border-left-ba {
+  border-left: 3px solid #0d6efd;
+}
+
+.border-left-or {
+  border-left: 3px solid #fd7e14;
+}
+
+.border-left-bc {
+  border-left: 3px solid #198754;
+}
+
+.border-left-facbl {
+  border-left: 3px solid #6f42c1;
+}
+
+.list-file-item:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+}
+
+.list-file-item:active {
+  transform: scale(0.99);
+}
+
+.list-file-item.selected {
+  background-color: #e7f1ff;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+}
+
+/* Style de la carte de chaque type de document */
+.document-type {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.document-type:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Style pour chaque fichier */
+.file-item {
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.file-item:hover {
+  background-color: #e9ecef;
+}
+
+.file-item:active {
+  transform: scale(0.98);
+}
+
+.file-item.selected {
+  background-color: #dbeafe; /* bleu clair */
+  border: 1px solid #5b9cff;
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
+}
+
+.checkmark-selected {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  font-size: 1.2rem;
+}
+
+.file-item.selected .checkmark-selected {
+  display: inline;
+}
+
+/* Lien de téléchargement */
+.download-link {
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.download-link:hover {
+  color: #0d6efd;
 }
