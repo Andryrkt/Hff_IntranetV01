@@ -224,6 +224,7 @@ class DaNewController extends Controller
 
                 $DAL
                     ->setNumeroDemandeAppro($numDa)
+                    ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setJoursDispo($this->getJoursRestants($DAL))
@@ -262,7 +263,7 @@ class DaNewController extends Controller
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
                 'dal'           => $dal,
-                'service'       => 'atelier',
+                'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
             ]);

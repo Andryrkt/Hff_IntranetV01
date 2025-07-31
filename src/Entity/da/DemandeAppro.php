@@ -57,7 +57,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
-    private string $numeroDemandeDit;
+    private string $numeroDemandeDit = '';
 
     /**
      * @ORM\Column(type="string", length=100, name="objet_dal")
