@@ -42,7 +42,6 @@ class planningAtelierModel extends Model
 
                     order by   section,numOR,itv,ressource
         ";
-        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
