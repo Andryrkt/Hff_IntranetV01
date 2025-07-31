@@ -14,6 +14,7 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Form\da\DemandeApproDirectFormType;
 use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
@@ -80,7 +81,23 @@ class DaNewController extends Controller
         ]);
     }
 
+    /**
+     * @Route("/new-da-direct", name="da_new_direct")
+     */
+    public function newDADirect(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
+        $demandeAppro = $this->initialisationDemandeApproDirect();
+
+        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $this->traitementFormDirect($form, $request, $demandeAppro);
+
+        self::$twig->display('da/new-da-direct.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
     {
@@ -91,6 +108,84 @@ class DaNewController extends Controller
              * @var DemandeAppro $demandeAppro
              */
             $demandeAppro = $form->getData();
+            $demandeAppro
+                ->setDemandeur(Controller::getUser()->getNomUtilisateur())
+                ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+                ->setNiveauUrgence($this->ditRepository->getNiveauUrgence($demandeAppro->getNumeroDemandeDit()))
+            ;
+
+            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $numDit = $demandeAppro->getNumeroDemandeDit();
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
+            $formDAL = $form->get('DAL');
+            /** ajout de ligne de demande appro dans la table Demande_Appro_L */
+            foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
+                /** 
+                 * @var DemandeApproL $DAL
+                 */
+                $DAL
+                    ->setNumeroDemandeAppro($numDa)
+                    ->setNumeroLigne($ligne + 1)
+                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
+                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
+                    ->setNumeroDit($numDit)
+                    ->setJoursDispo($this->getJoursRestants($DAL))
+                ;
+                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
+                if (null === $DAL->getNumeroFournisseur()) {
+                    $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
+                    $this->redirectToRoute("da_list");
+                }
+                self::$em->persist($DAL);
+            }
+
+            /** Modifie la colonne dernière_id dans la table applications */
+            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
+            $application->setDerniereId($numDa);
+            self::$em->persist($application);
+
+            /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
+            self::$em->persist($demandeAppro);
+
+            /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
+            if ($demandeAppro->getObservation() !== null) {
+                $this->insertionObservation($demandeAppro);
+            }
+
+            self::$em->flush();
+
+            /** ENVOIE D'EMAIL */
+            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+            $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+            $this->envoyerMailAuxAppros([
+                'id'            => $demandeAppro->getId(),
+                'numDa'         => $numDa,
+                'objet'         => $demandeAppro->getObjetDal(),
+                'detail'        => $demandeAppro->getDetailDal(),
+                'dal'           => $dal,
+                'service'       => 'atelier',
+                'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
+                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            ]);
+
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->redirectToRoute("da_list");
+        }
+    }
+
+    private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /** 
+             * @var DemandeAppro $demandeAppro
+             */
+            $demandeAppro = $form->getData();
+            dd($demandeAppro);
             $demandeAppro
                 ->setDemandeur(Controller::getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
@@ -223,6 +318,35 @@ class DaNewController extends Controller
             ->setUser(Controller::getUser())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
+    }
+
+    /** 
+     * Fonction pour initialiser une demande appro direct
+     * 
+     * @return DemandeAppro la demande appro initialisée
+     */
+    private function initialisationDemandeApproDirect(): DemandeAppro
+    {
+        $demandeAppro = new DemandeAppro;
+
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agence = $agenceServiceIps['agenceIps'];
+        $service = $agenceServiceIps['serviceIps'];
+
+        $demandeAppro
+            ->setAchatDirect(true)
+            ->setAgenceDebiteur($agence)
+            ->setServiceDebiteur($service)
+            ->setAgenceEmetteur($agence)
+            ->setServiceEmetteur($service)
+            ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
+            ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
+            ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
+            ->setUser(Controller::getUser())
+            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
+        ;
+
+        return $demandeAppro;
     }
 
     /** 
