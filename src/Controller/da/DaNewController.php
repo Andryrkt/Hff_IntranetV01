@@ -15,6 +15,7 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
@@ -36,6 +37,7 @@ class DaNewController extends Controller
     private DitRepository $ditRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DaModel $daModel;
+    private DaAfficherRepository $daAfficherRepository;
 
 
     public function __construct()
@@ -46,6 +48,7 @@ class DaNewController extends Controller
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->daModel = new DaModel();
+        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
     }
 
     /**
@@ -112,7 +115,6 @@ class DaNewController extends Controller
                     ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
                     ->setNumeroDit($numDit)
                     ->setJoursDispo($this->getJoursRestants($DAL))
@@ -165,13 +167,14 @@ class DaNewController extends Controller
 
     public function ajoutDatadansTableDaAfficher(DemandeAppro $demandeAppro): void
     {
-        $daAfficher = new DaAfficher();
-        $daAfficher->enregistrerDa($demandeAppro);
+        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher = new DaAfficher();
+            $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
+            $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMax));
+            self::$em->persist($daAfficher);
         }
-
-        self::$em->persist($daAfficher);
     }
 
     /** 

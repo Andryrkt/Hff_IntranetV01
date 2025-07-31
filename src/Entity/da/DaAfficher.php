@@ -189,7 +189,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
-    private string $validePar;
+    private ?string $validePar = null;
 
     /**
      * @ORM\Column(type="integer", name="numero_version")
@@ -228,7 +228,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="integer", name="id_da")
      */
-    private int $idDa;
+    private ?int $idDa;
 
     /**
      * @ORM\Column(type="boolean", name="achat_direct")
@@ -1304,6 +1304,7 @@ class DaAfficher
             ->setIdDa($da->getId())
             ->setAchatDirect($da->getAchatDirect())
             ->setDateDemande($da->getDateCreation())
+            ->setIdDa($da->getId())
         ;
     }
 

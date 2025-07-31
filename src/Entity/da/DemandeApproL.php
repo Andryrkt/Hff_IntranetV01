@@ -72,12 +72,12 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=10, name="code_fams1")
      */
-    private ?string $codeFams1;
+    private ?string $codeFams1 = null;
 
     /**
      * @ORM\Column(type="string", length=10, name="code_fams2")
      */
-    private ?string $codeFams2;
+    private ?string $codeFams2 = null;
 
     /**
      * @ORM\Column(type="string", length=7, name="numero_fournisseur")
@@ -138,7 +138,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
-    private string $validePar;
+    private ?string $validePar = null;
 
     /**
      * @ORM\Column(type="integer", name="numero_version")

@@ -18,9 +18,9 @@ class DaAfficherRepository extends EntityRepository
      */
     public function getNumeroVersionMax(string $numeroDemandeAppro)
     {
-        $numeroVersionMax = $this->createQueryBuilder('dav')
-            ->select('MAX(dav.numeroVersion)')
-            ->where('dav.numeroDemandeAppro = :numDa')
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numDa')
             ->setParameter('numDa', $numeroDemandeAppro)
             ->getQuery()
             ->getSingleScalarResult();
