@@ -1,0 +1,128 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
+{% endblock %}
+
+{% set styleStatutDA = {
+		'Demande d’achats': 'bg-demande-achat fw-bold',
+		'Proposition achats': 'bg-proposition-achat fw-bold',
+		'Bon d’achats validé': 'bg-bon-achat-valide fw-bold',
+		'Création demande initiale': 'bg-creation-demande-initiale fw-bold',
+} %}
+
+{% set styleStatutOR = {
+		'Refusé chef atelier': 'bg-or-non-valide',
+		'Refusé client interne': 'bg-or-non-valide',
+		'Validé': 'bg-danger text-white',
+		'A resoumettre à validation': 'bg-warning text-secondary',
+} %}
+
+{% set styleStatutBC = {
+		'A générer': 'bg-bc-a-generer fw-bold',
+		'A éditer': 'bg-bc-a-editer fw-bold',
+		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
+		'Validé': 'bg-bc-valide fw-bold',
+		'Cloturé': 'bg-bc-valide fw-bold',
+		'Non validé': 'bg-bc-non-valide fw-bold',
+		'Tout livré':'tout-livre bg-success text-white',
+		'Partiellement livré':'partiellement-livre bg-warning text-white',
+		'Partiellement dispo':'partiellement-dispo bg-info text-white',
+		'Complet non livré':'complet-non-livre bg-primary text-white'
+} %}
+
+{% block content %}
+
+	<div class="sticky-header-titre">
+		<div class="container mb-3">
+			<h3 class="perso-titre">
+				Liste des demandes d'achat
+			</h3>
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+		</div>
+	</div>
+
+	<div class="container-fluid">
+		<table class="table table-plein-ecran">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">N° Demande</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Niveau urgence DIT</th>
+					<th class="text-center">N° OR</th>
+					<th class="text-center">Demandeur</th>
+					<th class="text-center">Date de demande</th>
+					<th class="text-center">Statut DA</th>
+					<th class="text-center">Statut OR</th>
+					<th class="text-center">Statut BC</th>
+					<th class="text-center">Date Planning OR</th>
+					<th>Fournisseur</th>
+					<th>Réference</th>
+					<th>Désignation</th>
+					<th class="text-center">Fiche technique</th>
+					<th class="text-center">Qté dem</th>
+					<th class="text-center">Qté en attente</th>
+					<th class="text-center">Qté Dispo (Qté à livrer)</th>
+					<th class="text-center">Qté livrée</th>
+					<th class="text-center">Date fin souhaitée</th>
+					<th class="text-center">Date livraison prévue</th>
+					<th class="text-center">Nbr Jour(s) dispo</th>
+					<th class="text-center">Suppression</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody" class="align-middle">
+				{% for item in data %}
+
+					<tr>
+						{# === Début Action ==== #}
+						<td style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style=""></ul>
+							</div>
+						</td>
+						{# === Fin Actions ==== #}
+						<td>{{item.numeroDemandeAppro}}</td>
+						<td>{{item.numeroDemandeDit}}</td>
+						<td>{{item.niveauUrgence}}</td>
+						<td>{{item.numeroOr}}</td>
+						<td>{{item.demandeur}}</td>
+						<td>{{item.dateDemande | date('d/m/Y')}}</td>
+						<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{item.statutDal}}</td>
+						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.statutOr}}</td>
+						<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{item.statutCde}}</td>
+						<td class="text-center">{{item.datePlannigOr}}</td>
+						<td class="text-start">{{item.nomFournisseur}}</td>
+						<td class="text-start">{{item.artRefp}}</td>
+						<td class="text-start">{{item.artDesi}}</td>
+						<td class="text-center">{{item.estFicheTechnique}}</td>
+						<td class="text-center">{{item.qteDem}}</td>
+						<td class="text-center">{{item.qteEnAttent}}</td>
+						<td class="text-center">{{item.qteDispo}}</td>
+						<td class="text-center">{{item.qteLivrer}}</td>
+						<td class="text-center">{{item.dateFinSouhaite | date('d/m/Y')}}</td>
+						<td class="text-center">{{item.dateLivraisonPrevue == null ? '' :item.dateLivraisonPrevue | date('d/m/Y')}}</td>
+						<td class="text-center">{{item.joursDispo}}</td>
+						<td class="text-center">X
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/positionSticky.js" type="module"></script>
+{% endblock %}

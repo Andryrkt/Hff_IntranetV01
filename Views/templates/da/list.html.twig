@@ -17,16 +17,16 @@
 	{# DEBUT Récupération des id de role de l'utilisateur dans un tableau role_ids #}
 	{% set role_ids = App.user.roleIds %}
 
-		<div class="sticky-header-titre">
-	<div class="container mb-3">
-		<h3 class="perso-titre">
-			Liste des demandes d'achat
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
-		{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
-		{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+	<div class="sticky-header-titre">
+		<div class="container mb-3">
+			<h3 class="perso-titre">
+				Liste des demandes d'achat
+			</h3>
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+			{# {% include "/da/shared/listeDA/_pagination.html.twig" %} #}
+		</div>
 	</div>
-</div>
 	{# Statut de la DA #}
 	{% set styleStatutDA = {
 		'Demande d’achats': 'bg-demande-achat fw-bold',
