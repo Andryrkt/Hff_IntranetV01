@@ -428,9 +428,13 @@ class Controller
 
 
     /**
-     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
+     * Récupère l'agence et le service de l'utilisateur connecté dans un tableau associatif
+     * où les éléments sont des objets.
      *
-     * @return array
+     * @return array{
+     *     agenceIps: Agence, 
+     *     serviceIps: Service
+     * }
      */
     protected function agenceServiceIpsObjet(): array
     {

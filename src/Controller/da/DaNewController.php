@@ -15,6 +15,7 @@ use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Form\da\DemandeApproDirectFormType;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
@@ -84,7 +85,23 @@ class DaNewController extends Controller
         ]);
     }
 
+    /**
+     * @Route("/new-da-direct", name="da_new_direct")
+     */
+    public function newDADirect(Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
 
+        $demandeAppro = $this->initialisationDemandeApproDirect();
+
+        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $this->traitementFormDirect($form, $request, $demandeAppro);
+
+        self::$twig->display('da/new-da-direct.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
     {
@@ -171,6 +188,8 @@ class DaNewController extends Controller
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
             $daAfficher->enregistrerDa($demandeAppro);
+            $daAfficher = new DaAfficher();
+            $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMax));
             self::$em->persist($daAfficher);
@@ -241,6 +260,35 @@ class DaNewController extends Controller
             ->setUser(Controller::getUser())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
+    }
+
+    /** 
+     * Fonction pour initialiser une demande appro direct
+     * 
+     * @return DemandeAppro la demande appro initialisée
+     */
+    private function initialisationDemandeApproDirect(): DemandeAppro
+    {
+        $demandeAppro = new DemandeAppro;
+
+        $agenceServiceIps = $this->agenceServiceIpsObjet();
+        $agence = $agenceServiceIps['agenceIps'];
+        $service = $agenceServiceIps['serviceIps'];
+
+        $demandeAppro
+            ->setAchatDirect(true)
+            ->setAgenceDebiteur($agence)
+            ->setServiceDebiteur($service)
+            ->setAgenceEmetteur($agence)
+            ->setServiceEmetteur($service)
+            ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
+            ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
+            ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
+            ->setUser(Controller::getUser())
+            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
+        ;
+
+        return $demandeAppro;
     }
 
     /** 
