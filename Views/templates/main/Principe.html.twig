@@ -96,27 +96,28 @@
 							Demande d'Intervention</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							{% if App.user.nomUtilisateur != 'stg.iaro' %}
-							<li>
-								<a class="dropdown-item" href="{{ path("dit_new")}}">Nouvelle Demande</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("dit_index")}}">Consultation</a>
-							</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("dit_new")}}">Nouvelle Demande</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path("dit_index")}}">Consultation</a>
+								</li>
 							{% endif %}
 							<li>
 								<a class="dropdown-item" target="_blank" href="{{ path("dit_dossier_intervention_atelier")}}">Dossier DIT</a>
 							</li>
 							{% if App.user.nomUtilisateur != 'stg.iaro' %}
-							<li>
-								<a class="dropdown-item" href="/Upload/excel_dit/DOSSIER%20DIT-%20Achats.xlsx" download>Télécharger Excel DIT</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
-							</li>
+								<li>
+									<a class="dropdown-item" href="/Upload/excel_dit/DOSSIER%20DIT-%20Achats.xlsx" download>Télécharger Excel DIT</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="/Upload/dit/glossaire_or/Glossaire_OR.pdf" target="_blank">Glossaire OR</a>
+								</li>
+							{% endif %}
 							{% if hasPAT %}
-							<li>
-								<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
-							</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('planningAtelier_vue') }}">Planning Atelier</a>
+								</li>
 							{% endif %}
 
 						</ul>
