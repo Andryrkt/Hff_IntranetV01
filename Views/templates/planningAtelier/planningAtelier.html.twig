@@ -44,7 +44,7 @@
 				<th rowspan="2">Agence Travaux</th>
 				<th rowspan="2">Section</th>
 				<th rowspan="2">Intitulé Travaux</th>
-				<th rowspan="2">numOR</th>
+				<th rowspan="2">OR</th>
 				<th rowspan="2">Itv</th>
 				<th rowspan="2">Ressource</th>
 				<th rowspan="2">Nb jour</th>
@@ -63,7 +63,7 @@
 			{% for row in planning %}
 				<tr>
 					<td>{{ row.agenceem }}</td>
-					<td>{{ row.section }}</td>
+					<td class="fw-bold text-start align-baseline">{{ row.section }}</td>
 					<td>{{ row.intitule }}</td>
 					<td>{{ row.numor }}</td>
 					<td>{{ row.itv }}</td>

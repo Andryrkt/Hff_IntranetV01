@@ -25,7 +25,7 @@ class planningAtelierModel extends Model
                                     round(ska_duration)/8 as nbJour,
                                     ska.ska_d_start as dateDebut,
                                     ska.ska_d_end as dateFin,
-                                    (select trim(asuc_lib) from agr_succ where asuc_num = sitv_succ) as agenceEm
+                                    (select asuc_num ||'-'||  trim(asuc_lib)from agr_succ where asuc_num = sitv_succ) as agenceEm
                     from ska, skr, skr_skg, skg, skw, sav_itv
                     where ska_soc = 'HF'
                     and sitv_soc = ska.ska_soc and sitv_numor = skw.ofh_id and sitv_interv = skw.ofs_id and ska.skw_id = skw.skw_id
