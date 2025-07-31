@@ -3,6 +3,7 @@
 namespace App\Model\da;
 
 use App\Model\Model;
+use App\Service\TableauEnStringService;
 
 class DaModel extends Model
 {

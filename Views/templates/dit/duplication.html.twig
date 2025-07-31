@@ -30,11 +30,11 @@
 
 					<div class="row">
 						<div class="col-12 col-md-2">{{ form_row(form.typeDocument) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
+						<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.demandeDevis)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.livraisonPartiel)}}</div>
 						<div class="col-12 col-md-2">{{ form_row(form.avisRecouvrement)}}</div>
-						<div class="col-12 col-md-2">{{ form_row(form.categorieDemande) }}</div>
-						<div class="col-12 col-md-2">{{ form_row(form.internetExterne)}}</div>
 					</div>
 
 
@@ -64,16 +64,22 @@
 
 							{{ macroForm.sousTitre('Info Client', {class: 'sousTitre'})}}
 							<div class="row">
-								<div class="col-12 col-md-4">
+								<div class="col-12 col-md-6">
+									{{ form_row(form.numeroClient)}}
+									<div id="suggestion-numClient" class="suggestions-container"></div>
+									<div id="loader-numClient" class="spinner" style="display: none;"></div>
 									{{ form_row(form.nomClient)}}
-
+									<div id="suggestion-nomClient" class="suggestions-container"></div>
+									<div id="loader-nomClient" class="spinner" style="display: none;"></div>
+									{{ form_row(form.clientSousContrat)}}
 								</div>
-								<div class="col-12 col-md-4">
+								<div class="col-12 col-md-6">
 									{{ form_row(form.numeroTel)}}
-								</div>
-								<div class="col-12 col-md-4">
 									{{ form_row(form.mailClient)}}
 								</div>
+							</div>
+							<div class="row">
+								<span id="erreurClient"></span>
 							</div>
 							{{ macroForm.sousTitre('Information Matériel', {class: 'sousTitre'})}}
 							<div class="row">
