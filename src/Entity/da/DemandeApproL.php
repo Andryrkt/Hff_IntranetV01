@@ -47,7 +47,7 @@ class DemandeApproL
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
      */
-    private string $artConstp;
+    private ?string $artConstp = '';
 
     /**
      * @ORM\Column(type="string", length=50, name="art_refp")
