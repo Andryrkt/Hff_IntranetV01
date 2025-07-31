@@ -2,30 +2,32 @@
 
 namespace App\Controller\da;
 
+use App\Entity\dw\DwFacBl;
+use App\Model\dit\DitModel;
+use App\Entity\dw\DwBcAppro;
+use App\Entity\da\DaAfficher;
+use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Form\da\DaObservationType;
+use App\Controller\Traits\da\DaTrait;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\lienGenerique;
+use App\Repository\dw\DwBcApproRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Entity\dw\DwBcAppro;
-use App\Entity\dw\DwFacBl;
-use App\Form\da\DaObservationType;
-use App\Model\dit\DitModel;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproRepository;
+use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dw\DwBcApproRepository;
-use App\Repository\dw\DwFactureBonLivraisonRepository;
-use App\Service\EmailService;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\DossierInterventionAtelierModel;
+use App\Repository\dw\DwFactureBonLivraisonRepository;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
  * @Route("/demande-appro")
@@ -43,6 +45,7 @@ class DaDetailController extends Controller
 	private DwFactureBonLivraisonRepository $dwFacBlRepository;
 	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
+	private DaAfficherRepository $daAfficherRepository;
 
 	public function __construct()
 	{
@@ -55,6 +58,7 @@ class DaDetailController extends Controller
 		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
 		$this->daLRepository = self::$em->getRepository(DemandeApproL::class);
 		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
+		$this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
 	}
 
 	/**
@@ -65,7 +69,7 @@ class DaDetailController extends Controller
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->daRepository->find($id); // recupération de la DA
+		$demandeAppro = $this->daAfficherRepository->find($id); // recupération de la DA
 		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
 		$ditModel = new DitModel;
 		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());

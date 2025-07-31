@@ -101,10 +101,10 @@ class listeDaController extends Controller
     /** 
      * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
      */
-    private function estVerouillerOuNon($daValiderOuProposer)
+    private function estVerouillerOuNon($daAfficher)
     {
-        $statutDa = $daValiderOuProposer->getStatutDal(); // Récupération du statut de la DA
-        $statutBc = $daValiderOuProposer->getStatutBc(); // Récupération du statut du BC
+        $statutDa = $daAfficher->getStatutDal(); // Récupération du statut de la DA
+        $statutBc = $daAfficher->getStatutCde(); // Récupération du statut du BC
 
         $estAppro = Controller::estUserDansServiceAppro();
         $estAtelier = Controller::estUserDansServiceAtelier();
@@ -135,6 +135,6 @@ class listeDaController extends Controller
         }
 
         // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
-        $daValiderOuProposer->setVerouille($verouiller);
+        $daAfficher->setVerouille($verouiller);
     }
 }

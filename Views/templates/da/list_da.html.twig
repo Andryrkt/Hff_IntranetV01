@@ -94,25 +94,31 @@
 						</td>
 						{# === Fin Actions ==== #}
 						<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ path('da_detail', { id : item.idDa }) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+							<a href="{{ path('da_detail', { id : item.id }) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
 								{{item.numeroDemandeAppro}}
 							</a>
 						</td>
-						<td>{{item.achatDirect}}</td>
+						<td class="text-center">
+							{% if item.achatDirect %}
+								<i class="fas fa-check text-success"></i>
+							{% else %}
+								<i class="fas fa-xmark text-danger"></i>
+							{% endif %}
+						</td>
 						<td>{{item.numeroDemandeDit}}</td>
 						<td>{{item.niveauUrgence}}</td>
 						<td>{{item.numeroOr}}</td>
 						<td>{{item.demandeur}}</td>
 						<td>{{item.dateDemande | date('d/m/Y')}}</td>
-						<td class="{{ styleStatutDA[dal.statutDal] }} fw-bold">{{item.statutDal}}</td>
+						<td class="{{ styleStatutDA[item.statutDal] }} fw-bold">{{item.statutDal}}</td>
 						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.statutOr}}</td>
-						<td class="text-start {{ styleStatutBC[dal.statutBc] }} fw-bold">{{item.statutCde}}</td>
+						<td class="text-start {{ styleStatutBC[item.statutCde] }} fw-bold">{{item.statutCde}}</td>
 						<td class="text-center">{{item.datePlannigOr}}</td>
 						<td class="text-start">{{item.nomFournisseur}}</td>
 						<td class="text-start">{{item.artRefp}}</td>
 						<td class="text-start">{{item.artDesi}}</td>
 						<td class="text-center">
-							{% if dal.estFicheTechnique %}
+							{% if item.estFicheTechnique %}
 								<i class="fas fa-check text-success"></i>
 							{% else %}
 								<i class="fas fa-xmark text-danger"></i>
@@ -124,10 +130,10 @@
 						<td class="text-center">{{item.qteLivrer == 0 ? '-' : item.qteLivrer}}</td>
 						<td class="text-center">{{item.dateFinSouhaite | date('d/m/Y')}}</td>
 						<td class="text-center">{{item.dateLivraisonPrevue == null ? '' :item.dateLivraisonPrevue | date('d/m/Y')}}</td>
-						<td class="text-center {{ dal.joursDispo < 0 ? 'text-danger' : '' }}">{{item.joursDispo}}</td>
+						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{item.joursDispo}}</td>
 						<td class="text-center">
-							{% if serviceAppro and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and dal.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}
-								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-id="{{ dal.id }}"></i>
+							{% if serviceAppro and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}
+								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-id="{{ item.id }}"></i>
 							{% endif %}
 						</td>
 					</tr>

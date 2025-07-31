@@ -188,8 +188,6 @@ class DaNewController extends Controller
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
             $daAfficher->enregistrerDa($demandeAppro);
-            $daAfficher = new DaAfficher();
-            $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMax));
             self::$em->persist($daAfficher);

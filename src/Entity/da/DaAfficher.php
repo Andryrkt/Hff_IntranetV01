@@ -49,7 +49,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="statut_or")
      */
-    private ?string $statutOr;
+    private ?string $statutOr = null;
 
     /**
      * @ORM\Column(type="string", length=50, name="statut_cde")
@@ -74,17 +74,17 @@ class DaAfficher
     /**
      * @ORM\Column(type="integer", name="qte_dem")
      */
-    private int $qteDem;
+    private int $qteDem = 0;
 
     /**
      * @ORM\Column(type="integer", name="qte_dispo")
      */
-    private int $qteDispo;
+    private int $qteDispo = 0;
 
     /**
      * @ORM\Column(type="integer", name="qte_livrer")
      */
-    private ?int $qteLivrer = 0;
+    private int $qteLivrer = 0;
 
     /**
      * @ORM\Column(type="string", length=3, name="art_constp")
@@ -201,19 +201,19 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=50, name="niveau_urgence")
      */
-    private string $niveauUrgence;
+    private ?string $niveauUrgence = null;
 
     /**
      * @ORM\Column(type="integer", name="jours_dispo")
      *
      * @var integer | null
      */
-    private ?int $joursDispo;
+    private int $joursDispo = 0;
 
     /**
      * @ORM\Column(type="integer", name="qte_en_attent")
      */
-    private ?int $qteEnAttent = 0;
+    private int $qteEnAttent = 0;
 
     /**
      * @ORM\Column(type="string", length=100)
@@ -1010,7 +1010,7 @@ class DaAfficher
     /**
      * Get the value of statutOr
      */
-    public function getStatutOr(): string
+    public function getStatutOr()
     {
         return $this->statutOr;
     }
@@ -1018,7 +1018,7 @@ class DaAfficher
     /**
      * Set the value of statutOr
      */
-    public function setStatutOr(?string $statutOr): self
+    public function setStatutOr($statutOr): self
     {
         $this->statutOr = $statutOr;
 
@@ -1305,6 +1305,7 @@ class DaAfficher
             ->setAchatDirect($da->getAchatDirect())
             ->setDateDemande($da->getDateCreation())
             ->setIdDa($da->getId())
+            ->setNiveauUrgence($da->getNiveauUrgence())
         ;
     }
 
