@@ -1354,6 +1354,7 @@ class DaAfficher
             ->setPjPropositionAppro($dalr->getFileNames())
             ->setValidePar($dalr->getValidePar())
             ->setJoursDispo($dalr->getDemandeApproL()->getJoursDispo())
+            ->setEstDalr(true)
         ;
     }
 }

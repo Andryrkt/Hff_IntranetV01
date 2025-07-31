@@ -182,13 +182,12 @@ class DaNewController extends Controller
 
     public function ajoutDatadansTableDaAfficher(DemandeAppro $demandeAppro): void
     {
-        $daAfficher = new DaAfficher();
-        $daAfficher->enregistrerDa($demandeAppro);
         foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher = new DaAfficher();
+            $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
+            self::$em->persist($daAfficher);
         }
-
-        self::$em->persist($daAfficher);
     }
 
     private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
