@@ -189,6 +189,17 @@ class DaValiderRepository extends EntityRepository
         $this->applyDynamicFilters($qb, $criteria);
 
         $qb->orderBy('dav.numeroDemandeAppro', 'ASC');
+
+        // $query = $qb->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
+
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+
         return $qb->getQuery()->getResult();
     }
 
