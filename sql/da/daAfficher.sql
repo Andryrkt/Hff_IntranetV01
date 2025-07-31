@@ -54,3 +54,7 @@ CREATE TABLE da_afficher
     date_modification DATETIME2(0),
     CONSTRAINT PK_da_afficher PRIMARY KEY (id)
 );
+
+ALTER TABLE da_afficher ADD bc_envoyer_fournisseur BIT NOT NULL DEFAULT 0;
+
+

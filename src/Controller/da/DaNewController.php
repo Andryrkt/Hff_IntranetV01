@@ -2,14 +2,15 @@
 
 namespace App\Controller\da;
 
+use App\Model\da\DaModel;
+use App\Entity\da\DaAfficher;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
+use App\Controller\Traits\da\DaTrait;
 use App\Form\da\DemandeApproFormType;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
@@ -19,8 +20,9 @@ use App\Model\da\DaModel;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\DemandeApproTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @Route("/demande-appro")
@@ -154,6 +156,9 @@ class DaNewController extends Controller
                 $this->insertionObservation($demandeAppro);
             }
 
+            // ajout des données dans la table DaAfficher
+            $this->ajoutDatadansTableDaAfficher($demandeAppro);
+
             self::$em->flush();
 
             /** ENVOIE D'EMAIL */
@@ -174,6 +179,17 @@ class DaNewController extends Controller
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("da_list");
         }
+    }
+
+    public function ajoutDatadansTableDaAfficher(DemandeAppro $demandeAppro): void
+    {
+        $daAfficher = new DaAfficher();
+        $daAfficher->enregistrerDa($demandeAppro);
+        foreach ($demandeAppro->getDAL() as $dal) {
+            $daAfficher->enregistrerDal($dal);
+        }
+
+        self::$em->persist($daAfficher);
     }
 
     private function traitementFormDirect($form, Request $request, DemandeAppro $demandeAppro): void
