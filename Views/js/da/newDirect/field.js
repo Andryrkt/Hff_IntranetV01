@@ -1,5 +1,3 @@
-import { resetDropdown } from "../../utils/dropdownUtils";
-
 // Dictionnaire pour stocker les fichiers sélectionnés par champ input
 const selectedFilesMap = {};
 
@@ -18,7 +16,7 @@ export function createFieldAndAppendTo(
   // console.log(fieldName, field);
 
   let dateFinSouhaitee = document.getElementById(
-    "demande_appro_form_dateFinSouhaite"
+    "demande_appro_direct_form_dateFinSouhaite"
   ).value;
   field.required = ![
     "commentaire",
@@ -33,10 +31,6 @@ export function createFieldAndAppendTo(
 
   if (fieldName === "dateFinSouhaite") {
     field.value = dateFinSouhaitee;
-  } else if (fieldName === "artRefp") {
-    field.classList.add("non-modifiable");
-  } else if (fieldName === "artConstp") {
-    field.value = "ZST";
   } else if (fieldName === "numeroLigne") {
     field.value = localStorage.getItem("index");
   } else if (fieldName === "fileNames") {
@@ -66,42 +60,6 @@ export function createRemoveButtonAndAppendTo(prototype, parentField) {
   // Append the field
   fieldContainer.appendChild(removeButton);
   parentField.appendChild(fieldContainer);
-}
-
-export function createFams2AndAppendTo(className, prototype, parentField) {
-  // Création du conteneur principal
-  let field = document.createElement("div");
-  field.classList.add(className);
-
-  // Sélection de l'élément cible
-  let fams2Field = prototype.querySelector(`[id*="codeFams2"]`);
-  fams2Field.required = true; // champ requis
-
-  // Effacer tous les options
-  resetDropdown(fams2Field, "-- Choisir une sous-famille --");
-
-  // Génération des nouveaux IDs pour le spinner et le conteneur
-  let baseId = fams2Field.id.replace("demande_appro_form_DAL", "");
-
-  // Création du conteneur du spinner
-  let spinnerContainer = document.createElement("div");
-  spinnerContainer.classList.add("spinner-container");
-  spinnerContainer.innerHTML = `
-    <div class="spinner-load m-auto" id="spinner${baseId}" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
-      ${"<div></div>".repeat(12)} 
-    </div>
-  `;
-
-  // Création du conteneur de l'élément cible
-  let containerDiv = document.createElement("div");
-  containerDiv.id = `container${baseId}`;
-  containerDiv.appendChild(fams2Field);
-
-  // Ajout des éléments au conteneur principal
-  field.append(spinnerContainer, containerDiv);
-
-  // Ajout du conteneur principal au parent
-  parentField.appendChild(field);
 }
 
 export function createFileContainerAndAppendTo(
@@ -162,17 +120,13 @@ export function createFieldAutocompleteAndAppendTo(
   field.required = true; // champ requis
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
-  let baseId = field.id.replace("demande_appro_form_DAL", "");
+  let baseId = field.id.replace("demande_appro_direct_form_DAL", "");
 
   // Création du conteneur du spinner
   let spinnerContainer = document.createElement("div");
   spinnerContainer.id = `spinner_container${baseId}`;
   spinnerContainer.style.display = "none";
   spinnerContainer.classList.add("text-center");
-  if (fieldName === "artDesi") {
-    field.classList.add("champ-surligne-jaune");
-    spinnerContainer.innerHTML = `<div class="text-overlay">Veuillez patienter s'il vous plaît! Chargement des données </div><div class="loader-points"></div>`;
-  }
 
   // Création du conteneur de l'élément cible
   let containerDiv = document.createElement("div");
@@ -204,7 +158,7 @@ export function formatAllField(line) {
 export function getTheField(
   line,
   fieldName,
-  prefixId = "demande_appro_form_DAL"
+  prefixId = "demande_appro_direct_form_DAL"
 ) {
   return document.getElementById(`${prefixId}_${line}_${fieldName}`);
 }

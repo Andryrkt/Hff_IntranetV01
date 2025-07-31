@@ -112,9 +112,21 @@ a.choix:hover {
 }
 
 .file-list li .file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-list li .file-name a {
   color: #007bff;
   text-decoration: none;
   font-weight: 500;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .file-list li .file-size {
@@ -164,6 +176,10 @@ a.choix:hover {
 
 .w-15 {
   width: 15% !important;
+}
+
+.w-19 {
+  width: 19% !important;
 }
 
 .w-20 {
@@ -225,7 +241,7 @@ a.choix:hover {
   display: inline-block;
 }
 
-[id*="demande_appro_form_DAL"][id*="estFicheTechnique"] {
+[id*="estFicheTechnique"] {
   width: 1.5em;
   height: 1.5em;
   border-radius: 0.3em;
