@@ -55,13 +55,14 @@ class DaValidationController extends Controller
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
+        /** @var DemandeAppro $da la demande appro retourné par la fonction */
         $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
 
-        /** Ajout non fichier de reference zst */
-        $da->setNonFichierRefZst($nomEtChemin['fileName']);
+        /** Ajout nom fichier du bon d'achat (excel) */
+        $da->setNomFichierBav($nomEtChemin['fileName']);
         self::$em->flush();
 
         $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);

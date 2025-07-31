@@ -44,8 +44,8 @@
 			<div class="col-md-12 col-12">
 				{{ macroForm.affichage2('Objet du DIT', demandeAppro.dit.objetDemande, 'mb-2') }}
 			</div>
-			{% if nomFichierRefZst is not null and estAte %}
-				<a class="fw-bold" href="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{nomFichierRefZst}}" download>Télécharger le bon d'achat</a>
+			{% if demandeAppro.nomFichierBav is not null and estAte %}
+				<a class="fw-bold" href="{{ App.base_path_fichier }}/da/{{ demandeAppro.numeroDemandeAppro }}/{{demandeAppro.nomFichierBav}}" download>Télécharger le bon d'achat</a>
 			{% endif %}
 		</div>
 	</div>
