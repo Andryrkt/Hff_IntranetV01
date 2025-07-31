@@ -2,6 +2,7 @@
 
 namespace App\Repository\da;
 
+use App\Entity\da\DaAfficher;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\QueryBuilder;
@@ -245,13 +246,18 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    public function getNbrDaValider(string $numeroOr): int
+    public function findDerniereVersionDesDA(): array
     {
-        return $this->createQueryBuilder('dav')
-            ->select('COUNT(dav.id) AS nombreDaValider')
-            ->where('dav.numeroOr = :numOr')
-            ->setParameter('numOr', $numeroOr)
-            ->getQuery()
-            ->getSingleScalarResult();
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->where(
+                'd.numeroVersion = (
+                    SELECT MAX(d2.numeroVersion)
+                    FROM ' . DaAfficher::class . ' d2
+                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
+                )'
+            );
+
+        return $qb->getQuery()->getResult();
     }
 }

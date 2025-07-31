@@ -80,10 +80,7 @@ class DaAfficher
      * @ORM\Column(type="integer", name="qte_dispo")
      */
     private int $qteDispo;
-    /**
-     * @ORM\Column(type="integer", name="qte_a_livrer")
-     */
-    private ?int $qteALivrer = 0;
+
     /**
      * @ORM\Column(type="integer", name="qte_livrer")
      */
@@ -267,6 +264,8 @@ class DaAfficher
      * @ORM\Column(type="boolean", name="est_dalr")
      */
     private bool $estDalr = false;
+
+    private $verouille = false;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -456,26 +455,6 @@ class DaAfficher
     public function setQteDispo($qteDispo)
     {
         $this->qteDispo = $qteDispo;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of qteALivrer
-     */
-    public function getQteALivrer()
-    {
-        return $this->qteALivrer;
-    }
-
-    /**
-     * Set the value of qteALivrer
-     *
-     * @return  self
-     */
-    public function setQteALivrer($qteALivrer)
-    {
-        $this->qteALivrer = $qteALivrer;
 
         return $this;
     }
@@ -1289,6 +1268,26 @@ class DaAfficher
     public function setEstDalr($estDalr)
     {
         $this->estDalr = $estDalr;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estVerouillerOuNon
+     */
+    public function getVerouille()
+    {
+        return $this->verouille;
+    }
+
+    /**
+     * Set the value of estVerouillerOuNon
+     *
+     * @return  self
+     */
+    public function setVerouille($verouille)
+    {
+        $this->verouille = $verouille;
 
         return $this;
     }
