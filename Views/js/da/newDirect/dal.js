@@ -47,6 +47,7 @@ export function ajouterUneLigne() {
     ["d-none", "deleted"],
     ["d-none", "numeroLigne"],
     ["d-none", "fileNames"],
+    ["d-none", "artRefp"],
   ];
 
   fields.forEach(function ([classe, fieldName]) {

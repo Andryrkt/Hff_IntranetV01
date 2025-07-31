@@ -31,6 +31,8 @@ export function createFieldAndAppendTo(
 
   if (fieldName === "dateFinSouhaite") {
     field.value = dateFinSouhaitee;
+  } else if (fieldName === "artRefp") {
+    field.value = "-";
   } else if (fieldName === "numeroLigne") {
     field.value = localStorage.getItem("index");
   } else if (fieldName === "fileNames") {
@@ -118,6 +120,7 @@ export function createFieldAutocompleteAndAppendTo(
   // Sélection de l'élément cible
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
   field.required = true; // champ requis
+  field.removeAttribute("readonly");
 
   // Génération des nouveaux IDs pour le spinner et le conteneur
   let baseId = field.id.replace("demande_appro_direct_form_DAL", "");
