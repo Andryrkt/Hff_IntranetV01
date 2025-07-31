@@ -255,6 +255,12 @@ class DitOrsSoumisAValidationController extends Controller
         //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
         // }
 
+        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($ditInsertionOrSoumis->getNumeroOR());
+        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString);
+        $nombreArticleDansDaValider = $this->daValiderRepository->getNbrDaValider($ditInsertionOrSoumis->getNumeroOR());
+
+        // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
+
         return [
             'nomFichier'            => strpos($originalName, 'Ordre de réparation') !== 0,
             'numeroOrDifferent'     => $numOr !== $ditInsertionOrSoumis->getNumeroOR(),
@@ -269,6 +275,7 @@ class DitOrsSoumisAValidationController extends Controller
             // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            'nbrArticleDas'            => $nombreArticleDansDaValider != $nbrArticlesComparet,
         ];
     }
 
@@ -337,7 +344,14 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        } else {
+        }
+        // elseif ($conditionBloquage['nbrArticleDas']) {
+        //     $confirmMessage = "Les articles du bon d'achat validé ne correspondent pas à ceux saisis dans l'OR. Souhaitez-vous tout de même soumettre l'OR ?";
+        //     $_SESSION['confirm_message'] = $confirmMessage;
+        //     header('Location: page_confirmation.php');
+        //     exit;
+        // } 
+        else {
             $okey = true;
         }
         return $okey;

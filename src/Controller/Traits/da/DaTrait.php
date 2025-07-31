@@ -384,11 +384,12 @@ trait DaTrait
 
             $numeroVersionMax = $em->getRepository(DaValider::class)->getNumeroVersionMax($da->getNumeroDemandeAppro());
             $nivUrgence = $em->getRepository(DemandeIntervention::class)->getNiveauUrgence($da->getNumeroDemandeDit());
+            [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($da->getNumeroDemandeDit());
             $daValider
                 ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
                 ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
-                ->setStatutOr($daValider->getNumeroOr() ? DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION : DitOrsSoumisAValidation::STATUT_VIDE)
-                ->setOrResoumettre($daValider->getNumeroOr() ? true : $daValider->getOrResoumettre())
+                ->setStatutOr($numOr ? DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION : DitOrsSoumisAValidation::STATUT_VIDE)
+                ->setOrResoumettre((bool) $numOr)
             ;
 
             $daValider->enregistrerDa($da); // enregistrement pour DA

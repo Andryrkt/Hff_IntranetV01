@@ -44,7 +44,8 @@ export function autocompleteTheField(
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 300,
-    fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2),
+    // fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2), // filtré par famille et sous-famille
+    fetchDataCallback: () => fetchAllData(fieldName), // non filtré par famille et sous-famille
     displayItemCallback: (item) => displayValues(item, fieldName),
     onSelectCallback: (item) =>
       handleValuesOfFields(
@@ -127,7 +128,7 @@ function getField(id, fieldName, fieldNameReplace) {
   return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
 
-async function fetchAllData(fieldName, codeFams1, codeFams2) {
+async function fetchAllData(fieldName, codeFams1 = "-", codeFams2 = "-") {
   const fetchManager = new FetchManager();
   let url = `demande-appro/autocomplete/all-${
     fieldName === "fournisseur"
@@ -141,17 +142,17 @@ function displayValues(item, fieldName) {
   if (fieldName === "fournisseur") {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
-    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Désignation: ${item.designation}`;
+    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Prix: ${item.prix} <br>Désignation: ${item.designation}`;
   }
 }
 
 function stringsToSearch(item, fieldName) {
   if (fieldName === "reference") {
-    return `${item.referencepiece}`;
+    return `${item.referencepiece} - `;
   } else if (fieldName === "fournisseur") {
     return `${item.numerofournisseur} - ${item.nomfournisseur}`;
   } else {
-    return `${item.designation}`;
+    return `${item.designation} - `;
   }
 }
 
