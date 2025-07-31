@@ -1,6 +1,7 @@
 
 EXEC sp_rename 'Demande_Appro.nom_fichier_reference_zst', 'nom_fichier_bav', 'COLUMN';
 
+ALTER TABLE Demande_Appro DROP COLUMN devis_achat;
 ALTER TABLE Demande_Appro_L DROP COLUMN art_rempl;
 
 CREATE TABLE da_soumis_a_validation
