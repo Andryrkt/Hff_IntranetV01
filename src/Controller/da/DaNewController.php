@@ -203,41 +203,39 @@ class DaNewController extends Controller
              * @var DemandeAppro $demandeAppro
              */
             $demandeAppro = $form->getData();
-            dd($demandeAppro);
             $demandeAppro
-                ->setDemandeur(Controller::getUser()->getNomUtilisateur())
+                ->setDemandeur($demandeAppro->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
-                ->setNiveauUrgence($this->ditRepository->getNiveauUrgence($demandeAppro->getNumeroDemandeDit()))
             ;
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $numDit = $demandeAppro->getNumeroDemandeDit();
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
             $formDAL = $form->get('DAL');
-            /** ajout de ligne de demande appro dans la table Demande_Appro_L */
+            /** 
+             * Ajout de ligne de demande appro dans la table Demande_Appro_L 
+             * @var DemandeApproL $DAL la demande appro l à enregistrer dans la BDD
+             **/
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
-                /** 
-                 * @var DemandeApproL $DAL
-                 */
-                $DAL
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                    ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
-                    ->setNumeroDit($numDit)
-                    ->setJoursDispo($this->getJoursRestants($DAL))
-                ;
-                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("da_list");
                 }
+
+                $DAL
+                    ->setNumeroDemandeAppro($numDa)
+                    ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
+                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setJoursDispo($this->getJoursRestants($DAL))
+                ;
+                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 self::$em->persist($DAL);
             }
 
-            /** Modifie la colonne dernière_id dans la table applications */
+            /** 
+             * Modifie la colonne dernière_id dans la table applications 
+             * @var Application $application
+             **/
             $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
             $application->setDerniereId($numDa);
             self::$em->persist($application);
@@ -250,10 +248,12 @@ class DaNewController extends Controller
                 $this->insertionObservation($demandeAppro);
             }
 
+            // ajout des données dans la table DaAfficher
+            $this->ajoutDatadansTableDaAfficher($demandeAppro);
+
             self::$em->flush();
 
             /** ENVOIE D'EMAIL */
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
             $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
             $this->envoyerMailAuxAppros([
