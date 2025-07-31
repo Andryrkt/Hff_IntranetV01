@@ -258,49 +258,53 @@ class DaModel extends Model
     {
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
-        $statement = " SELECT DISTINCT
-                TRIM(seor_refdem) as num_dit,
-                slor_numor,
+        $statement = " SELECT 
+ 
+        slor_constp as cst,
+        slor_natcm,
+        TRIM(slor_refp) as reference,
+                        TRIM(slor_desi) as designation,    
+        ROUND(
                 CASE
-                    WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                    WHEN slor_natcm = 'L' THEN cde.fcde_numcde
-                END AS num_cde,
-                TRIM(slor_refp) as reference,
-                TRIM(slor_desi) as designation,
-                ROUND(CASE
-                    when slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)
-                END) as qte_dem,
-                ROUND(slor_qterel) as qte_reliquat,
-                ROUND(slor_qteres) as qte_a_livrer,
-                ROUND(slor_qterea) as qte_livee,
-                ROUND(fllf_qteaff) as qte_dispo
+                    WHEN slor_typlig = 'P' THEN (
+                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                    )
+                END
+            ) AS qte_dem,
+            ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
+            (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm) as qte_receptionnee,
+            slor_qterea as qte_livree,
 
-                FROM Informix.sav_lor slor
-                    INNER JOIN Informix.sav_eor seor 
+        ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm) - slor_qterea) as qte_dispo,
+        
+            CASE
+                WHEN slor_natcm = 'C' THEN c.fcde_numcde
+                WHEN slor_natcm = 'L' THEN cde.fcde_numcde
+            END AS num_cde,
+        
+        slor_numcf
+        FROM sav_lor slor
+        
+        INNER JOIN Informix.sav_eor seor 
                         ON seor.seor_numor = slor.slor_numor 
                     AND seor.seor_soc = slor.slor_soc 
                     AND seor.seor_succ = slor.slor_succ 
                     AND slor.slor_soc = 'HF'
 
-                    INNER JOIN Informix.sav_itv sitv 
-                        ON sitv.sitv_numor = slor.slor_numor 
-                    AND sitv.sitv_soc = slor.slor_soc 
-                    AND sitv.sitv_succ = slor.slor_succ 
-                    AND slor.slor_soc = 'HF'
-
-                    -- jointure pour natcm = 'C'
-                    LEFT JOIN Informix.frn_cde c
-                        ON slor.slor_natcm = 'C' AND c.fcde_numcde = slor.slor_numcf
-
-                    -- jointure pour natcm = 'L'
-                    LEFT JOIN Informix.frn_llf llf
-                        ON slor.slor_natcm = 'L' 
-                    AND llf.fllf_numliv = slor.slor_numcf
-
-                    LEFT JOIN Informix.frn_cde cde
-                        ON llf.fllf_numcde = cde.fcde_numcde
-                    AND llf.fllf_soc = cde.fcde_soc
-                    AND llf.fllf_succ = cde.fcde_succ
+        -- jointure pour natcm = 'C'
+        LEFT JOIN Informix.frn_cde c
+            ON slor.slor_natcm = 'C' 
+            AND c.fcde_numcde = slor.slor_numcf
+        
+        -- jointure pour natcm = 'L'
+        LEFT JOIN Informix.frn_llf llf
+            ON slor.slor_natcm = 'L' 
+            AND llf.fllf_numliv = slor.slor_numcf and slor.slor_noligncm = fllf_ligne
+        
+        LEFT JOIN Informix.frn_cde cde
+            ON llf.fllf_numcde = cde.fcde_numcde
+            AND llf.fllf_soc = cde.fcde_soc
+            AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
                         slor.slor_constp = 'ZST' 
