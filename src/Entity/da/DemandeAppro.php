@@ -26,6 +26,7 @@ class DemandeAppro
 
     public const ID_ATELIER = 3;
     public const ID_APPRO = 16;
+    public const STATUT_A_VALIDE_DW = 'A valider Docuware';
     public const STATUT_VALIDE = 'Bon d’achats validé';
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
@@ -52,11 +53,6 @@ class DemandeAppro
      * @ORM\Column(type="boolean", name="achat_direct")
      */
     private $achatDirect = false;
-
-    /**
-     * @ORM\Column(type="boolean", name="devis_achat")
-     */
-    private $devisAchat = false;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
@@ -249,26 +245,6 @@ class DemandeAppro
     public function setAchatDirect($achatDirect)
     {
         $this->achatDirect = $achatDirect;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of devisAchat
-     */
-    public function getDevisAchat()
-    {
-        return $this->devisAchat;
-    }
-
-    /**
-     * Set the value of devisAchat
-     *
-     * @return  self
-     */
-    public function setDevisAchat($devisAchat)
-    {
-        $this->devisAchat = $devisAchat;
 
         return $this;
     }
