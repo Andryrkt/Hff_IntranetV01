@@ -302,12 +302,14 @@ class DaListeController extends Controller
         /** @var DemandeAppro $da */
         foreach ($dasFiltered as $da) {
             $dit = $da->getDit();
-            $statutOr = $dit->getStatutOr();
-            $constructeurs = $this->daModel->getAllConstructeur($dit->getNumeroDemandeIntervention());
+            if ($dit) {
+                $statutOr = $dit->getStatutOr();
+                $constructeurs = $this->daModel->getAllConstructeur($dit->getNumeroDemandeIntervention());
 
-            if (in_array($statutOr, ['Refusé client interne', 'Refusé chef atelier'])) { // statut de l'or: refusé / non validé
-                if (in_array('ZST', $constructeurs)) { // l'OR est munie d'articles ZST.
-                    $da->setDemandeDeverouillage(true);
+                if (in_array($statutOr, ['Refusé client interne', 'Refusé chef atelier'])) { // statut de l'or: refusé / non validé
+                    if (in_array('ZST', $constructeurs)) { // l'OR est munie d'articles ZST.
+                        $da->setDemandeDeverouillage(true);
+                    }
                 }
             }
         }
@@ -373,10 +375,10 @@ class DaListeController extends Controller
         foreach ($dasFiltereds as $dasFiltered) {
             foreach ($dasFiltered->getDaValiderOuProposer() as $davp) {
                 $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMax($dasFiltered->getNumeroDemandeAppro());
-                $daValider= $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'artRefp' => $davp->getArtRefp() , 'artDesi' => $davp->getArtDesi(), 'numeroVersion' => $numeroVersionMax]);
-                if(array_key_exists(0, $daValider)) {
+                $daValider = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $dasFiltered->getNumeroDemandeAppro(), 'artRefp' => $davp->getArtRefp(), 'artDesi' => $davp->getArtDesi(), 'numeroVersion' => $numeroVersionMax]);
+                if (array_key_exists(0, $daValider)) {
                     $davp->setStatutBc($daValider[0]->getStatutCde());
-                }   
+                }
             }
         }
     }
@@ -460,7 +462,7 @@ class DaListeController extends Controller
              *      - sinon prendre $statutOr = ''
              */
             $statutOr = $daValider ? $daValider->getStatutOr() : (!empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '');
-            
+
             $data
                 ->setNumeroOr(!empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '')
                 ->setStatutOr($statutOr)
@@ -643,14 +645,16 @@ class DaListeController extends Controller
         $model = new MagasinListeOrLivrerModel;
         /** @var DemandeAppro $da demande appro */
         foreach ($dasFiltered as $da) {
-            $numOr = $da->getDit()->getNumeroOR();
-            $datePlanning = '-';
-            if (!is_null($numOr)) {
-                $data = $model->getDatePlanningPourDa($numOr);
-                $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
-            }
-            foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
-                $daValiderOuProposer->setDatePlanningOR($datePlanning);
+            if ($da->getDit()) {
+                $numOr = $da->getDit()->getNumeroOR();
+                $datePlanning = '-';
+                if (!is_null($numOr)) {
+                    $data = $model->getDatePlanningPourDa($numOr);
+                    $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
+                }
+                foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
+                    $daValiderOuProposer->setDatePlanningOR($datePlanning);
+                }
             }
         }
     }
@@ -727,12 +731,12 @@ class DaListeController extends Controller
                 $data[] = [
                     $da->getNumeroDemandeAppro(),
                     $da->getNumeroDemandeDit(),
-                    $da->getDit()->getIdNiveauUrgence()->getDescription(),
+                    $da->getNiveauUrgence(),
                     $da->getDit()->getNumeroOR() ?? '-',
                     $da->getDemandeur(),
                     $da->getDateCreation()->format('d/m/Y'),
                     $davp->getStatutDal(),
-                    $da->getDit()->getStatutOr() ?? '-',
+                    $da->getStatutOr(),
                     $davp->getStatutBc(),
                     $davp->getDatePlanningOR(),
                     $davp->getNomFournisseur(),
