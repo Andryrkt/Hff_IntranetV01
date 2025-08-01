@@ -55,7 +55,6 @@ class listeDaController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-
         // Donnée à envoyer à la vue
         $data = $this->getData($criteria);
 
