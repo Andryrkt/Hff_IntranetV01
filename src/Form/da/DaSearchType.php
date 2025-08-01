@@ -6,21 +6,35 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class DaSearchType extends  AbstractType
 {
+    private const STATUT_DA = [
+        "Bon d’achats validé" => "Bon d’achats validé",
+        "Demande d’achats" => "Demande d’achats",
+        "Proposition achats" => "Proposition achats",
+    ];
+
+    private const STATUT_BC = [
+        'A générer' => 'A générer',
+        'A éditer' => 'A éditer',
+        'A soumettre à validation' => 'A soumettre à validation',
+        'A envoyer au fournisseur' => 'A envoyer au fournisseur'
+    ];
+
     private $agenceRepository;
-    private $demandeApproRepository;
 
     private $em;
 
@@ -28,16 +42,11 @@ class DaSearchType extends  AbstractType
     {
         $this->em = Controller::getEntity();
         $this->agenceRepository = $this->em->getRepository(Agence::class);
-        $this->demandeApproRepository = $this->em->getRepository(DemandeAppro::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $statutDaChoices = [
-            "Bon d’achats validé" => "Bon d’achats validé",
-            "Demande d’achats" => "Demande d’achats",
-            "Proposition achats" => "Proposition achats",
-        ];
+
 
         $builder
             ->add('numDit', TextType::class, [
@@ -55,7 +64,7 @@ class DaSearchType extends  AbstractType
             ->add('statutDA', ChoiceType::class, [
                 'placeholder' => '-- Choisir un statut --',
                 'label' => 'Statut de la DA',
-                'choices'  => $statutDaChoices,
+                'choices'  => self::STATUT_DA,
                 'required' => false
             ])
             ->add('statutOR', ChoiceType::class, [
@@ -67,12 +76,37 @@ class DaSearchType extends  AbstractType
             ->add('statutBC', ChoiceType::class, [
                 'placeholder' => '-- Choisir un statut --',
                 'label' => 'Statut du BC',
-                'choices'  => [],
+                'choices'  => self::STATUT_BC,
                 'required' => false
             ])
             ->add('idMateriel', TextType::class, [
                 'label' => "N° Matériel",
                 'required' => false
+            ])
+            ->add('typeAchat', ChoiceType::class, [
+                'label' => 'type de la demande d\'achat',
+                'placeholder' => '-- Choisir un type --',
+                'choices' => [
+                    'Tous' => 'tous',
+                    'Avec DIT' => 0,
+                    'Direct' => 1,
+                ],
+                'required' => false
+            ])
+            ->add('niveauUrgence', EntityType::class, [
+                'label' => 'Niveau d\'urgence',
+                'label_html' => true,
+                'class' => WorNiveauUrgence::class,
+                'choice_label' => 'description',
+                'placeholder' => '-- Choisir un niveau--',
+                'required' => false,
+                'query_builder' => function (EntityRepository $er) {
+                    return $er->createQueryBuilder('n')
+                        ->orderBy('n.description', 'DESC');
+                },
+                'attr' => [
+                    'class' => 'niveauUrgence'
+                ]
             ])
             ->add('dateDebutCreation', DateType::class, [
                 'widget' => 'single_text',

@@ -265,6 +265,26 @@ class DaAfficher
      */
     private bool $estDalr = false;
 
+    /**
+     * @ORM\Column(type="integer", name="agence_emmetteur_id")
+     */
+    private  $agenceEmetteur;
+
+    /**
+     * @ORM\Column(type="integer", name="service_emmetteur_id")
+     */
+    private  $serviceEmetteur;
+
+    /**
+     * @ORM\Column(type="integer", name="agence_debiteur_id")
+     */
+    private  $agenceDebiteur;
+
+    /**
+     * @ORM\Column(type="integer", name="service_debiteur_id")
+     */
+    private  $serviceDebiteur;
+
     private $verouille = false;
     private bool $demandeDeverouillage = false;
 
@@ -1313,6 +1333,87 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of agenceEmetteur
+     */
+    public function getAgenceEmetteur()
+    {
+        return $this->agenceEmetteur;
+    }
+
+    /**
+     * Set the value of agenceEmetteur
+     *
+     * @return  self
+     */
+    public function setAgenceEmetteur($agenceEmetteur)
+    {
+        $this->agenceEmetteur = $agenceEmetteur;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of serviceEmetteur
+     */
+    public function getServiceEmetteur()
+    {
+        return $this->serviceEmetteur;
+    }
+
+    /**
+     * Set the value of serviceEmetteur
+     *
+     * @return  self
+     */
+    public function setServiceEmetteur($serviceEmetteur)
+    {
+        $this->serviceEmetteur = $serviceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of agenceDebiteur
+     */
+    public function getAgenceDebiteur()
+    {
+        return $this->agenceDebiteur;
+    }
+
+    /**
+     * Set the value of agenceDebiteur
+     *
+     * @return  self
+     */
+    public function setAgenceDebiteur($agenceDebiteur)
+    {
+        $this->agenceDebiteur = $agenceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of serviceDebiteur
+     */
+    public function getServiceDebiteur()
+    {
+        return $this->serviceDebiteur;
+    }
+
+    /**
+     * Set the value of serviceDebiteur
+     *
+     * @return  self
+     */
+    public function setServiceDebiteur($serviceDebiteur)
+    {
+        $this->serviceDebiteur = $serviceDebiteur;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1327,6 +1428,10 @@ class DaAfficher
             ->setDateDemande($da->getDateCreation())
             ->setIdDa($da->getId())
             ->setNiveauUrgence($da->getNiveauUrgence())
+            ->setAgenceEmetteur($da->getAgenceEmetteur())
+            ->setServiceEmetteur($da->getServiceEmetteur())
+            ->setAgenceDebiteur($da->getAgenceDebiteur())
+            ->setServiceDebiteur($da->getServiceDebiteur())
         ;
     }
 

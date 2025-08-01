@@ -2,11 +2,25 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Entity\admin\Agence;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ExportExcelController extends Controller
 {
+    private DaAfficherRepository $daAfficherRepository;
+    private AgenceRepository $agenceRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
+        $this->agenceRepository = self::$em->getRepository(Agence::class);
+    }
+
     /** 
      * @Route("/export-excel/list-DA", name="da_export_excel_list_da")
      */
@@ -17,16 +31,14 @@ class ExportExcelController extends Controller
 
         $criteria = $this->sessionService->get('criteria_for_excel');
 
-        //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = Controller::getUser()->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         // recupération des données de la DA
-        $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
+        $dasFiltered = $this->getDataExcel($criteria);
 
         $data = [];
         // En-tête du tableau d'excel
         $data[] = [
             "N° Demande",
+            "Achat direct",
             "N° DIT",
             "Niveau urgence DIT",
             "N° OR",
@@ -57,8 +69,6 @@ class ExportExcelController extends Controller
     }
 
 
-
-
     /** 
      * Convertis les données d'objet en tableau
      * 
@@ -69,36 +79,47 @@ class ExportExcelController extends Controller
      */
     private function convertirObjetEnTableau(array $dasFiltered, array $data): array
     {
-        /** @var DemandeAppro $da chaque DA dans $dasFiltered */
+        /** @var DaAfficher */
         foreach ($dasFiltered as $da) {
-            /** @var DemandeApproL|DemandeApproLR $davp DAL ou DALR */
-            foreach ($da->getDaValiderOuProposer() as $davp) {
-                $data[] = [
-                    $da->getNumeroDemandeAppro(),
-                    $da->getNumeroDemandeDit(),
-                    $da->getDit()->getIdNiveauUrgence()->getDescription(),
-                    $da->getDit()->getNumeroOR() ?? '-',
-                    $da->getDemandeur(),
-                    $da->getDateCreation()->format('d/m/Y'),
-                    $davp->getStatutDal(),
-                    $da->getDit()->getStatutOr() ?? '-',
-                    $davp->getStatutBc(),
-                    $davp->getDatePlanningOR(),
-                    $davp->getNomFournisseur(),
-                    $davp->getArtRefp(),
-                    $davp->getArtDesi(),
-                    $davp->getEstFicheTechnique() ? 'OUI' : 'NON',
-                    $davp->getQteDem(),
-                    $davp->getQteEnAttent() == 0 ? '-' : $davp->getQteEnAttent(),
-                    $davp->getQteDispo() == 0 ? '-' : $davp->getQteDispo(),
-                    $davp->getQteLivee() == 0 ? '-' : $davp->getQteLivee(),
-                    $davp->getDateFinSouhaite()->format('d/m/Y'),
-                    $davp->getDateLivraisonPrevue() == null ? '' : $davp->getDateLivraisonPrevue()->format('d/m/Y'),
-                    $davp->getJoursDispo()
-                ];
-            }
+            $data[] = [
+                $da->getNumeroDemandeAppro(),
+                $da->getAchatDirect() ? 'OUI' : 'NON',
+                $da->getNumeroDemandeDit(),
+                $da->getNiveauUrgence(),
+                $da->getNumeroOR() ?? '-',
+                $da->getDemandeur(),
+                $da->getDateCreation()->format('d/m/Y'),
+                $da->getStatutDal(),
+                $da->getStatutOr() ?? '-',
+                $da->getStatutCde(),
+                $da->getDatePlannigOr(),
+                $da->getNomFournisseur(),
+                $da->getArtRefp(),
+                $da->getArtDesi(),
+                $da->getEstFicheTechnique() ? 'OUI' : 'NON',
+                $da->getQteDem(),
+                $da->getQteEnAttent() == 0 ? '-' : $da->getQteEnAttent(),
+                $da->getQteDispo() == 0 ? '-' : $da->getQteDispo(),
+                $da->getQteLivrer() == 0 ? '-' : $da->getQteLivrer(),
+                $da->getDateFinSouhaite()->format('d/m/Y'),
+                $da->getDateLivraisonPrevue() == null ? '' : $da->getDateLivraisonPrevue()->format('d/m/Y'),
+                $da->getJoursDispo()
+            ];
         }
 
         return $data;
+    }
+
+    public function getDataExcel(array $criteria): array
+    {
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
+
+        // Filtrage des DA en fonction des critères
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser);
+
+        // Retourne les DA filtrées
+        return $daAffichers;
     }
 }

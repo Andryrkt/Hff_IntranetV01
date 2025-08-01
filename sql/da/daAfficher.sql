@@ -56,5 +56,9 @@ CREATE TABLE da_afficher
 );
 
 ALTER TABLE da_afficher ADD bc_envoyer_fournisseur BIT NOT NULL DEFAULT 0;
+ALTER TABLE da_afficher ADD agence_emmetteur_id int;
+ALTER TABLE da_afficher ADD Service_emmetteur_id int;
+ALTER TABLE da_afficher ADD agence_debiteur_id int;
+ALTER TABLE da_afficher ADD service_debiteur_id int;
 
 
