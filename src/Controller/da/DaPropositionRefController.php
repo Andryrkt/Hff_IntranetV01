@@ -88,20 +88,20 @@ class DaPropositionRefController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display('da/proposition.html.twig', [
-            'da'                => $da,
-            'id'                => $id,
-            'dit'               => $dit,
-            'form'              => $form->createView(),
-            'formValidation'    => $formValidation->createView(),
-            'formObservation'   => $formObservation->createView(),
-            'observations'      => $observations,
-            'numDa'             => $numDa,
-            'connectedUser'     => Controller::getUser(),
+        self::$twig->display("da/proposition" . ($da->getAchatDirect() ? "-da-direct" : "") . ".html.twig", [
+            'da'                      => $da,
+            'id'                      => $id,
+            'dit'                     => $dit,
+            'form'                    => $form->createView(),
+            'formValidation'          => $formValidation->createView(),
+            'formObservation'         => $formObservation->createView(),
+            'observations'            => $observations,
+            'numDa'                   => $numDa,
+            'connectedUser'           => Controller::getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estAte'            => Controller::estUserDansServiceAtelier(),
-            'estAppro'          => Controller::estUserDansServiceAppro(),
-            'nePeutPasModifier' => $this->nePeutPasModifier($da)
+            'estAte'                  => Controller::estUserDansServiceAtelier(),
+            'estAppro'                => Controller::estUserDansServiceAppro(),
+            'nePeutPasModifier'       => $this->nePeutPasModifier($da)
         ]);
     }
 
