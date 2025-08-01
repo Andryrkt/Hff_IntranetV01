@@ -193,6 +193,22 @@ class PdfTableGenerator
     }
 
     /**
+     * Génère un tableau HTML pour les demandes d'achat (DA) direct mais qui sont encore à valider.
+     *
+     * @param array $headerConfig Configuration des en-têtes du tableau.
+     * @param array $rows Données des lignes à afficher dans le tableau.
+     * @return string Le code HTML du tableau généré.
+     */
+    public function generateTableForDaAValiderDW(array $headerConfig, array $rows)
+    {
+        $html = '<table cellpadding="4" align="center" style="font-size: 10px; margin: 0 auto; border:1px solid  #c4c4c4; border-collapse: collapse;">';
+        $html .= $this->generateHeaderForDA($headerConfig);
+        $html .= $this->generateBodyForDaAValiderDW($headerConfig, $rows);
+        $html .= '</table>';
+        return $html;
+    }
+
+    /**
      * Génère l'en-tête du tableau pour les demandes d'approvisionnement (DA).
      *
      * @param array $headerConfig Configuration des en-têtes du tableau.
@@ -208,14 +224,7 @@ class PdfTableGenerator
         return $html;
     }
 
-    /**
-     * Génère le corps du tableau pour les demandes d'approvisionnement (DA).
-     *
-     * @param array $headerConfig Configuration des en-têtes du tableau.
-     * @param array $dals Données des lignes à afficher dans le tableau.
-     * @return string Le code HTML du corps généré.
-     */
-    private function generateBodyForDA(array $headerConfig, array $dals): string
+    private function generateBodyForDA(array $headerConfig, array $dals)
     {
         $html = '<tbody>';
         $total = 0;
@@ -287,6 +296,39 @@ class PdfTableGenerator
         }
         $html .= '</tbody>';
         $html .= $this->generateFooterForDA($total);
+
+        return $html;
+    }
+
+    private function generateBodyForDaAValiderDW(array $headerConfig, array $dals)
+    {
+        $html = '<tbody>';
+        // Vérifier si le tableau $dals est vide
+        if (empty($dals)) {
+            $html .= '<tr><td colspan="' . count($headerConfig) . '" style="text-align: center; font-weight: bold; border:1px solid  #c4c4c4;">N/A</td></tr>';
+            $html .= '</tbody>';
+            return $html;
+        }
+
+        /** @var DemandeApproL $dal une demande appro L dans dals */
+        foreach ($dals as $dal) {
+            $html .= '<tr>';
+            $row = [
+                'designation' => $dal->getArtDesi(),
+                'qte'         => $dal->getQteDem(),
+            ];
+            $row['mttTotal'] = $row['pu1'] * $row['qte'];
+            foreach ($headerConfig as $config) {
+                $key = $config['key'];
+                $value = $row[$key] ?? '';
+                $style = str_replace('font-weight: bold;', '', $config['style']);
+                $style .= 'background-color: #e9e9e9;';
+
+                $html .= '<td style="width: ' . $config['width'] . 'px; border:1px solid  #c4c4c4; ' . $style . '">' . $value . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        $html .= '</tbody>';
 
         return $html;
     }
