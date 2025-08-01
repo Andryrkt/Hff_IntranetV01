@@ -45,7 +45,17 @@ export function autocompleteTheField(
     loaderElement: loaderElement,
     debounceDelay: 300,
     // fetchDataCallback: () => fetchAllData(fieldName, codeFams1, codeFams2), // filtré par famille et sous-famille
-    fetchDataCallback: () => fetchAllData(fieldName), // non filtré par famille et sous-famille
+    fetchDataCallback: () => {
+      const cache = JSON.parse(
+        localStorage.getItem("autocompleteCache") || "{}"
+      );
+      const dataList =
+        fieldName === "fournisseur"
+          ? cache.fournisseurs || []
+          : cache.designations || [];
+
+      return Promise.resolve(dataList);
+    }, // non filtré par famille et sous-famille
     displayItemCallback: (item) => displayValues(item, fieldName),
     onSelectCallback: (item) =>
       handleValuesOfFields(
@@ -128,7 +138,11 @@ function getField(id, fieldName, fieldNameReplace) {
   return document.getElementById(id.replace(fieldName, fieldNameReplace));
 }
 
-async function fetchAllData(fieldName, codeFams1 = "-", codeFams2 = "-") {
+export async function fetchAllData(
+  fieldName,
+  codeFams1 = "-",
+  codeFams2 = "-"
+) {
   const fetchManager = new FetchManager();
   let url = `demande-appro/autocomplete/all-${
     fieldName === "fournisseur"
