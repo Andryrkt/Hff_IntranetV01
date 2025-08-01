@@ -317,7 +317,6 @@ class PdfTableGenerator
                 'designation' => $dal->getArtDesi(),
                 'qte'         => $dal->getQteDem(),
             ];
-            $row['mttTotal'] = $row['pu1'] * $row['qte'];
             foreach ($headerConfig as $config) {
                 $key = $config['key'];
                 $value = $row[$key] ?? '';

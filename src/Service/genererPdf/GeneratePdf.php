@@ -144,6 +144,14 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    // demande appro à valider
+    public function copyToDWDaAValider($numDa)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . "ORDRE_DE_MISSION/$numDa#_a_valider.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/A valider/$numDa.pdf";
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     //bon de commande de demande appro
     public function copyToDWBcDa($fileName, $numDa)
     {

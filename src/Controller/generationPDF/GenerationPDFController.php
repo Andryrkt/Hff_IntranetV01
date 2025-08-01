@@ -46,4 +46,19 @@ class GenerationPDFController extends Controller
         }
         $this->creationPdf($numeroDemandeAppro, $numeroVersionMax);
     }
+
+    /**
+     * @Route(path="/da-direct/{numeroDemandeAppro}/{numeroVersionMax}", name="generation_pdf_da_direct")
+     */
+    public function genererPdfDaDirect(string $numeroDemandeAppro, int $numeroVersionMax)
+    {
+        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numeroDemandeAppro]);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numeroDemandeAppro, 'numeroVersion' => $numeroVersionMax]);
+
+        if (!in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds())) {
+            $this->redirectToRoute('security_signin');
+        }
+
+        $this->creationPdfSansDitAvaliderDW($demandeAppro, $dals);
+    }
 }

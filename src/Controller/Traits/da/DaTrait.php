@@ -14,6 +14,7 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
+use App\Service\genererPdf\GenererPdfDaDirect;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -294,6 +295,14 @@ trait DaTrait
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
 
         $genererPdfDaAvecDit->genererPdf($dit, $da, $dals);
+    }
+
+    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro, $dals)
+    {
+        $genererPdfDaDirect = new GenererPdfDaDirect;
+
+        $genererPdfDaDirect->genererPdf($demandeAppro, $dals);
+        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 
     private function SommeTotal($daValiders): float

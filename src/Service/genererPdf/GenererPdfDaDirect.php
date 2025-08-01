@@ -2,11 +2,13 @@
 
 namespace App\Service\genererPdf;
 
+use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use TCPDF;
 
 class GenererPdfDaDirect extends GeneratePdf
 {
-    public function genererPdf(array $tab)
+    public function genererPdf(DemandeAppro $da, $dals)
     {
         $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
@@ -24,14 +26,14 @@ class GenererPdfDaDirect extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $tab['numeroDemande'], 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $da->getNumeroDemandeAppro(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->setAbsX(170);
-        $pdf->cell(35, 6, 'Le : ' . $tab['dateCreation'], 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(35, 6, 'Le : ' . $da->getDateCreation()->format('d/m/Y'), 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         //========================================================================================
@@ -39,13 +41,13 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Objet :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->cell(0, 6, $tab['objet'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $da->getObjetDal(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(7, true);
 
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 50, $tab['detail'], 1, '', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 50, $da->getDetailDal(), 1, '', 0, 0, '', '', true);
         //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
@@ -58,10 +60,10 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->setFont('helvetica', 'B', 10);
 
         $pdf->cell(25, 6, 'Emetteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(50, 6, $tab['emetteur'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, $da->getAgenceServiceEmetteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $tab['debiteur'], 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(0, 6, $da->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(6, true);
 
         //===================================================================================================
@@ -75,7 +77,7 @@ class GenererPdfDaDirect extends GeneratePdf
             ['key' => 'designation', 'label' => 'Désignation', 'width' => 300, 'style' => 'font-weight: bold; text-align: left;'],
             ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
         ];
-        $html1 = $generator->generateTableForDaAValiderDW($header, $tab['rows']);
+        $html1 = $generator->generateTableForDaAValiderDW($header, $dals);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=========================================================================================
@@ -83,21 +85,19 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetY(2);
-        $pdf->writeHTMLCell(0, 6, '', '', "email : " . $tab['mail'], 0, 1, false, true, 'R');
+        $pdf->writeHTMLCell(0, 6, '', '', "email : " . Controller::getMailUser(), 0, 1, false, true, 'R');
 
         // Obtention du chemin absolu du répertoire de travail
-        $documentRoot = $_ENV['BASE_PATH_FICHIER'] . '/dit'; //faut pas déplacer ou utiliser une variable global sinon ça marche pas avec les comands
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $da->getNumeroDemandeAppro() . '/A valider/';
 
-        // $fileName = $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur());
-        // $filePath = $documentRoot . '/' . $fileName . '.pdf';
+        // Vérification si le répertoire existe, sinon le créer
+        if (!is_dir($Dossier)) {
+            if (!mkdir($Dossier, 0777, true)) {
+                throw new \RuntimeException("Impossible de créer le répertoire : $Dossier");
+            }
+        }
 
-        // // Vérifiez si le répertoire existe et a les bonnes permissions
-        // if (!is_dir($documentRoot) || !is_writable($documentRoot)) {
-        //     echo "Le répertoire $documentRoot n'existe pas ou n'est pas accessible en écriture.";
-        //     exit;
-        // }
-
-        $pdf->Output('test', 'I');
+        $pdf->Output($Dossier . $da->getNumeroDemandeAppro() . '.pdf', 'F');
     }
 
 
