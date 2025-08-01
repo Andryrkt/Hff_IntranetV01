@@ -1,4 +1,4 @@
-export class AutoComplete {
+export class OptimisedAutoComplete {
   constructor({
     inputElement,
     suggestionContainer,
@@ -22,7 +22,6 @@ export class AutoComplete {
     this.onBlurCallback = onBlurCallback;
     this.debounceDelay = debounceDelay;
 
-    this.data = [];
     this.filteredData = [];
     this.activeIndex = -1;
     this.typingTimeout = null;
@@ -30,15 +29,7 @@ export class AutoComplete {
     this.init();
   }
 
-  async init() {
-    this.toggleLoader(true);
-    try {
-      this.data = await this.fetchDataCallback();
-    } catch (error) {
-      console.error("Erreur lors du chargement des données :", error);
-    }
-    this.toggleLoader(false);
-
+  init() {
     this.inputElement.addEventListener("input", () => this.onInput());
     this.inputElement.addEventListener("keydown", (e) => this.onKeyDown(e));
 
@@ -60,13 +51,26 @@ export class AutoComplete {
 
   onInput() {
     clearTimeout(this.typingTimeout);
-    this.typingTimeout = setTimeout(() => {
-      this.filterData(this.inputElement.value.trim());
+    const query = this.inputElement.value.trim();
+
+    this.typingTimeout = setTimeout(async () => {
+      if (query === "") {
+        this.clearSuggestions();
+        return;
+      }
+
+      this.toggleLoader(true);
+      try {
+        this.filteredData = await this.fetchDataCallback(query);
+        this.showSuggestions(this.filteredData);
+      } catch (error) {
+        console.error("Erreur de récupération des suggestions :", error);
+      }
+      this.toggleLoader(false);
     }, this.debounceDelay);
   }
 
   onKeyDown(event) {
-    console.log("Keydown: ", event.key);
     const suggestions = this.suggestionContainer.querySelectorAll("div");
 
     switch (event.key) {
@@ -80,12 +84,6 @@ export class AutoComplete {
         this.updateActiveSuggestion(suggestions);
         break;
       case "Enter":
-        event.preventDefault();
-        if (suggestions.length > 0) {
-          const indexToSelect = this.activeIndex >= 0 ? this.activeIndex : 0;
-          suggestions[indexToSelect].click();
-        }
-        break;
       case "Tab":
         if (suggestions.length > 0) {
           if (suggestions[0].classList.contains("no_results")) {
@@ -105,12 +103,9 @@ export class AutoComplete {
 
   onBlur(onBlurCallback) {
     const inputValue = this.inputElement.value.trim().toLowerCase();
-
-    // Vérifie si la valeur saisie est dans les suggestions filtrées
-    const found = this.data.some(
+    const found = this.filteredData.some(
       (item) => this.itemToStringForBlur(item).toLowerCase() === inputValue
     );
-
     onBlurCallback(found);
   }
 
@@ -125,26 +120,6 @@ export class AutoComplete {
     });
   }
 
-  filterData(searchValue) {
-    if (searchValue === "") {
-      this.clearSuggestions();
-      return;
-    }
-
-    this.filteredData = this.data.filter((item) =>
-      this.itemToString(item).toLowerCase().includes(searchValue.toLowerCase())
-    );
-
-    this.showSuggestions(this.filteredData);
-  }
-
-  itemToString(item) {
-    if (this.itemToStringCallback) {
-      return this.itemToStringCallback(item);
-    }
-    return JSON.stringify(item);
-  }
-
   showSuggestions(suggestions) {
     this.clearSuggestions();
 
@@ -156,16 +131,14 @@ export class AutoComplete {
       return;
     }
 
-    suggestions.forEach((item, index) => {
+    suggestions.slice(0, 15).forEach((item, index) => {
       const suggestionElement = document.createElement("div");
       suggestionElement.classList.add("suggestion-item");
       suggestionElement.innerHTML = this.displayItemCallback(item);
       suggestionElement.dataset.index = index;
 
       suggestionElement.addEventListener("click", () => {
-        if (this.onBlurCallback) {
-          this.onBlurCallback(true);
-        }
+        if (this.onBlurCallback) this.onBlurCallback(true);
         this.onSelectCallback(item);
         this.clearSuggestions();
       });
@@ -180,7 +153,6 @@ export class AutoComplete {
     if (this.suggestionContainer) {
       this.suggestionContainer.innerHTML = "";
     }
-
     this.activeIndex = -1;
   }
 
@@ -190,84 +162,10 @@ export class AutoComplete {
       this.inputElement.style.pointerEvents = show ? "none" : "auto";
     }
   }
-}
 
-/** =============================
- * Selection multiple
- *===============================*/
-export class MultiSelectAutoComplete extends AutoComplete {
-  constructor(options) {
-    // Passez les options à la classe parente
-    super(options);
-    // Initialisation du tableau des éléments sélectionnés
-    this.selectedItems = [];
-  }
-
-  // Ajoute un élément sélectionné et met à jour l'input
-  addSelectedItem(item) {
-    if (!this.selectedItems.includes(item)) {
-      this.selectedItems.push(item);
-      // On peut déclencher un callback ici si besoin
-      this.onSelectCallback(item);
-      this.updateInputValue();
-    }
-    this.clearSuggestions();
-  }
-
-  // Met à jour la valeur de l'input en concaténant tous les éléments sélectionnés
-  updateInputValue() {
-    const selectedValues = this.selectedItems.map((item) =>
-      this.itemToString(item)
-    );
-    // Par exemple, séparer les valeurs par une virgule et un espace
-    this.inputElement.value = selectedValues.join(", ");
-  }
-
-  // Permet de supprimer un élément de la sélection et met à jour l'input
-  removeSelectedItem(itemToRemove) {
-    this.selectedItems = this.selectedItems.filter(
-      (item) => item !== itemToRemove
-    );
-    this.updateInputValue();
-  }
-
-  // Surcharge de filterData pour exclure les éléments déjà sélectionnés
-  filterData(searchValue) {
-    if (searchValue === "") {
-      this.clearSuggestions();
-      return;
-    }
-    this.filteredData = this.data.filter((item) => {
-      const itemStr = this.itemToString(item).toLowerCase();
-      return (
-        itemStr.includes(searchValue.toLowerCase()) &&
-        !this.selectedItems.includes(item)
-      );
-    });
-    this.showSuggestions(this.filteredData);
-  }
-
-  // Affiche les suggestions et lie le clic pour ajouter directement dans l'input
-  showSuggestions(suggestions) {
-    this.clearSuggestions();
-
-    if (suggestions.length === 0) {
-      return;
-    }
-
-    suggestions.forEach((item, index) => {
-      const suggestionElement = document.createElement("div");
-      suggestionElement.classList.add("suggestion-item");
-      suggestionElement.innerHTML = this.displayItemCallback(item);
-      suggestionElement.dataset.index = index;
-
-      suggestionElement.addEventListener("click", () => {
-        this.addSelectedItem(item);
-      });
-
-      this.suggestionContainer.appendChild(suggestionElement);
-    });
-
-    this.activeIndex = -1;
+  itemToString(item) {
+    return this.itemToStringCallback
+      ? this.itemToStringCallback(item)
+      : JSON.stringify(item);
   }
 }
