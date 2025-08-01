@@ -2,11 +2,13 @@
 
 namespace App\Repository\da;
 
-use App\Entity\da\DaAfficher;
-use Doctrine\ORM\EntityRepository;
-use App\Entity\da\DemandeAppro;
-use Doctrine\ORM\QueryBuilder;
 use App\Entity\Da\Dalider;
+use App\Entity\da\DaAfficher;
+use App\Controller\Controller;
+use Doctrine\ORM\QueryBuilder;
+use App\Entity\da\DemandeAppro;
+use Doctrine\ORM\EntityRepository;
+use App\Entity\admin\utilisateur\Role;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -194,7 +196,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria): array
+    public function findDerniereVersionDesDA(array $criteria,  int $idAgenceUser): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -207,7 +209,7 @@ class DaAfficherRepository extends EntityRepository
         );
 
         $this->applyDynamicFilters($qb, $criteria);
-        $this->applyAgencyServiceFilters($qb, $criteria);
+        $this->applyAgencyServiceFilters($qb, $criteria, $idAgenceUser);
         $this->applyDateFilters($qb, $criteria);
         $this->applyStatutsFilters($qb, $criteria);
 
@@ -268,26 +270,49 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($queryBuilder, array $criteria)
+    private function applyAgencyServiceFilters($qb, array $criteria,  int $idAgenceUser)
     {
+        $estAppro = Controller::estUserDansServiceAppro();
+        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+
+        if (!$estAtelier && !$estAppro && !$estAdmin) {
+            $qb
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.agenceDebiteur IN (:agenceAutoriserIds)',
+                        'da.agenceEmetteur = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', Controller::getUser()->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $idAgenceUser)
+                ->andWhere(
+                    $qb->expr()->orX(
+                        'da.serviceDebiteur IN (:serviceAutoriserIds)',
+                        'da.serviceEmetteur IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', Controller::getUser()->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
         if (!empty($criteria['agenceEmetteur'])) {
-            $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
+            $qb->andWhere('d.agenceEmetteurId = :agEmet')
                 ->setParameter('agEmet', $criteria['agenceEmetteur']->getId());
         }
         if (!empty($criteria['serviceEmetteur'])) {
-            $queryBuilder->andWhere('d.serviceEmetteurId = :agServEmet')
+            $qb->andWhere('d.serviceEmetteurId = :agServEmet')
                 ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
 
         if (!empty($criteria['agenceDebiteur'])) {
-            $queryBuilder->andWhere('d.agenceDebiteurId = :agDebit')
+            $qb->andWhere('d.agenceDebiteurId = :agDebit')
                 ->setParameter('agDebit', $criteria['agenceDebiteur']->getId())
             ;
         }
 
         if (!empty($criteria['serviceDebiteur'])) {
-            $queryBuilder->andWhere('d.serviceDebiteurId = :serviceDebiteur')
+            $qb->andWhere('d.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
     }

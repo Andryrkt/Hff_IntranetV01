@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\admin\utilisateur\Role;
@@ -21,6 +22,8 @@ use App\Repository\da\DaHistoriqueDemandeModifDARepository;
  */
 class listeDaController extends Controller
 {
+    use DaTrait;
+
     private DaAfficherRepository $daAfficherRepository;
     private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private AgenceRepository $agenceRepository;
@@ -73,8 +76,8 @@ class listeDaController extends Controller
         $codeAgence = Controller::getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
-        // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria);
+        /** @var array $daAffichers Filtrage des DA en fonction des critères */
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser);
 
         // Vérification du verrouillage des DA
         $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
@@ -135,5 +138,38 @@ class listeDaController extends Controller
 
         // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
         $daAfficher->setVerouille($verouiller);
+    }
+
+    private function quelqueModifictionDansDatabase(array $datas)
+    {
+        foreach ($datas as $data) {
+            $this->modificationDateRestant($data);
+        }
+        self::$em->flush();
+    }
+
+    /** 
+     * Permet de calculer le nombre de jours restants pour chaque DAL
+     */
+    private function modificationDateRestant(DaAfficher $data): void
+    {
+        $this->ajoutNbrJourRestant($data);
+        self::$em->persist($data);
+    }
+
+    /**
+     * Permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC() {}
+
+
+    private function modificationQte() 
+    {}
+
+    private function modificationInfosOR()
+    {
+        
     }
 }
