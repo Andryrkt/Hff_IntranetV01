@@ -9,12 +9,12 @@ use App\Entity\da\DaSoumissionFacBl;
 use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\genererPdf\GenererPdfDa;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
+use App\Service\genererPdf\GenererPdfDaAvecDit;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -31,7 +31,7 @@ class DaSoumissionFacBlController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
-    private GenererPdfDa $genererPdfDa;
+    private GenererPdfDaAvecDit $genererPdfDaAvecDit;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
 
@@ -44,7 +44,7 @@ class DaSoumissionFacBlController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
-        $this->genererPdfDa = new GenererPdfDa();
+        $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
@@ -106,7 +106,7 @@ class DaSoumissionFacBlController extends Controller
             self::$em->flush();
 
             /** COPIER DANS DW */
-            $this->genererPdfDa->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            $this->genererPdfDaAvecDit->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';

@@ -10,10 +10,10 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\genererPdf\GenererPdfDa;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Service\genererPdf\GenererPdfDaAvecDit;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -44,6 +44,7 @@ trait DaTrait
 
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
     {
+        $em = self::getEntity();
 
         $daValider = $this->getDaValider($numDa, $numDit, $ref, $designation);
 
@@ -70,7 +71,7 @@ trait DaTrait
 
         $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
-        $statutSoumissionBc = self::$em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
+        $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte);
@@ -275,7 +276,7 @@ trait DaTrait
 
     private function creationPdf(string $numDa, int $numeroVersionMax)
     {
-        $genererPdfDa = new GenererPdfDa();
+        $genererPdfDaAvecDit = new GenererPdfDaAvecDit();
 
         $dals = $this->demandeApproLRepository->findBy([
             'numeroDemandeAppro' => $numDa,
@@ -292,7 +293,7 @@ trait DaTrait
 
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
 
-        $genererPdfDa->genererPdf($dit, $da, $dals);
+        $genererPdfDaAvecDit->genererPdf($dit, $da, $dals);
     }
 
     private function SommeTotal($daValiders): float
