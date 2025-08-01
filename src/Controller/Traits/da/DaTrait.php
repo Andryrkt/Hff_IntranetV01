@@ -551,7 +551,7 @@ trait DaTrait
                 'type'       => 'Facture / Bon de livraison',
                 'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePaths($tab['facblPath']),
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
             ],
         ];
     }
@@ -641,7 +641,6 @@ trait DaTrait
         $numDa = $demandeAppro->getNumeroDemandeAppro();
         $allDocs = $this->dwBcApproRepository->getPathAndNumeroBCByNumDa($numDa);
 
-
         if (!empty($allDocs)) {
             return array_map(function ($doc) {
                 $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
@@ -655,13 +654,16 @@ trait DaTrait
     /** 
      * Obtenir l'url du bon de livraison + facture
      */
-    private function getFacBlPath(DemandeAppro $demandeAppro): string
+    private function getFacBlPath(DemandeAppro $demandeAppro)
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $path = $this->dwFacBlRepository->getPathByNumDa($numDa);
+        $allDocs = $this->dwFacBlRepository->getPathByNumDa($numDa);
 
-        if ($path) {
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $path;
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) {
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
         }
 
         return "-";
