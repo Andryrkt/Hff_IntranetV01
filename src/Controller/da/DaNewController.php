@@ -255,14 +255,17 @@ class DaNewController extends Controller
             self::$em->flush();
 
             /** ENVOIE D'EMAIL */
-            $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+            $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+
+            /** création de pdf et envoi dans docuware */
+            $this->creationPdfSansDitAvaliderDW($demandeAppro, $dals);
 
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
                 'numDa'         => $numDa,
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
-                'dal'           => $dal,
+                'dal'           => $dals,
                 'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),

@@ -3,6 +3,7 @@ import { baseUrl } from "./utils/config";
 import { FetchManager } from "./api/FetchManager";
 import { afficherToast } from "./utils/toastUtils";
 import { displayOverlay } from "./utils/spinnerUtils";
+import { preloadAllData } from "./da/data/preloadData";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
@@ -125,6 +126,9 @@ resetTimeout();
  * modal pour la déconnexion
  */
 document.addEventListener("DOMContentLoaded", function () {
+  (async () => {
+    await preloadAllData(); // préchargement des données dans fournisseur et désignation
+  })();
   // Sélectionner le lien de déconnexion et le modal
   const logoutLink = document.getElementById("logoutLink");
   const logoutModal = new bootstrap.Modal(

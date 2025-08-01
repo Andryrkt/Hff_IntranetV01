@@ -4,11 +4,10 @@ namespace App\Service\genererPdf;
 
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
 use App\Entity\dit\DemandeIntervention;
 use TCPDF;
 
-class GenererPdfDa extends GeneratePdf
+class GenererPdfDaAvecDit extends GeneratePdf
 {
     public function genererPdf(DemandeIntervention $dit, DemandeAppro $da, $dals)
     {

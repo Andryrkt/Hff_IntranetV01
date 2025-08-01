@@ -10,7 +10,6 @@ use App\Entity\da\DaSoumissionBc;
 use App\Model\da\DaSoumissionBcModel;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
-use App\Service\genererPdf\GenererPdfDa;
 use App\Repository\da\DaValiderRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
@@ -18,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
+use App\Service\genererPdf\GenererPdfDaAvecDit;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -33,7 +33,7 @@ class DaSoumissionBcController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private GenererPdfDa $genererPdfDa;
+    private GenererPdfDaAvecDit $genererPdfDaAvecDit;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
     private DaValiderRepository $daValiderRepository;
@@ -48,7 +48,7 @@ class DaSoumissionBcController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
-        $this->genererPdfDa = new GenererPdfDa();
+        $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daValiderRepository = self::$em->getRepository(DaValider::class);
@@ -112,7 +112,7 @@ class DaSoumissionBcController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                $this->genererPdfDa->copyToDWBcDa($nomPdfFusionner, $numDa);
+                $this->genererPdfDaAvecDit->copyToDWBcDa($nomPdfFusionner, $numDa);
 
                 /** modification du table da_valider */
                 $this->modificationDaValider($numDa, $numCde);

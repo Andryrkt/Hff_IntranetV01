@@ -1,4 +1,3 @@
-import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
 
 export function initializeAutoCompletionFrn(fournisseur) {
@@ -11,7 +10,12 @@ export function initializeAutoCompletionFrn(fournisseur) {
     suggestionContainer: suggestionContainer,
     loaderElement: loaderElement,
     debounceDelay: 150,
-    fetchDataCallback: fetchFournisseurs,
+    fetchDataCallback: () => {
+      const cache = JSON.parse(
+        localStorage.getItem("autocompleteCache") || "{}"
+      );
+      return Promise.resolve(cache.fournisseurs || []);
+    },
     displayItemCallback: (item) =>
       `${item.numerofournisseur} - ${item.nomfournisseur}`,
     itemToStringCallback: (item) =>
@@ -24,9 +28,4 @@ export function initializeAutoCompletionFrn(fournisseur) {
       numeroFournisseur.value = item.numerofournisseur;
     },
   });
-}
-
-async function fetchFournisseurs() {
-  const fetchManager = new FetchManager();
-  return await fetchManager.get(`demande-appro/autocomplete/all-fournisseur`);
 }
