@@ -191,7 +191,7 @@ export function formatAllField(line) {
   let fournisseur = getTheField(line, "nomFournisseur");
   let quantite = getTheField(line, "qteDem");
   designation.addEventListener("input", function () {
-    designation.value = designation.value.toUpperCase();
+    designation.value = designation.value.toUpperCase().slice(0, 35); // Limiter à 35 caractères
   });
   fournisseur.addEventListener("input", function () {
     fournisseur.value = fournisseur.value.toUpperCase();
@@ -231,7 +231,7 @@ export function onFileNamesInputChange(event) {
   // Assigner les fichiers à l'input file
   transfererDonnees(selectedFilesMap[inputId], inputFile);
   // Afficher la liste des fichiers cumulés
-  renderFileList(inputId);
+  renderFileList(inputId, inputFile);
 }
 
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
@@ -247,7 +247,7 @@ function isValidFile(file, maxSize = 5 * 1024 * 1024) {
   return true;
 }
 
-function renderFileList(inputId) {
+function renderFileList(inputId, inputFile) {
   const containerId = inputId.replace("fileNames", "fileNamesContainer");
   const fieldContainer = document.getElementById(containerId); // Conteneur du champ de fichier correspondant
   const files = selectedFilesMap[inputId];
@@ -279,7 +279,7 @@ function renderFileList(inputId) {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
         transfererDonnees(selectedFilesMap[inputId], inputFile);
-        renderFileList(inputId);
+        renderFileList(inputId, inputFile);
       };
 
       listItem.appendChild(fileNameSpan);
