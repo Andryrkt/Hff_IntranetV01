@@ -59,7 +59,7 @@ class Transfer04Controller extends Controller
             $transferToBd["date_fin_estimation_travaux"] = $value["DateFinEstimationTravaux"];
             $transferToBd["code_section"] = $value["CodeSection"];
             $transferToBd["mas_ate"] = $value["MASATE"];
-            $transferToBd["code_ate"] = $value["codeate"];
+            $transferToBd["code_ate"] = is_array($value["codeate"]) ? reset($value["codeate"]) : $value["codeate"];
             $allTransfersToBd[] = $transferToBd;
         }
        

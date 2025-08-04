@@ -158,8 +158,8 @@ trait StatutBcTrait
 
         $q = $qte[0];
         $qteDem = (int)$q['qte_dem'];
-        $qteALivrer = (int)$q['qte_a_livrer'];
-        $qteLivee = (int)$q['qte_livee'];
+        $qteALivrer = (int)$q['qte_dispo'];
+        $qteLivee = (int)$q['qte_livree'];
 
         $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
         $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
@@ -175,9 +175,9 @@ trait StatutBcTrait
     {
         if (!empty($qte)) {
             $q = $qte[0];
-            $qteLivee = (int)$q['qte_livee'];
+            $qteLivee = (int)$q['qte_livree'];
             $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
-            $qteDispo = (int)$q['qte_reliquat'];
+            $qteDispo = (int)$q['qte_dispo'];
 
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)

@@ -139,7 +139,7 @@ class DaNewController extends Controller
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
-                    $this->redirectToRoute("da_list");
+                    $this->redirectToRoute("list_da");
                 }
                 self::$em->persist($DAL);
             }
@@ -165,7 +165,6 @@ class DaNewController extends Controller
             /** ENVOIE D'EMAIL */
             $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
             $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
                 'numDa'         => $numDa,
@@ -178,7 +177,7 @@ class DaNewController extends Controller
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("da_list");
+            $this->redirectToRoute("list_da");
         }
     }
 
@@ -193,6 +192,7 @@ class DaNewController extends Controller
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMax));
+
             self::$em->persist($daAfficher);
         }
     }
@@ -222,7 +222,7 @@ class DaNewController extends Controller
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 if (null === $DAL->getNumeroFournisseur()) {
                     $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
-                    $this->redirectToRoute("da_list");
+                    $this->redirectToRoute("list_da");
                 }
 
                 $DAL
@@ -275,7 +275,7 @@ class DaNewController extends Controller
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
-            $this->redirectToRoute("da_list");
+            $this->redirectToRoute("list_da");
         }
     }
 

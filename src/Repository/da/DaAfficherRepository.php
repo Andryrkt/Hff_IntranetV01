@@ -248,8 +248,9 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (!empty($criteria['typeAchat']) && $criteria['typeAchat'] !== 'tous') {
+            $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
             $qb->andWhere('d.achatDirect = :typeAchat')
-                ->setParameter('typeAchat', $criteria['typeAchat']);
+                ->setParameter('typeAchat', $typeAchat);
         }
     }
 
@@ -258,16 +259,19 @@ class DaAfficherRepository extends EntityRepository
         if (!empty($criteria['statutDA'])) {
             $queryBuilder->andWhere('d.statutDal = :statutDa')
                 ->setParameter('statutDa', $criteria['statutDA']);
-        }
-
-        if (!empty($criteria['statutBC'])) {
-            $queryBuilder->andWhere('d.statutCde = :statutBc')
-                ->setParameter('statutBc', $criteria['statutBC']);
+        } else {
+            $queryBuilder->andWhere('d.statutDal != :statutDa')
+                ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
         }
 
         if (!empty($criteria['statutOR'])) {
             $queryBuilder->andWhere('d.statutOr = :statutOr')
                 ->setParameter('statutOr', $criteria['statutOR']);
+        }
+
+        if (!empty($criteria['statutBC'])) {
+            $queryBuilder->andWhere('d.statutCde = :statutBc')
+                ->setParameter('statutBc', $criteria['statutBC']);
         }
     }
 

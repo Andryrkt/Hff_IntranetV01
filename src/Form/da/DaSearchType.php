@@ -6,6 +6,7 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -22,16 +23,25 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 class DaSearchType extends  AbstractType
 {
     private const STATUT_DA = [
-        "Bon d’achats validé" => "Bon d’achats validé",
-        "Demande d’achats" => "Demande d’achats",
-        "Proposition achats" => "Proposition achats",
+        DemandeAppro::STATUT_VALIDE => DemandeAppro::STATUT_VALIDE,
+        DemandeAppro::STATUT_SOUMIS_APPRO => DemandeAppro::STATUT_SOUMIS_APPRO,
+        DemandeAppro::STATUT_SOUMIS_ATE => DemandeAppro::STATUT_SOUMIS_ATE,
+        DemandeAppro::STATUT_TERMINER => DemandeAppro::STATUT_TERMINER,
+        DemandeAppro::STATUT_A_VALIDE_DW => DemandeAppro::STATUT_A_VALIDE_DW,
     ];
 
     private const STATUT_BC = [
         'A générer' => 'A générer',
         'A éditer' => 'A éditer',
         'A soumettre à validation' => 'A soumettre à validation',
-        'A envoyer au fournisseur' => 'A envoyer au fournisseur'
+        'A envoyer au fournisseur' => 'A envoyer au fournisseur',
+        DaSoumissionBc::STATUT_REFUSE => DaSoumissionBc::STATUT_REFUSE,
+    ];
+
+    private const TYPE_ACHAT = [
+        'Tous' => 'tous',
+        'Avec DIT' => 'avec_dit',
+        'Direct' => 'direct',
     ];
 
     private $agenceRepository;
@@ -85,12 +95,8 @@ class DaSearchType extends  AbstractType
             ])
             ->add('typeAchat', ChoiceType::class, [
                 'label' => 'type de la demande d\'achat',
-                'placeholder' => '-- Choisir un type --',
-                'choices' => [
-                    'Tous' => 'tous',
-                    'Avec DIT' => 0,
-                    'Direct' => 1,
-                ],
+                'placeholder' => false,
+                'choices' => self::TYPE_ACHAT,
                 'required' => false
             ])
             ->add('niveauUrgence', EntityType::class, [
