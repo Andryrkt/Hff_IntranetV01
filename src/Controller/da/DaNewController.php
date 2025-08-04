@@ -108,10 +108,10 @@ class DaNewController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            /** 
-             * @var DemandeAppro $demandeAppro
-             */
+            /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
+            /** @var DemandeIntervention $dit */
+            $dit = $demandeAppro->getDit();
             $demandeAppro
                 ->setDemandeur(Controller::getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
@@ -158,7 +158,7 @@ class DaNewController extends Controller
             }
 
             // ajout des données dans la table DaAfficher
-            $this->ajoutDatadansTableDaAfficher($demandeAppro);
+            $this->ajoutDatadansTableDaAfficher($demandeAppro, $dit);
 
             self::$em->flush();
 
@@ -182,11 +182,14 @@ class DaNewController extends Controller
         }
     }
 
-    public function ajoutDatadansTableDaAfficher(DemandeAppro $demandeAppro): void
+    public function ajoutDatadansTableDaAfficher(DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         foreach ($demandeAppro->getDAL() as $dal) {
             $daAfficher = new DaAfficher();
+            if ($dit) {
+                $daAfficher->setDit($dit);
+            }
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->enregistrerDal($dal);
             $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMax));

@@ -61,4 +61,21 @@ ALTER TABLE da_afficher ADD Service_emmetteur_id int;
 ALTER TABLE da_afficher ADD agence_debiteur_id int;
 ALTER TABLE da_afficher ADD service_debiteur_id int;
 
+ALTER TABLE da_afficher ADD demande_appro_id INT NOT NULL;
+ALTER TABLE da_afficher ADD demande_appro_l_id INT DEFAULT NULL;
+ALTER TABLE da_afficher ADD demande_appro_lr_id INT DEFAULT NULL;
+ALTER TABLE da_afficher ADD dit_id INT DEFAULT NULL;
+
+ALTER TABLE da_afficher
+    ADD CONSTRAINT FK_da_demande_appro FOREIGN KEY (demande_appro_id) REFERENCES demande_appro (id);
+
+ALTER TABLE da_afficher
+    ADD CONSTRAINT FK_da_demande_appro_l FOREIGN KEY (demande_appro_l_id) REFERENCES demande_appro_l (id);
+
+ALTER TABLE da_afficher
+    ADD CONSTRAINT FK_da_demande_appro_l_r FOREIGN KEY (demande_appro_lr_id) REFERENCES demande_appro_l_r (id);
+
+ALTER TABLE da_afficher
+    ADD CONSTRAINT FK_da_dit FOREIGN KEY (dit_id) REFERENCES demande_intervention (id);
+
 
