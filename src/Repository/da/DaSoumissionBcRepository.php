@@ -36,7 +36,7 @@ class DaSoumissionBcRepository extends EntityRepository
 
         // Étape 2 : Récupérer le statut correspondant
         $statut = $this->createQueryBuilder('dabc')
-            ->select('dabc.statut')
+            ->select('DISTINCT dabc.statut')
             ->where('dabc.numeroCde = :numCde')
             ->andWhere('dabc.numeroVersion = :numVersion')
             ->setParameters([

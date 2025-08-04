@@ -61,4 +61,35 @@ ALTER TABLE da_afficher ADD Service_emmetteur_id int;
 ALTER TABLE da_afficher ADD agence_debiteur_id int;
 ALTER TABLE da_afficher ADD service_debiteur_id int;
 
+-- permet de remplir la table da_afficher avec les données de da_valider
+INSERT INTO da_afficher
+    (
+    numero_demande_appro, numero_demande_dit, numero_or, numero_cde,
+    statut_dal, statut_or, statut_cde, objet_dal, detail_dal,
+    num_ligne, qte_dem, qte_dispo, qte_en_attent, qte_livrer,
+    art_constp, art_refp, art_desi, code_fams1, art_fams1,
+    code_fams2, art_fams2, numero_fournisseur, nom_fournisseur,
+    date_fin_souhaitee_l, commentaire, prix_unitaire, total,
+    est_fiche_technique, nom_fiche_technique, pj_fiche_technique, pj_new_ate,
+    pj_proposition_appro, pj_bc, catalogue, date_livraison_prevue,
+    valide_par, numero_version, niveau_urgence, jours_dispo, demandeur,
+    id_da, achat_direct, position_bc, date_planning_or,
+    or_a_resoumettre, numero_ligne_ips, date_creation, date_modification
+    )
+SELECT
+    numero_demande_appro, numero_demande_dit, numero_or, numero_cde,
+    statut_dal, statut_or, statut_cde, objet_dal, detail_dal,
+    num_ligne, qte_dem, qte_dispo, qte_en_attent, qte_livrer,
+    art_constp, art_refp, art_desi, code_fams1, art_fams1,
+    code_fams2, art_fams2, numero_fournisseur, nom_fournisseur,
+    date_fin_souhaitee_l, commentaire, prix_unitaire, total,
+    est_fiche_technique, nom_fiche_technique, pj_fiche_technique, pj_new_ate,
+    pj_proposition_appro, pj_bc, catalogue, date_livraison_prevue,
+    valide_par, numero_version, niveau_urgence, jours_dispo, demandeur,
+    id_da, achat_direct, position_bc, date_planning_or,
+    or_a_resoumettre, numero_ligne_ips, date_creation, date_modification
+FROM da_valider;
 
+update da_afficher set qte_dispo=0 where qte_dispo is NULL
+
+update da_afficher set qte_en_attent=0 where qte_en_attent  is NULL

@@ -2,19 +2,25 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Model\da\DaModel;
 use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
+use App\Controller\Traits\da\DaListeTrait;
+use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\admin\utilisateur\Role;
 use App\Repository\admin\AgenceRepository;
+use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 
 /**
@@ -22,11 +28,16 @@ use App\Repository\da\DaHistoriqueDemandeModifDARepository;
  */
 class listeDaController extends Controller
 {
-    use DaTrait;
+    use DaListeTrait;
+    use StatutBcTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private AgenceRepository $agenceRepository;
+    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaModel $daModel;
+    private DemandeApproRepository $daRepository;
+    private DaSoumissionBcRepository $daSoumissionBcRepository;
 
     public function __construct()
     {
@@ -34,6 +45,10 @@ class listeDaController extends Controller
         $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
         $this->historiqueModifDARepository = self::$em->getRepository(DaHistoriqueDemandeModifDA::class);
         $this->agenceRepository = self::$em->getRepository(Agence::class);
+        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daModel = new DaModel();
+        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
 
     /**
@@ -79,8 +94,13 @@ class listeDaController extends Controller
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser);
 
+        // mise à jours des donner dans la base de donner
+        $this->quelqueModifictionDansDatabase($daAffichers);
+
         // Vérification du verrouillage des DA
         $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
+
+
 
         // Retourne les DA filtrées
         return $daAffichers;
@@ -144,6 +164,8 @@ class listeDaController extends Controller
     {
         foreach ($datas as $data) {
             $this->modificationDateRestant($data);
+            $this->modificationStatutDa($data);
+            $this->modificationStatutBC($data);
         }
         self::$em->flush();
     }
@@ -158,18 +180,27 @@ class listeDaController extends Controller
     }
 
     /**
-     * Permet de modifier le statut du BC
+     * ctee methode parmer de mettre à jour le statut de la DA
      *
      * @return void
      */
-    private function modificationStatutBC() {}
-
-
-    private function modificationQte() 
-    {}
-
-    private function modificationInfosOR()
+    private function modificationStatutDa(DaAfficher $data)
     {
-        
+        $statutDa = $this->daRepository->getStatutDa($data->getNumeroDemandeAppro());
+        $data->setStatutDal($statutDa);
+        self::$em->persist($data);
+    }
+
+
+    /**
+     * Cette methode permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC(DaAfficher $data)
+    {
+        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $data->setStatutCde($statutBC);
+        self::$em->persist($data);
     }
 }
