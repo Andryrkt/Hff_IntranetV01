@@ -231,7 +231,7 @@ export function onFileNamesInputChange(event) {
   // Assigner les fichiers à l'input file
   transfererDonnees(inputId);
   // Afficher la liste des fichiers cumulés
-  renderFileList(inputId);
+  renderFileList(inputId, inputFile);
 }
 
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
@@ -247,7 +247,7 @@ function isValidFile(file, maxSize = 5 * 1024 * 1024) {
   return true;
 }
 
-function renderFileList(inputId) {
+function renderFileList(inputId, inputFile) {
   const containerId = inputId.replace("fileNames", "fileNamesContainer");
   const fieldContainer = document.getElementById(containerId); // Conteneur du champ de fichier correspondant
   const files = selectedFilesMap[inputId];
@@ -278,8 +278,8 @@ function renderFileList(inputId) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
-        transfererDonnees(inputId);
-        renderFileList(inputId);
+        transfererDonnees(selectedFilesMap[inputId], inputFile);
+        renderFileList(inputId, inputFile);
       };
 
       listItem.appendChild(fileNameSpan);

@@ -9,18 +9,22 @@ use Symfony\Component\Form\AbstractType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\Form\FormBuilderInterface;
 use App\Entity\planningAtelier\planningAtelierSearch;
+use App\Model\planningAtelier\planningAtelierModel;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Stopwatch\Section;
 
 class planningAtelierSearchType extends AbstractType
 {
     use Transformation;
     private $planningModel;
+    private $planningAtelierModel;
     public function __construct()
     {
         $this->planningModel = new PlanningModel();
+        $this->planningAtelierModel = new planningAtelierModel();
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -28,7 +32,8 @@ class planningAtelierSearchType extends AbstractType
 
         $agence = $this->transformEnSeulTableauAvecKey($this->planningModel->recuperationAgenceIrium());
         $agenceDebite = $this->planningModel->recuperationAgenceDebite();
-
+        $section = $this->transformeValeur( $this->planningAtelierModel->recupSection(),'section','num' ) ;
+        $ressource =  $this->transformEnSeulTableau($this->planningAtelierModel->recupRessource()) ;
         $builder
             ->add('numeroSemaine', ChoiceType::class, [
                 'choices' => array_combine(range(1, 53), range(1, 53)),
@@ -51,13 +56,17 @@ class planningAtelierSearchType extends AbstractType
                 'label' => "N° OR",
                 'required' => false
             ])
-            ->add('resource', TextType::class, [
-                'label' => "resource",
-                'required' => false
+            ->add('resource', ChoiceType::class, [
+                'label' => "Ressource",
+                'choices' => array_combine($ressource, $ressource),
+                'required' => false,
+                'placeholder' => ' -- Choisir un ressource --',
             ])
-            ->add('section', TextType::class, [
-                'label' => "section",
-                'required' => false
+            ->add('section', ChoiceType::class, [
+                'label' => "Section",
+                'required' => false,
+                'choices' => $section,
+                'placeholder' => ' -- Choisir un section --',
             ])
             ->add('agenceEm', ChoiceType::class, [
                 'label' =>  'Agence Travaux',

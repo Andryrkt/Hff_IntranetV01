@@ -46,11 +46,11 @@ trait PlanningAtelierModelTrait {
     }
     private function section($criteria){
          if (!empty($criteria->getSection())) {
-           $ressource = "AND skg_name = '".$criteria->getSection(). "'  ";
+           $section = "AND skg.skg_id = '".$criteria->getSection(). "'  ";
         }else{
-            $ressource = "";
+            $section = "";
         }
-        return $ressource;
+        return $section;
     }
     private function dateDebut_Fin($criteria){
         if (!empty($criteria->getDateDebut()) && !empty($criteria->getDateFin())) {
