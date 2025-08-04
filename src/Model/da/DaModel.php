@@ -205,11 +205,11 @@ class DaModel extends Model
                     AND seor.seor_succ = slor.slor_succ 
                     AND slor.slor_soc = 'HF'
 
-                    INNER JOIN Informix.sav_itv sitv 
-                        ON sitv.sitv_numor = slor.slor_numor 
-                    AND sitv.sitv_soc = slor.slor_soc 
-                    AND sitv.sitv_succ = slor.slor_succ 
-                    AND slor.slor_soc = 'HF'
+                    --INNER JOIN Informix.sav_itv sitv 
+                      --  ON sitv.sitv_numor = slor.slor_numor 
+                    --AND sitv.sitv_soc = slor.slor_soc 
+                    --AND sitv.sitv_succ = slor.slor_succ 
+                    -- AND slor.slor_soc = 'HF'
 
                     -- jointure pour natcm = 'C'
                     LEFT JOIN Informix.frn_cde c
@@ -228,7 +228,7 @@ class DaModel extends Model
                     WHERE
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
-                        AND slor.slor_refp NOT LIKE 'PREST%'
+                        -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
                         and TRIM(slor_refp) LIKE '%$ref%'
                                     and TRIM(slor.slor_desi) like '%$designation%'
@@ -272,11 +272,11 @@ class DaModel extends Model
                     )
                 END
             ) AS qte_dem,
-            ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
-            (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm) as qte_receptionnee,
+        ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
+            (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
             slor_qterea as qte_livree,
 
-        ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm) - slor_qterea) as qte_dispo,
+        ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') - slor_qterea) as qte_dispo,
         
             CASE
                 WHEN slor_natcm = 'C' THEN c.fcde_numcde

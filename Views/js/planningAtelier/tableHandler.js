@@ -5,18 +5,18 @@
  * @param {int} cellPivotIndex index de la cellule pivot pour différencier les groupes de lignes
  */
 export function mergeCellsTable(cellPivotIndex) {
-  const tableBody = document.querySelector("#tableBody"); // obtenir tBody du tableau à l'aide de l'id "tableBody"
-  const rows = Array.from(tableBody.getElementsByTagName("tr")); // obtenir tous les lignes de ce tableau
-  const COLUMNS_TO_GROUP = [0]; // indice des cellules à fusionner
+  const tableBody = document.querySelector('#tableBody'); // obtenir tBody du tableau à l'aide de l'id "tableBody"
+  const rows = Array.from(tableBody.getElementsByTagName('tr')); // obtenir tous les lignes de ce tableau
+  const COLUMNS_TO_GROUP = [0,1]; // indice des cellules à fusionner
 
   let rowSpanCount = 0; // initialiser à 0 le row span
   let previousDap = null; // initialiser à null la valeur précédente de Dap
   let firstRowInGroup = null; // initialiser à null la première ligne dans le groupe
 
-  if (rows.length == 0) return;
+    if (rows.length == 0)  return;
 
   rows.forEach((currentRow, index) => {
-    let cells = currentRow.getElementsByTagName("td");
+    let cells = currentRow.getElementsByTagName('td');
     let currentDap = cells[cellPivotIndex]?.textContent.trim() || null;
 
     if (previousDap === null || previousDap !== currentDap) {
@@ -44,10 +44,10 @@ export function mergeCellsTable(cellPivotIndex) {
   // Fonction pour appliquer le rowspan sur la première ligne du groupe
   function applyRowSpan(row, count) {
     COLUMNS_TO_GROUP.forEach((i) => {
-      let cell = row.getElementsByTagName("td")[i];
+      let cell = row.getElementsByTagName('td')[i];
       if (cell) {
         cell.rowSpan = count;
-        cell.classList.add("rowspan-cell");
+        cell.classList.add('rowspan-cell');
       }
     });
   }
@@ -55,21 +55,21 @@ export function mergeCellsTable(cellPivotIndex) {
   // Fonction pour masquer les cellules des lignes suivantes du groupe
   function hideCells(row) {
     COLUMNS_TO_GROUP.forEach((i) => {
-      let cell = row.getElementsByTagName("td")[i];
-      if (cell) cell.style.display = "none";
+      let cell = row.getElementsByTagName('td')[i];
+      if (cell) cell.style.display = 'none';
     });
   }
 
   // Fonction pour insérer une ligne séparatrice
   function insertSeparator(referenceRow = null) {
-    let separatorRow = document.createElement("tr");
-    separatorRow.classList.add("separator-row");
+    let separatorRow = document.createElement('tr');
+    separatorRow.classList.add('separator-row');
 
-    let td = document.createElement("td");
+    let td = document.createElement('td');
     td.colSpan = referenceRow
       ? referenceRow.cells.length
       : rows[0].cells.length;
-    td.classList.add("p-0");
+    td.classList.add('p-0');
 
     separatorRow.appendChild(td);
     if (referenceRow !== null) {

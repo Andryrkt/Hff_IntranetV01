@@ -460,7 +460,7 @@ class DaListeController extends Controller
              * dans la table "ors_soumis_a_validation") alors prendre le statut dans cette table
              *      - sinon prendre $statutOr = ''
              */
-            $statutOr = $daValider ? $daValider->getStatutOr() : (!empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '');
+            $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
 
             $data
                 ->setNumeroOr(!empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '')
