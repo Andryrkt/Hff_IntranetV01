@@ -294,13 +294,10 @@ function renderFileList(inputId) {
  * @param {string} inputId - L'ID de l'inputFile
  */
 function transfererDonnees(inputId) {
-  // Le tableau de fichiers à transférer.
-  const filesArray = selectedFilesMap[inputId];
   // Créer un objet DataTransfer pour gérer les fichiers
   const dataTransfer = new DataTransfer();
-
   // Ajouter chaque fichier à l'objet DataTransfer
-  filesArray.forEach((file) => {
+  selectedFilesMap[inputId].forEach((file) => {
     dataTransfer.items.add(file);
   });
 

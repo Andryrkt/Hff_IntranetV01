@@ -375,11 +375,7 @@ export function onFileNamesInputChangeDalr(event) {
   // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
   inputFile.value = "";
 
-  const dataTransfer = new DataTransfer();
-  selectedFilesMap[inputId].forEach((file) => {
-    dataTransfer.items.add(file);
-  });
-  inputFile.files = dataTransfer.files; // Remplace les fichiers dans l'input
+  transfererDonnees(inputId);
 
   // Afficher la liste des fichiers cumulés
   renderFileList(inputId);
@@ -417,6 +413,7 @@ function renderFileList(inputId) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
+        transfererDonnees(inputId);
         renderFileList(inputId);
       };
 
@@ -445,4 +442,19 @@ export function handleRowClick(event) {
   if (target) {
     target.click();
   }
+}
+
+/** * Transfère les données d'un tableau de fichiers vers un champ input de type file.
+ * @param {string} inputId - L'ID de l'inputFile
+ */
+function transfererDonnees(inputId) {
+  // Créer un objet DataTransfer pour gérer les fichiers
+  const dataTransfer = new DataTransfer();
+  // Ajouter chaque fichier à l'objet DataTransfer
+  selectedFilesMap[inputId].forEach((file) => {
+    dataTransfer.items.add(file);
+  });
+
+  // Assigner les fichiers à l'input file
+  document.getElementById(inputId).files = dataTransfer.files;
 }
