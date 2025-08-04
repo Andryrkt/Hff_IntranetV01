@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .querySelectorAll('[id*="proposition_designation_"]')
     .forEach((designation) => {
       designation.addEventListener("input", function () {
-        designation.value = designation.value.toUpperCase();
+        designation.value = designation.value.toUpperCase().slice(0, 35);
       });
 
       autocompleteTheField(designation, "designation");
