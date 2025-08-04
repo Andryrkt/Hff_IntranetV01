@@ -69,7 +69,7 @@ class DaDetailController extends Controller
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->daAfficherRepository->find($id); // recupération de la DA
+		$demandeAppro = $this->daRepository->find($id); // recupération de la DA
 		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
 		$ditModel = new DitModel;
 		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());

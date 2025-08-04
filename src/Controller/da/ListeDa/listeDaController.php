@@ -44,7 +44,6 @@ class listeDaController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         //formulaire de recherche
@@ -165,11 +164,7 @@ class listeDaController extends Controller
     private function modificationStatutBC() {}
 
 
-    private function modificationQte() 
-    {}
+    private function modificationQte() {}
 
-    private function modificationInfosOR()
-    {
-        
-    }
+    private function modificationInfosOR() {}
 }
