@@ -162,19 +162,19 @@ class DaAfficher
     private $nomFicheTechnique;
 
     /**
-     * @ORM\Column(type="json", name="pj_new_ate")
+     * @ORM\Column(type="text", name="pj_new_ate", nullable=true)
      */
-    private $pjNewAte = [];
+    private ?string $pjNewAte = null;
 
     /**
-     * @ORM\Column(type="json", name="pj_proposition_appro")
+     * @ORM\Column(type="text", name="pj_proposition_appro", nullable=true)
      */
-    private $pjPropositionAppro = []; //plus fiche technique
+    private ?string $pjPropositionAppro = null; //plus fiche technique
 
     /**
-     * @ORM\Column(type="json", name="pj_bc")
+     * @ORM\Column(type="text", name="pj_bc", nullable=true)
      */
-    private $pjBc = [];
+    private ?string $pjBc = null;
 
     /**
      * @ORM\Column(type="boolean", name="catalogue")
@@ -780,24 +780,17 @@ class DaAfficher
         return $this;
     }
 
-    /**
-     * Get the value of pjNewAte
-     */
-    public function getPjNewAte()
+    // Setter
+    public function setPjNewAte(array $files): self
     {
-        return $this->pjNewAte;
+        $this->pjNewAte = json_encode($files);
+        return $this;
     }
 
-    /**
-     * Set the value of pjNewAte
-     *
-     * @return  self
-     */
-    public function setPjNewAte($pjNewAte)
+    // Getter
+    public function getPjNewAte(): array
     {
-        $this->pjNewAte = $pjNewAte;
-
-        return $this;
+        return $this->pjNewAte ? json_decode($this->pjNewAte, true) : [];
     }
 
     /**
@@ -805,7 +798,7 @@ class DaAfficher
      */
     public function getPjPropositionAppro()
     {
-        return $this->pjPropositionAppro;
+        return $this->pjPropositionAppro ? json_decode($this->pjPropositionAppro, true) : [];
     }
 
     /**
@@ -815,7 +808,7 @@ class DaAfficher
      */
     public function setPjPropositionAppro($pjPropositionAppro)
     {
-        $this->pjPropositionAppro = $pjPropositionAppro;
+        $this->pjPropositionAppro = json_encode($pjPropositionAppro);
 
         return $this;
     }
@@ -825,7 +818,7 @@ class DaAfficher
      */
     public function getPjBc()
     {
-        return $this->pjBc;
+        return $this->pjBc ? json_decode($this->pjBc, true) : [];
     }
 
     /**
@@ -835,7 +828,7 @@ class DaAfficher
      */
     public function setPjBc($pjBc)
     {
-        $this->pjBc = $pjBc;
+        $this->pjBc = json_encode($pjBc);
 
         return $this;
     }
@@ -1426,12 +1419,11 @@ class DaAfficher
             ->setIdDa($da->getId())
             ->setAchatDirect($da->getAchatDirect())
             ->setDateDemande($da->getDateCreation())
-            ->setIdDa($da->getId())
             ->setNiveauUrgence($da->getNiveauUrgence())
-            ->setAgenceEmetteur($da->getAgenceEmetteur())
-            ->setServiceEmetteur($da->getServiceEmetteur())
-            ->setAgenceDebiteur($da->getAgenceDebiteur())
-            ->setServiceDebiteur($da->getServiceDebiteur())
+            ->setAgenceEmetteur($da->getAgenceEmetteur()->getId())
+            ->setServiceEmetteur($da->getServiceEmetteur()->getId())
+            ->setAgenceDebiteur($da->getAgenceDebiteur()->getId())
+            ->setServiceDebiteur($da->getServiceDebiteur()->getId())
         ;
     }
 
