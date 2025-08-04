@@ -223,7 +223,7 @@ class listeDaController extends Controller
 
             if ($historiqueModifDA) {
                 $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Echec de la demande: une demande de déverouillage a déjà été envoyé sur cette DA.']);
-                return $this->redirectToRoute('da_list');
+                return $this->redirectToRoute('list_da');
             } else {
                 /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
                 $historiqueModifDA = $form->getData();
@@ -244,7 +244,7 @@ class listeDaController extends Controller
                 // ]);
 
                 $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
-                return $this->redirectToRoute('da_list');
+                return $this->redirectToRoute('list_da');
             }
         }
     }

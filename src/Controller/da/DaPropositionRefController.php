@@ -172,7 +172,7 @@ class DaPropositionRefController extends Controller
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        return $this->redirectToRoute("da_list");
+        return $this->redirectToRoute("list_da");
     }
 
     /** 
@@ -209,7 +209,7 @@ class DaPropositionRefController extends Controller
         }
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_da");
     }
 
     /** 
@@ -238,7 +238,7 @@ class DaPropositionRefController extends Controller
         $this->envoyerMailValidation($da, $nomEtChemin);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_da");
     }
 
     /** 
@@ -262,7 +262,7 @@ class DaPropositionRefController extends Controller
         $this->envoyerMailValidation($da, $nomEtChemin);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_da");
     }
 
     private function modificationChoixDeRef(
@@ -382,7 +382,7 @@ class DaPropositionRefController extends Controller
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_da");
     }
 
     private function getNouveauDal($numDa)

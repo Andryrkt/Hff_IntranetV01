@@ -159,7 +159,7 @@ class DaDetailController extends Controller
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
-			return $this->redirectToRoute("da_list");
+			return $this->redirectToRoute("list_da");
 		}
 	}
 

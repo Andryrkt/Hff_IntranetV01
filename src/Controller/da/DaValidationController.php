@@ -94,7 +94,7 @@ class DaValidationController extends Controller
 
         /** NOTIFICATION */
         $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
-        $this->redirectToRoute("da_list");
+        $this->redirectToRoute("list_da");
     }
 
     private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire, array $refsValide): DemandeAppro
