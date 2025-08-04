@@ -1,5 +1,3 @@
-import { resetDropdown } from "../../utils/dropdownUtils";
-import { updateDropdown } from "../../utils/selectionHandler";
 import { ajouterReference } from "./article";
 import { autocompleteTheField } from "./autocompletion";
 import { createFicheTechnique } from "./dalr";
@@ -43,26 +41,9 @@ export function handleAllInputEvents() {
         if (maxLen) el.value = el.value.slice(0, maxLen);
       });
 
-      autocompleteTheField(el, type);
-    });
-  });
-
-  // Champs "Famille"
-  document.querySelectorAll('[id*="proposition_codeFams1_"]').forEach((el) => {
-    const numPage = el.id.split("_").pop();
-
-    initialiserFamilleEtSousFamille(numPage, el);
-    gererChangementFamille(numPage, el);
-  });
-
-  // Champs "Sous-Famille"
-  document.querySelectorAll('[id*="proposition_codeFams2_"]').forEach((el) => {
-    const numPage = el.id.split("_").pop();
-    const { fournisseur, reference, designation } = recupInput(numPage);
-
-    el.addEventListener("change", () => {
-      reset(fournisseur, reference, designation);
-      autocompleteTheFieldsPage(numPage);
+      if (type === "fournisseur") {
+        autocompleteTheField(el, type);
+      }
     });
   });
 }
@@ -132,107 +113,5 @@ export function handleAllButtonEvents() {
       );
       createFicheTechnique(nbrLine, numLigneTableau, inputFile);
     });
-  });
-}
-
-/**
- * permet d'autocompleter la designation et la référence
- * @param {int} numPage
- */
-function autocompleteTheFieldsPage(numPage) {
-  const { fournisseur, reference, designation, isCatalogueInput } =
-    recupInput(numPage);
-  let iscatalogue = isCatalogueInput.value;
-  reset(fournisseur, reference, designation);
-  console.log(iscatalogue == "");
-
-  autocompleteTheField(designation, "designation", numPage, iscatalogue);
-  autocompleteTheField(reference, "reference", numPage, iscatalogue);
-}
-
-/**
- * permet d'effacer le contenu des champs fournisseur, référence, designation
- * @param {*} fournisseur
- * @param {*} reference
- * @param {*} designation
- */
-function reset(fournisseur, reference, designation) {
-  if (fournisseur) fournisseur.value = "";
-  if (reference) reference.value = "";
-  if (designation) designation.value = "";
-}
-
-function initialiserFamilleEtSousFamille(numPage, familleInput) {
-  const { sousFamilleInput, codeFamilleInput, codeSousFamilleInput } =
-    recupInput(numPage);
-
-  const defaultFamille = codeFamilleInput?.value;
-  const defaultSousFamille = codeSousFamilleInput?.value;
-  console.log(defaultFamille, defaultSousFamille);
-
-  if (defaultFamille) {
-    familleInput.value = defaultFamille;
-    familleInput.dispatchEvent(new Event("change"));
-  }
-
-  if (sousFamilleInput && defaultSousFamille) {
-    setTimeout(() => {
-      sousFamilleInput.value = defaultSousFamille;
-      sousFamilleInput.dispatchEvent(new Event("change"));
-    }, 300);
-  }
-}
-
-/**
- * Permet de récupérer les éléments HTML liés à une page/index spécifique
- * @param {string|number} numPage
- * @returns {object} - Un objet contenant tous les éléments utiles
- */
-function recupInput(numPage) {
-  return {
-    sousFamilleInput: document.querySelector(
-      `#demande_appro_proposition_codeFams2_${numPage}`
-    ),
-    codeFamilleInput: document.querySelector(`#codeFams1_${numPage}`),
-    codeSousFamilleInput: document.querySelector(`#codeFams2_${numPage}`),
-    spinnerElement: document.querySelector(`#spinner_codeFams2_${numPage}`),
-    containerElement: document.querySelector(`#container_codeFams2_${numPage}`),
-    designation: document.querySelector(
-      `#demande_appro_proposition_designation_${numPage}`
-    ),
-    fournisseur: document.querySelector(
-      `#demande_appro_proposition_fournisseur_${numPage}`
-    ),
-    reference: document.querySelector(
-      `#demande_appro_proposition_reference_${numPage}`
-    ),
-    isCatalogueInput: document.querySelector(`#catalogue_${numPage}`),
-  };
-}
-
-function gererChangementFamille(numPage, familleInput) {
-  const {
-    sousFamilleInput,
-    fournisseur,
-    reference,
-    designation,
-    spinnerElement,
-    containerElement,
-  } = recupInput(numPage);
-
-  familleInput.addEventListener("change", function () {
-    if (familleInput.value !== "") {
-      reset(fournisseur, reference, designation);
-
-      updateDropdown(
-        sousFamilleInput,
-        `api/demande-appro/sous-famille/${familleInput.value}`,
-        "-- Choisir une sous-famille --",
-        spinnerElement,
-        containerElement
-      );
-    } else {
-      resetDropdown(sousFamilleInput, "-- Choisir une sous-famille --");
-    }
   });
 }
