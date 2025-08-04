@@ -16,6 +16,7 @@ use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
+use App\Form\da\HistoriqueModifDaType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -59,12 +60,17 @@ class listeDaController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         //formulaire de recherche
         $form = self::$validator->createBuilder(DaSearchType::class, null, [
             'method' => 'GET',
         ])->getForm();
+
+        // Formulaire de l'historique de modification des DA
+        $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
+        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
         $form->handleRequest($request);
 
@@ -76,8 +82,9 @@ class listeDaController extends Controller
         $data = $this->getData($criteria);
 
         self::$twig->display('da/list_da.html.twig', [
-            'data' => $data,
-            'form' => $form->createView(),
+            'data'                   => $data,
+            'form'                   => $form->createView(),
+            'formHistorique'         => $formHistorique->createView(),
             'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
             'serviceAppro'           => Controller::estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
@@ -164,7 +171,7 @@ class listeDaController extends Controller
         foreach ($datas as $data) {
             $this->modificationDateRestant($data);
             $this->modificationStatutDa($data);
-            $this->modificationStatutBC($data);
+            // $this->modificationStatutBC($data);
         }
         self::$em->flush();
     }
@@ -201,5 +208,44 @@ class listeDaController extends Controller
         $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
         $data->setStatutCde($statutBC);
         self::$em->persist($data);
+    }
+
+    private function traitementFormulaireDeverouillage($form, $request)
+    {
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $idDa = $form->get('idDa')->getData();
+
+            /** @var DemandeAppro $demandeAppro */
+            $demandeAppro = $this->daRepository->find($idDa);
+
+            $historiqueModifDA = $this->historiqueModifDARepository->findOneBy(['demandeAppro' => $demandeAppro]);
+
+            if ($historiqueModifDA) {
+                $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Echec de la demande: une demande de déverouillage a déjà été envoyé sur cette DA.']);
+                return $this->redirectToRoute('da_list');
+            } else {
+                /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
+                $historiqueModifDA = $form->getData();
+                $historiqueModifDA
+                    ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+                    ->setDemandeAppro($demandeAppro)
+                ;
+
+                self::$em->persist($historiqueModifDA);
+                self::$em->flush();
+
+                // todo: envoyer un mail aux appro pour les informer de la demande de déverrouillage
+                // $this->envoyerMailAuxAppro([
+                //     'idDa'          => $idDa,
+                //     'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
+                //     'motif'         => $historiqueModifDA->getMotif(),
+                //     'userConnecter' => Controller::getUser()->getNomUtilisateur(),
+                // ]);
+
+                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
+                return $this->redirectToRoute('da_list');
+            }
+        }
     }
 }
