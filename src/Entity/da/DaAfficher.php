@@ -2,6 +2,7 @@
 
 namespace App\Entity\da;
 
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaAfficherRepository;
@@ -284,6 +285,30 @@ class DaAfficher
      * @ORM\Column(type="integer", name="service_debiteur_id")
      */
     private  $serviceDebiteur;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeAppro::class)
+     * @ORM\JoinColumn(name="demande_appro_id", referencedColumnName="id", nullable=false)
+     */
+    private ?DemandeAppro $demandeAppro = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproL::class)
+     * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id", nullable=true)
+     */
+    private ?DemandeApproL $demandeApproL = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeApproLR::class)
+     * @ORM\JoinColumn(name="demande_appro_lr_id", referencedColumnName="id", nullable=true)
+     */
+    private ?DemandeApproLR $demandeApproLR = null;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=DemandeIntervention::class)
+     * @ORM\JoinColumn(name="dit_id", referencedColumnName="id", nullable=true)
+     */
+    private ?DemandeIntervention $dit = null;
 
     private $verouille = false;
     private bool $demandeDeverouillage = false;
@@ -1407,9 +1432,90 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of demandeAppro
+     */
+    public function getDemandeAppro()
+    {
+        return $this->demandeAppro;
+    }
+
+    /**
+     * Set the value of demandeAppro
+     *
+     * @return  self
+     */
+    public function setDemandeAppro($demandeAppro)
+    {
+        $this->demandeAppro = $demandeAppro;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproL
+     */
+    public function getDemandeApproL()
+    {
+        return $this->demandeApproL;
+    }
+
+    /**
+     * Set the value of demandeApproL
+     *
+     * @return  self
+     */
+    public function setDemandeApproL($demandeApproL)
+    {
+        $this->demandeApproL = $demandeApproL;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproLR
+     */
+    public function getDemandeApproLR()
+    {
+        return $this->demandeApproLR;
+    }
+
+    /**
+     * Set the value of demandeApproLR
+     *
+     * @return  self
+     */
+    public function setDemandeApproLR($demandeApproLR)
+    {
+        $this->demandeApproLR = $demandeApproLR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dit
+     */
+    public function getDit()
+    {
+        return $this->dit;
+    }
+
+    /**
+     * Set the value of dit
+     *
+     * @return  self
+     */
+    public function setDit($dit)
+    {
+        $this->dit = $dit;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
+            ->setDemandeAppro($da)
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
             ->setNumeroDemandeDit($da->getNumeroDemandeDit())
             ->setStatutDal($da->getStatutDal())
@@ -1430,6 +1536,7 @@ class DaAfficher
     public function enregistrerDal(DemandeApproL $dal)
     {
         $this
+            ->setDemandeApproL($dal)
             ->setQteDem($dal->getQteDem())
             ->setArtConstp($dal->getArtConstp())
             ->setArtRefp($dal->getArtRefp())
@@ -1455,6 +1562,7 @@ class DaAfficher
     public function enregistrerDalr(DemandeApproLR $dalr)
     {
         $this
+            ->setdemandeApproLR($dalr)
             ->setQteDem($dalr->getQteDem())
             ->setArtConstp($dalr->getArtConstp())
             ->setArtRefp($dalr->getArtRefp())
