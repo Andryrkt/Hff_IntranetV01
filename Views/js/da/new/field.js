@@ -191,7 +191,7 @@ export function formatAllField(line) {
   let fournisseur = getTheField(line, "nomFournisseur");
   let quantite = getTheField(line, "qteDem");
   designation.addEventListener("input", function () {
-    designation.value = designation.value.toUpperCase();
+    designation.value = designation.value.toUpperCase().slice(0, 35); // Limiter à 35 caractères
   });
   fournisseur.addEventListener("input", function () {
     fournisseur.value = fournisseur.value.toUpperCase();
@@ -229,9 +229,9 @@ export function onFileNamesInputChange(event) {
   // Nettoyer le champ file (pour permettre de re-sélectionner le même fichier plus tard si besoin)
   inputFile.value = "";
   // Assigner les fichiers à l'input file
-  transfererDonnees(selectedFilesMap[inputId], inputFile);
+  transfererDonnees(inputId);
   // Afficher la liste des fichiers cumulés
-  renderFileList(inputId, inputFile);
+  renderFileList(inputId);
 }
 
 function isValidFile(file, maxSize = 5 * 1024 * 1024) {
@@ -247,7 +247,7 @@ function isValidFile(file, maxSize = 5 * 1024 * 1024) {
   return true;
 }
 
-function renderFileList(inputId, inputFile) {
+function renderFileList(inputId) {
   const containerId = inputId.replace("fileNames", "fileNamesContainer");
   const fieldContainer = document.getElementById(containerId); // Conteneur du champ de fichier correspondant
   const files = selectedFilesMap[inputId];
@@ -278,8 +278,8 @@ function renderFileList(inputId, inputFile) {
       deleteBtn.onclick = () => {
         // Supprimer le fichier de la liste et re-render
         selectedFilesMap[inputId].splice(index, 1);
-        transfererDonnees(selectedFilesMap[inputId], inputFile);
-        renderFileList(inputId, inputFile);
+        transfererDonnees(inputId);
+        renderFileList(inputId);
       };
 
       listItem.appendChild(fileNameSpan);
@@ -291,18 +291,16 @@ function renderFileList(inputId, inputFile) {
 }
 
 /** * Transfère les données d'un tableau de fichiers vers un champ input de type file.
- * @param {File[]} filesArray - Le tableau de fichiers à transférer.
- * @param {HTMLInputElement} inputFile - Le champ input file où les fichiers seront assignés.
+ * @param {string} inputId - L'ID de l'inputFile
  */
-function transfererDonnees(filesArray, inputFile) {
+function transfererDonnees(inputId) {
   // Créer un objet DataTransfer pour gérer les fichiers
   const dataTransfer = new DataTransfer();
-
   // Ajouter chaque fichier à l'objet DataTransfer
-  filesArray.forEach((file) => {
+  selectedFilesMap[inputId].forEach((file) => {
     dataTransfer.items.add(file);
   });
 
   // Assigner les fichiers à l'input file
-  inputFile.files = dataTransfer.files;
+  document.getElementById(inputId).files = dataTransfer.files;
 }
