@@ -148,7 +148,7 @@ export function formatAllField(line) {
   let fournisseur = getTheField(line, "nomFournisseur");
   let quantite = getTheField(line, "qteDem");
   designation.addEventListener("input", function () {
-    designation.value = designation.value.toUpperCase();
+    designation.value = designation.value.toUpperCase().slice(0, 35); // Limiter à 35 caractères
   });
   fournisseur.addEventListener("input", function () {
     fournisseur.value = fournisseur.value.toUpperCase();
