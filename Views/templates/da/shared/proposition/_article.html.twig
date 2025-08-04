@@ -180,14 +180,6 @@
 					<div id="suggestion_reference_{{ currentPage }}" class="suggestions-container"></div>
 					<div id="spinner_container_reference_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 				</div>
-				<div class="mb-2">
-					<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
-					<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
-				</div>
-				<div class="mb-2 {{ article.catalogue ? 'd-none' : ''}} ">
-					<label for="demande_appro_proposition_PU_{{ currentPage }}" class="form-label mb-0">Prix Unitaire (*)</label>
-					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}} data-catalogue="{{ article.catalogue ? 1 : 0 }}">
-				</div>
 			</div>
 			<div class="col-9 col-md-9">
 				<div class="row">
@@ -214,14 +206,32 @@
 							<div id="spinner_container__fournisseur_{{ currentPage }}" class="spinner invisible" style="display: none;"></div>
 						</div>
 					</div>
-					<div class="mb-2">
-						<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif
-							{{ article.catalogue ? '(*)' : ''}}</label>
-						<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
-					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-3 col-md-3">
+				<div class="mb-2">
+					<label for="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-label mb-0">Qté Dispo</label>
+					<input type="text" id="demande_appro_proposition_qte_dispo_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
+				</div>
+			</div>
+			<div class="col-9 col-md-9">
+				<div class="mb-2">
+					<label for="demande_appro_proposition_motif_{{ currentPage }}" class="form-label mb-0">Commentaire / motif
+						{{ article.catalogue ? '(*)' : ''}}</label>
+					<input type="text" id="demande_appro_proposition_motif_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}}>
 				</div>
 				<div class="mb-2 d-none">
 					<input type="text" id="demande_appro_proposition_numeroFournisseur_{{ currentPage }}">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-3 col-md-3">
+				<div class="mb-2 {{ article.catalogue ? 'd-none' : ''}} ">
+					<label for="demande_appro_proposition_PU_{{ currentPage }}" class="form-label mb-0">Prix Unitaire (*)</label>
+					<input type="text" id="demande_appro_proposition_PU_{{ currentPage }}" class="form-control" {{ estAte ? 'disabled':''}} data-catalogue="{{ article.catalogue ? 1 : 0 }}">
 				</div>
 			</div>
 		</div>

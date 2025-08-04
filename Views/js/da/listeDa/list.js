@@ -130,7 +130,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const button = dropdown.querySelector(".dropdown-toggle");
 
     if (menu && menu.children.length === 0 && button) {
-      menu.remove();
+      menu.classList.add("d-none"); // ou "hidden"
+      button.disabled = true; // empêche l'interaction
     }
   });
 });
