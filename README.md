@@ -29,3 +29,7 @@ fichier config.js
 ```Bash
 export const baseUrl = "/Hffintranet";
 ```
+
+## Déploiement
+
+Branche ts maints andalovana aloha: "dev", "pre_prod"

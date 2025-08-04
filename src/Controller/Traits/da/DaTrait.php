@@ -66,7 +66,7 @@ trait DaTrait
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE
         ];
         $statutDa = $this->daRepository->getStatutDa($numDa);
-        if (in_array($statutDa, $statutDaIntanert)) {
+        if (in_array($statutDa, $statutDaIntanert) || empty($situationCde)) {
             return '';
         }
 
@@ -190,8 +190,8 @@ trait DaTrait
 
         $q = $qte[0];
         $qteDem = (int)$q['qte_dem'];
-        $qteALivrer = (int)$q['qte_a_livrer'];
-        $qteLivee = (int)$q['qte_livee'];
+        $qteALivrer = (int)$q['qte_dispo'];
+        $qteLivee = (int)$q['qte_livree'];
 
         $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
         $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
@@ -208,8 +208,8 @@ trait DaTrait
         if (!empty($qte)) {
             $q = $qte[0];
             $qteDem = (int)$q['qte_dem'];
-            $qteALivrer = (int)$q['qte_a_livrer'];
-            $qteLivee = (int)$q['qte_livee'];
+            $qteALivrer = (int)$q['qte_dispo'];
+            $qteLivee = (int)$q['qte_livree'];
             $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
             $qteDispo = (int)$q['qte_reliquat'];
 

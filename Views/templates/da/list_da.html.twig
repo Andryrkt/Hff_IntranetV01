@@ -36,7 +36,7 @@
 		'Validé': 'bg-bc-valide fw-bold',
 		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
-		'Tout livré':'tout-livre bg-success text-white',
+		'Tous livrés':'tout-livre bg-success text-white',
 		'Partiellement livré':'partiellement-livre bg-warning text-white',
 		'Partiellement dispo':'partiellement-dispo bg-info text-white',
 		'Complet non livré':'complet-non-livre bg-primary text-white'
@@ -147,7 +147,7 @@
 						<td>{{item.niveauUrgence}}</td>
 						<td>{{item.numeroOr}}</td>
 						<td>{{item.demandeur}}</td>
-						<td>{{item.dateDemande | date('d/m/Y')}}</td>
+						<td>{{item.dateDemande != null ? item.dateDemande | date('d/m/Y') : ''}}</td>
 						<td class="{{ styleStatutDA[item.statutDal] }} fw-bold">{{item.statutDal}}</td>
 						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.statutOr}}</td>
 						<td class="text-start {{ styleStatutBC[item.statutCde] }} fw-bold">{{item.statutCde}}</td>
@@ -174,8 +174,8 @@
 						<td class="text-center">{{item.qteEnAttent == 0 ? '-' : item.qteEnAttent}}</td>
 						<td class="text-center">{{item.qteDispo == 0 ? '-' : item.qteDispo}}</td>
 						<td class="text-center">{{item.qteLivrer == 0 ? '-' : item.qteLivrer}}</td>
-						<td class="text-center">{{item.dateFinSouhaite | date('d/m/Y')}}</td>
-						<td class="text-center">{{item.dateLivraisonPrevue == null ? '' :item.dateLivraisonPrevue | date('d/m/Y')}}</td>
+						<td class="text-center">{{item.dateFinSouhaite != null ? item.dateFinSouhaite | date('d/m/Y') :'' }}</td>
+						<td class="text-center">{{item.dateLivraisonPrevue != null ? item.dateLivraisonPrevue | date('d/m/Y') :''}}</td>
 						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{item.joursDispo}}</td>
 						<td class="text-center">
 							{% if serviceAppro and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}

@@ -7,11 +7,13 @@
 export function mergeCellsTable(cellPivotIndex) {
   const tableBody = document.querySelector('#tableBody'); // obtenir tBody du tableau à l'aide de l'id "tableBody"
   const rows = Array.from(tableBody.getElementsByTagName('tr')); // obtenir tous les lignes de ce tableau
-  const COLUMNS_TO_GROUP = [0]; // indice des cellules à fusionner
+  const COLUMNS_TO_GROUP = [0,1]; // indice des cellules à fusionner
 
   let rowSpanCount = 0; // initialiser à 0 le row span
   let previousDap = null; // initialiser à null la valeur précédente de Dap
   let firstRowInGroup = null; // initialiser à null la première ligne dans le groupe
+
+    if (rows.length == 0)  return;
 
   rows.forEach((currentRow, index) => {
     let cells = currentRow.getElementsByTagName('td');

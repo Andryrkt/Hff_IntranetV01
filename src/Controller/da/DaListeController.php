@@ -394,6 +394,7 @@ class DaListeController extends Controller
                 }
             }
         }
+        self::$em->flush();
     }
 
     private function ajoutQte(array $dasFiltereds): void
