@@ -810,7 +810,7 @@ class DaPropositionArticleDirectController extends Controller
                 ->setDemandeApproL($DAL)
                 ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
                 ->setQteDem($DAL->getQteDem())
-                ->setArtConstp($DAL->getArtConstp())
+                ->setArtConstp('ZDI') // TODO: changer cette ligne plus tard
                 ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1()) // ceci doit toujour avant le setArtFams1
                 ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1

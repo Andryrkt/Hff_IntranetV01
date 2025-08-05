@@ -209,7 +209,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
   ajouterValeur(prototype, "nomFournisseur", fields.fournisseur.value);
   ajouterValeur(prototype, "artRefp", fields.reference.value);
   ajouterValeur(prototype, "artDesi", fields.designation.value);
-  ajouterValeur(prototype, "qteDispo", fields.qteDispo.value);
+  ajouterValeur(prototype, "qteDispo", fields.qteDispo.value || 0);
   ajouterValeur(prototype, "prixUnitaire", fields.prixUnitaire.value);
   ajouterValeur(prototype, "total", total);
   ajouterValeur(prototype, "conditionnement", "1"); // conditionnement TO DO
