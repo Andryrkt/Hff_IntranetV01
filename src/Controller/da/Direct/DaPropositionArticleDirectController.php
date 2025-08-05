@@ -5,7 +5,9 @@ namespace App\Controller\da\Direct;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaPropositionTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -36,6 +38,8 @@ class DaPropositionArticleDirectController extends Controller
 {
     use DaTrait;
     use lienGenerique;
+    use DaPropositionTrait;
+    use EntityManagerAwareTrait;
 
     private const EDIT = 0;
 
@@ -52,6 +56,7 @@ class DaPropositionArticleDirectController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->setEntityManager(self::$em);
 
         $this->daModel = new DaModel();
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
@@ -366,7 +371,7 @@ class DaPropositionArticleDirectController extends Controller
 
         $this->modificationChoixEtligneDal($refs, $dals);
 
-        $this->ajouterDonneesDansTableAfficher($numDa);
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
         $this->envoyerMailPropositionAuxAte([
@@ -865,31 +870,6 @@ class DaPropositionArticleDirectController extends Controller
 
             return $demandeApproLR;
         }
-    }
-
-    private function ajouterDonneesDansTableAfficher($numDa)
-    {
-        /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
-        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $donneesAfficher = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
-        foreach ($donneesAfficher as $donneeAfficher) {
-            $daAfficher = new DaAfficher();
-            if ($demandeAppro->getDit()) {
-                $daAfficher->setDit($demandeAppro->getDit());
-            }
-            $daAfficher->enregistrerDa($demandeAppro);
-            $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMaxDaAfficher));
-            if ($donneeAfficher instanceof DemandeApproL) {
-                $daAfficher->enregistrerDal($donneeAfficher); // enregistrement pour DAL
-            } else if ($donneeAfficher instanceof DemandeApproLR) {
-                $daAfficher->enregistrerDalr($donneeAfficher); // enregistrement pour DALR
-            }
-
-            self::$em->persist($daAfficher);
-        }
-        self::$em->flush();
     }
 
     /** 

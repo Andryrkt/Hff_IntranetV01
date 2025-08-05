@@ -5,7 +5,9 @@ namespace App\Controller\da\AvecDit;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaPropositionTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -36,6 +38,8 @@ class DaPropositionRefAvecDitController extends Controller
 {
     use DaTrait;
     use lienGenerique;
+    use DaPropositionTrait;
+    use EntityManagerAwareTrait;
 
     private const EDIT = 0;
 
@@ -47,11 +51,12 @@ class DaPropositionRefAvecDitController extends Controller
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {
         parent::__construct();
+        $this->setEntityManager(self::$em);
+        $this->initDaPropositionTrait();
 
         $this->daModel = new DaModel();
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
@@ -61,7 +66,6 @@ class DaPropositionRefAvecDitController extends Controller
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
     }
 
     /**
@@ -84,9 +88,9 @@ class DaPropositionRefAvecDitController extends Controller
         $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
         $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate', ['numDa' => $numDa])])->getForm();
 
-        // Traitement du formulaire en géneral ===========================//
+        //================== Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
-        // ===============================================================//
+        // =================================================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
@@ -369,7 +373,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $this->modificationChoixEtligneDal($refs, $dals);
 
-        $this->ajouterDonneesDansTableAfficher($numDa);
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
         $this->envoyerMailPropositionAuxAte([
@@ -868,31 +872,6 @@ class DaPropositionRefAvecDitController extends Controller
 
             return $demandeApproLR;
         }
-    }
-
-    private function ajouterDonneesDansTableAfficher($numDa)
-    {
-        /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
-        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $donneesAfficher = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
-        foreach ($donneesAfficher as $donneeAfficher) {
-            $daAfficher = new DaAfficher();
-            if ($demandeAppro->getDit()) {
-                $daAfficher->setDit($demandeAppro->getDit());
-            }
-            $daAfficher->enregistrerDa($demandeAppro);
-            $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMaxDaAfficher));
-            if ($donneeAfficher instanceof DemandeApproL) {
-                $daAfficher->enregistrerDal($donneeAfficher); // enregistrement pour DAL
-            } else if ($donneeAfficher instanceof DemandeApproLR) {
-                $daAfficher->enregistrerDalr($donneeAfficher); // enregistrement pour DALR
-            }
-
-            self::$em->persist($daAfficher);
-        }
-        self::$em->flush();
     }
 
     /** 

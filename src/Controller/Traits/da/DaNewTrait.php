@@ -2,7 +2,6 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
