@@ -488,8 +488,8 @@ class DitOrSoumisAValidationModel extends Model
 
     public function getListeArticlesSavLorString(string $numOr): string
     {
-        $statement = " SELECT TRIM(slor_refp) || TRIM(slor_desi) as refp_desi
-            from sav_lor where slor_constp = 'ZST' and slor_numor == '$numOr'
+        $statement = " SELECT TRIM(slor_refp) || REPLACE(TRIM(slor_desi), \"'\", \"''\") as refp_desi
+            from sav_lor where slor_constp = 'ZST' and slor_numor = '$numOr'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -498,11 +498,11 @@ class DitOrSoumisAValidationModel extends Model
         return TableauEnStringService::TableauEnString(',', array_column($data, 'refp_desi'));
     }
 
-    public function getNbrComparaisonArticleDaValiderEtSavLor(string $listeArticlesSavLorString): int
+    public function getNbrComparaisonArticleDaValiderEtSavLor(string $listeArticlesSavLorString, string $numOr): int
     {
         $sql = "SELECT count(*) 
             from da_valider dav  
-            where dav.numero_or = '16416467' 
+            where dav.numero_or = '$numOr' 
             and numero_version = (select max(numero_version) from da_valider where numero_or = dav.numero_or)
             and concat(trim(art_refp),art_desi) in ($listeArticlesSavLorString)
         ";

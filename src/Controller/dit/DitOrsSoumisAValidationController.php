@@ -16,6 +16,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Repository\da\DaValiderRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Repository\da\DaAfficherRepository;
 use App\Form\dit\DitOrsSoumisAValidationType;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +28,7 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
+use App\Entity\da\DaAfficher;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
@@ -45,7 +47,7 @@ class DitOrsSoumisAValidationController extends Controller
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
-    private DaValiderRepository $daValiderRepository;
+    private DaAfficherRepository $daAfficherRepository;
 
 
     public function __construct()
@@ -60,7 +62,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
+        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
     }
 
     /**
@@ -147,7 +149,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
                 /** modification da_valider */
-                $this->modificationDaValider($numDit, $ditInsertionOrSoumis->getNumeroOR());
+                $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
                 $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
             } else {
@@ -166,10 +168,10 @@ class DitOrsSoumisAValidationController extends Controller
         ]);
     }
 
-    private function modificationDaValider(string $numDit, string $numOr): void
+    private function modificationDaAfficher(string $numDit, string $numOr): void
     {
-        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
+        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
         if (!empty($daValiders)) {
 
             /** @var DaValider $daValider */
@@ -191,8 +193,8 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf): void
     {
-        $numeroVersionMax = $this->daValiderRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daValiderRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
+        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
+        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
         if (!empty($daValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(
@@ -256,8 +258,8 @@ class DitOrsSoumisAValidationController extends Controller
         // }
 
         $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($ditInsertionOrSoumis->getNumeroOR());
-        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString);
-        $nombreArticleDansDaValider = $this->daValiderRepository->getNbrDaValider($ditInsertionOrSoumis->getNumeroOR());
+        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $ditInsertionOrSoumis->getNumeroOR());
+        $nombreArticleDansDaAfficheValider = $this->daAfficherRepository->getNbrDaValider($ditInsertionOrSoumis->getNumeroOR());
 
         // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
 
@@ -275,7 +277,7 @@ class DitOrsSoumisAValidationController extends Controller
             // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
-            'nbrArticleDas'            => $nombreArticleDansDaValider != $nbrArticlesComparet,
+            'nbrArticleDas'            => $nombreArticleDansDaAfficheValider != $nbrArticlesComparet,
         ];
     }
 

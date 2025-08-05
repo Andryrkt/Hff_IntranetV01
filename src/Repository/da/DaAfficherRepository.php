@@ -408,4 +408,14 @@ class DaAfficherRepository extends EntityRepository
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
     }
+
+    public function getNbrDaAfficherValider(string $numeroOr): int
+    {
+        return $this->createQueryBuilder('d')
+            ->select('COUNT(d.id) AS nombreDaAfficherValider')
+            ->where('d.numeroOr = :numOr')
+            ->setParameter('numOr', $numeroOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
