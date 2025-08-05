@@ -5,7 +5,6 @@ namespace App\Controller\da;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\da\DemandeApproTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -28,7 +27,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaEditController extends Controller
 {
     use DaTrait;
-    use DemandeApproTrait;
     use lienGenerique;
 
     private const EDIT_DELETE = 2;

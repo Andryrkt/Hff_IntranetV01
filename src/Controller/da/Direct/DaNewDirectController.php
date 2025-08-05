@@ -20,17 +20,15 @@ use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
-use App\Controller\Traits\da\DemandeApproTrait;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @Route("/demande-appro")
  */
-class DaNewController extends Controller
+class DaNewDirectController extends Controller
 {
     use DaTrait;
-    use DemandeApproTrait;
     use lienGenerique;
 
     private DaObservation $daObservation;
