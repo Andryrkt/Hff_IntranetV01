@@ -189,7 +189,11 @@ class DaAfficherRepository extends EntityRepository
         $qb->andWhere($orX);
 
         // Étape 3 : appliquer des filtres dynamiques s'ils existent
-        $this->applyDynamicFilters($qb, $criteria);
+        if (!empty($criteria)) {
+            $this->applyDynamicFilters($qb, $criteria, true);
+            $this->applyStatutsFilters($qb, $criteria, true);
+            $this->applyDateFilters($qb, $criteria, true);
+        }
 
         $qb->orderBy('d.numeroDemandeAppro', 'ASC');
         return $qb->getQuery()->getResult();
@@ -208,27 +212,39 @@ class DaAfficherRepository extends EntityRepository
                 )'
         );
 
-        $this->applyDynamicFilters($qb, $criteria);
-        $this->applyAgencyServiceFilters($qb, $criteria, $idAgenceUser);
-        $this->applyDateFilters($qb, $criteria);
-        $this->applyStatutsFilters($qb, $criteria);
+        if (!empty($criteria)) {
+            $this->applyDynamicFilters($qb, $criteria);
+            $this->applyAgencyServiceFilters($qb, $criteria, $idAgenceUser);
+            $this->applyDateFilters($qb, $criteria);
+            $this->applyStatutsFilters($qb, $criteria);
+        }
 
         $qb->addOrderBy('d.numeroDemandeAppro', 'ASC');
         return $qb->getQuery()->getResult();
     }
 
-    private function applyDynamicFilters(QueryBuilder $qb, ?array $criteria): void
+    private function applyDynamicFilters(QueryBuilder $qb, array $criteria, bool $estCdeFrn = false): void
     {
-        if (empty($criteria)) {
-            return;
+
+        if ($estCdeFrn) {
+            $map = [
+                'numDa' => 'd.numeroDemandeAppro',
+                'numDit' => 'd.numeroDemandeDit',
+                'numCde' => 'd.numeroCde',
+                'numOr' => 'd.numeroOr',
+                'numFrn' => 'd.numeroFournisseur',
+                'frn' => 'd.nomFournisseur',
+                'niveauUrgence' => 'd.niveauUrgence',
+            ];
+        } else {
+            $map = [
+                'numDa' => 'd.numeroDemandeAppro',
+                'numDit' => 'd.numeroDemandeDit',
+                'niveauUrgence' => 'd.niveauUrgence',
+                'demandeur' => 'd.demandeur'
+            ];
         }
 
-        $map = [
-            'numDa' => 'd.numeroDemandeAppro',
-            'numDit' => 'd.numeroDemandeDit',
-            'niveauUrgence' => 'd.niveauUrgence',
-            'demandeur' => 'd.demandeur'
-        ];
 
         foreach ($map as $key => $field) {
             if (!empty($criteria[$key])) {
@@ -254,24 +270,92 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyStatutsFilters(QueryBuilder $queryBuilder, array $criteria)
+    private function applyStatutsFilters(QueryBuilder $queryBuilder, array $criteria, bool $estCdeFrn = false)
     {
-        if (!empty($criteria['statutDA'])) {
-            $queryBuilder->andWhere('d.statutDal = :statutDa')
-                ->setParameter('statutDa', $criteria['statutDA']);
+        if ($estCdeFrn) {
+            if (!empty($criteria['statutBC'])) {
+                $queryBuilder->andWhere('d.statutCde = :statutBc')
+                    ->setParameter('statutBc', $criteria['statutBC']);
+            }
         } else {
-            $queryBuilder->andWhere('d.statutDal != :statutDa')
-                ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
-        }
+            if (!empty($criteria['statutDA'])) {
+                $queryBuilder->andWhere('d.statutDal = :statutDa')
+                    ->setParameter('statutDa', $criteria['statutDA']);
+            } else {
+                $queryBuilder->andWhere('d.statutDal != :statutDa')
+                    ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
+            }
 
-        if (!empty($criteria['statutOR'])) {
-            $queryBuilder->andWhere('d.statutOr = :statutOr')
-                ->setParameter('statutOr', $criteria['statutOR']);
-        }
+            if (!empty($criteria['statutOR'])) {
+                $queryBuilder->andWhere('d.statutOr = :statutOr')
+                    ->setParameter('statutOr', $criteria['statutOR']);
+            }
 
-        if (!empty($criteria['statutBC'])) {
-            $queryBuilder->andWhere('d.statutCde = :statutBc')
-                ->setParameter('statutBc', $criteria['statutBC']);
+            if (!empty($criteria['statutBC'])) {
+                $queryBuilder->andWhere('d.statutCde = :statutBc')
+                    ->setParameter('statutBc', $criteria['statutBC']);
+            }
+        }
+    }
+
+
+    private function applyDateFilters($qb, array $criteria, bool $estCdeFrn = false)
+    {
+        if ($estCdeFrn) {
+            /** Date fin souhaite */
+            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                    ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
+            }
+
+            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                    ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
+            }
+
+            /** DATE PLANNING OR */
+            if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                    ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
+            }
+
+            if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                    ->setParameter('dateFinOR', $criteria['dateFinOR']);
+            }
+        } else {
+            /** Date fin souhaite */
+            if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                    ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
+            }
+
+            if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                    ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
+            }
+
+            /** Date DA (date de demande) */
+            if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateDemande >= :dateDemandeDebut')
+                    ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
+            }
+
+            if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.dateDemande <= :dateDemandeFin')
+                    ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
+            }
+
+            /** DATE PLANNING OR */
+            if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                    ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
+            }
+
+            if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
+                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                    ->setParameter('dateFinOR', $criteria['dateFinOR']);
+            }
         }
     }
 
@@ -319,42 +403,6 @@ class DaAfficherRepository extends EntityRepository
         if (!empty($criteria['serviceDebiteur'])) {
             $qb->andWhere('d.serviceDebiteurId = :serviceDebiteur')
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
-        }
-    }
-
-    private function applyDateFilters($qb, array $criteria)
-    {
-        /** Date fin souhaite */
-        if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
-                ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
-        }
-
-        if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
-                ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
-        }
-
-        /** Date DA (date de demande) */
-        if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.dateDemande >= :dateDemandeDebut')
-                ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
-        }
-
-        if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.dateDemande <= :dateDemandeFin')
-                ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
-        }
-
-        /** DATE PLANNING OR */
-        if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
-                ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
-        }
-
-        if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-            $qb->andWhere('d.datePlannigOr <= :dateFinOR')
-                ->setParameter('dateFinOR', $criteria['dateFinOR']);
         }
     }
 }

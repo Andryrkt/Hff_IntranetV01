@@ -23,6 +23,12 @@ class CdeFrnListType extends  AbstractType
         'A envoyer au fournisseur' => 'A envoyer au fournisseur'
     ];
 
+    private const TYPE_ACHAT = [
+        'Tous' => 'tous',
+        'Avec DIT' => 'avec_dit',
+        'Direct' => 'direct',
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -33,7 +39,7 @@ class CdeFrnListType extends  AbstractType
             ->add('achatDirect', ChoiceType::class, [
                 'label' => 'Achat direct',
                 'placeholder' => '-- Choisir le choix --',
-                'choices' => ['NON' => 0, 'OUI' => 1],
+                'choices' => self::TYPE_ACHAT,
                 'required' => false
             ])
             ->add('numDit', TextType::class, [
@@ -99,12 +105,12 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'Date fin planning OR',
                 'required' => false,
             ])
-            ->add('dateDebutDAL', DateType::class, [
+            ->add('dateDebutfinSouhaite', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date début fin souhaité',
                 'required' => false,
             ])
-            ->add('dateFinDAL', DateType::class, [
+            ->add('dateFinFinSouhaite', DateType::class, [
                 'widget' => 'single_text',
                 'label' => 'Date fin fin souhaité',
                 'required' => false,
