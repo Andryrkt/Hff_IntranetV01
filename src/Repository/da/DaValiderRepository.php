@@ -257,7 +257,7 @@ class DaValiderRepository extends EntityRepository
         }
     }
 
-    public function getNbrDaValider(string $numeroOr): int
+    public function getNbrDaAfficherValider(string $numeroOr): int
     {
         return $this->createQueryBuilder('dav')
             ->select('COUNT(dav.id) AS nombreDaValider')
