@@ -145,7 +145,7 @@ class DemandeApproLR
     /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
-    private string $validePar;
+    private ?string $validePar = null;
 
     /**
      * @ORM\Column(type="boolean", name="deleted")

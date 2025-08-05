@@ -4,8 +4,8 @@ namespace App\Entity\da;
 
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
-use Doctrine\ORM\Mapping as ORM;
 use App\Repository\da\DaAfficherRepository;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=DaAfficherRepository::class)
@@ -71,6 +71,11 @@ class DaAfficher
      * @ORM\Column(type="string", length=11, name="num_ligne")
      */
     private string $numeroLigne;
+
+    /**
+     * @ORM\Column(type="integer", name="num_ligne_tableau", nullable=true)
+     */
+    private $numLigneTableau;
 
     /**
      * @ORM\Column(type="integer", name="qte_dem")
@@ -1512,6 +1517,26 @@ class DaAfficher
         return $this;
     }
 
+    /**
+     * Get the value of numLigneTableau
+     */
+    public function getNumLigneTableau()
+    {
+        return $this->numLigneTableau;
+    }
+
+    /**
+     * Set the value of numLigneTableau
+     *
+     * @return  self
+     */
+    public function setNumLigneTableau($numLigneTableau)
+    {
+        $this->numLigneTableau = $numLigneTableau;
+
+        return $this;
+    }
+
     public function enregistrerDa(DemandeAppro $da)
     {
         $this
@@ -1538,6 +1563,7 @@ class DaAfficher
         $this
             ->setDemandeApproL($dal)
             ->setQteDem($dal->getQteDem())
+            ->setNumeroLigne($dal->getNumeroLigne())
             ->setArtConstp($dal->getArtConstp())
             ->setArtRefp($dal->getArtRefp())
             ->setArtDesi($dal->getArtDesi())
@@ -1564,6 +1590,8 @@ class DaAfficher
         $this
             ->setdemandeApproLR($dalr)
             ->setQteDem($dalr->getQteDem())
+            ->setNumeroLigne($dalr->getNumeroLigne())
+            ->setNumLigneTableau($dalr->getNumLigneTableau())
             ->setArtConstp($dalr->getArtConstp())
             ->setArtRefp($dalr->getArtRefp())
             ->setArtDesi($dalr->getArtDesi())
@@ -1571,6 +1599,7 @@ class DaAfficher
             ->setArtFams2($dalr->getArtFams2())
             ->setCodeFams1($dalr->getCodeFams1())
             ->setCodeFams2($dalr->getCodeFams2())
+            ->setQteDispo($dalr->getQteDispo() === '-' ? 0 : $dalr->getQteDispo())
             ->setNumeroFournisseur($dalr->getNumeroFournisseur())
             ->setNomFournisseur($dalr->getNomFournisseur())
             ->setDateFinSouhaite($dalr->getDateFinSouhaite())

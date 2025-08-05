@@ -27,6 +27,9 @@ class DaAfficherRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
 
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
         return $numeroVersionMax;
     }
 

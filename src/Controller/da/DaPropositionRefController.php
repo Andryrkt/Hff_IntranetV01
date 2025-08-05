@@ -14,11 +14,13 @@ use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
+use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
@@ -47,6 +49,7 @@ class DaPropositionRefController extends Controller
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {
@@ -60,6 +63,7 @@ class DaPropositionRefController extends Controller
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
     }
 
     /**
@@ -365,8 +369,9 @@ class DaPropositionRefController extends Controller
             true
         );
 
-
         $this->modificationChoixEtligneDal($refs, $dals);
+
+        $this->ajouterDonneesDansTableAfficher($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
         $this->envoyerMailPropositionAuxAte([
@@ -412,10 +417,8 @@ class DaPropositionRefController extends Controller
         }
 
         if ($doSaveDb) {
-            $this->enregistrementDb($dals, $dalrList);
+            $this->enregistrementDb($dals, $dalrList, $statut);
         }
-
-        $this->duplicationDataDaL($dals);
 
         if ($observation !== null) {
             $this->insertionObservation($observation, $numDa);
@@ -850,24 +853,24 @@ class DaPropositionRefController extends Controller
         ];
     }
 
-    private function enregistrementDb($data, $dalrList)
+    private function enregistrementDb($dals, $dalrList, $statut)
     {
         foreach ($dalrList as $demandeApproLR) {
-            $DAL = $this->filtreDal($data, $demandeApproLR);
-            $demandeApproLR = $this->ajoutDonnerDaLR($DAL, $demandeApproLR);
+            $DAL = $this->filtreDal($dals, $demandeApproLR);
+            $demandeApproLR = $this->ajoutDonnerDaLR($DAL, $demandeApproLR, $statut);
             self::$em->persist($demandeApproLR);
         }
         self::$em->flush();
     }
 
-    private function filtreDal($data, $demandeApproLR): ?object
+    private function filtreDal($dals, $demandeApproLR): ?object
     {
-        return  $data->filter(function ($entite) use ($demandeApproLR) {
-            return $entite->getNumeroLigne() === $demandeApproLR->getNumeroLigne();
+        return  $dals->filter(function ($dal) use ($demandeApproLR) {
+            return $dal->getNumeroLigne() === $demandeApproLR->getNumeroLigne();
         })->first();
     }
 
-    private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR)
+    private function ajoutDonnerDaLR(DemandeApproL $DAL, DemandeApproLR $demandeApproLR, $statut): DemandeApproLR
     {
         $demandeApproLR_Ancien = $this->demandeApproLRRepository->getDalrByPageAndRow($DAL->getNumeroDemandeAppro(), $demandeApproLR->getNumeroLigne(), $demandeApproLR->getNumLigneTableau());
 
@@ -895,7 +898,7 @@ class DaPropositionRefController extends Controller
                 ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
                 ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
-                ->setStatutDal(DemandeAppro::STATUT_SOUMIS_ATE)
+                ->setStatutDal($statut)
                 ->setNumeroDemandeDit($DAL->getNumeroDit())
                 ->setJoursDispo($DAL->getJoursDispo())
             ;
@@ -912,6 +915,31 @@ class DaPropositionRefController extends Controller
 
             return $demandeApproLR;
         }
+    }
+
+    private function ajouterDonneesDansTableAfficher($numDa)
+    {
+        /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
+        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $donneesAfficher = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        foreach ($donneesAfficher as $donneeAfficher) {
+            $daAfficher = new DaAfficher();
+            if ($demandeAppro->getDit()) {
+                $daAfficher->setDit($demandeAppro->getDit());
+            }
+            $daAfficher->enregistrerDa($demandeAppro);
+            $daAfficher->setNumeroVersion($this->autoIncrement($numeroVersionMaxDaAfficher));
+            if ($donneeAfficher instanceof DemandeApproL) {
+                $daAfficher->enregistrerDal($donneeAfficher); // enregistrement pour DAL
+            } else if ($donneeAfficher instanceof DemandeApproLR) {
+                $daAfficher->enregistrerDalr($donneeAfficher); // enregistrement pour DALR
+            }
+
+            self::$em->persist($daAfficher);
+        }
+        self::$em->flush();
     }
 
     /** 
