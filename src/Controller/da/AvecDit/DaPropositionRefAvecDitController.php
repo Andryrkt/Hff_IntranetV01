@@ -156,9 +156,10 @@ class DaPropositionRefAvecDitController extends Controller
         $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
         if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-            $this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+
+            $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
         }
 
         $notification = [
@@ -191,6 +192,8 @@ class DaPropositionRefAvecDitController extends Controller
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
+
+                $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
             }
             $notification = [
                 'type' => 'success',
@@ -240,6 +243,8 @@ class DaPropositionRefAvecDitController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
+        $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
+
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->envoyerMailValidation($da, $nomEtChemin);
 
@@ -263,6 +268,8 @@ class DaPropositionRefAvecDitController extends Controller
 
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
+
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->envoyerMailValidation($da, $nomEtChemin);
@@ -679,38 +686,6 @@ class DaPropositionRefAvecDitController extends Controller
         }
 
         return $dals;
-    }
-
-    /**
-     * Dupliquer les lignes de la table demande_appro_L
-     *
-     * @param array $refs
-     * @param [type] $data
-     * @return array
-     */
-    private function duplicationDataDaL($data): void
-    {
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($data[0]->getNumeroDemandeAppro());
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $data[0]->getNumeroDemandeAppro(), 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
-
-        foreach ($dals as $dal) {
-            // On clone l'entité (copie en mémoire)
-            $newDal = clone $dal;
-            $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
-
-            // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
-            self::$em->persist($newDal);
-        }
-
-        self::$em->flush();
-    }
-
-    private function autoIncrement(?int $num): int
-    {
-        if ($num === null) {
-            $num = 0;
-        }
-        return (int)$num + 1;
     }
 
     private function recupDataDaLR(array $refs,  $data): array
