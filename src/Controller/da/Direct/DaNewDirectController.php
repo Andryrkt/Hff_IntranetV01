@@ -120,7 +120,7 @@ class DaNewDirectController extends Controller
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro);
+                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
             // ajout des données dans la table DaAfficher
@@ -179,22 +179,6 @@ class DaNewDirectController extends Controller
             $num = 0;
         }
         return (int)$num + 1;
-    }
-
-    private function insertionObservation(DemandeAppro $demandeAppro): void
-    {
-        $daObservation = $this->recupDonnerDaObservation($demandeAppro);
-
-        self::$em->persist($daObservation);
-    }
-
-    private function recupDonnerDaObservation(DemandeAppro $demandeAppro): DaObservation
-    {
-        return $this->daObservation
-            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-            ->setObservation($demandeAppro->getObservation())
-        ;
     }
 
     private function initialisationDemandeAppro(DemandeAppro $demandeAppro, DemandeIntervention $dit)

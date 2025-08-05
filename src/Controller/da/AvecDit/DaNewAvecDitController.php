@@ -136,7 +136,7 @@ class DaNewAvecDitController extends Controller
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro);
+                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
             // ajout des données dans la table DaAfficher
@@ -184,22 +184,6 @@ class DaNewAvecDitController extends Controller
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
         // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
         $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    private function insertionObservation(DemandeAppro $demandeAppro): void
-    {
-        $daObservation = $this->recupDonnerDaObservation($demandeAppro);
-
-        self::$em->persist($daObservation);
-    }
-
-    private function recupDonnerDaObservation(DemandeAppro $demandeAppro): DaObservation
-    {
-        return $this->daObservation
-            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-            ->setObservation($demandeAppro->getObservation())
-        ;
     }
 
     /** 
