@@ -14,7 +14,7 @@ export function handleAllInputEvents() {
   // Champs numériques : Qté Dispo et Prix Unitaire
   const numericFields = [
     '[id*="proposition_qte_dispo_"]',
-    '[id*="proposition_qte_PU_"]',
+    '[id*="proposition_PU_"]',
   ];
 
   numericFields.forEach((selector) => {

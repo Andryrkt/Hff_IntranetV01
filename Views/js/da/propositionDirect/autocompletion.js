@@ -123,10 +123,9 @@ function onBlurEvents(found, designation, fieldName) {
           }
         }
       });
+      // Si non trouvé alors valeur de reférence pièce = ''
+      referencePiece.value = found ? referencePiece.value : "ST";
     }
-
-    // Si non trouvé alors valeur de reférence pièce = ''
-    referencePiece.value = found ? referencePiece.value : "ST";
   }
 }
 
