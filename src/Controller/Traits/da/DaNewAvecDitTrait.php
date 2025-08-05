@@ -14,11 +14,14 @@ trait DaNewAvecDitTrait
     /** 
      * Initialisation des valeurs par défaut pour une Demande d'Achat avec DIT
      * 
-     * @param DemandeAppro $demandeAppro Objet de la demande d'achat à initialiser
      * @param DemandeIntervention $dit DIT associé à la demande d'achat
+     * 
+     * @return DemandeAppro Retourne une instance de DemandeAppro initialisée
      */
-    private function initialisationDemandeAppro(DemandeAppro $demandeAppro, DemandeIntervention $dit)
+    private function initialisationDemandeApproAvecDit(DemandeIntervention $dit): DemandeAppro
     {
+        $demandeAppro = new DemandeAppro;
+
         $demandeAppro
             ->setDit($dit)
             ->setObjetDal($dit->getObjetDemande())
@@ -34,5 +37,7 @@ trait DaNewAvecDitTrait
             ->setUser(Controller::getUser())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
+
+        return $demandeAppro;
     }
 }

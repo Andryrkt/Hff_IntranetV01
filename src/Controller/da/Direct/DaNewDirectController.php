@@ -5,6 +5,7 @@ namespace App\Controller\da\Direct;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaNewDirectTrait;
 use App\Controller\Traits\da\DaNewTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -19,6 +20,7 @@ use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
 use App\Repository\da\DemandeApproLRepository;
+use App\Service\autres\VersionService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -29,6 +31,7 @@ class DaNewDirectController extends Controller
 {
     use DaTrait;
     use DaNewTrait;
+    use DaNewDirectTrait;
     use lienGenerique;
     use EntityManagerAwareTrait;
 
@@ -100,7 +103,7 @@ class DaNewDirectController extends Controller
                     ->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                    ->setNumeroVersion(VersionService::autoIncrement($numeroVersionMax))
                     ->setJoursDispo($this->getJoursRestants($DAL))
                 ;
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
@@ -171,62 +174,6 @@ class DaNewDirectController extends Controller
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
         // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
         $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    private function autoIncrement(?int $num): int
-    {
-        if ($num === null) {
-            $num = 0;
-        }
-        return (int)$num + 1;
-    }
-
-    private function initialisationDemandeAppro(DemandeAppro $demandeAppro, DemandeIntervention $dit)
-    {
-        $demandeAppro
-            ->setDit($dit)
-            ->setObjetDal($dit->getObjetDemande())
-            ->setDetailDal($dit->getDetailDemande())
-            ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
-            ->setAgenceDebiteur($dit->getAgenceDebiteurId())
-            ->setServiceDebiteur($dit->getServiceDebiteurId())
-            ->setAgenceEmetteur($dit->getAgenceEmetteurId())
-            ->setServiceEmetteur($dit->getServiceEmetteurId())
-            ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
-            ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-            ->setUser(Controller::getUser())
-            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
-        ;
-    }
-
-    /** 
-     * Fonction pour initialiser une demande appro direct
-     * 
-     * @return DemandeAppro la demande appro initialisée
-     */
-    private function initialisationDemandeApproDirect(): DemandeAppro
-    {
-        $demandeAppro = new DemandeAppro;
-
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        $agence = $agenceServiceIps['agenceIps'];
-        $service = $agenceServiceIps['serviceIps'];
-
-        $demandeAppro
-            ->setAchatDirect(true)
-            ->setAgenceDebiteur($agence)
-            ->setServiceDebiteur($service)
-            ->setAgenceEmetteur($agence)
-            ->setServiceEmetteur($service)
-            ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
-            ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
-            ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
-            ->setUser(Controller::getUser())
-            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
-        ;
-
-        return $demandeAppro;
     }
 
     /** 
