@@ -57,14 +57,20 @@
 				</tr>
 			</thead>
 			<tbody id="tableBody">
-				{% for item in daValides %}
+				{% for item in daAfficherValides %}
 					<tr>
 						<td class="text-center">
 							<a href="{{ path('da_detail', { id : item.idDa}) }}" target="_blank">
 								{{ item.numeroDemandeAppro }}
 							</a>
 						</td>
-						<td class="text-center">NON</td>
+						<td class="text-center">
+							{% if item.achatDirect %}
+								<i class="fas fa-check text-success"></i>
+							{% else %}
+								<i class="fas fa-xmark text-danger"></i>
+							{% endif %}
+						</td>
 						<td class="text-center">{{ item.numeroDemandeDit }}</td>
 						<td class="text-center">{{ item.niveauUrgence }}</td>
 						<td class="text-center">{{ item.numeroOr }}</td>

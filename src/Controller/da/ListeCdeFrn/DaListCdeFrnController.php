@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\ListeCdeFrn;
 
 
-use App\Entity\da\DaValider;
+use App\Model\da\DaModel;;
+
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaSoumissionBc;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Service\TableauEnStringService;
 use App\Form\da\daCdeFrn\CdeFrnListType;
 use Symfony\Component\Form\FormInterface;
 use App\Form\da\daCdeFrn\DaSoumissionType;
-use App\Repository\da\DaValiderRepository;
+use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
+use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Model\da\DaModel;
-use App\Repository\da\DemandeApproRepository;
-use App\Entity\da\DemandeAppro;
-use App\Repository\da\DaSoumissionBcRepository;
-use App\Entity\da\DaSoumissionBc;
 
 
 /**
@@ -29,20 +29,20 @@ use App\Entity\da\DaSoumissionBc;
  */
 class DaListCdeFrnController extends Controller
 {
-    use DaTrait;
+    use StatutBcTrait;
 
-    private DaValiderRepository $daValiderRepository;
+    private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DaModel $daModel;
     private DemandeApproRepository $daRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    
+
 
     public function __construct()
     {
         parent::__construct();
-        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
+        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
         $this->daModel = new DaModel();
@@ -64,7 +64,7 @@ class DaListCdeFrnController extends Controller
         $criteria = $this->traitementFormulaireRecherche($request, $form);
 
         /** ==== récupération des données à afficher ==== */
-        $daValides = $this->donnerAfficher($criteria);
+        $daAfficherValides = $this->donnerAfficher($criteria);
 
         /** === Formulaire pour l'envoie de BC et FAC + Bl === */
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
@@ -72,13 +72,15 @@ class DaListCdeFrnController extends Controller
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
-        /** Actualisation donner davalier */
-        foreach ($daValides as $key => $davalide) {
-            $statutBC = $this->statutBc( $davalide->getArtRefp(), $davalide->getNumeroDemandeDit(), $davalide->getNumeroDemandeAppro(), $davalide->getArtDesi(), $davalide->getNumeroOr());
+        /** mise à jour des donners daAfficher */
+        foreach ($daAfficherValides as $davalide) {
+            $statutBC = $this->statutBc($davalide->getArtRefp(), $davalide->getNumeroDemandeDit(), $davalide->getNumeroDemandeAppro(), $davalide->getArtDesi(), $davalide->getNumeroOr());
             $davalide->setStatutCde($statutBC);
         }
+
+
         self::$twig->display('da/daListCdeFrn.html.twig', [
-            'daValides' => $daValides,
+            'daAfficherValides' => $daAfficherValides,
             'formSoumission' => $formSoumission->createView(),
             'form' => $form->createView(),
         ]);
@@ -92,9 +94,9 @@ class DaListCdeFrnController extends Controller
         $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
 
         /** @var array récupération des lignes de daValider avec version max et or valider */
-        $daValiders =  $this->daValiderRepository->getDaOrValider($numOrValideZst, $criteria);
+        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($numOrValideZst, $criteria);
 
-        return $daValiders;
+        return $daAfficherValiders;
     }
 
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
@@ -126,42 +128,5 @@ class DaListCdeFrnController extends Controller
         $dataFiltrée = array_filter($data, fn($val) => $val !== null && $val !== '');
 
         return empty($dataFiltrée) ? null : $data;
-    }
-
-     /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
-     *
-     * @return void
-     */
-    public function changementStatutEnvoyerFournisseur(string $numCde = '', string $datePrevue = '', bool $estEnvoyer = false)
-    {
-        $this->verifierSessionUtilisateur();
-
-        if ($estEnvoyer) {
-            // modification de statut dans la soumission bc
-            $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
-            $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
-            if ($soumissionBc) {
-                $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
-                self::$em->persist($soumissionBc);
-            }
-
-            //modification dans la table da_valider
-            $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daValiderRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
-            foreach ($daValider as $valider) {
-                $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
-                    ->setDateLivraisonPrevue(new \DateTime($datePrevue))
-                ;
-                self::$em->persist($valider);
-            }
-            self::$em->flush();
-            // envoyer une notification de succès
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
-            $this->redirectToRoute("da_list_cde_frn");
-        } else {
-            $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
-            $this->redirectToRoute("da_list_cde_frn");
-        }
     }
 }

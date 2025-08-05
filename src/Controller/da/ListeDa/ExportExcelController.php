@@ -9,6 +9,9 @@ use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/demande-appro")
+ */
 class ExportExcelController extends Controller
 {
     private DaAfficherRepository $daAfficherRepository;
