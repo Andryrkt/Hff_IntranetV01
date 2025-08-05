@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
-    if (!document.getElementById("children-container").childElementCount > 0) {
+    if (document.getElementById("children-container").childElementCount > 0) {
       document.getElementById("child-prototype").remove();
       document.getElementById("myForm").submit();
     } else {
