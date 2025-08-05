@@ -15,18 +15,13 @@ use App\Entity\da\DemandeApproLR;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
-use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
-use App\Repository\da\DaAfficherRepository;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
@@ -44,29 +39,22 @@ class DaPropositionArticleDirectController extends Controller
     private const EDIT = 0;
 
     private DaModel $daModel;
-    private DemandeApproLRRepository $demandeApproLRRepository;
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DemandeApproRepository $demandeApproRepository;
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
+        $this->initDaPropositionTrait();
 
         $this->daModel = new DaModel();
-        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
-        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daObservation = new DaObservation();
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
     }
 
     /**
