@@ -92,7 +92,7 @@
 					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% set designationStyle = item.estDalr ? 'mise-en-evidence' : '' %}
-					{% set url_proposition = item.achatDirect ? 'da_proposition_direct' : 'da_proposition' %}
+					{% set url_proposition = item.achatDirect ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit' %}
 					{% set route_params = { id: item.demandeAppro.id } %}
 					<tr>
 						{# === Début Action ==== #}

@@ -58,7 +58,7 @@ class DaPropositionRefAvecDitController extends Controller
     }
 
     /**
-     * @Route("/proposition-avec-dit/{id}", name="da_proposition")
+     * @Route("/proposition-avec-dit/{id}", name="da_proposition_ref_avec_dit")
      */
     public function propositionDeReference($id, Request $request)
     {
