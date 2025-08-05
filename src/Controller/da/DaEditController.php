@@ -191,7 +191,7 @@ class DaEditController extends Controller
 
             $this->modificationDa($demandeAppro, $form->get('DAL'));
             if ($demandeAppro->getObservation() !== null) {
-                $this->insertionObservation($demandeAppro);
+                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
             /** ENVOIE MAIL */
@@ -222,24 +222,6 @@ class DaEditController extends Controller
             'service'       => 'atelier',
             'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
         ]);
-    }
-
-    private function insertionObservation(DemandeAppro $demandeAppro): void
-    {
-        $daObservation = $this->recupDonnerDaObservation($demandeAppro);
-
-        self::$em->persist($daObservation);
-
-        self::$em->flush();
-    }
-
-    private function recupDonnerDaObservation(DemandeAppro $demandeAppro): DaObservation
-    {
-        return $this->daObservation
-            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-            ->setObservation($demandeAppro->getObservation())
-        ;
     }
 
     /** 

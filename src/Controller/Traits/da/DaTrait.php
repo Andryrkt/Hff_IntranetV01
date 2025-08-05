@@ -2,7 +2,10 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Controller\Controller;
+use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DaObservation;
 use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
@@ -11,7 +14,6 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dw\DossierInterventionAtelierModel;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
 use App\Service\genererPdf\GenererPdfDaDirect;
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 trait DaTrait
 {
     use lienGenerique;
+    use EntityManagerAwareTrait;
 
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée
@@ -57,6 +60,32 @@ trait DaTrait
                 $dal->setJoursDispo($this->getJoursRestants($dal));
             }
         }
+    }
+
+    /** 
+     * Fonction pour l'insertion d'une observation
+     * 
+     * @param string $observation l'Observation à insérer
+     * @param DemandeAppro $demandeAppro l'objet DemandeAppro auquel l'observation est liée
+     * 
+     * @return void
+     */
+    private function insertionObservation(string $observation, DemandeAppro $demandeAppro): void
+    {
+        $em = $this->getEntityManager();
+
+        $text = str_replace(["\r\n", "\n", "\r"], "<br>", $observation);
+
+        $daObservation = new DaObservation();
+
+        $daObservation
+            ->setObservation($text)
+            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
+            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+        ;
+
+        $em->persist($daObservation);
+        $em->flush();
     }
 
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string

@@ -134,7 +134,7 @@ class DaDetailController extends Controller
 			/** @var DaObservation $daObservation daObservation correspondant au donnée du form */
 			$daObservation = $form->getData();
 
-			$this->insertionObservation($daObservation, $demandeAppro);
+			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
 			if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
 				$this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
@@ -161,23 +161,6 @@ class DaDetailController extends Controller
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
-	}
-
-	/** 
-	 * Insertion de l'observation dans la Base de donnée
-	 */
-	private function insertionObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
-	{
-		$text = str_replace(["\r\n", "\n", "\r"], "<br>", $daObservation->getObservation());
-
-		$daObservation
-			->setObservation($text)
-			->setNumDa($demandeAppro->getNumeroDemandeAppro())
-			->setUtilisateur(Controller::getUser()->getNomUtilisateur())
-		;
-
-		self::$em->persist($daObservation);
-		self::$em->flush();
 	}
 
 	/** 
@@ -229,7 +212,6 @@ class DaDetailController extends Controller
 
 		self::$em->flush();
 	}
-
 
 	private function modificationStatutDal(string $numDa, string $statut): void
 	{

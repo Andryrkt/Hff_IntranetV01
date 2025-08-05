@@ -151,7 +151,7 @@ class DaPropositionRefController extends Controller
 
     private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
     {
-        $this->insertionObservationSeul($daObservation, $demandeAppro);
+        $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
         if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
             $this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
@@ -185,7 +185,7 @@ class DaPropositionRefController extends Controller
     private function traitementPourBtnEnvoyerObservation($observation, DemandeAppro $demandeAppro, $statutChange)
     {
         if ($observation !== null) {
-            $this->insertionObservation($observation, $demandeAppro->getNumeroDemandeAppro());
+            $this->insertionObservation($observation, $demandeAppro);
             if ($statutChange) {
                 $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
                 $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_SOUMIS_APPRO);
@@ -228,7 +228,7 @@ class DaPropositionRefController extends Controller
             $dals,
             $dalrList,
             $observation,
-            $numDa,
+            $da,
             $refs,
             "Les articles ont été validés avec succès",
             true,
@@ -255,7 +255,7 @@ class DaPropositionRefController extends Controller
             $dals,
             $dalrList,
             $observation,
-            $numDa,
+            $da,
             $request
         );
 
@@ -273,7 +273,7 @@ class DaPropositionRefController extends Controller
         $dals,
         $dalrList,
         ?string $observation,
-        string $numDa,
+        DemandeAppro $da,
         Request $request
     ): array {
         $refs = $this->recuperationDesRef($request);
@@ -282,7 +282,7 @@ class DaPropositionRefController extends Controller
             $dals,
             $dalrList,
             $observation,
-            $numDa,
+            $da,
             $refs,
             "Le choix de la proposition a été changé avec succès",
             false
@@ -363,7 +363,7 @@ class DaPropositionRefController extends Controller
             $dals,
             $dalrList,
             $observation,
-            $numDa,
+            $da,
             $refs,
             "La proposition a été soumis à l'atelier",
             true
@@ -410,8 +410,10 @@ class DaPropositionRefController extends Controller
         ];
     }
 
-    private function traiterProposition($dals, $dalrList, ?string $observation, string $numDa, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = DemandeAppro::STATUT_SOUMIS_ATE): array
+    private function traiterProposition($dals, $dalrList, ?string $observation, DemandeAppro $demandeAppro, array $refs, string $messageSuccess, bool $doSaveDb = false, $statut = DemandeAppro::STATUT_SOUMIS_ATE): array
     {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
         if ($dalrList->isEmpty() && empty($refs)) {
             return $this->notification('danger', "Aucune modification n'a été effectuée");
         }
@@ -421,7 +423,7 @@ class DaPropositionRefController extends Controller
         }
 
         if ($observation !== null) {
-            $this->insertionObservation($observation, $numDa);
+            $this->insertionObservation($observation, $demandeAppro);
         }
 
         $this->modificationStatutDal($numDa, $statut);
@@ -641,43 +643,6 @@ class DaPropositionRefController extends Controller
         }
         return $statut;
     }
-
-    private function insertionObservation(?string $observation, string $numDa): void
-    {
-        $daObservation = $this->recupDonnerDaObservation($observation, $numDa);
-
-        self::$em->persist($daObservation);
-
-        self::$em->flush();
-    }
-
-    /** 
-     * Insertion de l'observation dans la Base de donnée
-     */
-    private function insertionObservationSeul(DaObservation $daObservation, DemandeAppro $demandeAppro)
-    {
-        $text = str_replace(["\r\n", "\n", "\r"], "<br>", $daObservation->getObservation());
-
-        $daObservation
-            ->setObservation($text)
-            ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
-        ;
-
-        self::$em->persist($daObservation);
-        self::$em->flush();
-    }
-
-    private function recupDonnerDaObservation(?string $observation, string $numDa): DaObservation
-    {
-        return $this->daObservation
-            ->setNumDa($numDa)
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
-            ->setObservation($observation)
-        ;
-    }
-
-
 
     private function modificationTableDaL(array $refs,  $data): void
     {
