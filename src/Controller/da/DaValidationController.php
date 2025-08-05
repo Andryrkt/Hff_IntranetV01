@@ -5,16 +5,15 @@ namespace App\Controller\da;
 use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaPropositionTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DemandeApproRepository;
-use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,19 +26,18 @@ class DaValidationController extends Controller
 {
     use DaTrait;
     use lienGenerique;
+    use DaPropositionTrait;
+    use EntityManagerAwareTrait;
 
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DemandeApproLRRepository $demandeApproLRRepository;
-    private DemandeApproRepository $demandeApproRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DitRepository $ditRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->setEntityManager(self::$em);
+        $this->initDaPropositionTrait();
+
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
@@ -51,9 +49,9 @@ class DaValidationController extends Controller
     {
         $daValidationData = $request->request->get('da_proposition_validation');
         $refsValide = json_decode($daValidationData['refsValide'], true) ?? [];
+        $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $prixUnitaire = $request->get('PU', []); // obtenir les PU envoyé par requête
 
         /** @var DemandeAppro $da la demande appro retourné par la fonction */
         $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
@@ -63,7 +61,8 @@ class DaValidationController extends Controller
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
-        self::$em->flush();
+
+        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 
         $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
 
