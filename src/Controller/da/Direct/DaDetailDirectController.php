@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\Direct;
 
 use App\Entity\dw\DwFacBl;
 use App\Model\dit\DitModel;
@@ -32,7 +32,7 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 /**
  * @Route("/demande-appro")
  */
-class DaDetailController extends Controller
+class DaDetailDirectController extends Controller
 {
 	use lienGenerique;
 	use DaTrait;
@@ -62,7 +62,7 @@ class DaDetailController extends Controller
 	}
 
 	/**
-	 * @Route("/detail/{id}", name="da_detail")
+	 * @Route("/detail-direct/{id}", name="da_detail_direct")
 	 */
 	public function detail(int $id, Request $request)
 	{

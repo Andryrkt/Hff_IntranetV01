@@ -92,6 +92,7 @@
 					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% set designationStyle = item.estDalr ? 'mise-en-evidence' : '' %}
+					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
 					{% set url_proposition = item.achatDirect ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit' %}
 					{% set route_params = { id: item.demandeAppro.id } %}
 					<tr>
@@ -134,7 +135,7 @@
 						</td>
 						{# === Fin Actions ==== #}
 						<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ path('da_detail', route_params) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+							<a href="{{ path(url_detail, route_params) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
 								{{item.numeroDemandeAppro}}
 							</a>
 						</td>
