@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\AvecDit;
 
-use DateTime;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
@@ -33,12 +32,11 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DaPropositionRefController extends Controller
+class DaPropositionRefAvecDitController extends Controller
 {
     use DaTrait;
     use lienGenerique;
 
-    private const DA_STATUT_CHANGE_CHOIX_ATE = 'changement de choix par l\'ATE';
     private const EDIT = 0;
 
     private DaModel $daModel;
@@ -67,7 +65,7 @@ class DaPropositionRefController extends Controller
     }
 
     /**
-     * @Route("/proposition/{id}", name="da_proposition")
+     * @Route("/proposition-avec-dit/{id}", name="da_proposition")
      */
     public function propositionDeReference($id, Request $request)
     {
@@ -92,7 +90,7 @@ class DaPropositionRefController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display("da/proposition" . ($da->getAchatDirect() ? "-da-direct" : "") . ".html.twig", [
+        self::$twig->display("da/proposition.html.twig", [
             'da'                      => $da,
             'id'                      => $id,
             'dit'                     => $dit,
@@ -109,7 +107,7 @@ class DaPropositionRefController extends Controller
         ]);
     }
 
-    private function nePeutPasModifier($demandeAppro)
+    private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
         return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
@@ -496,7 +494,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "propositionDa",
                 'subject'    => "{$tab['numDa']} - Proposition créee par l'Appro ",
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-avec-dit/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
@@ -578,7 +576,7 @@ class DaPropositionRefController extends Controller
                 'statut'     => "validationAteDa",
                 'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
                 'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition/" . $tab['id']),
+                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-avec-dit/" . $tab['id']),
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
@@ -632,16 +630,6 @@ class DaPropositionRefController extends Controller
 
         self::$em->persist($da);
         self::$em->flush();
-    }
-
-    private function statutDa()
-    {
-        if (Controller::estUserDansServiceAtelier()) {
-            $statut = self::DA_STATUT_CHANGE_CHOIX_ATE;
-        } else {
-            $statut = DemandeAppro::STATUT_SOUMIS_ATE;
-        }
-        return $statut;
     }
 
     private function modificationTableDaL(array $refs,  $data): void
