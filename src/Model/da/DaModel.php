@@ -185,8 +185,9 @@ class DaModel extends Model
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
-                        TRIM(slor_refp),
-                        TRIM(seor_refdem),
+                        TRIM(slor_refp) as ref,
+                        TRIM(slor_desi) as desi,
+                        TRIM(seor_refdem) as num_dit,
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_numcde
