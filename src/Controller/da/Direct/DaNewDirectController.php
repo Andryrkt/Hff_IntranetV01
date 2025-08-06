@@ -129,6 +129,9 @@ class DaNewDirectController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
+            // ajout des données dans la table DaSoumisAValidation
+            $this->ajouterDansDaSoumisAValidation($demandeAppro);
+
             self::$em->flush();
 
             /** ENVOIE D'EMAIL */
