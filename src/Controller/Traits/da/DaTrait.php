@@ -124,6 +124,7 @@ trait DaTrait
     private function getLignesRectifieesDA(string $numeroDA, int $version): array
     {
         // 1. Récupération des lignes DAL (non supprimées)
+        /** @var iterable<DemandeApproL> les lignes de DAL non supprimées */
         $lignesDAL = $this->demandeApproLRepository->findBy([
             'numeroDemandeAppro' => $numeroDA,
             'numeroVersion'      => $version,
@@ -131,6 +132,7 @@ trait DaTrait
         ]);
 
         // 2. Récupération en une seule requête des DALR associés à la DA
+        /** @var iterable<DemandeApproLR> les lignes de DALR correspondant au numéro de la DA */
         $dalrs = $this->demandeApproLRRepository->findBy([
             'numeroDemandeAppro' => $numeroDA,
         ]);
@@ -148,7 +150,7 @@ trait DaTrait
         $resultats = [];
 
         foreach ($lignesDAL as $ligneDAL) {
-            $numeroLigne = $ligneDAL->getNumeroLigne();
+            $numeroLigne = $ligneDAL->getNumeroLigne(); // numéro de ligne de la DAL
             $resultats[] = $dalrParLigne[$numeroLigne] ?? $ligneDAL;
         }
 
