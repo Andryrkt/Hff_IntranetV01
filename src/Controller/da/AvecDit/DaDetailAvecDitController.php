@@ -5,25 +5,22 @@ namespace App\Controller\da\AvecDit;
 use App\Entity\dw\DwFacBl;
 use App\Model\dit\DitModel;
 use App\Entity\dw\DwBcAppro;
-use App\Entity\da\DaAfficher;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaPropositionTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\da\DaTrait;
-use App\Form\da\DemandeApproFormType;
+use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Repository\dw\DwBcApproRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproLRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
@@ -34,31 +31,30 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DaDetailAvecDitController extends Controller
 {
-	use lienGenerique;
 	use DaTrait;
+	use lienGenerique;
+	use DaPropositionTrait;
+	use EntityManagerAwareTrait;
 
-	private DemandeApproRepository $daRepository;
 	private DitRepository $ditRepository;
 	private DaObservationRepository $daObservationRepository;
-	private DemandeApproLRepository $daLRepository;
 	private DwBcApproRepository $dwBcApproRepository;
 	private DwFactureBonLivraisonRepository $dwFacBlRepository;
 	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
-	private DaAfficherRepository $daAfficherRepository;
 
 	public function __construct()
 	{
 		parent::__construct();
-		$this->daRepository = self::$em->getRepository(DemandeAppro::class);
+		$this->setEntityManager(self::$em);
+		$this->initDaPropositionTrait();
+
 		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
 		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
 		$this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
 		$this->dwFacBlRepository = self::$em->getRepository(DwFacBl::class);
 		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-		$this->daLRepository = self::$em->getRepository(DemandeApproL::class);
 		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
-		$this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
 	}
 
 	/**
@@ -69,12 +65,12 @@ class DaDetailAvecDitController extends Controller
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->daRepository->find($id); // recupération de la DA
+		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
 		$ditModel = new DitModel;
 		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
-		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
@@ -137,9 +133,10 @@ class DaDetailAvecDitController extends Controller
 			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
 			if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-				$this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
 				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
 				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
+
+				$this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro());
 			}
 
 			$notification = [
@@ -186,31 +183,6 @@ class DaDetailAvecDitController extends Controller
 		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 		// $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
 		$email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-	}
-
-	/**
-	 * Dupliquer les lignes de la table demande_appro_L
-	 *
-	 * @param array $refs
-	 * @param [type] $data
-	 * @return array
-	 */
-	private function duplicationDataDaL($numDa): void
-	{
-		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
-		$dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
-
-		foreach ($dals as $dal) {
-			// On clone l'entité (copie en mémoire)
-			$newDal = clone $dal;
-			$newDal->setNumeroVersion($this->autoIncrementForDa($dal->getNumeroVersion())); // Incrémenter le numéro de version
-			$newDal->setEdit(1); // Indiquer que c'est une version modifiée
-
-			// Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
-			self::$em->persist($newDal);
-		}
-
-		self::$em->flush();
 	}
 
 	private function modificationStatutDal(string $numDa, string $statut): void

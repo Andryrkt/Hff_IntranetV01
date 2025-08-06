@@ -26,7 +26,7 @@ class DemandeAppro
 
     public const ID_ATELIER = 3;
     public const ID_APPRO = 16;
-    public const STATUT_A_VALIDE_DW = 'A valider Docuware';
+    public const STATUT_A_VALIDE_DW = 'Soumis à validation';
     public const STATUT_VALIDE = 'Bon d’achats validé';
     public const STATUT_SOUMIS_ATE = 'Proposition achats';
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';

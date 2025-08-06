@@ -24,6 +24,7 @@ trait DaNewAvecDitTrait
 
         $demandeAppro
             ->setDit($dit)
+            ->setNiveauUrgence($dit->getIdNiveauUrgence()->getDescription())
             ->setObjetDal($dit->getObjetDemande())
             ->setDetailDal($dit->getDetailDemande())
             ->setNumeroDemandeDit($dit->getNumeroDemandeIntervention())
