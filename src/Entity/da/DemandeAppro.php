@@ -54,11 +54,6 @@ class DemandeAppro
     private $achatDirect = false;
 
     /**
-     * @ORM\Column(type="boolean", name="devis_achat")
-     */
-    private $devisAchat = false;
-
-    /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit")
      */
     private string $numeroDemandeDit;
@@ -147,7 +142,7 @@ class DemandeAppro
     private string $validePar;
 
     /**
-     * @ORM\Column(type="string", length=255, name="nom_fichier_reference_zst")
+     * @ORM\Column(type="string", length=255, name="nom_fichier_bav")
      */
     private ?string $nonFichierRefZst = null;
 
@@ -249,26 +244,6 @@ class DemandeAppro
     public function setAchatDirect($achatDirect)
     {
         $this->achatDirect = $achatDirect;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of devisAchat
-     */
-    public function getDevisAchat()
-    {
-        return $this->devisAchat;
-    }
-
-    /**
-     * Set the value of devisAchat
-     *
-     * @return  self
-     */
-    public function setDevisAchat($devisAchat)
-    {
-        $this->devisAchat = $devisAchat;
 
         return $this;
     }

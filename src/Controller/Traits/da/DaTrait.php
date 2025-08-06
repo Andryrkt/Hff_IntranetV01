@@ -58,13 +58,15 @@ trait DaTrait
 
 
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
+
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE
         ];
         $statutDa = $this->daRepository->getStatutDa($numDa);
-        if (in_array($statutDa, $statutDaIntanert)) {
+
+        if (in_array($statutDa, $statutDaIntanert) || empty($situationCde)) {
             return '';
         }
 

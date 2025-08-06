@@ -185,8 +185,9 @@ class DaModel extends Model
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
-                        TRIM(slor_refp),
-                        TRIM(seor_refdem),
+                        TRIM(slor_refp) as ref,
+                        TRIM(slor_desi) as desi,
+                        TRIM(seor_refdem) as num_dit,
 
                         CASE
                             WHEN slor_natcm = 'C' THEN c.fcde_numcde
@@ -228,7 +229,7 @@ class DaModel extends Model
                     WHERE
                         slor.slor_constp = 'ZST' 
                         AND slor.slor_typlig = 'P'
-                        AND slor.slor_refp NOT LIKE 'PREST%'
+                        --AND slor.slor_refp NOT LIKE 'PREST%'
                         and slor_numor = '$numOr'
                         and TRIM(slor_refp) LIKE '%$ref%'
                                     and TRIM(slor.slor_desi) like '%$designation%'
