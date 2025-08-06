@@ -349,7 +349,7 @@ class DaListeController extends Controller
             $da->setDAL($dalDernieresVersions);
 
             //da final
-            $daFinal = $this->recuperationRectificationDonnee($numDa, (int)$numeroVersionMax);
+            $daFinal = $this->getLignesRectifieesDA($numDa, (int)$numeroVersionMax);
             $da->setDaValiderOuProposer($daFinal);
         }
 

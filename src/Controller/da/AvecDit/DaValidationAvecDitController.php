@@ -64,7 +64,7 @@ class DaValidationAvecDitController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 
-        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
 
         /** ENVOIE D'EMAIL */
         $this->envoyerMailValidationAuxAppro([

@@ -258,7 +258,7 @@ class DitOrsSoumisAValidationController extends Controller
         // if ($numDa) {
         //     $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
         //     $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        //     $daValiders = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        //     $daValiders = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
         //     $referenceDas = array_map(function ($item) {
         //         return [
         //             "quantite" => $item->getQteDem(),

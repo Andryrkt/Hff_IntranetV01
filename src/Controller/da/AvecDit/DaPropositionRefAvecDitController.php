@@ -391,7 +391,7 @@ class DaPropositionRefAvecDitController extends Controller
     private function getNouveauDal($numDa)
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
         return $dalNouveau;
     }
 

@@ -27,7 +27,7 @@ trait DaAfficherTrait
         $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $donneesAfficher = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $donneesAfficher = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
         foreach ($donneesAfficher as $donneeAfficher) {
             $daAfficher = new DaAfficher();
             if ($demandeAppro->getDit()) {

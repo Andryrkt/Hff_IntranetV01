@@ -112,6 +112,55 @@ trait DaTrait
         $em->flush();
     }
 
+    /**
+     * Récupère les lignes d'une Demande d'Achat en tenant compte des rectifications utilisateur (DALR).
+     * Optimisé pour éviter les requêtes en boucle (N+1).
+     *
+     * @param string $numeroDA le numéro de la Demande d'Achat
+     * @param int    $version la version de la Demande d'Achat
+     *
+     * @return array
+     */
+    private function getLignesRectifieesDA(string $numeroDA, int $version): array
+    {
+        // 1. Récupération des lignes DAL (non supprimées)
+        $lignesDAL = $this->demandeApproLRepository->findBy([
+            'numeroDemandeAppro' => $numeroDA,
+            'numeroVersion'      => $version,
+            'deleted'            => false,
+        ]);
+
+        // 2. Récupération en une seule requête des DALR associés à la DA
+        $dalrs = $this->demandeApproLRRepository->findBy([
+            'numeroDemandeAppro' => $numeroDA,
+        ]);
+
+        // 3. Indexation des DALR par numéro de ligne, uniquement s'ils sont validés (choix = true)
+        $dalrParLigne = [];
+
+        foreach ($dalrs as $dalr) {
+            if ($dalr->getChoix()) {
+                $dalrParLigne[$dalr->getNumeroLigne()] = $dalr;
+            }
+        }
+
+        // 4. Construction de la liste finale en remplaçant les DAL par DALR si dispo
+        $resultats = [];
+
+        foreach ($lignesDAL as $ligneDAL) {
+            $numeroLigne = $ligneDAL->getNumeroLigne();
+            $resultats[] = $dalrParLigne[$numeroLigne] ?? $ligneDAL;
+        }
+
+        return $resultats;
+    }
+
+
+
+
+
+
+
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
     {
         $em = self::getEntity();
@@ -386,7 +435,7 @@ trait DaTrait
     private function creationExcel(string $numDa, int $numeroVersionMax): array
     {
         //recupération des donnée
-        $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $donnerExcels = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
 
         //enregistrement des données dans DaValider
         $this->enregistrerDonneeDansDaValide($donnerExcels);
@@ -427,29 +476,6 @@ trait DaTrait
         }
 
         return $data;
-    }
-
-
-    private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
-    {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'deleted' => false]); // On récupère les DALs avec version max et non supprimés de la DA
-
-        $donnerExcels = [];
-        foreach ($dals as $dal) {
-            $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
-            if (!empty($dalrs)) {
-                foreach ($dalrs as $dalr) {
-                    if ($dalr->getChoix()) {
-                        $donnerExcel = $dalr;
-                        break;
-                    }
-                }
-            }
-            $donnerExcels[] = $donnerExcel;
-        }
-
-        return $donnerExcels;
     }
 
     private function enregistrerDonneeDansDaValide($donnees)
