@@ -48,7 +48,7 @@ class DaPropositionRefAvecDitController extends Controller
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaPropositionTrait();
+        $this->initDaTrait();
 
         $this->daModel = new DaModel();
         $this->daObservation = new DaObservation();

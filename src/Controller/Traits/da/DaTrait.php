@@ -2,11 +2,12 @@
 
 namespace App\Controller\Traits\da;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DaObservation;
-use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -15,6 +16,10 @@ use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
+use App\Repository\da\DemandeApproRepository;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
 use App\Service\genererPdf\GenererPdfDaDirect;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,6 +29,25 @@ trait DaTrait
 {
     use lienGenerique;
     use EntityManagerAwareTrait;
+
+    //=====================================================================================
+    private DaAfficherRepository $daAfficherRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaTrait(): void
+    {
+        $em = $this->getEntityManager();
+        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
+    }
+    //=====================================================================================
 
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée

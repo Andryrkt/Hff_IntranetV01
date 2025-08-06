@@ -12,10 +12,8 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -30,15 +28,13 @@ class DaValidationDirectController extends Controller
     use EntityManagerAwareTrait;
 
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DitRepository $ditRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaPropositionTrait();
+        $this->initDaTrait();
 
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 

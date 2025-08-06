@@ -47,7 +47,7 @@ class DaDetailAvecDitController extends Controller
 	{
 		parent::__construct();
 		$this->setEntityManager(self::$em);
-		$this->initDaPropositionTrait();
+		$this->initDaTrait();
 
 		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
 		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
