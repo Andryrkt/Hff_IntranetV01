@@ -52,9 +52,19 @@ class DitController extends Controller
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($demandeIntervention, self::$em);
 
-        //AFFICHE LE FORMULAIRE
+        //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+        $this->traitementFormulaire($form, $request, $demandeIntervention, $user);
 
+        $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('dit/new.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    private function traitementFormulaire($form, Request $request, $demandeIntervention, $user)
+    {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -108,12 +118,6 @@ class DitController extends Controller
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $pdfDemandeInterventions->getNumeroDemandeIntervention(), 'dit_index', true);
         }
-
-        $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
-
-        self::$twig->display('dit/new.html.twig', [
-            'form' => $form->createView()
-        ]);
     }
 
     private function modificationDernierIdApp($dits)
