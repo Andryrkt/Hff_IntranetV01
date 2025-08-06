@@ -8,6 +8,7 @@ use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaDetailTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -34,8 +35,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DaDetailDirectController extends Controller
 {
-	use lienGenerique;
 	use DaTrait;
+	use DaDetailTrait;
+	use lienGenerique;
 
 	private DemandeApproRepository $daRepository;
 	private DitRepository $ditRepository;
