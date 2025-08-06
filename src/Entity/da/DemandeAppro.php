@@ -3,16 +3,15 @@
 namespace App\Entity\da;
 
 use App\Controller\Traits\da\DaTrait;
-use DateTime;
 use Doctrine\ORM\Mapping as ORM;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\Traits\DateTrait;
-use App\Repository\da\DemandeApproRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Repository\da\DemandeApproRepository;
 
 /**
  * @ORM\Entity(repositoryClass=DemandeApproRepository::class)
@@ -24,15 +23,15 @@ class DemandeAppro
     use DateTrait;
     use DaTrait;
 
-    public const ID_ATELIER = 3;
-    public const ID_APPRO = 16;
-    public const STATUT_A_VALIDE_DW = 'Soumis à validation';
-    public const STATUT_VALIDE = 'Bon d’achats validé';
-    public const STATUT_SOUMIS_ATE = 'Proposition achats';
+    public const ID_APPRO                   = 16;
+    public const ID_ATELIER                 = 3;
+    public const MAIL_APPRO                 = 'nomenjanahary.randrianantenaina@hff.mg'; // TODO: à changer en 'appro@hff.mg' si c'est en PROD
+    public const STATUT_VALIDE              = 'Bon d’achats validé';
+    public const STATUT_TERMINER            = 'TERMINER';
+    public const STATUT_SOUMIS_ATE          = 'Proposition achats';
+    public const STATUT_A_VALIDE_DW         = 'Soumis à validation';
+    public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
-    public const STATUT_SOUMIS_APPRO = 'Demande d’achats';
-    public const STATUT_TERMINER = 'TERMINER';
-    public const MAIL_APPRO = 'nomenjanahary.randrianantenaina@hff.mg';
 
     /**
      * @ORM\Id

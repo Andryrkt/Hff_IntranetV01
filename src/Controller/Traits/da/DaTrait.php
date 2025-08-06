@@ -56,7 +56,7 @@ trait DaTrait
     private function ajoutNbrJourRestant($dalDernieresVersions)
     {
         foreach ($dalDernieresVersions as $dal) {
-            if ($dal->getStatutDal() != 'Bon d’achats validé') { // si le statut de la DAL est différent de "Bon d’achats validé" 
+            if ($dal->getStatutDal() != DemandeAppro::STATUT_VALIDE) { // si le statut de la DAL est différent de "Bon d’achats validé" 
                 $dal->setJoursDispo($this->getJoursRestants($dal));
             }
         }

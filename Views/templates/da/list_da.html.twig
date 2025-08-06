@@ -14,32 +14,32 @@
 {% set role_ids = App.user.roleIds %}
 
 {% set styleStatutDA = {
-		'Demande d’achats': 'bg-demande-achat fw-bold',
-		'Proposition achats': 'bg-proposition-achat fw-bold',
-		'Bon d’achats validé': 'bg-bon-achat-valide fw-bold',
-		'Création demande initiale': 'bg-creation-demande-initiale fw-bold',
-		'Soumis à validation': 'bg-warning text-secondary',
-		'TERMINER': 'bg-primary text-white fw-bold',
+	(constant(DA ~ '::STATUT_VALIDE'))              : 'bg-bon-achat-valide fw-bold',
+	(constant(DA ~ '::STATUT_TERMINER'))            : 'bg-primary text-white fw-bold',
+	(constant(DA ~ '::STATUT_SOUMIS_ATE'))          : 'bg-proposition-achat fw-bold',
+	(constant(DA ~ '::STATUT_SOUMIS_APPRO'))        : 'bg-demande-achat fw-bold',
+	(constant(DA ~ '::STATUT_A_VALIDE_DW'))         : 'bg-warning text-secondary',
+	(constant(DA ~ '::STATUT_AUTORISER_MODIF_ATE')) : 'bg-creation-demande-initiale fw-bold',
 } %}
 
 {% set styleStatutOR = {
-		'Refusé chef atelier': 'bg-or-non-valide',
-		'Refusé client interne': 'bg-or-non-valide',
-		'Validé': 'bg-danger text-white',
-		'A resoumettre à validation': 'bg-warning text-secondary',
+	'Refusé chef atelier': 'bg-or-non-valide',
+	'Refusé client interne': 'bg-or-non-valide',
+	'Validé': 'bg-danger text-white',
+	'A resoumettre à validation': 'bg-warning text-secondary',
 } %}
 
 {% set styleStatutBC = {
-		'A générer': 'bg-bc-a-generer fw-bold',
-		'A éditer': 'bg-bc-a-editer fw-bold',
-		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
-		'Validé': 'bg-bc-valide fw-bold',
-		'Cloturé': 'bg-bc-valide fw-bold',
-		'Non validé': 'bg-bc-non-valide fw-bold',
-		'Tous livrés':'tout-livre bg-success text-white',
-		'Partiellement livré':'partiellement-livre bg-warning text-white',
-		'Partiellement dispo':'partiellement-dispo bg-info text-white',
-		'Complet non livré':'complet-non-livre bg-primary text-white'
+	'A générer': 'bg-bc-a-generer fw-bold',
+	'A éditer': 'bg-bc-a-editer fw-bold',
+	'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
+	'Validé': 'bg-bc-valide fw-bold',
+	'Cloturé': 'bg-bc-valide fw-bold',
+	'Non validé': 'bg-bc-non-valide fw-bold',
+	'Tous livrés':'tout-livre bg-success text-white',
+	'Partiellement livré':'partiellement-livre bg-warning text-white',
+	'Partiellement dispo':'partiellement-dispo bg-info text-white',
+	'Complet non livré':'complet-non-livre bg-primary text-white'
 } %}
 
 {% block content %}
