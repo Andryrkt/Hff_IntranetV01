@@ -42,8 +42,8 @@ class MagasinListeOrLivrerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $codeAgence = Controller::getUser()->getAgenceAutoriserCode();
-        $serviceAgence = Controller::getUser()->getServiceAutoriserCode();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
+        $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);

@@ -92,7 +92,7 @@ class DaPropositionRefAvecDitController extends Controller
             'formObservation'         => $formObservation->createView(),
             'observations'            => $observations,
             'numDa'                   => $numDa,
-            'connectedUser'           => Controller::getUser(),
+            'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estAte'                  => Controller::estUserDansServiceAtelier(),
             'estAppro'                => Controller::estUserDansServiceAppro(),
@@ -164,7 +164,7 @@ class DaPropositionRefAvecDitController extends Controller
             'mailDemandeur' => $demandeAppro->getUser()->getMail(),
             'observation'   => $daObservation->getObservation(),
             'service'       => $service,
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -197,7 +197,7 @@ class DaPropositionRefAvecDitController extends Controller
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'observation'   => $observation,
                 'service'       => $service,
-                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
         } else {
             $notification = [
@@ -315,8 +315,8 @@ class DaPropositionRefAvecDitController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidePar(Controller::getUser()->getNomUtilisateur())
-                ->setValidateur(Controller::getUser())
+                ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur($this->getUser())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }
@@ -328,7 +328,7 @@ class DaPropositionRefAvecDitController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -342,7 +342,7 @@ class DaPropositionRefAvecDitController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -381,7 +381,7 @@ class DaPropositionRefAvecDitController extends Controller
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -517,7 +517,7 @@ class DaPropositionRefAvecDitController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $this->getNouveauDal($da->getNumeroDemandeAppro()),
             'service'       => $service,
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
@@ -531,7 +531,7 @@ class DaPropositionRefAvecDitController extends Controller
             'dalNouveau'        => $this->getNouveauDal($da->getNumeroDemandeAppro()),
             'service'           => $service,
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
 

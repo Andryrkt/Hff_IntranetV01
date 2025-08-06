@@ -220,7 +220,7 @@ class DaEditController extends Controller
             'dalNouveau'    => $dalNouveau,
             'observation'   => $observation,
             'service'       => 'atelier',
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
 

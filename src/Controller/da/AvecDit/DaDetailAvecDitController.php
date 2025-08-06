@@ -97,7 +97,7 @@ class DaDetailAvecDitController extends Controller
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'dit'               		=> $dit,
 			'fichiers'            		=> $fichiers,
-			'connectedUser'     		=> Controller::getUser(),
+			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
 			'estAte'            		=> Controller::estUserDansServiceAtelier(),
 			'estAppro'          		=> Controller::estUserDansServiceAppro(),
@@ -154,7 +154,7 @@ class DaDetailAvecDitController extends Controller
 				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
-				'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);

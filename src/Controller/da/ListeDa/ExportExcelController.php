@@ -116,7 +116,7 @@ class ExportExcelController extends Controller
     public function getDataExcel(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $codeAgence = $this->getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         // Filtrage des DA en fonction des critères

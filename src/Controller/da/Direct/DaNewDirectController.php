@@ -148,7 +148,7 @@ class DaNewDirectController extends Controller
                 'dal'           => $dals,
                 'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
-                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);

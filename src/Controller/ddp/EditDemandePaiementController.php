@@ -463,7 +463,7 @@ class EditDemandePaiementController extends Controller
             ->setAgenceDebiter($this->agenceRepository->find(1)->getCodeAgence())
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
             ->setAdresseMailDemandeur($this->getEmail())
-            ->setDemandeur(Controller::getUser()->getNomUtilisateur())
+            ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setStatut(self::STATUT_MODIFICATION)
             ->setNumeroVersion($numeroversion)
             ->setMontantAPayers((float)$this->transformChaineEnNombre($data->getMontantAPayer()))

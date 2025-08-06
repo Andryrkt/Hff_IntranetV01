@@ -105,7 +105,7 @@ trait DaTrait
         $daObservation
             ->setObservation($text)
             ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
         ;
 
         $em->persist($daObservation);
