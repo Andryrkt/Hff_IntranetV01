@@ -216,95 +216,67 @@
 					</li>
 				{% endif %}
 				{% if hasMAG %}
+					{% set col1 %}
+					<div class="dropdown-line">
+						<p class="dropdown-header">OR</p>
+						<a class="dropdown-item" href="{{ path("magasinListe_index") }}">Liste à traiter</a>
+						<a class="dropdown-item" href="{{ path("magasinListe_or_Livrer") }}">Liste des OR à livrer</a>
+					</div>
+					<div class="dropdown-line">
+						<p class="dropdown-header">CIS</p>
+						<a class="dropdown-item" href="{{ path("cis_liste_a_traiter") }}">Liste des CIS à traiter</a>
+						<a class="dropdown-item" href="{{ path("cis_liste_a_livrer") }}">Liste des CIS à livrer</a>
+					</div>
+					{% endset %}
+
+					{% set col2 %}
+					{% if hasCFR %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">CDE Fournisseur</p>
+							<a class="dropdown-item" href="{{ path("cde_fournisseur") }}">Soumission commande fournisseur</a>
+						</div>
+					{% endif %}
+					{% if hasDDP %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">Demande de paiement</p>
+							<a class="dropdown-item" href="#" id="modalTypeDemande">Nouvelle Demande</a>
+							<a class="dropdown-item" href="{{ path("ddp_liste") }}">Consultation des demandes</a>
+						</div>
+					{% endif %}
+					{% endset %}
+
+					{% set col3 %}
+					{% if hasINV %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">INVENTAIRE</p>
+							<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'}) }}">Liste inventaire</a>
+							<a class="dropdown-item" href="{{ path("liste_detail_inventaire", {'action': 'oui'}) }}">Inventaire détaillé</a>
+						</div>
+					{% endif %}
+					{% if hasLCF %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">LISTE CDE FOURNISSEUR</p>
+							<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Placer") }}">Commande non placée</a>
+						</div>
+					{% endif %}
+					{% endset %}
+
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Magasin</a>
-						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							<li class="dropdown-header">
-								OR
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("magasinListe_index")}}">Liste à traiter</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("magasinListe_or_Livrer")}}">Liste des OR à livrer</a>
-							</li>
-							<li>
-								<hr class="dropdown-divider">
-							</li>
-							<li class="dropdown-header">
-								CIS
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("cis_liste_a_traiter")}}">Liste des CIS à traiter</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("cis_liste_a_livrer")}}">Liste des CIS à livrer</a>
-							</li>
-							{% if hasCFR %}
-								<li>
-									<hr class="dropdown-divider">
-								</li>
-								<li class="dropdown-header">
-									CDE Fournisseur
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("cde_fournisseur")}}">Soumission commande fournisseur</a>
-								</li>
-							{% endif %}
-							<!-- Demande de paiement DDP -->
-							{% if hasDDP %}
-								<li>
-									<hr class="dropdown-divider">
-								</li>
-								<li class="dropdown-header">
-									Demande de paiement
-								</li>
-								<li>
-									<a class="dropdown-item" href="#" id="modalTypeDemande">Nouvelle Demande</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("ddp_liste")}}">Consultation des demandes</a>
-								</li>
-							{% endif %}
-							{# <li class="dropdown-header"> #}
-							{# CDE #}
-							{# </li> #}
-							{# <li> #}
-							{# <a class="dropdown-item" href="{{ path("dit_insertion_cde")}}">Soumission commande à valider</a> #}
-							{# </li> #}
-
-								{% if hasINV %}
-									<li>
-								<hr class="dropdown-divider"> </li>
-								<li class="dropdown-header">
-									INVENTAIRE
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("liste_inventaire", {'action': 'oui'})}}">
-										Liste inventaire</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("liste_detail_inventaire", {'action': 'oui'})}}">
-										Liste inventaire détaillé</a>
-								</li>
-							{% endif %}
-							<li>
-								<hr class="dropdown-divider">
-							</li>
-							{% if hasLCF %}
-								<li class="dropdown-header">
-									LISTE CDE FOURNISSEUR
-								</li>
-								{# <li> #}
-								{# <a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Generer")}}"> #}
-								{# Liste commande fournisseur non générée</a> #}
-								{# </li> #}
-									<li>
-										<a class="dropdown-item" href="{{ path("liste_Cde_Frn_Non_Placer")}}"> Liste commande fournisseur non placée
-									</a>
-								</li>
-							{% endif %}
+							Magasin
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown" style="min-width: 700px;">
+							<div class="dropdown-grid" style="--col-count: {{ [col1, col2, col3]|filter(v => v|trim is not empty)|length }};">
+								{% if col1|trim is not empty %}
+									<div class="dropdown-column">{{ col1|raw }}</div>
+								{% endif %}
+								{% if col2|trim is not empty %}
+									<div class="dropdown-column">{{ col2|raw }}</div>
+								{% endif %}
+								{% if col3|trim is not empty %}
+									<div class="dropdown-column">{{ col3|raw }}</div>
+								{% endif %}
+							</div>
 						</ul>
 					</li>
 				{% endif %}
@@ -368,64 +340,69 @@
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
 							Setting
 						</a>
-						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 
-							<li>
-								<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('AgServIrium_index') }}" id="AgServ">Agence Service Irium</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="#">Type de Document</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="#">Statut App</a>
-							</li>
-							<li class="dropdown-header">
-								Utilisateur
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
-							</li>
-							<li class="dropdown-header">
-								Historique
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
-							</li>
-							<li class="dropdown-header">
-								Ticket
-							</li>
-							<li>
-								<a class="dropdown-item" href="{{ path("tki_all_categorie_index")}}">Tous les catégories</a>
-							</li>
+						<ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown" style="min-width: 600px;">
+							<div class="row">
+								<div class="col-md-4">
+									<li>
+										<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
+									</li>
+								</div>
+
+								<div class="col-md-4">
+									<li>
+										<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="#">Type de Document</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="#">Statut App</a>
+									</li>
+								</div>
+
+								<div class="col-md-4">
+									<li class="dropdown-header">Utilisateur</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
+									</li>
+									<li class="dropdown-header">Historique</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+									</li>
+									<li>
+										<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+									</li>
+									<li class="dropdown-header">Ticket</li>
+									<li>
+										<a class="dropdown-item" href="{{ path("tki_all_categorie_index") }}">Tous les catégories</a>
+									</li>
+								</div>
+							</div>
 						</ul>
 					</li>
+
 				{% endif %}
 			</ul>
 		</li>

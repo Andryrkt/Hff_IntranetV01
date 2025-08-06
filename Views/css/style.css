@@ -207,3 +207,66 @@ div:where(.swal2-container) div:where(.swal2-popup) span {
 button.swal2-styled {
   font-size: 1em !important;
 }
+
+/* .dropdown-menu {
+  background-color: #212529;
+  color: #fafafa;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
+.dropdown-menu .dropdown-item {
+  color: #f3bc08;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+}
+.dropdown-menu .dropdown-item:hover {
+  background-color: #343a40;
+  color: #f3bc08;
+}
+.dropdown-menu .dropdown-item:focus {
+  background-color: #343a40;
+  color: #f3bc08;
+}
+.dropdown-menu .dropdown-divider {
+  border-color: #ffffff;
+  margin: 0.5rem 0;
+}
+.dropdown-menu .dropdown-header {
+  font-weight: bold;
+  font-size: 0.95rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.2rem;
+  color: #fafafa;
+}
+
+.dropdown-menu .dropdown-item {
+  white-space: normal; 
+} */
+
+.dropdown-grid {
+  display: grid;
+  gap: 0.5rem 1rem;
+  grid-template-columns: repeat(var(--col-count, 1), 1fr);
+  align-items: start;
+}
+
+.dropdown-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dropdown-line {
+  min-height: 100px;
+}
+
+.dropdown-header {
+  font-weight: bold;
+  color: #616161;
+}
+
+.dropdown-menu {
+  background-color: #212529;
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+}
