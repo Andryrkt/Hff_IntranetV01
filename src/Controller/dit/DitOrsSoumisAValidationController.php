@@ -184,11 +184,11 @@ class DitOrsSoumisAValidationController extends Controller
     private function modificationDaAfficher(string $numDit, string $numOr): void
     {
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-        if (!empty($daValiders)) {
+        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        if (!empty($daAfficherValiders)) {
 
             /** @var DaValider $daValider */
-            foreach ($daValiders as $daValider) {
+            foreach ($daAfficherValiders as $daValider) {
                 // recuperation du numéro de ligne
                 $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);
                 //modification des informations necessaire
@@ -207,14 +207,14 @@ class DitOrsSoumisAValidationController extends Controller
     private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf): void
     {
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-        if (!empty($daValiders)) {
+        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        if (!empty($daAfficherValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(
                 '%s/da/%s/%s.pdf',
                 $_ENV['BASE_PATH_FICHIER'],
-                $daValiders[0]->getNumeroDemandeAppro(),
-                $daValiders[0]->getNumeroDemandeAppro()
+                $daAfficherValiders[0]->getNumeroDemandeAppro(),
+                $daAfficherValiders[0]->getNumeroDemandeAppro()
             );
             //ajout des chemin et nom de fichier à fusionnner dans un tableau 
             $pdfFiles = [$mainPdf, $cheminNomFichierDa];
