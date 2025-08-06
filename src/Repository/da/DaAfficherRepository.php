@@ -411,10 +411,25 @@ class DaAfficherRepository extends EntityRepository
 
     public function getNbrDaAfficherValider(string $numeroOr): int
     {
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroOr = :numOr')
+            ->setParameter('numOr', $numeroOr)
+            ->getQuery()
+            ->getSingleScalarResult();
+        if ($numeroVersionMax === null) {
+            return 0;
+        }
         return $this->createQueryBuilder('d')
             ->select('COUNT(d.id) AS nombreDaAfficherValider')
             ->where('d.numeroOr = :numOr')
-            ->setParameter('numOr', $numeroOr)
+            ->andWhere('d.statutDal = :statutValide')
+            ->andWhere('d.numeroVersion = :numVersion')
+            ->setParameters([
+                'numOr' => $numeroOr,
+                'statutValide' => DemandeAppro::STATUT_VALIDE,
+                'numVersion' => $numeroVersionMax
+            ])
             ->getQuery()
             ->getSingleScalarResult();
     }

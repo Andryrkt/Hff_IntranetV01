@@ -128,7 +128,7 @@ class DitDevisSoumisAValidationController extends Controller
             $this->historiqueOperation->sendNotificationCreation($message, $numDit, 'dit_index');
         }
 
-        if ($type === 'VP') {
+        if ($type === 'VP') { // validation magasin
             /** suite à la demande de mianta devis avec piece magasin mais pas de nouvelle ligne */
             // if ( $nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ) {// il y a  de pièce magasin et pas de nouvelle ligne
             //     $message = " Merci de passer le devis à validation à l'atelier ";
@@ -152,7 +152,7 @@ class DitDevisSoumisAValidationController extends Controller
             } else {
                 return false;
             }
-        } else {
+        } else { // validation atelier
             // si avec pièce magasin ET premier soumission
             if ($nbSotrieMagasin[0]['nbr_sortie_magasin'] !== "0" && $estCepremierSoumission) {
                 $message = " Merci de passer le devis à validation au magasin ";
@@ -174,11 +174,12 @@ class DitDevisSoumisAValidationController extends Controller
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de validation";
                 $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
             }
-            // statut devi prix réfuseé magasin, pas de nouvelle ligne et les montants a été changer
-            elseif (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ && (int)$montantINformix != (int)$montantSqlServer) {
-                $message = "Le prix a été modifier ... Merci de passer le devis à validation au magasin";
-                $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
-            } else {
+            // statut devi prix est réfuseé magasin, pas de nouvelle ligne et les montants a été changer
+            // elseif (in_array('Prix refusé magasin', $devisStatut) && (int)$nbrPieceInformix == (int)$nbrPieceSqlServ && (int)$montantINformix != (int)$montantSqlServer) {
+            //     $message = "Le prix a été modifier ... Merci de passer le devis à validation au magasin";
+            //     $this->historiqueOperation->sendNotificationCreation($message, $numDevis, 'dit_index');
+            // } 
+            else {
                 return false;
             }
         }
