@@ -91,6 +91,7 @@ class DitOrsSoumisAValidationController extends Controller
             ->setNumeroOR($numOr)
         ;
 
+
         $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
@@ -163,19 +164,31 @@ class DitOrsSoumisAValidationController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
+        $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
         self::$twig->display('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
+            'cdtArticleDa' => $cdtArticleDa,
         ]);
     }
+
+    private function conditionBlocageArticleDa(string $numOr): bool
+    {
+        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($numOr);
+        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $numOr);
+        $nombreArticleDansDaAfficheValider = $this->daAfficherRepository->getNbrDaAfficherValider($numOr);
+
+        return $nbrArticlesComparet !== $nombreArticleDansDaAfficheValider && $nbrArticlesComparet > 0 && $nombreArticleDansDaAfficheValider > 0;
+    }
+
 
     private function modificationDaAfficher(string $numDit, string $numOr): void
     {
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-        if (!empty($daValiders)) {
+        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        if (!empty($daAfficherValiders)) {
 
             /** @var DaValider $daValider */
-            foreach ($daValiders as $daValider) {
+            foreach ($daAfficherValiders as $daValider) {
                 // recuperation du numéro de ligne
                 $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);
                 //modification des informations necessaire
@@ -194,14 +207,14 @@ class DitOrsSoumisAValidationController extends Controller
     private function fusionPdfDaAvecORfusionner(string $numDit, string $mainPdf): void
     {
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMaxDit($numDit);
-        $daValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit]);
-        if (!empty($daValiders)) {
+        $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
+        if (!empty($daAfficherValiders)) {
             //recupération du nom et chemin du PDF DA
             $cheminNomFichierDa = sprintf(
                 '%s/da/%s/%s.pdf',
                 $_ENV['BASE_PATH_FICHIER'],
-                $daValiders[0]->getNumeroDemandeAppro(),
-                $daValiders[0]->getNumeroDemandeAppro()
+                $daAfficherValiders[0]->getNumeroDemandeAppro(),
+                $daAfficherValiders[0]->getNumeroDemandeAppro()
             );
             //ajout des chemin et nom de fichier à fusionnner dans un tableau 
             $pdfFiles = [$mainPdf, $cheminNomFichierDa];
@@ -257,9 +270,7 @@ class DitOrsSoumisAValidationController extends Controller
         //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
         // }
 
-        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($ditInsertionOrSoumis->getNumeroOR());
-        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $ditInsertionOrSoumis->getNumeroOR());
-        $nombreArticleDansDaAfficheValider = $this->daAfficherRepository->getNbrDaValider($ditInsertionOrSoumis->getNumeroOR());
+
 
         // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
 
@@ -277,7 +288,6 @@ class DitOrsSoumisAValidationController extends Controller
             // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
-            'nbrArticleDas'            => $nombreArticleDansDaAfficheValider != $nbrArticlesComparet,
         ];
     }
 
@@ -346,14 +356,7 @@ class DitOrsSoumisAValidationController extends Controller
             $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
-        }
-        // elseif ($conditionBloquage['nbrArticleDas']) {
-        //     $confirmMessage = "Les articles du bon d'achat validé ne correspondent pas à ceux saisis dans l'OR. Souhaitez-vous tout de même soumettre l'OR ?";
-        //     $_SESSION['confirm_message'] = $confirmMessage;
-        //     header('Location: page_confirmation.php');
-        //     exit;
-        // } 
-        else {
+        } else {
             $okey = true;
         }
         return $okey;
