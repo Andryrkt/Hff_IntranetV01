@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\Direct;
 
 use DateTime;
 use App\Service\EmailService;
@@ -22,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationController extends Controller
+class DaValidationDirectController extends Controller
 {
     use DaTrait;
     use lienGenerique;
@@ -43,7 +43,7 @@ class DaValidationController extends Controller
     }
 
     /**
-     * @Route("/validate/{numDa}", name="da_validate")
+     * @Route("/validate-direct/{numDa}", name="da_validate_direct")
      */
     public function validate(string $numDa, Request $request)
     {

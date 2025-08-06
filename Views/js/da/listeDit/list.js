@@ -91,22 +91,6 @@ document.addEventListener("DOMContentLoaded", function () {
         text: "Veuillez sélectionner un DIT avant de continuer.",
       });
     } else {
-      /* const endpoint = "api/recup-statut-da";
-      const data = {
-        id: checkedValue,
-      };
-
-      fetchManager.post(endpoint, data).then((statut) => {
-        console.log(statut);
-        const statutNormalisé = normaliserApostrophes(statut.statut);
-
-        let url;
-        if (statutNormalisé !== null) {
-          url = `${baseUrl}/demande-appro/detail/${checkedValue}`;
-        } else {
-          url = `${baseUrl}/demande-appro/new/${checkedValue}`;
-        }
-        }); */
       displayOverlay(true);
       let url = suivant
         .getAttribute("data-uri")
@@ -115,14 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
-function normaliserApostrophes(str) {
-  if (str) {
-    return str.replace(/[’‘]/g, "'"); // remplace les apostrophes typographiques par '
-  } else {
-    return null;
-  }
-}
 
 window.addEventListener("load", () => {
   displayOverlay(false);
