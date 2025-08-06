@@ -23,25 +23,25 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 class DaSearchType extends  AbstractType
 {
     private const STATUT_DA = [
-        DemandeAppro::STATUT_VALIDE => DemandeAppro::STATUT_VALIDE,
+        DemandeAppro::STATUT_VALIDE       => DemandeAppro::STATUT_VALIDE,
         DemandeAppro::STATUT_SOUMIS_APPRO => DemandeAppro::STATUT_SOUMIS_APPRO,
-        DemandeAppro::STATUT_SOUMIS_ATE => DemandeAppro::STATUT_SOUMIS_ATE,
-        DemandeAppro::STATUT_TERMINER => DemandeAppro::STATUT_TERMINER,
-        DemandeAppro::STATUT_A_VALIDE_DW => DemandeAppro::STATUT_A_VALIDE_DW,
+        DemandeAppro::STATUT_SOUMIS_ATE   => DemandeAppro::STATUT_SOUMIS_ATE,
+        DemandeAppro::STATUT_TERMINER     => DemandeAppro::STATUT_TERMINER,
+        DemandeAppro::STATUT_A_VALIDE_DW  => DemandeAppro::STATUT_A_VALIDE_DW,
     ];
 
     private const STATUT_BC = [
-        'A générer' => 'A générer',
-        'A éditer' => 'A éditer',
-        'A soumettre à validation' => 'A soumettre à validation',
-        'A envoyer au fournisseur' => 'A envoyer au fournisseur',
+        'A générer'                   => 'A générer',
+        'A éditer'                    => 'A éditer',
+        'A soumettre à validation'    => 'A soumettre à validation',
+        'A envoyer au fournisseur'    => 'A envoyer au fournisseur',
         DaSoumissionBc::STATUT_REFUSE => DaSoumissionBc::STATUT_REFUSE,
     ];
 
     private const TYPE_ACHAT = [
-        'Tous' => 'tous',
+        'Tous'     => 'tous',
         'Avec DIT' => 'avec_dit',
-        'Direct' => 'direct',
+        'Direct'   => 'direct',
     ];
 
     private $agenceRepository;
