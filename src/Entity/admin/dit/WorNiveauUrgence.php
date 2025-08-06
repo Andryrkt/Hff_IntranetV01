@@ -17,16 +17,17 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @ORM\Table(name="wor_niveau_urgence")
  * @ORM\HasLifecycleCallbacks
  */
-class WorNiveauUrgence{
+class WorNiveauUrgence
+{
     use DateTrait;
-/**
+    /**
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
     private $id;
 
-     /**
+    /**
      * @ORM\OneToMany(targetEntity=DemandeIntervention::class, mappedBy="idNiveauUrgence")
      */
     private $demandeInterventions;
@@ -47,7 +48,7 @@ class WorNiveauUrgence{
         $this->supportInfo = new ArrayCollection();
     }
 
-     /**=====================================================================================
+    /**=====================================================================================
      * 
      * GETTERS and SETTERS
      *
@@ -61,7 +62,7 @@ class WorNiveauUrgence{
 
     /**
      * Get the value of description
-     */ 
+     */
     public function getDescription()
     {
         return $this->description;
@@ -71,7 +72,7 @@ class WorNiveauUrgence{
      * Set the value of description
      *
      * @return  self
-     */ 
+     */
     public function setDescription($description)
     {
         $this->description = $description;
@@ -79,12 +80,9 @@ class WorNiveauUrgence{
         return $this;
     }
 
-    
-    
-
     /**
      * Get the value of demandeIntervention
-     */ 
+     */
     public function getDemandeIntervention()
     {
         return $this->demandeInterventions;
@@ -108,7 +106,7 @@ class WorNiveauUrgence{
                 $demandeIntervention->setIdNiveauUrgence(null);
             }
         }
-        
+
         return $this;
     }
     public function setDemandeIntervention($demandeIntervention)
@@ -148,6 +146,6 @@ class WorNiveauUrgence{
 
     public function __toString()
     {
-        return $this->description ?? 'N/A'; 
+        return $this->description ?? 'N/A';
     }
 }
