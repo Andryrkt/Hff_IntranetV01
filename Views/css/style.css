@@ -208,40 +208,7 @@ button.swal2-styled {
   font-size: 1em !important;
 }
 
-/* .dropdown-menu {
-  background-color: #212529;
-  color: #fafafa;
-  border-radius: 0.25rem;
-  padding: 0.5rem;
-}
-.dropdown-menu .dropdown-item {
-  color: #f3bc08;
-  padding: 0.5rem 1rem;
-  font-size: 0.95rem;
-}
-.dropdown-menu .dropdown-item:hover {
-  background-color: #343a40;
-  color: #f3bc08;
-}
-.dropdown-menu .dropdown-item:focus {
-  background-color: #343a40;
-  color: #f3bc08;
-}
-.dropdown-menu .dropdown-divider {
-  border-color: #ffffff;
-  margin: 0.5rem 0;
-}
-.dropdown-menu .dropdown-header {
-  font-weight: bold;
-  font-size: 0.95rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.2rem;
-  color: #fafafa;
-}
-
-.dropdown-menu .dropdown-item {
-  white-space: normal; 
-} */
+/** Style sur la nave bar et les dropdown*/
 
 .dropdown-grid {
   display: grid;
@@ -257,16 +224,76 @@ button.swal2-styled {
 }
 
 .dropdown-line {
-  min-height: 100px;
+  min-height: 109px;
+  margin-bottom: 1rem;
 }
 
 .dropdown-header {
-  font-weight: bold;
   color: #616161;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  /* color: #fff; */
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #fdc7149f;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  color: #dee2e6; /* Couleur de texte claire pour le thème sombre */
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  margin: 0.15rem 0;
+}
+
+/* Effet hover - version impactante */
+.dropdown-item:hover {
+  background-color: #fdc714 !important; /* Orange vif */
+  color: #000 !important;
+  transform: translateX(3px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-item:hover i {
+  animation: itemPulse 0.5s ease;
+}
+
+/* Animation supplémentaire pour plus d'impact */
+@keyframes itemPulse {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 
 .dropdown-menu {
   background-color: #212529;
   border-radius: 0.25rem;
   padding: 0.5rem;
+  box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2), 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border: none;
+  margin-top: 0.5rem;
+  transform: translateY(
+    0.25rem
+  ); /* Léger décalage vers le bas pour l'effet de flottement */
+  transition: opacity 0.3s ease, transform 0.3s ease; /* Animation fluide */
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0.25rem);
+  }
+  50% {
+    transform: translateY(0.5rem);
+  }
 }
