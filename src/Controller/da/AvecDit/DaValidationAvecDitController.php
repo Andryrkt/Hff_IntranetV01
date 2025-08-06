@@ -5,7 +5,7 @@ namespace App\Controller\da\AvecDit;
 use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
@@ -26,7 +26,7 @@ class DaValidationAvecDitController extends Controller
 {
     use DaTrait;
     use lienGenerique;
-    use DaPropositionTrait;
+    use DaAfficherTrait;
     use EntityManagerAwareTrait;
 
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;

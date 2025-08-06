@@ -5,14 +5,13 @@ namespace App\Controller\da\Direct;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -32,7 +31,7 @@ class DaPropositionArticleDirectController extends Controller
 {
     use DaTrait;
     use lienGenerique;
-    use DaPropositionTrait;
+    use DaAfficherTrait;
     use EntityManagerAwareTrait;
 
     private const EDIT = 0;

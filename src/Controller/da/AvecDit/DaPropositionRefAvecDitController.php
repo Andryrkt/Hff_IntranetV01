@@ -5,7 +5,7 @@ namespace App\Controller\da\AvecDit;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
@@ -33,7 +33,7 @@ class DaPropositionRefAvecDitController extends Controller
 {
     use DaTrait;
     use lienGenerique;
-    use DaPropositionTrait;
+    use DaAfficherTrait;
     use EntityManagerAwareTrait;
 
     private const EDIT = 0;

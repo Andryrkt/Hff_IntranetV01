@@ -7,7 +7,7 @@ use App\Model\dit\DitModel;
 use App\Entity\dw\DwBcAppro;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -33,7 +33,7 @@ class DaDetailAvecDitController extends Controller
 {
 	use DaTrait;
 	use lienGenerique;
-	use DaPropositionTrait;
+	use DaAfficherTrait;
 	use EntityManagerAwareTrait;
 
 	private DitRepository $ditRepository;
