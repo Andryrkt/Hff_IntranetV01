@@ -125,7 +125,7 @@ class DaListeController extends Controller
 
     private function donnerAfficher(array $criteria, $idAgenceUser): array
     {
-        $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
+        $das = $this->daRepository->findDaData($this->getUser(), $criteria, $idAgenceUser);
         $this->deleteDal($das);
 
         $this->ajoutInfoDit($das);

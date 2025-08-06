@@ -9,6 +9,7 @@ use Doctrine\ORM\QueryBuilder;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -203,7 +204,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(array $criteria,  int $idAgenceUser): array
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -217,7 +218,7 @@ class DaAfficherRepository extends EntityRepository
 
         if (!empty($criteria)) {
             $this->applyDynamicFilters($qb, $criteria);
-            $this->applyAgencyServiceFilters($qb, $criteria, $idAgenceUser);
+            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser);
             $this->applyDateFilters($qb, $criteria);
             $this->applyStatutsFilters($qb, $criteria);
         }
@@ -362,11 +363,11 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, array $criteria,  int $idAgenceUser)
+    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser)
     {
         $estAppro = Controller::estUserDansServiceAppro();
         $estAtelier = Controller::estUserDansServiceAtelier();
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
 
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
@@ -376,7 +377,7 @@ class DaAfficherRepository extends EntityRepository
                         'da.agenceEmetteur = :codeAgence'
                     )
                 )
-                ->setParameter('agenceAutoriserIds', Controller::getUser()->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
@@ -384,7 +385,7 @@ class DaAfficherRepository extends EntityRepository
                         'da.serviceEmetteur IN (:serviceAutoriserIds)'
                     )
                 )
-                ->setParameter('serviceAutoriserIds', Controller::getUser()->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {

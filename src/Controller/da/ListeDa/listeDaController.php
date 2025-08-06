@@ -94,11 +94,12 @@ class listeDaController extends Controller
     public function getData(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = $this->getUser()->getCodeAgenceUser();
+        $userConnecter = $this->getUser();
+        $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser);
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
