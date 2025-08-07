@@ -196,10 +196,10 @@ class PdfTableGenerator
      * Génère un tableau HTML pour les demandes d'achat (DA) direct mais qui sont encore à valider.
      *
      * @param array $headerConfig Configuration des en-têtes du tableau.
-     * @param array $rows Données des lignes à afficher dans le tableau.
+     * @param iterable $rows Données des lignes à afficher dans le tableau.
      * @return string Le code HTML du tableau généré.
      */
-    public function generateTableForDaAValiderDW(array $headerConfig, array $rows)
+    public function generateTableForDaAValiderDW(array $headerConfig, iterable $rows)
     {
         $html = '<table cellpadding="4" align="center" style="font-size: 10px; margin: 0 auto; border:1px solid  #c4c4c4; border-collapse: collapse;">';
         $html .= $this->generateHeaderForDA($headerConfig);
@@ -300,7 +300,7 @@ class PdfTableGenerator
         return $html;
     }
 
-    private function generateBodyForDaAValiderDW(array $headerConfig, array $dals)
+    private function generateBodyForDaAValiderDW(array $headerConfig, iterable $dals)
     {
         $html = '<tbody>';
         // Vérifier si le tableau $dals est vide

@@ -8,7 +8,7 @@ use TCPDF;
 
 class GenererPdfDaDirect extends GeneratePdf
 {
-    public function genererPdf(DemandeAppro $da, $dals)
+    public function genererPdfAValiderDW(DemandeAppro $da, $dals)
     {
         $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
