@@ -478,6 +478,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         html: `Voulez-vous vraiment envoyer la demande?`,
         icon: "warning",
         showCancelButton: true,
+        reverseButtons: true,
         confirmButtonColor: "#198754",
         cancelButtonColor: "#6c757d",
         confirmButtonText: "Oui, Envoyer",

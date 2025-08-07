@@ -12,8 +12,32 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
 
     if (document.getElementById("children-container").childElementCount > 0) {
-      document.getElementById("child-prototype").remove();
-      document.getElementById("myForm").submit();
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment envoyer la demande?`,
+        icon: "warning",
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, Envoyer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          document.getElementById("child-prototype").remove();
+          document.getElementById("myForm").submit();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Votre demande n'a pas été envoyée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
     } else {
       Swal.fire({
         icon: "warning",
