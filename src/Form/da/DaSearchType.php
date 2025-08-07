@@ -94,7 +94,7 @@ class DaSearchType extends  AbstractType
                 'required' => false
             ])
             ->add('typeAchat', ChoiceType::class, [
-                'label' => 'type de la demande d\'achat',
+                'label' => 'Type de la demande d\'achat',
                 'placeholder' => false,
                 'choices' => self::TYPE_ACHAT,
                 'required' => false

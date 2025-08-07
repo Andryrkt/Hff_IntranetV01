@@ -227,7 +227,7 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
-                        slor.slor_constp = 'ZST' 
+                        slor.slor_constp in ('ZST', 'ZDI') 
                         AND slor.slor_typlig = 'P'
                         -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
@@ -309,7 +309,7 @@ class DaModel extends Model
             AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
-                        slor.slor_constp = 'ZST' 
+                        slor.slor_constp in ('ZST', 'ZDI') 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
                         and slor_numor = '$numOr'
