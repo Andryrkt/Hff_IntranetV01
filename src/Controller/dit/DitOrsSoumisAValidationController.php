@@ -270,8 +270,6 @@ class DitOrsSoumisAValidationController extends Controller
         //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
         // }
 
-
-
         // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
 
         return [

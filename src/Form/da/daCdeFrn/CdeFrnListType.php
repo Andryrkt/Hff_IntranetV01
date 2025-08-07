@@ -37,7 +37,7 @@ class CdeFrnListType extends  AbstractType
                 'required' => false
             ])
             ->add('achatDirect', ChoiceType::class, [
-                'label' => 'Achat direct',
+                'label' => 'Type de la demande d\'achat',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => self::TYPE_ACHAT,
                 'required' => false

@@ -130,67 +130,63 @@
 
 				<!-- DEBUT Dématérialisation -->
 				{% if hasBDM or hasDOM %}
+					{% set col1 %}
+					{% if hasDOM %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">
+								<i class="fas fa-file-alt me-2"></i>Ordre de Mission</p>
+							<a class="dropdown-item" href="{{ path("dom_first_form")}}">
+								<i class="fas fa-plus-circle me-2"></i>Nouvelle Demande</a>
+							<a class="dropdown-item" href="{{ path("doms_liste")}}">
+								<i class="fas fa-search me-2"></i>Consultation</a>
+						</div>
+						{% if hasMUT %}
+							<div class="dropdown-line">
+								<p class="dropdown-header">
+									<i class="fas fa-exchange-alt me-2"></i>Mutation</p>
+								<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">
+									<i class="fas fa-plus-circle me-2"></i>Nouvelle Demande</a>
+								<a class="dropdown-item" href="{{ path("mutation_liste")}}">
+									<i class="fas fa-search me-2"></i>Consultation</a>
+							</div>
+						{% endif %}
+					{% endif %}
+					{% endset %}
+
+					{% set col2 %}
+					{% if hasBDM %}
+						<div class="dropdown-line">
+							<p class="dropdown-header">
+								<i class="fas fa-truck-moving me-2"></i>Mouvement matériel (BADM)</p>
+							<a class="dropdown-item" href="{{ path("badms_newForm1")}}">
+								<i class="fas fa-plus-circle me-2"></i>Nouvelle Demande</a>
+							<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">
+								<i class="fas fa-search me-2"></i>Consultation</a>
+						</div>
+						<div class="dropdown-line">
+							<p class="dropdown-header">
+								<i class="fas fa-archive me-2"></i>Casier</p>
+							<a class="dropdown-item" href="{{ path("casier_nouveau")}}">
+								<i class="fas fa-plus-circle me-2"></i>Nouveau Casier</a>
+							<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">
+								<i class="fas fa-search me-2"></i>Consultation Casier</a>
+						</div>
+					{% endif %}
+					{% endset %}
+
 					<li class="nav-item dropdown" id="Dematerialisation">
 						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-							Dématérialisation</a>
-						<ul
-							class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-							<!-- Demande d'ordre de mission -->
-							{% if hasDOM %}
-								<li class="dropdown-header">
-									Ordre de Mission</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("dom_first_form")}}">Nouvelle Demande</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("doms_liste")}}">Consultation</a>
-								</li>
-								<li>
-									<hr class="dropdown-divider">
-								</li>
-								{% if hasMUT %}
-
-									<li class="dropdown-header">
-										Mutation</li>
-									<li>
-										<a class="dropdown-item" href="{{ path("mutation_nouvelle_demande")}}">Nouvelle Demande</a>
-									</li>
-									<li>
-										<a class="dropdown-item" href="{{ path("mutation_liste")}}">Consultation</a>
-									</li>
-									<li>
-										<hr class="dropdown-divider">
-									</li>
+							Dématérialisation
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown" style="min-width: 500px;">
+							<div class="dropdown-grid" style="--col-count: {{ [col1, col2]|filter(v => v|trim is not empty)|length }};">
+								{% if col1|trim is not empty %}
+									<div class="dropdown-column">{{ col1|raw }}</div>
 								{% endif %}
-							{% endif %}
-
-							<!-- Bordereau d’acquisition et de Mouvement Matériel -->
-							{% if hasBDM %}
-								<li class="dropdown-header">
-									Mouvement matériel (BADM)
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("badms_newForm1")}}">Nouvelle Demande</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("badmListe_AffichageListeBadm")}}">Consultation</a>
-								</li>
-								<li>
-									<hr class="dropdown-divider">
-								</li>
-								<li class="dropdown-header">
-									Casier
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("casier_nouveau")}}">Nouveau Casier</a>
-								</li>
-								<li>
-									<a class="dropdown-item" href="{{ path("listeTemporaire_affichageListeCasier")}}">Consultation Casier</a>
-								</li>
-							{% endif %}
-							<!-- Fin Bordereau d’acquisition et de Mouvement Matériel -->
-
-
+								{% if col2|trim is not empty %}
+									<div class="dropdown-column">{{ col2|raw }}</div>
+								{% endif %}
+							</div>
 						</ul>
 					</li>
 				{% endif %}

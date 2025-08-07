@@ -504,9 +504,8 @@ class DitOrSoumisAValidationModel extends Model
             from da_valider dav  
             where dav.numero_or = '$numOr' 
             and numero_version = (select max(numero_version) from da_valider where numero_or = dav.numero_or)
-            and concat(trim(art_refp),art_desi) in ($listeArticlesSavLorString)
+            and concat(trim(art_refp),trim(art_desi)) in ($listeArticlesSavLorString)
         ";
-
         $data = $this->retournerResult28($sql);
         return (int) ($data[0]['count'] ?? 0);
     }
