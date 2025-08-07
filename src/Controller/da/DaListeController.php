@@ -648,7 +648,7 @@ class DaListeController extends Controller
             $datePlanning = '-';
             if (!is_null($numOr)) {
                 $data = $model->getDatePlanningPourDa($numOr);
-                $datePlanning = $data ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
+                $datePlanning = $data && $data[0]['dateplanning'] ? (DateTime::createFromFormat('Y-m-d', $data[0]['dateplanning']))->format('d/m/Y') : '-';
             }
             foreach ($da->getDaValiderOuProposer() as $daValiderOuProposer) {
                 $daValiderOuProposer->setDatePlanningOR($datePlanning);
