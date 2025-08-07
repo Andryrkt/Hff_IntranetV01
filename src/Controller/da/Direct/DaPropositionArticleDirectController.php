@@ -7,6 +7,7 @@ use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\DaValidationDirectTrait;
 use App\Controller\Traits\da\DaValidationTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
@@ -30,11 +31,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionArticleDirectController extends Controller
 {
-    use DaTrait;
-    use lienGenerique;
-    use DaAfficherTrait;
-    use DaValidationTrait;
-    use EntityManagerAwareTrait;
+    use DaTrait,
+        lienGenerique,
+        DaAfficherTrait,
+        DaValidationTrait,
+        DaValidationDirectTrait,
+        EntityManagerAwareTrait;
 
     private const EDIT = 0;
 
@@ -293,7 +295,7 @@ class DaPropositionArticleDirectController extends Controller
         $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
-        $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
+        $nomEtChemin = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
