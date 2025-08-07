@@ -35,6 +35,8 @@ trait DaNewDirectTrait
             ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
             ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
             ->setUser($this->getUser())
+            ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+            ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 
