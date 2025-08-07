@@ -1248,6 +1248,7 @@ class DaValider
         $this
             ->setNumeroDemandeAppro($da->getNumeroDemandeAppro())
             ->setNumeroDemandeDit($da->getNumeroDemandeDit())
+            ->setNiveauUrgence($da->getNiveauUrgence())
             ->setStatutDal($da->getStatutDal())
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
