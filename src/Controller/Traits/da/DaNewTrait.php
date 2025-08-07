@@ -11,17 +11,7 @@ use App\Service\autres\VersionService;
 
 trait DaNewTrait
 {
-    use EntityManagerAwareTrait;
-
-    private DaAfficherRepository $daAfficherRepository;
-
-    /**
-     * Initialise les valeurs par défaut du trait
-     */
-    public function initDaNewTrait(): void
-    {
-        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-    }
+    use DaTrait;
 
     /**
      * Ajoute les données d'une Demande d'Achat (et éventuellement d'une Demande d'Intervention)

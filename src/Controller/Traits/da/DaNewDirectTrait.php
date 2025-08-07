@@ -2,10 +2,10 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DaSoumisAValidation;
 use App\Entity\da\DemandeAppro;
+use App\Service\genererPdf\GenererPdfDaDirect;
 use DateTime;
 
 trait DaNewDirectTrait
@@ -59,5 +59,19 @@ trait DaNewDirectTrait
         ;
 
         $this->getEntityManager()->persist($daSoumisAValidation);
+    }
+
+    /** 
+     * Fonction pour créer le PDF sans Dit à valider DW
+     * 
+     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
+     * @param array $dals les lignes de demande appro à inclure dans le PDF
+     */
+    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro, $dals)
+    {
+        $genererPdfDaDirect = new GenererPdfDaDirect;
+
+        $genererPdfDaDirect->genererPdf($demandeAppro, $dals);
+        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

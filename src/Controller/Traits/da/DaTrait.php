@@ -418,14 +418,6 @@ trait DaTrait
         $genererPdfDaAvecDit->genererPdf($dit, $da, $dals);
     }
 
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro, $dals)
-    {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
-
-        $genererPdfDaDirect->genererPdf($demandeAppro, $dals);
-        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
-    }
-
     private function SommeTotal($daValiders): float
     {
         $somme = 0.0;

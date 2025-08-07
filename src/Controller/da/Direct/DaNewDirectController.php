@@ -5,6 +5,7 @@ namespace App\Controller\da\Direct;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\da\DaNewDirectTrait;
 use App\Controller\Traits\da\DaNewTrait;
 use App\Entity\da\DemandeAppro;
@@ -19,7 +20,6 @@ use App\Controller\Traits\lienGenerique;
 use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproLRepository;
 use App\Service\autres\VersionService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -29,28 +29,18 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class DaNewDirectController extends Controller
 {
-    use DaTrait;
-    use DaNewTrait;
-    use DaNewDirectTrait;
-    use lienGenerique;
-    use EntityManagerAwareTrait;
-
-    private DaObservation $daObservation;
-    private DaObservationRepository $daObservationRepository;
-    private DitRepository $ditRepository;
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DaModel $daModel;
+    use DaTrait,
+        DaNewTrait,
+        DaNewDirectTrait,
+        ApplicationTrait,
+        lienGenerique,
+        EntityManagerAwareTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaNewTrait();
-        $this->daObservation = new DaObservation();
-        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->daModel = new DaModel();
+        $this->initDaTrait();
     }
 
     /**
@@ -110,16 +100,10 @@ class DaNewDirectController extends Controller
                 self::$em->persist($DAL);
             }
 
-            /** 
-             * Modifie la colonne dernière_id dans la table applications 
-             * @var Application $application
-             **/
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
-            $application->setDerniereId($numDa);
-            self::$em->persist($application);
-
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);
+
+            $this->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
@@ -134,7 +118,6 @@ class DaNewDirectController extends Controller
 
             self::$em->flush();
 
-            /** ENVOIE D'EMAIL */
             $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
             /** création de pdf et envoi dans docuware */
