@@ -285,7 +285,7 @@ button.swal2-styled {
     0.25rem
   ); /* Léger décalage vers le bas pour l'effet de flottement */
   transition: opacity 0.3s ease, transform 0.3s ease; /* Animation fluide */
-  animation: float 3s ease-in-out infinite;
+  /* animation: float 3s ease-in-out infinite; */
 }
 
 @keyframes float {

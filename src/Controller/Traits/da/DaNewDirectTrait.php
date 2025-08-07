@@ -35,6 +35,8 @@ trait DaNewDirectTrait
             ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
             ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
             ->setUser($this->getUser())
+            ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+            ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 
@@ -65,13 +67,13 @@ trait DaNewDirectTrait
      * Fonction pour créer le PDF sans Dit à valider DW
      * 
      * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
-     * @param array $dals les lignes de demande appro à inclure dans le PDF
      */
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro, $dals)
+    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro)
     {
         $genererPdfDaDirect = new GenererPdfDaDirect;
+        $dals = $demandeAppro->getDAL();
 
-        $genererPdfDaDirect->genererPdf($demandeAppro, $dals);
+        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals);
         $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

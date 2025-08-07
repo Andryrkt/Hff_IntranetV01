@@ -223,7 +223,7 @@ class DaAfficherRepository extends EntityRepository
             $this->applyStatutsFilters($qb, $criteria);
         }
 
-        $qb->addOrderBy('d.numeroDemandeAppro', 'ASC');
+        $qb->addOrderBy('d.dateDemande', 'DESC');
         return $qb->getQuery()->getResult();
     }
 

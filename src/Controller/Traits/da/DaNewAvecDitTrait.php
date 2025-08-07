@@ -2,15 +2,30 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
+use App\Model\da\DaModel;
+use App\Repository\dit\DitRepository;
 
 trait DaNewAvecDitTrait
 {
     use EntityManagerAwareTrait;
 
+    //=====================================================================================
+    private DaModel $daModel;
+    private DitRepository $ditRepository;
+
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaNewAvecDitTrait(): void
+    {
+        $em = $this->getEntityManager();
+        $this->ditRepository = $em->getRepository(DemandeIntervention::class);
+        $this->daModel = new DaModel();
+    }
+    //=====================================================================================
     /** 
      * Initialisation des valeurs par défaut pour une Demande d'Achat avec DIT
      * 
@@ -36,6 +51,8 @@ trait DaNewAvecDitTrait
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
             ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
             ->setUser($this->getUser())
+            ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
+            ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 

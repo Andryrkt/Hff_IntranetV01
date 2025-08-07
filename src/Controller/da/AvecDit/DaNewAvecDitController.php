@@ -5,21 +5,17 @@ namespace App\Controller\da\AvecDit;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\da\DaNewAvecDitTrait;
 use App\Controller\Traits\da\DaNewTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Form\da\DemandeApproFormType;
-use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproLRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -28,29 +24,19 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class DaNewAvecDitController extends Controller
 {
-    use DaTrait;
-    use DaNewTrait;
-    use DaNewAvecDitTrait;
-    use lienGenerique;
-    use EntityManagerAwareTrait;
-
-    private DitRepository $ditRepository;
-    private DaObservation $daObservation;
-    private DaObservationRepository $daObservationRepository;
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DaModel $daModel;
-
+    use DaTrait,
+        DaNewTrait,
+        DaNewAvecDitTrait,
+        ApplicationTrait,
+        lienGenerique,
+        EntityManagerAwareTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaNewTrait();
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daObservation = new DaObservation();
-        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->daModel = new DaModel();
+        $this->initDaTrait();
+        $this->initDaNewAvecDitTrait();
     }
 
     /**
@@ -58,6 +44,9 @@ class DaNewAvecDitController extends Controller
      */
     public function firstForm()
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
         self::$twig->display('da/first-form.html.twig');
     }
 
@@ -93,15 +82,9 @@ class DaNewAvecDitController extends Controller
             $demandeAppro = $form->getData();
             /** @var DemandeIntervention $dit */
             $dit = $demandeAppro->getDit();
-            $demandeAppro
-                ->setDemandeur($this->getUser()->getNomUtilisateur())
-                ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
-                ->setNiveauUrgence($this->ditRepository->getNiveauUrgence($demandeAppro->getNumeroDemandeDit()))
-            ;
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
             $numDit = $demandeAppro->getNumeroDemandeDit();
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
             $formDAL = $form->get('DAL');
             /** ajout de ligne de demande appro dans la table Demande_Appro_L */
@@ -126,9 +109,7 @@ class DaNewAvecDitController extends Controller
             }
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DAP']);
-            $application->setDerniereId($numDa);
-            self::$em->persist($application);
+            $this->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);
@@ -138,20 +119,17 @@ class DaNewAvecDitController extends Controller
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
+            self::$em->flush();
+
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
-            self::$em->flush();
-
-            /** ENVOIE D'EMAIL */
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-            $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
                 'numDa'         => $numDa,
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
-                'dal'           => $dal,
+                'dals'          => $demandeAppro->getDAL(),
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

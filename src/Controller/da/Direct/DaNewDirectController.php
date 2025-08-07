@@ -2,25 +2,18 @@
 
 namespace App\Controller\da\Direct;
 
-use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\da\DaNewDirectTrait;
 use App\Controller\Traits\da\DaNewTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
-use App\Service\autres\VersionService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -70,13 +63,8 @@ class DaNewDirectController extends Controller
              * @var DemandeAppro $demandeAppro
              */
             $demandeAppro = $form->getData();
-            $demandeAppro
-                ->setDemandeur($demandeAppro->getUser()->getNomUtilisateur())
-                ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
-            ;
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
             $formDAL = $form->get('DAL');
             /** 
@@ -89,13 +77,10 @@ class DaNewDirectController extends Controller
                     $this->redirectToRoute("list_da");
                 }
 
-                $DAL
-                    ->setNumeroDemandeAppro($numDa)
+                $DAL->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
                     ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
-                    ->setNumeroVersion(VersionService::autoIncrement($numeroVersionMax))
-                    ->setJoursDispo($this->getJoursRestants($DAL))
-                ;
+                    ->setJoursDispo($this->getJoursRestants($DAL));
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 self::$em->persist($DAL);
             }
@@ -103,6 +88,7 @@ class DaNewDirectController extends Controller
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);
 
+            /** Modifie la colonne dernière_id dans la table applications */
             $this->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
@@ -110,25 +96,23 @@ class DaNewDirectController extends Controller
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
+            self::$em->flush();
+
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
             // ajout des données dans la table DaSoumisAValidation
             $this->ajouterDansDaSoumisAValidation($demandeAppro);
 
-            self::$em->flush();
-
-            $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-
             /** création de pdf et envoi dans docuware */
-            $this->creationPdfSansDitAvaliderDW($demandeAppro, $dals);
+            $this->creationPdfSansDitAvaliderDW($demandeAppro);
 
             $this->envoyerMailAuxAppros([
                 'id'            => $demandeAppro->getId(),
                 'numDa'         => $numDa,
                 'objet'         => $demandeAppro->getObjetDal(),
                 'detail'        => $demandeAppro->getDetailDal(),
-                'dal'           => $dals,
+                'dals'          => $demandeAppro->getDAL(),
                 'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
