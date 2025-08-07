@@ -20,6 +20,15 @@ export function initializeAutoCompletionFrn(fournisseur) {
       `${item.numerofournisseur} - ${item.nomfournisseur}`,
     itemToStringCallback: (item) =>
       `${item.numerofournisseur} - ${item.nomfournisseur}`,
+    itemToStringForBlur: (item) => `${item.nomfournisseur}`,
+    onBlurCallback: (found) => {
+      let numeroFournisseur = document.getElementById(
+        fournisseur.id.replace("nom", "numero")
+      );
+      if (!found) {
+        numeroFournisseur.value = "-";
+      }
+    },
     onSelectCallback: (item) => {
       let numeroFournisseur = document.getElementById(
         fournisseur.id.replace("nom", "numero")
