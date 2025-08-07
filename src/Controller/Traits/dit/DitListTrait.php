@@ -452,6 +452,7 @@ trait DitListTrait
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'agenceAutoriserIds' => $agenceIds,
             'serviceAutoriserIds' => $serviceIds,
+            'user_agency' => $this->getUser()->getAgenceIdUser(),
             // 'InternetExterne' => 
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];

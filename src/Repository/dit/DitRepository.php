@@ -2,17 +2,27 @@
 
 namespace App\Repository\dit;
 
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\NoResultException;
+use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\NonUniqueResultException;
+use App\Entity\atelierRealise\AtelierRealise;
 use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 
 class DitRepository extends EntityRepository
 {
+    // $query = $queryBuilder->getQuery();
+    // $sql = $query->getSQL();
+    // $params = $query->getParameters();
+
+    // dump("SQL : " . $sql . "\n");
+    // foreach ($params as $param) {
+    //     dump($param->getName());
+    //     dump($param->getValue());
+    // }
 
     /** LISTE DIT */
     /**
@@ -26,43 +36,17 @@ class DitRepository extends EntityRepository
      */
     public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, DitSearch $ditSearch, array $options)
     {
-
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
-            ->leftJoin('d.idStatutDemande', 's');
+            ->leftJoin('d.idStatutDemande', 's')
+            ->join(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
-
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
-
         $this->applyniveauUrgenceFilters($queryBuilder, $ditSearch);
-
-        // section affect et support section
-        $this->applySection($queryBuilder, $ditSearch);
-
+        $this->applySection($queryBuilder, $ditSearch); // section affect et support section
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
-
-
-
-        if (!$options['boolean']) {
-            $queryBuilder
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
-                        'd.agenceEmetteurId = :codeAgence'
-                    )
-                )
-                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
-                ->setParameter('codeAgence', $options['codeAgence'])
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
-                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
-                    )
-                )
-                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
-        }
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')
@@ -73,27 +57,12 @@ class DitRepository extends EntityRepository
         ;
 
         $paginator = new DoctrinePaginator($queryBuilder->getQuery());
-
         $totalItems = count($paginator);
         $lastPage = ceil($totalItems / $limit);
-        // $sql = $queryBuilder->getQuery()->getSQL();
-        // echo $sql;
-
-        // $query = $queryBuilder->getQuery();
-        // $sql = $query->getSQL();
-        // $params = $query->getParameters();
-
-        // dump("SQL : " . $sql . "\n");
-        // foreach ($params as $param) {
-        //     dump($param->getName());
-        //     dump($param->getValue());
-        // }
-
-
 
         // Récupérer le nombre de lignes par statut
         $statusCounts = $this->countByStatus($ditSearch, $options);
-        //return $queryBuilder->getQuery()->getResult();
+
         return [
             'data' => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
             'totalItems' => $totalItems,
@@ -101,6 +70,23 @@ class DitRepository extends EntityRepository
             'lastPage' => $lastPage,
             'statusCounts' => $statusCounts,
         ];
+    }
+
+    /**
+     * Applique le filtre par agence de l'utilisateur connecté
+     *
+     * @param QueryBuilder $queryBuilder
+     * @param array $options
+     * @return void
+     */
+    private function applyAgencyUserFilter(QueryBuilder $queryBuilder, array $options): void
+    {
+        // Vérifier si l'agence de l'utilisateur est fournie dans les options
+        if (isset($options['user_agency']) && !empty($options['user_agency'])) {
+            $queryBuilder
+                ->andWhere('ar.codeAgence = :userAgency')
+                ->setParameter('userAgency', $options['user_agency']);
+        }
     }
 
     public function recupConstraitSoumission($numDit)
@@ -225,6 +211,28 @@ class DitRepository extends EntityRepository
 
     private function applyAgencyServiceFilters($queryBuilder, DitSearch $ditSearch, array $options)
     {
+        if (!$options['boolean']) {
+            // Appliquer le filtre par agence de l'utilisateur connecté
+            $this->applyAgencyUserFilter($queryBuilder, $options);
+
+            $queryBuilder
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteurId = :codeAgence'
+                    )
+                )
+                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('codeAgence', $options['codeAgence'])
+                ->andWhere(
+                    $queryBuilder->expr()->orX(
+                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
+                    )
+                )
+                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+        }
+
         //if ($options['boolean']) {
         if (!empty($ditSearch->getAgenceEmetteur())) {
             $queryBuilder->andWhere('d.agenceEmetteurId = :agEmet')
@@ -712,26 +720,6 @@ class DitRepository extends EntityRepository
         $this->applySection($queryBuilder, $ditSearch);
 
         $this->applyAgencyServiceFilters($queryBuilder, $ditSearch, $options);
-
-        if (!$options['boolean']) {
-            $queryBuilder
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.agenceDebiteurId IN (:agenceAutoriserIds)',
-                        'd.agenceEmetteurId = :codeAgence'
-                    )
-                )
-                ->setParameter('agenceAutoriserIds', $options['agenceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
-                ->setParameter('codeAgence', $options['codeAgence'])
-                ->andWhere(
-                    $queryBuilder->expr()->orX(
-                        'd.serviceDebiteurId IN (:serviceAutoriserIds)',
-                        'd.serviceEmetteurId IN (:serviceAutoriserIds)'
-                    )
-                )
-                ->setParameter('serviceAutoriserIds', $options['serviceAutoriserIds'], \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
-        }
-
 
 
         $queryBuilder->orderBy('d.dateDemande', 'DESC')

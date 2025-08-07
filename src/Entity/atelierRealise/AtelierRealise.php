@@ -3,7 +3,7 @@
 namespace App\Entity\atelierRealise;
 
 use App\Repository\atelierRealise\AtelierRealiseRepository;
-
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=AtelierRealiseRepository::class)
