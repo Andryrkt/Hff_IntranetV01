@@ -270,10 +270,6 @@ class DitOrsSoumisAValidationController extends Controller
         //     // dd($articleDas, $referenceDas, $this->compareTableaux($articleDas, $referenceDas), !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas));
         // }
 
-        $listeArticlesSavLorString = $this->ditOrsoumisAValidationModel->getListeArticlesSavLorString($ditInsertionOrSoumis->getNumeroOR());
-        $nbrArticlesComparet = $this->ditOrsoumisAValidationModel->getNbrComparaisonArticleDaValiderEtSavLor($listeArticlesSavLorString, $ditInsertionOrSoumis->getNumeroOR());
-        $nombreArticleDansDaValider = $this->daValiderRepository->getNbrDaValider($ditInsertionOrSoumis->getNumeroOR());
-
         // dd($nbrArticlesComparet, $nombreArticleDansDaValider);
 
         return [
