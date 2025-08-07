@@ -27,17 +27,24 @@ trait DaValidationDirectTrait
     //=====================================================================================
 
     /** 
-     * Création du fichier Excel pour une DA directe
+     * Création du fichier Excel et PDF pour une DA directe
      * 
      * @param string $numDa
      * @param int $numeroVersion
      * @return array
      */
-    private function creationFichierExcelDirect(string $numDa, int $numeroVersion): array
+    private function exporterDaDirectEnExcelEtPdf(string $numDa, int $numeroVersion): array
     {
-        return $this->genererFichierExcelPourDa($numDa, $numeroVersion, function ($numDa, $donnees) {
-            $this->enregistrerDaDirectDansDaValider($numDa, $donnees); // Enregistrement des données dans DaValider
-        });
+        return $this->exporterDaEnExcelEtPdf(
+            $numDa,
+            $numeroVersion,
+            function ($numDa, $donnees) {
+                $this->enregistrerDaDirectDansDaValider($numDa, $donnees); // Enregistrement des données dans DaValider
+            },
+            function ($numDa, $donnees) {
+                $this->creationPDFDirect($numDa, $donnees); // Création du PDF
+            }
+        );
     }
 
     /** 
@@ -73,4 +80,13 @@ trait DaValidationDirectTrait
 
         $em->flush();
     }
+
+    /** 
+     * Création du PDF pour une DA directe
+     * 
+     * @param string $numDa
+     * @param array $donnees
+     * @return void
+     */
+    private function creationPDFDirect(string $numDa, array $donnees): void {}
 }
