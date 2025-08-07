@@ -7,6 +7,7 @@ use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\DaValidationTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -27,6 +28,7 @@ class DaValidationAvecDitController extends Controller
     use DaTrait;
     use lienGenerique;
     use DaAfficherTrait;
+    use DaValidationTrait;
     use EntityManagerAwareTrait;
 
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -53,8 +55,7 @@ class DaValidationAvecDitController extends Controller
 
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        /** @var DemandeAppro $da la demande appro retourné par la fonction */
-        $da = $this->modificationDesTable($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
+        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
@@ -94,65 +95,6 @@ class DaValidationAvecDitController extends Controller
         /** NOTIFICATION */
         $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("list_da");
-    }
-
-    private function modificationDesTable(string $numDa, int $numeroVersionMax, array $prixUnitaire, array $refsValide): DemandeAppro
-    {
-        /** @var DemandeAppro */
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        if ($da) {
-            $da
-                ->setEstValidee(true)
-                ->setValidateur($this->getUser())
-                ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-            ;
-            self::$em->persist($da);
-        }
-
-        /** @var DemandeApproL */
-        $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        if (!empty($dal)) {
-            foreach ($dal as $item) {
-                if ($item) {
-                    $item
-                        ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-                    ;
-                    // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
-                    if (!empty($prixUnitaire) && array_key_exists($item->getNumeroLigne(), $prixUnitaire)) {
-                        $item->setPrixUnitaire($prixUnitaire[$item->getNumeroLigne()]);
-                    }
-
-                    self::$em->persist($item);
-                }
-            }
-        }
-
-        $dalr = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
-        if (!empty($dalr)) {
-            foreach ($dalr as $item) {
-                /** @var DemandeApproLR $item le DALR correspondant */
-                if ($item) {
-                    $item
-                        ->setEstValidee(true)
-                        ->setChoix(false) // on réinitialise le choix à false
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-                    ;
-                    if (key_exists($item->getNumeroLigne(), $refsValide)) {
-                        if ($item->getNumLigneTableau() == $refsValide[$item->getNumeroLigne()]) {
-                            $item->setChoix(true);
-                        }
-                    }
-
-                    self::$em->persist($item);
-                }
-            }
-        }
-
-        return $da;
     }
 
     /** 

@@ -7,6 +7,7 @@ use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\DaValidationTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -34,6 +35,7 @@ class DaPropositionRefAvecDitController extends Controller
     use DaTrait;
     use lienGenerique;
     use DaAfficherTrait;
+    use DaValidationTrait;
     use EntityManagerAwareTrait;
 
     private const EDIT = 0;
@@ -295,8 +297,7 @@ class DaPropositionRefAvecDitController extends Controller
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
-        /** @var DemandeAppro $da la demande appro retourné par la fonction */
-        $da = $this->modificationDesTable($numDa, $numeroVersionMax);
+        $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
         $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
@@ -306,50 +307,6 @@ class DaPropositionRefAvecDitController extends Controller
         self::$em->flush();
 
         return $nomEtChemin;
-    }
-
-    private function modificationDesTable(string $numDa, int $numeroVersionMax): DemandeAppro
-    {
-        /** @var DemandeAppro */
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        if ($da) {
-            $da
-                ->setEstValidee(true)
-                ->setValidePar($this->getUser()->getNomUtilisateur())
-                ->setValidateur($this->getUser())
-                ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-            ;
-        }
-
-        /** @var DemandeApproL */
-        $dal = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        if (!empty($dal)) {
-            foreach ($dal as $item) {
-                if ($item) {
-                    $item
-                        ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-                    ;
-                }
-            }
-        }
-
-        /** @var DemandeApproLR */
-        $dalr = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa]);
-        if (!empty($dalr)) {
-            foreach ($dalr as $item) {
-                if ($item) {
-                    $item
-                        ->setEstValidee(true)
-                        ->setValidePar($this->getUser()->getNomUtilisateur())
-                        ->setStatutDal(DemandeAppro::STATUT_VALIDE)
-                    ;
-                }
-            }
-        }
-
-        return $da;
     }
 
     private function traitementPourBtnEnregistrer($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
