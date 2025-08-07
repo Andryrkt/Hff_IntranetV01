@@ -207,7 +207,7 @@ class DaModel extends Model
                     AND slor.slor_soc = 'HF'
 
                     --INNER JOIN Informix.sav_itv sitv 
-                      --  ON sitv.sitv_numor = slor.slor_numor 
+                    --  ON sitv.sitv_numor = slor.slor_numor 
                     --AND sitv.sitv_soc = slor.slor_soc 
                     --AND sitv.sitv_succ = slor.slor_succ 
                     -- AND slor.slor_soc = 'HF'
@@ -227,7 +227,7 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
-                        slor.slor_constp = 'ZST' 
+                        slor.slor_constp in ('ZST', 'ZDI') 
                         AND slor.slor_typlig = 'P'
                         -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
@@ -309,7 +309,7 @@ class DaModel extends Model
             AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
-                        slor.slor_constp = 'ZST' 
+                        slor.slor_constp in ('ZST', 'ZDI') 
                         AND slor.slor_typlig = 'P'
                         AND slor.slor_refp NOT LIKE 'PREST%'
                         and slor_numor = '$numOr'
