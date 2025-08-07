@@ -33,7 +33,6 @@ class DaListCdeFrnController extends Controller
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaListeCdeFrnModel $daListeCdeFrnModel;
     private DaModel $daModel;
     private DemandeApproRepository $daRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
@@ -44,7 +43,6 @@ class DaListCdeFrnController extends Controller
         parent::__construct();
         $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daListeCdeFrnModel = new DaListeCdeFrnModel();
         $this->daModel = new DaModel();
         $this->daRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
@@ -91,7 +89,7 @@ class DaListCdeFrnController extends Controller
         /** récupération des ors Zst validé sous forme de tableau */
         $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
         $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
-        $numOrValideZst = $this->daListeCdeFrnModel->getNumOrValideZst($numOrString);
+        $numOrValideZst = $this->daModel->getNumOrValideZst($numOrString);
 
         /** @var array récupération des lignes de daValider avec version max et or valider */
         $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($numOrValideZst, $criteria);
