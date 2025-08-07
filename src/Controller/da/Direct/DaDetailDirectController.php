@@ -8,6 +8,7 @@ use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Service\EmailService;
 use App\Controller\Controller;
+use App\Controller\Traits\da\DaDetailTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
@@ -34,8 +35,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DaDetailDirectController extends Controller
 {
-	use lienGenerique;
 	use DaTrait;
+	use DaDetailTrait;
+	use lienGenerique;
 
 	private DemandeApproRepository $daRepository;
 	private DitRepository $ditRepository;
@@ -99,7 +101,7 @@ class DaDetailDirectController extends Controller
 			'numParc'           		=> $dataModel[0]['num_parc'],
 			'dit'               		=> $dit,
 			'fichiers'            		=> $fichiers,
-			'connectedUser'     		=> Controller::getUser(),
+			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
 			'estAte'            		=> Controller::estUserDansServiceAtelier(),
 			'estAppro'          		=> Controller::estUserDansServiceAppro(),
@@ -155,7 +157,7 @@ class DaDetailDirectController extends Controller
 				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
 				'observation'   => $daObservation->getObservation(),
 				'service'       => $service,
-				'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);

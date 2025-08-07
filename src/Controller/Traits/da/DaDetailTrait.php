@@ -1,0 +1,178 @@
+<?php
+
+namespace App\Controller\Traits\da;
+
+use App\Entity\da\DemandeAppro;
+
+trait DaDetailTrait
+{
+    use DaTrait;
+
+    /** 
+     * Obtenir tous les fichiers associés à la demande d'approvisionnement
+     * 
+     * @param array $tab
+     */
+    private function getAllDAFile($tab): array
+    {
+        return [
+            'BA'    => [
+                'type'       => "Bon d'achat",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-ba',
+                'fichiers'   => $this->normalizePaths($tab['baPath']),
+            ],
+            'OR'    => [
+                'type'       => 'Ordre de réparation',
+                'icon'       => 'fa-solid fa-wrench',
+                'colorClass' => 'border-left-or',
+                'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
+            ],
+            'BC'    => [
+                'type'       => 'Bon de commande',
+                'icon'       => 'fa-solid fa-file-circle-check',
+                'colorClass' => 'border-left-bc',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
+            ],
+            'FACBL' => [
+                'type'       => 'Facture / Bon de livraison',
+                'icon'       => 'fa-solid fa-file-invoice',
+                'colorClass' => 'border-left-facbl',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
+            ],
+        ];
+    }
+
+    /** 
+     * Normaliser les chemins des fichiers pour l'affichage
+     * 
+     * @param mixed $paths
+     * @return array
+     */
+    private function normalizePaths($paths): array
+    {
+        if ($paths === '-' || empty($paths)) {
+            return [];
+        }
+
+        if (!is_array($paths)) {
+            $paths = [$paths];
+        }
+
+        return array_map(function ($path) {
+            return [
+                'nom'  => pathinfo($path, PATHINFO_FILENAME),
+                'path' => $path
+            ];
+        }, $paths);
+    }
+
+    /** 
+     * Normaliser les chemins pour un seul fichier
+     * 
+     * @param mixed $doc
+     * @param string $numKey
+     * @return array
+     */
+    private function normalizePathsForOneFile($doc, string $numKey): array
+    {
+        $tabReturn = [];
+
+        if ($doc !== '-' && !empty($doc)) {
+            $tabReturn[] = [
+                'nom'  => $doc[$numKey],
+                'path' => $doc['path']
+            ];
+        }
+
+        return $tabReturn;
+    }
+
+    /** 
+     * Normaliser les chemins pour plusieurs fichiers
+     * 
+     * @param array $allDocs
+     * @param string $numKey
+     * @return array
+     */
+    private function normalizePathsForManyFiles($allDocs, string $numKey): array
+    {
+        if ($allDocs === '-' || empty($allDocs)) {
+            return [];
+        }
+
+        return array_map(function ($doc) use ($numKey) {
+            return [
+                'nom'  => $doc[$numKey],
+                'path' => $doc['path']
+            ];
+        }, $allDocs);
+    }
+
+    /** 
+     * Obtenir l'url du bon d'achat
+     */
+    private function getBaPath(DemandeAppro $demandeAppro): string
+    {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
+            return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
+        }
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url de l'ordre de réparation
+     */
+    private function getOrPath(DemandeAppro $demandeAppro)
+    {
+        $numeroDit = $demandeAppro->getNumeroDemandeDit();
+        $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
+        $numeroOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '';
+        $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
+        if ($statutOr == 'Validé') {
+            $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
+            return [
+                'numeroOr' => $numeroOr,
+                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
+            ];
+        }
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url du bon de commande
+     */
+    private function getBcPath(DemandeAppro $demandeAppro)
+    {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $allDocs = $this->dwBcApproRepository->getPathAndNumeroBCByNumDa($numDa);
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) {
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
+        }
+
+        return "-";
+    }
+
+    /** 
+     * Obtenir l'url du bon de livraison + facture
+     */
+    private function getFacBlPath(DemandeAppro $demandeAppro)
+    {
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $allDocs = $this->dwFacBlRepository->getPathByNumDa($numDa);
+
+        if (!empty($allDocs)) {
+            return array_map(function ($doc) {
+                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
+                return $doc;
+            }, $allDocs);
+        }
+
+        return "-";
+    }
+}

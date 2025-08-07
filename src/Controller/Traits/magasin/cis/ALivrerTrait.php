@@ -10,7 +10,7 @@ trait ALivrerTrait
 {
     private function agenceUser($autoriser): ?string
     {
-        $codeAgence = Controller::getUser()->getAgenceAutoriserCode();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         if ($autoriser) {
             $agenceUser = "''";

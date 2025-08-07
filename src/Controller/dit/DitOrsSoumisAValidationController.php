@@ -141,7 +141,7 @@ class DitOrsSoumisAValidationController extends Controller
                 $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix, $mainPdf);
 
                 //fusion de pdf Demande appro avec le pdf OR fusionner
-                $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
+                // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
 
                 // envoyer le pdf fusionner dans DW
                 $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
@@ -258,7 +258,7 @@ class DitOrsSoumisAValidationController extends Controller
         // if ($numDa) {
         //     $articleDas = $this->ditOrsoumisAValidationModel->validationArticleZstDa($numOr);
         //     $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        //     $daValiders = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        //     $daValiders = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
         //     $referenceDas = array_map(function ($item) {
         //         return [
         //             "quantite" => $item->getQteDem(),

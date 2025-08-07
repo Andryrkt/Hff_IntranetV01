@@ -33,7 +33,7 @@ class MagasinListeOrTraiterController extends Controller
         $this->verifierSessionUtilisateur();
 
         $magasinModel = new MagasinListeOrATraiterModel;
-        $codeAgence = Controller::getUser()->getAgenceAutoriserCode();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);

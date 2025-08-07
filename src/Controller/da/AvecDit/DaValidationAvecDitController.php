@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\AvecDit;
 
 use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
@@ -22,11 +22,11 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationController extends Controller
+class DaValidationAvecDitController extends Controller
 {
     use DaTrait;
     use lienGenerique;
-    use DaPropositionTrait;
+    use DaAfficherTrait;
     use EntityManagerAwareTrait;
 
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -36,14 +36,14 @@ class DaValidationController extends Controller
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaPropositionTrait();
+        $this->initDaTrait();
 
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
-     * @Route("/validate/{numDa}", name="da_validate")
+     * @Route("/validate-avec-dit/{numDa}", name="da_validate_avec_dit")
      */
     public function validate(string $numDa, Request $request)
     {
@@ -64,7 +64,7 @@ class DaValidationController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 
-        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
 
         /** ENVOIE D'EMAIL */
         $this->envoyerMailValidationAuxAppro([
@@ -74,7 +74,7 @@ class DaValidationController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $dalNouveau,
             'service'       => 'appro',
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
@@ -88,7 +88,7 @@ class DaValidationController extends Controller
             'dalNouveau'        => $dalNouveau,
             'service'           => 'appro',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         /** NOTIFICATION */
@@ -103,8 +103,8 @@ class DaValidationController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidateur(Controller::getUser())
-                ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                ->setValidateur($this->getUser())
+                ->setValidePar($this->getUser()->getNomUtilisateur())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
             self::$em->persist($da);
@@ -117,7 +117,7 @@ class DaValidationController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     // vérifier si $prixUnitaire n'est pas vide puis le numéro de la ligne de la DA existe dans les clés du tableau $prixUnitaire
@@ -138,7 +138,7 @@ class DaValidationController extends Controller
                     $item
                         ->setEstValidee(true)
                         ->setChoix(false) // on réinitialise le choix à false
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                     if (key_exists($item->getNumeroLigne(), $refsValide)) {

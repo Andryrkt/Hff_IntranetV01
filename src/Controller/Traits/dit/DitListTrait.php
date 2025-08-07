@@ -605,7 +605,7 @@ trait DitListTrait
         //si le statut dit est A_AFFECTER
         $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
         //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté ou profil de l'utilisateur connecté est CHEF_ATELIER
-        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && ($data->getUtilisateurDemandeur() === Controller::getUser()->getNomUtilisateur() || in_array(User::PROFIL_CHEF_ATELIER, Controller::getUser()->getRoleIds()));
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && ($data->getUtilisateurDemandeur() === $this->getUser()->getNomUtilisateur() || in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds()));
         //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
         $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
 

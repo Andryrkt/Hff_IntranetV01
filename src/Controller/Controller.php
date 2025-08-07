@@ -555,12 +555,10 @@ class Controller
         return $this->sessionService->get('user_id');
     }
 
-    public static function getUser(): User
+    protected function getUser(): ?User
     {
-        $ctrl = new self();
-        //recuperation de l'utilisateur connecter
-        $userId = $ctrl->getUserId();
-        return  self::$em->getRepository(User::class)->find($userId);
+        $userId = $this->getUserId();
+        return $userId ? self::$em->getRepository(User::class)->find($userId) : null;
     }
 
     protected function getEmail(): string

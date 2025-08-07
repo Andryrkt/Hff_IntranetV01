@@ -94,7 +94,7 @@ class DaNewAvecDitController extends Controller
             /** @var DemandeIntervention $dit */
             $dit = $demandeAppro->getDit();
             $demandeAppro
-                ->setDemandeur(Controller::getUser()->getNomUtilisateur())
+                ->setDemandeur($this->getUser()->getNomUtilisateur())
                 ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
                 ->setNiveauUrgence($this->ditRepository->getNiveauUrgence($demandeAppro->getNumeroDemandeDit()))
             ;
@@ -154,7 +154,7 @@ class DaNewAvecDitController extends Controller
                 'dal'           => $dal,
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
-                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);

@@ -17,7 +17,7 @@ trait DaListeDitTrait
      */
     private function autorisationRole(): bool
     {
-        $userConnecter = Controller::getUser();
+        $userConnecter = $this->getUser();
         $roleIds = $userConnecter->getRoleIds();
         return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Role::ROLE_ATELIER, $roleIds);
     }
@@ -29,7 +29,7 @@ trait DaListeDitTrait
      */
     private function autorisationRoleEnergie(): bool
     {
-        $userConnecter = Controller::getUser();
+        $userConnecter = $this->getUser();
         $roleIds = $userConnecter->getRoleIds();
         return in_array(5, $roleIds);
     }

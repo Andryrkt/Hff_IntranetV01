@@ -2,11 +2,12 @@
 
 namespace App\Controller\Traits\da;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Entity\da\DaAfficher;
 use App\Entity\da\DaObservation;
-use DateTime;
 use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -15,6 +16,10 @@ use App\Entity\da\DemandeApproLR;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
+use App\Repository\da\DemandeApproRepository;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
 use App\Service\genererPdf\GenererPdfDaDirect;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,6 +29,25 @@ trait DaTrait
 {
     use lienGenerique;
     use EntityManagerAwareTrait;
+
+    //=====================================================================================
+    private DaAfficherRepository $daAfficherRepository;
+    private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
+
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaTrait(): void
+    {
+        $em = $this->getEntityManager();
+        $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
+        $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
+    }
+    //=====================================================================================
 
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée
@@ -56,7 +80,7 @@ trait DaTrait
     private function ajoutNbrJourRestant($dalDernieresVersions)
     {
         foreach ($dalDernieresVersions as $dal) {
-            if ($dal->getStatutDal() != 'Bon d’achats validé') { // si le statut de la DAL est différent de "Bon d’achats validé" 
+            if ($dal->getStatutDal() != DemandeAppro::STATUT_VALIDE) { // si le statut de la DAL est différent de "Bon d’achats validé" 
                 $dal->setJoursDispo($this->getJoursRestants($dal));
             }
         }
@@ -81,12 +105,63 @@ trait DaTrait
         $daObservation
             ->setObservation($text)
             ->setNumDa($demandeAppro->getNumeroDemandeAppro())
-            ->setUtilisateur(Controller::getUser()->getNomUtilisateur())
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
         ;
 
         $em->persist($daObservation);
         $em->flush();
     }
+
+    /**
+     * Récupère les lignes d'une Demande d'Achat en tenant compte des rectifications utilisateur (DALR).
+     * Optimisé pour éviter les requêtes en boucle (N+1).
+     *
+     * @param string $numeroDA le numéro de la Demande d'Achat
+     * @param int    $version la version de la Demande d'Achat
+     *
+     * @return array
+     */
+    private function getLignesRectifieesDA(string $numeroDA, int $version): array
+    {
+        // 1. Récupération des lignes DAL (non supprimées)
+        /** @var iterable<DemandeApproL> les lignes de DAL non supprimées */
+        $lignesDAL = $this->demandeApproLRepository->findBy([
+            'numeroDemandeAppro' => $numeroDA,
+            'numeroVersion'      => $version,
+            'deleted'            => false,
+        ]);
+
+        // 2. Récupération en une seule requête des DALR associés à la DA
+        /** @var iterable<DemandeApproLR> les lignes de DALR correspondant au numéro de la DA */
+        $dalrs = $this->demandeApproLRRepository->findBy([
+            'numeroDemandeAppro' => $numeroDA,
+        ]);
+
+        // 3. Indexation des DALR par numéro de ligne, uniquement s'ils sont validés (choix = true)
+        $dalrParLigne = [];
+
+        foreach ($dalrs as $dalr) {
+            if ($dalr->getChoix()) {
+                $dalrParLigne[$dalr->getNumeroLigne()] = $dalr;
+            }
+        }
+
+        // 4. Construction de la liste finale en remplaçant les DAL par DALR si dispo
+        $resultats = [];
+
+        foreach ($lignesDAL as $ligneDAL) {
+            $numeroLigne = $ligneDAL->getNumeroLigne(); // numéro de ligne de la DAL
+            $resultats[] = $dalrParLigne[$numeroLigne] ?? $ligneDAL;
+        }
+
+        return $resultats;
+    }
+
+
+
+
+
+
 
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
     {
@@ -363,7 +438,7 @@ trait DaTrait
     private function creationExcel(string $numDa, int $numeroVersionMax): array
     {
         //recupération des donnée
-        $donnerExcels = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $donnerExcels = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
 
         //enregistrement des données dans DaValider
         $this->enregistrerDonneeDansDaValide($donnerExcels);
@@ -404,29 +479,6 @@ trait DaTrait
         }
 
         return $data;
-    }
-
-
-    private function recuperationRectificationDonnee(string $numDa, int $numeroVersionMax): array
-    {
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'deleted' => false]); // On récupère les DALs avec version max et non supprimés de la DA
-
-        $donnerExcels = [];
-        foreach ($dals as $dal) {
-            $donnerExcel = $dal;
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
-            if (!empty($dalrs)) {
-                foreach ($dalrs as $dalr) {
-                    if ($dalr->getChoix()) {
-                        $donnerExcel = $dalr;
-                        break;
-                    }
-                }
-            }
-            $donnerExcels[] = $donnerExcel;
-        }
-
-        return $donnerExcels;
     }
 
     private function enregistrerDonneeDansDaValide($donnees)
@@ -570,148 +622,5 @@ trait DaTrait
             $num = 0;
         }
         return (int)$num + 1;
-    }
-
-    private function getAllDAFile($tab): array
-    {
-        return [
-            'BA'    => [
-                'type'       => "Bon d'achat",
-                'icon'       => 'fa-solid fa-file-signature',
-                'colorClass' => 'border-left-ba',
-                'fichiers'   => $this->normalizePaths($tab['baPath']),
-            ],
-            'OR'    => [
-                'type'       => 'Ordre de réparation',
-                'icon'       => 'fa-solid fa-wrench',
-                'colorClass' => 'border-left-or',
-                'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
-            ],
-            'BC'    => [
-                'type'       => 'Bon de commande',
-                'icon'       => 'fa-solid fa-file-circle-check',
-                'colorClass' => 'border-left-bc',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
-            ],
-            'FACBL' => [
-                'type'       => 'Facture / Bon de livraison',
-                'icon'       => 'fa-solid fa-file-invoice',
-                'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
-            ],
-        ];
-    }
-
-    private function normalizePaths($paths): array
-    {
-        if ($paths === '-' || empty($paths)) {
-            return [];
-        }
-
-        if (!is_array($paths)) {
-            $paths = [$paths];
-        }
-
-        return array_map(function ($path) {
-            return [
-                'nom'  => pathinfo($path, PATHINFO_FILENAME),
-                'path' => $path
-            ];
-        }, $paths);
-    }
-
-    private function normalizePathsForOneFile($doc, string $numKey): array
-    {
-        $tabReturn = [];
-
-        if ($doc !== '-' && !empty($doc)) {
-            $tabReturn[] = [
-                'nom'  => $doc[$numKey],
-                'path' => $doc['path']
-            ];
-        }
-
-        return $tabReturn;
-    }
-
-    private function normalizePathsForManyFiles($allDocs, string $numKey): array
-    {
-        if ($allDocs === '-' || empty($allDocs)) {
-            return [];
-        }
-
-        return array_map(function ($doc) use ($numKey) {
-            return [
-                'nom'  => $doc[$numKey],
-                'path' => $doc['path']
-            ];
-        }, $allDocs);
-    }
-
-    /** 
-     * Obtenir l'url du bon d'achat
-     */
-    private function getBaPath(DemandeAppro $demandeAppro): string
-    {
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-        if (in_array($demandeAppro->getStatutDal(), [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER])) {
-            return $_ENV['BASE_PATH_FICHIER_COURT'] . "/da/$numDa/$numDa.pdf";
-        }
-        return "-";
-    }
-
-    /** 
-     * Obtenir l'url de l'ordre de réparation
-     */
-    private function getOrPath(DemandeAppro $demandeAppro)
-    {
-        $numeroDit = $demandeAppro->getNumeroDemandeDit();
-        $ditOrsSoumis = $this->ditOrsSoumisAValidationRepository->findDerniereVersionByNumeroDit($numeroDit);
-        $numeroOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getNumeroOR() : '';
-        $statutOr = !empty($ditOrsSoumis) ? $ditOrsSoumis[0]->getStatut() : '';
-        if ($statutOr == 'Validé') {
-            $result = $this->dossierInterventionAtelierModel->findCheminOrVersionMax($numeroOr);
-            return [
-                'numeroOr' => $numeroOr,
-                'path'     => $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $result['chemin']
-            ];
-        }
-        return "-";
-    }
-
-    /** 
-     * Obtenir l'url du bon de commande
-     */
-    private function getBcPath(DemandeAppro $demandeAppro)
-    {
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $allDocs = $this->dwBcApproRepository->getPathAndNumeroBCByNumDa($numDa);
-
-        if (!empty($allDocs)) {
-            return array_map(function ($doc) {
-                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
-                return $doc;
-            }, $allDocs);
-        }
-
-        return "-";
-    }
-
-    /** 
-     * Obtenir l'url du bon de livraison + facture
-     */
-    private function getFacBlPath(DemandeAppro $demandeAppro)
-    {
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $allDocs = $this->dwFacBlRepository->getPathByNumDa($numDa);
-
-        if (!empty($allDocs)) {
-            return array_map(function ($doc) {
-                $doc['path'] = $_ENV['BASE_PATH_FICHIER_COURT'] . '/' . $doc['path'];
-                return $doc;
-            }, $allDocs);
-        }
-
-        return "-";
     }
 }

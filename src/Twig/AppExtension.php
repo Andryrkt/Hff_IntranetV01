@@ -8,6 +8,7 @@ use App\Controller\Controller;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DemandeAppro;
 use App\Model\dom\DomModel;
 use App\Entity\tik\DemandeSupportInformatique;
 use App\Model\dw\DossierInterventionAtelierModel;
@@ -61,6 +62,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                 'request' => $this->requestStack->getCurrentRequest(),
                 'notification' => $notification,
             ],
+            'DA' => DemandeAppro::class,
         ];
     }
 

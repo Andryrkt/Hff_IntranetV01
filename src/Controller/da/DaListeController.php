@@ -95,7 +95,7 @@ class DaListeController extends Controller
         $this->sessionService->remove('firstCharge');
 
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $codeAgence = $this->getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         // recupération des données de la DA
         $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
@@ -125,7 +125,7 @@ class DaListeController extends Controller
 
     private function donnerAfficher(array $criteria, $idAgenceUser): array
     {
-        $das = $this->daRepository->findDaData($criteria, $idAgenceUser);
+        $das = $this->daRepository->findDaData($this->getUser(), $criteria, $idAgenceUser);
         $this->deleteDal($das);
 
         $this->ajoutInfoDit($das);
@@ -199,7 +199,7 @@ class DaListeController extends Controller
                 'idDa'          => $idDa,
                 'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
-                'userConnecter' => Controller::getUser()->getNomUtilisateur(),
+                'userConnecter' => $this->getUser()->getNomUtilisateur(),
             ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande d\'approvisionnement a été déverrouillée avec succès.']);
@@ -218,7 +218,7 @@ class DaListeController extends Controller
         $criteria = $this->sessionService->get('criteria_for_excel');
 
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $codeAgence = $this->getUser()->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
         // recupération des données de la DA
         $dasFiltered = $this->donnerAfficher($criteria, $idAgenceUser);
@@ -349,7 +349,7 @@ class DaListeController extends Controller
             $da->setDAL($dalDernieresVersions);
 
             //da final
-            $daFinal = $this->recuperationRectificationDonnee($numDa, (int)$numeroVersionMax);
+            $daFinal = $this->getLignesRectifieesDA($numDa, (int)$numeroVersionMax);
             $da->setDaValiderOuProposer($daFinal);
         }
 
@@ -475,7 +475,7 @@ class DaListeController extends Controller
     private function initialiserHistorique(DaHistoriqueDemandeModifDA $historique)
     {
         $historique
-            ->setDemandeur(Controller::getUser()->getNomUtilisateur());
+            ->setDemandeur($this->getUser()->getNomUtilisateur());
     }
 
     private function traitementFormulaireDeverouillage($form, $request)
@@ -507,7 +507,7 @@ class DaListeController extends Controller
                     'idDa'          => $idDa,
                     'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                     'motif'         => $historiqueModifDA->getMotif(),
-                    'userConnecter' => Controller::getUser()->getNomUtilisateur(),
+                    'userConnecter' => $this->getUser()->getNomUtilisateur(),
                 ]);
 
                 $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
@@ -685,7 +685,7 @@ class DaListeController extends Controller
 
         $estAppro = Controller::estUserDansServiceAppro();
         $estAtelier = Controller::estUserDansServiceAtelier();
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 
         $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE];

@@ -5,15 +5,13 @@ namespace App\Controller\da\Direct;
 use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaPropositionTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -33,7 +31,7 @@ class DaPropositionArticleDirectController extends Controller
 {
     use DaTrait;
     use lienGenerique;
-    use DaPropositionTrait;
+    use DaAfficherTrait;
     use EntityManagerAwareTrait;
 
     private const EDIT = 0;
@@ -41,19 +39,17 @@ class DaPropositionArticleDirectController extends Controller
     private DaModel $daModel;
     private DaObservation $daObservation;
     private DaObservationRepository $daObservationRepository;
-    private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaPropositionTrait();
+        $this->initDaTrait();
 
         $this->daModel = new DaModel();
         $this->daObservation = new DaObservation();
         $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
@@ -73,7 +69,7 @@ class DaPropositionArticleDirectController extends Controller
         $daObservation = new DaObservation();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
         $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
-        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate', ['numDa' => $numDa])])->getForm();
+        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
@@ -89,7 +85,7 @@ class DaPropositionArticleDirectController extends Controller
             'formObservation'         => $formObservation->createView(),
             'observations'            => $observations,
             'numDa'                   => $numDa,
-            'connectedUser'           => Controller::getUser(),
+            'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             'estAte'                  => Controller::estUserDansServiceAtelier(),
             'estAppro'                => Controller::estUserDansServiceAppro(),
@@ -161,7 +157,7 @@ class DaPropositionArticleDirectController extends Controller
             'mailDemandeur' => $demandeAppro->getUser()->getMail(),
             'observation'   => $daObservation->getObservation(),
             'service'       => $service,
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -194,7 +190,7 @@ class DaPropositionArticleDirectController extends Controller
                 'mailDemandeur' => $demandeAppro->getUser()->getMail(),
                 'observation'   => $observation,
                 'service'       => $service,
-                'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
         } else {
             $notification = [
@@ -312,8 +308,8 @@ class DaPropositionArticleDirectController extends Controller
         if ($da) {
             $da
                 ->setEstValidee(true)
-                ->setValidePar(Controller::getUser()->getNomUtilisateur())
-                ->setValidateur(Controller::getUser())
+                ->setValidePar($this->getUser()->getNomUtilisateur())
+                ->setValidateur($this->getUser())
                 ->setStatutDal(DemandeAppro::STATUT_VALIDE)
             ;
         }
@@ -325,7 +321,7 @@ class DaPropositionArticleDirectController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -339,7 +335,7 @@ class DaPropositionArticleDirectController extends Controller
                 if ($item) {
                     $item
                         ->setEstValidee(true)
-                        ->setValidePar(Controller::getUser()->getNomUtilisateur())
+                        ->setValidePar($this->getUser()->getNomUtilisateur())
                         ->setStatutDal(DemandeAppro::STATUT_VALIDE)
                     ;
                 }
@@ -378,7 +374,7 @@ class DaPropositionArticleDirectController extends Controller
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'observation'   => $observation,
             'service'       => 'appro',
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
@@ -388,7 +384,7 @@ class DaPropositionArticleDirectController extends Controller
     private function getNouveauDal($numDa)
     {
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $dalNouveau = $this->recuperationRectificationDonnee($numDa, $numeroVersionMax);
+        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
         return $dalNouveau;
     }
 
@@ -514,7 +510,7 @@ class DaPropositionArticleDirectController extends Controller
             'detail'        => $da->getDetailDal(),
             'dalNouveau'    => $this->getNouveauDal($da->getNumeroDemandeAppro()),
             'service'       => $service,
-            'userConnecter' => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
         $this->envoyerMailValidationAuxAte([
@@ -528,7 +524,7 @@ class DaPropositionArticleDirectController extends Controller
             'dalNouveau'        => $this->getNouveauDal($da->getNumeroDemandeAppro()),
             'service'           => $service,
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => Controller::getUser()->getPersonnels()->getNom() . ' ' . Controller::getUser()->getPersonnels()->getPrenoms(),
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
     }
 

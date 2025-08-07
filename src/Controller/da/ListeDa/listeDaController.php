@@ -94,11 +94,12 @@ class listeDaController extends Controller
     public function getData(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
-        $codeAgence = Controller::getUser()->getCodeAgenceUser();
+        $userConnecter = $this->getUser();
+        $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($criteria, $idAgenceUser);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser);
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
@@ -134,7 +135,7 @@ class listeDaController extends Controller
 
         $estAppro = Controller::estUserDansServiceAppro();
         $estAtelier = Controller::estUserDansServiceAtelier();
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 
         $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_A_VALIDE_DW];
@@ -238,7 +239,7 @@ class listeDaController extends Controller
                 //     'idDa'          => $idDa,
                 //     'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
                 //     'motif'         => $historiqueModifDA->getMotif(),
-                //     'userConnecter' => Controller::getUser()->getNomUtilisateur(),
+                //     'userConnecter' => $this->getUser()->getNomUtilisateur(),
                 // ]);
 
                 $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);

@@ -4,13 +4,14 @@ namespace App\Repository\da;
 
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use Doctrine\ORM\EntityRepository;
 
 class DemandeApproRepository extends EntityRepository
 {
-    public function findDaData(array $criteria = [], int $idAgenceUser)
+    public function findDaData(User $user, array $criteria = [], int $idAgenceUser)
     {
         $qb = $this->createQueryBuilder('da')
             ->select('da')
@@ -55,17 +56,17 @@ class DemandeApproRepository extends EntityRepository
 
         $this->FiltredSelonDate($qb, $criteria);
 
-        $this->FiltredSelonAgenceService($qb, $criteria, $idAgenceUser);
+        $this->FiltredSelonAgenceService($qb, $criteria, $user, $idAgenceUser);
 
         return $qb->getQuery()->getResult();
     }
 
-    private function FiltredSelonAgenceService($qb, array $criteria, int $idAgenceUser)
+    private function FiltredSelonAgenceService($qb, array $criteria, User $user, int $idAgenceUser)
     {
 
         $estAppro = Controller::estUserDansServiceAppro();
         $estAtelier = Controller::estUserDansServiceAtelier();
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, Controller::getUser()->getRoleIds());
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
 
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
@@ -75,7 +76,7 @@ class DemandeApproRepository extends EntityRepository
                         'da.agenceEmetteur = :codeAgence'
                     )
                 )
-                ->setParameter('agenceAutoriserIds', Controller::getUser()->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
@@ -83,7 +84,7 @@ class DemandeApproRepository extends EntityRepository
                         'da.serviceEmetteur IN (:serviceAutoriserIds)'
                     )
                 )
-                ->setParameter('serviceAutoriserIds', Controller::getUser()->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
         }
 
         // Filtre sur l'agence Emetteur

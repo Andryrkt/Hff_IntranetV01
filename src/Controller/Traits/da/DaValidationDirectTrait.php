@@ -2,4 +2,4 @@
 
 namespace App\Controller\Traits\da;
 
-trait DaPropositionTrait {}
+trait DaValidationTrait {}
