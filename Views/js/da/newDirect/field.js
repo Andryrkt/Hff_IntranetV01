@@ -33,6 +33,8 @@ export function createFieldAndAppendTo(
     field.value = dateFinSouhaitee;
   } else if (fieldName === "artRefp") {
     field.value = "-";
+  } else if (fieldName === "artConstp") {
+    field.value = "ZDI";
   } else if (fieldName === "numeroLigne") {
     field.value = localStorage.getItem("index");
   } else if (fieldName === "fileNames") {
