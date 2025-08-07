@@ -180,10 +180,10 @@ class PdfTableGenerator
      * Génère un tableau HTML pour les demandes d'approvisionnement (DA).
      *
      * @param array $headerConfig Configuration des en-têtes du tableau.
-     * @param array $rows Données des lignes à afficher dans le tableau.
+     * @param iterable $rows Données des lignes à afficher dans le tableau.
      * @return string Le code HTML du tableau généré.
      */
-    public function generateTableForDA(array $headerConfig, array $rows): string
+    public function generateTableForDA(array $headerConfig, iterable $rows): string
     {
         $html = '<table cellpadding="4" align="center" style="font-size: 10px; border:1px solid  #c4c4c4; border-collapse: collapse;">';
         $html .= $this->generateHeaderForDA($headerConfig);
@@ -224,7 +224,7 @@ class PdfTableGenerator
         return $html;
     }
 
-    private function generateBodyForDA(array $headerConfig, array $dals)
+    private function generateBodyForDA(array $headerConfig, iterable $dals)
     {
         $html = '<tbody>';
         $total = 0;

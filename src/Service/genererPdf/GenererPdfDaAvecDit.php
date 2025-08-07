@@ -9,9 +9,10 @@ use TCPDF;
 
 class GenererPdfDaAvecDit extends GeneratePdf
 {
-    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da, $dals)
+    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da)
     {
         $pdf = new TCPDF();
+        $dals = $da->getDAL();
         $generator = new PdfTableGenerator();
 
         $pdf->AddPage();
