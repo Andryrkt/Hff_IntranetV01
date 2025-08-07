@@ -38,5 +38,6 @@ trait DaNewTrait
 
             $this->getEntityManager()->persist($daAfficher);
         }
+        $this->getEntityManager()->flush();
     }
 }

@@ -12,9 +12,9 @@ trait ApplicationTrait
      * Met à jour la dernière ID utilisée pour une application donnée.
      *
      * @param string $codeApp Le code de l'application à mettre à jour.
-     * @param int    $numero  La nouvelle valeur du champ `derniereId`.
+     * @param string $numero  La nouvelle valeur du champ `derniereId`.
      */
-    private function mettreAJourDerniereIdApplication(string $codeApp, int $numero): void
+    private function mettreAJourDerniereIdApplication(string $codeApp, string $numero): void
     {
         $em = $this->getEntityManager();
         $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => $codeApp]);

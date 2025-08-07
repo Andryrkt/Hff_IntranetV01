@@ -2,10 +2,10 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
+use App\Model\da\DaModel;
 use App\Repository\dit\DitRepository;
 
 trait DaNewAvecDitTrait
@@ -13,6 +13,7 @@ trait DaNewAvecDitTrait
     use EntityManagerAwareTrait;
 
     //=====================================================================================
+    private DaModel $daModel;
     private DitRepository $ditRepository;
 
     /**
@@ -22,6 +23,7 @@ trait DaNewAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
+        $this->daModel = new DaModel();
     }
     //=====================================================================================
     /** 
