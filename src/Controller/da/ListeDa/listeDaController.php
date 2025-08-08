@@ -99,7 +99,7 @@ class listeDaController extends Controller
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser);
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);

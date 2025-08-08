@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DemandeApproRepository extends EntityRepository
 {
-    public function findDaData(User $user, array $criteria = [], int $idAgenceUser)
+    public function findDaData(User $user, array $criteria = [], int $idAgenceUser, bool $estAppro, bool $estAtelier)
     {
         $qb = $this->createQueryBuilder('da')
             ->select('da')
@@ -56,16 +56,13 @@ class DemandeApproRepository extends EntityRepository
 
         $this->FiltredSelonDate($qb, $criteria);
 
-        $this->FiltredSelonAgenceService($qb, $criteria, $user, $idAgenceUser);
+        $this->FiltredSelonAgenceService($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier);
 
         return $qb->getQuery()->getResult();
     }
 
-    private function FiltredSelonAgenceService($qb, array $criteria, User $user, int $idAgenceUser)
+    private function FiltredSelonAgenceService($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier)
     {
-
-        $estAppro = Controller::estUserDansServiceAppro();
-        $estAtelier = Controller::estUserDansServiceAtelier();
         $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
 
         if (!$estAtelier && !$estAppro && !$estAdmin) {

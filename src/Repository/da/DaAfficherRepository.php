@@ -204,7 +204,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser): array
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier): array
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -218,7 +218,7 @@ class DaAfficherRepository extends EntityRepository
 
         if (!empty($criteria)) {
             $this->applyDynamicFilters($qb, $criteria);
-            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser);
+            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier);
             $this->applyDateFilters($qb, $criteria);
             $this->applyStatutsFilters($qb, $criteria);
         }
@@ -363,10 +363,8 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser)
+    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier)
     {
-        $estAppro = Controller::estUserDansServiceAppro();
-        $estAtelier = Controller::estUserDansServiceAtelier();
         $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
 
         if (!$estAtelier && !$estAppro && !$estAdmin) {
