@@ -2,12 +2,6 @@
 
 namespace App\Controller\Traits\da;
 
-use App\Entity\da\DaValider;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
-use App\Repository\da\DaValiderRepository;
-use App\Service\autres\VersionService;
-
 trait DaValidationDirectTrait
 {
     use DaTrait;

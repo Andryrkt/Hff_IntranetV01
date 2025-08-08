@@ -2,10 +2,10 @@
 
 namespace App\Controller\da\Direct;
 
-use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\DaPropositionTrait;
 use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\da\DaValidationDirectTrait;
 use App\Controller\Traits\da\DaValidationTrait;
@@ -16,13 +16,10 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -35,26 +32,18 @@ class DaPropositionArticleDirectController extends Controller
         lienGenerique,
         DaAfficherTrait,
         DaValidationTrait,
+        DaPropositionTrait,
         DaValidationDirectTrait,
         EntityManagerAwareTrait;
 
     private const EDIT = 0;
-
-    private DaModel $daModel;
-    private DaObservation $daObservation;
-    private DaObservationRepository $daObservationRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
         $this->initDaTrait();
-
-        $this->daModel = new DaModel();
-        $this->daObservation = new DaObservation();
-        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->initDaPropositionTrait();
     }
 
     /**
@@ -591,18 +580,8 @@ class DaPropositionArticleDirectController extends Controller
 
         for ($i = 0; $i < count($dals); $i++) {
             $dals[$i][0]
-                // ->setQteDispo($dalrs[$i][0]->getQteDispo())
-                // ->setArtRefp($dalrs[$i][0]->getArtRefp() == '' ? NULL : $dalrs[$i][0]->getArtRefp())
-                // ->setArtFams1($dalrs[$i][0]->getArtFams1() == '' ? NULL : $dalrs[$i][0]->getArtFams1())
-                // ->setArtFams2($dalrs[$i][0]->getArtFams2() == '' ? NULL : $dalrs[$i][0]->getArtFams2())
-                // ->setArtDesi($dalrs[$i][0]->getArtDesi() == '' ? NULL : $dalrs[$i][0]->getArtDesi())
-                // ->setCodeFams1($dalrs[$i][0]->getCodeFams1() == '' ? NULL : $dalrs[$i][0]->getCodeFams1())
-                // ->setCodeFams2($dalrs[$i][0]->getCodeFams2() == '' ? NULL : $dalrs[$i][0]->getCodeFams2())
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
-                // ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i][0]->getArtFams2() == NULL ? FALSE : TRUE)
-                // ->setPrixUnitaire($this->daModel->getPrixUnitaire($dalrs[$i][0]->getArtRefp())[0])
-                // ->setNomFicheTechnique($dalrs[$i][0]->getNomFicheTechnique())
             ;
             self::$em->persist($dals[$i][0]);
         }
@@ -758,18 +737,11 @@ class DaPropositionArticleDirectController extends Controller
 
             return $demandeApproLR_Ancien;
         } else {
-            $libelleFamille = $this->daModel->getLibelleFamille($demandeApproLR->getArtFams1()); // changement de code famille en libelle famille
-            $libelleSousFamille = $this->daModel->getLibelleSousFamille($demandeApproLR->getArtFams2(), $demandeApproLR->getArtFams1()); // changement de code sous famille en libelle sous famille
-
             $demandeApproLR
                 ->setDemandeApproL($DAL)
                 ->setNumeroDemandeAppro($DAL->getNumeroDemandeAppro())
                 ->setQteDem($DAL->getQteDem())
                 ->setArtConstp('ZDI') // TODO: changer cette ligne plus tard
-                ->setCodeFams1($demandeApproLR->getArtFams1() == '' ? NULL : $demandeApproLR->getArtFams1()) // ceci doit toujour avant le setArtFams1
-                ->setCodeFams2($demandeApproLR->getArtFams2() == '' ? NULL : $demandeApproLR->getArtFams2()) // ceci doit toujour avant le setArtFams2
-                ->setArtFams1($libelleFamille == '' ? NULL : $libelleFamille) // ceci doit toujour après le codeFams1
-                ->setArtFams2($libelleSousFamille == '' ? NULL : $libelleSousFamille) // ceci doit toujour après le codeFams2
                 ->setDateFinSouhaite($DAL->getDateFinSouhaite())
                 ->setStatutDal($statut)
                 ->setNumeroDemandeDit($DAL->getNumeroDit())
