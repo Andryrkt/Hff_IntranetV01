@@ -17,7 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Service\genererPdf\GenererPdfDaAvecDit;
+use App\Service\genererPdf\GeneratePdf;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -33,7 +33,7 @@ class DaSoumissionBcController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private GenererPdfDaAvecDit $genererPdfDaAvecDit;
+    private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
     private DaValiderRepository $daValiderRepository;
@@ -48,7 +48,7 @@ class DaSoumissionBcController extends Controller
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
-        $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit();
+        $this->generatePdf = new GeneratePdf();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
         $this->daValiderRepository = self::$em->getRepository(DaValider::class);
@@ -112,7 +112,7 @@ class DaSoumissionBcController extends Controller
                 self::$em->flush();
 
                 /** COPIER DANS DW */
-                $this->genererPdfDaAvecDit->copyToDWBcDa($nomPdfFusionner, $numDa);
+                $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
 
                 /** modification du table da_valider */
                 $this->modificationDaValider($numDa, $numCde);

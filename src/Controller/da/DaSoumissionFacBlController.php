@@ -14,7 +14,7 @@ use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Service\genererPdf\GenererPdfDaAvecDit;
+use App\Service\genererPdf\GeneratePdf;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -31,7 +31,7 @@ class DaSoumissionFacBlController extends Controller
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
     private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
-    private GenererPdfDaAvecDit $genererPdfDaAvecDit;
+    private GeneratePdf $generatePdf;
     private DemandeApproRepository $demandeApproRepository;
     private DitRepository $ditRepository;
 
@@ -39,12 +39,12 @@ class DaSoumissionFacBlController extends Controller
     {
         parent::__construct();
 
+        $this->generatePdf = new GeneratePdf();
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
         $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
-        $this->genererPdfDaAvecDit = new GenererPdfDaAvecDit();
         $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
     }
@@ -106,7 +106,7 @@ class DaSoumissionFacBlController extends Controller
             self::$em->flush();
 
             /** COPIER DANS DW */
-            $this->genererPdfDaAvecDit->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
             /** HISTORISATION */
             $message = 'Le document est soumis pour validation';

@@ -2,13 +2,21 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use TCPDF;
 
 class GenererPdfDaDirect extends GeneratePdf
 {
-    public function genererPdfAValiderDW(DemandeAppro $da, $dals)
+    /** 
+     * Fonction pour générer le PDF à valider DW d'une DA sans DIT
+     * 
+     * @param DemandeAppro $da la DA correspondante
+     * @param iterable $dals les DALs associés à la DA
+     * @param string $userMail l'email de l'utilisateur (optionnel)
+     * 
+     * @return void
+     */
+    public function genererPdfAValiderDW(DemandeAppro $da, iterable $dals, string $userMail = ''): void
     {
         $pdf = new TCPDF();
         $generator = new PdfTableGenerator();
@@ -85,7 +93,7 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetY(2);
-        $pdf->writeHTMLCell(0, 6, '', '', "email : " . Controller::getMailUser(), 0, 1, false, true, 'R');
+        $pdf->writeHTMLCell(0, 6, '', '', "email : $userMail", 0, 1, false, true, 'R');
 
         // Obtention du chemin absolu du répertoire de travail
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $da->getNumeroDemandeAppro() . '/A valider/';

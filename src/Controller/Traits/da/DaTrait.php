@@ -415,7 +415,7 @@ trait DaTrait
 
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
 
-        $genererPdfDaAvecDit->genererPdf($dit, $da, $dals);
+        $genererPdfDaAvecDit->genererPdf($dit, $da);
     }
 
     private function SommeTotal($daValiders): float

@@ -2,14 +2,22 @@
 
 namespace App\Service\genererPdf;
 
-use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use TCPDF;
 
 class GenererPdfDaAvecDit extends GeneratePdf
 {
-    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da)
+    /** 
+     * Fonction pour générer le PDF d'un bon d'achat validé d'une DA avec DIT
+     * 
+     * @param DemandeIntervention $dit la DIT correspondante
+     * @param DemandeAppro $da la DA correspondante
+     * @param string $userMail l'email de l'utilisateur (optionnel)
+     * 
+     * @return void
+     */
+    public function genererPdf(DemandeIntervention $dit, DemandeAppro $da, string $userMail = ''): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
@@ -185,7 +193,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', 'BI', 10);
         $pdf->SetXY(110, 2);
-        $pdf->Cell(35, 6, "email : " . Controller::getMailUser(), 0, 0, 'L');
+        $pdf->Cell(35, 6, "email : $userMail", 0, 0, 'L');
 
         // Obtention du chemin absolu du répertoire de travail
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $da->getNumeroDemandeAppro() . '/';
