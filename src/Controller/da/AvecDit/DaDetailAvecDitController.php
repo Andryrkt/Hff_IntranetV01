@@ -2,9 +2,7 @@
 
 namespace App\Controller\da\AvecDit;
 
-use App\Entity\dw\DwFacBl;
 use App\Model\dit\DitModel;
-use App\Entity\dw\DwBcAppro;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
@@ -12,51 +10,25 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
-use App\Repository\dw\DwBcApproRepository;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
-use App\Repository\dw\DwFactureBonLivraisonRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
  * @Route("/demande-appro")
  */
 class DaDetailAvecDitController extends Controller
 {
-	use DaTrait;
-	use DaDetailAvecDitTrait;
 	use lienGenerique;
 	use DaAfficherTrait;
-	use EntityManagerAwareTrait;
-
-	private DitRepository $ditRepository;
-	private DaObservationRepository $daObservationRepository;
-	private DwBcApproRepository $dwBcApproRepository;
-	private DwFactureBonLivraisonRepository $dwFacBlRepository;
-	private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-	private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
+	use DaDetailAvecDitTrait;
 
 	public function __construct()
 	{
 		parent::__construct();
 		$this->setEntityManager(self::$em);
-		$this->initDaTrait();
-
-		$this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-		$this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-		$this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
-		$this->dwFacBlRepository = self::$em->getRepository(DwFacBl::class);
-		$this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-		$this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
+		$this->initDaDetailAvecDitTrait();
 	}
 
 	/**

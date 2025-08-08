@@ -8,13 +8,13 @@ use App\Entity\dw\DwBcAppro;
 use App\Entity\da\DaAfficher;
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaDetailTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\da\DaTrait;
-use App\Form\da\DemandeApproFormType;
+use App\Controller\Traits\da\detail\DaDetailDirect;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
@@ -36,7 +36,7 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 class DaDetailDirectController extends Controller
 {
 	use DaTrait;
-	use DaDetailTrait;
+	use DaDetailDirectTrait;
 	use lienGenerique;
 
 	private DemandeApproRepository $daRepository;
