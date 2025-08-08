@@ -40,7 +40,7 @@ class DitRepository extends EntityRepository
             ->leftJoin('d.typeDocument', 'td')
             ->leftJoin('d.idNiveauUrgence', 'nu')
             ->leftJoin('d.idStatutDemande', 's')
-            ->join(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
+            ->leftJoin(AtelierRealise::class, 'ar', 'WITH', 'd.reparationRealise = ar.codeAtelier');
 
         $this->applyStatusFilter($queryBuilder, $ditSearch);
         $this->applyCommonFilters($queryBuilder, $ditSearch, $options);
@@ -213,7 +213,7 @@ class DitRepository extends EntityRepository
     {
         if (!$options['boolean']) {
             // Appliquer le filtre par agence de l'utilisateur connecté
-            $this->applyAgencyUserFilter($queryBuilder, $options);
+            // $this->applyAgencyUserFilter($queryBuilder, $options);
 
             $queryBuilder
                 ->andWhere(

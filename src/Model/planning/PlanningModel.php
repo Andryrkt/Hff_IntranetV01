@@ -766,18 +766,18 @@ class PlanningModel extends Model
     }
 
 
-    $sql = "SELECT 
-                  numero_or 
-                  FROM demande_intervention
-                  WHERE  (date_validation_or is not null  or date_validation_or = '1900-01-01')
-                  AND numero_or <>''
+    $sql = "SELECT di.numero_or
+            FROM demande_intervention di
+            WHERE 
+                AND (di.date_validation_or IS NOT NULL OR di.date_validation_or = '1900-01-01')
+                AND di.numero_or <> ''
                   $vconditionTypeDoc
                   $vconditionReparationPar
                   $vconditionNumOr
                   $nivUrg
             ORDER  BY  numero_or
                   ";
-// dd($sql);
+    // dd($sql);
     $execQueryNumOr = $this->connexion->query($sql);
     $numOr = array();
 
