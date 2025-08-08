@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da;
 
 use DateTime;
-use App\Controller\Controller;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaAfficher;

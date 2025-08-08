@@ -5,10 +5,7 @@ namespace App\Controller\da\Direct;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\da\DaValidationDirectTrait;
-use App\Controller\Traits\da\DaValidationTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Controller\Traits\lienGenerique;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,18 +16,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaValidationDirectController extends Controller
 {
-    use DaTrait,
-        lienGenerique,
-        DaAfficherTrait,
-        DaValidationTrait,
-        DaValidationDirectTrait,
-        EntityManagerAwareTrait;
+    use lienGenerique;
+    use DaAfficherTrait;
+    use DaValidationDirectTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
+        $this->initDaValidationDirectTrait();
     }
 
     /**
