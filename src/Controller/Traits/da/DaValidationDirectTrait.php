@@ -19,8 +19,8 @@ trait DaValidationDirectTrait
         return $this->exporterDaEnExcelEtPdf(
             $numDa,
             $numeroVersion,
-            function ($numDa, $donnees) {
-                $this->creationPDFDirect($numDa, $donnees); // Création du PDF
+            function ($numDa) {
+                $this->creationPDFDirect($numDa); // Création du PDF
             }
         );
     }
@@ -29,8 +29,7 @@ trait DaValidationDirectTrait
      * Création du PDF pour une DA directe
      * 
      * @param string $numDa
-     * @param array $donnees
      * @return void
      */
-    private function creationPDFDirect(string $numDa, array $donnees): void {}
+    private function creationPDFDirect(string $numDa): void {}
 }
