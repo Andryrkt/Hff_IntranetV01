@@ -28,6 +28,8 @@ trait DaTrait
     use lienGenerique;
     use EntityManagerAwareTrait;
 
+    private bool $daTraitInitialise = false;
+
     //=====================================================================================
     private DaAfficherRepository $daAfficherRepository;
     private DemandeApproRepository $demandeApproRepository;
@@ -39,11 +41,17 @@ trait DaTrait
      */
     public function initDaTrait(): void
     {
+        // Si déjà exécuté → on sort immédiatement
+        if ($this->daTraitInitialise) return;
+
         $em = $this->getEntityManager();
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $em->getRepository(DemandeApproLR::class);
+
+        // On note que l'init a été faite
+        $this->daTraitInitialise = true;
     }
     //=====================================================================================
 
