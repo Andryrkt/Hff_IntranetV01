@@ -21,6 +21,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
+        $numDa = $da->getNumeroDemandeAppro();
         $generator = new PdfTableGenerator();
 
         $pdf->AddPage();
@@ -36,7 +37,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
 
         $pdf->setAbsX(170);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->Cell(35, 6, $da->getNumeroDemandeAppro(), 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
         $pdf->Ln(6, true);
 
@@ -196,7 +197,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->Cell(35, 6, "email : $userMail", 0, 0, 'L');
 
         // Obtention du chemin absolu du répertoire de travail
-        $Dossier = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $da->getNumeroDemandeAppro() . '/';
+        $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
 
         // Vérification si le répertoire existe, sinon le créer
         if (!is_dir($Dossier)) {
@@ -205,7 +206,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
             }
         }
 
-        $pdf->Output($Dossier . $da->getNumeroDemandeAppro() . '.pdf', 'F');
+        $pdf->Output("$Dossier/$numDa.pdf", 'F');
     }
 
 
