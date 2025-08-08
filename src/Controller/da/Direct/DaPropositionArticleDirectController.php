@@ -80,15 +80,15 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estAte'                  => Controller::estUserDansServiceAtelier(),
-            'estAppro'                => Controller::estUserDansServiceAppro(),
+            'estAte'                  => $this->estUserDansServiceAtelier(),
+            'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da)
         ]);
     }
 
     private function nePeutPasModifier(DemandeAppro $demandeAppro)
     {
-        return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementFormulaire($form, $formObservation, $dals, Request $request, string $numDa, DemandeAppro $da)
@@ -130,7 +130,7 @@ class DaPropositionArticleDirectController extends Controller
     {
         $this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
-        if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+        if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
 
@@ -143,7 +143,7 @@ class DaPropositionArticleDirectController extends Controller
         ];
 
         /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
+        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
         $this->envoyerMailObservation([
             'idDa'          => $demandeAppro->getId(),
             'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
@@ -176,7 +176,7 @@ class DaPropositionArticleDirectController extends Controller
             ];
 
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-            $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
+            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
             $this->envoyerMailObservation([
                 'idDa'          => $demandeAppro->getId(),
                 'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
@@ -449,7 +449,7 @@ class DaPropositionArticleDirectController extends Controller
     private function envoyerMailValidation(DemandeAppro $da, array $nomEtChemin)
     {
         /** Service de l'utilisateur */
-        $service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
+        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
 
         $this->envoyerMailValidationAuxAppro([
             'id'            => $da->getId(),

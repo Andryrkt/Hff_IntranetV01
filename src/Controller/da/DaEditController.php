@@ -178,7 +178,7 @@ class DaEditController extends Controller
 
     private function PeutModifier($demandeAppro)
     {
-        return (Controller::estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
+        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
     private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void

@@ -71,8 +71,8 @@ class DaDetailAvecDitController extends Controller
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-			'estAte'            		=> Controller::estUserDansServiceAtelier(),
-			'estAppro'          		=> Controller::estUserDansServiceAppro(),
+			'estAte'            		=> $this->estUserDansServiceAtelier(),
+			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
 	}
 
@@ -106,7 +106,7 @@ class DaDetailAvecDitController extends Controller
 
 			$this->insertionObservation($daObservation->getObservation(), $demandeAppro);
 
-			if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
+			if ($this->estUserDansServiceAppro() && $daObservation->getStatutChange()) {
 				$this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
 				$this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
 
@@ -119,7 +119,7 @@ class DaDetailAvecDitController extends Controller
 			];
 
 			/** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-			$service = Controller::estUserDansServiceAtelier() ? 'atelier' : (Controller::estUserDansServiceAppro() ? 'appro' : '');
+			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
 			$this->envoyerMailObservation([
 				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
 				'idDa'          => $demandeAppro->getId(),

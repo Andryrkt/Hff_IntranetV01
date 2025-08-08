@@ -117,8 +117,8 @@ class DaListeController extends Controller
             'data'                   => $dasFiltered,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),
-            'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
-            'serviceAppro'           => Controller::estUserDansServiceAppro(),
+            'serviceAtelier'         => $this->estUserDansServiceAtelier(),
+            'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
     }
@@ -182,7 +182,7 @@ class DaListeController extends Controller
             $this->sessionService->set('notification', ['type' => 'warning', 'message' => 'La demande d\'approvisionnement est déjà déverrouillée.']);
             return $this->redirectToRoute('da_list');
         } else {
-            if (!Controller::estUserDansServiceAppro()) {
+            if (!$this->estUserDansServiceAppro()) {
                 $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Vous n\'êtes pas autorisé à déverrouiller cette demande.']);
                 return $this->redirectToRoute('da_list');
             }
@@ -683,8 +683,8 @@ class DaListeController extends Controller
         $statutDa = $daValiderOuProposer->getStatutDal(); // Récupération du statut de la DA
         $statutBc = $daValiderOuProposer->getStatutBc(); // Récupération du statut du BC
 
-        $estAppro = Controller::estUserDansServiceAppro();
-        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAppro = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
         $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 

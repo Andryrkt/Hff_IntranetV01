@@ -571,17 +571,15 @@ class Controller
         return $this->getUser()->getNomUtilisateur();
     }
 
-    public static function estUserDansServiceAtelier(): bool
+    protected function estUserDansServiceAtelier(): bool
     {
-        $ctrl = new self();
-        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
     }
 
-    public static function estUserDansServiceAppro(): bool
+    protected function estUserDansServiceAppro(): bool
     {
-        $ctrl = new self();
-        $serviceIds = $ctrl->getUser()->getServiceAutoriserIds();
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_APPRO, $serviceIds);
     }
 }

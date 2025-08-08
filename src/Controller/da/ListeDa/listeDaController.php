@@ -85,8 +85,8 @@ class listeDaController extends Controller
             'data'                   => $data,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),
-            'serviceAtelier'         => Controller::estUserDansServiceAtelier(),
-            'serviceAppro'           => Controller::estUserDansServiceAppro(),
+            'serviceAtelier'         => $this->estUserDansServiceAtelier(),
+            'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
     }
@@ -133,8 +133,8 @@ class listeDaController extends Controller
         $statutDa = $daAfficher->getStatutDal(); // Récupération du statut de la DA
         $statutBc = $daAfficher->getStatutCde(); // Récupération du statut du BC
 
-        $estAppro = Controller::estUserDansServiceAppro();
-        $estAtelier = Controller::estUserDansServiceAtelier();
+        $estAppro = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
         $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 
