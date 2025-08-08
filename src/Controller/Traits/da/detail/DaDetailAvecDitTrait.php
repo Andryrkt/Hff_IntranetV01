@@ -42,7 +42,6 @@ trait DaDetailAvecDitTrait
     }
     //==================================================================================================
 
-
     /** 
      * Obtenir tous les fichiers associés à la demande d'approvisionnement
      * 

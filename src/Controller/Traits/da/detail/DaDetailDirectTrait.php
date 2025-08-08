@@ -2,4 +2,62 @@
 
 namespace App\Controller\Traits\da\detail;
 
-trait DaDetailDirectTrait {}
+use App\Entity\da\DaObservation;
+use App\Entity\dw\DwBcAppro;
+use App\Entity\dw\DwFacBl;
+use App\Repository\da\DaObservationRepository;
+use App\Repository\dw\DwBcApproRepository;
+use App\Repository\dw\DwFactureBonLivraisonRepository;
+
+trait DaDetailDirectTrait
+{
+    use DaDetailTrait;
+
+    //==================================================================================================
+    private DwBcApproRepository $dwBcApproRepository;
+    private DaObservationRepository $daObservationRepository;
+    private DwFactureBonLivraisonRepository $dwFacBlRepository;
+
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaDetailDirectTrait(): void
+    {
+        $em = $this->getEntityManager();
+        $this->initDaTrait();
+        $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
+        $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
+        $this->daObservationRepository = $em->getRepository(DaObservation::class);
+    }
+    //==================================================================================================
+
+
+    /** 
+     * Obtenir tous les fichiers associés à la demande d'approvisionnement
+     * 
+     * @param array $tab
+     */
+    private function getAllDAFile($tab): array
+    {
+        return [
+            'BA'    => [
+                'type'       => "Bon d'achat",
+                'icon'       => 'fa-solid fa-file-signature',
+                'colorClass' => 'border-left-ba',
+                'fichiers'   => $this->normalizePaths($tab['baPath']),
+            ],
+            'BC'    => [
+                'type'       => 'Bon de commande',
+                'icon'       => 'fa-solid fa-file-circle-check',
+                'colorClass' => 'border-left-bc',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
+            ],
+            'FACBL' => [
+                'type'       => 'Facture / Bon de livraison',
+                'icon'       => 'fa-solid fa-file-invoice',
+                'colorClass' => 'border-left-facbl',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
+            ],
+        ];
+    }
+}
