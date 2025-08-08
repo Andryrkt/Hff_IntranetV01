@@ -39,7 +39,7 @@ class ChangementStatutBCController extends Controller
             $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
             $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
             if ($soumissionBc) {
-                $soumissionBc->setStatut(DaSoumissionBc::STATUT_ENVOYE_FOURNISSEUR);
+                $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
                 self::$em->persist($soumissionBc);
             }
 
@@ -47,7 +47,7 @@ class ChangementStatutBCController extends Controller
             $numVersionMaxDaValider = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
             $daValider = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
             foreach ($daValider as $valider) {
-                $valider->setStatutCde(DaSoumissionBc::STATUT_ENVOYE_FOURNISSEUR)
+                $valider->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
                 ;
                 self::$em->persist($valider);
