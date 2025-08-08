@@ -89,7 +89,7 @@ class ListeController extends Controller
             }
             $result = $this->planningModel->recupMatListeTous($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $data = $this->recupData($result, $back);
-        //    dump($data);
+            //    dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
             $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
             // dump($data['data'], $data['data_excel']);
@@ -103,12 +103,16 @@ class ListeController extends Controller
     }
     private function allOrsItv()
     {
-        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+        /** @var array */
+        $numOrItv = $this->ditOrsSoumisAValidationRepository->findNumOrItvAll();
+        return TableauEnStringService::TableauEnString(',', $numOrItv);
     }
 
     private function allOrs()
     {
-        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrAll());
+        /** @var array */
+        $numOrs = $this->ditOrsSoumisAValidationRepository->findNumOrAll();
+        return TableauEnStringService::TableauEnString(',', $numOrs);
     }
 
     /**
@@ -377,7 +381,7 @@ class ListeController extends Controller
                     'casier' => $result[$i]['casier'],
                     'commentaire' => $result[$i]['commentaire'],
                     'numor_itv' => $result[$i]['numor'] . '-' . $result[$i]['itv'],
-                    'dateplanning' => $result[$i]['dateplanning'] == "" ?null:(new DateTime($result[$i]['dateplanning'])),
+                    'dateplanning' => $result[$i]['dateplanning'] == "" ? null : (new DateTime($result[$i]['dateplanning'])),
                     'cst' => $result[$i]['cst'],
                     'ref' => $result[$i]['ref'],
                     'desi' => $result[$i]['desi'],

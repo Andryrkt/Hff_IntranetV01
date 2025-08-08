@@ -117,12 +117,16 @@ class PlanningController extends Controller
 
     private function allOrsItv()
     {
-        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+        /** @var array */
+        $numOrItv = $this->ditOrsSoumisAValidationRepository->findNumOrItvAll();
+        return TableauEnStringService::TableauEnString(',', $numOrItv);
     }
 
     private function allOrs()
     {
-        return TableauEnStringService::TableauEnString(',', $this->ditOrsSoumisAValidationRepository->findNumOrAll());
+        /** @var array */
+        $numOrs = $this->ditOrsSoumisAValidationRepository->findNumOrAll();
+        return TableauEnStringService::TableauEnString(',', $numOrs);
     }
 
     /**

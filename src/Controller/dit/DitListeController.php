@@ -12,8 +12,6 @@ use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
