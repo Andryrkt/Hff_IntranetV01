@@ -96,32 +96,31 @@ trait DaValidationTrait
     /** 
      * Fonction pour générer un fichier Excel et PDF pour une DA
      * 
-     * @param string $numDa
-     * @param int $numeroVersion
+     * @param string   $numDa le numéro de la DA
+     * @param int      $numeroVersion le numéro de version de la DA
+     * @param callable $strategieEnregistrementPDF la stratégie d'enregistrement du PDF
      * @return array
      */
-    private function exporterDaEnExcelEtPdf(string $numDa, int $numeroVersion, callable $strategieEnregistrementExcel, callable $strategieEnregistrementPDF): array
+    private function exporterDaEnExcelEtPdf(string $numDa, int $numeroVersion, callable $strategieEnregistrementPDF): array
     {
         // 1. Récupération des lignes rectifiées de la DA
         $donnees = $this->getLignesRectifieesDA($numDa, $numeroVersion);
 
-        // 2. Enregistrement dans la table DaValider selon la stratégie (direct ou avec dit)
-        $strategieEnregistrementExcel($numDa, $donnees);
-
-        // 3. Création du fichier PDF
+        // 2. Création du fichier PDF
         $strategieEnregistrementPDF($numDa);
 
-        // 4. Transformation des entités en tableau pour Excel
+        // 3. Transformation des entités en tableau pour Excel
         $donneesExcel = $this->convertirEntitesPourExcel($donnees);
 
-        // 5. Génération du fichier Excel
+        // 4. Génération du fichier Excel
         $fileName = $this->genererNomFichierExcel($numDa);
         $filePath = $this->genererCheminFichierExcel($numDa, $fileName);
         $this->excelService->createSpreadsheetEnregistrer($donneesExcel, $filePath);
 
         return [
             'fileName' => $fileName,
-            'filePath' => $filePath
+            'filePath' => $filePath,
+            'donnees'  => $donnees,
         ];
     }
 

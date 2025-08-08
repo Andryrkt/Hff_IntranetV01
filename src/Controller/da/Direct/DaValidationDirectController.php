@@ -2,7 +2,6 @@
 
 namespace App\Controller\da\Direct;
 
-use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
@@ -11,11 +10,7 @@ use App\Controller\Traits\da\DaValidationDirectTrait;
 use App\Controller\Traits\da\DaValidationTrait;
 use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -31,15 +26,11 @@ class DaValidationDirectController extends Controller
         DaValidationDirectTrait,
         EntityManagerAwareTrait;
 
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
         $this->initDaTrait();
-
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -55,15 +46,13 @@ class DaValidationDirectController extends Controller
 
         $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax, $prixUnitaire, $refsValide);
 
-        /** CREATION EXCEL */
-        $nomEtChemin = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
+        /** CREATION EXCEL ET PDF */
+        $resultatExport = $this->exporterDaDirectEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
-        $da->setNomFichierBav($nomEtChemin['fileName']);
+        $da->setNomFichierBav($resultatExport['fileName']);
 
         $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
-
-        $dalNouveau = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
 
         /** ENVOIE D'EMAIL */
         $this->envoyerMailValidationAuxAppro([
@@ -71,7 +60,7 @@ class DaValidationDirectController extends Controller
             'numDa'         => $da->getNumeroDemandeAppro(),
             'objet'         => $da->getObjetDal(),
             'detail'        => $da->getDetailDal(),
-            'dalNouveau'    => $dalNouveau,
+            'dalNouveau'    => $resultatExport['donnees'],
             'service'       => 'appro',
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
@@ -82,9 +71,9 @@ class DaValidationDirectController extends Controller
             'mailDemandeur'     => $da->getUser()->getMail(),
             'objet'             => $da->getObjetDal(),
             'detail'            => $da->getDetailDal(),
-            'fileName'          => $nomEtChemin['fileName'],
-            'filePath'          => $nomEtChemin['filePath'],
-            'dalNouveau'        => $dalNouveau,
+            'fileName'          => $resultatExport['fileName'],
+            'filePath'          => $resultatExport['filePath'],
+            'dalNouveau'        => $resultatExport['donnees'],
             'service'           => 'appro',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
