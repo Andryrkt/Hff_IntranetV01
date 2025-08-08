@@ -60,9 +60,6 @@ class DaDetailDirectController extends Controller
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'observations'      		=> $observations,
-			'numSerie'          		=> $dataModel[0]['num_serie'],
-			'numParc'           		=> $dataModel[0]['num_parc'],
-			'dit'               		=> $dit,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
@@ -149,31 +146,6 @@ class DaDetailDirectController extends Controller
 		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 		// $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
 		$email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-	}
-
-	/**
-	 * Dupliquer les lignes de la table demande_appro_L
-	 *
-	 * @param array $refs
-	 * @param [type] $data
-	 * @return array
-	 */
-	private function duplicationDataDaL($numDa): void
-	{
-		$numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
-		$dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
-
-		foreach ($dals as $dal) {
-			// On clone l'entité (copie en mémoire)
-			$newDal = clone $dal;
-			$newDal->setNumeroVersion($this->autoIncrementForDa($dal->getNumeroVersion())); // Incrémenter le numéro de version
-			$newDal->setEdit(1); // Indiquer que c'est une version modifiée
-
-			// Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
-			self::$em->persist($newDal);
-		}
-
-		self::$em->flush();
 	}
 
 	private function modificationStatutDal(string $numDa, string $statut): void

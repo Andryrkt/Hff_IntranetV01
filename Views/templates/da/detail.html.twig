@@ -13,11 +13,12 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
+{% set container_class = demandeAppro.achatDirect ? 'container': 'container-fluid' %}
 {% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail' %}
 {% set document_rattache_template = demandeAppro.achatDirect ? 'document-rattache-direct' : 'document-rattache' %}
 
 {% block content %}
-	<div class=" container-fluid">
+	<div class="{{ container_class }}">
 		<nav>
 			<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
 				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
