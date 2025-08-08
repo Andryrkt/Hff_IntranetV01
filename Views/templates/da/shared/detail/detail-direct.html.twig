@@ -112,8 +112,6 @@
 				{% for item in DAL.demandeApproLR %}
 					<tr class="child-row">
 						<td></td>
-						<td class="text-start">{{ item.artFams1 ?? '-' }}</td>
-						<td class="text-start">{{ item.artFams2 ?? '-' }}</td>
 						<td class="text-start">{{ item.artDesi }}</td>
 						<td class="text-start">{{ item.nomFournisseur }}</td>
 						<td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>
