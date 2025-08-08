@@ -73,7 +73,7 @@ class DdpDossierRegularisationController extends Controller
             $nomPageDeGarde = $numDdr . '.pdf';
             $cheminEtNom = $this->cheminDeBase . '/' . $numDdp . '_Regul/' . $nomPageDeGarde;
             // $cheminEtNom = $this->cheminDeBase . '/' . $nomPageDeGarde;
-            $this->generatePdfDdr->genererPDF($Ddp, $this->getEmail(), $numDdr, $cheminEtNom);
+            $this->generatePdfDdr->genererPDF($Ddp, $this->getUserMail(), $numDdr, $cheminEtNom);
             /** FUSIONER LES PDFS */
             $cheminDesFichierFinale = $this->recupCheminTousLesFichier($numDdp, $fileName, $cheminEtNom);
             $fichierConvertir = $this->ConvertirLesPdf($cheminDesFichierFinale);

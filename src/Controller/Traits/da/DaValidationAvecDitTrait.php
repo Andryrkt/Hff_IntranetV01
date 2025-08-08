@@ -54,6 +54,6 @@ trait DaValidationAvecDitTrait
         $genererPdfDaAvecDit = new GenererPdfDaAvecDit;
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-        $genererPdfDaAvecDit->genererPdf($dit, $da);
+        $genererPdfDaAvecDit->genererPdf($dit, $da, $this->getUserMail());
     }
 }

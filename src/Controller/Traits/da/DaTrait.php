@@ -21,7 +21,6 @@ use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
-use App\Service\genererPdf\GenererPdfDaDirect;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 

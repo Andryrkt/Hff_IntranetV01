@@ -73,7 +73,7 @@ trait DaNewDirectTrait
         $genererPdfDaDirect = new GenererPdfDaDirect;
         $dals = $demandeAppro->getDAL();
 
-        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals);
+        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals, $this->getUserMail());
         $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

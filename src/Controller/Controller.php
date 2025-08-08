@@ -561,16 +561,14 @@ class Controller
         return $userId ? self::$em->getRepository(User::class)->find($userId) : null;
     }
 
-    protected function getEmail(): string
+    protected function getUserMail(): string
     {
-        $userId = $this->getUserId();
-        return self::$em->getRepository(User::class)->find($userId)->getMail();
+        return $this->getUser()->getMail();
     }
 
-    protected function getUserNameUser(): string
+    protected function getUserName(): string
     {
-        $userId = $this->getUserId();
-        return self::$em->getRepository(User::class)->find($userId)->getNomUtilisateur();
+        return $this->getUser()->getNomUtilisateur();
     }
 
     public static function estUserDansServiceAtelier(): bool

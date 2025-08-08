@@ -356,7 +356,7 @@ class DemandePaiementController extends Controller
             // ->setServiceDebiter($data->getService()->getCodeService())
             ->setAgenceDebiter($this->agenceRepository->find(1)->getCodeAgence())
             ->setServiceDebiter($this->serviceRepository->find(1)->getCodeService())
-            ->setAdresseMailDemandeur($this->getEmail())
+            ->setAdresseMailDemandeur($this->getUserMail())
             ->setDemandeur($this->getUser()->getNomUtilisateur())
             ->setStatut(self::STATUT_CREATION)
             ->setNumeroVersion('1')
