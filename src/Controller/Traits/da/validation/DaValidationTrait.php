@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Controller\Traits\da\validation;
 
+use App\Controller\Traits\da\DaTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;

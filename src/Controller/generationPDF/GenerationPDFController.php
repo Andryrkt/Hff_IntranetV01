@@ -3,8 +3,8 @@
 namespace App\Controller\generationPDF;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaValidationAvecDitTrait;
-use App\Controller\Traits\da\DaValidationDirectTrait;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Routing\Annotation\Route;
 

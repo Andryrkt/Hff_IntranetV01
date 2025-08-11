@@ -4,7 +4,7 @@ namespace App\Controller\da\Direct;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaValidationDirectTrait;
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

@@ -4,7 +4,7 @@ namespace App\Controller\da\AvecDit;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaValidationAvecDitTrait;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 

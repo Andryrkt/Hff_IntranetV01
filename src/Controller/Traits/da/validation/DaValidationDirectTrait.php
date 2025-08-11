@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Controller\Traits\da\validation;
 
 use App\Entity\da\DemandeAppro;
 use App\Service\da\EmailDaService;
