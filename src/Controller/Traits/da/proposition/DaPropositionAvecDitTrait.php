@@ -36,11 +36,8 @@ trait DaPropositionAvecDitTrait
 
     /** 
      * Méthode pour envoyer une email de propositions pour une DA avec DIT
-     * 
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param array $tab tableau de données à utiliser dans le corps du mail
-     * 
-     * @return void
      */
     private function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
     {

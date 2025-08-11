@@ -2,7 +2,6 @@
 
 namespace App\Controller\da\AvecDit;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;

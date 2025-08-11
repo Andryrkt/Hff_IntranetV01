@@ -133,14 +133,11 @@ class DaPropositionArticleDirectController extends Controller
             'message' => 'Votre observation a été enregistré avec succès.',
         ];
 
-        /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        $this->envoyerMailObservation([
-            'idDa'          => $demandeAppro->getId(),
-            'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-            'mailDemandeur' => $demandeAppro->getUser()->getMail(),
+        /** ENVOIE D'EMAIL l'observation */
+        $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
+        $this->envoyerMailObservationDaDirect($demandeAppro, [
+            'service'         => $service,
             'observation'   => $daObservation->getObservation(),
-            'service'       => $service,
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -166,14 +163,11 @@ class DaPropositionArticleDirectController extends Controller
                 'message' => 'Votre observation a été enregistré avec succès.',
             ];
 
-            /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-            $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-            $this->envoyerMailObservation([
-                'idDa'          => $demandeAppro->getId(),
-                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
-                'observation'   => $observation,
+            /** ENVOIE D'EMAIL pour l'observation */
+            $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
+            $this->envoyerMailObservationDaDirect($demandeAppro, [
                 'service'       => $service,
+                'observation'   => $observation,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
         } else {
@@ -212,7 +206,11 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->envoyerMailValidation($da, $nomEtChemin);
+        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+            'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -238,7 +236,11 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->envoyerMailValidation($da, $nomEtChemin);
+        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+            'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -304,15 +306,10 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->envoyerMailPropositionAuxAte([
-            'id'            => $da->getId(),
-            'numDa'         => $da->getNumeroDemandeAppro(),
-            'objet'         => $da->getObjetDal(),
-            'detail'        => $da->getDetailDal(),
-            'mailDemandeur' => $da->getUser()->getMail(),
-            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
-            'observation'   => $observation,
+        $this->envoyerMailPropositionDaDirect($da, [
             'service'       => 'appro',
+            'observation'   => $observation,
+            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -409,136 +406,6 @@ class DaPropositionArticleDirectController extends Controller
             }
         }
         self::$em->flush();
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail des propositions à la service Appro 
-     */
-    private function envoyerMailPropositionAuxAte(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => $tab['mailDemandeur'],
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "propositionDa",
-                'subject'    => "{$tab['numDa']} - Proposition créee par l'Appro ",
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-direct/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    /** 
-     * Fonction pour envoyer les mails de validation à l'atelier et l'appro
-     */
-    private function envoyerMailValidation(DemandeAppro $da, array $nomEtChemin)
-    {
-        /** Service de l'utilisateur */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-
-        $this->envoyerMailValidationAuxAppro([
-            'id'            => $da->getId(),
-            'numDa'         => $da->getNumeroDemandeAppro(),
-            'objet'         => $da->getObjetDal(),
-            'detail'        => $da->getDetailDal(),
-            'dalNouveau'    => $this->getNouveauDal($da->getNumeroDemandeAppro()),
-            'service'       => $service,
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-
-        $this->envoyerMailValidationAuxAte([
-            'id'                => $da->getId(),
-            'numDa'             => $da->getNumeroDemandeAppro(),
-            'mailDemandeur'     => $da->getUser()->getMail(),
-            'objet'             => $da->getObjetDal(),
-            'detail'            => $da->getDetailDal(),
-            'fileName'          => $nomEtChemin['fileName'],
-            'filePath'          => $nomEtChemin['filePath'],
-            'dalNouveau'        => $this->getNouveauDal($da->getNumeroDemandeAppro()),
-            'service'           => $service,
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail de validation à la service Ate
-     */
-    private function envoyerMailValidationAuxAte(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => $tab['mailDemandeur'],
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
-            ],
-            'attachments' => [
-                $tab['filePath'] => $tab['fileName'],
-            ],
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables'], $content['attachments']);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail de validation à la service Appro 
-     */
-    private function envoyerMailValidationAuxAppro(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => DemandeAppro::MAIL_APPRO,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "validationAteDa",
-                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-direct/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail sur l'observation à la service Appro 
-     */
-    private function envoyerMailObservation(array $tab)
-    {
-        $email       = new EmailService;
-
-        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
-
-        $content = [
-            'to'        => $to,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "commente",
-                'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
     }
 
     private function modificationStatutDal(string $numDa, string $statut): void
