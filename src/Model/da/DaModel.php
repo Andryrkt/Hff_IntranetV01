@@ -3,7 +3,6 @@
 namespace App\Model\da;
 
 use App\Model\Model;
-use App\Service\TableauEnStringService;
 
 class DaModel extends Model
 {
@@ -262,61 +261,61 @@ class DaModel extends Model
 
         $statement = " SELECT 
  
-        slor_constp as cst,
-        slor_natcm,
-        TRIM(slor_refp) as reference,
-                        TRIM(slor_desi) as designation,    
-        ROUND(
-                CASE
-                    WHEN slor_typlig = 'P' THEN (
-                        slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
-                    )
-                END
-            ) AS qte_dem,
-        ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
-            (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
-            slor_qterea as qte_livree,
+                slor_constp as cst,
+                slor_natcm,
+                TRIM(slor_refp) as reference,
+                                TRIM(slor_desi) as designation,    
+                ROUND(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (
+                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                            )
+                        END
+                    ) AS qte_dem,
+                ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
+                    (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
+                    slor_qterea as qte_livree,
 
-        ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') - slor_qterea) as qte_dispo,
-        
-            CASE
-                WHEN slor_natcm = 'C' THEN c.fcde_numcde
-                WHEN slor_natcm = 'L' THEN cde.fcde_numcde
-            END AS num_cde,
-        
-        slor_numcf
-        FROM sav_lor slor
-        
-        INNER JOIN Informix.sav_eor seor 
-                        ON seor.seor_numor = slor.slor_numor 
-                    AND seor.seor_soc = slor.slor_soc 
-                    AND seor.seor_succ = slor.slor_succ 
-                    AND slor.slor_soc = 'HF'
+                ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') - slor_qterea) as qte_dispo,
+                
+                    CASE
+                        WHEN slor_natcm = 'C' THEN c.fcde_numcde
+                        WHEN slor_natcm = 'L' THEN cde.fcde_numcde
+                    END AS num_cde,
+                slor_numcf
+                
+                FROM sav_lor slor
+                
+                INNER JOIN Informix.sav_eor seor 
+                                ON seor.seor_numor = slor.slor_numor 
+                            AND seor.seor_soc = slor.slor_soc 
+                            AND seor.seor_succ = slor.slor_succ 
+                            AND slor.slor_soc = 'HF'
 
-        -- jointure pour natcm = 'C'
-        LEFT JOIN Informix.frn_cde c
-            ON slor.slor_natcm = 'C' 
-            AND c.fcde_numcde = slor.slor_numcf
-        
-        -- jointure pour natcm = 'L'
-        LEFT JOIN Informix.frn_llf llf
-            ON slor.slor_natcm = 'L' 
-            AND llf.fllf_numliv = slor.slor_numcf and slor.slor_noligncm = fllf_ligne
-        
-        LEFT JOIN Informix.frn_cde cde
-            ON llf.fllf_numcde = cde.fcde_numcde
-            AND llf.fllf_soc = cde.fcde_soc
-            AND llf.fllf_succ = cde.fcde_succ
+                -- jointure pour natcm = 'C'
+                LEFT JOIN Informix.frn_cde c
+                    ON slor.slor_natcm = 'C' 
+                    AND c.fcde_numcde = slor.slor_numcf
+                
+                -- jointure pour natcm = 'L'
+                LEFT JOIN Informix.frn_llf llf
+                    ON slor.slor_natcm = 'L' 
+                    AND llf.fllf_numliv = slor.slor_numcf and slor.slor_noligncm = fllf_ligne
+                
+                LEFT JOIN Informix.frn_cde cde
+                    ON llf.fllf_numcde = cde.fcde_numcde
+                    AND llf.fllf_soc = cde.fcde_soc
+                    AND llf.fllf_succ = cde.fcde_succ
 
-                    WHERE
-                        slor.slor_constp in ('ZST', 'ZDI') 
-                        AND slor.slor_typlig = 'P'
-                        AND slor.slor_refp NOT LIKE 'PREST%'
-                        and slor_numor = '$numOr'
-                        and seor.seor_refdem = '$numDit'
-                        AND TRIM(slor.slor_refp) = '$ref'
-                and TRIM(slor.slor_desi) = '$designation'
-        ";
+                            WHERE
+                                slor.slor_constp in ('ZST', 'ZDI') 
+                                AND slor.slor_typlig = 'P'
+                                AND slor.slor_refp NOT LIKE 'PREST%'
+                                and slor_numor = '$numOr'
+                                and seor.seor_refdem = '$numDit'
+                                AND TRIM(slor.slor_refp) = '$ref'
+                        and TRIM(slor.slor_desi) = '$designation'
+                ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

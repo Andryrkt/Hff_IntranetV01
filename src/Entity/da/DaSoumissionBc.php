@@ -21,7 +21,6 @@ class DaSoumissionBc
     public const STATUT_CLOTURE = 'Clôturé';
     public const STATUT_REFUSE = 'Refusé';
 
-    public const STATUT_ENVOYE_FOURNISSEUR = 'Envoyé au fournisseur';
     public const STATUT_BC_ENVOYE_AU_FOURNISSEUR = 'BC envoyé au fournisseur';
 
 
