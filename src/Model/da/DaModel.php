@@ -178,8 +178,9 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', string $numOr)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr)
     {
+        if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = "SELECT DISTINCT
@@ -241,6 +242,37 @@ class DaModel extends Model
         return $data;
     }
 
+    public function getInfoDaDirect(string $numDa, ?string $ref = '', ?string $designation = '')
+    {
+        $statement = " SELECT
+                fcde_cdeext as num_da,
+                fcde_numfou as num_fou,
+                (select fbse_nomfou from informix.frn_bse where fbse_numfou = fcde_numfou) as nom_fou,
+                fcde_numcde as num_cde,
+                fcdl_constp as constructeur,
+                fcdl_refp as ref,
+                fcdl_desi as desi,
+                fcde_posc as position_bc,
+                fcdl_qte as qte_dem,
+                fcdl_solde as qte_en_attente,
+                sum(fllf_qteliv) as qte_dispo
+
+                FROM informix.frn_cde
+                inner join informix.frn_cdl on fcdl_numcde = fcde_numcde
+                LEFT join informix.frn_llf on fllf_numcde = fcdl_numcde and fllf_ligne = fcdl_ligne
+                where fcdl_constp = 'ZDI'
+                and TRIM(fcde_cdeext) = '$numDa'
+                and TRIM(fcdl_refp) LIKE '%$ref%'
+                and TRIM(fcdl_desi) like '%$designation%'
+                GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,qte_dem,qte_en_attente
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
     public function getAllConstructeur(string $numDit)
     {
         $statement = "SELECT DISTINCT slor_constp as constructeur
@@ -255,12 +287,14 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', string $numOr)
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr)
     {
+        if (!$numOr) return [];
+
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = " SELECT 
- 
+
                 slor_constp as cst,
                 slor_natcm,
                 TRIM(slor_refp) as reference,

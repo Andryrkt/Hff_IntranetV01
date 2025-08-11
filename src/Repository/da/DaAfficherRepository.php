@@ -10,6 +10,7 @@ use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DitOrsSoumisAValidation;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -143,63 +144,69 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function getDaOrValider(array $numOrValideZst, ?array $criteria): array
+    public function getDaOrValider(?array $criteria): array
     {
-        // Étape 1 : récupérer pour chaque OR la version maximale avec statut "validé"
+        // 1. Vérifier si le champ achatDirecte existe dans l'entité
+        $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
+        $hasAchatDirecte = $classMetadata->hasField('achatDirect');
+
+        // 2. Récupérer les versions maximales validées
         $subQb = $this->_em->createQueryBuilder();
-        $subQb->select('d.numeroOr', 'MAX(d.numeroVersion) AS maxVersion', 'd.numeroDemandeAppro')
+        $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
             ->from(DaAfficher::class, 'd')
             ->where('d.statutDal = :statutValide')
-            ->groupBy('d.numeroOr', 'd.numeroDemandeAppro')
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
+            ->groupBy('d.numeroDemandeAppro');
 
-        $latestVersions = $subQb->getQuery()->getArrayResult();
+        $latestVersions = $subQb->getQuery()
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->getArrayResult();
 
         if (empty($latestVersions)) {
             return [];
         }
 
-        // Étape 2 : requête principale avec conditions sur les couples (numeroOr, version, numeroDemandeAppro)
+        // 3. Construire la requête principale
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
-            ->where('d.statutDal = :statutValide')
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE);
+            ->where('d.statutDal = :statutDa')
+            ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
 
+        // Condition pour statutOR seulement si le champ existe et est false
+        if ($hasAchatDirecte) {
+            $qb->andWhere('
+            (d.achatDirect = true OR 
+            (d.achatDirect = false AND d.statutOr = :statutOR))
+        ')->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+        } else {
+            // Si le champ n'existe pas, on applique seulement le statutOR
+            $qb->andWhere('d.statutOr = :statutOR')
+                ->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+        }
+
+        // Condition pour les versions maximales
         $orX = $qb->expr()->orX();
-
-        foreach ($latestVersions as $i => $entry) {
-            if (!empty($numOrValideZst) && !in_array($entry['numeroOr'], $numOrValideZst)) {
-                continue;
-            }
-
+        foreach ($latestVersions as $i => $version) {
             $orX->add(
                 $qb->expr()->andX(
-                    $qb->expr()->eq('d.numeroOr', ':numeroOr_' . $i),
-                    $qb->expr()->eq('d.numeroVersion', ':version_' . $i),
-                    $qb->expr()->eq('d.numeroDemandeAppro', ':numeroDemandeAppro_' . $i)
+                    $qb->expr()->eq('d.numeroDemandeAppro', ':numDa' . $i),
+                    $qb->expr()->eq('d.numeroVersion', ':maxVer' . $i)
                 )
             );
-
-            $qb->setParameter('numeroOr_' . $i, $entry['numeroOr']);
-            $qb->setParameter('version_' . $i, $entry['maxVersion']);
-            $qb->setParameter('numeroDemandeAppro_' . $i, $entry['numeroDemandeAppro']);
+            $qb->setParameter('numDa' . $i, $version['numeroDemandeAppro']);
+            $qb->setParameter('maxVer' . $i, $version['maxVersion']);
         }
-
-        if ($orX->count() === 0) {
-            return [];
-        }
-
         $qb->andWhere($orX);
 
-        // Étape 3 : appliquer des filtres dynamiques s'ils existent
+        // 4. Appliquer les filtres dynamiques
         if (!empty($criteria)) {
             $this->applyDynamicFilters($qb, $criteria, true);
             $this->applyStatutsFilters($qb, $criteria, true);
             $this->applyDateFilters($qb, $criteria, true);
         }
 
-        $qb->orderBy('d.numeroDemandeAppro', 'ASC');
+        $qb->orderBy('d.dateDemande', 'DESC');
+
         return $qb->getQuery()->getResult();
     }
 

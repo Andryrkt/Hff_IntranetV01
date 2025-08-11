@@ -86,13 +86,8 @@ class DaListCdeFrnController extends Controller
 
     private function donnerAfficher(?array $criteria): array
     {
-        /** récupération des ors Zst validé sous forme de tableau */
-        $numOrValide = $this->ditOrsSoumisAValidationRepository->findNumOrValide();
-        $numOrString = TableauEnStringService::TableauEnString(',', $numOrValide);
-        $numOrValideZst = $this->daModel->getNumOrValideZst($numOrString);
-
         /** @var array récupération des lignes de daValider avec version max et or valider */
-        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($numOrValideZst, $criteria);
+        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
 
         return $daAfficherValiders;
     }
