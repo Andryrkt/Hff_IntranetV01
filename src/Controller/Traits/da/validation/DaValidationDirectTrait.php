@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da\validation;
 
 use App\Entity\da\DemandeAppro;
-use App\Service\da\EmailDaService;
 use App\Service\genererPdf\GenererPdfDaDirect;
 
 trait DaValidationDirectTrait
@@ -11,15 +10,12 @@ trait DaValidationDirectTrait
     use DaValidationTrait;
 
     //==================================================================================================
-    private EmailDaService $emailDaService;
-
     /**
      * Initialise les valeurs par défaut du trait
      */
     public function initDaValidationDirectTrait(): void
     {
         $this->initDaTrait();
-        $this->emailDaService = new EmailDaService;
     }
     //==================================================================================================
 

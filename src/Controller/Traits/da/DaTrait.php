@@ -19,6 +19,7 @@ use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\da\DemandeApproRepository;
+use App\Service\da\EmailDaService;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -35,6 +36,7 @@ trait DaTrait
     private DemandeApproRepository $demandeApproRepository;
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
+    private EmailDaService $emailDaService;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -45,6 +47,7 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
+        $this->emailDaService = new EmailDaService;
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
@@ -163,7 +166,18 @@ trait DaTrait
         return $resultats;
     }
 
-
+    /** 
+     * Méthode pour envoyer une email sur l'observation émis
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, $tab);
+    }
 
 
 

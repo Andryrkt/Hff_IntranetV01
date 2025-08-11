@@ -5,7 +5,6 @@ namespace App\Controller\Traits\da\validation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\dit\DitRepository;
-use App\Service\da\EmailDaService;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
 
 trait DaValidationAvecDitTrait
@@ -14,7 +13,6 @@ trait DaValidationAvecDitTrait
 
     //====================================================================================================
     private DitRepository $ditRepository;
-    private EmailDaService $emailDaService;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -23,7 +21,6 @@ trait DaValidationAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->emailDaService = new EmailDaService;
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================

@@ -9,6 +9,46 @@ use App\Service\EmailService;
 class EmailDaService
 {
     use lienGenerique;
+    private $emailTemplate;
+
+    public function __construct()
+    {
+        $this->emailTemplate = "da/email/emailDa.html.twig";
+    }
+
+    /** 
+     * Fonction pour obtenir l'url du détail de la DA
+     * 
+     * @param string $id id de la DA
+     * @param bool $avecDit paramètre booléen pour indiquer si c'est avec DIT ou non
+     */
+    private function getUrlDetail(string $id, bool $avecDit = true)
+    {
+        $template = $avecDit ? "demande-appro/detail-avec-dit" : "demande-appro/detail-direct";
+        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/$template/$id");
+    }
+
+    /** 
+     * Méthode pour envoyer une email sur l'observation émis pour une DA avec DIT
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->envoyerEmail([
+            'to'        => $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $demandeAppro->getUser()->getMail(),
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "commente",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
+            ],
+        ]);
+    }
 
     /** 
      * Méthode pour envoyer une email de validation à l'Atelier
@@ -29,7 +69,7 @@ class EmailDaService
                 'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
                 'demandeAppro'   => $demandeAppro,
                 'resultatExport' => $resultatExport,
-                'action_url'     => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail-avec-dit/{$demandeAppro->getId()}"),
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
             ],
             'attachments' => [
                 $resultatExport['filePath'] => $resultatExport['fileName'],
@@ -56,7 +96,7 @@ class EmailDaService
                 'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
                 'demandeAppro'   => $demandeAppro,
                 'resultatExport' => $resultatExport,
-                'action_url'     => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail-avec-dit/{$demandeAppro->getId()}"),
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
             ],
         ]);
     }
@@ -70,6 +110,6 @@ class EmailDaService
 
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 
-        $emailService->sendEmail($content['to'], $content['cc'] ?? [], "da/email/emailDa.html.twig", $content['variables'] ?? [], $content['attachments'] ?? []);
+        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }
