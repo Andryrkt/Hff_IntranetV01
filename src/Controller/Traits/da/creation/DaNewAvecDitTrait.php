@@ -58,4 +58,17 @@ trait DaNewAvecDitTrait
 
         return $demandeAppro;
     }
+
+    /** 
+     * Méthode pour envoyer une email pour la création d'une DA avec DIT
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    public function envoyerMailcreationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, $tab);
+    }
 }

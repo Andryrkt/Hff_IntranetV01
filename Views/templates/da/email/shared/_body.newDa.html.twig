@@ -7,22 +7,22 @@
 	<ul>
 		<li>
 			<b>Numéro du DA :</b>
-			{{ tab.numDa }}
+			{{ demandeAppro.numeroDemandeAppro }}
 		</li>
 		<li>
 			<b>Objet de la demande :</b>
-			{{ tab.objet }}
+			{{ demandeAppro.objetDal }}
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
 			<div class="espace">
-				{{ tab.detail | raw }}
+				{{ demandeAppro.detailDal|raw }}
 			</div>
 		</li>
 		<li>
 			<b>Observation:</b>
 			<div class="espace">
-				{{ tab.observation | raw }}
+				{{ tab.observation|raw }}
 			</div>
 		</li>
 	</ul>
@@ -39,7 +39,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for dal in tab.dals %}
+		{% for dal in demandeAppro.DAL %}
 			<tr>
 				<td>{{ dal.artFams1 ?? '-'}}</td>
 				<td>{{ dal.artFams2 ?? '-'}}</td>
