@@ -7,29 +7,30 @@
 	<ul>
 		<li>
 			<b>Numéro du DA :</b>
-			{{ tab.numDa }}
+			{{ demandeAppro.numeroDemandeAppro }}
 		</li>
 		<li>
 			<b>Objet de la demande :</b>
-			{{ tab.objet }}
+			{{ demandeAppro.objetDal }}
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
 			<div class="espace">
-				{{ tab.detail | raw }}
+				{{ demandeAppro.detailDal|raw }}
 			</div>
 		</li>
 		<li>
 			<b>Observation:</b>
 			<div class="espace">
-				{{ tab.observation | raw }}
+				{{ tab.observation|raw }}
 			</div>
 		</li>
 	</ul>
 </p>
 <hr>
 <p>Demande de l'atelier avec propositions de l'Appro.</p>
-<p>Les propositions de l'Appro sont affichées sous la demande de l'atelier, avec un retrait (indentation) pour marquer la hiérarchie. </p>
+<p>Les propositions de l'Appro sont affichées sous la demande de l'atelier, avec un retrait (indentation) pour marquer la hiérarchie.
+</p>
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
@@ -54,14 +55,14 @@
 			</tr>
 			{% if dal.demandeApproLR|length > 0 %}
 				{% for dalr in dal.demandeApproLR %}
-				<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
-					<td>{{ dalr.artFams1 ?? '-'}}</td>
-					<td>{{ dalr.artFams2 ?? '-'}}</td>
-					<td>{{ dalr.artDesi }}</td>
-					<td>{{ dalr.prixUnitaire }}</td>
-					<td>{{ dalr.nomFournisseur }}</td>
-					<td>{{ dalr.motif }}</td>
-				</tr>
+					<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
+						<td>{{ dalr.artFams1 ?? '-'}}</td>
+						<td>{{ dalr.artFams2 ?? '-'}}</td>
+						<td>{{ dalr.artDesi }}</td>
+						<td>{{ dalr.prixUnitaire }}</td>
+						<td>{{ dalr.nomFournisseur }}</td>
+						<td>{{ dalr.motif }}</td>
+					</tr>
 				{% endfor %}
 			{% else %}
 				<tr class="child-row">

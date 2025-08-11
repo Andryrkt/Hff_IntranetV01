@@ -29,6 +29,28 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email de propositions pour une DA avec DIT
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->envoyerEmail([
+            'to'        => $demandeAppro->getUser()->getMail(),
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "propositionDa",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
+            ],
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer une email sur l'observation émis pour une DA avec DIT
      * 
      * @param DemandeAppro $demandeAppro objet de la demande appro

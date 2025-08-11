@@ -3,6 +3,7 @@
 namespace App\Controller\Traits\da\proposition;
 
 use App\Model\da\DaModel;
+use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
@@ -33,4 +34,16 @@ trait DaPropositionAvecDitTrait
     }
     //==================================================================================================
 
+    /** 
+     * Méthode pour envoyer une email de propositions pour une DA avec DIT
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    private function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->emailDaService->envoyerMailPropositionDaAvecDit($demandeAppro, $tab);
+    }
 }

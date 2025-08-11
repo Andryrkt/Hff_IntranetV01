@@ -138,12 +138,9 @@ class DaPropositionRefAvecDitController extends Controller
 
         /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
         $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        $this->envoyerMailObservation([
-            'idDa'          => $demandeAppro->getId(),
-            'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-            'mailDemandeur' => $demandeAppro->getUser()->getMail(),
-            'observation'   => $daObservation->getObservation(),
+        $this->envoyerMailObservationDaAvecDit($demandeAppro, [
             'service'       => $service,
+            'observation'   => $daObservation->getObservation(),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -171,12 +168,9 @@ class DaPropositionRefAvecDitController extends Controller
 
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
             $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-            $this->envoyerMailObservation([
-                'idDa'          => $demandeAppro->getId(),
-                'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-                'mailDemandeur' => $demandeAppro->getUser()->getMail(),
-                'observation'   => $observation,
+            $this->envoyerMailObservationDaAvecDit($demandeAppro, [
                 'service'       => $service,
+                'observation'   => $observation,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
             ]);
         } else {
@@ -215,7 +209,11 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->envoyerMailValidation($da, $nomEtChemin);
+        $this->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
+            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -241,7 +239,11 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->envoyerMailValidation($da, $nomEtChemin);
+        $this->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
+            'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+        ]);
 
         $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
@@ -307,15 +309,10 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->envoyerMailPropositionAuxAte([
-            'id'            => $da->getId(),
-            'numDa'         => $da->getNumeroDemandeAppro(),
-            'objet'         => $da->getObjetDal(),
-            'detail'        => $da->getDetailDal(),
-            'mailDemandeur' => $da->getUser()->getMail(),
-            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
-            'observation'   => $observation,
+        $this->envoyerMailPropositionDaAvecDit($da, [
             'service'       => 'appro',
+            'observation'   => $observation,
+            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -414,136 +411,6 @@ class DaPropositionRefAvecDitController extends Controller
         self::$em->flush();
     }
 
-    /** 
-     * Fonctions pour envoyer un mail des propositions à la service Appro 
-     */
-    private function envoyerMailPropositionAuxAte(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => $tab['mailDemandeur'],
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "propositionDa",
-                'subject'    => "{$tab['numDa']} - Proposition créee par l'Appro ",
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-avec-dit/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    /** 
-     * Fonction pour envoyer les mails de validation à l'atelier et l'appro
-     */
-    private function envoyerMailValidation(DemandeAppro $da, array $nomEtChemin)
-    {
-        /** Service de l'utilisateur */
-        $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-
-        $this->envoyerMailValidationAuxAppro([
-            'id'            => $da->getId(),
-            'numDa'         => $da->getNumeroDemandeAppro(),
-            'objet'         => $da->getObjetDal(),
-            'detail'        => $da->getDetailDal(),
-            'dalNouveau'    => $this->getNouveauDal($da->getNumeroDemandeAppro()),
-            'service'       => $service,
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-
-        $this->envoyerMailValidationAuxAte([
-            'id'                => $da->getId(),
-            'numDa'             => $da->getNumeroDemandeAppro(),
-            'mailDemandeur'     => $da->getUser()->getMail(),
-            'objet'             => $da->getObjetDal(),
-            'detail'            => $da->getDetailDal(),
-            'fileName'          => $nomEtChemin['fileName'],
-            'filePath'          => $nomEtChemin['filePath'],
-            'dalNouveau'        => $this->getNouveauDal($da->getNumeroDemandeAppro()),
-            'service'           => $service,
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
-            'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail de validation à la service Ate
-     */
-    private function envoyerMailValidationAuxAte(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => $tab['mailDemandeur'],
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "validationDa",
-                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
-            ],
-            'attachments' => [
-                $tab['filePath'] => $tab['fileName'],
-            ],
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables'], $content['attachments']);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail de validation à la service Appro 
-     */
-    private function envoyerMailValidationAuxAppro(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => DemandeAppro::MAIL_APPRO,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "validationAteDa",
-                'subject'    => "{$tab['numDa']} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/proposition-avec-dit/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail sur l'observation à la service Appro 
-     */
-    private function envoyerMailObservation(array $tab)
-    {
-        $email       = new EmailService;
-
-        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
-
-        $content = [
-            'to'        => $to,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "commente",
-                'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
     private function modificationStatutDal(string $numDa, string $statut): void
     {
         $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
@@ -574,18 +441,8 @@ class DaPropositionRefAvecDitController extends Controller
 
         for ($i = 0; $i < count($dals); $i++) {
             $dals[$i][0]
-                // ->setQteDispo($dalrs[$i][0]->getQteDispo())
-                // ->setArtRefp($dalrs[$i][0]->getArtRefp() == '' ? NULL : $dalrs[$i][0]->getArtRefp())
-                // ->setArtFams1($dalrs[$i][0]->getArtFams1() == '' ? NULL : $dalrs[$i][0]->getArtFams1())
-                // ->setArtFams2($dalrs[$i][0]->getArtFams2() == '' ? NULL : $dalrs[$i][0]->getArtFams2())
-                // ->setArtDesi($dalrs[$i][0]->getArtDesi() == '' ? NULL : $dalrs[$i][0]->getArtDesi())
-                // ->setCodeFams1($dalrs[$i][0]->getCodeFams1() == '' ? NULL : $dalrs[$i][0]->getCodeFams1())
-                // ->setCodeFams2($dalrs[$i][0]->getCodeFams2() == '' ? NULL : $dalrs[$i][0]->getCodeFams2())
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
-                // ->setCatalogue($dalrs[$i][0]->getArtFams1() == NULL && $dalrs[$i][0]->getArtFams2() == NULL ? FALSE : TRUE)
-                // ->setPrixUnitaire($this->daModel->getPrixUnitaire($dalrs[$i][0]->getArtRefp())[0])
-                // ->setNomFicheTechnique($dalrs[$i][0]->getNomFicheTechnique())
             ;
             self::$em->persist($dals[$i][0]);
         }
