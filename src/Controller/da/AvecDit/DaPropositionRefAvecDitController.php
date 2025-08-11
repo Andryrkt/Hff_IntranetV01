@@ -2,28 +2,20 @@
 
 namespace App\Controller\da\AvecDit;
 
-use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\da\DaValidationTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
+use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLRCollection;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\da\DaObservationType;
 use App\Form\da\DaPropositionValidationType;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -32,31 +24,17 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaPropositionRefAvecDitController extends Controller
 {
-    use DaTrait;
-    use lienGenerique;
     use DaAfficherTrait;
-    use DaValidationTrait;
-    use EntityManagerAwareTrait;
+    use DaValidationAvecDitTrait;
+    use DaPropositionAvecDitTrait;
 
     private const EDIT = 0;
-
-    private DaModel $daModel;
-    private DaObservation $daObservation;
-    private DaObservationRepository $daObservationRepository;
-    private DitRepository $ditRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
-
-        $this->daModel = new DaModel();
-        $this->daObservation = new DaObservation();
-        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->initDaPropositionAvecDitTrait();
     }
 
     /**

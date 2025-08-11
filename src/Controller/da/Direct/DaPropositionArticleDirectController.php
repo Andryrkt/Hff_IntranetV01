@@ -4,37 +4,29 @@ namespace App\Controller\da\Direct;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaPropositionTrait;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\da\DaValidationDirectTrait;
-use App\Controller\Traits\da\DaValidationTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Controller\Traits\lienGenerique;
-use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaObservationType;
+use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaPropositionValidationType;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
 
 /**
  * @Route("/demande-appro")
  */
 class DaPropositionArticleDirectController extends Controller
 {
-    use DaTrait,
-        lienGenerique,
-        DaAfficherTrait,
-        DaValidationTrait,
-        DaPropositionTrait,
-        DaValidationDirectTrait,
-        EntityManagerAwareTrait;
+    use DaAfficherTrait;
+    use DaValidationDirectTrait;
+    use DaPropositionDirectTrait;
 
     private const EDIT = 0;
 
@@ -42,8 +34,7 @@ class DaPropositionArticleDirectController extends Controller
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
-        $this->initDaPropositionTrait();
+        $this->initDaPropositionDirectTrait();
     }
 
     /**
