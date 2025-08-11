@@ -90,13 +90,17 @@
 			</thead>
 			<tbody id="tableBody" class="align-middle">
 				{% for item in data %}
+
 					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
 					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
 					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
 					{% set designationStyle = item.estDalr ? 'mise-en-evidence' : '' %}
 					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
 					{% set url_proposition = item.achatDirect ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit' %}
+					{% set url_delete = item.achatDirect ? 'da_delete_line_direct' : 'da_delete_line_avec_dit' %}
 					{% set route_params = { id: item.demandeAppro.id } %}
+					{% set del_route_params = { numDa: item.numeroDemandeAppro, ligne: item.numeroLigne } %}
+
 					<tr>
 						{# === Début Action ==== #}
 						<td style="padding: 0px">
@@ -179,7 +183,7 @@
 						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{item.joursDispo}}</td>
 						<td class="text-center">
 							{% if serviceAppro and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}
-								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-id="{{ item.demandeAppro.id }}"></i>
+								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ path(url_delete, del_route_params) }}"></i>
 							{% endif %}
 						</td>
 					</tr>

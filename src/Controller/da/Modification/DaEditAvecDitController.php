@@ -87,24 +87,21 @@ class DaEditAvecDitController extends Controller
     }
 
     /** 
-     * @Route("/delete-line-avec-dit/{id}",name="da_delete_line_avec_dit")
+     * @Route("/delete-line-avec-dit/{numDa}/{ligne}",name="da_delete_line_avec_dit")
      */
-    public function deleteLineDa(int $id)
+    public function deleteLineDa(string $numDa, string $ligne)
     {
         $this->verifierSessionUtilisateur();
 
-        /** @var DemandeApproL $demandeApproLVersionMax la ligne de demande appro correspondant à l'id $id */
-        $demandeApproLVersionMax = self::$em->getRepository(DemandeApproL::class)->find($id);
+        $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
+            'numeroDemandeAppro' => $numDa,
+            'numeroLigne'        => $ligne
+        ]);
 
-        if ($demandeApproLVersionMax) {
-            $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
-                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
-                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
-            ]);
-
+        if ($demandeApproLs) {
             $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
-                'numeroDemandeAppro' => $demandeApproLVersionMax->getNumeroDemandeAppro(),
-                'numeroLigne' => $demandeApproLVersionMax->getNumeroLigne()
+                'numeroDemandeAppro' => $numDa,
+                'numeroLigne'        => $ligne
             ]);
 
             foreach ($demandeApproLs as $demandeApproL) {
