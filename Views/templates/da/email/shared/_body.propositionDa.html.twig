@@ -54,6 +54,7 @@
 		<tr>
 			<th>Famille</th>
 			<th>Sous famille</th>
+			<th>Réference</th>
 			<th>Désignation</th>
 			<th>Prix Unitaire</th>
 			<th>Fournisseur</th>
@@ -66,6 +67,7 @@
 			<tr class="parent-row {{ dal.demandeApproLR is empty ? 'choisi' : ''}}">
 				<td>{{ dal.artFams1 ?? '-'}}</td>
 				<td>{{ dal.artFams2 ?? '-'}}</td>
+				<td>{{ dal.artRefp ?? '-'}}</td>
 				<td>{{ dal.artDesi }}</td>
 				<td>{{ dal.prixUnitaire }}</td>
 				<td>{{ dal.nomFournisseur }}</td>
@@ -76,6 +78,7 @@
 					<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
 						<td>{{ dalr.artFams1 ?? '-'}}</td>
 						<td>{{ dalr.artFams2 ?? '-'}}</td>
+						<td>{{ dalr.artRefp ?? '-'}}</td>
 						<td>{{ dalr.artDesi }}</td>
 						<td>{{ dalr.prixUnitaire }}</td>
 						<td>{{ dalr.nomFournisseur }}</td>
