@@ -117,14 +117,11 @@
 	<body>
 		<div class="email-container">
 			{{ include('da/email/shared/_header.html.twig') }}
-
 			<div class="email-body">
 				<p>Bonjour,</p>
-
 				{{ include('da/email/shared/_body.' ~ statut ~ '.html.twig') }}
-
 				<p>
-					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
+					Pour consulter les détails de la demande, veuillez cliquer sur le bouton ci-dessous:
 					<br>
 					<a href="{{ action_url }}" class="button">Détail de la demande</a>
 				</p>
@@ -136,7 +133,6 @@
 				</p>
 				<p class="fw-bold">Cordialement,</p>
 			</div>
-
 			{{ include('da/email/shared/_footer.html.twig') }}
 		</div>
 	</body>

@@ -89,7 +89,7 @@ trait DaValidationTrait
         $numeroLigne = $dalr->getNumeroLigne();
         $numeroLigneTableau = $dalr->getNumLigneTableau();
 
-        if (isset($refsValide[$numeroLigne]) && $numeroLigneTableau === $refsValide[$numeroLigne]) {
+        if (isset($refsValide[$numeroLigne]) && $numeroLigneTableau == $refsValide[$numeroLigne]) {
             $dalr->setChoix(true);
         }
     }
