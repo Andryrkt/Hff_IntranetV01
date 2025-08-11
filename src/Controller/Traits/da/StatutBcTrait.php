@@ -21,13 +21,15 @@ trait StatutBcTrait
             return '';
         };
         $statutBc = $DaAfficher->getStatutCde();
+        $achatDirect = $DaAfficher->getAchatDirect();
 
-        if ($numeroOr == null) {
+        if ($numeroOr == null && !$achatDirect) {
             return $statutBc;
         }
 
-
+        $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
+
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -38,16 +40,18 @@ trait StatutBcTrait
             return '';
         }
 
-        $numcde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
+        $numcde = $this->numeroCde($infoDaDirect, $situationCde, $achatDirect);
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte);
+        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
-        $this->updateInfoOR($numDit, $DaAfficher);
-        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde);
-        $this->updateQteCdeDansDaAfficher($qte, $DaAfficher);
+        if (! $achatDirect) {
+            $this->updateInfoOR($numDit, $DaAfficher);
+        }
+        $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
+        $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
 
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
@@ -57,23 +61,23 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
-        if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr())) {
+        if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr(), $infoDaDirect, $achatDirect)) {
             return 'A générer';
         }
 
-        if (!$this->aSituationCde($situationCde)) {
+        if (!$this->aSituationCde($situationCde, $infoDaDirect)) {
             return $statutBc;
         }
 
-        if ($this->doitEditerBc($situationCde)) {
+        if ($this->doitEditerBc($situationCde, $infoDaDirect, $achatDirect)) {
             return 'A éditer';
         }
 
-        if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw)) {
+        if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw, $infoDaDirect, $achatDirect)) {
             return 'A soumettre à validation';
         }
 
-        if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc)) {
+        if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $achatDirect)) {
             return 'A envoyer au fournisseur';
         }
 
@@ -100,66 +104,114 @@ trait StatutBcTrait
         return $statutSoumissionBc;
     }
 
-    private function aSituationCde(array $situationCde): bool
+    private function numeroCde(array $infoDaDirect, array $situationCde, bool $achatDirect): string
     {
-        return array_key_exists(0, $situationCde);
-    }
+        if ($achatDirect) {
 
-    private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr): bool
-    {
-        $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
-        $orValide = $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE;
-
-        // Si aucune situation de commande n'est présente
-        if (empty($situationCde)) {
-            return $daValide && $orValide;
+            $numCde = array_key_exists(0, $infoDaDirect) ? $infoDaDirect[0]['num_cde'] : '';
+        } else {
+            $numCde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';
         }
+        return $numCde;
+    }
 
-        // Si une situation existe mais sans numéro de commande
-        $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+    private function aSituationCde(array $situationCde, array $infoDaDirect): bool
+    {
+        return array_key_exists(0, $situationCde) || array_key_exists(0, $infoDaDirect);
+    }
+
+    private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
+    {
+        if ($achatDirect) {
+            if (empty($infoDaDirect)) {
+                return true;
+            }
+
+            // Si le numéro de commande est vide
+            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+
+            return $numCdeVide;
+        } else {
+
+            $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
+            $orValide = $statutOr === DitOrsSoumisAValidation::STATUT_VALIDE;
+
+            // Si aucune situation de commande n'est présente
+            if (empty($situationCde)) {
+                return $daValide && $orValide;
+            }
+            // Si une situation existe mais sans numéro de commande
+            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
 
 
-        return $numCdeVide && $daValide && $orValide;
+            return $numCdeVide && $daValide && $orValide;
+        }
     }
 
 
-    private function doitEditerBc(array $situationCde): bool
+    private function doitEditerBc(array $situationCde, array $infoDaDirect, bool $achatDirect): bool
     {
-        // numero de commande existe && ... && position terminer
-        return (int)$situationCde[0]['num_cde'] > 0
-            && $situationCde[0]['slor_natcm'] === 'C'
-            &&
-            ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
+        if ($achatDirect) {
+            return (int)$infoDaDirect[0]['num_cde'] > 0
+                &&  ($infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
+        } else {
+            // numero de commande existe && ... && position terminer
+            return (int)$situationCde[0]['num_cde'] > 0
+                && $situationCde[0]['slor_natcm'] === 'C'
+                &&
+                ($situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_TERMINER || $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_ENCOUR);
+        }
     }
 
-    private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw): bool
+    private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw, array $infoDaDirect, bool $achatDirect): bool
     {
-        // numero de commande existe && ... && position editer && BC n'est pas encore soumis
-        return (int)$situationCde[0]['num_cde'] > 0
-            && $situationCde[0]['slor_natcm'] === 'C'
-            && $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-            && !in_array($statutBc, $statutBcDw)
-            && !$bcExiste;
+        if ($achatDirect) {
+            return (int)$situationCde[0]['num_cde'] > 0
+                && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && !in_array($statutBc, $statutBcDw)
+                && !$bcExiste;
+        } else {
+            // numero de commande existe && ... && position editer && BC n'est pas encore soumis
+            return (int)$situationCde[0]['num_cde'] > 0
+                && $situationCde[0]['slor_natcm'] === 'C'
+                && $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && !in_array($statutBc, $statutBcDw)
+                && !$bcExiste;
+        }
     }
 
-    private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaAfficher $DaAfficher, string $statutSoumissionBc): bool
+    private function doitEnvoyerBc(array $situationCde, ?string $statutBc, DaAfficher $DaAfficher, string $statutSoumissionBc, array $infoDaDirect, bool $achatDirect): bool
     {
-        // numero de commande existe && ... && position editer && BC n'est pas encore soumis
-        return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
-            && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
-            && !$DaAfficher->getBcEnvoyerFournisseur();
+        if ($achatDirect) {
+            return $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+                && !$DaAfficher->getBcEnvoyerFournisseur();
+        } else {
+            // numero de commande existe && ... && position editer && BC n'est pas encore soumis
+            return $situationCde[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
+                && in_array($statutSoumissionBc, [DaSoumissionBc::STATUT_VALIDE, DaSoumissionBc::STATUT_CLOTURE])
+                && !$DaAfficher->getBcEnvoyerFournisseur();
+        }
     }
 
-    private function evaluerQuantites(array $qte): array
+    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect): array
     {
-        if (empty($qte)) {
+        if (empty($qte) || empty($infoDaDirect)) {
             return [false, false, false, false];
         }
 
-        $q = $qte[0];
-        $qteDem = (int)$q['qte_dem'];
-        $qteALivrer = (int)$q['qte_dispo'];
-        $qteLivee = (int)$q['qte_livree'];
+        if ($achatDirect) {
+            $q = $infoDaDirect[0];
+            $qteDem = (int)$q['qte_dem'];
+            $qteALivrer = (int)$q['qte_dispo'];
+            $qteLivee = 0; //TODO: en attend du decision du client
+        } else {
+            $q = $qte[0];
+            $qteDem = (int)$q['qte_dem'];
+            $qteALivrer = (int)$q['qte_dispo'];
+            $qteLivee = (int)$q['qte_livree'];
+        }
+
 
         $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
         $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
@@ -171,14 +223,21 @@ trait StatutBcTrait
     }
 
 
-    private function updateQteCdeDansDaAfficher(array $qte, DaAfficher $DaAfficher): void
+    private function updateQteCdeDansDaAfficher(array $qte, DaAfficher $DaAfficher, array $infoDaDirect, bool $achatDirect): void
     {
-        if (!empty($qte)) {
-            $q = $qte[0];
-            $qteLivee = (int)$q['qte_livree'];
-            $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
-            $qteDispo = (int)$q['qte_dispo'];
+        if (!empty($qte) || !empty($infoDaDirect)) {
 
+            if ($achatDirect) {
+                $q = $infoDaDirect[0];
+                $qteLivee = 0; //TODO: en attend du decision du client
+                $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
+                $qteDispo = (int)$q['qte_dispo'];
+            } else {
+                $q = $qte[0];
+                $qteLivee = (int)$q['qte_livree'];
+                $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
+                $qteDispo = (int)$q['qte_dispo'];
+            }
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
@@ -188,10 +247,14 @@ trait StatutBcTrait
     }
 
 
-    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde): void
+    private function updateSituationCdeDansDaAfficher(array $situationCde, DaAfficher $DaAfficher, ?string $numcde, array $infoDaDirect, bool $achatDirect): void
     {
-        if (!empty($situationCde)) {
-            $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
+        if (!empty($situationCde) || !empty($infoDaDirect)) {
+            if ($achatDirect) {
+                $positionBc = array_key_exists(0, $infoDaDirect) ? $infoDaDirect[0]['position_bc'] : '';
+            } else {
+                $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
+            }
             $DaAfficher->setPositionBc($positionBc)
                 ->setNumeroCde($numcde);
         }

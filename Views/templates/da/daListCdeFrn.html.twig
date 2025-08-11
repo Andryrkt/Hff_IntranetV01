@@ -68,13 +68,13 @@
 						</td>
 						<td class="text-center">
 							{% if item.achatDirect %}
-								<i class="fas fa-check text-success"></i>								
+								<i class="fas fa-check text-success"></i>
 							{% endif %}
 						</td>
-						<td class="text-center">{{ item.numeroDemandeDit }}</td>
+						<td class="text-center">{{ item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}</td>
 						<td class="text-center">{{ item.niveauUrgence }}</td>
-						<td class="text-center">{{ item.numeroOr }}</td>
-						<td class="text-center">{{ item.datePlannigOr == null ? '' : item.datePlannigOr| date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.numeroOr|default('<i class="fas fa-ban text-muted"></i>')|raw }}</td>
+						<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' : item.datePlannigOr == null ? '': item.datePlannigOr| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.numeroFournisseur }}</td>
 						<td class="text-center">{{ item.nomFournisseur }}</td>
 						{% if item.numeroCde %}

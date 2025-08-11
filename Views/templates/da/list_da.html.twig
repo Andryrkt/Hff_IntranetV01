@@ -140,19 +140,16 @@
 							</a>
 						</td>
 						<td class="text-center">
-							{% if item.achatDirect %}
-								<i class="fas fa-check text-success"></i>
-							{% endif %}
-						</td>
-						<td>{{item.numeroDemandeDit}}</td>
+							{{ item.achatDirect ? '<i class="fas fa-check text-success"></i>' : ''}}</td>
+						<td>{{item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}</td>
 						<td>{{item.niveauUrgence}}</td>
-						<td>{{item.numeroOr}}</td>
+						<td>{{item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' :item.numeroOr}}</td>
 						<td>{{item.demandeur}}</td>
 						<td>{{item.dateDemande != null ? item.dateDemande | date('d/m/Y') : ''}}</td>
 						<td class="{{ styleStatutDA[item.statutDal] }} fw-bold">{{item.statutDal}}</td>
-						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.statutOr}}</td>
+						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' :item.statutOr}}</td>
 						<td class="text-start {{ styleStatutBC[item.statutCde] }} fw-bold">{{item.statutCde}}</td>
-						<td class="text-center">{{ item.datePlannigOr ? item.datePlannigOr|date('d/m/Y') : '' }}</td>
+						<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' :item.datePlannigOr ? item.datePlannigOr|date('d/m/Y') : '' }}</td>
 						<td class="text-start">{{item.nomFournisseur}}</td>
 						<td class="text-start">{{item.artRefp}}</td>
 						<td class="text-start {{ designationStyle }}">

@@ -178,8 +178,9 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', string $numOr)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr)
     {
+        if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = "SELECT DISTINCT
@@ -209,7 +210,7 @@ class DaModel extends Model
                     --  ON sitv.sitv_numor = slor.slor_numor 
                     --AND sitv.sitv_soc = slor.slor_soc 
                     --AND sitv.sitv_succ = slor.slor_succ 
-                    -- AND slor.slor_soc = 'HF'
+                    -- AND slor.slor_soc = 'HF'getSituationCde
 
                     -- jointure pour natcm = 'C'
                     LEFT JOIN Informix.frn_cde c
@@ -226,7 +227,7 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                     WHERE
-                        slor.slor_constp in ('ZST', 'ZDI') 
+                        slor.slor_constp ='ZST' 
                         AND slor.slor_typlig = 'P'
                         -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
@@ -234,6 +235,37 @@ class DaModel extends Model
                                     and TRIM(slor.slor_desi) like '%$designation%'
                                     and seor.seor_refdem = '$numDit'
             ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getInfoDaDirect(string $numDa, ?string $ref = '', ?string $designation = '')
+    {
+        $statement = " SELECT
+                fcde_cdeext as num_da,
+                fcde_numfou as num_fou,
+                (select fbse_nomfou from informix.frn_bse where fbse_numfou = fcde_numfou) as nom_fou,
+                fcde_numcde as num_cde,
+                fcdl_constp as constructeur,
+                fcdl_refp as ref,
+                fcdl_desi as desi,
+                fcde_posc as position_bc,
+                fcdl_qte as qte_dem,
+                fcdl_solde as qte_en_attente,
+                sum(fllf_qteliv) as qte_dispo
+
+                FROM informix.frn_cde
+                inner join informix.frn_cdl on fcdl_numcde = fcde_numcde
+                LEFT join informix.frn_llf on fllf_numcde = fcdl_numcde and fllf_ligne = fcdl_ligne
+                where fcdl_constp = 'ZDI'
+                and TRIM(fcde_cdeext) = '$numDa'
+                and TRIM(fcdl_refp) LIKE '%$ref%'
+                and TRIM(fcdl_desi) like '%$designation%'
+                GROUP BY fcde_cdeext,fcde_numfou,num_fou,fcde_numcde,fcdl_constp,fcdl_refp,fcdl_desi,fcde_posc,qte_dem,qte_en_attente
+        ";
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
@@ -255,12 +287,14 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', string $numOr)
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr)
     {
+        if (!$numOr) return [];
+
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = " SELECT 
- 
+
                 slor_constp as cst,
                 slor_natcm,
                 TRIM(slor_refp) as reference,
@@ -308,9 +342,9 @@ class DaModel extends Model
                     AND llf.fllf_succ = cde.fcde_succ
 
                             WHERE
-                                slor.slor_constp in ('ZST', 'ZDI') 
+                                slor.slor_constp ='ZST'
                                 AND slor.slor_typlig = 'P'
-                                AND slor.slor_refp NOT LIKE 'PREST%'
+                                --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 and seor.seor_refdem = '$numDit'
                                 AND TRIM(slor.slor_refp) = '$ref'
@@ -326,7 +360,7 @@ class DaModel extends Model
     {
         $statement = " SELECT DISTINCT slor_numor as num_or
                     from Informix.sav_lor 
-                    where slor_constp in ('ZST','ZDI') 
+                    where slor_constp ='ZST'
                     and slor_numor in ($numOrString)
         ";
 
