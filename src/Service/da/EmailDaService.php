@@ -95,6 +95,28 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email sur l'observation émis pour une DA directe
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     * 
+     * @return void
+     */
+    public function envoyerMailObservationDaDirect(DemandeAppro $demandeAppro, array $tab): void
+    {
+        $this->envoyerEmail([
+            'to'        => $tab['service'] == 'appro' ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO,
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "commente",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
+            ],
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer une email de validation à l'Atelier
      * 
      * @param DemandeAppro $demandeAppro objet de la demande appro

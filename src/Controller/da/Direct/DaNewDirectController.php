@@ -99,16 +99,17 @@ class DaNewDirectController extends Controller
             /** création de pdf et envoi dans docuware */
             $this->creationPdfSansDitAvaliderDW($demandeAppro);
 
-            $this->envoyerMailAuxAppros([
-                'id'            => $demandeAppro->getId(),
-                'numDa'         => $numDa,
-                'objet'         => $demandeAppro->getObjetDal(),
-                'detail'        => $demandeAppro->getDetailDal(),
-                'dals'          => $demandeAppro->getDAL(),
-                'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
-                'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            // TODO: mail après la création d'une DA directe
+            // $this->envoyerMailAuxAppros([
+            //     'id'            => $demandeAppro->getId(),
+            //     'numDa'         => $numDa,
+            //     'objet'         => $demandeAppro->getObjetDal(),
+            //     'detail'        => $demandeAppro->getDetailDal(),
+            //     'dals'          => $demandeAppro->getDAL(),
+            //     'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
+            //     'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
+            //     'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            // ]);
 
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");

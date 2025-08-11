@@ -3,7 +3,6 @@
 namespace App\Controller\da\AvecDit;
 
 use App\Model\dit\DitModel;
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Entity\da\DemandeAppro;

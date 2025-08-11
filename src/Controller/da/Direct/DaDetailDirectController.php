@@ -2,7 +2,6 @@
 
 namespace App\Controller\da\Direct;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Entity\da\DemandeAppro;
@@ -39,6 +38,7 @@ class DaDetailDirectController extends Controller
 		$this->verifierSessionUtilisateur();
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
+
 		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 
 		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
@@ -107,45 +107,17 @@ class DaDetailDirectController extends Controller
 				'message' => 'Votre observation a été enregistré avec succès.',
 			];
 
-			/** ENVOIE D'EMAIL à l'APPRO pour l'observation */
-			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			$this->envoyerMailObservation([
-				'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-				'idDa'          => $demandeAppro->getId(),
-				'mailDemandeur' => $demandeAppro->getUser()->getMail(),
+			/** ENVOIE D'EMAIL pour l'observation */
+			$service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
+			$this->envoyerMailObservationDaDirect($demandeAppro, [
+				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
-				'service'       => $service,
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
 			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
-	}
-
-	/** 
-	 * Fonctions pour envoyer un mail sur l'observation à la service Appro 
-	 */
-	private function envoyerMailObservation(array $tab)
-	{
-		$email       = new EmailService;
-
-		$to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $tab['mailDemandeur'];
-
-		$content = [
-			'to'        => $to,
-			// 'cc'        => array_slice($emailValidateurs, 1),
-			'template'  => 'da/email/emailDa.html.twig',
-			'variables' => [
-				'statut'     => "commente",
-				'subject'    => "{$tab['numDa']} - Observation ajoutée par l'" . strtoupper($tab['service']),
-				'tab'        => $tab,
-				'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['idDa']),
-			]
-		];
-		$email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-		// $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-		$email->sendEmail($content['to'], [], $content['template'], $content['variables']);
 	}
 
 	private function modificationStatutDal(string $numDa, string $statut): void
