@@ -53,19 +53,4 @@ trait DaValidationDirectTrait
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
     }
-
-    /** 
-     * Méthode pour envoyer une email de validation à l'Atelier et l'Appro
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     * 
-     * @return void
-     */
-    private function envoyerMailValidationDaAvecDit(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
-    {
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
-    }
 }
