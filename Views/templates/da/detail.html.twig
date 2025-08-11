@@ -14,8 +14,7 @@
 {% endblock %}
 
 {% set container_class = demandeAppro.achatDirect ? 'container': 'container-fluid' %}
-{% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail' %}
-{% set document_rattache_template = demandeAppro.achatDirect ? 'document-rattache-direct' : 'document-rattache' %}
+{% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail-avec-dit' %}
 
 {% block content %}
 	<div class="{{ container_class }}">
@@ -37,7 +36,7 @@
 							{{ include('da/shared/detail/observation.html.twig') }}
 						</div>
 						<div class="tab-pane fade" id="nav-document-rattache" role="tabpanel" aria-labelledby="nav-document-rattache-tab">
-							{{ include('da/shared/detail/' ~ document_rattache_template ~ '.html.twig') }}
+							{{ include('da/shared/detail/document-rattache.html.twig') }}
 						</div>
 					</div>
 				</div>

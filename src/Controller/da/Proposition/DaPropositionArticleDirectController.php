@@ -60,7 +60,7 @@ class DaPropositionArticleDirectController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display("da/proposition-da-direct.html.twig", [
+        self::$twig->display("da/proposition.html.twig", [
             'da'                      => $da,
             'id'                      => $id,
             'form'                    => $form->createView(),
