@@ -107,20 +107,21 @@
 			.child-row td:first-child {
 				border-left: 3px solid #0d6efd;
 			}
-			th, td {
+			th,
+			td {
 				border: 1px solid #ccc;
-    			padding: 3px;
+				padding: 3px;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="email-container">
-			{{ include('da/email/shared/_header.html.twig', { numDa:tab.numDa, statut:statut, tab:tab }) }}
+			{{ include('da/email/shared/_header.html.twig') }}
 
 			<div class="email-body">
 				<p>Bonjour,</p>
 
-				{% include 'da/email/shared/_body.' ~ statut ~ '.html.twig' with { tab:tab } %}
+				{{ include('da/email/shared/_body.' ~ statut ~ '.html.twig') }}
 
 				<p>
 					Pour consulter la liste de la demande, veuillez cliquer sur le bouton ci-dessous:
@@ -136,7 +137,7 @@
 				<p class="fw-bold">Cordialement,</p>
 			</div>
 
-			{{ include('da/email/shared/_footer.html.twig', {service:tab.service}) }}
+			{{ include('da/email/shared/_footer.html.twig') }}
 		</div>
 	</body>
 </html>
