@@ -2,21 +2,12 @@
 
 namespace App\Controller\da\AvecDit;
 
-use DateTime;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\da\DaValidationTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
+use App\Controller\Traits\da\DaValidationAvecDitTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 use App\Controller\Traits\lienGenerique;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -25,23 +16,15 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaValidationAvecDitController extends Controller
 {
-    use DaTrait;
     use lienGenerique;
     use DaAfficherTrait;
-    use DaValidationTrait;
-    use EntityManagerAwareTrait;
-
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DitRepository $ditRepository;
+    use DaValidationAvecDitTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
-
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->initDaValidationAvecDitTrait();
     }
 
     /**

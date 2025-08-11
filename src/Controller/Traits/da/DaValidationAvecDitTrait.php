@@ -8,7 +8,6 @@ use App\Service\genererPdf\GenererPdfDaAvecDit;
 
 trait DaValidationAvecDitTrait
 {
-    use DaTrait;
     use DaValidationTrait;
 
     //====================================================================================================
@@ -20,6 +19,7 @@ trait DaValidationAvecDitTrait
     public function initDaValidationAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
+        $this->initDaTrait();
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================

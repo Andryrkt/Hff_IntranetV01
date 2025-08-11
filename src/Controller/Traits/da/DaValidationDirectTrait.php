@@ -2,10 +2,21 @@
 
 namespace App\Controller\Traits\da;
 
+use App\Service\genererPdf\GenererPdfDaDirect;
+
 trait DaValidationDirectTrait
 {
-    use DaTrait;
     use DaValidationTrait;
+
+    //==================================================================================================
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaValidationDirectTrait(): void
+    {
+        $this->initDaTrait();
+    }
+    //==================================================================================================
 
     /** 
      * Création du fichier Excel et PDF pour une DA directe
@@ -31,5 +42,10 @@ trait DaValidationDirectTrait
      * @param string $numDa
      * @return void
      */
-    private function creationPDFDirect(string $numDa): void {}
+    private function creationPDFDirect(string $numDa): void
+    {
+        $genererPdfDaDirect = new GenererPdfDaDirect;
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
+        $genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
+    }
 }
