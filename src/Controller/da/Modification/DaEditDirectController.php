@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da;
+namespace App\Controller\da\Modification;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
@@ -24,7 +24,7 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DaEditController extends Controller
+class DaEditDirectController extends Controller
 {
     use DaTrait;
     use lienGenerique;
@@ -52,7 +52,7 @@ class DaEditController extends Controller
     }
 
     /**
-     * @Route("/edit/{id}", name="da_edit")
+     * @Route("/edit-direct/{id}", name="da_edit_direct")
      */
     public function edit(int $id, Request $request)
     {
@@ -87,7 +87,7 @@ class DaEditController extends Controller
     }
 
     /** 
-     * @Route("/delete-line-da/{id}",name="da_delete_line_da")
+     * @Route("/delete-line-direct/{id}",name="da_delete_line_direct")
      */
     public function deleteLineDa(int $id)
     {
