@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Controller\Traits\da;
 
-use App\Controller\Traits\EntityManagerAwareTrait;
+namespace App\Controller\Traits\da\creation;
+
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
-use App\Repository\da\DaAfficherRepository;
 use App\Service\autres\VersionService;
+use App\Controller\Traits\da\DaTrait;
 
 trait DaNewTrait
 {

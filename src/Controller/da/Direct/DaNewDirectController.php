@@ -5,13 +5,9 @@ namespace App\Controller\da\Direct;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\ApplicationTrait;
-use App\Controller\Traits\da\DaNewDirectTrait;
-use App\Controller\Traits\da\DaNewTrait;
+use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
-use App\Controller\Traits\lienGenerique;
 use App\Form\da\DemandeApproDirectFormType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,18 +18,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class DaNewDirectController extends Controller
 {
-    use DaTrait,
-        DaNewTrait,
-        DaNewDirectTrait,
-        ApplicationTrait,
-        lienGenerique,
-        EntityManagerAwareTrait;
+    use DaNewDirectTrait;
+    use ApplicationTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
+        $this->initDaNewDirectTrait();
     }
 
     /**

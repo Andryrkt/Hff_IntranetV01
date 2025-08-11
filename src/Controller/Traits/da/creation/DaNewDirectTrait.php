@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controller\Traits\da;
+namespace App\Controller\Traits\da\creation;
 
-use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Entity\da\DaSoumisAValidation;
 use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\GenererPdfDaDirect;
@@ -10,7 +9,17 @@ use DateTime;
 
 trait DaNewDirectTrait
 {
-    use EntityManagerAwareTrait;
+    use DaNewTrait;
+
+    //=====================================================================================
+    /**
+     * Initialise les valeurs par défaut du trait
+     */
+    public function initDaNewDirectTrait(): void
+    {
+        $this->initDaTrait();
+    }
+    //=====================================================================================
 
     /** 
      * Fonction pour initialiser une demande appro direct

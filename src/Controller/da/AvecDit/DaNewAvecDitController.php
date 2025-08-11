@@ -2,19 +2,14 @@
 
 namespace App\Controller\da\AvecDit;
 
-use App\Model\da\DaModel;
 use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\ApplicationTrait;
-use App\Controller\Traits\da\DaNewAvecDitTrait;
-use App\Controller\Traits\da\DaNewTrait;
+use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Controller\Traits\da\DaTrait;
-use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\lienGenerique;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,18 +19,13 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class DaNewAvecDitController extends Controller
 {
-    use DaTrait,
-        DaNewTrait,
-        DaNewAvecDitTrait,
-        ApplicationTrait,
-        lienGenerique,
-        EntityManagerAwareTrait;
+    use ApplicationTrait;
+    use DaNewAvecDitTrait;
 
     public function __construct()
     {
         parent::__construct();
         $this->setEntityManager(self::$em);
-        $this->initDaTrait();
         $this->initDaNewAvecDitTrait();
     }
 
