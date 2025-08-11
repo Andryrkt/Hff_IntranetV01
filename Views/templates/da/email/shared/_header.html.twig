@@ -4,27 +4,18 @@
 	{% if statut in ['validationDa', 'validationAteDa'] %}
 		PROPOSITION(S)
 		<span class="validationDa">
-			VALIDÉE(S) PAR L’
-			{% if tab.service == 'atelier' %}
-				ATELIER
-			{% elseif tab.service == 'appro' %}
-				APPRO
-			{% endif %}
+			VALIDÉE(S) PAR LE SERVICE
+			{{ tab.service|upper }}
 		</span>
 	{% elseif statut == 'commente' %}
-		OBSERVATION AJOUTÉE PAR L’
-		{% if tab.service == 'atelier' %}
-			ATELIER
-		{% elseif tab.service == 'appro' %}
-			APPRO
-		{% endif %}
+		OBSERVATION AJOUTÉE PAR LE SERVICE
+		{{ tab.service|upper }}
 	{% else %}
-		DEMANDE D'APPROVISIONNEMENT
+		DEMANDE D’{{ da_name|upper }}
+		:
 		<span class="{{ statut }}">
 			{% if statut == "newDa" %}
-				CRÉÉ
-			{% elseif statut == 'bonAchatDa' %}
-				BON D'ACHAT
+				CRÉATION
 			{% elseif statut == 'propositionDa' %}
 				PROPOSITION
 			{% elseif statut == 'modificationDa' %}

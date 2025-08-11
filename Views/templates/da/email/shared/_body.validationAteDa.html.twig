@@ -1,5 +1,6 @@
 <p>
-	La demande d'APPROVISIONNEMENT n°
+	La demande d’{{ da_name }}
+	n°
 	<b>{{ demandeAppro.numeroDemandeAppro }}</b>
 	a été validée par
 	<b>{{ tab.userConnecter }}</b>
@@ -24,14 +25,17 @@
 	</ul>
 </p>
 <hr>
-<p>Demande d'approvisionnement validée par le service
+<p>Demande d’{{ da_name }}
+	validée par le service
 	<b>{{ tab.service|upper }}</b>
 </p>
 <table>
 	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
-			<th>Famille</th>
-			<th>Sous famille</th>
+			{% if not demandeAppro.achatDirect %}
+				<th>Famille</th>
+				<th>Sous famille</th>
+			{% endif %}
 			<th>Réference</th>
 			<th>Désignation</th>
 			<th>Fournisseur</th>
@@ -41,8 +45,10 @@
 	<tbody>
 		{% for daValide in resultatExport.donnees %}
 			<tr>
-				<td>{{ daValide.artFams1 ?? '-'}}</td>
-				<td>{{ daValide.artFams2 ?? '-'}}</td>
+				{% if not demandeAppro.achatDirect %}
+					<td>{{ daValide.artFams1 ?? '-'}}</td>
+					<td>{{ daValide.artFams2 ?? '-'}}</td>
+				{% endif %}
 				<td>{{ daValide.artRefp ?? '-'}}</td>
 				<td>{{ daValide.artDesi }}</td>
 				<td>{{ daValide.nomFournisseur }}</td>

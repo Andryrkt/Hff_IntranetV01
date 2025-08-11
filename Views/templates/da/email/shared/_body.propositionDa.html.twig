@@ -6,7 +6,7 @@
 	<b>Détails du demande :</b>
 	<ul>
 		<li>
-			<b>Numéro du DA :</b>
+			<b>Numéro de la demande :</b>
 			{{ demandeAppro.numeroDemandeAppro }}
 		</li>
 		<li>
@@ -36,7 +36,7 @@
 			<b>sans fond coloré</b>
 			et en
 			<b>gras</b>
-			correspondent aux demandes initiales de l’atelier.</li>
+			correspondent aux demandes initiales de l’Atelier.</li>
 		<li>Les lignes
 			<b>avec un fond clair</b>
 			et un
@@ -52,8 +52,10 @@
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
-			<th>Famille</th>
-			<th>Sous famille</th>
+			{% if not demandeAppro.achatDirect %}
+				<th>Famille</th>
+				<th>Sous famille</th>
+			{% endif %}
 			<th>Réference</th>
 			<th>Désignation</th>
 			<th>Prix Unitaire</th>
@@ -65,8 +67,10 @@
 		{% set dals = tab.hydratedDa.DAL %}
 		{% for dal in dals %}
 			<tr class="parent-row {{ dal.demandeApproLR is empty ? 'choisi' : ''}}">
-				<td>{{ dal.artFams1 ?? '-'}}</td>
-				<td>{{ dal.artFams2 ?? '-'}}</td>
+				{% if not demandeAppro.achatDirect %}
+					<td>{{ dal.artFams1 ?? '-'}}</td>
+					<td>{{ dal.artFams2 ?? '-'}}</td>
+				{% endif %}
 				<td>{{ dal.artRefp ?? '-'}}</td>
 				<td>{{ dal.artDesi }}</td>
 				<td>{{ dal.prixUnitaire }}</td>
@@ -76,8 +80,10 @@
 			{% if dal.demandeApproLR|length > 0 %}
 				{% for dalr in dal.demandeApproLR %}
 					<tr class="child-row {{ dalr.choix ? 'choisi' : ''}}">
-						<td>{{ dalr.artFams1 ?? '-'}}</td>
-						<td>{{ dalr.artFams2 ?? '-'}}</td>
+						{% if not demandeAppro.achatDirect %}
+							<td>{{ dalr.artFams1 ?? '-'}}</td>
+							<td>{{ dalr.artFams2 ?? '-'}}</td>
+						{% endif %}
 						<td>{{ dalr.artRefp ?? '-'}}</td>
 						<td>{{ dalr.artDesi }}</td>
 						<td>{{ dalr.prixUnitaire }}</td>

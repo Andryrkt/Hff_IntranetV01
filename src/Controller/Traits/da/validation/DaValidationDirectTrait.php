@@ -61,7 +61,7 @@ trait DaValidationDirectTrait
      */
     private function envoyerMailValidationDaDirect(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
+        $this->emailDaService->envoyerMailValidationDaDirectAuxService($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
+        $this->emailDaService->envoyerMailValidationDaDirectAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
     }
 }
