@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da\Direct;
+namespace App\Controller\da\Creation;
 
 use App\Service\EmailService;
 use App\Controller\Controller;

@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Controller\da\Direct;
+namespace App\Controller\da\Detail;
 
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Controller\Traits\lienGenerique;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,21 +17,21 @@ use Symfony\Component\Routing\Annotation\Route;
 /**
  * @Route("/demande-appro")
  */
-class DaDetailDirectController extends Controller
+class DaDetailAvecDitController extends Controller
 {
 	use lienGenerique;
 	use DaAfficherTrait;
-	use DaDetailDirectTrait;
+	use DaDetailAvecDitTrait;
 
 	public function __construct()
 	{
 		parent::__construct();
 		$this->setEntityManager(self::$em);
-		$this->initDaDetailDirectTrait();
+		$this->initDaDetailAvecDitTrait();
 	}
 
 	/**
-	 * @Route("/detail-direct/{id}", name="da_detail_direct")
+	 * @Route("/detail-avec-dit/{id}", name="da_detail_avec_dit")
 	 */
 	public function detail(int $id, Request $request)
 	{
@@ -38,10 +39,12 @@ class DaDetailDirectController extends Controller
 		$this->verifierSessionUtilisateur();
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
+		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
+		$ditModel = new DitModel;
+		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
 		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-
-		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
+		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
 		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
@@ -52,6 +55,7 @@ class DaDetailDirectController extends Controller
 
 		$fichiers = $this->getAllDAFile([
 			'baPath'    => $this->getBaPath($demandeAppro),
+			'orPath'    => $this->getOrPath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
@@ -60,6 +64,9 @@ class DaDetailDirectController extends Controller
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'observations'      		=> $observations,
+			'numSerie'          		=> $dataModel[0]['num_serie'],
+			'numParc'           		=> $dataModel[0]['num_parc'],
+			'dit'               		=> $dit,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),
 			'statutAutoriserModifAte' 	=> $demandeAppro->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
@@ -71,9 +78,12 @@ class DaDetailDirectController extends Controller
 	/**  
 	 * Filtre les lignes de la DA (Demande Appro) pour ne garder que celles qui correspondent au numero de version max
 	 */
-	private function filtreDal($demandeAppro, int $numeroVersionMax): DemandeAppro
+	private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
 	{
+		$demandeAppro->setDit($dit); // association de la DA avec le DIT
+
 		// filtre une collection de versions selon le numero de version max
+
 		$dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
 			return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
 		});
@@ -108,8 +118,8 @@ class DaDetailDirectController extends Controller
 			];
 
 			/** ENVOIE D'EMAIL pour l'observation */
-			$service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-			$this->envoyerMailObservationDaDirect($demandeAppro, [
+			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
+			$this->envoyerMailObservationDaAvecDit($demandeAppro, [
 				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

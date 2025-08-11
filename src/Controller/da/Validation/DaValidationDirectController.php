@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da\Direct;
+namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;

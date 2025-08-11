@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Controller\da\Direct;
+namespace App\Controller\da\Proposition;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\da\AvecDit;
+namespace App\Controller\da;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaListeDitTrait;
