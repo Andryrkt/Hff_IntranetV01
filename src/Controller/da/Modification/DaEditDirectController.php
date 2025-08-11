@@ -76,7 +76,7 @@ class DaEditDirectController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
-        self::$twig->display('da/edit.html.twig', [
+        self::$twig->display('da/edit-da-direct.html.twig', [
             'form'              => $form->createView(),
             'observations'      => $observations,
             'peutModifier'      => $this->PeutModifier($demandeAppro),

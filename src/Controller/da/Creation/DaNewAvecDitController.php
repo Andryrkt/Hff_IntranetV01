@@ -57,7 +57,7 @@ class DaNewAvecDitController extends Controller
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro);
 
-        self::$twig->display('da/new.html.twig', [
+        self::$twig->display('da/new-avec-dit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
