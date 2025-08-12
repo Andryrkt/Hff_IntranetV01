@@ -77,6 +77,8 @@ class DaListCdeFrnController extends Controller
             $statutBC = $this->statutBc( $davalide->getArtRefp(), $davalide->getNumeroDemandeDit(), $davalide->getNumeroDemandeAppro(), $davalide->getArtDesi(), $davalide->getNumeroOr());
             $davalide->setStatutCde($statutBC);
         }
+
+        
         self::$twig->display('da/daListCdeFrn.html.twig', [
             'daValides' => $daValides,
             'formSoumission' => $formSoumission->createView(),
@@ -129,7 +131,7 @@ class DaListCdeFrnController extends Controller
     }
 
      /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
+     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
@@ -142,7 +144,7 @@ class DaListCdeFrnController extends Controller
             $numVersionMaxSoumissionBc = $this->daSoumissionBcRepository->getNumeroVersionMax($numCde);
             $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
             if ($soumissionBc) {
-                $soumissionBc->setStatut(self::STATUT_ENVOYE_FOURNISSEUR);
+                $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
                 self::$em->persist($soumissionBc);
             }
 
@@ -150,7 +152,7 @@ class DaListCdeFrnController extends Controller
             $numVersionMaxDaValider = $this->daValiderRepository->getNumeroVersionMaxCde($numCde);
             $daValider = $this->daValiderRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
             foreach ($daValider as $valider) {
-                $valider->setStatutCde(self::STATUT_ENVOYE_FOURNISSEUR)
+                $valider->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
                 ;
                 self::$em->persist($valider);

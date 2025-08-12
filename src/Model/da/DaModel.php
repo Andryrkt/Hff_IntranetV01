@@ -185,6 +185,7 @@ class DaModel extends Model
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
+                        slor_desi,
                         TRIM(slor_refp),
                         TRIM(seor_refdem),
 
