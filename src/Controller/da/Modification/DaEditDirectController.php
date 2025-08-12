@@ -138,6 +138,8 @@ class DaEditDirectController extends Controller
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
+            $this->ajouterDansTableAffichageParNumDa($demandeAppro->getNumeroDemandeAppro()); // ajout dans la table DaAfficher si le statut a changé
+
             /** ENVOIE MAIL */
             $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
 
@@ -194,7 +196,7 @@ class DaEditDirectController extends Controller
 
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
     {
-        $demandeAppro->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
+        $demandeAppro->setStatutDal($this->statutDaModifier($demandeAppro));
         self::$em->persist($demandeAppro); // on persiste la DA
         $this->modificationDAL($demandeAppro, $formDAL);
         self::$em->flush(); // on enregistre les modifications
@@ -214,7 +216,7 @@ class DaEditDirectController extends Controller
 
             $demandeApproL
                 ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
+                ->setStatutDal($this->statutDaModifier($demandeAppro))
                 ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
                 ->setNumeroVersion($numeroVersionMax)
                 ->setJoursDispo($this->getJoursRestants($demandeApproL))
@@ -222,10 +224,23 @@ class DaEditDirectController extends Controller
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
             if ($demandeApproL->getDeleted() == 1) {
+                self::$em->remove($demandeApproL);
                 $this->deleteDALR($demandeApproL);
+            } else {
+                self::$em->persist($demandeApproL); // on persiste la DAL
             }
-            self::$em->persist($demandeApproL); // on persiste la DAL
         }
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
+        foreach ($dalrs as $dalr) {
+            $dalr->setStatutDal($this->statutDaModifier($demandeAppro));
+            self::$em->persist($dalr);
+        }
+    }
+
+    public function statutDaModifier(DemandeAppro $demandeAppro): string
+    {
+        $statutDwAModifier = $demandeAppro->getStatutDal() === DemandeAppro::STATUT_DW_A_MODIFIER;
+        return $statutDwAModifier ? DemandeAppro::STATUT_A_VALIDE_DW : DemandeAppro::STATUT_SOUMIS_APPRO;
     }
 
     /**

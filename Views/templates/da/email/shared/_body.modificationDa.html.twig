@@ -6,29 +6,29 @@
 	<b>Détails du demande :</b>
 	<ul>
 		<li>
-			<b>Numéro du DA :</b>
-			{{ tab.numDa }}
+			<b>Numéro de la demande :</b>
+			{{ demandeAppro.numeroDemandeAppro }}
 		</li>
 		<li>
 			<b>Objet de la demande :</b>
-			{{ tab.objet }}
+			{{ demandeAppro.objetDal }}
 		</li>
 		<li>
 			<b>Détail de la demande :</b>
 			<div class="espace">
-				{{ tab.detail | raw }}
+				{{ demandeAppro.detailDal|raw }}
 			</div>
 		</li>
 		<li>
 			<b>Observation:</b>
 			<div class="espace">
-				{{ tab.observation | raw }}
+				{{ demandeAppro.observation|raw }}
 			</div>
 		</li>
 	</ul>
 </p>
 <hr>
-<p>Proposition de l'Appro</p>
+<p>Demande avant modification</p>
 <table>
 	<thead style="background-color:#D9E1F2;">
 		<tr>
@@ -40,7 +40,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for dala in tab.dalAncien %}
+		{% for dala in tab.ancienDals %}
 			<tr>
 				<td>{{ dala.artFams1 ?? '-'}}</td>
 				<td>{{ dala.artFams2 ?? '-'}}</td>
@@ -53,7 +53,7 @@
 </table>
 <br>
 <hr>
-<p>Demande modifiée par l'atelier</p>
+<p>Demande modifiée par l'Atelier</p>
 <table>
 	<thead style="background-color:#000; color:#f2f2f2;">
 		<tr>
@@ -65,7 +65,7 @@
 		</tr>
 	</thead>
 	<tbody>
-		{% for daln in tab.dalNouveau %}
+		{% for daln in tab.nouveauDals %}
 			<tr>
 				<td>{{ daln.artFams1 ?? '-'}}</td>
 				<td>{{ daln.artFams2 ?? '-'}}</td>
