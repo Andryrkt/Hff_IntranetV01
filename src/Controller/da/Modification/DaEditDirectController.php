@@ -4,20 +4,13 @@ namespace App\Controller\da\Modification;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
-use App\Repository\dit\DitRepository;
-use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeApproLR;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaObservationRepository;
-use App\Repository\da\DemandeApproLRepository;
-use App\Repository\da\DemandeApproLRRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -26,29 +19,18 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DaEditDirectController extends Controller
 {
-    use DaTrait;
-    use lienGenerique;
+    use DaAfficherTrait;
+    use DaEditDirectTrait;
 
     private const EDIT_DELETE = 2;
     private const EDIT_MODIF = 3;
     private const EDIT_LOADED_PAGE = 1;
 
-    private DemandeApproRepository $daRepository;
-    private DitRepository $ditRepository;
-    private DaObservationRepository $daObservationRepository;
-    private DemandeApproLRepository $daLRepository;
-    private DemandeApproLRRepository $daLRRepository;
-    private DaObservation $daObservation;
-
     public function __construct()
     {
         parent::__construct();
-        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daObservationRepository = self::$em->getRepository(DaObservation::class);
-        $this->daLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->daLRRepository = self::$em->getRepository(DemandeApproLR::class);
-        $this->daObservation = new DaObservation();
+        $this->setEntityManager(self::$em);
+        $this->initDaEditDirectTrait();
     }
 
     /**
@@ -59,7 +41,7 @@ class DaEditDirectController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-        $demandeAppro = $this->daRepository->find($id); // recupération de la DA
+        $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
 
@@ -67,7 +49,7 @@ class DaEditDirectController extends Controller
             $this->sessionService->set('firstCharge', true);
             $this->duplicationDataDaL($numDa); // on duplique les lignes de la DA 
         }
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
@@ -142,8 +124,8 @@ class DaEditDirectController extends Controller
      */
     private function duplicationDataDaL($numDa): void
     {
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
-        $dals = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
 
         foreach ($dals as $dal) {
             // On clone l'entité (copie en mémoire)
@@ -203,10 +185,10 @@ class DaEditDirectController extends Controller
     private function mailPourAppro($demandeAppro, $observation): void
     {
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
         $numeroVersionMaxAvant = $numeroVersionMax - 1;
-        $dalNouveau = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        $dalAncien = $this->daLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxAvant]);
+        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxAvant]);
         /** NOTIFICATION MAIL */
         $this->envoyerMailAuxAppro([
             'id'            => $demandeAppro->getId(),
@@ -255,7 +237,7 @@ class DaEditDirectController extends Controller
 
     private function modificationDAL($demandeAppro, $formDAL): void
     {
-        $numeroVersionMax = $this->daLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         foreach ($formDAL as $subFormDAL) {
             /** 
              * @var DemandeApproL $demandeApproL
@@ -289,7 +271,7 @@ class DaEditDirectController extends Controller
      */
     private function deleteDALR(DemandeApproL $dal)
     {
-        $dalrs = $this->daLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
         foreach ($dalrs as $dalr) {
             self::$em->remove($dalr);
         }
