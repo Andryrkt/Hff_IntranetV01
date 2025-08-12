@@ -143,8 +143,10 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function getDaOrValider(?array $criteria): array
+    public function getDaOrValider(?array $criteria = []): array
     {
+        if ($criteria == null) $criteria = [];
+
         // 1. Vérifier si le champ achatDirecte existe dans l'entité
         $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
         $hasAchatDirecte = $classMetadata->hasField('achatDirect');
@@ -198,11 +200,9 @@ class DaAfficherRepository extends EntityRepository
         $qb->andWhere($orX);
 
         // 4. Appliquer les filtres dynamiques
-        if (!empty($criteria)) {
-            $this->applyDynamicFilters($qb, $criteria, true);
-            $this->applyStatutsFilters($qb, $criteria, true);
-            $this->applyDateFilters($qb, $criteria, true);
-        }
+        $this->applyDynamicFilters($qb, $criteria, true);
+        $this->applyStatutsFilters($qb, $criteria, true);
+        $this->applyDateFilters($qb, $criteria, true);
 
         $qb->orderBy('d.dateDemande', 'DESC');
 
@@ -224,11 +224,11 @@ class DaAfficherRepository extends EntityRepository
                 )'
         );
 
-        if (!empty($criteria)) {
-            $this->applyDynamicFilters($qb, $criteria);
-            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-            $this->applyDateFilters($qb, $criteria);
-        }
+
+        $this->applyDynamicFilters($qb, $criteria);
+        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, $criteria);
+
         $this->applyFilterAppro($qb, $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, $criteria);
 
