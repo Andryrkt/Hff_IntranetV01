@@ -44,11 +44,6 @@ class DaEditAvecDitController extends Controller
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();
-
-        if (!$this->sessionService->has('firstCharge') && !$this->PeutModifier($demandeAppro)) {
-            $this->sessionService->set('firstCharge', true);
-            $this->duplicationDataDaL($numDa); // on duplique les lignes de la DA 
-        }
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
@@ -62,8 +57,6 @@ class DaEditAvecDitController extends Controller
             'form'              => $form->createView(),
             'observations'      => $observations,
             'peutModifier'      => $this->PeutModifier($demandeAppro),
-            'idDit'             => $id,
-            'numeroVersionMax'  => $numeroVersionMax,
             'numDa'             => $numDa,
         ]);
     }
@@ -115,31 +108,6 @@ class DaEditAvecDitController extends Controller
 
         self::$em->flush(); // on enregistre les modifications
     }
-    /**
-     * Dupliquer les lignes de la table demande_appro_L
-     *
-     * @param array $refs
-     * @param [type] $data
-     * @return array
-     */
-    private function duplicationDataDaL($numDa): void
-    {
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax], ['numeroLigne' => 'ASC']);
-
-        foreach ($dals as $dal) {
-            // On clone l'entité (copie en mémoire)
-            $newDal = clone $dal;
-            $newDal->setNumeroVersion($this->autoIncrement($dal->getNumeroVersion())); // Incrémenter le numéro de version
-            $newDal->setEdit(self::EDIT_LOADED_PAGE); // Indiquer que c'est une version modifiée
-
-            // Doctrine crée un nouvel ID automatiquement (ne pas setter manuellement)
-            self::$em->persist($newDal);
-        }
-
-        self::$em->flush();
-    }
-
 
     private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
     {
@@ -275,14 +243,6 @@ class DaEditAvecDitController extends Controller
         foreach ($dalrs as $dalr) {
             self::$em->remove($dalr);
         }
-    }
-
-    private function autoIncrement(?int $num): int
-    {
-        if ($num === null) {
-            $num = 0;
-        }
-        return (int)$num + 1;
     }
 
     /** 
