@@ -298,18 +298,6 @@ class DaAfficher
     private ?DemandeAppro $demandeAppro = null;
 
     /**
-     * @ORM\ManyToOne(targetEntity=DemandeApproL::class)
-     * @ORM\JoinColumn(name="demande_appro_l_id", referencedColumnName="id", nullable=true)
-     */
-    private ?DemandeApproL $demandeApproL = null;
-
-    /**
-     * @ORM\ManyToOne(targetEntity=DemandeApproLR::class)
-     * @ORM\JoinColumn(name="demande_appro_lr_id", referencedColumnName="id", nullable=true)
-     */
-    private ?DemandeApproLR $demandeApproLR = null;
-
-    /**
      * @ORM\ManyToOne(targetEntity=DemandeIntervention::class)
      * @ORM\JoinColumn(name="dit_id", referencedColumnName="id", nullable=true)
      */
@@ -1458,46 +1446,6 @@ class DaAfficher
     }
 
     /**
-     * Get the value of demandeApproL
-     */
-    public function getDemandeApproL()
-    {
-        return $this->demandeApproL;
-    }
-
-    /**
-     * Set the value of demandeApproL
-     *
-     * @return  self
-     */
-    public function setDemandeApproL($demandeApproL)
-    {
-        $this->demandeApproL = $demandeApproL;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of demandeApproLR
-     */
-    public function getDemandeApproLR()
-    {
-        return $this->demandeApproLR;
-    }
-
-    /**
-     * Set the value of demandeApproLR
-     *
-     * @return  self
-     */
-    public function setDemandeApproLR($demandeApproLR)
-    {
-        $this->demandeApproLR = $demandeApproLR;
-
-        return $this;
-    }
-
-    /**
      * Get the value of dit
      */
     public function getDit()
@@ -1561,7 +1509,6 @@ class DaAfficher
     public function enregistrerDal(DemandeApproL $dal)
     {
         $this
-            ->setDemandeApproL($dal)
             ->setQteDem($dal->getQteDem())
             ->setNumeroLigne($dal->getNumeroLigne())
             ->setArtConstp($dal->getArtConstp())
@@ -1588,7 +1535,6 @@ class DaAfficher
     public function enregistrerDalr(DemandeApproLR $dalr)
     {
         $this
-            ->setdemandeApproLR($dalr)
             ->setQteDem($dalr->getQteDem())
             ->setNumeroLigne($dalr->getNumeroLigne())
             ->setNumLigneTableau($dalr->getNumLigneTableau())
@@ -1599,7 +1545,7 @@ class DaAfficher
             ->setArtFams2($dalr->getArtFams2())
             ->setCodeFams1($dalr->getCodeFams1())
             ->setCodeFams2($dalr->getCodeFams2())
-            ->setQteDispo($dalr->getQteDispo() === '-' ? 0 : $dalr->getQteDispo())
+            ->setQteDispo($dalr->getQteDispo() === '-' || !$dalr->getQteDispo() ? 0 : $dalr->getQteDispo())
             ->setNumeroFournisseur($dalr->getNumeroFournisseur())
             ->setNomFournisseur($dalr->getNomFournisseur())
             ->setDateFinSouhaite($dalr->getDateFinSouhaite())
