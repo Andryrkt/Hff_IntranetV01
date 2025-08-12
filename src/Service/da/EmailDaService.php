@@ -85,6 +85,44 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email de modifications pour une DA avec DIT
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     */
+    public function envoyerMailModificationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    {
+        $this->envoyerEmail([
+            'to'        => DemandeAppro::MAIL_APPRO,
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "modificationDa",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'approvisionnement",
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
+            ],
+        ]);
+    }
+
+    /** 
+     * Méthode pour envoyer une email de modifications pour une DA directe
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     */
+    public function envoyerMailModificationDaDirect(DemandeAppro $demandeAppro, array $tab)
+    {
+        $this->envoyerEmail([
+            'to'        => DemandeAppro::MAIL_APPRO,
+            'variables' => [
+                'tab'            => $tab,
+                'statut'         => "modificationDa",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'achat",
+                'demandeAppro'   => $demandeAppro,
+                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
+            ],
+        ]);
+    }
+
+    /** 
      * Méthode pour envoyer une email sur l'observation émis pour une DA avec DIT
      * @param DemandeAppro $demandeAppro objet de la demande appro
      * @param array $tab tableau de données à utiliser dans le corps du mail
