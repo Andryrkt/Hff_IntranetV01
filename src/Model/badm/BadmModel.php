@@ -167,7 +167,7 @@ class BadmModel extends Model
            if($numSerie === '' || $numSerie === '0' || $numSerie === null){
              $conditionNumSerie = "";
            } else {
-             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+             $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
            }
 
         $statement = "SELECT
