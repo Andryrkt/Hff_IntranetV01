@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (document.getElementById("children-container").childElementCount > 0) {
       Swal.fire({
         title: "Êtes-vous sûr(e) ?",
-        html: `Voulez-vous vraiment enregistrer votre modification ?`,
+        html: `Voulez-vous vraiment enregistrer vos modifications ?`,
         icon: "warning",
         showCancelButton: true,
         reverseButtons: true,

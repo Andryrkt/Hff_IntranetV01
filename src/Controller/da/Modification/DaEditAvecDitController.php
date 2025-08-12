@@ -47,17 +47,19 @@ class DaEditAvecDitController extends Controller
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
+        $ancienDals = $this->getAncienDAL($demandeAppro);
+
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
-        $this->traitementForm($form, $request, $demandeAppro);
+        $this->traitementForm($form, $request, $ancienDals);
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
         self::$twig->display('da/edit-avec-dit.html.twig', [
-            'form'              => $form->createView(),
-            'observations'      => $observations,
-            'peutModifier'      => $this->PeutModifier($demandeAppro),
-            'numDa'             => $numDa,
+            'form'         => $form->createView(),
+            'observations' => $observations,
+            'peutModifier' => $this->PeutModifier($demandeAppro),
+            'numDa'        => $numDa,
         ]);
     }
 
@@ -128,72 +130,34 @@ class DaEditAvecDitController extends Controller
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
     }
 
-    private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
+    private function traitementForm($form, Request $request, iterable $ancienDals): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $demandeAppro = $form->getData();
+            $numDa = $demandeAppro->getNumeroDemandeAppro();
 
             $this->modificationDa($demandeAppro, $form->get('DAL'));
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
+            $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
+
             /** ENVOIE MAIL */
-            $this->mailPourAppro($demandeAppro, $demandeAppro->getObservation());
+            $this->envoyerMailModificationDaAvecDit($demandeAppro, [
+                'ancienDals'    => $ancienDals,
+                'nouveauDals'   => $demandeAppro->getDAL(),
+                'service'       => 'atelier',
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms()
+            ]);
 
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }
-
-    private function mailPourAppro($demandeAppro, $observation): void
-    {
-        $numDa = $demandeAppro->getNumeroDemandeAppro();
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $numeroVersionMaxAvant = $numeroVersionMax - 1;
-        $dalNouveau = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        $dalAncien = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxAvant]);
-        /** NOTIFICATION MAIL */
-        $this->envoyerMailAuxAppro([
-            'id'            => $demandeAppro->getId(),
-            'numDa'         => $demandeAppro->getNumeroDemandeAppro(),
-            'objet'         => $demandeAppro->getObjetDal(),
-            'detail'        => $demandeAppro->getDetailDal(),
-            'dalAncien'     => $dalAncien,
-            'dalNouveau'    => $dalNouveau,
-            'observation'   => $observation,
-            'service'       => 'atelier',
-            'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-        ]);
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail à la service Appro 
-     */
-    private function envoyerMailAuxAppro(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => DemandeAppro::MAIL_APPRO,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "modificationDa",
-                'subject'    => "{$tab['numDa']} - modification demande d'approvisionnement ",
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
-    }
-
 
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
     {
@@ -225,10 +189,29 @@ class DaEditAvecDitController extends Controller
             $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
 
             if ($demandeApproL->getDeleted() == 1) {
+                self::$em->remove($demandeApproL);
                 $this->deleteDALR($demandeApproL);
+            } else {
+                self::$em->persist($demandeApproL); // on persiste la DAL
             }
-            self::$em->persist($demandeApproL); // on persiste la DAL
         }
+        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
+        foreach ($dalrs as $dalr) {
+            $dalr->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
+            self::$em->persist($dalr);
+        }
+    }
+
+    /** 
+     * Fonction pour obtenir les anciens DAL
+     */
+    private function getAncienDAL(DemandeAppro $demandeAppro): array
+    {
+        $result = [];
+        foreach ($demandeAppro->getDAL() as $demandeApproL) {
+            $result[] = clone $demandeApproL;
+        }
+        return $result;
     }
 
     /**
