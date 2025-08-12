@@ -101,35 +101,6 @@ class DaEditAvecDitController extends Controller
         $this->redirectToRoute("list_da");
     }
 
-    private function modificationEdit($demandeApproLs, $numero)
-    {
-        foreach ($demandeApproLs as $demandeApproL) {
-            $demandeApproL->setEdit($numero); // Indiquer que c'est une version modifiée
-            self::$em->persist($demandeApproL); // on persiste la DA
-        }
-
-        self::$em->flush(); // on enregistre les modifications
-    }
-
-    private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
-    {
-        $demandeAppro->setDit($dit); // association de la DA avec le DIT
-
-        // filtre une collection de versions selon le numero de version max
-
-        $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-        });
-        $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-        return $demandeAppro;
-    }
-
-    private function PeutModifier($demandeAppro)
-    {
-        return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
-    }
-
     private function traitementForm($form, Request $request, iterable $ancienDals): void
     {
         $form->handleRequest($request);
@@ -138,7 +109,7 @@ class DaEditAvecDitController extends Controller
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'));
+            $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
@@ -156,96 +127,6 @@ class DaEditAvecDitController extends Controller
             //notification
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da");
-        }
-    }
-
-    private function modificationDa(DemandeAppro $demandeAppro, $formDAL): void
-    {
-        $demandeAppro->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
-        self::$em->persist($demandeAppro); // on persiste la DA
-        $this->modificationDAL($demandeAppro, $formDAL);
-        self::$em->flush(); // on enregistre les modifications
-    }
-
-    private function modificationDAL($demandeAppro, $formDAL): void
-    {
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        foreach ($formDAL as $subFormDAL) {
-            /** 
-             * @var DemandeApproL $demandeApproL
-             * 
-             * On récupère les données du formulaire DAL
-             */
-            $demandeApproL = $subFormDAL->getData();
-            $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
-
-            $demandeApproL
-                ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-                ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                ->setEdit(self::EDIT_MODIF) // Indiquer que c'est une version modifiée
-                ->setNumeroVersion($numeroVersionMax)
-                ->setJoursDispo($this->getJoursRestants($demandeApproL))
-            ; // Incrémenter le numéro de version
-            $this->traitementFichiers($demandeApproL, $files); // Traitement des fichiers uploadés
-
-            if ($demandeApproL->getDeleted() == 1) {
-                self::$em->remove($demandeApproL);
-                $this->deleteDALR($demandeApproL);
-            } else {
-                self::$em->persist($demandeApproL); // on persiste la DAL
-            }
-        }
-        $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $demandeAppro->getNumeroDemandeAppro()]);
-        foreach ($dalrs as $dalr) {
-            $dalr->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO);
-            self::$em->persist($dalr);
-        }
-    }
-
-    /** 
-     * Fonction pour obtenir les anciens DAL
-     */
-    private function getAncienDAL(DemandeAppro $demandeAppro): array
-    {
-        $result = [];
-        foreach ($demandeAppro->getDAL() as $demandeApproL) {
-            $result[] = clone $demandeApproL;
-        }
-        return $result;
-    }
-
-    /**
-     * Suppression physique des DALR correspondant au DAL $dal
-     *
-     * @param DemandeApproL $dal
-     * @return void
-     */
-    private function deleteDALR(DemandeApproL $dal)
-    {
-        $dalrs = $this->demandeApproLRRepository->findBy(['numeroLigne' => $dal->getNumeroLigne(), 'numeroDemandeAppro' => $dal->getNumeroDemandeAppro()]);
-        foreach ($dalrs as $dalr) {
-            self::$em->remove($dalr);
-        }
-    }
-
-    /** 
-     * Traitement des fichiers
-     */
-    private function traitementFichiers(DemandeApproL $dal, $files)
-    {
-        if ($files !== []) {
-            $fileNames = [];
-            $i = 1; // Compteur pour le nom du fichier
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
-                } else {
-                    throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
-                }
-                $i++; // Incrémenter le compteur pour le prochain fichier
-                $fileNames[] = $fileName; // Ajouter le nom du fichier dans le tableau
-            }
-            $dal->setFileNames($fileNames); // Enregistrer les noms de fichiers dans l'entité
         }
     }
 }
