@@ -2,15 +2,14 @@
 
 namespace App\Repository\da;
 
-use App\Entity\Da\Dalider;
 use App\Entity\da\DaAfficher;
-use App\Controller\Controller;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DitOrsSoumisAValidation;
+use Doctrine\DBAL\ArrayParameterType;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -213,6 +212,8 @@ class DaAfficherRepository extends EntityRepository
 
     public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier): array
     {
+        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
+
         $qb = $this->createQueryBuilder('d');
 
         $qb->where(
@@ -225,13 +226,28 @@ class DaAfficherRepository extends EntityRepository
 
         if (!empty($criteria)) {
             $this->applyDynamicFilters($qb, $criteria);
-            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier);
+            $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
             $this->applyDateFilters($qb, $criteria);
-            $this->applyStatutsFilters($qb, $criteria);
         }
+        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, $criteria);
 
         $qb->addOrderBy('d.dateDemande', 'DESC');
         return $qb->getQuery()->getResult();
+    }
+
+    private function applyFilterAppro(QueryBuilder $qb, bool $estAppro, bool $estAdmin): void
+    {
+        if (!$estAdmin && $estAppro) {
+            $qb->andWhere('d.statutDal IN (:authorizedStatuts)')
+                ->setParameter('authorizedStatuts', [
+                    DemandeAppro::STATUT_SOUMIS_APPRO,
+                    DemandeAppro::STATUT_SOUMIS_ATE,
+                    DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+                    DemandeAppro::STATUT_VALIDE,
+                    DemandeAppro::STATUT_TERMINER
+                ], ArrayParameterType::STRING);
+        }
     }
 
     private function applyDynamicFilters(QueryBuilder $qb, array $criteria, bool $estCdeFrn = false): void
@@ -370,10 +386,8 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier)
+    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
     {
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
-
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
                 ->andWhere(
@@ -382,7 +396,7 @@ class DaAfficherRepository extends EntityRepository
                         'da.agenceEmetteur = :codeAgence'
                     )
                 )
-                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY)
+                ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
@@ -390,7 +404,7 @@ class DaAfficherRepository extends EntityRepository
                         'da.serviceEmetteur IN (:serviceAutoriserIds)'
                     )
                 )
-                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), \Doctrine\DBAL\Connection::PARAM_INT_ARRAY);
+                ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {
