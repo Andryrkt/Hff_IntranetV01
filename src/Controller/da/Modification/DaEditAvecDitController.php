@@ -2,7 +2,6 @@
 
 namespace App\Controller\da\Modification;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
@@ -11,7 +10,6 @@ use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\da\DemandeApproLR;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -21,10 +19,6 @@ class DaEditAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use DaEditAvecDitTrait;
-
-    private const EDIT_DELETE = 2;
-    private const EDIT_MODIF = 3;
-    private const EDIT_LOADED_PAGE = 1;
 
     public function __construct()
     {

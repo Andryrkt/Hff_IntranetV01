@@ -38,20 +38,6 @@ trait DaEditTrait
         }
     }
 
-    private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
-    {
-        $demandeAppro->setDit($dit); // association de la DA avec le DIT
-
-        // filtre une collection de versions selon le numero de version max
-
-        $dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-            return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-        });
-        $demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-        return $demandeAppro;
-    }
-
     private function PeutModifier($demandeAppro)
     {
         return ($this->estUserDansServiceAtelier() && ($demandeAppro->getStatutDal() == DemandeAppro::STATUT_SOUMIS_APPRO || $demandeAppro->getStatutDal() == DemandeAppro::STATUT_VALIDE));
