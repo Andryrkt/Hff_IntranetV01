@@ -4,15 +4,15 @@ namespace App\Controller\da\Modification;
 
 use App\Service\EmailService;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\modification\DaEditDirectTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Form\da\DemandeApproFormType;
 use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -46,7 +46,7 @@ class DaEditDirectController extends Controller
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
-        $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $demandeAppro);
 

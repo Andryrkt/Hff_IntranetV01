@@ -1,6 +1,6 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
-import { ajouterUneLigne } from "../new/dal";
-import { onFileNamesInputChange } from "../new/field";
+import { ajouterUneLigne } from "../newDirect/dal";
+import { onFileNamesInputChange } from "../newDirect/field";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines();
@@ -14,7 +14,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   document
-    .querySelectorAll('[id^="demande_appro_form_DAL_"][id$="_fileNames"]')
+    .querySelectorAll(
+      '[id^="demande_appro_direct_form_DAL_"][id$="_fileNames"]'
+    )
     .forEach((inputFile) => {
       inputFile.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
       inputFile.addEventListener("change", (event) =>
@@ -69,25 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
       deleteLigneDa(this);
     });
   });
-
-  document.getElementById("info-icon").addEventListener("click", function () {
-    Swal.fire({
-      icon: "info",
-      title: "Information utile",
-      html: `
-      <p class="mb-2">
-        Pour faciliter votre recherche, vous pouvez saisir la <strong>référence de l’article</strong>
-        ou bien sa <strong>désignation complète ou partielle</strong> 
-        dans le champ <strong>surligné en jaune</strong> prévu à cet effet.
-      </p>
-    `,
-      confirmButtonText: "Compris",
-      confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
-      customClass: {
-        popup: "text-start", // alignement gauche professionnel
-      },
-    });
-  });
 });
 
 window.addEventListener("load", () => {
@@ -97,16 +80,18 @@ window.addEventListener("load", () => {
 function buildIndexFromLines() {
   let maxIndex = 0;
 
-  document.querySelectorAll("[id^='demande_appro_form_DAL_']").forEach((el) => {
-    let match = el.id.match(/demande_appro_form_DAL_(\d+)$/);
-    if (match) {
-      let index = parseInt(match[1]);
+  document
+    .querySelectorAll("[id^='demande_appro_direct_form_DAL_']")
+    .forEach((el) => {
+      let match = el.id.match(/demande_appro_direct_form_DAL_(\d+)$/);
+      if (match) {
+        let index = parseInt(match[1]);
 
-      if (!isNaN(index) && index > maxIndex) {
-        maxIndex = index;
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
       }
-    }
-  });
+    });
   localStorage.setItem("index", maxIndex);
 }
 
@@ -124,10 +109,10 @@ function deleteLigneDa(button) {
     if (result.isConfirmed) {
       let prototypeId = button.getAttribute("prototype-id");
       let container = document.getElementById(
-        `demande_appro_form_DAL_${prototypeId}`
+        `demande_appro_direct_form_DAL_${prototypeId}`
       );
       let deletedCheck = document.getElementById(
-        `demande_appro_form_DAL_${prototypeId}_deleted`
+        `demande_appro_direct_form_DAL_${prototypeId}_deleted`
       );
       container.classList.add("d-none"); // cacher la ligne de DA
       deletedCheck.checked = true; // cocher le champ deleted
