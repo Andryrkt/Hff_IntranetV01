@@ -15,7 +15,9 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/atelier/dit")
+ */
 class DitController extends Controller
 {
     use DitTrait;
@@ -29,7 +31,7 @@ class DitController extends Controller
     }
 
     /**
-     * @Route("/dit/new", name="dit_new")
+     * @Route("/new", name="dit_new")
      *
      * @param Request $request
      * @return void

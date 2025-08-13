@@ -1,13 +1,48 @@
-<nav aria-label="breadcrumb">
-	<ol class="breadcrumb">
-		{% for crumb in breadcrumbs() %}
-			{% if loop.last %}
-				<li class="breadcrumb-item active" aria-current="page">
-					{{ crumb.label }}
-				</li>
-			{% else %}
-				<li class="breadcrumb-item">
-					<a href="{{ crumb.url }}">{{ crumb.label }}</a>
+{% set items = breadcrumbs() %}
+<nav aria-label="Fil d'Ariane" class="breadcrumb-nav">
+	<ol class="breadcrumb align-items-center">
+		{% for item in items %}
+			<li class="breadcrumb-item
+					                      {% if item.is_active %}active{% endif %}
+					                      position-relative
+					                      {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">
+
+				{% if item.url and not item.is_active %}
+					<a href="{{ item.url }}" class="breadcrumb-link">
+						{% if item.icon %}
+							<i class="{{ item.icon }} me-1"></i>
+						{% endif %}
+						{{ item.label }}
+					</a>
+				{% else %}
+					<span class="breadcrumb-text">
+						{% if item.icon %}
+							<i class="{{ item.icon }} me-1"></i>
+						{% endif %}
+						{{ item.label }}
+					</span>
+				{% endif %}
+
+				{% if item.dropdown is defined and item.dropdown|length > 0 %}
+					<i class="fas fa-chevron-down ms-1 small text-muted dropdown-indicator"></i>
+					<div class="dropdown-menu">
+						<div class="dropdown-column">
+							{% for subitem in item.dropdown %}
+								<a class="dropdown-item {% if subitem.is_active %}active{% endif %}" href="{{ subitem.url }}">
+									{% if subitem.icon %}
+										<i class="{{ subitem.icon }} me-2"></i>
+									{% endif %}
+									{{ subitem.label }}
+								</a>
+							{% endfor %}
+						</div>
+					</div>
+				{% endif %}
+			</li>
+
+			{% if not loop.last %}
+				<li class="breadcrumb-separator">
+					<i class="fas fa-chevron-right text-muted small"></i>
 				</li>
 			{% endif %}
 		{% endfor %}

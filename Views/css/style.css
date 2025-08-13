@@ -276,21 +276,18 @@ button.swal2-styled {
   }
 }
 
-.dropdown-menu {
+/* .dropdown-menu {
   background-color: #212529;
   border-radius: 0.25rem;
   padding: 0.5rem;
   box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.2), 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   border: none;
   margin-top: 0.5rem;
-  transform: translateY(
-    0.25rem
-  ); /* Léger décalage vers le bas pour l'effet de flottement */
-  transition: opacity 0.3s ease, transform 0.3s ease; /* Animation fluide */
-  /* animation: float 3s ease-in-out infinite; */
-}
+  transform: translateY(0.25rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+} */
 
-@keyframes float {
+/* @keyframes float {
   0%,
   100% {
     transform: translateY(0.25rem);
@@ -298,4 +295,101 @@ button.swal2-styled {
   50% {
     transform: translateY(0.5rem);
   }
+} */
+
+/* On cache le menu par défaut */
+.dropdown-hover .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%; /* juste en dessous du lien */
+  left: 0;
+  z-index: 1000;
+  background: white;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Quand on survole le parent, on montre le menu */
+.dropdown-hover:hover .dropdown-menu {
+  display: block;
+}
+
+/* Un peu de style pour les liens */
+.dropdown-menu a {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f5f5f5;
+}
+
+/* Styles pour le fil d'Ariane */
+.breadcrumb-nav {
+  background: transparent;
+  padding: 0;
+}
+
+.breadcrumb {
+  background: none;
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-link {
+  text-decoration: none;
+  color: var(--bs-primary, #0d6efd);
+  transition: color 0.15s ease-in-out;
+}
+
+.breadcrumb-link:hover {
+  color: var(--bs-primary, #0d6efd);
+  text-decoration: underline;
+}
+
+.breadcrumb-text {
+  color: var(--bs-secondary, #6c757d);
+}
+
+.breadcrumb-item.active .breadcrumb-text {
+  color: var(--bs-dark, #212529);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  margin: 0 0.5rem;
+  color: var(--bs-secondary, #6c757d);
+}
+
+.dropdown-indicator {
+  cursor: pointer;
+}
+
+/* Adaptation pour vos styles dropdown existants */
+.breadcrumb .dropdown-menu {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.375rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  min-width: 200px;
+  padding: 0.5rem;
+}
+
+/* S'assurer que vos styles dropdown s'appliquent */
+.breadcrumb .dropdown-column {
+  padding: 0;
+}
+
+.breadcrumb .dropdown-item.active {
+  background-color: #fdc714;
+  color: #000;
 }
