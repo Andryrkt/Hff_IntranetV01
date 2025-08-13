@@ -309,7 +309,8 @@ class DitListeController extends Controller
         ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
-            'data' => $data,
+            'numDit' => $numDit,
+            'data'   => $data,
         ]);
     }
 
