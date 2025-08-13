@@ -282,50 +282,27 @@ class DitListeController extends Controller
 
         $dwModel = new DossierInterventionAtelierModel();
 
-        // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-        $dwDit = $dwModel->findDwDit($numDit) ?? [];
-        foreach ($dwDit as $key => $value) {
-            $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
-        }
-        $dwOr = $dwModel->findDwOr($numDit) ?? [];
-        $dwfac = [];
-        $dwRi = [];
-        $dwCde = [];
-        $dwBc = [];
-        $dwDev = [];
+        // Récupération initiale : Demande d'intervention
+        $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
+
+        // Ordre de réparation et documents liés
+        $dwOr = $this->fetchAndLabel($dwModel, 'findDwOr', $numDit, "Ordre de réparation");
+        $dwFac = $dwRi = $dwCde = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (!empty($dwOr)) {
-            $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
-            $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
-            $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
-
-            foreach ($dwOr as $key => $value) {
-                $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
-            }
-
-            foreach ($dwfac as $key => $value) {
-                $dwfac[$key]['nomDoc'] = 'Facture';
-            }
-
-            foreach ($dwRi as $key => $value) {
-                $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
-            }
-            foreach ($dwCde as $key => $value) {
-                $dwCde[$key]['nomDoc'] = 'Commande';
-            }
-        }
-        $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
-        $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
-        foreach ($dwBc as $key => $value) {
-            $dwBc[$key]['nomDoc'] = 'Bon de Commande Client';
-        }
-        foreach ($dwDev as $key => $value) {
-            $dwDev[$key]['nomDoc'] = 'Devis';
+            $numeroDocOr = $dwOr[0]['numero_doc'];
+            $dwFac = $this->fetchAndLabel($dwModel, 'findDwFac', $numeroDocOr, "Facture");
+            $dwRi  = $this->fetchAndLabel($dwModel, 'findDwRi',  $numeroDocOr, "Rapport d'intervention");
+            $dwCde = $this->fetchAndLabel($dwModel, 'findDwCde', $numeroDocOr, "Commande");
         }
 
-        // Fusionner toutes les données dans un tableau associatif
-        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
+        // Documents liés à la demande d'intervention
+        $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
+        $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
+
+        // Fusionner toutes les données
+        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev);
 
         $this->logUserVisit('dw_interv_ate_avec_dit', [
             'numDit' => $numDit,
@@ -334,6 +311,18 @@ class DitListeController extends Controller
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Méthode utilitaire pour récupérer et étiqueter des documents
+     */
+    private function fetchAndLabel($model, string $method, $param, string $label): array
+    {
+        $items = $model->$method($param) ?? [];
+        foreach ($items as &$item) {
+            $item['nomDoc'] = $label;
+        }
+        return $items;
     }
 
     private function criteriaTab(array $criteria): array
