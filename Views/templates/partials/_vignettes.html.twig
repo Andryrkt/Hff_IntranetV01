@@ -45,7 +45,7 @@
 												</li>
 												{% for subsubitem in subitem.subitems %}
 													<li class="list-group-item sub-item">
-														<a href="{% if subsubitem.link == '#' %} # {% elseif subsubitem.link starts with 'http' or subsubitem.link starts with '/' %} {{ subsubitem.link }} {% elseif subsubitem.routeParams is defined %} {{ path(subsubitem.link, subsubitem.routeParams) }} {% else %} {{ path(subsubitem.link) }} {% endif %}" class=" text-decoration-none d-block">
+														<a {% if subsubitem.is_modal|default(false) %} href="#" data-bs-toggle="modal" data-bs-target="#{{ subsubitem.modal_id }}" {% else %} href="{% if subsubitem.link == '#' or subsubitem.link starts with 'http' or subsubitem.link starts with '/' %} {{ subsubitem.link }} {% elseif subsubitem.routeParams is defined %} {{ path(subsubitem.link, subsubitem.routeParams) }} {% else %} {{ path(subsubitem.link) }} {% endif %}" {% endif %} class="text-decoration-none d-block">
 															{% if subsubitem.icon %}
 																<i class="{{ subsubitem.icon_type }} fa-{{ subsubitem.icon }} me-2"></i>
 															{% else %}

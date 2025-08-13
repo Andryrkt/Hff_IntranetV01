@@ -87,7 +87,7 @@ class ProfilControl extends Controller
                     'Demande de paiement',
                     'file-invoice-dollar',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#', [], 'modalTypeDemande', true),
                         $this->createSubItem('Consultation', 'search', 'ddp_liste')
                     ]
                 ),
@@ -223,13 +223,8 @@ class ProfilControl extends Controller
                         $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
                     ]
                 ),
-                $this->createSubMenuItem(
-                    'Commandes fournisseur',
-                    'list-alt',
-                    [
-                        $this->createSubItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer'),
-                    ]
-                ),
+                $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur'),
+                $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer'),
                 $this->createSimpleItem('Commandes clients', 'shopping-basket'),
                 $this->createSimpleItem('Planning magasin', 'calendar-alt'),
             ]
@@ -347,14 +342,22 @@ class ProfilControl extends Controller
     /**
      * Crée un sous-item
      */
-    private function createSubItem(string $label, string $icon, string $link = '#', array $routeParams = []): array
-    {
+    private function createSubItem(
+        string $label,
+        string $icon,
+        string $link = '#',
+        array $routeParams = [],
+        string $modalId = null,
+        bool $isModalTrigger = false
+    ): array {
         return [
             'label' => $label,
             'link' => $link,
             'icon' => $icon,
             'icon_type' => 'fas',
-            'routeParams' => $routeParams
+            'routeParams' => $routeParams,
+            'modal_id' => $modalId,
+            'is_modal' => $isModalTrigger
         ];
     }
 }
