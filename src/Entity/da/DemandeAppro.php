@@ -388,7 +388,7 @@ class DemandeAppro
      */
     public function setDateFinSouhaiteAutomatique()
     {
-        $date = $this->ajoutJour(3);
+        $date = $this->ajouterJoursOuvrables(3);
 
         $this->setDateFinSouhaite($date);
 
