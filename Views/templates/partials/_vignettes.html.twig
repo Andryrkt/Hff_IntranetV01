@@ -45,7 +45,7 @@
 												</li>
 												{% for subsubitem in subitem.subitems %}
 													<li class="list-group-item sub-item">
-														<a href="{{ subsubitem.link }}" class="text-decoration-none d-block">
+														<a href="{% if subsubitem.link == '#' %} # {% elseif subsubitem.link starts with 'http' or subsubitem.link starts with '/' %} {{ subsubitem.link }} {% elseif subsubitem.routeParams is defined %} {{ path(subsubitem.link, subsubitem.routeParams) }} {% else %} {{ path(subsubitem.link) }} {% endif %}" class=" text-decoration-none d-block">
 															{% if subsubitem.icon %}
 																<i class="{{ subsubitem.icon_type }} fa-{{ subsubitem.icon }} me-2"></i>
 															{% else %}
@@ -57,7 +57,7 @@
 												{% endfor %}
 											{% else %}
 												<li class="list-group-item">
-													<a href="{{ subitem.link }}" class="text-decoration-none d-block">
+													<a href="{% if subitem.link == '#' %} # {% elseif subitem.link starts with 'http' or subitem.link starts with '/' %} {{ subitem.link }} {% elseif subitem.routeParams is defined %} {{ path(subitem.link, subitem.routeParams) }} {% else %} {{ path(subitem.link) }} {% endif %}" class="text-decoration-none d-block">
 														{% if subitem.icon %}
 															<i class="{{ subitem.icon_type }} fa-{{ subitem.icon }} me-2"></i>
 														{% else %}

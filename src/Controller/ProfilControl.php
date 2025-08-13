@@ -57,7 +57,7 @@ class ProfilControl extends Controller
             [
                 $this->createSimpleItem('Annuaire', 'address-book', '#'),
                 $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '#'),
-                $this->createSimpleItem('Documentation interne', 'folder-tree', '#')
+                $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne')
             ]
         );
     }
@@ -88,7 +88,7 @@ class ProfilControl extends Controller
                     'file-invoice-dollar',
                     [
                         $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Consultation', 'search', 'ddp_liste')
                     ]
                 ),
                 $this->createSubMenuItem(
@@ -114,16 +114,16 @@ class ProfilControl extends Controller
                     'Ordre de mission',
                     'file-signature',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form'),
+                        $this->createSubItem('Consultation', 'search', 'doms_liste')
                     ]
                 ),
                 $this->createSubMenuItem(
                     'Mutations',
                     'user-friends',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'mutation_nouvelle_demande'),
+                        $this->createSubItem('Consultation', 'search', 'mutation_liste')
                     ]
                 ),
                 $this->createSubMenuItem(
@@ -157,16 +157,16 @@ class ProfilControl extends Controller
                     'Mouvement matériel',
                     'exchange-alt',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'badms_newForm1'),
+                        $this->createSubItem('Consultation', 'search', 'badmListe_AffichageListeBadm')
                     ]
                 ),
                 $this->createSubMenuItem(
                     'Casier',
                     'box-open',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'casier_nouveau'),
+                        $this->createSubItem('Consultation', 'search', 'listeTemporaire_affichageListeCasier')
                     ]
                 ),
                 $this->createSimpleItem('Commandes matériels', 'shopping-basket'),
@@ -186,15 +186,15 @@ class ProfilControl extends Controller
                     'Demande d\'intervention',
                     'toolbox',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search'),
-                        $this->createSubItem('Dossier DIT', 'folder')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new'),
+                        $this->createSubItem('Consultation', 'search', 'dit_index'),
+                        $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier')
                     ]
                 ),
-                $this->createSimpleItem('Glossaire OR', 'book'),
-                $this->createSimpleItem('Planning', 'calendar-alt'),
-                $this->createSimpleItem('Planning détaillé', 'calendar-day'),
-                $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile'),
+                $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf'),
+                $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']),
+                $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']),
+                $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', 'planningAtelier_vue'),
             ]
         );
     }
@@ -211,23 +211,23 @@ class ProfilControl extends Controller
                     'OR',
                     'warehouse',
                     [
-                        $this->createSubItem('Liste à traiter', 'tasks'),
-                        $this->createSubItem('Liste à livrer', 'truck-loading')
+                        $this->createSubItem('Liste à traiter', 'tasks', 'magasinListe_index'),
+                        $this->createSubItem('Liste à livrer', 'truck-loading', 'magasinListe_or_Livrer')
                     ]
                 ),
                 $this->createSubMenuItem(
                     'CIS',
                     'pallet',
                     [
-                        $this->createSubItem('Liste à traiter', 'tasks'),
-                        $this->createSubItem('Liste à livrer', 'truck-loading')
+                        $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
+                        $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
                     ]
                 ),
                 $this->createSubMenuItem(
                     'Commandes fournisseur',
                     'list-alt',
                     [
-                        $this->createSubItem('Liste des cmds non placées', 'exclamation-circle'),
+                        $this->createSubItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer'),
                     ]
                 ),
                 $this->createSimpleItem('Commandes clients', 'shopping-basket'),
@@ -243,9 +243,9 @@ class ProfilControl extends Controller
             'Appro',
             'shopping-cart',
             [
-                $this->createSimpleItem('Nouvelle DA', 'file-alt'),
-                $this->createSimpleItem('Consultation des DA', 'search'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
+                $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form'),
+                $this->createSimpleItem('Consultation des DA', 'search', 'list_da'),
+                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn'),
             ]
         );
     }
@@ -320,13 +320,14 @@ class ProfilControl extends Controller
     /**
      * Crée un item simple sans sous-menu
      */
-    private function createSimpleItem(string $label, string $icon = null, string $link = '#'): array
+    private function createSimpleItem(string $label, string $icon = null, string $link = '#', array $routeParams = []): array
     {
         return [
             'label' => $label,
             'link' => $link,
             'icon' => $icon ?? 'file',
-            'icon_type' => 'fas'
+            'icon_type' => 'fas',
+            'routeParams' => $routeParams
         ];
     }
 
@@ -346,13 +347,14 @@ class ProfilControl extends Controller
     /**
      * Crée un sous-item
      */
-    private function createSubItem(string $label, string $icon, string $link = '#'): array
+    private function createSubItem(string $label, string $icon, string $link = '#', array $routeParams = []): array
     {
         return [
             'label' => $label,
             'link' => $link,
             'icon' => $icon,
-            'icon_type' => 'fas'
+            'icon_type' => 'fas',
+            'routeParams' => $routeParams
         ];
     }
 }
