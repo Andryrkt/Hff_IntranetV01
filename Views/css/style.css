@@ -1,9 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap");
 html {
   height: 100%;
+  overflow-y: scroll;
 }
 
 body {
+  overflow-x: hidden;
   background-color: #f8f9fa;
   font-family: "Noto Sans Nandinagari", sans-serif;
   font-size: 0.6875rem;

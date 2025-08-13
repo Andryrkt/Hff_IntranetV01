@@ -15,6 +15,7 @@ use Symfony\Component\Asset\PathPackage;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
+use App\Twig\BreadcrumbExtension;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -143,6 +144,7 @@ $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
+$twig->addExtension(new BreadcrumbExtension());
 
 // Configurer le package pour le dossier 'public'
 $publicPath = $_ENV['BASE_PATH_COURT'].'/public';

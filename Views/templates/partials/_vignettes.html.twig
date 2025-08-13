@@ -1,0 +1,80 @@
+<div class="grid-container">
+	{% for item in menuItems %}
+		<!-- Vignette -->
+		<div class="vignette card border-0" data-bs-toggle="modal" data-bs-target="#{{ item.id }}">
+			<div class="vignette-content p-4 d-flex flex-column">
+				<div class="icon-container mb-3">
+					<i class="{{ item.icon_type }} fa-{{ item.icon }} fa-2x"></i>
+				</div>
+				<h4 class="vignette-title mt-auto">{{ item.title }}</h4>
+			</div>
+		</div>
+
+
+		<!-- Modal -->
+		<div class="modal fade" id="{{ item.id }}" tabindex="-1" aria-labelledby="{{ item.id }}Label" aria-hidden="true">
+			<div
+				class="modal-dialog modal-dialog-centered modal-lg">
+				<!-- Ajout de modal-lg pour plus d'espace -->
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="{{ item.id }}Label">
+							<i class="{{ item.icon_type }} fa-{{ item.icon }} me-2"></i>
+							{{ item.title }}
+						</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						{% set itemsPerColumn = 2 %}
+						{% set totalItems = item.items|length %}
+						{% set columnsNeeded = (totalItems / itemsPerColumn)|round(0, 'ceil') %}
+
+						<div class="row">
+							{% for column in 1..columnsNeeded %}
+								<div class="col-md-{{ 12 // columnsNeeded }}">
+									<ul class="list-group list-group-flush">
+										{% for subitem in item.items|slice((column - 1) * itemsPerColumn, itemsPerColumn) %}
+											{% if subitem.subitems is defined %}
+												<li class="list-group-item fw-bold">
+													{% if subitem.icon %}
+														<i class="{{ subitem.icon_type }} fa-{{ subitem.icon }} me-2"></i>
+													{% else %}
+														<i class="fas fa-folder-open me-2"></i>
+													{% endif %}
+													{{ subitem.label }}
+												</li>
+												{% for subsubitem in subitem.subitems %}
+													<li class="list-group-item sub-item">
+														<a href="{{ subsubitem.link }}" class="text-decoration-none d-block">
+															{% if subsubitem.icon %}
+																<i class="{{ subsubitem.icon_type }} fa-{{ subsubitem.icon }} me-2"></i>
+															{% else %}
+																<i class="fas fa-file-alt me-2"></i>
+															{% endif %}
+															{{ subsubitem.label }}
+														</a>
+													</li>
+												{% endfor %}
+											{% else %}
+												<li class="list-group-item">
+													<a href="{{ subitem.link }}" class="text-decoration-none d-block">
+														{% if subitem.icon %}
+															<i class="{{ subitem.icon_type }} fa-{{ subitem.icon }} me-2"></i>
+														{% else %}
+															<i class="fas fa-file me-2"></i>
+														{% endif %}
+														{{ subitem.label }}
+													</a>
+												</li>
+											{% endif %}
+										{% endfor %}
+									</ul>
+								</div>
+							{% endfor %}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endfor %}
+</div>
