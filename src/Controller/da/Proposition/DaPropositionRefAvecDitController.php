@@ -279,7 +279,7 @@ class DaPropositionRefAvecDitController extends Controller
         $da = $this->validerDemandeApproAvecLignes($numDa, $numeroVersionMax);
 
         /** CREATION EXCEL */
-        $nomEtChemin = $this->creationExcel($numDa, $numeroVersionMax);
+        $nomEtChemin = $this->exporterDaAvecDitEnExcelEtPdf($numDa, $numeroVersionMax);
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);

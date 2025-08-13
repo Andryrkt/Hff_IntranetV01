@@ -57,26 +57,22 @@ class DossierInterventionAtelierController extends Controller
     {
         $dwDits = $dwModel->findAllDwDit($criteria);
 
-        $dwfac = [];
-        $dwRi = [];
-        $dwCde = [];
-        $dwBc = [];
-        $dwDev = [];
-        $dwBca = [];
-        $dwFacBl = [];
+        $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 
         for ($i = 0; $i < count($dwDits); $i++) {
+            $numDit = $dwDits[$i]['numero_dit_intervention'];
             // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-            $dwDit = $dwModel->findDwDit($dwDits[$i]['numero_dit_intervention']) ?? [];
-            $dwOr = $dwModel->findDwOr($dwDits[$i]['numero_dit_intervention']) ?? [];
+            $dwDit = $dwModel->findDwDit($numDit) ?? [];
+            $dwOr = $dwModel->findDwOr($numDit) ?? [];
 
             // Si un ordre de réparation est trouvé, récupérer les autres données liées
             if (!empty($dwOr)) {
-                $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
-                $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
-                $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
-                $dwBca = $dwModel->findDwBca($dwOr[0]['numero_doc']) ?? [];
-                $dwFacBl = $dwModel->findDwFacBl($dwOr[0]['numero_doc']) ?? [];
+                $numeroDocOr = $dwOr[0]['numero_doc'];
+                $dwfac = $dwModel->findDwFac($numeroDocOr) ?? [];
+                $dwRi = $dwModel->findDwRi($numeroDocOr) ?? [];
+                $dwCde = $dwModel->findDwCde($numeroDocOr) ?? [];
+                $dwBca = $dwModel->findDwBca($numeroDocOr) ?? [];
+                $dwFacBl = $dwModel->findDwFacBl($numeroDocOr) ?? [];
             }
             $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
             $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];

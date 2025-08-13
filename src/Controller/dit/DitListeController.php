@@ -292,10 +292,10 @@ class DitListeController extends Controller
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (!empty($dwOr)) {
             $numeroDocOr = $dwOr[0]['numero_doc'];
-            $dwFac = $this->fetchAndLabel($dwModel, 'findDwFac', $numeroDocOr, "Facture");
-            $dwRi  = $this->fetchAndLabel($dwModel, 'findDwRi',  $numeroDocOr, "Rapport d'intervention");
-            $dwCde = $this->fetchAndLabel($dwModel, 'findDwCde', $numeroDocOr, "Commande");
-            $dwBca = $this->fetchAndLabel($dwModel, 'findDwBca', $numeroDocOr, "Bon de commande APPRO");
+            $dwFac   = $this->fetchAndLabel($dwModel, 'findDwFac',   $numeroDocOr, "Facture");
+            $dwRi    = $this->fetchAndLabel($dwModel, 'findDwRi',    $numeroDocOr, "Rapport d'intervention");
+            $dwCde   = $this->fetchAndLabel($dwModel, 'findDwCde',   $numeroDocOr, "Commande");
+            $dwBca   = $this->fetchAndLabel($dwModel, 'findDwBca',   $numeroDocOr, "Bon de commande APPRO");
             $dwFacBl = $this->fetchAndLabel($dwModel, 'findDwFacBl', $numeroDocOr, "Facture / Bon de livraison");
         }
 

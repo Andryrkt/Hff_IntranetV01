@@ -7,21 +7,14 @@ use App\Controller\Traits\EntityManagerAwareTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaObservation;
-use App\Entity\da\DaValider;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
-use App\Entity\dit\DemandeIntervention;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
 use App\Repository\da\DemandeApproRepository;
 use App\Service\da\EmailDaService;
-use App\Service\genererPdf\GenererPdfDaAvecDit;
-use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DaTrait
@@ -178,122 +171,6 @@ trait DaTrait
         $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, $tab);
     }
 
-
-
-
-
-
-
-    private function creationPdf(string $numDa, int $numeroVersionMax)
-    {
-        $genererPdfDaAvecDit = new GenererPdfDaAvecDit();
-
-        $dals = $this->demandeApproLRepository->findBy([
-            'numeroDemandeAppro' => $numDa,
-            'numeroVersion' => $numeroVersionMax,
-            'deleted' => false // On récupère les DALs avec version max et non supprimés de la DA
-        ]);
-
-        foreach ($dals as $dal) {
-            $dalrs = $this->demandeApproLRRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroLigne' => $dal->getNumeroLigne()]);
-            $dal->setDemandeApproLR(new ArrayCollection($dalrs));
-        }
-
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-
-        $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
-
-        $genererPdfDaAvecDit->genererPdf($dit, $da);
-    }
-
-    private function SommeTotal($daValiders): float
-    {
-        $somme = 0.0;
-        foreach ($daValiders as $daValider) {
-            $somme += (float)$daValider->getTotal();
-        }
-        return $somme;
-    }
-
-    private function creationExcel(string $numDa, int $numeroVersionMax): array
-    {
-        //recupération des donnée
-        $donnerExcels = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
-
-        //enregistrement des données dans DaValider
-        $this->enregistrerDonneeDansDaValide($donnerExcels);
-
-        //creation PDF
-        $this->creationPdf($numDa, $numeroVersionMax);
-
-        // Convertir les entités en tableau de données
-        $dataExel = $this->transformationEnTableauAvecEntet($donnerExcels);
-
-        //creation du fichier excel
-        $date = new DateTime();
-        $formattedDate = $date->format('Ymd_His');
-        $fileName = $numDa . '_' . $formattedDate . '.xlsx';
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa/$fileName";
-        $this->excelService->createSpreadsheetEnregistrer($dataExel, $filePath);
-
-        return [
-            'fileName' => $fileName,
-            'filePath' => $filePath
-        ];
-    }
-
-    private function transformationEnTableauAvecEntet($entities): array
-    {
-        $data = [];
-        $data[] = ['constructeur', 'reference', 'quantité', '', 'designation', 'PU'];
-
-        foreach ($entities as $entity) {
-            $data[] = [
-                $entity->getArtConstp(),
-                $entity->getArtRefp(),
-                $entity->getQteDem(),
-                '',
-                $entity->getArtRefp() == 'ST' ? $entity->getArtDesi() : '',
-                $entity->getArtRefp() == 'ST' ? $entity->getPrixUnitaire() : '',
-            ];
-        }
-
-        return $data;
-    }
-
-    private function enregistrerDonneeDansDaValide($donnees)
-    {
-        $em = self::getEntity();
-        foreach ($donnees as $donnee) {
-            $daValider = new DaValider;
-
-            /** @var DemandeAppro $da l'entité de la demande appro correspondant au numero demandeAppro du donnée (DAL ou DALR) */
-            $da = $em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $donnee->getNumeroDemandeAppro()]);
-
-            $numeroVersionMax = $em->getRepository(DaValider::class)->getNumeroVersionMax($da->getNumeroDemandeAppro());
-            $nivUrgence = $em->getRepository(DemandeIntervention::class)->getNiveauUrgence($da->getNumeroDemandeDit());
-            [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($da->getNumeroDemandeDit());
-            $daValider
-                ->setNiveauUrgence($nivUrgence) // niveau d'urgence du DIT attaché à la DA
-                ->setNumeroVersion($this->autoIncrementForDa($numeroVersionMax)) // numero de version de DaValider
-                ->setStatutOr($numOr ? DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION : DitOrsSoumisAValidation::STATUT_VIDE)
-                ->setOrResoumettre((bool) $numOr)
-            ;
-
-            $daValider->enregistrerDa($da); // enregistrement pour DA
-
-            if ($donnee instanceof DemandeApproL) {
-                $daValider->enregistrerDal($donnee); // enregistrement pour DAL
-            } else if ($donnee instanceof DemandeApproLR) {
-                $daValider->enregistrerDalr($donnee); // enregistrement pour DALR
-            }
-
-            $em->persist($daValider);
-        }
-
-        $em->flush();
-    }
-
     /**
      * TRAITEMENT DES FICHIER UPLOAD
      * (copier le fichier uploadé dans une répertoire et le donner un nom)
@@ -394,13 +271,5 @@ trait DaTrait
             }
         }
         return $date;
-    }
-
-    private function autoIncrementForDa(?int $num): int
-    {
-        if ($num === null) {
-            $num = 0;
-        }
-        return (int)$num + 1;
     }
 }
