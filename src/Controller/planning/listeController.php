@@ -18,6 +18,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\VarDumper\Cloner\Data;
 
+/**
+ * @Route("/planning")
+ */
 class ListeController extends Controller
 {
     use Transformation;

@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
 
+/**
+ * @Route("/magasin")
+ */
 class CisALivrerController extends Controller
 {
     use ALivrerTrait;

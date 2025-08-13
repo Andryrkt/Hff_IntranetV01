@@ -27,6 +27,9 @@ use App\Repository\admin\ddp\TypeDemandeRepository;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
+/**
+ * @Route("/ddp")
+ */
 class DemandePaiementController extends Controller
 {
     use DdpTrait;

@@ -16,6 +16,9 @@ use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
+/**
+ * @Route("/magasin")
+ */
 class MagasinListeOrTraiterController extends Controller
 {
     use Transformation;

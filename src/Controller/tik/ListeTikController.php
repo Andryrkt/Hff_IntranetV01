@@ -16,6 +16,9 @@ use App\Entity\tik\DemandeSupportInformatique;
 use InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/tik")
+ */
 class ListeTikController extends Controller
 {
     /**

@@ -20,6 +20,9 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
+/**
+ * @Route("/tik")
+ */
 class DetailTikController extends Controller
 {
     use lienGenerique;

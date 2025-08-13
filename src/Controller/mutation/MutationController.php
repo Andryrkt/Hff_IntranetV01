@@ -15,6 +15,9 @@ use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/mutation")
+ */
 class MutationController extends Controller
 {
     use MutationTrait;
@@ -27,7 +30,7 @@ class MutationController extends Controller
     }
 
     /**
-     * @Route("/mutation/new", name="mutation_nouvelle_demande")
+     * @Route("/new", name="mutation_nouvelle_demande")
      */
     public function nouveau(Request $request)
     {
@@ -74,7 +77,7 @@ class MutationController extends Controller
     }
 
     /**
-     * @Route("/mutation/list", name="mutation_liste")
+     * @Route("/list", name="mutation_liste")
      */
     public function listeMutation(Request $request)
     {
@@ -120,7 +123,7 @@ class MutationController extends Controller
     }
 
     /**
-     * @Route("/mutation/detail/{id}", name="mutation_detail")
+     * @Route("/detail/{id}", name="mutation_detail")
      */
     public function detailMutation($id)
     {

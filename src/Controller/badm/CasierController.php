@@ -19,7 +19,9 @@ use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/badm")
+ */
 class CasierController extends Controller
 {
 
@@ -189,5 +191,4 @@ class CasierController extends Controller
             'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
         ];
     }
-
 }

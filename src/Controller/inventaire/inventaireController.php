@@ -24,6 +24,9 @@ use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
 use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 
+/**
+ * @Route("/inventaire")
+ */
 class InventaireController extends Controller
 {
     use FormatageTrait;
@@ -46,7 +49,7 @@ class InventaireController extends Controller
     }
 
     /**
-     * @Route("/inventaire", name = "liste_inventaire")
+     * @Route("/inventaire-ctrl", name = "liste_inventaire")
      * 
      * @return void
      */
@@ -138,7 +141,7 @@ class InventaireController extends Controller
             'numero' => 'Numéro',
             'description' => 'Description',
             'ouvert' => 'Ouvert le',
-            'dateClo'=>'clôturer le',
+            'dateClo' => 'clôturer le',
             'nbr_casier' => ' Nbr casier',
             'nbr_ref' => 'Nbr Ref',
             'qte_comptee' => 'Qté comptée',
@@ -308,8 +311,8 @@ class InventaireController extends Controller
                     $data[$i]['excel'] = $this->parcourFichier($data[$i]['numero']);
                 }
             }
-             $sumNbrecartavecEcart =  ($sumNbrRefsansEcart / $sumNbrRef)*100;
-              $sumEcart =  ($sumNbrEcart/$sumNbrMontant)*100;
+            $sumNbrecartavecEcart =  ($sumNbrRefsansEcart / $sumNbrRef) * 100;
+            $sumEcart =  ($sumNbrEcart / $sumNbrMontant) * 100;
             $sum = [
                 'numero' => '',
                 'description' => '',
@@ -325,7 +328,7 @@ class InventaireController extends Controller
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
                 'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
-                 'pourcentage_ecart' => $sumEcart,//$sumNbrPourcentEcart,
+                'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];
         }
         return [

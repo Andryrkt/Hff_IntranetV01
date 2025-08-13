@@ -10,6 +10,9 @@ use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
 
+/**
+ * @Route("/tik")
+ */
 class ClotureTikController extends Controller
 {
     private $historiqueOperation;

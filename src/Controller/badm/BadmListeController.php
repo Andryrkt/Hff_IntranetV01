@@ -12,7 +12,9 @@ use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/badm")
+ */
 class BadmListeController extends Controller
 {
     use BadmListTrait;

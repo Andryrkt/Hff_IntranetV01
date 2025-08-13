@@ -13,6 +13,9 @@ use App\Entity\admin\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/dom")
+ */
 class DomFirstController extends Controller
 {
 

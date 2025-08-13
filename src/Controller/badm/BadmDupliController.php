@@ -15,6 +15,9 @@ use App\Service\genererPdf\GenererPdfBadm;
 use App\Controller\Traits\BadmDuplicationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/badm")
+ */
 class BadmDupliController extends Controller
 {
     use FormatageTrait;

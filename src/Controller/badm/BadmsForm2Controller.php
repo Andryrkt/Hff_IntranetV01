@@ -16,6 +16,9 @@ use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/badm")
+ */
 class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;

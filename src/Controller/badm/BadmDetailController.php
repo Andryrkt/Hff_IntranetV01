@@ -7,7 +7,9 @@ use App\Controller\Controller;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/badm")
+ */
 class BadmDetailController extends Controller
 {
 

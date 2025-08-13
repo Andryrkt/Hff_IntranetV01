@@ -13,7 +13,9 @@ use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/dom")
+ */
 class DomSecondController extends Controller
 {
     use FormatageTrait;

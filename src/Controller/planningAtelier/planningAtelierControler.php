@@ -13,6 +13,9 @@ use App\Entity\planningAtelier\planningAtelierSearch;
 use App\Form\planningAtelier\planningAtelierSearchType;
 use Symfony\Component\Translation\Provider\Dsn;
 
+/**
+ * @Route("/planningAte")
+ */
 class planningAtelierControler extends Controller
 {
     private planningAtelierSearch $planningAtelierSearch;
@@ -52,7 +55,7 @@ class planningAtelierControler extends Controller
             $result = $this->planningAtelierModel->recupData($criteria);
             $interval = new \DateInterval('P1D');
             $period = new \DatePeriod($start, $interval, (clone $end)->modify('+1 day'));
-            
+
             foreach ($period as $date) {
                 $dates[] = $date;
                 $filteredDates[] = $date->format('Y-m-d');
@@ -124,10 +127,10 @@ class planningAtelierControler extends Controller
         $this->verifierSessionUtilisateur();
         $data = $this->sessionService->get('data_export_planningAtelier_excel', []);
         $dates = $this->sessionService->get('dates_export_planningAtelier_excel', []);
-        
-        
+
+
         $data = $this->transformerDataPourExcel($data, $dates);
-        
+
         [$headerRow1, $headerRow2] = $this->generateTwoRowHeader($dates);
         // Insérer en haut les 2 lignes de header
         array_unshift($data, $headerRow2);
@@ -137,41 +140,41 @@ class planningAtelierControler extends Controller
     }
 
     private function transformerDataPourExcel(array $data, array $dates): array
-{
-    $result = [];
-    
-    foreach ($data as $ligne) {
-        $row = [
-            $ligne['agenceem'],
-            $ligne['section'],
-            $ligne['intitule'],
-            $ligne['numor'],
-            $ligne['itv'],
-            $ligne['ressource'],
-            $ligne['nbTotalJ']
-        ];
+    {
+        $result = [];
 
-        foreach ($dates as $date) {
-            $dateStr = $date->format('Y-m-d');
-            if (isset($ligne['presence'][$dateStr])) {
-                $row[] = $ligne['presence'][$dateStr]['matin'] ? 'X' : '';
-                $row[] = $ligne['presence'][$dateStr]['apm'] ? 'X' : '';
-            } else {
-                $row[] = '';
-                $row[] = '';
+        foreach ($data as $ligne) {
+            $row = [
+                $ligne['agenceem'],
+                $ligne['section'],
+                $ligne['intitule'],
+                $ligne['numor'],
+                $ligne['itv'],
+                $ligne['ressource'],
+                $ligne['nbTotalJ']
+            ];
+
+            foreach ($dates as $date) {
+                $dateStr = $date->format('Y-m-d');
+                if (isset($ligne['presence'][$dateStr])) {
+                    $row[] = $ligne['presence'][$dateStr]['matin'] ? 'X' : '';
+                    $row[] = $ligne['presence'][$dateStr]['apm'] ? 'X' : '';
+                } else {
+                    $row[] = '';
+                    $row[] = '';
+                }
             }
+
+            $result[] = $row;
         }
-        
-        $result[] = $row;
+
+        return $result;
     }
-    
-    return $result;
-}
 
 
     private function generateTwoRowHeader(array $dates): array
     {
-        $fixedHeaders = ['Agence Travaux','Section', 'Intitulé Travaux', 'numOR', 'Itv', 'Ressource', 'Nb jour'];
+        $fixedHeaders = ['Agence Travaux', 'Section', 'Intitulé Travaux', 'numOR', 'Itv', 'Ressource', 'Nb jour'];
         $headerRow1 = $fixedHeaders;
         $headerRow2 = array_fill(0, count($fixedHeaders), '');
 

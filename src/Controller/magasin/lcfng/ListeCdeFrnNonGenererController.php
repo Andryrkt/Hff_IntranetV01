@@ -10,6 +10,9 @@ use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Form\magasin\lcfng\ListeCdeFrnNonGenererSearchType;
 
+/**
+ * @Route("/magasin")
+ */
 class ListeCdeFrnNonGenererController extends Controller
 {
 
@@ -19,13 +22,13 @@ class ListeCdeFrnNonGenererController extends Controller
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->listeCdeFrnNonGenererModel = new ListeCdeFrnNonGenererModel();
         $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
-     * @Route("/magasin/lcfng/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
+     * @Route("/lcfng/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
      *
      * @return void
      */
@@ -44,11 +47,11 @@ class ListeCdeFrnNonGenererController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        
+
         $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
 
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
-        
+
         $data = $this->listeCdeFrnNonGenererModel->getListeCdeFrnNonGenerer($criteria, $numOrValides);
 
         self::$twig->display('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
@@ -68,14 +71,13 @@ class ListeCdeFrnNonGenererController extends Controller
     {
         $tab = [];
         foreach ($tabs as  $values) {
-            if(is_array($values)){
+            if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
                 }
             } else {
                 $tab[] = $values;
             }
-            
         }
 
         return $tab;

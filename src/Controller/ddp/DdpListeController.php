@@ -12,6 +12,9 @@ use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @Route("/ddp")
+ */
 class DdpListeController extends Controller
 {
     private DemandePaiementRepository $demandePaiementRepository;
@@ -24,7 +27,7 @@ class DdpListeController extends Controller
     }
 
     /**
-     * @Route("/ddp/liste-ddp", name="ddp_liste")
+     * @Route("/liste-ddp", name="ddp_liste")
      *
      * @return void
      */

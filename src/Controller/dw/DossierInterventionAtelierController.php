@@ -10,6 +10,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 
+/**
+ * @Route("/dw")
+ */
 class DossierInterventionAtelierController extends Controller
 {
     /**

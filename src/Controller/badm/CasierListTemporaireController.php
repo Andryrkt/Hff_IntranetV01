@@ -11,6 +11,9 @@ use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/badm")
+ */
 class CasierListTemporaireController extends Controller
 {
     use Transformation;

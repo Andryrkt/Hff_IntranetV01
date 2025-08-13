@@ -12,6 +12,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use DateTime;
 use DateTimeZone;
 
+/**
+ * @Route("/magasin")
+ */
 class ListeCdeFrnNonPlaceController extends  Controller
 {
     private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
@@ -24,7 +27,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
     /**
-     * @Route("/magasin/lcfnp/liste_cde_frs_non_placer", name="liste_Cde_Frn_Non_Placer")
+     * @Route("/lcfnp/liste_cde_frs_non_placer", name="liste_Cde_Frn_Non_Placer")
      *
      * @return void
      */
@@ -40,24 +43,22 @@ class ListeCdeFrnNonPlaceController extends  Controller
         ];
         $data = [];
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
-        $vheure = $today->format("H:i:s"); 
-        $vinstant = str_replace(":", "", $vheure); 
+        $vheure = $today->format("H:i:s");
+        $vinstant = str_replace(":", "", $vheure);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             // dd($criteria);
             $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
-    
+
             $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
             $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
             $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
             $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
-            
         }
         self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
         ]);
-
     }
 
     private function orEnString($tab): string

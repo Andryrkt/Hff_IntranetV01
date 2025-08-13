@@ -14,6 +14,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
 use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 
+/**
+ * @Route("/tik")
+ */
 class ModificationTikController extends Controller
 {
     /**

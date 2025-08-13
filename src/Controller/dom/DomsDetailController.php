@@ -6,7 +6,9 @@ use App\Controller\Controller;
 use App\Entity\dom\Dom;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/dom")
+ */
 class DomsDetailController extends Controller
 {
 

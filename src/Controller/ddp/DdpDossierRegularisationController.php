@@ -19,6 +19,9 @@ use App\Repository\admin\ddp\DocDemandePaiementRepository;
 use App\Service\genererPdf\GeneratePdfDdr;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
+/**
+ * @Route("/ddp")
+ */
 class DdpDossierRegularisationController extends Controller
 {
     private DdpDossierRegulModel $DdpDossierRegulModel;

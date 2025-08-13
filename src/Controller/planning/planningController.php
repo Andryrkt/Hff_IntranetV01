@@ -15,6 +15,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/planning")
+ */
 class PlanningController extends Controller
 {
     use Transformation;
@@ -33,7 +36,7 @@ class PlanningController extends Controller
     }
 
     /**
-     * @Route("/planning", name="planning_vue")
+     * @Route("/planning-vue", name="planning_vue")
      * 
      * @return void
      */

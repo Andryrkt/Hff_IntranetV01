@@ -15,6 +15,9 @@ use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
 use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 
+/**
+ * @Route("/inventaire")
+ */
 class DetailInventaireController extends Controller
 {
     use FormatageTrait;
@@ -82,7 +85,7 @@ class DetailInventaireController extends Controller
         $this->sessionService->set('detail_invetaire_search_criteria', $criteria);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
-        } 
+        }
 
         $data = [];
         if ($request->query->get('action') !== 'oui') {

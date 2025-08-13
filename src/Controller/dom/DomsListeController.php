@@ -13,7 +13,9 @@ use App\Form\dom\DomSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/dom")
+ */
 class DomsListeController extends Controller
 {
 

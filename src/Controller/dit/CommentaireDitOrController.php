@@ -6,6 +6,9 @@ use App\Controller\Controller;
 use App\Form\dit\CommentaireDitOrType;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/dit")
+ */
 class CommentaireDitOrController extends Controller
 {
     /**
@@ -13,10 +16,11 @@ class CommentaireDitOrController extends Controller
      *
      * @return void
      */
-    public function newCommentaire(){
+    public function newCommentaire()
+    {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $form = self::$validator->createBuilder(CommentaireDitOrType::class)->getForm();
 
         self::$twig->display('dit/newCommentaireDitOr.html.twig', [

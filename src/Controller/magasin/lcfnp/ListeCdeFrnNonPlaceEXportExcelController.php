@@ -10,6 +10,9 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use DateTime;
 use DateTimeZone;
 
+/**
+ * @Route("/magasin")
+ */
 class ListeCdeFrnNonPlaceEXportExcelController extends Controller
 {
 
@@ -23,7 +26,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     }
 
     /**
-     * @Route("/magasin/lcfng/liste_cde_frs_non_placer_export_excel", name="liste_Cde_Frn_Non_placer_Export_Excel")
+     * @Route("/lcfng/liste_cde_frs_non_placer_export_excel", name="liste_Cde_Frn_Non_placer_Export_Excel")
      *
      * @return void
      */
