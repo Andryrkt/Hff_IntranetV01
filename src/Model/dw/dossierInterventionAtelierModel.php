@@ -76,10 +76,14 @@ class DossierInterventionAtelierModel extends Model
             dit.designation_materiel AS designation_materiel_intervention,
             ord.numero_or AS numero_or_reparation
             FROM DW_Demande_Intervention dit
-            LEFT JOIN DW_Ordre_De_Reparation ord 
-            ON dit.numero_dit = ord.numero_dit 
-            LEFT JOIN DW_Devis dd
-            ON dit.numero_dit = dd.numero_dit 
+            LEFT JOIN (
+                SELECT DISTINCT numero_dit, numero_or
+                FROM DW_Ordre_De_Reparation
+            ) ord ON dit.numero_dit = ord.numero_dit
+            LEFT JOIN (
+                SELECT DISTINCT numero_dit
+                FROM DW_Devis
+            ) dd ON dit.numero_dit = dd.numero_dit
             $typeIntervention
             $numeroDev
             $numeroDit
