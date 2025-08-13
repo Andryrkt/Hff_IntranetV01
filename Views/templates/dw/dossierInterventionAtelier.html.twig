@@ -14,39 +14,37 @@
 	<div class="row">
 		<div class="col-12 col-md-6">
 			<div class="container">
-				<div class="table-moitier">
-					{% include "/dw/shared/_formulaireRecherche.html.twig" %}
-					<table class="table rounded table-plein-ecran">
-						<thead class="table-dark">
-							<tr>
-								<th>Date DIT</th>
-								<th>N° DIT</th>
-								<th>ID mat</th>
-								<th>N° Parc</th>
-								<th>N/S</th>
-								<th>Désignation</th>
-								<th>OR</th>
-								<th>Nb de docs</th>
-								<th>type interv (interne/externe)</th>
+				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
+				<table class="table rounded table-plein-ecran">
+					<thead class="table-dark">
+						<tr>
+							<th>Date DIT</th>
+							<th>N° DIT</th>
+							<th>ID mat</th>
+							<th>N° Parc</th>
+							<th>N/S</th>
+							<th>Désignation</th>
+							<th>OR</th>
+							<th>Nb de docs</th>
+							<th>type interv (interne/externe)</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for dwDit in dwDits %}
+							<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
+								<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
+								<td>{{dwDit.numero_dit_intervention}}</td>
+								<td>{{dwDit.id_materiel_intervention}}</td>
+								<td>{{dwDit.numero_parc_intervention}}</td>
+								<td>{{dwDit.numero_serie_intervention}}</td>
+								<td>{{dwDit.designation_materiel_intervention}}</td>
+								<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
+								<td class="text-center">{{dwDit.nbDoc}}</td>
+								<td>{{dwDit.type_reparation_intervention}}</td>
 							</tr>
-						</thead>
-						<tbody>
-							{% for dwDit in dwDits %}
-								<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
-									<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
-									<td>{{dwDit.numero_dit_intervention}}</td>
-									<td>{{dwDit.id_materiel_intervention}}</td>
-									<td>{{dwDit.numero_parc_intervention}}</td>
-									<td>{{dwDit.numero_serie_intervention}}</td>
-									<td>{{dwDit.designation_materiel_intervention}}</td>
-									<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
-									<td class="text-center">{{dwDit.nbDoc}}</td>
-									<td>{{dwDit.type_reparation_intervention}}</td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-				</div>
+						{% endfor %}
+					</tbody>
+				</table>
 				<div class="dossier">DOSSIER:
 					<span id="numero-dit">DITXXXXX</span>
 				</div>
