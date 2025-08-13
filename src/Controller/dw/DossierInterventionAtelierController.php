@@ -45,8 +45,6 @@ class DossierInterventionAtelierController extends Controller
             $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
         }
 
-        $date = new DateTime();
-
         $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
@@ -64,6 +62,8 @@ class DossierInterventionAtelierController extends Controller
         $dwCde = [];
         $dwBc = [];
         $dwDev = [];
+        $dwBca = [];
+        $dwFacBl = [];
 
         for ($i = 0; $i < count($dwDits); $i++) {
             // Récupérer les données de la demande d'intervention et de l'ordre de réparation
@@ -75,12 +75,14 @@ class DossierInterventionAtelierController extends Controller
                 $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
                 $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
                 $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
+                $dwBca = $dwModel->findDwBca($dwOr[0]['numero_doc']) ?? [];
+                $dwFacBl = $dwModel->findDwFacBl($dwOr[0]['numero_doc']) ?? [];
             }
             $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
             $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
 
             // Fusionner toutes les données dans un tableau associatif
-            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
+            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
 
             // Ajouter le nombre de documents à l'élément actuel de $dwDits
             $dwDits[$i]['nbDoc'] = count($data);

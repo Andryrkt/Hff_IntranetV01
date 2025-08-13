@@ -302,6 +302,54 @@ class DossierInterventionAtelierModel extends Model
         return $this->ConvertirEnUtf_8($tab);
     }
 
+    public function findDwBca($numOr)
+    {
+        $sql = " SELECT 
+            --COMMANDE APPRO
+            bca.numero_bca AS numero_doc,
+            bca.date_creation AS date_creation,
+            bca.date_derniere_modification AS date_modification,
+            bca.extension_fichier As extension_fichier,
+            bca.total_page AS total_page,
+            bca.taille_fichier AS taille_fichier,
+            bca.path AS chemin
+
+            FROM DW_BC_Appro bca
+            WHERE bca.numero_or = '" . $numOr . "'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
+    public function findDwFacBl($numOr)
+    {
+        $sql = " SELECT 
+            --FACTURE ET BL
+            fac_bl.id_fac_bl AS numero_doc,
+            fac_bl.date_creation AS date_creation,
+            fac_bl.date_derniere_modification AS date_modification,
+            fac_bl.extension_fichier As extension_fichier,
+            fac_bl.total_page AS total_page,
+            fac_bl.taille_fichier AS taille_fichier,
+            fac_bl.path AS chemin
+
+            FROM DW_FAC_BL fac_bl
+            WHERE fac_bl.numero_or = '" . $numOr . "'
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return $this->ConvertirEnUtf_8($tab);
+    }
+
     public function findDwBc($numDit)
     {
         $sql = " SELECT 
