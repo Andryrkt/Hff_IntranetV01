@@ -110,7 +110,7 @@ class DaEditDirectController extends Controller
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             /** ENVOIE MAIL */
-            $this->envoyerMailModificationDaDirect($demandeAppro, [
+            $this->emailDaService->envoyerMailModificationDaDirect($demandeAppro, [
                 'ancienDals'    => $ancienDals,
                 'nouveauDals'   => $demandeAppro->getDAL(),
                 'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),

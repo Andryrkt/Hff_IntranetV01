@@ -27,16 +27,6 @@ trait DaEditAvecDitTrait
     }
     //==================================================================================================
 
-    /** 
-     * Méthode pour envoyer une email de propositions pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    private function envoyerMailModificationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
-    {
-        $this->emailDaService->envoyerMailModificationDaAvecDit($demandeAppro, $tab);
-    }
-
     private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
     {
         $demandeAppro->setDit($dit); // association de la DA avec le DIT

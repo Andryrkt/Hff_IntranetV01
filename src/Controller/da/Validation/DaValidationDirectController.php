@@ -45,7 +45,7 @@ class DaValidationDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
 
         /** ENVOIE D'EMAIL */
-        $this->envoyerMailValidationDaDirect($da, $resultatExport, [
+        $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
             'service'           => 'appro',
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

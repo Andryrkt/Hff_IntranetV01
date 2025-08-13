@@ -33,14 +33,4 @@ trait DaPropositionAvecDitTrait
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
     }
     //==================================================================================================
-
-    /** 
-     * Méthode pour envoyer une email de propositions pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    private function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
-    {
-        $this->emailDaService->envoyerMailPropositionDaAvecDit($demandeAppro, $tab);
-    }
 }

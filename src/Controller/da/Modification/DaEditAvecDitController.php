@@ -111,7 +111,7 @@ class DaEditAvecDitController extends Controller
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             /** ENVOIE MAIL */
-            $this->envoyerMailModificationDaAvecDit($demandeAppro, [
+            $this->emailDaService->envoyerMailModificationDaAvecDit($demandeAppro, [
                 'ancienDals'    => $ancienDals,
                 'nouveauDals'   => $demandeAppro->getDAL(),
                 'service'       => 'atelier',

@@ -113,7 +113,7 @@ class DaNewAvecDitController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
-            $this->envoyerMailcreationDaAvecDit($demandeAppro, [
+            $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() ?? '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

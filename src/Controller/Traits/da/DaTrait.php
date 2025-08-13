@@ -147,32 +147,6 @@ trait DaTrait
         return $resultats;
     }
 
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis d'une DA avec DIT
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     * 
-     * @return void
-     */
-    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
-    {
-        $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, $tab);
-    }
-
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis d'une DA directe
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     * 
-     * @return void
-     */
-    public function envoyerMailObservationDaDirect(DemandeAppro $demandeAppro, array $tab): void
-    {
-        $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, $tab);
-    }
-
     /**
      * Ajoute un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
      *

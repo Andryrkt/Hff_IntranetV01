@@ -2,7 +2,6 @@
 
 namespace App\Controller\Traits\da\validation;
 
-use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\dit\DitRepository;
 use App\Service\genererPdf\GenererPdfDaAvecDit;
@@ -24,7 +23,6 @@ trait DaValidationAvecDitTrait
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================
-
 
     /** 
      * Création du fichier Excel et PDF pour une DA avec DIT
@@ -56,20 +54,5 @@ trait DaValidationAvecDitTrait
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
         $genererPdfDaAvecDit->genererPdf($dit, $da, $this->getUserMail());
-    }
-
-    /** 
-     * Méthode pour envoyer une email de validation à l'Atelier et l'Appro
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     * 
-     * @return void
-     */
-    private function envoyerMailValidationDaAvecDit(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
-    {
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
-        $this->emailDaService->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
     }
 }

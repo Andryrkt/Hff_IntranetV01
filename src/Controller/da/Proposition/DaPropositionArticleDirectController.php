@@ -134,7 +134,7 @@ class DaPropositionArticleDirectController extends Controller
 
         /** ENVOIE D'EMAIL l'observation */
         $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-        $this->envoyerMailObservationDaDirect($demandeAppro, [
+        $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
             'service'         => $service,
             'observation'   => $daObservation->getObservation(),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -164,7 +164,7 @@ class DaPropositionArticleDirectController extends Controller
 
             /** ENVOIE D'EMAIL pour l'observation */
             $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-            $this->envoyerMailObservationDaDirect($demandeAppro, [
+            $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
                 'service'       => $service,
                 'observation'   => $observation,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -205,7 +205,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -235,7 +235,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -305,7 +305,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->envoyerMailPropositionDaDirect($da, [
+        $this->emailDaService->envoyerMailPropositionDaDirect($da, [
             'service'       => 'appro',
             'observation'   => $observation,
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),

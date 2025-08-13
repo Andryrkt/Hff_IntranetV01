@@ -251,6 +251,32 @@ class EmailDaService
     }
 
     /** 
+     * Méthode pour envoyer une email de validation à l'Atelier et l'Appro
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $resultatExport résultat d'export
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     */
+    public function envoyerMailValidationDaAvecDit(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
+    {
+        $this->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
+        $this->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
+    }
+
+    /** 
+     * Méthode pour envoyer une email de validation au service demandeur et l'Appro
+     * 
+     * @param DemandeAppro $demandeAppro objet de la demande appro
+     * @param array $resultatExport résultat d'export
+     * @param array $tab tableau de données à utiliser dans le corps du mail
+     */
+    public function envoyerMailValidationDaDirect(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
+    {
+        $this->envoyerMailValidationDaDirectAuxService($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
+        $this->envoyerMailValidationDaDirectAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
+    }
+
+    /** 
      * Méthode pour envoyer un email
      */
     public function envoyerEmail(array $content): void

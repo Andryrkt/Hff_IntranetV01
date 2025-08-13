@@ -119,7 +119,7 @@ class DaDetailAvecDitController extends Controller
 
 			/** ENVOIE D'EMAIL pour l'observation */
 			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			$this->envoyerMailObservationDaAvecDit($demandeAppro, [
+			$this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
 				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

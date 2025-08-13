@@ -137,7 +137,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
         $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-        $this->envoyerMailObservationDaAvecDit($demandeAppro, [
+        $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
             'service'       => $service,
             'observation'   => $daObservation->getObservation(),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -167,7 +167,7 @@ class DaPropositionRefAvecDitController extends Controller
 
             /** ENVOIE D'EMAIL à l'APPRO pour l'observation */
             $service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-            $this->envoyerMailObservationDaAvecDit($demandeAppro, [
+            $this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
                 'service'       => $service,
                 'observation'   => $observation,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -208,7 +208,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -238,7 +238,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : ''),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -308,7 +308,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->envoyerMailPropositionDaAvecDit($da, [
+        $this->emailDaService->envoyerMailPropositionDaAvecDit($da, [
             'service'       => 'appro',
             'observation'   => $observation,
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
