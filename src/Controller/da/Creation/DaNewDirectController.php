@@ -149,7 +149,7 @@ class DaNewDirectController extends Controller
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->daFileUploader->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }

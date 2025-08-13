@@ -3,19 +3,19 @@
 namespace App\Controller\Traits\da;
 
 use DateTime;
-use App\Controller\Traits\EntityManagerAwareTrait;
-use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
+use App\Service\da\EmailDaService;
+use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DaAfficherRepository;
+use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Repository\da\DemandeApproRepository;
-use App\Service\da\EmailDaService;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\EntityManagerAwareTrait;
 
 trait DaTrait
 {
@@ -30,6 +30,7 @@ trait DaTrait
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
+    private FileUploaderForDAService $daFileUploader;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -41,6 +42,7 @@ trait DaTrait
 
         $em = $this->getEntityManager();
         $this->emailDaService = new EmailDaService;
+        $this->daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $em->getRepository(DemandeApproL::class);
@@ -172,104 +174,25 @@ trait DaTrait
     }
 
     /**
-     * TRAITEMENT DES FICHIER UPLOAD
-     * (copier le fichier uploadé dans une répertoire et le donner un nom)
+     * Ajoute un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
+     *
+     * @param int $nbJoursOuvrables Nombre de jours ouvrables à ajouter.
+     * @return DateTime La date résultante après ajout des jours ouvrables.
      */
-    private function uploadFileTo(UploadedFile $file, string $fileName, string $destination)
-    {
-        // Assurer que le répertoire existe
-        if (!is_dir($destination) && !mkdir($destination, 0755, true)) {
-            throw new \RuntimeException(sprintf('Le répertoire "%s" n\'a pas pu être créé.', $destination));
-        }
-
-        try {
-            $file->move($destination, $fileName);
-        } catch (\Exception $e) {
-            throw new \RuntimeException('Erreur lors de l\'upload du fichier : ' . $e->getMessage());
-        }
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
-     */
-    private function uploadPJForDal(UploadedFile $file, DemandeApproL $dal, int $i): string
-    {
-        $fileName = sprintf(
-            'PJ_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dal->getNumeroLigne(),
-            $i,
-            $file->getClientOriginalExtension()
-        ); // Exemple: PJ_20250623121403_3_1.pdf
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dal->getNumeroDemandeAppro() . '/';
-
-        $this->uploadFileTo($file, $fileName, $destination);
-
-        return $fileName;
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD (pièces jointes de la DAL)
-     */
-    private function uploadPJForDalr(UploadedFile $file, DemandeApproLR $dalr, int $i): string
-    {
-        $fileName = sprintf(
-            'PJ_%s_%s%s_%s.%s',
-            date("YmdHis"),
-            $dalr->getNumeroLigne(),
-            $dalr->getNumLigneTableau(),
-            $i,
-            $file->getClientOriginalExtension()
-        ); // Exemple: PJ_20250623121403_34_1.pdf
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dalr->getNumeroDemandeAppro() . '/';
-
-        $this->uploadFileTo($file, $fileName, $destination);
-
-        return $fileName;
-    }
-
-    /** 
-     * TRAITEMENT DES FICHIER UPLOAD (fiche technique de la DALR)
-     */
-    private function uploadFTForDalr(UploadedFile $file, DemandeApproLR $dalr)
-    {
-        $fileName = sprintf(
-            'FT_%s_%s_%s.%s',
-            date("YmdHis"),
-            $dalr->getNumeroLigne(),
-            $dalr->getNumLigneTableau(),
-            $file->getClientOriginalExtension()
-        ); // Exemple: FT_20250623121403_2_4.pdf
-
-        // Définir le répertoire de destination
-        $destination = $_ENV['BASE_PATH_FICHIER'] . '/da/' . $dalr->getNumeroDemandeAppro() . '/';
-
-        $this->uploadFileTo($file, $fileName, $destination);
-
-        $dalr->setNomFicheTechnique($fileName);
-    }
-
-    private function ajoutJour(int $jourAjouter): DateTime
+    private function ajouterJoursOuvrables(int $nbJoursOuvrables): DateTime
     {
         $date = new DateTime();
+        $joursAjoutes = 0;
 
-        // Compteur pour les jours ouvrables ajoutés
-        $joursOuvrablesAjoutes = 0;
-
-        // Ajouter des jours jusqu'à obtenir 3 jours ouvrables
-        while ($joursOuvrablesAjoutes < $jourAjouter) {
-            // Ajouter un jour
+        while ($joursAjoutes < $nbJoursOuvrables) {
             $date->modify('+1 day');
 
-            // Vérifier si le jour actuel est un jour ouvrable (ni samedi ni dimanche)
-            if ($date->format('N') < 6) { // 'N' donne 1 (lundi) à 7 (dimanche)
-                $joursOuvrablesAjoutes++;
+            // 'N' renvoie 1 (lundi) à 7 (dimanche)
+            if ($date->format('N') < 6) {
+                $joursAjoutes++;
             }
         }
+
         return $date;
     }
 }

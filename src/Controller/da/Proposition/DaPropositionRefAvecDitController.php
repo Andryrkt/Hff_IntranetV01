@@ -590,7 +590,7 @@ class DaPropositionRefAvecDitController extends Controller
         $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
-            $this->uploadFTForDalr($file, $demandeApproLR_Ancien);
+            $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR_Ancien);
             $this->traitementFichiers($demandeApproLR_Ancien, $fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
@@ -616,7 +616,7 @@ class DaPropositionRefAvecDitController extends Controller
             ;
 
             if ($file) {
-                $this->uploadFTForDalr($file, $demandeApproLR);
+                $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);
             }
 
             if ($fileNames) {
@@ -639,7 +639,7 @@ class DaPropositionRefAvecDitController extends Controller
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->daFileUploader->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }
