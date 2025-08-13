@@ -287,12 +287,12 @@ class DitListeController extends Controller
         foreach ($dwDit as $key => $value) {
             $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
         }
-        // dump($dwDit);
         $dwOr = $dwModel->findDwOr($numDit) ?? [];
-        // dump($dwOr);
         $dwfac = [];
         $dwRi = [];
         $dwCde = [];
+        $dwBc = [];
+        $dwDev = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (!empty($dwOr)) {
@@ -315,9 +315,17 @@ class DitListeController extends Controller
                 $dwCde[$key]['nomDoc'] = 'Commande';
             }
         }
+        $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
+        $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
+        foreach ($dwBc as $key => $value) {
+            $dwBc[$key]['nomDoc'] = 'Bon de Commande Client';
+        }
+        foreach ($dwDev as $key => $value) {
+            $dwDev[$key]['nomDoc'] = 'Devis';
+        }
 
         // Fusionner toutes les données dans un tableau associatif
-        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
+        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
 
         $this->logUserVisit('dw_interv_ate_avec_dit', [
             'numDit' => $numDit,
