@@ -4,7 +4,6 @@ namespace App\Controller\dw;
 
 use DateTime;
 use App\Controller\Controller;
-use App\Entity\dw\DwDemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
@@ -46,24 +45,13 @@ class DossierInterventionAtelierController extends Controller
             $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
         }
 
-
-        //dd($dwDits[0]->getOrdreDeReparation()->get);
-
-        //Facture
-        // $facture = $dwDits[0]->getOrdreDeReparation()->getFactures();
-
-        // foreach ($facture as $value) {
-        //     dump($value);
-        // }
-
         $date = new DateTime();
 
         $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
-            'form' => $form->createView(),
-            'dwDits' => $dwDits,
-            'date' => $date
+            'form'   => $form->createView(),
+            'dwDits' => $dwDits
         ]);
     }
 
