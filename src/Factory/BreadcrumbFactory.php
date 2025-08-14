@@ -57,8 +57,8 @@ class BreadcrumbFactory
     private function createItem(string $label, ?string $url, bool $isActive, string $icon): array
     {
         return [
-            'label' => $label,
-            'url' => $url,
+            'title' => $label,
+            'link' => $url,
             'icon' => $icon,
             'is_active' => $isActive
         ];
@@ -70,7 +70,7 @@ class BreadcrumbFactory
             $subLink = isset($sub['link']) ? $this->baseUrl . $sub['link'] : '#';
             return [
                 'id' => $sub['id'] ?? null,
-                'label' => $sub['label'],
+                'title' => $sub['title'],
                 'link' => $subLink,
                 'icon' => $sub['icon'] ?? '',
                 'is_active' => ($subLink === $currentPath),
