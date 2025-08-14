@@ -40,7 +40,7 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/new/{id}", name="da_new")
+     * @Route("/new-avec-dit/{id}", name="da_new_avec_dit")
      */
     public function new($id, Request $request)
     {
