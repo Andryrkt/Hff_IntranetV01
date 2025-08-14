@@ -35,7 +35,7 @@ trait StatutBcTrait
             DemandeAppro::STATUT_SOUMIS_APPRO,
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE
         ];
-        $statutDa = $this->daRepository->getStatutDa($numDa);
+        $statutDa = $this->demandeApproRepository->getStatutDa($numDa);
         if (in_array($statutDa, $statutDaIntanert)) {
             return '';
         }

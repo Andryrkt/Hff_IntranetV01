@@ -34,7 +34,7 @@ class DaListCdeFrnController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
-    private DemandeApproRepository $daRepository;
+    private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
 
 
@@ -44,7 +44,7 @@ class DaListCdeFrnController extends Controller
         $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
 
