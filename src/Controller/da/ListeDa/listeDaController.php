@@ -64,9 +64,7 @@ class listeDaController extends Controller
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         //formulaire de recherche
-        $form = self::$validator->createBuilder(DaSearchType::class, null, [
-            'method' => 'GET',
-        ])->getForm();
+        $form = self::$validator->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
 
         // Formulaire de l'historique de modification des DA
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
@@ -169,7 +167,7 @@ class listeDaController extends Controller
     {
         foreach ($datas as $data) {
             $this->modificationDateRestant($data);
-            $this->modificationStatutDa($data);
+            // $this->modificationStatutDa($data);
             // $this->modificationStatutBC($data);
         }
         self::$em->flush();
