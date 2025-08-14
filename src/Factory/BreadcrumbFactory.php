@@ -2,15 +2,17 @@
 
 namespace App\Factory;
 
+use App\Service\BreadcrumbMenuService;
+
 class BreadcrumbFactory
 {
     private string $baseUrl;
     private array $menuConfig;
 
-    public function __construct(string $baseUrl = '/')
+    public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
     {
         $this->baseUrl = rtrim($baseUrl, '/');
-        $this->menuConfig = $this->dropdownMenu();
+        $this->menuConfig = $breadcrumbMenuService->getFullMenuConfig();
     }
 
     public function createFromCurrentUrl(): array
@@ -32,11 +34,13 @@ class BreadcrumbFactory
 
         // Traiter chaque segment de l'URL
         foreach ($segments as $index => $segment) {
+            if ($index == 0) continue;
             $currentPath .= '/' . $segment;
             $isLast = ($index === count($segments) - 1);
             $label = $this->formatLabel($segment);
+            $icon = $this->getIconForSegment($segment);
 
-            $item = $this->createItem($label, $isLast ? null : $currentPath, $isLast, '');
+            $item = $this->createItem($label, $isLast ? null : $currentPath, $isLast, $icon);
 
             // Ajouter dropdown si configuré pour ce segment
             $slug = strtolower($segment);
@@ -63,12 +67,14 @@ class BreadcrumbFactory
     private function createSubItems(string $currentPath, string $slug): array
     {
         return array_map(function ($sub) use ($currentPath) {
-            $subUrl = $this->baseUrl . $sub['url'];
+            $subLink = isset($sub['link']) ? $this->baseUrl . $sub['link'] : '#';
             return [
+                'id' => $sub['id'] ?? null,
                 'label' => $sub['label'],
-                'url' => $subUrl,
+                'link' => $subLink,
                 'icon' => $sub['icon'] ?? '',
-                'is_active' => ($subUrl === $currentPath)
+                'is_active' => ($subLink === $currentPath),
+                'items' => $sub['items'] ?? [] // Ajouter les items pour le modal
             ];
         }, $this->menuConfig[$slug]);
     }
@@ -85,28 +91,35 @@ class BreadcrumbFactory
             'history' => 'Historique'
         ];
 
-        // Nettoyer le segment
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);
-
-        // Retourner le label spécialisé ou une version formatée
         return $specialLabels[$segment] ?? ucwords($cleanSegment);
     }
 
-    private function dropdownMenu(): array
+    private function getIconForSegment(string $segment): string
     {
-        return [
-            'accueil' => [
-                ['label' => 'Nouvelle demande', 'url' => '/atelier/demande-dintervention/new', 'icon' => 'fas fa-plus'],
-                ['label' => 'Historique', 'url' => '/atelier/demande-dintervention/history', 'icon' => 'fas fa-history']
-            ],
-            'atelier' => [
-                ['label' => 'Demandes', 'url' => '/atelier/demandes', 'icon' => 'fas fa-list'],
-                ['label' => 'Planning', 'url' => '/atelier/planning', 'icon' => 'fas fa-calendar']
-            ],
-            'dit' => [
-                ['label' => 'Nouvelle', 'url' => '/atelier/demande-dintervention/new', 'icon' => 'fas fa-plus'],
-                ['label' => 'Historique', 'url' => '/atelier/demande-dintervention/history', 'icon' => 'fas fa-history']
-            ]
+        $iconMapping = [
+            'accueil' => 'fas fa-home',
+            'atelier' => 'fas fa-tools',
+            'demande-dintervention' => 'fas fa-clipboard-list',
+            'demandes' => 'fas fa-list-alt',
+            'planning' => 'fas fa-calendar-alt',
+            'new' => 'fas fa-plus-circle',
+            'history' => 'fas fa-history',
+            'edit' => 'fas fa-edit',
+            'show' => 'fas fa-eye',
+            'delete' => 'fas fa-trash',
+            'settings' => 'fas fa-cog',
+            'users' => 'fas fa-users',
+            'profile' => 'fas fa-user',
+            'reports' => 'fas fa-chart-bar',
+            'dashboard' => 'fas fa-tachometer-alt',
+            'documents' => 'fas fa-file-alt',
+            'messages' => 'fas fa-envelope',
+            'notifications' => 'fas fa-bell',
+            'admin' => 'fas fa-shield-alt',
+            'maintenance' => 'fas fa-wrench'
         ];
+
+        return $iconMapping[$segment] ?? 'fas fa-folder';
     }
 }

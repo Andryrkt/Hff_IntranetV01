@@ -1,6 +1,6 @@
 {% import "partials/_menu_item.html.twig" as menu_item %}
 
-{% macro render_modal(item) %}
+{% macro render(item) %}
 <div class="modal fade" id="{{ item.id }}" tabindex="-1" aria-labelledby="{{ item.id }}Label" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -39,20 +39,3 @@
     </div>
 </div>
 {% endmacro %}
-
-<div class="grid-container">
-	{% for item in menuItems %}
-		<!-- Vignette -->
-		<div class="vignette card border-0" data-bs-toggle="modal" data-bs-target="#{{ item.id }}">
-			<div class="vignette-content p-4 d-flex flex-column">
-				<div class="icon-container mb-3">
-					<i class="{{ item.icon }} fa-2x"></i>
-				</div>
-				<h4 class="vignette-title mt-auto">{{ item.title }}</h4>
-			</div>
-		</div>
-
-		<!-- Modal -->
-		{{ _self.render_modal(item) }}
-	{% endfor %}
-</div>
