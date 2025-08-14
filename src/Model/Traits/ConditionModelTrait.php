@@ -76,7 +76,7 @@ trait ConditionModelTrait
     {
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
-                $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")";
+                $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
             } else if ($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")";
             } else if ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
@@ -85,7 +85,7 @@ trait ConditionModelTrait
                 $piece = null;
             }
         } else {
-            $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")";
+            $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
         }
 
         return $piece;
@@ -95,7 +95,7 @@ trait ConditionModelTrait
     {
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
-                $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ")";
+                $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
             } else if ($criteria[$indexCriteria] === "LUB") {
                 $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('lub') . ")";
             } else if ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
@@ -104,7 +104,7 @@ trait ConditionModelTrait
                 $piece = null;
             }
         } else {
-            $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ")";
+            $piece = " AND {$colonneBase} in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
         }
 
         return $piece;

@@ -185,7 +185,6 @@ class ListCdeFrnController extends Controller
         $statutBc = $this->statutBc($daValider->getArtRefp(), $daValider->getNumeroDemandeDit(), $daValider->getNumeroDemandeAppro(), $daValider->getArtDesi(), $daValider->getNumeroOr());
         $daValider
             ->setStatutCde($statutBc)
-            ->setNumeroCde($numCde)
         ;
         self::$em->persist($daValider);
         self::$em->flush();

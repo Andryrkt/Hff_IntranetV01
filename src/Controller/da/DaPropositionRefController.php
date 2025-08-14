@@ -141,16 +141,16 @@ class DaPropositionRefController extends Controller
             /** @var DaObservation $daObservation daObservation correspondant au donnée du formObservation */
             $daObservation = $formObservation->getData();
 
-            $this->traitementEnvoiObservation($daObservation, $da);
+            $this->traitementEnvoiObservation($daObservation, $da, $dals);
         }
     }
 
-    private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro)
+    private function traitementEnvoiObservation(DaObservation $daObservation, DemandeAppro $demandeAppro, $dals)
     {
         $this->insertionObservationSeul($daObservation, $demandeAppro);
 
         if (Controller::estUserDansServiceAppro() && $daObservation->getStatutChange()) {
-            $this->duplicationDataDaL($demandeAppro->getNumeroDemandeAppro());
+            $this->duplicationDataDaL($dals);
             $this->modificationStatutDal($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
             $this->modificationStatutDa($demandeAppro->getNumeroDemandeAppro(), DemandeAppro::STATUT_AUTORISER_MODIF_ATE);
         }

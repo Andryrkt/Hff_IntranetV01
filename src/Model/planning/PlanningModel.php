@@ -159,7 +159,6 @@ class PlanningModel extends Model
     $vplan = $criteria->getPlan();
 
     $statement = " SELECT
-                      
                       trim(seor_succ) as codeSuc, 
                       trim(asuc_lib) as libSuc, 
                       trim(seor_servcrt) as codeServ, 
@@ -618,6 +617,7 @@ class PlanningModel extends Model
 	              JOIN sav_itv ON slor_numor = sitv_numor AND sitv_interv = slor_nogrp / 100
               LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                 WHERE slor_numor || '-' || sitv_interv = '" . $numOrIntv . "'
+                AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                 
                 --AND slor_typlig = 'P'
                 $vtypeligne
@@ -1508,6 +1508,7 @@ TRIM('COMPLET NON LIVRE')
 
                     FROM  sav_eor,sav_lor as C , sav_itv as D, agr_succ, agr_tab ser, mat_mat, agr_tab ope, outer agr_tab sec
                     WHERE seor_numor = slor_numor
+                    AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                     AND seor_serv <> 'DEV'
                     AND sitv_numor = slor_numor 
                     AND sitv_interv = slor_nogrp/100
@@ -1742,7 +1743,7 @@ TRIM('COMPLET NON LIVRE')
           $vtypeligne = " ";
           break;
         case "PIECES_MAGASIN":
-          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' ";
+          $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
           break;
         case "ACHAT_LOCAUX":
           $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";
@@ -1930,6 +1931,7 @@ TRIM('COMPLET NON LIVRE')
               LEFT JOIN neg_lig ON slor_numcf = nlig_numcde AND slor_refp = nlig_refp
                WHERE slor_numor = '" . $numOr . "'
                  AND sitv_interv = '" . $itv . "'
+                 AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                 
                 $vtypeligne
                 AND slor_constp NOT LIKE '%ZDI%'

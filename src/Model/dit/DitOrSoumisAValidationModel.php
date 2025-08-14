@@ -193,7 +193,8 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_sortie_magasin 
             from sav_lor 
-            where slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") 
+            where slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
+            AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
             and slor_typlig = 'P' 
             and slor_numor = '" . $numOr . "'
             ";
