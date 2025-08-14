@@ -17,7 +17,7 @@ use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
- * @Route("/magasin")
+ * @Route("/magasin/or")
  */
 class MagasinListeOrTraiterController extends Controller
 {

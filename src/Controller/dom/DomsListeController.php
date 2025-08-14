@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dom")
+ * @Route("/rh/ordre-de-mission")
  */
 class DomsListeController extends Controller
 {
@@ -25,7 +25,7 @@ class DomsListeController extends Controller
 
     /**
      * affichage de l'architecture de la liste du DOM
-     * @Route("/dom-liste", name="doms_liste")
+     * @Route("/liste", name="doms_liste")
      */
     public function listeDom(Request $request)
     {

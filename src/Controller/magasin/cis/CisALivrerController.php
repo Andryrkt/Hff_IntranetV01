@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
 
 /**
- * @Route("/magasin")
+ * @Route("/magasin/cis")
  */
 class CisALivrerController extends Controller
 {

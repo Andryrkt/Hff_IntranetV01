@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dom")
+ * @Route("/rh/ordre-de-mission")
  */
 class DomTropPercuController extends Controller
 {
@@ -30,7 +30,7 @@ class DomTropPercuController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDOMService;
     }
     /**
-     * @Route("/dom-trop-percu-form/{id}", name="dom_trop_percu_form")
+     * @Route("/trop-percu/{id}", name="dom_trop_percu_form")
      */
     public function secondForm(Request $request, $id)
     {

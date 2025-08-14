@@ -8,13 +8,13 @@ use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/badm")
+ * @Route("/materiel/mouvement-materiel")
  */
 class BadmDetailController extends Controller
 {
 
     /**
-     * @Route("/detailBadm/{id}", name="BadmDetail_detailBadm")
+     * @Route("/detail/{id}", name="BadmDetail_detailBadm")
      */
     public function detailBadm($id)
     {

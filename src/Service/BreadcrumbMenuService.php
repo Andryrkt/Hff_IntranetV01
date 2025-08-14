@@ -29,7 +29,7 @@ class BreadcrumbMenuService
             'hse' => $this->getHseSubMenu(),
             // RH - Sous-menus spécifiques
             'ordre-de-mission' => $this->getOdmSubMenu(),
-            'mutations' => $this->getMutationSubMenu(),
+            'mutation' => $this->getMutationSubMenu(),
             'conges' => $this->getCongesSubMenu(),
             'temporaires' => $this->getTemporairesSubMenu(),
             // Magasin - Sous-menus spécifiques

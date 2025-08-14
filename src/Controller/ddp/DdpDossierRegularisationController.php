@@ -20,7 +20,7 @@ use App\Service\genererPdf\GeneratePdfDdr;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
- * @Route("/ddp")
+ * @Route("/compta/demande-de-paiement")
  */
 class DdpDossierRegularisationController extends Controller
 {

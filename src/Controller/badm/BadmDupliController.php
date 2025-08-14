@@ -16,7 +16,7 @@ use App\Controller\Traits\BadmDuplicationTrait;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/badm")
+ * @Route("/materiel/mouvement-materiel")
  */
 class BadmDupliController extends Controller
 {
@@ -24,7 +24,7 @@ class BadmDupliController extends Controller
     use BadmDuplicationTrait;
 
     /**
-     * @Route("/dupliBADM/{numBadm}/{id}", name="BadmDupli_dupliBadm")
+     * @Route("/duplication/{numBadm}/{id}", name="BadmDupli_dupliBadm")
      */
     public function dupliBadm($numBadm, $id, Request $request)
     {

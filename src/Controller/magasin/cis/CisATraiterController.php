@@ -10,8 +10,9 @@ use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+
 /**
- * @Route("/magasin")
+ * @Route("/magasin/cis")
  */
 class CisATraiterController extends Controller
 {

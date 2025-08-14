@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/badm")
+ * @Route("/materiel/casier")
  */
 class CasierListController extends Controller
 {
@@ -18,7 +18,7 @@ class CasierListController extends Controller
     use Transformation;
 
     /**
-     * @Route("/listCasier", name="liste_affichageListeCasier")
+     * @Route("/liste", name="liste_affichageListeCasier")
      */
     public function AffichageListeCasier(Request $request)
     {

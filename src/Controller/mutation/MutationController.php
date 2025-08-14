@@ -77,7 +77,7 @@ class MutationController extends Controller
     }
 
     /**
-     * @Route("/list", name="mutation_liste")
+     * @Route("/liste", name="mutation_liste")
      */
     public function listeMutation(Request $request)
     {

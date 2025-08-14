@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/badm")
+ * @Route("/materiel/casier")
  */
 class CasierListTemporaireController extends Controller
 {

@@ -7,13 +7,13 @@ use App\Entity\dom\Dom;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dom")
+ * @Route("/rh/ordre-de-mission")
  */
 class DomsDetailController extends Controller
 {
 
     /**
-     * @Route("/detailDom/{id}", name="Dom_detail")
+     * @Route("/detail/{id}", name="Dom_detail")
      */
     public function detailDom($id)
     {

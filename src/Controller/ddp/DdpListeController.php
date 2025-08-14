@@ -13,7 +13,7 @@ use App\Repository\ddp\DemandePaiementLigneRepository;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * @Route("/ddp")
+ * @Route("/compta/demande-de-paiement")
  */
 class DdpListeController extends Controller
 {
@@ -27,7 +27,7 @@ class DdpListeController extends Controller
     }
 
     /**
-     * @Route("/liste-ddp", name="ddp_liste")
+     * @Route("/liste", name="ddp_liste")
      *
      * @return void
      */

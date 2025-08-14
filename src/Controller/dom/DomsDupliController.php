@@ -22,7 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dom")
+ * @Route("/rh/ordre-de-mission")
  */
 class DomsDupliController extends Controller
 {
@@ -31,7 +31,7 @@ class DomsDupliController extends Controller
 
 
     /**
-     * @Route("/dom-dupli-form/{id}", name="dom_dupli_form")
+     * @Route("/duplication/{id}", name="dom_dupli_form")
      */
     public function secondForm(Request $request, $id)
     {

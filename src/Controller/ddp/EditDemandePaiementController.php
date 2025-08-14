@@ -28,7 +28,7 @@ use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
- * @Route("/ddp")
+ * @Route("/compta/demande-de-paiement")
  */
 class EditDemandePaiementController extends Controller
 {
@@ -63,7 +63,7 @@ class EditDemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/edit-demande-paiement/{numDdp}/{numVersion}", name="edit_demande_paiement")
+     * @Route("/modification/{numDdp}/{numVersion}", name="edit_demande_paiement")
      */
     public function afficheEdit(Request $request, $numDdp, $numVersion)
     {

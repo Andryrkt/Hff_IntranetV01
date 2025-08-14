@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dom")
+ * @Route("/rh/ordre-de-mission")
  */
 class DomFirstController extends Controller
 {

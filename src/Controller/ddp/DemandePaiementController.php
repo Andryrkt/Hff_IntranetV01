@@ -28,7 +28,7 @@ use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 
 /**
- * @Route("/ddp")
+ * @Route("/compta/demande-de-paiement")
  */
 class DemandePaiementController extends Controller
 {
@@ -68,7 +68,7 @@ class DemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/demande-paiement/{id}", name="demande_paiement")
+     * @Route("/new/{id}", name="demande_paiement")
      */
     public function afficheForm(Request $request, $id)
     {

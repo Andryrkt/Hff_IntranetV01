@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/badm")
+ * @Route("/materiel/mouvement-materiel")
  */
 class BadmListeController extends Controller
 {

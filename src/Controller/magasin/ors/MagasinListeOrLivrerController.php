@@ -19,7 +19,7 @@ use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
 /**
- * @Route("/magasin")
+ * @Route("/magasin/or")
  */
 class MagasinListeOrLivrerController extends Controller
 {

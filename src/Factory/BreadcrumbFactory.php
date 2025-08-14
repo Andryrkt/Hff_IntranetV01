@@ -83,7 +83,7 @@ class BreadcrumbFactory
     {
         $specialLabels = [
             'new' => 'Nouvelle demande',
-            'dit' => 'Demande d\'intervention',
+            'liste' => 'Consultation',
             'demande-dintervention' => 'Demande d\'intervention',
             'atelier' => 'Atelier',
             'demandes' => 'Demandes',
