@@ -26,7 +26,23 @@ class BreadcrumbMenuService
             'it' => $this->getItSubMenu(),
             'pol' => $this->getPolSubMenu(),
             'energie' => $this->getEnergieSubMenu(),
-            'hse' => $this->getHseSubMenu()
+            'hse' => $this->getHseSubMenu(),
+            // RH - Sous-menus spécifiques
+            'ordre-de-mission' => $this->getOdmSubMenu(),
+            'mutations' => $this->getMutationSubMenu(),
+            'conges' => $this->getCongesSubMenu(),
+            'temporaires' => $this->getTemporairesSubMenu(),
+            // Magasin - Sous-menus spécifiques
+            'or' => $this->getOrSubMenu(),
+            'cis' => $this->getCisSubMenu(),
+            // Matériel - Sous-menus spécifiques
+            'mouvement-materiel' => $this->getMouvementMaterielSubMenu(),
+            'casier' => $this->getCasierSubMenu(),
+            // Atelier - Sous-menus spécifiques
+            'demande-intervention' => $this->getDemandeInterventionSubMenu(),
+            // Compta - Sous-menus spécifiques
+            'demande-de-paiement' => $this->getDemandePaiementSubMenu(),
+            'bon-de-caisse' => $this->getBonCaisseSubMenu()
         ];
     }
 
@@ -116,6 +132,244 @@ class BreadcrumbMenuService
         return $this->extractSubMenuItems($menuHse['items']);
     }
 
+    // ========== RH - Sous-menus spécifiques ==========
+
+    private function getOdmSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => 'dom_first_form',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'doms_liste',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getMutationSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => 'mutation_nouvelle_demande',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'mutation_liste',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getCongesSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => '#',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => '#',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getTemporairesSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => '#',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => '#',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Magasin - Sous-menus spécifiques ==========
+
+    private function getOrSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Liste à traiter',
+                'link' => 'magasinListe_index',
+                'icon' => 'fas fa-tasks',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Liste à livrer',
+                'link' => 'magasinListe_or_Livrer',
+                'icon' => 'fas fa-truck-loading',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getCisSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Liste à traiter',
+                'link' => 'cis_liste_a_traiter',
+                'icon' => 'fas fa-tasks',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Liste à livrer',
+                'link' => 'cis_liste_a_livrer',
+                'icon' => 'fas fa-truck-loading',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Matériel - Sous-menus spécifiques ==========
+
+    private function getMouvementMaterielSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => 'badms_newForm1',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'badmListe_AffichageListeBadm',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getCasierSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => 'casier_nouveau',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'listeTemporaire_affichageListeCasier',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Atelier - Sous-menus spécifiques ==========
+
+    private function getDemandeInterventionSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => 'dit_new',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'dit_index',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Dossier DIT',
+                'link' => 'dit_dossier_intervention_atelier',
+                'icon' => 'fas fa-folder',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Compta - Sous-menus spécifiques ==========
+
+    private function getDemandePaiementSubMenu(): array
+    {
+        return [
+            [
+                'id' => 'modalTypeDemande',
+                'title' => 'Nouvelle demande',
+                'link' => '#',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => [],
+                'is_modal' => true
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => 'ddp_liste',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getBonCaisseSubMenu(): array
+    {
+        return [
+            [
+                'id' => null,
+                'title' => 'Nouvelle demande',
+                'link' => '#',
+                'icon' => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id' => null,
+                'title' => 'Consultation',
+                'link' => '#',
+                'icon' => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
     /**
      * Extrait et transforme les items d'un menu en format breadcrumb
      */
@@ -139,12 +393,14 @@ class BreadcrumbMenuService
                 foreach ($item['subitems'] as $subitem) {
                     $breadcrumbItems[] = [
                         'id' => $subitem['modal_id'] ?? null,
-                        'title' => $subitem['title'],
+                        'title' => $item['title'] . ' - ' . $subitem['title'], // Titre combiné pour éviter la confusion
+                        'short_title' => $subitem['title'], // Titre court pour l'affichage
                         'link' => $subitem['link'],
                         'icon' => $subitem['icon'],
                         'routeParams' => $subitem['routeParams'] ?? [],
                         'is_modal' => $subitem['is_modal'] ?? false,
-                        'parent' => $item['title']
+                        'parent' => $item['title'],
+                        'parent_icon' => $item['icon']
                     ];
                 }
             } else {
@@ -174,12 +430,56 @@ class BreadcrumbMenuService
         }
 
         foreach ($config[$section] as $item) {
-            if ($item['title'] === $itemTitle) {
+            if (
+                $item['title'] === $itemTitle ||
+                (isset($item['short_title']) && $item['short_title'] === $itemTitle)
+            ) {
                 return $item;
             }
         }
 
         return null;
+    }
+
+    /**
+     * Trouve un sous-item par son lien
+     */
+    public function findMenuItemByLink(string $section, string $link): ?array
+    {
+        $config = $this->getFullMenuConfig();
+
+        if (!isset($config[$section])) {
+            return null;
+        }
+
+        foreach ($config[$section] as $item) {
+            if ($item['link'] === $link) {
+                return $item;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Obtient tous les items d'une catégorie parente
+     */
+    public function getItemsByParent(string $section, string $parentTitle): array
+    {
+        $config = $this->getFullMenuConfig();
+
+        if (!isset($config[$section])) {
+            return [];
+        }
+
+        $items = [];
+        foreach ($config[$section] as $item) {
+            if (isset($item['parent']) && $item['parent'] === $parentTitle) {
+                $items[] = $item;
+            }
+        }
+
+        return $items;
     }
 
     /**
@@ -221,5 +521,76 @@ class BreadcrumbMenuService
         }
 
         return $breadcrumb;
+    }
+
+    /**
+     * Génère une structure hiérarchique pour l'affichage des menus
+     */
+    public function getHierarchicalMenu(string $section): array
+    {
+        $config = $this->getFullMenuConfig();
+
+        if (!isset($config[$section])) {
+            return [];
+        }
+
+        $hierarchical = [];
+        $groups = [];
+
+        foreach ($config[$section] as $item) {
+            if (isset($item['is_group']) && $item['is_group']) {
+                // C'est un groupe
+                $groups[$item['title']] = [
+                    'title' => $item['title'],
+                    'icon' => $item['icon'],
+                    'children' => []
+                ];
+            } elseif (isset($item['parent'])) {
+                // C'est un sous-item
+                if (isset($groups[$item['parent']])) {
+                    $groups[$item['parent']]['children'][] = $item;
+                }
+            } else {
+                // Item simple
+                $hierarchical[] = $item;
+            }
+        }
+
+        // Ajouter les groupes avec leurs enfants
+        foreach ($groups as $group) {
+            if (!empty($group['children'])) {
+                $hierarchical[] = $group;
+            }
+        }
+
+        return $hierarchical;
+    }
+
+    /**
+     * Obtient les liens directs pour une section (sans groupes)
+     */
+    public function getDirectLinks(string $section): array
+    {
+        $config = $this->getFullMenuConfig();
+
+        if (!isset($config[$section])) {
+            return [];
+        }
+
+        $directLinks = [];
+        foreach ($config[$section] as $item) {
+            if (!isset($item['is_group']) && $item['link'] !== '#') {
+                $directLinks[] = [
+                    'title' => $item['short_title'] ?? $item['title'],
+                    'full_title' => $item['title'],
+                    'link' => $item['link'],
+                    'icon' => $item['icon'],
+                    'parent' => $item['parent'] ?? null,
+                    'routeParams' => $item['routeParams'] ?? []
+                ];
+            }
+        }
+
+        return $directLinks;
     }
 }

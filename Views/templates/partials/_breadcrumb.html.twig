@@ -6,7 +6,7 @@
 		{% for item in items %}
 			<li class="breadcrumb-item {% if item.is_active %}active{% endif %} position-relative {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">
 				{% if item.link and not item.is_active %}
-					<a href="{{ item.link }}" class="breadcrumb-link">
+					<a href="{% if item.link is not null and (item.link == '#' or item.link starts with 'http' or item.link starts with '/') %}{{ item.link }}{% elseif item.link is not null and item.routeParams is defined %}{{ path(item.link, item.routeParams) }}{% elseif item.link is not null %}{{ path(item.link) }}{% else %}#{% endif %}" class="breadcrumb-link">
 						{% if item.icon %}
 							<i class="{{ item.icon }} me-1"></i>
 						{% endif %}
@@ -31,7 +31,7 @@
 									{{ item.title }}
 								</div>
 								{% for subitem in item.dropdown %}
-									<a class="dropdown-item {% if subitem.is_active %}active{% endif %}" href="{{ subitem.link }}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %}>
+									<a class="dropdown-item {% if subitem.is_active %}active{% endif %}" href="{% if subitem.link is not null and (subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/') %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %}>
 										{% if subitem.icon %}
 											<i class="{{ subitem.icon }} me-2"></i>
 										{% endif %}

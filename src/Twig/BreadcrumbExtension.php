@@ -2,19 +2,20 @@
 
 namespace App\Twig;
 
-use App\Factory\BreadcrumbFactory;
-use App\Service\BreadcrumbMenuService;
-use App\Service\MenuService;
-use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
+use App\Service\MenuService;
+use App\Factory\BreadcrumbFactory;
+use Twig\Extension\AbstractExtension;
+use App\Service\BreadcrumbMenuService;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class BreadcrumbExtension extends AbstractExtension
 {
     private BreadcrumbFactory $breadcrumbFactory;
 
-    public function __construct(MenuService $menuService, BreadcrumbMenuService $breadcrumbMenuService)
+    public function __construct(MenuService $menuService, BreadcrumbMenuService $breadcrumbMenuService, UrlGeneratorInterface $urlGenerator)
     {
-        $this->breadcrumbFactory = new BreadcrumbFactory($_ENV['BASE_PATH_APPLICATION'], $breadcrumbMenuService);
+        $this->breadcrumbFactory = new BreadcrumbFactory($_ENV['BASE_PATH_APPLICATION'], $breadcrumbMenuService, $urlGenerator);
     }
 
     public function getFunctions(): array

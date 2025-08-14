@@ -18,12 +18,15 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use DateTime;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitListeController extends Controller
 {
     use DitListTrait;
 
     /**
-     * @Route("/dit", name="dit_index")
+     * @Route("/dit-liste", name="dit_index")
      *
      * @return void
      */

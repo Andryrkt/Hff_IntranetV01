@@ -37,6 +37,7 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Routing\Generator\UrlGenerator;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension;;
+
 use Symfony\Bridge\Twig\Extension\TranslationExtension;
 use Symfony\Component\Form\Extension\Core\CoreExtension;
 use Symfony\Component\Translation\Loader\XliffFileLoader;
@@ -148,10 +149,10 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 $menuService = new MenuService();
 $breadcrumbMenuService = new BreadcrumbMenuService($menuService);
-$twig->addExtension(new BreadcrumbExtension($menuService, $breadcrumbMenuService));
+$twig->addExtension(new BreadcrumbExtension($menuService, $breadcrumbMenuService, $generator));
 
 // Configurer le package pour le dossier 'public'
-$publicPath = $_ENV['BASE_PATH_COURT'].'/public';
+$publicPath = $_ENV['BASE_PATH_COURT'] . '/public';
 $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()));
 
 // Ajouter l'extension Asset à Twig
@@ -167,7 +168,7 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     },
 ]));
 
-$entitymanager = require_once dirname(__DIR__)."/doctrineBootstrap.php";
+$entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 // Créer une instance de SimpleManagerRegistry
 $managerRegistry = new SimpleManagerRegistry($entityManager);

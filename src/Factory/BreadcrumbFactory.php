@@ -67,7 +67,7 @@ class BreadcrumbFactory
     private function createSubItems(string $currentPath, string $slug): array
     {
         return array_map(function ($sub) use ($currentPath) {
-            $subLink = isset($sub['link']) ? $this->baseUrl . $sub['link'] : '#';
+            $subLink = isset($sub['link']) ? $sub['link'] : '#';
             return [
                 'id' => $sub['id'] ?? null,
                 'title' => $sub['title'],

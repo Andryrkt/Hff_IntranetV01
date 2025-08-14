@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/atelier/dit")
+ * @Route("/atelier/demande-intervention")
  */
 class DitController extends Controller
 {
