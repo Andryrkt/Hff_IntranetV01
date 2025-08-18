@@ -57,10 +57,10 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->setFont('helvetica', '', 9);
         $pdf->MultiCell(164, 50, $da->getDetailDal(), 1, '', 0, 0, '', '', true);
         $pdf->Ln(3, true);
-        $pdf->setAbsY(83);
+        $pdf->setAbsY(84);
 
         //===================================================================================================
-        /**AGENCE-SERVICE */
+        /** AGENCE-SERVICE */
         $this->renderTextWithLine($pdf, 'Agence - Service');
 
         $pdf->SetTextColor(0, 0, 0);
@@ -70,19 +70,20 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->cell(50, 6, $da->getAgenceServiceEmetteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->cell(20, 6, 'Débiteur :', 0, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->cell(0, 6, $da->getAgenceServiceDebiteur(), 1, 0, '', false, '', 0, false, 'T', 'M');
-        $pdf->Ln(6, true);
+        $pdf->cell(0, 6, $da->getAgenceServiceDebiteur(), 1, 1, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(3);
 
         //===================================================================================================
-        /** ARTICLE VALIDES */
+        /** ARTICLE DEMANDES */
         $this->renderTextWithLine($pdf, 'Articles demandés');
 
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);
         $header = [
-            ['key' => 'designation', 'label' => 'Désignation', 'width' => 300, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
+            ['key' => 'designation', 'label' => 'Désignation', 'width' => 200, 'style' => 'font-weight: bold; text-align: left;'],
+            ['key' => 'comms',       'label' => 'Commentaire', 'width' => 300, 'style' => 'font-weight: normal; text-align: left;'],
+            ['key' => 'qte',         'label' => 'Qté',         'width' => 40,  'style' => 'font-weight: bold; text-align: center;'],
         ];
         $html1 = $generator->generateTableForDaAValiderDW($header, $dals);
         $pdf->writeHTML($html1, true, false, true, false, '');

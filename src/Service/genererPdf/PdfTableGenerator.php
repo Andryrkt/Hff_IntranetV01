@@ -300,6 +300,12 @@ class PdfTableGenerator
         return $html;
     }
 
+    /** 
+     * Fonction pour générer le corps du tableau du PDF à valider DW
+     * 
+     * @param array $headerConfig configuration de l'entête du tableau
+     * @param iterable<DemandeApproL> $dals les dals de la DA
+     */
     private function generateBodyForDaAValiderDW(array $headerConfig, iterable $dals)
     {
         $html = '<tbody>';
@@ -315,6 +321,7 @@ class PdfTableGenerator
             $html .= '<tr>';
             $row = [
                 'designation' => $dal->getArtDesi(),
+                'comms'       => $dal->getCommentaire(),
                 'qte'         => $dal->getQteDem(),
             ];
             foreach ($headerConfig as $config) {
