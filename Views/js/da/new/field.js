@@ -38,7 +38,7 @@ export function createFieldAndAppendTo(
   } else if (fieldName === "artConstp") {
     field.value = "ZST";
   } else if (fieldName === "numeroLigne") {
-    field.value = localStorage.getItem("index");
+    field.value = localStorage.getItem("daWithDitLineCounter"); // le numéro de la ligne de création d'une DA avec DIT
   } else if (fieldName === "fileNames") {
     field.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
     field.addEventListener("change", (event) => onFileNamesInputChange(event));

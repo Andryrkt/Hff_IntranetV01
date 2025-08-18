@@ -2,7 +2,7 @@ import { displayOverlay } from "../../utils/spinnerUtils";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {
-  localStorage.setItem("index", 0); // initialiser le nombre de ligne à 0
+  localStorage.setItem("daWithDitLineCounter", 0); // initialiser le compteur de ligne pour la création d'une DA avec DIT
 
   document
     .getElementById("add-child")

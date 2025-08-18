@@ -107,7 +107,7 @@ function buildIndexFromLines() {
       }
     }
   });
-  localStorage.setItem("index", maxIndex);
+  localStorage.setItem("daWithDitLineCounter", maxIndex);
 }
 
 function deleteLigneDa(button) {
