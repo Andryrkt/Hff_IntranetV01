@@ -34,51 +34,30 @@ class listeDaController extends Controller
      */
     public function index(Request $request)
     {
-        $start = microtime(true);
-        $fonctions = [];
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $fonctions[] = ['fonctionName' => 'verifierSessionUtilisateur()', 'executionTime' => number_format(microtime(true) - $start, 4)];
-
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
-
-        $start1 = microtime(true);
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
-        $fonctions[] = ['fonctionName' => 'findNumDaOfNonDeverrouillees()', 'executionTime' => number_format(microtime(true) - $start1, 4)];
 
-        $start2 = microtime(true);
         //formulaire de recherche
         $form = self::$validator->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
-        $fonctions[] = ['fonctionName' => 'self::$validator->createBuilder(DaSearchType::class, ...)', 'executionTime' => number_format(microtime(true) - $start2, 4)];
 
-        $start3 = microtime(true);
         // Formulaire de l'historique de modification des DA
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-        $fonctions[] = ['fonctionName' => 'self::$validator->createBuilder(HistoriqueModifDaType::class ...)', 'executionTime' => number_format(microtime(true) - $start3, 4)];
 
-        $start4 = microtime(true);
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
-        $fonctions[] = ['fonctionName' => 'traitementFormulaireDeverouillage($formHistorique, $request)', 'executionTime' => number_format(microtime(true) - $start4, 4)];
         $form->handleRequest($request);
 
-        $start5 = microtime(true);
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        $fonctions[] = ['fonctionName' => '$form->isSubmitted() && $form->isValid()', 'executionTime' => number_format(microtime(true) - $start5, 4)];
 
-        // $start6 = microtime(true);
         // Donnée à envoyer à la vue
         $data = $this->getData($criteria, $fonctions);
-        // $fonctions[] = ['fonctionName' => 'getData($criteria)', 'executionTime' => number_format(microtime(true) - $start6, 4)];
-
-        $start8 = microtime(true);
         $dataPrepared = $this->prepareDataForDisplay($data, $numDaNonDeverrouillees);
-        $fonctions[] = ['fonctionName' => 'prepareDataForDisplay($data, $numDaNonDeverrouillees)', 'executionTime' => number_format(microtime(true) - $start8, 4)];
 
-        $start7 = microtime(true);
         self::$twig->display('da/list_da.html.twig', [
             'data'                   => $dataPrepared,
             'form'                   => $form->createView(),
@@ -88,39 +67,22 @@ class listeDaController extends Controller
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
             'fonctions'              => $fonctions,
         ]);
-        dump("Temps d'éxecution de display: " . number_format(microtime(true) - $start7, 4));
-        dump("Temps d'éxecution Total: " . number_format(microtime(true) - $start, 4));
     }
 
     public function getData(array $criteria, &$fonctions): array
     {
-        $start = microtime(true);
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
-        $fonctions[] = ['fonctionName' => 'getUser()', 'executionTime' => number_format(microtime(true) - $start, 4)];
-
-        $start1 = microtime(true);
         $codeAgence = $userConnecter->getCodeAgenceUser();
-        $fonctions[] = ['fonctionName' => '$userConnecter->getCodeAgenceUser()', 'executionTime' => number_format(microtime(true) - $start1, 4)];
-
-        $start2 = microtime(true);
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $fonctions[] = ['fonctionName' => '$this->agenceRepository->findIdByCodeAgence($codeAgence)', 'executionTime' => number_format(microtime(true) - $start2, 4)];
-
-        $start3 = microtime(true);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
-        $fonctions[] = ['fonctionName' => '$this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, ...', 'executionTime' => number_format(microtime(true) - $start3, 4)];
 
-        $start4 = microtime(true);
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
-        $fonctions[] = ['fonctionName' => '$this->quelqueModifictionDansDatabase($daAffichers)', 'executionTime' => number_format(microtime(true) - $start4, 4)];
 
-        $start5 = microtime(true);
         // Vérification du verrouillage des DA
         $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
-        $fonctions[] = ['fonctionName' => '$this->verouillerOuNonLesDa($daAffichers)', 'executionTime' => number_format(microtime(true) - $start5, 4)];
         // Retourne les DA filtrées
         return $daAffichers;
     }
