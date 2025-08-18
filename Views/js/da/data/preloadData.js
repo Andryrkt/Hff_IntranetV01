@@ -1,4 +1,4 @@
-import { fetchAllData } from "../proposition/autocompletion";
+import { fetchAllData } from "../propositionAvecDit/autocompletion";
 
 export async function preloadAllData() {
   const cachedData = localStorage.getItem("autocompleteCache");

@@ -1,6 +1,6 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
-import { ajouterUneLigne } from "../new/dal";
-import { onFileNamesInputChange } from "../new/field";
+import { ajouterUneLigne } from "../newAvecDit/dal";
+import { onFileNamesInputChange } from "../newAvecDit/field";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines();

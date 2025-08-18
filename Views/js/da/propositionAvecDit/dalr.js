@@ -1,7 +1,7 @@
-import { replaceNameToNewIndex } from "../new/dal";
-import { formaterNombre } from "../../utils/formatNumberUtils";
+import { formaterNombre } from "../../utils/formatNumberUtils.js";
 import { boutonRadio } from "./boutonRadio.js";
 import { generateCustomFilename } from "../../utils/dateUtils.js";
+import { replaceNameToNewIndex } from "../newAvecDit/dal.js";
 
 // Dictionnaire pour stocker les fichiers sélectionnés par champ input
 const selectedFilesMap = {};

@@ -6,11 +6,7 @@ import {
   allowOnlyNumbers,
 } from "../../utils/inputUtils";
 import { displayOverlay } from "../../utils/spinnerUtils";
-import { FetchManager } from "../../api/FetchManager";
-import { baseUrl } from "../../utils/config";
-import { handleRowClick } from "../proposition/dalr";
-
-const fetchManager = new FetchManager();
+import { handleRowClick } from "../propositionAvecDit/dalr";
 
 document.addEventListener("DOMContentLoaded", function () {
   /**===========================================================================
