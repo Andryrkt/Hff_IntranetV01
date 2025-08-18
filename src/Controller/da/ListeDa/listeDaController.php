@@ -2,8 +2,6 @@
 
 namespace App\Controller\da\ListeDa;
 
-use App\Model\da\DaModel;
-use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
@@ -11,18 +9,10 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Controller\Traits\da\DaListeTrait;
 use App\Controller\Traits\da\StatutBcTrait;
-use App\Entity\admin\utilisateur\Role;
-use App\Repository\admin\AgenceRepository;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Repository\da\DaAfficherRepository;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Form\da\HistoriqueModifDaType;
-use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
-use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 
 /**
  * @Route("/demande-appro")
@@ -32,24 +22,11 @@ class listeDaController extends Controller
     use DaListeTrait;
     use StatutBcTrait;
 
-    private DaAfficherRepository $daAfficherRepository;
-    private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
-    private AgenceRepository $agenceRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
-    private DaModel $daModel;
-    private DemandeApproRepository $daRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->historiqueModifDARepository = self::$em->getRepository(DaHistoriqueDemandeModifDA::class);
-        $this->agenceRepository = self::$em->getRepository(Agence::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-        $this->daModel = new DaModel();
-        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->setEntityManager(self::$em);
+        $this->initDaListeTrait(self::$generator);
     }
 
     /**
@@ -64,49 +41,48 @@ class listeDaController extends Controller
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         //formulaire de recherche
-        $form = self::$validator->createBuilder(DaSearchType::class, null, [
-            'method' => 'GET',
-        ])->getForm();
+        $form = self::$validator->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
 
         // Formulaire de l'historique de modification des DA
         $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
-        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
 
+        $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
         $form->handleRequest($request);
 
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
+
         // Donnée à envoyer à la vue
-        $data = $this->getData($criteria);
+        $data = $this->getData($criteria, $fonctions);
+        $dataPrepared = $this->prepareDataForDisplay($data, $numDaNonDeverrouillees);
 
         self::$twig->display('da/list_da.html.twig', [
-            'data'                   => $data,
+            'data'                   => $dataPrepared,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),
             'serviceAtelier'         => $this->estUserDansServiceAtelier(),
             'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
+            'fonctions'              => $fonctions,
         ]);
     }
 
-    public function getData(array $criteria): array
+    public function getData(array $criteria, &$fonctions): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
-
+        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA
         $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
-
         // Retourne les DA filtrées
         return $daAffichers;
     }
@@ -135,7 +111,7 @@ class listeDaController extends Controller
 
         $estAppro = $this->estUserDansServiceAppro();
         $estAtelier = $this->estUserDansServiceAtelier();
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds());
+        $estAdmin = $this->estAdmin();
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 
         $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_A_VALIDE_DW];
@@ -169,7 +145,7 @@ class listeDaController extends Controller
     {
         foreach ($datas as $data) {
             $this->modificationDateRestant($data);
-            $this->modificationStatutDa($data);
+            // $this->modificationStatutDa($data);
             $this->modificationStatutBC($data);
         }
         self::$em->flush();
@@ -191,7 +167,7 @@ class listeDaController extends Controller
      */
     private function modificationStatutDa(DaAfficher $data)
     {
-        $statutDa = $this->daRepository->getStatutDa($data->getNumeroDemandeAppro());
+        $statutDa = $this->demandeApproRepository->getStatutDa($data->getNumeroDemandeAppro());
         $data->setStatutDal($statutDa);
         self::$em->persist($data);
     }
@@ -216,7 +192,7 @@ class listeDaController extends Controller
             $idDa = $form->get('idDa')->getData();
 
             /** @var DemandeAppro $demandeAppro */
-            $demandeAppro = $this->daRepository->find($idDa);
+            $demandeAppro = $this->demandeApproRepository->find($idDa);
 
             $historiqueModifDA = $this->historiqueModifDARepository->findOneBy(['demandeAppro' => $demandeAppro]);
 

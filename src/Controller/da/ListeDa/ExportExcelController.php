@@ -121,7 +121,7 @@ class ExportExcelController extends Controller
         $idAgenceUser = $this->agenceRepository->findOneBy(['codeAgence' => $codeAgence])->getId();
 
         // Filtrage des DA en fonction des critères
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
 
         // Retourne les DA filtrées
         return $daAffichers;

@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaModel;
 
@@ -565,5 +566,11 @@ class Controller
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+    }
+
+    protected function estAdmin(): bool
+    {
+        $roleIds = $this->getUser()->getRoleIds();
+        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
     }
 }

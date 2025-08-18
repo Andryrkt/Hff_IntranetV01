@@ -109,6 +109,7 @@ class DemandeApproDirectFormType extends AbstractType
                 'choice_value' => 'description',
                 'placeholder'  => '-- Choisir un niveau d\'urgence --',
                 'required'     => true,
+                'data'         => $this->niveauUrgenceRepository->findOneBy(['description' => $options["data"]->getNiveauUrgence()]),
                 'attr'         => ['class' => 'niveauUrgence'],
             ])
             ->add('DAL', CollectionType::class, [

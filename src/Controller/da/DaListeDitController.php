@@ -31,7 +31,7 @@ class DaListeDitController extends Controller
 
     private DitSearch $ditSearch;
     private DitRepository $ditRepository;
-    private DemandeApproRepository $daRepository;
+    private DemandeApproRepository $demandeApproRepository;
     private WorTypeDocumentRepository $worTypeDocumentRepository;
     private WorNiveauUrgenceRepository $worNiveauUrgenceRepository;
     private StatutDemandeRepository $statutDemandeRepository;
@@ -45,7 +45,7 @@ class DaListeDitController extends Controller
 
         $this->ditSearch = new DitSearch();
         $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->worTypeDocumentRepository = self::$em->getRepository(WorTypeDocument::class);
         $this->worNiveauUrgenceRepository = self::$em->getRepository(WorNiveauUrgence::class);
         $this->statutDemandeRepository = self::$em->getRepository(StatutDemande::class);

@@ -8,10 +8,7 @@ use App\Controller\Controller;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\da\DemandeAppro;
 use App\Model\dom\DomModel;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Model\dw\DossierInterventionAtelierModel;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
@@ -24,7 +21,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     private $requestStack;
     private $tokenStorage;
     private $domModel;
-    private $dwModel;
     private $authorizationChecker;
 
 
@@ -36,7 +32,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $this->tokenStorage = $tokenStorage;
         $this->authorizationChecker = $authorizationChecker;
         $this->domModel = new DomModel;
-        $this->dwModel = new DossierInterventionAtelierModel;
     }
 
     public function getGlobals(): array
@@ -62,7 +57,6 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                 'request' => $this->requestStack->getCurrentRequest(),
                 'notification' => $notification,
             ],
-            'DA' => DemandeAppro::class,
         ];
     }
 
@@ -70,17 +64,11 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     {
         return [
             new TwigFunction('trop_percu', [$this, 'tropPercu']),
-            new TwigFunction('get_path_or_max', [$this, 'getPathOrMax']),
         ];
     }
 
     public function tropPercu(string $numeroDom)
     {
         return $this->domModel->verifierSiTropPercu($numeroDom);
-    }
-
-    public function getPathOrMax(?string $numeroOR)
-    {
-        return $this->dwModel->findCheminOrVersionMax($numeroOR);
     }
 }

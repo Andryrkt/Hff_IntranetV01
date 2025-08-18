@@ -210,10 +210,8 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier): array
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array
     {
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $user->getRoleIds());
-
         $qb = $this->createQueryBuilder('d');
 
         $qb->where(
