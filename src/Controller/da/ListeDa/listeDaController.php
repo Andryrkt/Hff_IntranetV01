@@ -146,7 +146,7 @@ class listeDaController extends Controller
         foreach ($datas as $data) {
             $this->modificationDateRestant($data);
             // $this->modificationStatutDa($data);
-            // $this->modificationStatutBC($data);
+            $this->modificationStatutBC($data);
         }
         self::$em->flush();
     }

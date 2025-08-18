@@ -10,3 +10,6 @@ VALUES (
     '30', 'ATE', 'ATELIER',
     'HF', 'BC11'
 );
+
+ALTER TABLE Agence_Service_Irium
+ADD chef_service_id INT
