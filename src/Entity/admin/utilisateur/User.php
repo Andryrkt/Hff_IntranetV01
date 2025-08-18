@@ -94,9 +94,9 @@ class User implements UserInterface
 
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="string", name="superieurs", nullable=true)
      */
-    private $superieurs = [];
+    private $superieur;
 
 
     /**
@@ -346,49 +346,18 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getSuperieurs(): array
+    public function getSuperieur()
     {
-        if ($this->superieurs !== null) {
-            return $this->superieurs;
-        } else {
-            return [];
-        }
+        return $this->superieur;
     }
 
-    public function setSuperieurs(array $superieurs): self
+    public function setSuperieur($superieur): self
     {
-        $this->superieurs = $superieurs;
+        $this->superieur = $superieur;
 
         return $this;
     }
 
-    public function addSuperieur(User $superieurId): self
-    {
-
-        $superieurIds[] = $superieurId->getId();
-
-        if ($this->superieurs === null) {
-            $this->superieurs = [];
-        }
-
-        if (!in_array($superieurIds, $this->superieurs, true)) {
-            $this->superieurs[] = $superieurId;
-        }
-
-        return $this;
-    }
-
-    public function removeSuperieur(User $superieurId): self
-    {
-        $superieurIds[] = $superieurId->getId();
-
-        if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
-            unset($this->superieurs[$key]);
-            $this->superieurs = array_values($this->superieurs);
-        }
-
-        return $this;
-    }
 
     /**
      * Get the value of demandeInterventions
@@ -740,6 +709,15 @@ class User implements UserInterface
     public function getCodeServiceUser()
     {
         return $this->agenceServiceIrium ? $this->agenceServiceIrium->getServiceIps() : null;
+    }
+
+    public function getChefService()
+    {
+        if ($this->agenceServiceIrium && method_exists($this->agenceServiceIrium, '__load')) {
+            $this->agenceServiceIrium->__load();
+        }
+
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getChefServiceId() : null;
     }
 
     public function getPassword() {}

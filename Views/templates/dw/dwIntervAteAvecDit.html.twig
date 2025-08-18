@@ -15,10 +15,9 @@
 		<div class="col-12 col-md-6">
 			<div class="container">
 				<div class="dossier">DOSSIER:
-					<span id="numero-dit">{{data.0.numero_doc}}</span>
+					<span id="numero-dit">{{ numDit }}</span>
 				</div>
-
-				<table class="table rounded table-plein-ecran table-moitier">
+				<table class="table rounded table-plein-ecran">
 					<thead class="table-dark">
 						<tr>
 							<th>Type</th>
@@ -59,32 +58,33 @@
 								<td>{{item.date_modification | date('d/m/Y')}}</td>
 								<td class="text-center">{{numeroVersion}}</td>
 								<td class="text-center">{{item.total_page}}</td>
-								<td>{{(item.taille_fichier / 1024) | number_format(2)  | replace({'.': ',', ',': '.'})}}
-									ko</td>
+								<td>{{(item.taille_fichier / 1024)|number_format(2)|replace({'.' : ',', ',': '.'})}}
+									Ko</td>
 							</tr>
 						{% endfor %}
 					</tbody>
-				</tbody>
-			</table>
-			<div class="notice">
-				<span class="notice-icon">
-					<i class="fas fa-info-circle"></i>
-				</span>
-				<div class="notice-content">
-					Les navigateurs peuvent afficher directement des fichiers comme des PDF, des images (JPEG, PNG, GIF, etc.), et parfois même des fichiers texte. Pour d'autres formats, le fichier sera téléchargé.
+				</table>
+				<div class="notice">
+					<span class="notice-icon">
+						<i class="fas fa-info-circle"></i>
+					</span>
+					<div class="notice-content">
+						Les navigateurs peuvent afficher directement des fichiers comme des PDF, des images (JPEG, PNG, GIF, etc.), et parfois même des fichiers texte. Pour d'autres formats, le fichier sera téléchargé.
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-md-6">
+			<div class="container">
+				<div id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
+					<div id="spinners" style="display: none;">Loading...</div>
+					<!-- Le fichier sélectionné sera affiché ici -->
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="col-12 col-md-6">
-		<div
-			id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
-			<!-- Le fichier sélectionné sera affiché ici -->
-			<div id="spinners" style="display: none;">Loading...</div>
-
-		</div>
-	</div>
-</div>
 
 
-<script src="{{ App.base_path }}/Views/js/dw/dwIntervAteAvecDit.js" type="module"></script>{% endblock %}{% block javascript %}{% endblock %}
+	<script src="{{ App.base_path }}/Views/js/dw/dwIntervAteAvecDit.js" type="module"></script>
+{% endblock %}
+{% block javascript %}{% endblock %}

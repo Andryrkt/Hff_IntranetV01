@@ -40,7 +40,7 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/new/{id}", name="da_new")
+     * @Route("/new-avec-dit/{id}", name="da_new_avec_dit")
      */
     public function new($id, Request $request)
     {
@@ -113,7 +113,7 @@ class DaNewAvecDitController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
-            $this->envoyerMailcreationDaAvecDit($demandeAppro, [
+            $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [
                 'service'       => 'atelier',
                 'observation'   => $demandeAppro->getObservation() ?? '-',
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -134,7 +134,7 @@ class DaNewAvecDitController extends Controller
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->daFileUploader->uploadPJForDal($file, $dal, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }

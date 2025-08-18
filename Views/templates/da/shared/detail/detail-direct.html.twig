@@ -41,6 +41,7 @@
 	<thead class="table-dark text-center">
 		<tr>
 			<th></th>
+			<th class="text-start">Référence</th>
 			<th class="text-start">Désignation</th>
 			<th class="text-start">Fournisseur</th>
 			<th class="text-start">Date fin souhaitée</th>
@@ -61,6 +62,7 @@
 						<i class="fas fa-chevron-up"></i>
 					</button>
 				</td>
+				<td>{{ DAL.artRefp ?? '-' }}</td>
 				<td>
 					{{ DAL.artDesi }}
 				</td>
@@ -106,12 +108,13 @@
 			</tr>
 			{% if DAL.demandeApproLR is empty %}
 				<tr class="child-row">
-					<td colspan="13" class="text-center">Aucune ligne de proposition de l'APPRO</td>
+					<td colspan="14" class="text-center">Aucune ligne de proposition de l'APPRO</td>
 				</tr>
 			{% else %}
 				{% for item in DAL.demandeApproLR %}
 					<tr class="child-row">
 						<td></td>
+						<td class="text-start">{{ item.artRefp ?? '-' }}</td>
 						<td class="text-start">{{ item.artDesi }}</td>
 						<td class="text-start">{{ item.nomFournisseur }}</td>
 						<td class="text-center">{{ DAL.dateFinSouhaite|date('d/m/Y') }}</td>

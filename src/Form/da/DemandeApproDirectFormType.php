@@ -2,23 +2,31 @@
 
 namespace App\Form\da;
 
+use App\Controller\Controller;
 use App\Entity\admin\dit\WorNiveauUrgence;
-use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DemandeIntervention;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Form\Extension\Core\Type\CollectionType;
-use App\Model\dit\DitModel;
 use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use Symfony\Component\Form\AbstractType;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
+use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 
 class DemandeApproDirectFormType extends AbstractType
 {
+    private WorNiveauUrgenceRepository $niveauUrgenceRepository;
+
+    public function __construct()
+    {
+        $em = Controller::getEntity();
+        $this->niveauUrgenceRepository = $em->getRepository(WorNiveauUrgence::class);
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -91,19 +99,18 @@ class DemandeApproDirectFormType extends AbstractType
                     'data' => $options["data"]->getServiceDebiteur()->getCodeService() . ' ' . $options["data"]->getServiceDebiteur()->getLibelleService()
                 ]
             )
-            ->add('niveauUrgence', EntityType::class, [
-                'label' => 'Niveau d\'urgence *',
-                'class' => WorNiveauUrgence::class,
+            ->add('niveauUrgence', ChoiceType::class, [
+                'label'        => 'Niveau d\'urgence *',
+                'choices'      => $this->niveauUrgenceRepository->createQueryBuilder('n')
+                    ->orderBy('n.description', 'ASC')
+                    ->getQuery()
+                    ->getResult(),
                 'choice_label' => 'description',
-                'placeholder' => '-- Choisir une niveau d\'urgence --',
-                'required' => true,
-                'query_builder' => function (EntityRepository $er) {
-                    return $er->createQueryBuilder('n')
-                        ->orderBy('n.description', 'ASC');
-                },
-                'attr' => [
-                    'class' => 'niveauUrgence'
-                ]
+                'choice_value' => 'description',
+                'placeholder'  => '-- Choisir un niveau d\'urgence --',
+                'required'     => true,
+                'data'         => $this->niveauUrgenceRepository->findOneBy(['description' => $options["data"]->getNiveauUrgence()]),
+                'attr'         => ['class' => 'niveauUrgence'],
             ])
             ->add('DAL', CollectionType::class, [
                 'label' => false,

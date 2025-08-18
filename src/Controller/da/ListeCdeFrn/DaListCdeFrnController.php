@@ -34,7 +34,7 @@ class DaListCdeFrnController extends Controller
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
-    private DemandeApproRepository $daRepository;
+    private DemandeApproRepository $demandeApproRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
 
 
@@ -44,7 +44,7 @@ class DaListCdeFrnController extends Controller
         $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->daRepository = self::$em->getRepository(DemandeAppro::class);
+        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
 
@@ -71,10 +71,7 @@ class DaListCdeFrnController extends Controller
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
         /** mise à jour des donners daAfficher */
-        foreach ($daAfficherValides as $davalide) {
-            $statutBC = $this->statutBc($davalide->getArtRefp(), $davalide->getNumeroDemandeDit(), $davalide->getNumeroDemandeAppro(), $davalide->getArtDesi(), $davalide->getNumeroOr());
-            $davalide->setStatutCde($statutBC);
-        }
+        $this->quelqueMiseAjourDaAfficher($daAfficherValides);
 
 
         self::$twig->display('da/daListCdeFrn.html.twig', [
@@ -82,6 +79,26 @@ class DaListCdeFrnController extends Controller
             'formSoumission' => $formSoumission->createView(),
             'form' => $form->createView(),
         ]);
+    }
+
+    private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
+    {
+        foreach ($daAfficherValides as $davalide) {
+            $this->modificationStatutBC($davalide);
+        }
+        self::$em->flush();
+    }
+
+    /**
+     * Cette methode permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC(DaAfficher $data)
+    {
+        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $data->setStatutCde($statutBC);
+        self::$em->persist($data);
     }
 
     private function donnerAfficher(?array $criteria): array

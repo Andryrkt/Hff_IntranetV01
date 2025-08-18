@@ -109,7 +109,7 @@ class DaDetailDirectController extends Controller
 
 			/** ENVOIE D'EMAIL pour l'observation */
 			$service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-			$this->envoyerMailObservationDaDirect($demandeAppro, [
+			$this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
 				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),

@@ -5,7 +5,6 @@ namespace App\Controller\generationPDF;
 use App\Controller\Controller;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
-use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\Routing\Annotation\Route;
 
 /** @Route(path="/api/generation-PDF") */
@@ -27,7 +26,7 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDa(string $numeroDemandeAppro)
     {
-        if (!in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds())) {
+        if (!$this->estAdmin()) {
             $this->redirectToRoute('security_signin');
         }
         $this->creationPDFAvecDit($numeroDemandeAppro);
@@ -38,7 +37,7 @@ class GenerationPDFController extends Controller
      */
     public function genererPdfDaDirect(string $numeroDemandeAppro)
     {
-        if (!in_array(Role::ROLE_ADMINISTRATEUR, $this->getUser()->getRoleIds())) {
+        if (!$this->estAdmin()) {
             $this->redirectToRoute('security_signin');
         }
         $this->creationPDFDirect($numeroDemandeAppro);

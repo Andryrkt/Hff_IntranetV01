@@ -11,39 +11,6 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% set role_ids = App.user.roleIds %}
-
-{% set styleStatutDA = {
-	(constant(DA ~ '::STATUT_VALIDE'))              : 'bg-bon-achat-valide fw-bold',
-	(constant(DA ~ '::STATUT_TERMINER'))            : 'bg-primary text-white fw-bold',
-	(constant(DA ~ '::STATUT_SOUMIS_ATE'))          : 'bg-proposition-achat fw-bold',
-	(constant(DA ~ '::STATUT_SOUMIS_APPRO'))        : 'bg-demande-achat fw-bold',
-	(constant(DA ~ '::STATUT_A_VALIDE_DW'))         : 'bg-warning text-secondary',
-	(constant(DA ~ '::STATUT_AUTORISER_MODIF_ATE')) : 'bg-creation-demande-initiale fw-bold',
-} %}
-
-{% set styleStatutOR = {
-	'Refusé chef atelier': 'bg-or-non-valide',
-	'Refusé client interne': 'bg-or-non-valide',
-	'Validé': 'bg-danger text-white',
-	'A resoumettre à validation': 'bg-warning text-secondary',
-} %}
-
-{% set styleStatutBC = {
-	'A générer': 'bg-bc-a-generer fw-bold',
-	'A éditer': 'bg-bc-a-editer fw-bold',
-	'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
-	'Validé': 'bg-bc-valide fw-bold',
-	'Cloturé': 'bg-bc-valide fw-bold',
-	'Non validé': 'bg-bc-non-valide fw-bold',
-	'Tous livrés':'tout-livre bg-success text-white',
-	'Partiellement livré':'partiellement-livre bg-warning text-white',
-	'Partiellement dispo':'partiellement-dispo bg-info text-white',
-	'Complet non livré':'complet-non-livre bg-primary text-white'
-} %}
-
-{% set icon_ban = '<i class="fas fa-ban text-muted"></i>' %}
-
 {% block content %}
 
 	<div class="sticky-header-titre">
@@ -89,18 +56,8 @@
 				</tr>
 			</thead>
 			<tbody id="tableBody" class="align-middle">
-				{% for item in data %}
-
-					{% set demandeDeverouiller = serviceAtelier and item.demandeDeverouillage %}
-					{% set ajouterDA = false and (serviceAtelier or constant('App\\Entity\\admin\\utilisateur\\Role::ROLE_ADMINISTRATEUR') in role_ids) and item.numeroDemandeDit ?? false %}
-					{% set aDeverouiller = serviceAppro and item.numeroDemandeAppro in numDaNonDeverrouillees %}
-					{% set designationStyle = item.estDalr ? 'mise-en-evidence' : '' %}
-					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
-					{% set url_proposition = item.achatDirect ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit' %}
-					{% set url_delete = item.achatDirect ? 'da_delete_line_direct' : 'da_delete_line_avec_dit' %}
-					{% set route_params = { id: item.demandeAppro.id } %}
-					{% set del_route_params = { numDa: item.numeroDemandeAppro, ligne: item.numeroLigne } %}
-
+				{% for row in data %}
+					{% set item = row.item %}
 					<tr>
 						{# === Début Action ==== #}
 						<td style="padding: 0px">
@@ -109,81 +66,75 @@
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-									{% if ajouterDA %}
+									{% if row.ajouterDA %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
 										</li>
 									{% endif %}
-									{% if item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_VALIDE') %}
+									{% if row.statutValide %}
 										<li>
 											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
 										</li>
 									{% endif %}
-									{% if demandeDeverouiller %}
+									{% if row.demandeDeverouiller %}
 										<li>
 											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Demander le déverrouillage de la DA</a>
 										</li>
-									{% elseif serviceAppro %}
-										{% if item.numeroDemandeAppro in numDaNonDeverrouillees %}
-											<li>
-												<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Déverouiller la DA</a>
-											</li>
-										{% endif %}
-										{% if item.statutOr is same as "Validé" and get_path_or_max(item.numeroOR) is not empty%}
-											{% set chemin = get_path_or_max(item.numeroOR)['chemin'] %}
-											<li>
-												<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
-											</li>
-										{% endif %}
+									{% endif %}
+									{% if row.aDeverouiller %}
+										<li>
+											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Déverouiller la DA</a>
+										</li>
+									{% endif %}
+
+									{% if row.telechargerOR %}
+										{% set chemin = row.pathOrMax.chemin %}
+										<li>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/{{ chemin }}" download>Télécharger l’OR</a>
+										</li>
 									{% endif %}
 								</ul>
 							</div>
 						</td>
 						{# === Fin Actions ==== #}
-						<td class="{{ aDeverouiller ? 'bg-danger' : '' }}">
-							<a href="{{ path(url_detail, route_params) }}" target="_blank" class="{{ aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
-								{{item.numeroDemandeAppro}}
+						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
+							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
+								{{ item.numeroDemandeAppro }}
 							</a>
 						</td>
 						<td class="text-center">
-							{{ item.achatDirect ? '<i class="fas fa-check text-success"></i>' : ''}}</td>
-						<td>{{item.numeroDemandeDit|default(icon_ban)|raw}}</td>
-						<td>{{item.niveauUrgence}}</td>
-						<td>{{item.achatDirect ? icon_ban|raw :item.numeroOr}}</td>
-						<td>{{item.demandeur}}</td>
-						<td>{{item.dateDemande != null ? item.dateDemande | date('d/m/Y') : ''}}</td>
-						<td class="{{ styleStatutDA[item.statutDal] }} fw-bold">{{item.statutDal}}</td>
-						<td class="text-start {{ styleStatutOR[item.statutOr] }} fw-bold text-center">{{item.achatDirect ? icon_ban|raw :item.statutOr}}</td>
-						<td class="text-start {{ styleStatutBC[item.statutCde] }} fw-bold">{{item.statutCde}}</td>
-						<td class="text-center">{{ item.achatDirect ? icon_ban|raw :item.datePlannigOr ? item.datePlannigOr|date('d/m/Y') : '' }}</td>
-						<td class="text-start">{{item.nomFournisseur}}</td>
-						<td class="text-start">{{item.artRefp}}</td>
-						<td class="text-start {{ designationStyle }}">
+							{{ item.achatDirect }}</td>
+						<td>{{ item.numeroDemandeDit }}</td>
+						<td>{{ item.niveauUrgence }}</td>
+						<td>{{ item.numeroOr }}</td>
+						<td>{{ item.demandeur }}</td>
+						<td>{{ item.dateDemande }}</td>
+						<td class="{{ row.styleStatutDA }} fw-bold">{{ item.statutDal }}</td>
+						<td class="text-start {{ row.styleStatutOR }} fw-bold text-center">{{ item.statutOr }}</td>
+						<td class="text-start {{ row.styleStatutBC }} fw-bold">{{ item.statutCde }}</td>
+						<td class="text-center">{{ item.datePlannigOr }}</td>
+						<td class="text-start">{{ item.nomFournisseur }}</td>
+						<td class="text-start">{{ item.artRefp }}</td>
+						<td class="text-start {{ item.estDalr ? 'mise-en-evidence' : '' }}">
 							{% if item.verouille %}
 								{{ item.artDesi }}
 							{% else %}
-								<a href="{{ path(url_proposition, route_params) }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" target="_blank">
+								<a href="{{ row.urlProposition }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" target="_blank">
 									{{ item.artDesi }}
 								</a>
 							{% endif %}
 						</td>
+						<td class="text-center">{{ item.estFicheTechnique }}</td>
+						<td class="text-center">{{ item.qteDem }}</td>
+						<td class="text-center">{{ item.qteEnAttent }}</td>
+						<td class="text-center">{{ item.qteDispo }}</td>
+						<td class="text-center">{{ item.qteLivrer }}</td>
+						<td class="text-center">{{ item.dateFinSouhaite }}</td>
+						<td class="text-center">{{ item.dateLivraisonPrevue }}</td>
+						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo }}</td>
 						<td class="text-center">
-							{% if item.estFicheTechnique %}
-								<i class="fas fa-check text-success"></i>
-							{% else %}
-								<i class="fas fa-xmark text-danger"></i>
-							{% endif %}
-						</td>
-						<td class="text-center">{{item.qteDem == 0 ? '-' : item.qteDem}}</td>
-						<td class="text-center">{{item.qteEnAttent == 0 ? '-' : item.qteEnAttent}}</td>
-						<td class="text-center">{{item.qteDispo == 0 ? '-' : item.qteDispo}}</td>
-						<td class="text-center">{{item.qteLivrer == 0 ? '-' : item.qteLivrer}}</td>
-						<td class="text-center">{{item.dateFinSouhaite != null ? item.dateFinSouhaite | date('d/m/Y') :'' }}</td>
-						<td class="text-center">{{item.dateLivraisonPrevue != null ? item.dateLivraisonPrevue | date('d/m/Y') :''}}</td>
-						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{item.joursDispo}}</td>
-						<td class="text-center">
-							{% if serviceAppro and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_APPRO') or serviceAtelier and item.statutDal == constant('App\\Entity\\da\\DemandeAppro::STATUT_SOUMIS_ATE') %}
-								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ path(url_delete, del_route_params) }}"></i>
+							{% if row.supprimable %}
+								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
 							{% endif %}
 						</td>
 					</tr>
@@ -195,7 +146,6 @@
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 	{% include "/da/shared/listeDA/_modalConfirmation.html.twig" %}
 	{% include "/da/shared/listeDA/_modalDemandeDeverouillage.html.twig" %}
-
 {% endblock %}
 
 {% block javascript %}

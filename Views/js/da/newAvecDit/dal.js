@@ -15,8 +15,8 @@ import {
 let container = document.getElementById("children-container");
 
 export function ajouterUneLigne() {
-  let newIndex = parseInt(localStorage.getItem("index")) + 1; // Déterminer un index unique pour les nouveaux champs
-  localStorage.setItem("index", newIndex); // Changer la valeur de newIndex
+  let newIndex = parseInt(localStorage.getItem("daWithDitLineCounter")) + 1; // Déterminer un index unique pour les nouveaux champs à partir du compteur enregistré
+  localStorage.setItem("daWithDitLineCounter", newIndex); // Changer la valeur de newIndex
   let prototype = document
     .getElementById("child-prototype")
     .firstElementChild.cloneNode(true); // Clonage du prototype

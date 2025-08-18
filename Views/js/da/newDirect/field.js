@@ -36,7 +36,7 @@ export function createFieldAndAppendTo(
   } else if (fieldName === "artConstp") {
     field.value = "ZDI";
   } else if (fieldName === "numeroLigne") {
-    field.value = localStorage.getItem("index");
+    field.value = localStorage.getItem("daDirectLineCounter");
   } else if (fieldName === "fileNames") {
     field.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
     field.addEventListener("change", (event) => onFileNamesInputChange(event));

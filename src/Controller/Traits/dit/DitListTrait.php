@@ -285,7 +285,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
+        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 
     private function autorisationRoleEnergie($em): bool
@@ -606,7 +606,7 @@ trait DitListTrait
         //si le statut dit est A_AFFECTER
         $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
         //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté ou profil de l'utilisateur connecté est CHEF_ATELIER
-        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && (strtolower($data->getUtilisateurDemandeur()) === strtolower(Controller::getUser()->getNomUtilisateur()) || in_array(User::PROFIL_CHEF_ATELIER, Controller::getUser()->getRoleIds()));
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && (strtolower($data->getUtilisateurDemandeur()) === strtolower($this->getUser()->getNomUtilisateur()) || in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds()));
         //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
         $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
 

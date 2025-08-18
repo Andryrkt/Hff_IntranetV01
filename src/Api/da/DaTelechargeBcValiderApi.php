@@ -24,19 +24,22 @@ class DaTelechargeBcValiderApi extends Controller
     public function telechargeBcValider(string $numBc)
     {
         $path = $this->dwBcApproRepository->getPath($numBc);
+        if ($path) {
+            $filePath = $_ENV['BASE_PATH_FICHIER'] . DIRECTORY_SEPARATOR . $path;
+            // En-têtes pour forcer le téléchargement
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="bon_commande_' . $numBc . '.pdf"');
+            header('Content-Length: ' . filesize($filePath));
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
 
-        $filePath = $_ENV['BASE_PATH_FICHIER'] . DIRECTORY_SEPARATOR . $path;
-        // En-têtes pour forcer le téléchargement
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="bon_commande_' . $numBc . '.pdf"');
-        header('Content-Length: ' . filesize($filePath));
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-
-        // Envoi du fichier
-        readfile($filePath);
-        exit;
+            // Envoi du fichier
+            readfile($filePath);
+            exit;
+        } else {
+            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Le BC n\'est pas encore disponible.']);
+        }
     }
 }

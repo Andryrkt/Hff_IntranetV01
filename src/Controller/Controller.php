@@ -32,6 +32,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
 use App\Model\da\DaModel;
 
@@ -410,22 +411,6 @@ class Controller
     }
 
 
-    protected function arrayToObjet(User $user): User
-    {
-
-        $superieurs = [];
-        foreach ($user->getSuperieurs() as  $value) {
-            if (empty($value)) {
-                return $user;
-            } else {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                $user->setSuperieurs($superieurs);
-            }
-        }
-
-        return $user;
-    }
-
 
     /**
      * Récupère l'agence et le service de l'utilisateur connecté dans un tableau associatif
@@ -581,5 +566,11 @@ class Controller
     {
         $serviceIds = $this->getUser()->getServiceAutoriserIds();
         return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+    }
+
+    protected function estAdmin(): bool
+    {
+        $roleIds = $this->getUser()->getRoleIds();
+        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
     }
 }

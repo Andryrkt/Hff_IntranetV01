@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da;
 
 use App\Entity\dit\DitSearch;
-use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,7 +18,7 @@ trait DaListeDitTrait
     {
         $userConnecter = $this->getUser();
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds) || in_array(Role::ROLE_ATELIER, $roleIds);
+        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds);
     }
 
     /**
@@ -169,7 +168,7 @@ trait DaListeDitTrait
         //nombre de ligne par page
         $limit = 20;
 
-        $numDits = $this->daRepository->getAllNumDit(); // Filtre pour tous les DIT de la DA
+        $numDits = $this->demandeApproRepository->getAllNumDit(); // Filtre pour tous les DIT de la DA
         // $numDits = [];
 
         //recupération des données filtrée

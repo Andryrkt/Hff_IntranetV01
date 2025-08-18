@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-	<div class=" container-fluid">
+	<div class=" container">
 		<div class="card">
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
@@ -27,16 +27,23 @@
 					</div>
 
 					<div class="row">
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-6">
 							{{ macroForm.sousTitre('Information sur la demande') }}
 							{{ form_row(form.objetDal, { 'attr': { 'disabled': peutModifier} })}}
 							<div class="mb-3 position-relative">
 								{{ form_row(form.detailDal, { 'attr': { 'disabled': peutModifier} }) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
-							{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': peutModifier} }) }}
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite, { 'attr': { 'disabled': peutModifier} }) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence, { 'attr': { 'disabled': peutModifier} }) }}
+								</div>
+							</div>
 						</div>
-						<div class="col-12 col-md-4">
+						<div class="col-12 col-md-6">
 							{{ macroForm.sousTitre('Agence et service') }}
 							<div class="row">
 								<div class="col-6 col-md-6">
@@ -51,20 +58,6 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information Matériel / DIT') }}
-							<div class="row">
-								<div class="col-md-6 col-6">
-									{{ form_row(form.idMateriel) }}
-									{{ form_row(form.serie) }}
-								</div>
-								<div class="col-md-6 col-6">
-									{{ form_row(form.parc) }}
-									{{ form_row(form.dit) }}
-								</div>
-								{{ form_row(form.objetDit) }}
-							</div>
-						</div>
 					</div>
 					<div class="d-flex justify-content-end">
 						<button type="button" id="add-child" class="btn bouton mt-2" {{ peutModifier ? 'disabled' : ''}}>
@@ -76,17 +69,12 @@
 					<table class="table rounded table-plein-ecran mt-4">
 						<thead class="table-dark text-center">
 							<tr>
-								<th class="w-10 align-middle">Famille</th>
-								<th class="w-10 align-middle">Sous-famille</th>
-								<th class="w-7 align-middle">Référence</th>
-								<th class="w-20 align-middle">Désignation / Référence
-									<i class="fas fa-info-circle text-info fs-6 ms-2" id="info-icon" role="button"></i>
-								</th>
-								<th class="w-10 align-middle">Fournisseur</th>
-								<th class="w-10 align-middle">Date fin souhaitée</th>
-								<th class="w-5 align-middle text-end">Quantité</th>
-								<th class="w-13 align-middle">Commentaire</th>
-								<th class="w-10 align-middle">Pièces jointes</th>
+								<th class="w-20 align-middle">Désignation</th>
+								<th class="w-15 align-middle">Fournisseur</th>
+								<th class="w-15 align-middle">Date fin souhaitée</th>
+								<th class="w-5 align-middle">Qté</th>
+								<th class="w-20 align-middle">Commentaire</th>
+								<th class="w-15 align-middle">Pièces jointes</th>
 								<th class="w-2 align-middle">Fiche technique</th>
 								<th class="w-2 align-middle">
 									<i class="fas fa-times fs-5"></i>
@@ -97,63 +85,29 @@
 					<div id="children-container">
 						{% for ligne, DAL in form.DAL %}
 							{% set dalData = DAL.vars.data %}
-							<div id="demande_appro_form_DAL_{{ ligne }}" class="DAL-container">
-								<div class="row g-3">
-									<div class="w-10">
-										{{ form_widget(DAL.codeFams1, { 'attr': { class:"non-modifiable" } }) }}
-									</div>
-									<div class="w-10">
-										<div class="spinner-container">
-											<div class="spinner-load m-auto" id="spinner_{{ ligne }}_codeFams2" style="display: none;margin-bottom: 0px !important;transform: translateY(-2px);">
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-												<div></div>
-											</div>
-										</div>
-										<div id="container_{{ ligne }}_codeFams2">
-											{{ form_widget(DAL.codeFams2, { 'attr': { class:"non-modifiable" } }) }}
-										</div>
-									</div>
-									<div class="w-7">
-										{{ form_widget(DAL.artRefp, { 'attr': { class:"non-modifiable" } }) }}
-									</div>
+							<div id="demande_appro_direct_form_DAL_{{ ligne }}" class="DAL-container">
+								<div class="d-flex gap-3">
 									<div class="w-20">
 										{{ form_widget(DAL.artDesi, { 'attr': { class:"non-modifiable" } }) }}
-										<div id="suggestion_{{ ligne }}_artDesi" class="suggestions-container"></div>
-										<div id="spinner_container_{{ ligne }}_artDesi" class="text-center" style="display: none;">
-											<div class="text-overlay">
-												Veuillez patienter s'il vous plaît! Chargement des données
-											</div>
-											<div class="loader-points"></div>
-										</div>
 									</div>
-									<div class="w-10">
+									<div class="w-15">
 										{{ form_widget(DAL.nomFournisseur, { 'attr': { class:"non-modifiable" } }) }}
 										<div id="suggestion_{{ ligne }}_nomFournisseur" class="suggestions-container"></div>
 										<div id="spinner_container_{{ ligne }}_nomFournisseur" class="text-center" style="display: none;"></div>
 									</div>
-									<div class="w-10">
+									<div class="w-15">
 										{{ form_widget(DAL.dateFinSouhaite, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
 									<div class="w-5">
 										{{ form_widget(DAL.qteDem, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
-									<div class="w-13">
+									<div class="w-19">
 										{{ form_widget(DAL.commentaire, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
 									<div class="w-1" style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
 										<i class="fas fa-paperclip text-primary trombone-add-pj" title="Mettre en pièces jointes un ou plusieur(s) fichier(s)" style="cursor: pointer;"></i>
 									</div>
-									<div class="w-9" id="demande_appro_form_DAL_{{ ligne }}_fileNamesContainer">
+									<div class="w-15" id="demande_appro_direct_form_DAL_{{ ligne }}_fileNamesContainer">
 										{% if dalData.fileNames is not empty %}
 											<ul class="mb-0 ps-3">
 												{% for file in dalData.fileNames %}
@@ -168,6 +122,15 @@
 									</div>
 									<div class="w-2">
 										{{ form_widget(DAL.estFicheTechnique, { 'attr': { 'disabled': peutModifier } }) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.codeFams1, { 'attr': { 'disabled': peutModifier } }) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.codeFams2, { 'attr': { 'disabled': peutModifier } }) }}
+									</div>
+									<div class="d-none">
+										{{ form_widget(DAL.artRefp, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.artConstp, { 'attr': { 'disabled': peutModifier } }) }}
@@ -224,10 +187,7 @@
 				{{ form_end(form) }}
 			</div>
 		</div>
-
-	</div>
-	<div class=" container-fluid mt-3">
-		<div class="card">
+		<div class="card mt-3">
 			<div class="card-body">
 				<div class="row">
 					<h3 class="fw-bold">Observations</h3>
@@ -244,5 +204,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/edit/edit.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/editDirect/edit.js" type="module"></script>
 {% endblock %}

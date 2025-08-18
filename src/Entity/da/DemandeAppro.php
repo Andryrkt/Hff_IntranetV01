@@ -30,6 +30,7 @@ class DemandeAppro
     public const STATUT_TERMINER            = 'TERMINER';
     public const STATUT_SOUMIS_ATE          = 'Proposition achats';
     public const STATUT_A_VALIDE_DW         = 'Soumis à validation';
+    public const STATUT_DW_A_MODIFIER       = 'DA à modifier';
     public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';
     public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
 
@@ -387,7 +388,7 @@ class DemandeAppro
      */
     public function setDateFinSouhaiteAutomatique()
     {
-        $date = $this->ajoutJour(3);
+        $date = $this->ajouterJoursOuvrables(3);
 
         $this->setDateFinSouhaite($date);
 

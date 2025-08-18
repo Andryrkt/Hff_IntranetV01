@@ -16,61 +16,33 @@ class DwApi extends Controller
      * qui correspond à un demande d'intervention
      */
     public function dwfetch($numDit)
-    {   
+    {
         $dwModel = new DossierInterventionAtelierModel();
-    
-        // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-        $dwDit = $dwModel->findDwDit($numDit) ?? [];
-        foreach ($dwDit as $key =>$value) {
-            $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
-        }
-        // dump($dwDit);
-        $dwOr = $dwModel->findDwOr($numDit) ?? [];
-        // dump($dwOr);
-        $dwfac = [];
-        $dwRi = [];
-        $dwCde = [];
-        $dwBc = [];
-        $dwDev = [];
+
+        // Récupération initiale : Demande d'intervention
+        $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
+
+        // Ordre de réparation et documents liés
+        $dwOr = $this->fetchAndLabel($dwModel, 'findDwOr', $numDit, "Ordre de réparation");
+        $dwFac = $dwRi = $dwCde = $dwBca = $dwFacBl = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (!empty($dwOr)) {
-            $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
-            $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
-            $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
-
-            foreach ($dwOr as $key =>$value) {
-                $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
-            }
-            
-            foreach ($dwfac as $key =>$value) {
-                $dwfac[$key]['nomDoc'] = 'Facture';
-            }
-            
-            foreach ($dwRi as $key =>$value) {
-                $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
-            }
-            foreach ($dwCde as $key =>$value) {
-                $dwCde[$key]['nomDoc'] = 'Commande';
-            }
+            $numeroDocOr = $dwOr[0]['numero_doc'];
+            $dwFac   = $this->fetchAndLabel($dwModel, 'findDwFac',   $numeroDocOr, "Facture");
+            $dwRi    = $this->fetchAndLabel($dwModel, 'findDwRi',    $numeroDocOr, "Rapport d'intervention");
+            $dwCde   = $this->fetchAndLabel($dwModel, 'findDwCde',   $numeroDocOr, "Commande");
+            $dwBca   = $this->fetchAndLabel($dwModel, 'findDwBca',   $numeroDocOr, "Bon de commande APPRO");
+            $dwFacBl = $this->fetchAndLabel($dwModel, 'findDwFacBl', $numeroDocOr, "Facture / Bon de livraison");
         }
 
-        $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
-        $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
+        // Documents liés à la demande d'intervention
+        $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
+        $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
 
-        foreach ($dwBc as $key =>$value) {
-            $dwBc[$key]['nomDoc'] = 'Bon de Commande Client';
-        }
-        foreach ($dwDev as $key =>$value) {
-            $dwDev[$key]['nomDoc'] = 'Devis';
-        }
-// dump($dwfac);
-// dump($dwRi);
-// dump($dwCde);
+        // Fusionner toutes les données
+        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
 
-        // Fusionner toutes les données dans un tableau associatif
-        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
-// dd($data);
         header("Content-type:application/json");
 
         echo json_encode($data);
@@ -82,7 +54,7 @@ class DwApi extends Controller
     public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
     {
         $dwModel = new DossierInterventionAtelierModel();
-    
+
         switch ($nomDoc) {
             case 'Demande d\'intervention':
                 $dw = $dwModel->findCheminDit($numDoc) ?? [];
@@ -100,10 +72,21 @@ class DwApi extends Controller
                 $dw = $dwModel->findCheminCde($numDoc) ?? [];
                 break;
         }
-        
+
         header("Content-type:application/json");
 
-        echo json_encode(['chemin' =>$dw[0]]);
+        echo json_encode(['chemin' => $dw[0]]);
     }
 
+    /**
+     * Méthode utilitaire pour récupérer et étiqueter des documents
+     */
+    private function fetchAndLabel($model, string $method, $param, string $label): array
+    {
+        $items = $model->$method($param) ?? [];
+        foreach ($items as &$item) {
+            $item['nomDoc'] = $label;
+        }
+        return $items;
+    }
 }

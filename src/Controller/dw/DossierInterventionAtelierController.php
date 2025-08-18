@@ -4,7 +4,6 @@ namespace App\Controller\dw;
 
 use DateTime;
 use App\Controller\Controller;
-use App\Entity\dw\DwDemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
@@ -49,24 +48,11 @@ class DossierInterventionAtelierController extends Controller
             $dwDits = $this->ajoutNbDoc($dwModel, $criteria);
         }
 
-
-        //dd($dwDits[0]->getOrdreDeReparation()->get);
-
-        //Facture
-        // $facture = $dwDits[0]->getOrdreDeReparation()->getFactures();
-
-        // foreach ($facture as $value) {
-        //     dump($value);
-        // }
-
-        $date = new DateTime();
-
         $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
-            'form' => $form->createView(),
-            'dwDits' => $dwDits,
-            'date' => $date
+            'form'   => $form->createView(),
+            'dwDits' => $dwDits
         ]);
     }
 
@@ -74,28 +60,28 @@ class DossierInterventionAtelierController extends Controller
     {
         $dwDits = $dwModel->findAllDwDit($criteria);
 
-        $dwfac = [];
-        $dwRi = [];
-        $dwCde = [];
-        $dwBc = [];
-        $dwDev = [];
+        $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 
         for ($i = 0; $i < count($dwDits); $i++) {
+            $numDit = $dwDits[$i]['numero_dit_intervention'];
             // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-            $dwDit = $dwModel->findDwDit($dwDits[$i]['numero_dit_intervention']) ?? [];
-            $dwOr = $dwModel->findDwOr($dwDits[$i]['numero_dit_intervention']) ?? [];
+            $dwDit = $dwModel->findDwDit($numDit) ?? [];
+            $dwOr = $dwModel->findDwOr($numDit) ?? [];
 
             // Si un ordre de réparation est trouvé, récupérer les autres données liées
             if (!empty($dwOr)) {
-                $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
-                $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
-                $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
+                $numeroDocOr = $dwOr[0]['numero_doc'];
+                $dwfac = $dwModel->findDwFac($numeroDocOr) ?? [];
+                $dwRi = $dwModel->findDwRi($numeroDocOr) ?? [];
+                $dwCde = $dwModel->findDwCde($numeroDocOr) ?? [];
+                $dwBca = $dwModel->findDwBca($numeroDocOr) ?? [];
+                $dwFacBl = $dwModel->findDwFacBl($numeroDocOr) ?? [];
             }
             $dwBc = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
             $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
 
             // Fusionner toutes les données dans un tableau associatif
-            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev);
+            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
 
             // Ajouter le nombre de documents à l'élément actuel de $dwDits
             $dwDits[$i]['nbDoc'] = count($data);

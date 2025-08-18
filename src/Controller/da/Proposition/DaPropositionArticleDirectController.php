@@ -134,7 +134,7 @@ class DaPropositionArticleDirectController extends Controller
 
         /** ENVOIE D'EMAIL l'observation */
         $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-        $this->envoyerMailObservationDaDirect($demandeAppro, [
+        $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
             'service'         => $service,
             'observation'   => $daObservation->getObservation(),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -164,7 +164,7 @@ class DaPropositionArticleDirectController extends Controller
 
             /** ENVOIE D'EMAIL pour l'observation */
             $service = $this->estUserDansServiceAppro() ? 'appro' : $demandeAppro->getServiceEmetteur()->getLibelleService();
-            $this->envoyerMailObservationDaDirect($demandeAppro, [
+            $this->emailDaService->envoyerMailObservationDaDirect($demandeAppro, [
                 'service'       => $service,
                 'observation'   => $observation,
                 'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -205,7 +205,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
-        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -235,7 +235,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
-        $this->envoyerMailValidationDaDirect($da, $nomEtChemin, [
+        $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
             'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
@@ -305,7 +305,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->envoyerMailPropositionDaDirect($da, [
+        $this->emailDaService->envoyerMailPropositionDaDirect($da, [
             'service'       => 'appro',
             'observation'   => $observation,
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
@@ -587,7 +587,7 @@ class DaPropositionArticleDirectController extends Controller
         $fileNames = $demandeApproLR->getFileNames(); // pièces jointes de la DALR
 
         if ($demandeApproLR_Ancien) {
-            $this->uploadFTForDalr($file, $demandeApproLR_Ancien);
+            $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR_Ancien);
             $this->traitementFichiers($demandeApproLR_Ancien, $fileNames);
 
             $DAL->getDemandeApproLR()->add($demandeApproLR_Ancien);
@@ -606,7 +606,7 @@ class DaPropositionArticleDirectController extends Controller
             ;
 
             if ($file) {
-                $this->uploadFTForDalr($file, $demandeApproLR);
+                $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);
             }
 
             if ($fileNames) {
@@ -629,7 +629,7 @@ class DaPropositionArticleDirectController extends Controller
             $i = 1; // Compteur pour le nom du fichier
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
-                    $fileName = $this->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
+                    $fileName = $this->daFileUploader->uploadPJForDalr($file, $dalr, $i); // Appel de la méthode pour uploader le fichier
                 } else {
                     throw new \InvalidArgumentException('Le fichier doit être une instance de UploadedFile.');
                 }

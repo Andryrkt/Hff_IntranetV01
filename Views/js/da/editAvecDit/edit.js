@@ -1,10 +1,9 @@
 import { displayOverlay } from "../../utils/spinnerUtils";
-import { ajouterUneLigne, autocompleteTheFields } from "../new/dal";
-import { eventOnFamille } from "../new/event";
-import { formatAllField, onFileNamesInputChange } from "../new/field";
+import { ajouterUneLigne } from "../newAvecDit/dal";
+import { onFileNamesInputChange } from "../newAvecDit/field";
 
 document.addEventListener("DOMContentLoaded", function () {
-  buildIndexFromLinesAndBindEvents();
+  buildIndexFromLines();
 
   document.querySelectorAll(".trombone-add-pj").forEach((el) => {
     el.addEventListener("click", function () {
@@ -30,8 +29,32 @@ document.addEventListener("DOMContentLoaded", function () {
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
     if (document.getElementById("children-container").childElementCount > 0) {
-      document.getElementById("child-prototype").remove();
-      document.getElementById("myForm").submit();
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment enregistrer vos modifications ?`,
+        icon: "warning",
+        showCancelButton: true,
+        reverseButtons: true,
+        confirmButtonColor: "#198754",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, Enregistrer",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          document.getElementById("child-prototype").remove();
+          document.getElementById("myForm").submit();
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Votre modification n'a pas été enregistrée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
     } else {
       Swal.fire({
         icon: "warning",
@@ -71,7 +94,7 @@ window.addEventListener("load", () => {
   displayOverlay(false);
 });
 
-function buildIndexFromLinesAndBindEvents() {
+function buildIndexFromLines() {
   let maxIndex = 0;
 
   document.querySelectorAll("[id^='demande_appro_form_DAL_']").forEach((el) => {
@@ -82,13 +105,9 @@ function buildIndexFromLinesAndBindEvents() {
       if (!isNaN(index) && index > maxIndex) {
         maxIndex = index;
       }
-
-      eventOnFamille(index); // gestion d'évènement sur la famille et sous-famille à la ligne index
-      formatAllField(index); // formater les champs à la ligne index
-      autocompleteTheFields(index); // autocomplète les champs
     }
   });
-  localStorage.setItem("index", maxIndex);
+  localStorage.setItem("daWithDitLineCounter", maxIndex);
 }
 
 function deleteLigneDa(button) {
@@ -98,7 +117,7 @@ function deleteLigneDa(button) {
     icon: "warning",
     showCancelButton: true,
     confirmButtonColor: "#d33",
-    cancelButtonColor: "#3085d6",
+    cancelButtonColor: "#6c757d",
     confirmButtonText: "Oui, supprimer",
     cancelButtonText: "Non, annuler",
   }).then((result) => {

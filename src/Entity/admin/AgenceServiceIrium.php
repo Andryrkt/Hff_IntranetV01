@@ -103,6 +103,12 @@ class AgenceServiceIrium
      */
     private $personnelId;
 
+    /**
+     * @ORM\ManyToOne(targetEntity=Personnel::class, inversedBy="agServIriumChefService")
+     * @ORM\JoinColumn(name="chef_service_id", referencedColumnName="id")
+     */
+    private $chefServiceId;
+
     //=============================================================================================
 
     public function __construct()
@@ -146,7 +152,7 @@ class AgenceServiceIrium
         return $this->nom_agence_i100;
     }
 
-    
+
     public function setNomagencei100(?string $nom_agence_i100): self
     {
         $this->nom_agence_i100 = $nom_agence_i100;
@@ -170,7 +176,7 @@ class AgenceServiceIrium
     {
         return $this->nom_service_i100;
     }
- 
+
     public function setNomservicei100(?string $nom_service_i100): self
     {
         $this->nom_service_i100 = $nom_service_i100;
@@ -183,7 +189,7 @@ class AgenceServiceIrium
         return $this->agence_ips;
     }
 
- 
+
     public function setAgenceips(?string $agence_ips): self
     {
         $this->agence_ips = $agence_ips;
@@ -209,7 +215,7 @@ class AgenceServiceIrium
         return $this->libelle_service_ips;
     }
 
- 
+
     public function setLibelleserviceips(?string $libelle_service_ips): self
     {
         $this->libelle_service_ips = $libelle_service_ips;
@@ -235,7 +241,7 @@ class AgenceServiceIrium
         return $this->service_sage_paie;
     }
 
-  
+
     public function setService_sage_paie(?string $service_sage_paie): self
     {
         $this->service_sage_paie = $service_sage_paie;
@@ -243,9 +249,9 @@ class AgenceServiceIrium
         return $this;
     }
 
-      /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getUserAgenceService()
     {
         return $this->userAgenceService;
@@ -269,7 +275,7 @@ class AgenceServiceIrium
                 $userAgenceService->setAgenceServiceIrium(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -304,13 +310,34 @@ class AgenceServiceIrium
                 $personnelId->setAgenceServiceIriumId(null);
             }
         }
-        
+
         return $this;
     }
 
     public function setPersonnelId($personnelId): self
     {
         $this->personnelId = $personnelId;
+
+        return $this;
+    }
+
+
+    /**
+     * Get the value of chefServiceId
+     */
+    public function getChefServiceId()
+    {
+        return $this->chefServiceId;
+    }
+
+    /**
+     * Set the value of chefServiceId
+     *
+     * @return  self
+     */
+    public function setChefServiceId($chefServiceId)
+    {
+        $this->chefServiceId = $chefServiceId;
 
         return $this;
     }

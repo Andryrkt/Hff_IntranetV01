@@ -18,7 +18,7 @@ class DaEnvoieCdeApi extends Controller
      */
     public function showForm()
     {
-        $dateparDefaut = $this->ajoutJour(5); // Ajoute 5 jours à la date actuelle
+        $dateparDefaut = $this->ajouterJoursOuvrables(5); // Ajoute 5 jours à la date actuelle
 
         /** Formulaire pour confirmer l'envoie des commande au fournisseur */
         $form = self::$validator->createBuilder(DaCdeEnvoyerType::class, ['dateDefault' => $dateparDefaut])->getForm();
