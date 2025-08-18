@@ -410,22 +410,6 @@ class Controller
     }
 
 
-    protected function arrayToObjet(User $user): User
-    {
-
-        $superieurs = [];
-        foreach ($user->getSuperieurs() as  $value) {
-            if (empty($value)) {
-                return $user;
-            } else {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                $user->setSuperieurs($superieurs);
-            }
-        }
-
-        return $user;
-    }
-
 
     /**
      * Récupère l'agence et le service de l'utilisateur connecté dans un tableau associatif

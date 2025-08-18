@@ -12,46 +12,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class UserController extends Controller
 {
-    private function transformIdEnObjetEntitySuperieur(array $data): array
-    {
-
-        $superieurs = [];
-        foreach ($data as  $values) {
-
-            foreach ($values->getSuperieurs() as  $value) {
-                if (empty($value)) {
-                    return $data;
-                } else {
-                    $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                }
-            }
-            $values->setSuperieurs($superieurs);
-            $superieurs = [];
-        }
-        return $data;
-    }
-
-
-    /**
-     * @Route("/admin/utilisateur", name="utilisateur_index")
-     *
-     * @return void
-     */
-    public function index()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
-        $data = $this->transformIdEnObjetEntitySuperieur($data);
-
-        //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
-
-        self::$twig->display('admin/utilisateur/list.html.twig', [
-            'data' => $data
-        ]);
-    }
-
     /**
      * @Route("/admin/utilisateur/new", name="utilisateur_new")
      */
@@ -59,8 +19,9 @@ class UserController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
+        $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
         $user = new User();
+        $user->setSuperieur($nomPrenomChefService);
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
@@ -81,19 +42,8 @@ class UserController extends Controller
                 $utilisateur->addRole($role);
             }
 
-            // Récupérer les IDs des supérieurs depuis le formulaire
-            $superieurEntities = $form->get('superieurs')->getData();
-
-            $superieurIds = array_map(function ($superieur) {
-                return $superieur->getId();
-            }, $superieurEntities);
-
-            // Mettre à jour les supérieurs de l'utilisateur
-            $user->setSuperieurs($superieurIds);
             self::$em->persist($utilisateur);
-
             self::$em->flush();
-
 
             $this->redirectToRoute("utilisateur_index");
         }
@@ -118,10 +68,8 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(User::class)->find($id);
-        
-        // Conversion de l'utilisateur en objet s'il est en tableau
-        $user = $this->arrayToObjet($user);
-
+        $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+        $user->setSuperieur($nomPrenomChefService);
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
@@ -129,18 +77,6 @@ class UserController extends Controller
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-
-            if ($user->getSuperieurs() === null) {
-                $user->setSuperieurs([]);
-            }
-            // Récupérer les IDs des supérieurs depuis le formulaire
-            $superieurEntities = $form->get('superieurs')->getData();
-            $superieurIds = array_map(function ($superieur) {
-                return $superieur->getId();
-            }, $superieurEntities);
-
-            // Mettre à jour les supérieurs de l'utilisateur
-            $user->setSuperieurs($superieurIds);
 
             self::$em->flush();
             return $this->redirectToRoute("utilisateur_index");
@@ -152,6 +88,32 @@ class UserController extends Controller
             'form' => $form->createView(),
         ]);
     }
+
+    /**
+     * @Route("/admin/utilisateur", name="utilisateur_index")
+     *
+     * @return void
+     */
+    public function index()
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->transformIdEnObjetEntitySuperieur($data);
+
+        //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('admin/utilisateur/list.html.twig', [
+            'data' => $data
+        ]);
+    }
+
+    private function transformIdEnObjetEntitySuperieur(array $data): array
+    {
+        return $data;
+    }
+
 
     /**
      * @Route("/admin/utilisateur/delete/{id}", name="utilisateur_delete")
