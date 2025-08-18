@@ -33,7 +33,7 @@ class MenuService
             'folder',
             [
                 $this->createSimpleItem('Annuaire', 'address-book', '#'),
-                $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '#'),
+                $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf'),
                 $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne')
             ]
         );
