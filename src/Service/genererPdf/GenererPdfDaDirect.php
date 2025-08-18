@@ -20,7 +20,7 @@ class GenererPdfDaDirect extends GeneratePdf
     {
         $pdf = new TCPDF();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableGenerator();
+        $generator = new PdfTableGeneratorDaDirect();
 
         $pdf->AddPage();
 
@@ -85,7 +85,7 @@ class GenererPdfDaDirect extends GeneratePdf
             ['key' => 'comms',       'label' => 'Commentaire', 'width' => 300, 'style' => 'font-weight: normal; text-align: left;'],
             ['key' => 'qte',         'label' => 'Qté',         'width' => 40,  'style' => 'font-weight: bold; text-align: center;'],
         ];
-        $html1 = $generator->generateTableForDaAValiderDW($header, $dals);
+        $html1 = $generator->generateTableAValiderDW($header, $dals);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=========================================================================================
@@ -121,7 +121,7 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableGenerator();
+        $generator = new PdfTableGeneratorDaDirect();
 
         $pdf->AddPage();
 
@@ -187,7 +187,7 @@ class GenererPdfDaDirect extends GeneratePdf
             ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
             ['key' => 'mttTotal',    'label' => 'Montant',     'width' => 100, 'style' => 'font-weight: bold; text-align: right;'],
         ];
-        $html1 = $generator->generateTableForDA($header, $dals);
+        $html1 = $generator->generateTableBonAchatValide($header, $dals);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=========================================================================================

@@ -22,7 +22,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableGenerator();
+        $generator = new PdfTableGeneratorDaAvecDit();
 
         $pdf->AddPage();
 
