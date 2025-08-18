@@ -276,4 +276,35 @@ class GeneratePdf
         $pdf->Cell(0, 10, $line, 0, 1, 'C'); // Une cellule contenant la ligne
         //$pdf->Ln(5); // Ajouter un espacement en dessous de la ligne
     }
+
+    protected function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1)
+    {
+        // Set font and text color
+        $pdf->setFont($font, $fontStyle, $fontSize);
+        $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
+
+        // Calculate text width
+        $textWidth = $pdf->GetStringWidth($text);
+
+        // Add the text
+        $pdf->Cell($textWidth, 6, $text, 0, 0, 'L');
+
+        // Set fill color for the line
+        $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
+
+        // Calculate the remaining width for the line
+        $remainingWidth = $totalWidth - $textWidth - $lineOffset;
+
+        // Calculate the position for the line (next to the text)
+        $lineStartX = $pdf->GetX() + $lineOffset; // Add a small offset
+        $lineStartY = $pdf->GetY() + 3; // Adjust for alignment
+
+        // Draw the line
+        if ($remainingWidth > 0) { // Only draw if there is space left for the line
+            $pdf->Rect($lineStartX, $lineStartY, $remainingWidth, $lineHeight, 'F');
+        }
+
+        // Move to the next line
+        $pdf->Ln(6, true);
+    }
 }

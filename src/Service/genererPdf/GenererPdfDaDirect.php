@@ -29,7 +29,6 @@ class GenererPdfDaDirect extends GeneratePdf
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
-        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'DEMANDE D\'ACHAT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
 
@@ -57,7 +56,6 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
         $pdf->MultiCell(164, 50, $da->getDetailDal(), 1, '', 0, 0, '', '', true);
-        //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
 
@@ -131,7 +129,6 @@ class GenererPdfDaDirect extends GeneratePdf
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
-        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'DEMANDE D\'ACHAT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         $pdf->setAbsX(170);
@@ -158,7 +155,6 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->cell(25, 6, 'Détails :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 9);
         $pdf->MultiCell(164, 50, $da->getDetailDal(), 1, '', 0, 0, '', '', true);
-        //$pdf->cell(165, 10, , 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
 
@@ -211,36 +207,5 @@ class GenererPdfDaDirect extends GeneratePdf
         }
 
         $pdf->Output("$Dossier/$numDa.pdf", 'F');
-    }
-
-    private function renderTextWithLine($pdf, $text, $totalWidth = 190, $lineOffset = 3, $font = 'helvetica', $fontStyle = 'B', $fontSize = 11, $textColor = [14, 65, 148], $lineColor = [14, 65, 148], $lineHeight = 1)
-    {
-        // Set font and text color
-        $pdf->setFont($font, $fontStyle, $fontSize);
-        $pdf->SetTextColor($textColor[0], $textColor[1], $textColor[2]);
-
-        // Calculate text width
-        $textWidth = $pdf->GetStringWidth($text);
-
-        // Add the text
-        $pdf->Cell($textWidth, 6, $text, 0, 0, 'L');
-
-        // Set fill color for the line
-        $pdf->SetFillColor($lineColor[0], $lineColor[1], $lineColor[2]);
-
-        // Calculate the remaining width for the line
-        $remainingWidth = $totalWidth - $textWidth - $lineOffset;
-
-        // Calculate the position for the line (next to the text)
-        $lineStartX = $pdf->GetX() + $lineOffset; // Add a small offset
-        $lineStartY = $pdf->GetY() + 3; // Adjust for alignment
-
-        // Draw the line
-        if ($remainingWidth > 0) { // Only draw if there is space left for the line
-            $pdf->Rect($lineStartX, $lineStartY, $remainingWidth, $lineHeight, 'F');
-        }
-
-        // Move to the next line
-        $pdf->Ln(6, true);
     }
 }
