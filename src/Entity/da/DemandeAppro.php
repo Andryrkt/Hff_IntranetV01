@@ -177,7 +177,7 @@ class DemandeAppro
     /**
      * @ORM\Column(type="string", length=50, name="niveau_urgence")
      */
-    private string $niveauUrgence;
+    private string $niveauUrgence = '';
 
     /**===========================================================================
      * GETTER & SETTER
