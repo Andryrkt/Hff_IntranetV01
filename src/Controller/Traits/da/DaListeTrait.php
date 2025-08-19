@@ -105,7 +105,7 @@ trait DaListeTrait
      **/
     private function prepareDataForDisplay(array $data, array $numDaNonDeverrouillees): array
     {
-        $dataPrepared = [];
+        $datasPrepared = [];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
@@ -173,7 +173,7 @@ trait DaListeTrait
             ];
 
             // Tout regrouper
-            $dataPrepared[] = [
+            $datasPrepared[] = [
                 'item'                => $formattedItem,
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
@@ -191,6 +191,13 @@ trait DaListeTrait
             ];
         }
 
-        return $dataPrepared;
+        // résultat avec tri des données
+        usort(
+            $datasPrepared,
+            function ($a, $b) {
+                return $a['item']['joursDispo'] <=> $b['item']['joursDispo']; // tri croissant
+            }
+        );
+        return $datasPrepared;
     }
 }
