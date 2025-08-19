@@ -769,7 +769,7 @@ class PlanningModel extends Model
     $sql = "SELECT di.numero_or
             FROM demande_intervention di
             WHERE 
-                AND (di.date_validation_or IS NOT NULL OR di.date_validation_or = '1900-01-01')
+                (di.date_validation_or IS NOT NULL OR di.date_validation_or = '1900-01-01')
                 AND di.numero_or <> ''
                   $vconditionTypeDoc
                   $vconditionReparationPar
