@@ -2,6 +2,7 @@
 
 namespace App\Twig;
 
+use App\Controller\Traits\lienGenerique;
 use Twig\TwigFunction;
 use App\Service\MenuService;
 use App\Factory\BreadcrumbFactory;
@@ -11,11 +12,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class BreadcrumbExtension extends AbstractExtension
 {
+    use lienGenerique;
     private BreadcrumbFactory $breadcrumbFactory;
 
     public function __construct(MenuService $menuService, BreadcrumbMenuService $breadcrumbMenuService, UrlGeneratorInterface $urlGenerator)
     {
-        $this->breadcrumbFactory = new BreadcrumbFactory($_ENV['BASE_PATH_APPLICATION'], $breadcrumbMenuService, $urlGenerator);
+        $this->breadcrumbFactory = new BreadcrumbFactory($this->urlGenerique($_ENV['BASE_PATH_COURT']), $breadcrumbMenuService, $urlGenerator);
     }
 
     public function getFunctions(): array

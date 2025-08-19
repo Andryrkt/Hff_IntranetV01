@@ -2,14 +2,17 @@
 
 namespace App\Service\navigation;
 
+use App\Controller\Traits\lienGenerique;
+
 class BreadcrumbService
 {
+    use lienGenerique;
     private array $items = [];
 
     public function __construct()
     {
         // Générer automatiquement à partir de l'URL
-        $this->generateFromUrl($_ENV['BASE_PATH_APPLICATION']);
+        $this->generateFromUrl($this->urlGenerique($_ENV['BASE_PATH_COURT']));
     }
 
     public function add(string $label, ?string $url = null): self
