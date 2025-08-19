@@ -52,7 +52,7 @@ export function showTab(afficher = true) {
   let numeroDa = document.querySelector('[id^="tab_"]')?.id.split("_")[2]; // numéro du document
   let idTabs = JSON.parse(localStorage.getItem(`idTabs_${numeroDa}`));
   let currentTab = localStorage.getItem(`currentTab_${numeroDa}`) || idTabs[0];
-  console.log(`currentTab_${numeroDa}` =  + currentTab);
+  console.log(`currentTab_${numeroDa} = ` + currentTab);
 
   let tab = document.getElementById(`tab_${currentTab}_${numeroDa}`);
 
