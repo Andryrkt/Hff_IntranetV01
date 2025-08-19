@@ -25,7 +25,7 @@ class DemandeApproLRCollectionType extends AbstractType
                 'required' => false,
             ])
             ->add('observation', TextareaType::class, [
-                'label' => 'Observation',
+                'label' => 'Observation à la proposition / validation',
                 'attr' => [
                     'rows' => 5,
                 ],

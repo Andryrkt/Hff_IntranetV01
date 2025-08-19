@@ -16,7 +16,7 @@
 		</div>
 	</div>
 	<hr class="m-0">
-	<div class="card-body">
+	<div class="card-body pt-2 pb-1">
 		<div class="container-fluid">
 			{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 			<input type="hidden" name="refs" id="refsHiddenInput">
@@ -32,30 +32,30 @@
 			<div class="d-flex justify-content-between mt-2">
 				<div class="d-flex">
 					<div>
-						<button type="submit" class="btn bouton mt-2 d-none" id="envoyerSelections" name="enregistrer">
+						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer">
 							Envoyer proposition à l'ATE
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
 					</div>
 					<div>
-						<a href="{{ path("da_edit_avec_dit", {id: da.id})}}" class="btn bouton mt-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
+						<a href="{{ path("da_edit_avec_dit", {id: da.id})}}" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" target="_blank">
 							Modifier la demande
 						</a>
-						<button type="submit" class="btn bouton mt-2 d-none" name="observation">
+						<button type="submit" class="btn bouton mb-2 d-none" name="observation">
 							Envoyer l'observation
 							<i class="fa-solid fa-paper-plane"></i>
 						</button>
 					</div>
 				</div>
 				<div class="d-flex">
-					<button type="submit" class="btn bouton mt-2 d-none" id="validerSelections" name="valider">
+					<button type="submit" class="btn bouton mb-2 d-none" id="validerSelections" name="valider">
 						Valider la proposition
 						<i class="fa-solid fa-square-arrow-up-right"></i>
 					</button>
 				</div>
 				<div id="validationButtons">
 					<div>
-						<button type="submit" class="btn bouton mt-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
+						<button type="submit" class="btn bouton mb-2 {{ estAte and not nePeutPasModifier ? '' : 'd-none'}}" id="envoyerSelections" name="changement">
 							Valider la proposition
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
