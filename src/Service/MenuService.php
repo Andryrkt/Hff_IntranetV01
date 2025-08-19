@@ -44,7 +44,7 @@ class MenuService
         return $this->createMenuItem(
             'reportingModal',
             'Reporting',
-            'chart-bar',
+            'chart-line',
             [
                 $this->createSimpleItem('Reporting Power BI', null, '#'),
                 $this->createSimpleItem('Reporting Excel', null, '#')

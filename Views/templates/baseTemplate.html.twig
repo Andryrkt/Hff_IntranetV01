@@ -19,6 +19,7 @@
 			{# <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.min.css"> #}
 				{% block stylesheets %}
 			<link rel="stylesheet" href="{{ App.base_path }}/Views/css/breadcrumb.css"> {% endblock %}
+			<link rel="stylesheet" href="{{ App.base_path }}/Views/css/styleBreadCrumb.css">
 			<title>
 				{% block title %}
 					Hff Intranet
@@ -42,7 +43,7 @@
 			<div class="content">
 				{% block breadCrumb %}
 					<!-- Fil d'Ariane centré -->
-					<div class="my-2 my-lg-2 flex-grow-1 text-center">
+					<div class="flex-grow-1">
 						{% include 'partials/_breadcrumb.html.twig' %}
 					</div>
 				{% endblock %}
