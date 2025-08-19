@@ -32,7 +32,7 @@ class DitModel extends Model
     if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
       $conditionNumSerie = "";
     } else {
-      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+      $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
     }
 
 
@@ -64,8 +64,6 @@ class DitModel extends Model
       " . $conditionNumParc . "
       " . $conditionNumSerie . "
       ";
-
-
 
 
     $result = $this->connect->executeQuery($statement);
@@ -261,7 +259,7 @@ class DitModel extends Model
     if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
       $conditionNumSerie = "";
     } else {
-      $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
+      $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
     }
 
     $statement = "SELECT

@@ -734,7 +734,7 @@ class PlanningModel extends Model
       $vconditionNumParc = "";
     }
     if (!empty($criteria->getNumSerie())) {
-      $vconditionNumSerie = " AND mmat_numserie = '" . $criteria->getNumSerie() . "' ";
+      $vconditionNumSerie = " AND TRIM(mmat_numserie) = '" . $criteria->getNumSerie() . "' ";
     } else {
       $vconditionNumSerie = "";
     }
