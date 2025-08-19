@@ -4,7 +4,9 @@ namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\badm\BadmSearch;
+use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
 use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
@@ -12,10 +14,13 @@ use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/materiel/mouvement-materiel")
+ */
 class BadmListeController extends Controller
 {
     use BadmListTrait;
+    use AutorisationTrait;
 
     /**
      * @Route("/listBadm", name="badmListe_AffichageListeBadm")
@@ -24,6 +29,10 @@ class BadmListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_NOUVEAU_BORDEREAU_D_ACQUISITION_ET_DE_MOUVEMENT_MATERIEL);
+        /** FIN AUtorisation acées */
 
         $userId = $this->sessionService->get('user_id');
         $userConnecter = self::$em->getRepository(User::class)->find($userId);

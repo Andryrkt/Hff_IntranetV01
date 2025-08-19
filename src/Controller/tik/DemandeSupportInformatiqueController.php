@@ -19,6 +19,9 @@ use App\Repository\admin\utilisateur\UserRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
+/**
+ * @Route("/tik")
+ */
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;

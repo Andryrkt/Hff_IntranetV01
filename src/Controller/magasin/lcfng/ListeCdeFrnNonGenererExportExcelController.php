@@ -8,6 +8,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
+/**
+ * @Route("/magasin")
+ */
 class ListeCdeFrnNonGenererExportExcelController extends Controller
 {
     private ListeCdeFrnNonGenererModel $listeCdeFrnNonGenererModel;
@@ -16,13 +19,13 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->listeCdeFrnNonGenererModel = new ListeCdeFrnNonGenererModel();
         $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
-     * @Route("/magasin/lcfng/liste_cde_frs_non_generer_export_excel", name="liste_Cde_Frn_Non_Generer_Export_Excel")
+     * @Route("/lcfng/liste_cde_frs_non_generer_export_excel", name="liste_Cde_Frn_Non_Generer_Export_Excel")
      *
      * @return void
      */
@@ -98,14 +101,13 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
     {
         $tab = [];
         foreach ($tabs as  $values) {
-            if(is_array($values)){
+            if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
                 }
             } else {
                 $tab[] = $values;
             }
-            
         }
 
         return $tab;

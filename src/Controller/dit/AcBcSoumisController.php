@@ -19,6 +19,9 @@ use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 
+/**
+ * @Route("/dit")
+ */
 class AcBcSoumisController extends Controller
 {
     private $acSoumis;
@@ -45,7 +48,7 @@ class AcBcSoumisController extends Controller
     }
 
     /**
-     * @Route("/dit/ac-bc-soumis/{numDit}", name="dit_ac_bc_soumis")
+     * @Route("/ac-bc-soumis/{numDit}", name="dit_ac_bc_soumis")
      */
     public function traitementFormulaire(Request $request, $numDit)
     {

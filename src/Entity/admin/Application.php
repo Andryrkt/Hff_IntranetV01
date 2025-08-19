@@ -18,8 +18,24 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Application
 {
+    public const ID_DEMANDE_D_ORDRE_DE_MISSION = 1;
+    public const ID_NOUVEAU_BORDEREAU_D_ACQUISITION_ET_DE_MOUVEMENT_MATERIEL = 2;
+    public const ID_CHANGEMENT_CASIER = 3;
+    public const ID_DEMANDE_D_INTERVENTION = 4;
+    public const ID_MENU_MAGASIN = 5;
+    public const ID_REPORTING = 6;
+    public const ID_DEMANDE_SUPPORT_INFORMATIQUE = 7;
+    public const ID_COMMANDE_FOURNISSEUR = 8;
+    public const ID_DEMANDE_DE_PAIEMENT = 9;
+    public const ID_DEMANDE_DE_MUTATION = 10;
+    public const ID_DEMANDE_D_APPROVISIONNEMENT = 11;
+    public const ID_IVENTAIRE = 12;
+    public const ID_LISTE_COMMENDE_FOURNISSEUR = 13;
+    public const ID_DOSSIER_DE_REGULATION = 14;
+    public const ID_BON_DE_LIVRAISON = 15;
+
     use DateTrait;
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -42,7 +58,7 @@ class Application
      *
      * @var ?string
      */
-    private ?string $derniereId = null ;
+    private ?string $derniereId = null;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
@@ -62,7 +78,7 @@ class Application
         $this->categorieAtes = new ArrayCollection();
     }
 
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,14 +106,14 @@ class Application
         return $this;
     }
 
-   
-   
+
+
     public function getDerniereId()
     {
         return $this->derniereId;
     }
 
-  
+
     public function setDerniereId(?string $derniereId): self
     {
         $this->derniereId = $derniereId;
@@ -105,7 +121,7 @@ class Application
         return $this;
     }
 
-     /**
+    /**
      * @return Collection|User[]
      */
     public function getUsers(): Collection
@@ -131,7 +147,7 @@ class Application
         return $this;
     }
 
-  
+
     public function getCategorieAtes(): Collection
     {
         return $this->categorieAtes;

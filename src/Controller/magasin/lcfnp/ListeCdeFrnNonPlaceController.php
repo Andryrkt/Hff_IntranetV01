@@ -2,18 +2,25 @@
 
 namespace App\Controller\magasin\lcfnp;
 
-use App\Controller\Controller;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Form\magasin\lcfnp\ListeCdeFrnNonPlaceSearchType;
-use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use DateTime;
 use DateTimeZone;
+use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
+use App\Form\magasin\lcfnp\ListeCdeFrnNonPlaceSearchType;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
+/**
+ * @Route("/magasin")
+ */
 class ListeCdeFrnNonPlaceController extends  Controller
 {
+    use AutorisationTrait;
+
     private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
     private listeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
     public function __construct()
@@ -24,12 +31,19 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
     /**
-     * @Route("/magasin/lcfnp/liste_cde_frs_non_placer", name="liste_Cde_Frn_Non_Placer")
+     * @Route("/lcfnp/liste_cde_frs_non_placer", name="liste_Cde_Frn_Non_Placer")
      *
      * @return void
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_LISTE_COMMENDE_FOURNISSEUR);
+        /** FIN AUtorisation acées */
+
         $form = self::$validator->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();
@@ -40,24 +54,22 @@ class ListeCdeFrnNonPlaceController extends  Controller
         ];
         $data = [];
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
-        $vheure = $today->format("H:i:s"); 
-        $vinstant = str_replace(":", "", $vheure); 
+        $vheure = $today->format("H:i:s");
+        $vinstant = str_replace(":", "", $vheure);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             // dd($criteria);
             $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
-    
+
             $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
             $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
             $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
             $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
-            
         }
         self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
         ]);
-
     }
 
     private function orEnString($tab): string

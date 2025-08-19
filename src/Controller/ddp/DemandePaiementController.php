@@ -6,6 +6,7 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
@@ -26,10 +27,15 @@ use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
+/**
+ * @Route("/compta/demande-de-paiement")
+ */
 class DemandePaiementController extends Controller
 {
     use DdpTrait;
+    use AutorisationTrait;
 
     const STATUT_CREATION = 'Soumis à validation';
 
@@ -65,12 +71,16 @@ class DemandePaiementController extends Controller
     }
 
     /**
-     * @Route("/demande-paiement/{id}", name="demande_paiement")
+     * @Route("/new/{id}", name="demande_paiement")
      */
     public function afficheForm(Request $request, $id)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_PAIEMENT);
+        /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 
@@ -307,7 +317,7 @@ class DemandePaiementController extends Controller
 
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|UploadedFile[]|null $file */
+                /** @var UploadedFile[]|null $file */
                 $file = $field->getData();
 
                 if ($file !== null) {

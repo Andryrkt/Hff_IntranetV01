@@ -1,0 +1,141 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 24px;
+  padding: 10px;
+  justify-content: center; /* Centre horizontalement les éléments de la grille */
+  align-content: center; /* Centre verticalement les éléments de la grille */
+  /* height: 90vh; Donne une hauteur à votre conteneur pour que le centrage vertical fonctionne */
+  overflow: hidden;
+}
+
+/* Carte style verre dépoli + halo animé */
+.vignette {
+  cursor: pointer;
+  border-radius: 18px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.3s ease;
+}
+
+.vignette:hover::before {
+  opacity: 0.9;
+}
+
+.vignette:hover {
+  transform: translateY(-6px) scale(1.03);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+/* Contenu interne */
+.vignette-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #2424246e;
+}
+
+.icon-container {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(251, 187, 1, 0.15);
+  border-radius: 14px;
+  transition: background 0.3s ease, transform 0.3s ease;
+  color: #333333;
+}
+
+.vignette:hover .icon-container {
+  background: rgba(251, 187, 1, 0.3);
+  transform: rotate(5deg) scale(1.08);
+}
+
+.vignette-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: auto;
+  margin-bottom: 0;
+  color: #000000;
+  letter-spacing: 0.3px;
+  transition: color 0.2s ease;
+}
+
+.vignette:hover .vignette-title {
+  color: #000000;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+  }
+}
+@media (max-width: 992px) {
+  .grid-container {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+@media (max-width: 576px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Modal style verre dépoli + halo animé */
+.modal-content {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(30, 30, 30, 0.7);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-header,
+.modal-body {
+  position: relative;
+  z-index: 1;
+}
+
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.modal-body .list-group-item {
+  background: transparent;
+  color: #ddd;
+  border: none;
+  padding-left: 0;
+}
+
+.modal-body .list-group-item a {
+  color: #fbbb01;
+  transition: color 0.2s ease;
+}
+
+.modal-body .list-group-item a:hover {
+  color: #ffd43b;
+}
+
+.list-group-item.fw-bold {
+  color: #fff;
+  font-size: 1.05rem;
+  margin-top: 8px;
+}

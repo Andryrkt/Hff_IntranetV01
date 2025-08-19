@@ -2,15 +2,30 @@
 
 namespace App\Controller\dw;
 
-use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
+/**
+ * @Route("/atelier")
+ */
 class DossierInterventionAtelierController extends Controller
 {
+    use AutorisationTrait;
+
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDITService;
+    }
+
     /**
      * @Route("/dit-dossier-intervention-atelier", name="dit_dossier_intervention_atelier")
      *
@@ -20,6 +35,10 @@ class DossierInterventionAtelierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_INTERVENTION);
+        /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 

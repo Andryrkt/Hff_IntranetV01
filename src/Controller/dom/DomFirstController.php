@@ -4,17 +4,23 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Controller\Controller;
 use App\Entity\admin\Agence;
+use App\Entity\admin\Service;
+use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomForm1Type;
+use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
-use App\Entity\admin\Service;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomFirstController extends Controller
 {
+    use AutorisationTrait;
 
     /**
      * @Route("/dom-first-form", name="dom_first_form")
@@ -23,6 +29,10 @@ class DomFirstController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_ORDRE_DE_MISSION);
+        /** FIN AUtorisation acées */
 
         $dom = new Dom();
 

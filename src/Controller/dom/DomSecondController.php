@@ -5,19 +5,25 @@ namespace App\Controller\dom;
 
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomForm2Type;
-use App\Controller\Traits\dom\DomsTrait;
+use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 
-
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -32,6 +38,10 @@ class DomSecondController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_ORDRE_DE_MISSION);
+        /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');

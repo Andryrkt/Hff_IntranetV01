@@ -3,17 +3,24 @@
 namespace App\Controller\ddp;
 
 use App\Controller\Controller;
+use App\Form\ddp\DdpSearchType;
+use App\Entity\admin\Application;
 use App\Entity\admin\ddp\ddpSearch;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\ddp\DemandePaiementLigne;
-use App\Form\ddp\DdpSearchType;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
-use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @Route("/compta/demande-de-paiement")
+ */
 class DdpListeController extends Controller
 {
+    use AutorisationTrait;
+
     private DemandePaiementRepository $demandePaiementRepository;
     private DdpSearch $ddpSearch;
     public function __construct()
@@ -24,7 +31,7 @@ class DdpListeController extends Controller
     }
 
     /**
-     * @Route("/ddp/liste-ddp", name="ddp_liste")
+     * @Route("/liste", name="ddp_liste")
      *
      * @return void
      */
@@ -32,6 +39,10 @@ class DdpListeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_PAIEMENT);
+        /** FIN AUtorisation acées */
+
         $form = self::$validator->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
         ])->getForm();

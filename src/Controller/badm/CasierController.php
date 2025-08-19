@@ -4,6 +4,7 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
@@ -19,13 +20,17 @@ use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/materiel/casier")
+ */
 class CasierController extends Controller
 {
 
     use Transformation;
     use ConversionTrait;
     use FormatageTrait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -35,12 +40,16 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/nouveauCasier", name="casier_nouveau")
+     * @Route("/new", name="casier_nouveau")
      */
     public function NouveauCasier(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $casier = new Casier();
 
@@ -90,6 +99,10 @@ class CasierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);
@@ -189,5 +202,4 @@ class CasierController extends Controller
             'Agence_Service_Emetteur_Non_separer' => $agenceEmetteur . $serviceEmetteur
         ];
     }
-
 }

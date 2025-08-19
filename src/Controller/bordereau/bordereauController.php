@@ -12,6 +12,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
 
+/**
+ * @Route("/bordereau")
+ */
 class bordereauController extends Controller
 {
 
@@ -68,34 +71,36 @@ class bordereauController extends Controller
     /**
      * @Route("/export_pdf_bordereau/{numinv}", name = "export_pdf_bordereau")
      */
-    public function pdfExport(){
+    public function pdfExport()
+    {
         // Vérification si l'utilisateur est connecté
-       $this->verifierSessionUtilisateur();
-       $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $this->verifierSessionUtilisateur();
+        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
         $data = $this->recupData($criteriaTab['numInv']);
-    // dd($data);
+        // dd($data);
         $this->generetePdfBordereau->genererPDF($data);
     }
-    public function recupData($criteria){
-            $data =[];
-            $listBordereau = $this->bordereauModel->bordereauListe($criteria);
-            if (!empty($listBordereau)) {
-                for ($i=0; $i <count($listBordereau) ; $i++) { 
-                    $data[]=[
-                         'numinv' => $listBordereau[$i]['numinv'],
-                         'numBordereau' => $listBordereau[$i]['numbordereau'],
-                         'ligne' => $listBordereau[$i]['ligne'],
-                         'casier' => $listBordereau[$i]['casier'],
-                         'cst' => $listBordereau[$i]['cst'],
-                         'refp' => $listBordereau[$i]['refp'],
-                         'descrip' => $listBordereau[$i]['descrip'],
-                         'qte_theo' => $listBordereau[$i]['qte_theo'],
-                         'qte_alloue' => $listBordereau[$i]['qte_alloue'],
-                         'dateinv' => (new DateTime($listBordereau[$i]['dateinv']))->format('d/m/Y')
-                    ];
-                }
+    public function recupData($criteria)
+    {
+        $data = [];
+        $listBordereau = $this->bordereauModel->bordereauListe($criteria);
+        if (!empty($listBordereau)) {
+            for ($i = 0; $i < count($listBordereau); $i++) {
+                $data[] = [
+                    'numinv' => $listBordereau[$i]['numinv'],
+                    'numBordereau' => $listBordereau[$i]['numbordereau'],
+                    'ligne' => $listBordereau[$i]['ligne'],
+                    'casier' => $listBordereau[$i]['casier'],
+                    'cst' => $listBordereau[$i]['cst'],
+                    'refp' => $listBordereau[$i]['refp'],
+                    'descrip' => $listBordereau[$i]['descrip'],
+                    'qte_theo' => $listBordereau[$i]['qte_theo'],
+                    'qte_alloue' => $listBordereau[$i]['qte_alloue'],
+                    'dateinv' => (new DateTime($listBordereau[$i]['dateinv']))->format('d/m/Y')
+                ];
             }
+        }
 
-            return $data;
+        return $data;
     }
 }

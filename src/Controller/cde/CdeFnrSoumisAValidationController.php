@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
 
+/**
+ * @Route("/commande")
+ */
 class CdefnrSoumisAValidationController extends Controller
 {
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;

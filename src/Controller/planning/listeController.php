@@ -2,35 +2,46 @@
 
 namespace App\Controller\planning;
 
+use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Model\planning\PlanningModel;
+use App\Entity\planning\PlanningSearch;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
-use App\Entity\planning\PlanningSearch;
-use Symfony\Component\HttpFoundation\Request;
 use App\Form\planning\PlanningSearchType;
-use DateTime;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\VarDumper\Cloner\Data;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use Symfony\Component\VarDumper\Cloner\Data;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
+/**
+ * @Route("/atelier")
+ */
 class ListeController extends Controller
 {
     use Transformation;
     use PlanningTraits;
+    use AutorisationTrait;
+
     private PlanningSearch $planningSearch;
     private PlanningModel $planningModel;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private $historiqueOperation;
+
     public function __construct()
     {
         parent::__construct();
         $this->planningSearch = new PlanningSearch();
         $this->planningModel = new PlanningModel();
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->historiqueOperation = new HistoriqueOperationDITService;
     }
     /**
      * @Route("/Liste",name = "liste_planning")
@@ -43,8 +54,11 @@ class ListeController extends Controller
         $pagesCount = 0;
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        //initialisation
 
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_REPORTING);
+        /** FIN AUtorisation acées */
+        //initialisation
         $this->conditionFormulaireRecherche();
 
         $form = self::$validator->createBuilder(

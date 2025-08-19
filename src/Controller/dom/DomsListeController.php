@@ -2,33 +2,42 @@
 
 namespace App\Controller\dom;
 
-use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\dom\DomListeTrait;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
+use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomSearchType;
+use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomsListeController extends Controller
 {
 
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
+    use AutorisationTrait;
 
     /**
      * affichage de l'architecture de la liste du DOM
-     * @Route("/dom-liste", name="doms_liste")
+     * @Route("/liste", name="doms_liste")
      */
     public function listeDom(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_ORDRE_DE_MISSION);
+        /** FIN AUtorisation acées */
 
         $autoriser = $this->autorisationRole(self::$em);
 
