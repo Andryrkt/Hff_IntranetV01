@@ -51,7 +51,6 @@ trait DitTrait
         if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
-
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel() . '-' . $dits->getNumParc() . '-' . $dits->getNumSerie(), 'dit_new');
@@ -123,9 +122,10 @@ trait DitTrait
         $demandeIntervention->setMailClient($dits->getMailClient());
 
         if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
+            dump($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
             $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
-
+            dd($data);
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
                 $this->historiqueOperation->sendNotificationCreation($message, $dits->getIdMateriel() . '-' . $dits->getNumParc() . '-' . $dits->getNumSerie(), 'dit_new');

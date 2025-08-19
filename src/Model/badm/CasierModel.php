@@ -7,32 +7,32 @@ use App\Model\Traits\ConversionModel;
 
 class CasierModel extends Model
 {
-    use ConversionModel;
-    /**
-     * informix
-     */
-    public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
-    {
+  use ConversionModel;
+  /**
+   * informix
+   */
+  public function findAll($matricule = '',  $numParc = '', $numSerie = ''): array
+  {
 
-          if($matricule === '' || $matricule === '0' || $matricule === null){
-            $conditionNummat = "";
-           } else {
-             $conditionNummat = "and mmat_nummat = '" . $matricule."'";
-           }
+    if ($matricule === '' || $matricule === '0' || $matricule === null) {
+      $conditionNummat = "";
+    } else {
+      $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
+    }
 
-           if($numParc === '' || $numParc === '0' || $numParc === null){
-             $conditionNumParc = "";
-           } else {
-             $conditionNumParc = "and mmat_recalph = '" . $numParc ."'";
-           }
-     
-           if($numSerie === '' || $numSerie === '0' || $numSerie === null){
-             $conditionNumSerie = "";
-           } else {
-             $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-           }
+    if ($numParc === '' || $numParc === '0' || $numParc === null) {
+      $conditionNumParc = "";
+    } else {
+      $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
+    }
 
-        $statement = "SELECT
+    if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
+      $conditionNumSerie = "";
+    } else {
+      $conditionNumSerie = "and TRIM(mmat_numserie) = '" . $numSerie . "'";
+    }
+
+    $statement = "SELECT
         case  when mmat_succ in (select asuc_parc from agr_succ) then asuc_num else mmat_succ end as agence,
         trim(asuc_lib)||'-'||case (select sce.atab_lib from mmo_imm, agr_tab as sce where mimm_soc = mmat_soc and mimm_nummat = mmat_nummat and sce.atab_code = mimm_service and sce.atab_nom='SER') 
         when null then 'COMMERCIAL' 
@@ -85,18 +85,16 @@ class CasierModel extends Model
         and mbil_dateclot = '12/31/1899'
         and mmat_datedisp < '12/31/2999'
         and (MMAT_ETACHAT = 'FA' and MMAT_ETVENTE = '--')
-        ".$conditionNummat."
-      ".$conditionNumParc."
-      ".$conditionNumSerie."
+        " . $conditionNummat . "
+      " . $conditionNumParc . "
+      " . $conditionNumSerie . "
       ";
 
-        $result = $this->connect->executeQuery($statement);
+    $result = $this->connect->executeQuery($statement);
 
 
-        $data = $this->connect->fetchResults($result);
+    $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
-    }
-
-    
+    return $this->convertirEnUtf8($data);
+  }
 }

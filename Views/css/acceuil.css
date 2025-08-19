@@ -99,13 +99,14 @@
 .modal-content {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(30, 30, 30, 0.7);
+  background: rgb(2 2 2 / 71%);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   color: #fff;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   position: relative;
   overflow: hidden;
+  text-align: start;
 }
 
 .modal-header,
@@ -118,24 +119,185 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.modal-body .list-group {
+  padding: 0.5rem 0;
+}
+
 .modal-body .list-group-item {
   background: transparent;
-  color: #ddd;
+  color: #c7bfbf;
   border: none;
-  padding-left: 0;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+  border-radius: 4px;
 }
+
+.modal-body .list-group-item:not(.sub-item) {
+  margin-bottom: 0.25rem;
+}
+
+/* .modal-body .list-group-item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+} */
 
 .modal-body .list-group-item a {
   color: #fbbb01;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin: -0.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-body .list-group-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+.modal-body .list-group-item a:hover::before {
+  left: 100%;
 }
 
 .modal-body .list-group-item a:hover {
   color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2);
+  transition: all 0.3s ease;
+}
+
+.modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+/* .modal-body .list-group-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.1);
+  transform: translateX(4px);
+} */
+
+.modal-body .list-group-item.sub-item {
+  font-size: 0.95rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.modal-body .list-group-item.sub-item a {
+  color: #e9c46a;
+  padding: 0.35rem 0.75rem 0.35rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-body .list-group-item.sub-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+.modal-body .list-group-item.sub-item a:hover::before {
+  left: 100%;
+}
+
+.modal-body .list-group-item.sub-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2);
+  transition: all 0.3s ease;
+}
+
+.modal-body .list-group-item.sub-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+.modal-body .list-group-item h6 {
+  color: #c7bfbf;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 1.1rem;
 }
 
 .list-group-item.fw-bold {
   color: #fff;
   font-size: 1.05rem;
-  margin-top: 8px;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 0.75rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
 }
+
+.modal-body .list-group-item i {
+  transition: transform 0.2s ease;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+/* Animation pour l'apparition des éléments */
+/* @keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} */
+
+/* .modal-body .list-group-item {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.modal-body .list-group-item:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.modal-body .list-group-item:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.modal-body .list-group-item:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.modal-body .list-group-item:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.modal-body .list-group-item:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.modal-body .list-group-item:nth-child(6) {
+  animation-delay: 0.3s;
+} */

@@ -149,18 +149,18 @@ trait PlanningModelTrait
                                     MONTH(DATE(sitv_datepla)  )
                                 ELSE
                                     MONTH ( (SELECT DATE(Min(ska_d_start) ) FROM ska, skw WHERE ofh_id = seor_numor AND ofs_id=sitv_interv AND skw.skw_id = ska.skw_id ) )
-                                END  "; 
-        $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) "; 
-        switch ($criteria->getPlan()){
-            case "PLANIFIE":
-            $vMonthStatutPlan = $monthDatePlanifier;
-            break;
-            case "NON_PLANIFIE":
-            $vMonthStatutPlan = $monthDateNonPlanifier;
-            }
-     return  $vMonthStatutPlan;
+                                END  ";
+    $monthDateNonPlanifier =  " MONTH ( DATE(sitv_datdeb) ) ";
+    switch ($criteria->getPlan()) {
+      case "PLANIFIE":
+        $vMonthStatutPlan = $monthDatePlanifier;
+        break;
+      case "NON_PLANIFIE":
+        $vMonthStatutPlan = $monthDateNonPlanifier;
     }
-    private function dateDebutMonthPlan($criteria)
+    return  $vMonthStatutPlan;
+  }
+  private function dateDebutMonthPlan($criteria)
   {
 
     if (!empty($criteria->getDateDebut())) {
@@ -210,67 +210,73 @@ trait PlanningModelTrait
     return $vDateFMonthStatutPlan;
   }
 
-    private function interneExterne($criteria){
-        switch ($criteria->getInterneExterne()){
-            case "TOUS":
-                  $vStatutInterneExterne = "";
-                  break;
-            case "INTERNE":
-                   $vStatutInterneExterne = " AND SITV_NATOP = 'CES'  and SITV_TYPEOR not in ('501','601','602','603','604','605','606','607','608','609','610','611','701','702','703','704','705','706')";
-                   break;
-            case "EXTERNE":
-                   $vStatutInterneExterne = "AND seor_numcli >1 ";
-                   break;
-          }
-          return $vStatutInterneExterne;
+  private function interneExterne($criteria)
+  {
+    switch ($criteria->getInterneExterne()) {
+      case "TOUS":
+        $vStatutInterneExterne = "";
+        break;
+      case "INTERNE":
+        $vStatutInterneExterne = " AND SITV_NATOP = 'CES'  and SITV_TYPEOR not in ('501','601','602','603','604','605','606','607','608','609','610','611','701','702','703','704','705','706')";
+        break;
+      case "EXTERNE":
+        $vStatutInterneExterne = "AND seor_numcli >1 ";
+        break;
     }
-    private function agence($criteria)
-    {
-        if(!empty($criteria->getAgence())) {
-          $agence = " AND SEOR_SUCC in ('".$criteria->getAgence()."')";
-        } else {
-          $agence = "";
-        }
-        return $agence;
+    return $vStatutInterneExterne;
+  }
+  private function agence($criteria)
+  {
+    if (!empty($criteria->getAgence())) {
+      $agence = " AND SEOR_SUCC in ('" . $criteria->getAgence() . "')";
+    } else {
+      $agence = "";
     }
-    private function agenceDebite($criteria){
-        if(!empty($criteria->getAgenceDebite())){
-            $agenceDebite = " AND sitv_succdeb = '".$criteria->getAgenceDebite(). "' ";
-          }else{
-            $agenceDebite = ""; // AND sitv_succdeb in ('01','02','90','92','40','60','50','40','30','20')
-          }
-          return $agenceDebite;
+    return $agence;
+  }
+  private function agenceDebite($criteria)
+  {
+    if (!empty($criteria->getAgenceDebite())) {
+      $agenceDebite = " AND sitv_succdeb = '" . $criteria->getAgenceDebite() . "' ";
+    } else {
+      $agenceDebite = ""; // AND sitv_succdeb in ('01','02','90','92','40','60','50','40','30','20')
     }
-    private function serviceDebite($criteria){
-        if(!empty($criteria->getServiceDebite())){
-            $serviceDebite = " AND sitv_servdeb in ('".implode("','",$criteria->getServiceDebite())."')";
-          } else{
-            $serviceDebite = "";
-          } 
-          return  $serviceDebite;
-    }    
-    private function idMat($criteria){
-        if(!empty($criteria->getIdMat())){
-            $vconditionIdMat = " AND mmat_nummat = '".$criteria->getIdMat()."'";
-          }else{
-            $vconditionIdMat = "";
-          }
-          return $vconditionIdMat;
+    return $agenceDebite;
+  }
+  private function serviceDebite($criteria)
+  {
+    if (!empty($criteria->getServiceDebite())) {
+      $serviceDebite = " AND sitv_servdeb in ('" . implode("','", $criteria->getServiceDebite()) . "')";
+    } else {
+      $serviceDebite = "";
     }
-    private function numOr($criteria){
-        if(!empty($criteria->getNumOr())){
-            $vconditionNumOr = " AND slor_numor ='".$criteria->getNumOr()."'";
-          }else{
-            $vconditionNumOr = "";
-          }
-          return $vconditionNumOr;
+    return  $serviceDebite;
+  }
+  private function idMat($criteria)
+  {
+    if (!empty($criteria->getIdMat())) {
+      $vconditionIdMat = " AND mmat_nummat = '" . $criteria->getIdMat() . "'";
+    } else {
+      $vconditionIdMat = "";
     }
-    private function numSerie($criteria){
-        if(!empty($criteria->getNumSerie())){
-            $vconditionNumSerie = " AND mmat_numserie = '".$criteria->getNumSerie()."' ";
-          }else{
-            $vconditionNumSerie = "";
-          }
+    return $vconditionIdMat;
+  }
+  private function numOr($criteria)
+  {
+    if (!empty($criteria->getNumOr())) {
+      $vconditionNumOr = " AND slor_numor ='" . $criteria->getNumOr() . "'";
+    } else {
+      $vconditionNumOr = "";
+    }
+    return $vconditionNumOr;
+  }
+  private function numSerie($criteria)
+  {
+    if (!empty($criteria->getNumSerie())) {
+      $vconditionNumSerie = " AND TRIM(mmat_numserie) = '" . $criteria->getNumSerie() . "' ";
+    } else {
+      $vconditionNumSerie = "";
+    }
     return $vconditionNumSerie;
   }
 
