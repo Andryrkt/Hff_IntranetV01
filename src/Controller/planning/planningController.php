@@ -4,28 +4,33 @@ namespace App\Controller\planning;
 
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Model\planning\PlanningModel;
 use App\Entity\planning\PlanningSearch;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\planning\PlanningSearchType;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 /**
- * @Route("/planning")
+ * @Route("/atelier")
  */
 class PlanningController extends Controller
 {
     use Transformation;
     use PlanningTraits;
+    use AutorisationTrait;
 
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private $historiqueOperation;
 
     public function __construct()
     {
@@ -33,6 +38,7 @@ class PlanningController extends Controller
         $this->planningModel = new PlanningModel();
         $this->planningSearch = new PlanningSearch();
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->historiqueOperation = new HistoriqueOperationDITService;
     }
 
     /**
@@ -44,7 +50,9 @@ class PlanningController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_REPORTING);
+        /** FIN AUtorisation acées */
 
         //initialisation
         $this->planningSearch

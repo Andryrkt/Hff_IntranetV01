@@ -3,9 +3,11 @@
 namespace App\Controller\magasin\cis;
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\cis\CisATraiterModel;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,6 +19,8 @@ use App\Controller\Traits\magasin\cis\AtraiterTrait;
 class CisATraiterController extends Controller
 {
     use AtraiterTrait;
+    use AutorisationTrait;
+
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
      */
@@ -24,6 +28,9 @@ class CisATraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_INTERVENTION);
+        /** FIN AUtorisation acées */
 
         $cisATraiterModel = new CisATraiterModel();
 

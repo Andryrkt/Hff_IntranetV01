@@ -3,20 +3,23 @@
 namespace App\Controller\dit;
 
 
+use DateTime;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
+use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
-use DateTime;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -24,6 +27,15 @@ use DateTime;
 class DitListeController extends Controller
 {
     use DitListTrait;
+    use AutorisationTrait;
+
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDITService;
+    }
 
     /**
      * @Route("/dit-liste", name="dit_index")
@@ -35,16 +47,13 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-
         //recuperation agence et service autoriser
-        $agenceIds = $user->getAgenceAutoriserIds();
-        $serviceIds = $user->getServiceAutoriserIds();
+        $agenceIds = $this->getUser()->getAgenceAutoriserIds();
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
 
         /** CREATION D'AUTORISATION */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_INTERVENTION);
         $autoriser = $this->autorisationRole(self::$em);
-
         $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
         //FIN AUTORISATION
 

@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg  sticky-top border-bottom mb-3">
+<nav class="navbar navbar-expand-lg sticky-top border-bottom mb-3">
 	<div
 		class="container px-0">
 		<!-- Logo -->
@@ -29,6 +29,11 @@
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
 							<li>
+								<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#settingsModal">
+									Setting
+								</a>
+							</li>
+							<li>
 								<a class="dropdown-item" href="{{ path('auth_deconnexion') }}" id="logoutLink">Déconnexion</a>
 							</li>
 						</ul>
@@ -38,3 +43,54 @@
 		</div>
 	</div>
 </nav>
+
+<!-- Modal pour les Settings -->
+<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="settingsModalLabel">Paramètres</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-4">
+							<div class="list-group">
+								<a href="{{ path('personnel_index') }}" class="list-group-item list-group-item-action">Personnels</a>
+								<a href="{{ path('AgServIrium_index') }}" class="list-group-item list-group-item-action">Agence Service Irium</a>
+								<a href="{{ path('role_index') }}" class="list-group-item list-group-item-action">Rôles</a>
+								<a href="{{ path('permission_index') }}" class="list-group-item list-group-item-action">Permissions</a>
+								<a href="{{ path('application_index') }}" class="list-group-item list-group-item-action">Applications</a>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="list-group">
+								<a href="{{ path('agence_index') }}" class="list-group-item list-group-item-action">Agence</a>
+								<a href="{{ path('service_index') }}" class="list-group-item list-group-item-action">Service</a>
+								<a href="{{ path('societte_index') }}" class="list-group-item list-group-item-action">Sociétés</a>
+								<a href="#" class="list-group-item list-group-item-action">Type de Document</a>
+								<a href="#" class="list-group-item list-group-item-action">Statut App</a>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="list-group">
+								<div class="list-group-item list-group-item-secondary">Utilisateur</div>
+								<a href="{{ path('utilisateur_index') }}" class="list-group-item list-group-item-action">Utilisateur</a>
+								<a href="{{ path('contact_agence_ate_index') }}" class="list-group-item list-group-item-action">Contact Agence</a>
+								<div class="list-group-item list-group-item-secondary">Historique</div>
+								<a href="{{ path('consultation_page_index') }}" class="list-group-item list-group-item-action">Consultation de pages</a>
+								<a href="{{ path('operation_document_index') }}" class="list-group-item list-group-item-action">Historique opération</a>
+								<div class="list-group-item list-group-item-secondary">Ticket</div>
+								<a href="{{ path("tki_all_categorie_index") }}" class="list-group-item list-group-item-action">Tous les catégories</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+			</div>
+		</div>
+	</div>
+</div>

@@ -2,21 +2,25 @@
 
 namespace App\Controller\magasin\lcfnp;
 
-use App\Controller\Controller;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Form\magasin\lcfnp\ListeCdeFrnNonPlaceSearchType;
-use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use DateTime;
 use DateTimeZone;
+use App\Controller\Controller;
+use App\Entity\admin\Application;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
+use App\Form\magasin\lcfnp\ListeCdeFrnNonPlaceSearchType;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
  * @Route("/magasin")
  */
 class ListeCdeFrnNonPlaceController extends  Controller
 {
+    use AutorisationTrait;
+
     private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
     private listeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
     public function __construct()
@@ -33,6 +37,13 @@ class ListeCdeFrnNonPlaceController extends  Controller
      */
     public function index(Request $request)
     {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_LISTE_COMMENDE_FOURNISSEUR);
+        /** FIN AUtorisation acées */
+
         $form = self::$validator->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();

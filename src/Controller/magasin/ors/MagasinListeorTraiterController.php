@@ -6,9 +6,11 @@ namespace App\Controller\magasin\ors;
 // ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
@@ -24,6 +26,7 @@ class MagasinListeOrTraiterController extends Controller
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
+    use AutorisationTrait;
 
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
@@ -34,6 +37,9 @@ class MagasinListeOrTraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_MENU_MAGASIN);
+        /** FIN AUtorisation acées */
 
         $magasinModel = new MagasinListeOrATraiterModel;
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();

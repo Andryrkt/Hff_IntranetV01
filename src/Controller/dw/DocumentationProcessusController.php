@@ -8,8 +8,9 @@ use App\Entity\dw\DwProcessusProcedure;
 use App\Form\dw\DocInterneSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
- * @Route("/dw")
+ * @Route("/atelier")
  */
 class DocumentationProcessusController extends Controller
 {
