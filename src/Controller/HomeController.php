@@ -5,8 +5,7 @@ namespace App\Controller;
 use App\Service\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
 
-
-class ProfilControl extends Controller
+class HomeController extends Controller
 {
     private $menuService;
 

@@ -4,6 +4,7 @@ namespace App\Controller\Traits;
 
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 trait AutorisationTrait
 {
@@ -27,10 +28,7 @@ trait AutorisationTrait
     private function autorisationAcces(User $user, int $idApp, int $idServ = 0)
     {
         if (!$this->autorisationApp($user, $idApp, $idServ)) {
-            $message = "vous n'avez pas l'autorisation ... contacter l'administrateur";
-
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
-            $this->redirectToRoute("profil_acceuil");
+            throw new AccessDeniedException();
         }
     }
 }

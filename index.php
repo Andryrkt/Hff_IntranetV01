@@ -14,17 +14,17 @@ require __DIR__ . '/config/listeConstructeur.php';
 try {
     $curentRoute = $matcher->match($request->getPathInfo());
     $request->attributes->add($curentRoute);
-    
+
     $controller = $controllerResolver->getController($request);
     $arguments = $argumentResolver->getArguments($request, $controller);
-   
+
     call_user_func_array($controller, $arguments);
 } catch (ResourceNotFoundException $e) {
-    $htmlContent = $twig->render('404.html.twig');
+    $htmlContent = $twig->render('erreur/404.html.twig');
     $response->setContent($htmlContent);
     $response->setStatusCode(404);
 } catch (AccessDeniedException $e) {
-    $htmlContent = $twig->render('403.html.twig');
+    $htmlContent = $twig->render('erreur/403.html.twig');
     $response->setContent($htmlContent);
     $response->setStatusCode(403);
 }

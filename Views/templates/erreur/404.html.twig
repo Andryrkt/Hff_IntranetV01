@@ -1,0 +1,37 @@
+{% extends "baseTemplate.html.twig"%}
+
+{% block title %}
+	404 not found
+{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/erreur/404.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div id="notfound">
+		<div class="notfound-bg">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div class="notfound">
+			<div class="notfound-404">
+				<h1>404</h1>
+			</div>
+			<h2>Page non trouvée</h2>
+			<p>La page que vous recherchez a peut-être été supprimée, renommée ou est temporairement indisponible.</p>
+			<a href="{{ path("profil_acceuil") }}">
+				<i class="fas fa-arrow-left-long pe-2"></i>
+				Accueil
+			</a>
+		</div>
+	</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block javascript %}{% endblock %}
