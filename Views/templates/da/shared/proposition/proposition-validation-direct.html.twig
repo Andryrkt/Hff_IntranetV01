@@ -23,7 +23,7 @@
 			<div id="child-prototype" style="display: none;">
 				{{ form_widget(form.DALR.vars.prototype)|raw }}
 			</div>
-			<div class="{{ nePeutPasModifier ? 'd-none' : ''}}">
+			<div class="{{ nePeutPasModifier or estAte ? 'd-none' : ''}}">
 				{{ form_row(form.observation)}}
 				<div class="d-none">
 					{{ form_row(form.statutChange)}}

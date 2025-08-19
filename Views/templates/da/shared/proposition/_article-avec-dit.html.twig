@@ -13,7 +13,7 @@
 
 <div class="tab-pane fade" id="tab_{{ currentPage }}_{{ article.numeroDemandeAppro }}" role="tabpanel">
 	<div class="h2 text-uppercase fw-bold position-absolute text-{{ catalogueCss }}" style="top:65px;right:30px;">{{ catalogueBool }}</div>
-	{{ macroForm.sousTitre('Information sur l’article demandée par l’atelier') }}
+	{{ macroForm.sousTitre3('Information sur l’article demandée par l’atelier', { "class": "mt-3" }) }}
 	<div class="row">
 		<div class="col-12 col-md-6">
 			<div class="row">
@@ -99,7 +99,7 @@
 	<input type="hidden" name="nomFournisseur_{{ currentPage }}" id="nomFournisseur_{{ currentPage }}" value="{{ article.nomFournisseur }}">
 	<input type="hidden" name="numeroFournisseur_{{ currentPage }}" id="numeroFournisseur_{{ currentPage }}" value="{{ article.numeroFournisseur }}">
 
-	{{ macroForm.sousTitre('Proposition d’une référence') }}
+	{{ macroForm.sousTitre3(estAte ? 'Article(s) proposée(s) par l’APPRO' : 'Proposition d’une référence', { "class": "mt-3" }) }}
 	<div class="{{ estAte ? 'd-none' : ''}}">
 		{% if not(article.catalogue) and (famille == '-' or famille == '') and (sousFamille == '-' or sousfamille == '') %}
 			<div class="row">
