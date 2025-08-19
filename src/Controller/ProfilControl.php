@@ -31,7 +31,7 @@ class ProfilControl extends Controller
         self::$twig->display(
             'main/accueil.html.twig',
             [
-                'menuItems' => $menuItems
+                'menuItems' => $menuItems,
             ]
         );
     }

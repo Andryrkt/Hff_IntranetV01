@@ -14,9 +14,11 @@
 				<div class="m-5">
 					<div class="text-center">
 						<p class="fs-6">Veuillez cliquer sur le type de demande que vous souhaitez créer:</p>
-						<a class="choix" href="{{ path('da_list_dit') }}">
-							Demande d’achat avec DIT
-						</a>
+						{% if estAte %}
+							<a class="choix" href="{{ path('da_list_dit') }}">
+								Demande d’achat avec DIT
+							</a>
+						{% endif %}
 						<a class="choix" href="{{ path('da_new_direct') }}">
 							Demande d’achat direct
 						</a>

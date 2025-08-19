@@ -3,17 +3,19 @@
 namespace App\Controller\mutation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\MutationTrait;
-use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use App\Entity\mutation\Mutation;
+use App\Model\mutation\MutationModel;
+use App\Entity\admin\utilisateur\User;
 use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
+use App\Controller\Traits\MutationTrait;
 use App\Form\mutation\MutationSearchType;
-use App\Model\mutation\MutationModel;
-use App\Service\genererPdf\GeneratePdfMutation;
-use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 
 /**
  * @Route("/mutation")
@@ -21,6 +23,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class MutationController extends Controller
 {
     use MutationTrait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -36,6 +40,10 @@ class MutationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_MUTATION);
+        /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
@@ -83,6 +91,10 @@ class MutationController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_MUTATION);
+        /** FIN AUtorisation acées */
 
         $mutationSearch = new MutationSearch();
 

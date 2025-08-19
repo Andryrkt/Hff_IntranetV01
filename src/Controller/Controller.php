@@ -573,4 +573,10 @@ class Controller
         $roleIds = $this->getUser()->getRoleIds();
         return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
     }
+
+    protected function estSuperAdmin(): bool
+    {
+        $roleIds = $this->getUser()->getRoleIds();
+        return in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds);
+    }
 }

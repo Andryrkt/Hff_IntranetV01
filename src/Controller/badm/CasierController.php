@@ -4,6 +4,7 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
@@ -28,6 +29,8 @@ class CasierController extends Controller
     use Transformation;
     use ConversionTrait;
     use FormatageTrait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -43,6 +46,10 @@ class CasierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $casier = new Casier();
 
@@ -92,6 +99,10 @@ class CasierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $casier = new Casier();
         $form1Data = $this->sessionService->get('casierform1Data', []);

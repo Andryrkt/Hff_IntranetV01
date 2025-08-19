@@ -5,9 +5,11 @@ namespace App\Controller\da\ListeCdeFrn;
 
 use App\Model\da\DaModel;;
 
+use App\Entity\admin\Service;
 use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
 use App\Model\da\DaListeCdeFrnModel;
 use App\Service\TableauEnStringService;
@@ -17,6 +19,7 @@ use App\Form\da\daCdeFrn\DaSoumissionType;
 use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
+use App\Controller\Traits\AutorisationTrait;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -30,6 +33,7 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 class DaListCdeFrnController extends Controller
 {
     use StatutBcTrait;
+    use AutorisationTrait;
 
     private DaAfficherRepository $daAfficherRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
@@ -54,6 +58,10 @@ class DaListCdeFrnController extends Controller
     public function index(Request $request)
     {
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_APPROVISIONNEMENT, Service::ID_APPRO);
+        /** FIN AUtorisation acées */
 
         /** ===  Formulaire pour la recherche === */
         $form = self::$validator->createBuilder(CdeFrnListType::class, null, [

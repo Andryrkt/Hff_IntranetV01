@@ -3,6 +3,8 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Controller\Traits\Transformation;
@@ -16,6 +18,7 @@ class CasierListController extends Controller
 {
 
     use Transformation;
+    use AutorisationTrait;
 
     /**
      * @Route("/liste", name="liste_affichageListeCasier")
@@ -24,6 +27,10 @@ class CasierListController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'

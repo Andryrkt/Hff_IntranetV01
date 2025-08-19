@@ -2,16 +2,19 @@
 
 namespace App\Controller\da\Creation;
 
+use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\ApplicationTrait;
-use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
+use App\Controller\Traits\ApplicationTrait;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
 
 /**
  * @Route("/demande-appro")
@@ -20,6 +23,7 @@ class DaNewAvecDitController extends Controller
 {
     use ApplicationTrait;
     use DaNewAvecDitTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -36,7 +40,9 @@ class DaNewAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        self::$twig->display('da/first-form.html.twig');
+        self::$twig->display('da/first-form.html.twig', [
+            'estAte' => $this->estUserDansServiceAtelier(),
+        ]);
     }
 
     /**
@@ -46,6 +52,10 @@ class DaNewAvecDitController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_APPROVISIONNEMENT, Service::ID_ATELIER);
+        /** FIN AUtorisation acées */
 
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $id

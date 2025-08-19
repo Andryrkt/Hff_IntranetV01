@@ -4,10 +4,12 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Entity\admin\StatutDemande;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -17,6 +19,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class CasierListTemporaireController extends Controller
 {
     use Transformation;
+    use AutorisationTrait;
+
 
     /**
      * @Route("/listTemporaireCasier", name="listeTemporaire_affichageListeCasier")
@@ -25,6 +29,9 @@ class CasierListTemporaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
