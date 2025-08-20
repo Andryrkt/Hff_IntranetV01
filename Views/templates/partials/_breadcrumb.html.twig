@@ -23,7 +23,7 @@
 				{% endif %}
 
 				{% if item.dropdown is defined and item.dropdown|length > 0 %}
-					{% set itemsPerColumn = 5 %}
+					{% set itemsPerColumn = 6 %}
 					{% set totalItems = item.dropdown|length %}
 					{% set columnsNeeded = (totalItems / itemsPerColumn)|round(0, 'ceil') %}
 					{% if columnsNeeded == 0 %}
@@ -44,7 +44,7 @@
 									{# </div> #}
 										{% for subitem in item.dropdown|slice((column - 1) * itemsPerColumn, itemsPerColumn) %}
 											{% if subitem.link %}
-												<a class="dropdown-item {% if subitem.is_active %}active{% endif %} d-flex align-items-center" href="{% if subitem.link is not null and (subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/') %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %}> {% if subitem.icon %}
+												<a class="dropdown-item {% if subitem.is_active %}active{% endif %} d-flex align-items-center" href="{% if subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/' %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %} {% if subitem.link starts with 'http' or subitem.link starts with '/' %} target="_blank" {% endif %}> {% if subitem.icon %}
 													<i class="{{ subitem.icon }} me-2 text-secondary"></i>
 												{% endif %}
 												{{ subitem.title }}

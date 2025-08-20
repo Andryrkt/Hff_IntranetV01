@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/atelier")
+ * @Route("/documentation")
  */
 class DocumentationProcessusController extends Controller
 {
