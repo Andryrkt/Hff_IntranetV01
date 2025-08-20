@@ -129,6 +129,17 @@ document.addEventListener("DOMContentLoaded", function () {
   (async () => {
     await preloadAllData(); // préchargement des données dans fournisseur et désignation
   })();
+
+  // Les dropdowns
+  document
+    .querySelectorAll(".dropdown-menu .dropdown-toggle")
+    .forEach(function (element) {
+      element.addEventListener("click", function (e) {
+        e.stopPropagation();
+        e.nextElementSibling.classList.toggle("show");
+      });
+    });
+
   // Sélectionner le lien de déconnexion et le modal
   const logoutLink = document.getElementById("logoutLink");
   const logoutModal = new bootstrap.Modal(
@@ -253,7 +264,3 @@ window.addEventListener("load", () => {
     overlay.classList.add("hidden"); // Masquer l'overlay après le chargement
   }
 });
-
-
-
-

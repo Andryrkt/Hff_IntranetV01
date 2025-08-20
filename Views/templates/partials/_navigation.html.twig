@@ -22,136 +22,88 @@
 				<!-- Menu utilisateur -->
 				<ul class="navbar-nav ms-lg-auto">
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
 							{{ App.user.Personnels.prenoms ~ '.' ~ App.user.Personnels.nom }}
 						</a>
-						<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+						<ul class="dropdown-menu dropdown-menu-end">
+							{% if 1 in role_ids or 7 in role_ids %}
+								<li class="dropstart">
+									<a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
+										<i class="fas fa-shield-alt"></i>
+										Administrateur
+									</a>
+									<ul class="dropdown-menu p-3" style="min-width: 600px;">
+										<div class="row">
+											<div class="col-md-4">
+												<li>
+													<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
+												</li>
+											</div>
+
+											<div class="col-md-4">
+												<li>
+													<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="#">Type de Document</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="#">Statut App</a>
+												</li>
+											</div>
+
+											<div class="col-md-4">
+												<li class="dropdown-header">Utilisateur</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
+												</li>
+												<li class="dropdown-header">Historique</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+												</li>
+												<li class="dropdown-header">Ticket</li>
+												<li>
+													<a class="dropdown-item" href="{{ path("tki_all_categorie_index") }}">Tous les catégories</a>
+												</li>
+											</div>
+										</div>
+									</ul>
+								</li>
+							{% endif %}
 							<li>
-								<a class="dropdown-item" href="{{ path('auth_deconnexion') }}" id="logoutLink">Déconnexion</a>
+								<a class="dropdown-item text-danger" href="{{ path('auth_deconnexion') }}" id="logoutLink">
+									<i class="fas fa-power-off pe-2"></i>
+									Se déconnecter
+								</a>
 							</li>
 						</ul>
 					</li>
-					{% if 1 in role_ids or 7 in role_ids %}
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
-								<i class="fas fa-cog"></i>
-								Paramètres
-							</a>
-							<ul class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="navbarDropdown" style="min-width: 600px;">
-								<div class="row">
-									<div class="col-md-4">
-										<li>
-											<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
-										</li>
-									</div>
-
-									<div class="col-md-4">
-										<li>
-											<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="#">Type de Document</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="#">Statut App</a>
-										</li>
-									</div>
-
-									<div class="col-md-4">
-										<li class="dropdown-header">Utilisateur</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
-										</li>
-										<li class="dropdown-header">Historique</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
-										</li>
-										<li>
-											<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
-										</li>
-										<li class="dropdown-header">Ticket</li>
-										<li>
-											<a class="dropdown-item" href="{{ path("tki_all_categorie_index") }}">Tous les catégories</a>
-										</li>
-									</div>
-								</div>
-							</ul>
-						</li>
-					{% endif %}
 				</ul>
 			</div>
 		</div>
 	</div>
 </nav>
-
-<!-- Modal pour les Settings -->
-<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="settingsModalLabel">Paramètres</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-md-4">
-							<div class="list-group">
-								<a href="{{ path('personnel_index') }}" class="list-group-item list-group-item-action">Personnels</a>
-								<a href="{{ path('AgServIrium_index') }}" class="list-group-item list-group-item-action">Agence Service Irium</a>
-								<a href="{{ path('role_index') }}" class="list-group-item list-group-item-action">Rôles</a>
-								<a href="{{ path('permission_index') }}" class="list-group-item list-group-item-action">Permissions</a>
-								<a href="{{ path('application_index') }}" class="list-group-item list-group-item-action">Applications</a>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="list-group">
-								<a href="{{ path('agence_index') }}" class="list-group-item list-group-item-action">Agence</a>
-								<a href="{{ path('service_index') }}" class="list-group-item list-group-item-action">Service</a>
-								<a href="{{ path('societte_index') }}" class="list-group-item list-group-item-action">Sociétés</a>
-								<a href="#" class="list-group-item list-group-item-action">Type de Document</a>
-								<a href="#" class="list-group-item list-group-item-action">Statut App</a>
-							</div>
-						</div>
-						<div class="col-md-4">
-							<div class="list-group">
-								<div class="list-group-item list-group-item-secondary">Utilisateur</div>
-								<a href="{{ path('utilisateur_index') }}" class="list-group-item list-group-item-action">Utilisateur</a>
-								<a href="{{ path('contact_agence_ate_index') }}" class="list-group-item list-group-item-action">Contact Agence</a>
-								<div class="list-group-item list-group-item-secondary">Historique</div>
-								<a href="{{ path('consultation_page_index') }}" class="list-group-item list-group-item-action">Consultation de pages</a>
-								<a href="{{ path('operation_document_index') }}" class="list-group-item list-group-item-action">Historique opération</a>
-								<div class="list-group-item list-group-item-secondary">Ticket</div>
-								<a href="{{ path("tki_all_categorie_index") }}" class="list-group-item list-group-item-action">Tous les catégories</a>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
-			</div>
-		</div>
-	</div>
-</div>
