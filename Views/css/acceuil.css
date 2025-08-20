@@ -177,7 +177,7 @@
   color: #ffd43b;
   background-color: rgba(251, 187, 1, 0.12);
   transform: translateX(6px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
   transition: all 0.3s ease;
 }
 
@@ -202,6 +202,7 @@
   padding: 0.35rem 0.75rem 0.35rem 2rem;
   position: relative;
   overflow: hidden;
+  margin-bottom: 0.5rem;
 }
 
 .modal-body .list-group-item.sub-item a::before {
@@ -228,7 +229,7 @@
   color: #ffd43b;
   background-color: rgba(251, 187, 1, 0.12);
   transform: translateX(6px) scale(1.02);
-  box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
   transition: all 0.3s ease;
 }
 
@@ -238,11 +239,11 @@
 }
 
 .modal-body .list-group-item h6 {
-  color: #c7bfbf;
+  color: #838181;
   font-weight: 600;
-  margin: 0.75rem 0 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  /* margin: 0.75rem 0 0.5rem;
+  padding: 0.5rem 0.75rem; */
+  border-bottom: 1px solid #fbbb01;
   font-size: 1.1rem;
 }
 

@@ -258,6 +258,7 @@ button.swal2-styled {
 .dropdown-item:hover {
   background-color: #fdc714 !important; /* Orange vif */
   color: #000 !important;
+  font-weight: bold;
   transform: translateX(3px);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -293,53 +294,20 @@ button.swal2-styled {
   display: block;
   padding: 8px 12px;
   text-decoration: none;
-  color: #333;
-}
-
-.dropdown-hover .dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%; /* juste en dessous du lien */
-  left: 0;
-  z-index: 1000;
-  background: white;
-  min-width: 160px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .dropdown-hover:hover .dropdown-menu {
   display: block;
 }
 
-.dropdown-menu a {
-  display: block;
-  padding: 8px 12px;
-  text-decoration: none;
-  color: #333;
-}
-
-.dropdown-hover .dropdown-menu {
-  display: none;
-  position: absolute;
-  top: 100%; /* juste en dessous du lien */
-  left: 0;
-  z-index: 1000;
-  background: white;
-  min-width: 160px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
 .dropdown-hover:hover .dropdown-menu {
   display: block;
-}
-
-.dropdown-menu a {
-  display: block;
-  padding: 8px 12px;
-  text-decoration: none;
-  color: #333;
 }
 
 .dropdown-menu a:hover {
   background-color: #f5f5f5;
+}
+
+.dropdown-menu {
+  background-color: #000;
 }
