@@ -3,7 +3,6 @@
   align-items: center;
   flex-wrap: wrap;
   box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.15);
-  
   border-radius: 5px;
   counter-reset: flag;
 }
@@ -13,23 +12,23 @@
   outline: none;
   display: block;
   font-size: 12px;
-  line-height: 36px;
-  padding: 0 10px 0 30px;
+  line-height: 25px;
+  padding: 0 10px 0 20px;
   background: #666;
   background: linear-gradient(#666, #333);
   position: relative;
+  transition: all 0.5s;
 }
 
 .breadcrumb .breadcrumb-item a {
-    color: white;
-    text-decoration: none;
-    display: block;
+  color: white;
+  text-decoration: none;
+  display: block;
 }
-
 
 /*since the first link does not have a triangle before it we can reduce the left padding to make it look consistent with other links*/
 .breadcrumb .breadcrumb-item:first-child {
-  padding-left: 20px;
+  padding-left: 10px;
   border-radius: 5px 0 0 5px; /*to match with the parent's radius*/
 }
 .breadcrumb .breadcrumb-item:first-child:before {
@@ -56,32 +55,24 @@
 .breadcrumb .breadcrumb-item:after {
   content: "";
   position: absolute;
-  top: 0;
-  right: -18px; /*half of square's length*/
-  width: 36px;
-  height: 36px;
-  transform: scale(0.707) rotate(45deg);
+  top: 3px;
+  right: -10px;
+  width: 19px;
+  height: 19px;
+  transform: rotate(45deg);
   z-index: 1;
-  background: #666;
   background: linear-gradient(135deg, #666, #333);
   box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 3px -3px 0 2px #ccc;
-  border-radius: 0 5px 0 50px;
+  border-radius: 5px 5px 5px 50px;
 }
 /*we dont need an arrow after the last link*/
 .breadcrumb .breadcrumb-item:last-child:after {
   content: none;
 }
 
-.flat .breadcrumb-item,
-.flat .breadcrumb-item:after {
-  background: #000;
-  transition: all 0.5s;
-}
-
 .flat .breadcrumb-item a {
-    color: #fbbb01;
+  color: #fbbb01;
 }
-
 
 .flat .breadcrumb-item:before {
   background: #000;
@@ -93,7 +84,7 @@
 .flat .breadcrumb-item:hover:after,
 .flat .breadcrumb-item.active:after,
 .flat .breadcrumb-item:last-child:after {
-  background: #fbbb01;
+  background: linear-gradient(355deg, #ffdd55, #fbbb01);
 }
 
 .flat .breadcrumb-item:hover a,

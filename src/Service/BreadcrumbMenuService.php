@@ -14,35 +14,35 @@ class BreadcrumbMenuService
     public function getFullMenuConfig(): array
     {
         return [
-            'accueil' => $this->getMainMenuItems(),
-            'documentation' => $this->getDocumentationSubMenu(),
-            'reporting' => $this->getReportingSubMenu(),
-            'compta' => $this->getComptaSubMenu(),
-            'rh' => $this->getRhSubMenu(),
-            'materiel' => $this->getMaterielSubMenu(),
-            'atelier' => $this->getAtelierSubMenu(),
-            'magasin' => $this->getMagasinSubMenu(),
-            'appro' => $this->getApproSubMenu(),
-            'it' => $this->getItSubMenu(),
-            'pol' => $this->getPolSubMenu(),
-            'energie' => $this->getEnergieSubMenu(),
-            'hse' => $this->getHseSubMenu(),
+            'accueil'              => $this->getMainMenuItems(),
+            'documentation'        => $this->getDocumentationSubMenu(),
+            'reporting'            => $this->getReportingSubMenu(),
+            'compta'               => $this->getComptaSubMenu(),
+            'rh'                   => $this->getRhSubMenu(),
+            'materiel'             => $this->getMaterielSubMenu(),
+            'atelier'              => $this->getAtelierSubMenu(),
+            'magasin'              => $this->getMagasinSubMenu(),
+            'appro'                => $this->getApproSubMenu(),
+            'it'                   => $this->getItSubMenu(),
+            'pol'                  => $this->getPolSubMenu(),
+            'energie'              => $this->getEnergieSubMenu(),
+            'hse'                  => $this->getHseSubMenu(),
             // RH - Sous-menus spécifiques
-            'ordre-de-mission' => $this->getOdmSubMenu(),
-            'mutation' => $this->getMutationSubMenu(),
-            'conges' => $this->getCongesSubMenu(),
-            'temporaires' => $this->getTemporairesSubMenu(),
+            'ordre-de-mission'     => $this->getOdmSubMenu(),
+            'mutation'             => $this->getMutationSubMenu(),
+            'conges'               => $this->getCongesSubMenu(),
+            'temporaires'          => $this->getTemporairesSubMenu(),
             // Magasin - Sous-menus spécifiques
-            'or' => $this->getOrSubMenu(),
-            'cis' => $this->getCisSubMenu(),
+            'or'                   => $this->getOrSubMenu(),
+            'cis'                  => $this->getCisSubMenu(),
             // Matériel - Sous-menus spécifiques
-            'mouvement-materiel' => $this->getMouvementMaterielSubMenu(),
-            'casier' => $this->getCasierSubMenu(),
+            'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
+            'casier'               => $this->getCasierSubMenu(),
             // Atelier - Sous-menus spécifiques
             'demande-intervention' => $this->getDemandeInterventionSubMenu(),
             // Compta - Sous-menus spécifiques
-            'demande-de-paiement' => $this->getDemandePaiementSubMenu(),
-            'bon-de-caisse' => $this->getBonCaisseSubMenu()
+            'demande-de-paiement'  => $this->getDemandePaiementSubMenu(),
+            'bon-de-caisse'        => $this->getBonCaisseSubMenu()
         ];
     }
 
@@ -51,10 +51,10 @@ class BreadcrumbMenuService
         $menuStructure = $this->menuService->getMenuStructure();
         return array_map(function ($item) {
             return [
-                'id' => $item['id'],
+                'id'    => $item['id'],
                 'title' => $item['title'],
-                'icon' => $item['icon'],
-                'link' => '#',
+                'icon'  => $item['icon'],
+                'link'  => '#',
                 'items' => $item['items']
             ];
         }, $menuStructure);
@@ -138,17 +138,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => 'dom_first_form',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'dom_first_form',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'doms_liste',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'doms_liste',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -158,17 +158,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => 'mutation_nouvelle_demande',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'mutation_nouvelle_demande',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'mutation_liste',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'mutation_liste',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -178,17 +178,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => '#',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => '#',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => '#',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => '#',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -198,17 +198,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => '#',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => '#',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => '#',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => '#',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -220,17 +220,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Liste à traiter',
-                'link' => 'magasinListe_index',
-                'icon' => 'fas fa-tasks',
+                'id'          => null,
+                'title'       => 'Liste à traiter',
+                'link'        => 'magasinListe_index',
+                'icon'        => 'fas fa-tasks',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Liste à livrer',
-                'link' => 'magasinListe_or_Livrer',
-                'icon' => 'fas fa-truck-loading',
+                'id'          => null,
+                'title'       => 'Liste à livrer',
+                'link'        => 'magasinListe_or_Livrer',
+                'icon'        => 'fas fa-truck-loading',
                 'routeParams' => []
             ]
         ];
@@ -240,17 +240,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Liste à traiter',
-                'link' => 'cis_liste_a_traiter',
-                'icon' => 'fas fa-tasks',
+                'id'          => null,
+                'title'       => 'Liste à traiter',
+                'link'        => 'cis_liste_a_traiter',
+                'icon'        => 'fas fa-tasks',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Liste à livrer',
-                'link' => 'cis_liste_a_livrer',
-                'icon' => 'fas fa-truck-loading',
+                'id'          => null,
+                'title'       => 'Liste à livrer',
+                'link'        => 'cis_liste_a_livrer',
+                'icon'        => 'fas fa-truck-loading',
                 'routeParams' => []
             ]
         ];
@@ -262,17 +262,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => 'badms_newForm1',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'badms_newForm1',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'badmListe_AffichageListeBadm',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'badmListe_AffichageListeBadm',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -282,17 +282,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => 'casier_nouveau',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'casier_nouveau',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'listeTemporaire_affichageListeCasier',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'listeTemporaire_affichageListeCasier',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -304,24 +304,24 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => 'dit_new',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'dit_new',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'dit_index',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'dit_index',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Dossier DIT',
-                'link' => 'dit_dossier_intervention_atelier',
-                'icon' => 'fas fa-folder',
+                'id'          => null,
+                'title'       => 'Dossier DIT',
+                'link'        => 'dit_dossier_intervention_atelier',
+                'icon'        => 'fas fa-folder',
                 'routeParams' => []
             ]
         ];
@@ -333,18 +333,18 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => 'modalTypeDemande',
-                'title' => 'Nouvelle demande',
-                'link' => '#',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => 'modalTypeDemande',
+                'title'       => 'Nouvelle demande',
+                'link'        => '#',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => [],
-                'is_modal' => true
+                'is_modal'    => true
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => 'ddp_liste',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => 'ddp_liste',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -354,17 +354,17 @@ class BreadcrumbMenuService
     {
         return [
             [
-                'id' => null,
-                'title' => 'Nouvelle demande',
-                'link' => '#',
-                'icon' => 'fas fa-plus-circle',
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => '#',
+                'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
-                'id' => null,
-                'title' => 'Consultation',
-                'link' => '#',
-                'icon' => 'fas fa-search',
+                'id'          => null,
+                'title'       => 'Consultation',
+                'link'        => '#',
+                'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
         ];
@@ -382,34 +382,34 @@ class BreadcrumbMenuService
             if (isset($item['subitems'])) {
                 // Ajouter l'item parent comme séparateur/groupe
                 $breadcrumbItems[] = [
-                    'id' => null,
-                    'title' => $item['title'],
-                    'link' => '#',
-                    'icon' => $item['icon'],
+                    'id'       => null,
+                    'title'    => $item['title'],
+                    'link'     => '#',
+                    'icon'     => $item['icon'],
                     'is_group' => true
                 ];
 
                 // Ajouter les sous-items
                 foreach ($item['subitems'] as $subitem) {
                     $breadcrumbItems[] = [
-                        'id' => $subitem['modal_id'] ?? null,
-                        'title' => $item['title'] . ' - ' . $subitem['title'], // Titre combiné pour éviter la confusion
+                        'id'          => $subitem['modal_id'] ?? null,
+                        'title'       => $item['title'] . ' - ' . $subitem['title'], // Titre combiné pour éviter la confusion
                         'short_title' => $subitem['title'], // Titre court pour l'affichage
-                        'link' => $subitem['link'],
-                        'icon' => $subitem['icon'],
+                        'link'        => $subitem['link'],
+                        'icon'        => $subitem['icon'],
                         'routeParams' => $subitem['routeParams'] ?? [],
-                        'is_modal' => $subitem['is_modal'] ?? false,
-                        'parent' => $item['title'],
+                        'is_modal'    => $subitem['is_modal'] ?? false,
+                        'parent'      => $item['title'],
                         'parent_icon' => $item['icon']
                     ];
                 }
             } else {
                 // Item simple
                 $breadcrumbItems[] = [
-                    'id' => null,
-                    'title' => $item['title'],
-                    'link' => $item['link'],
-                    'icon' => $item['icon'],
+                    'id'          => null,
+                    'title'       => $item['title'],
+                    'link'        => $item['link'],
+                    'icon'        => $item['icon'],
                     'routeParams' => $item['routeParams'] ?? []
                 ];
             }
@@ -485,7 +485,7 @@ class BreadcrumbMenuService
     /**
      * Génère le breadcrumb pour une page donnée
      */
-    public function generateBreadcrumb(string $section, string $currentPage = null): array
+    public function generateBreadcrumb(string $section, ?string $currentPage = null): array
     {
         $breadcrumb = [
             ['title' => 'Accueil', 'link' => '/', 'icon' => 'fas fa-home']
@@ -499,8 +499,8 @@ class BreadcrumbMenuService
                 if (strtolower($mainItem['title']) === $section) {
                     $breadcrumb[] = [
                         'title' => $mainItem['title'],
-                        'link' => '#',
-                        'icon' => $mainItem['icon']
+                        'link'  => '#',
+                        'icon'  => $mainItem['icon']
                     ];
                     break;
                 }
@@ -512,9 +512,9 @@ class BreadcrumbMenuService
             $currentItem = $this->findMenuItem($section, $currentPage);
             if ($currentItem) {
                 $breadcrumb[] = [
-                    'title' => $currentItem['title'],
-                    'link' => $currentItem['link'],
-                    'icon' => $currentItem['icon'],
+                    'title'   => $currentItem['title'],
+                    'link'    => $currentItem['link'],
+                    'icon'    => $currentItem['icon'],
                     'current' => true
                 ];
             }
@@ -541,8 +541,8 @@ class BreadcrumbMenuService
             if (isset($item['is_group']) && $item['is_group']) {
                 // C'est un groupe
                 $groups[$item['title']] = [
-                    'title' => $item['title'],
-                    'icon' => $item['icon'],
+                    'title'    => $item['title'],
+                    'icon'     => $item['icon'],
                     'children' => []
                 ];
             } elseif (isset($item['parent'])) {
@@ -581,11 +581,11 @@ class BreadcrumbMenuService
         foreach ($config[$section] as $item) {
             if (!isset($item['is_group']) && $item['link'] !== '#') {
                 $directLinks[] = [
-                    'title' => $item['short_title'] ?? $item['title'],
-                    'full_title' => $item['title'],
-                    'link' => $item['link'],
-                    'icon' => $item['icon'],
-                    'parent' => $item['parent'] ?? null,
+                    'title'       => $item['short_title'] ?? $item['title'],
+                    'full_title'  => $item['title'],
+                    'link'        => $item['link'],
+                    'icon'        => $item['icon'],
+                    'parent'      => $item['parent'] ?? null,
                     'routeParams' => $item['routeParams'] ?? []
                 ];
             }
