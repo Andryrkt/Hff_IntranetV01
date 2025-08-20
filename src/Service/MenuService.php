@@ -72,8 +72,8 @@ class MenuService
                     'Bon de caisse',
                     'receipt',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                        $this->createSubItem('Consultation', 'search', '#')
                     ]
                 )
             ]
@@ -107,16 +107,16 @@ class MenuService
                     'Congés',
                     'umbrella-beach',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                        $this->createSubItem('Consultation', 'search', '#')
                     ]
                 ),
                 $this->createSubMenuItem(
                     'Temporaires',
                     'user-clock',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle'),
-                        $this->createSubItem('Consultation', 'search')
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                        $this->createSubItem('Consultation', 'search', '#')
                     ]
                 )
             ]
@@ -252,7 +252,7 @@ class MenuService
                 $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
                 $this->createSimpleItem('Consultation des DLUB', 'search'),
                 $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
-                $this->createSimpleItem('Pneumatiques', 'tire'),
+                $this->createSimpleItem('Pneumatiques', 'gauge'),
             ]
         );
     }
