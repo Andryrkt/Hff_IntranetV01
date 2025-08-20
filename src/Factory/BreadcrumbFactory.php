@@ -85,10 +85,6 @@ class BreadcrumbFactory
             'new' => 'Nouvelle demande',
             'liste' => 'Consultation',
             'demande-dintervention' => 'Demande d\'intervention',
-            'atelier' => 'Atelier',
-            'demandes' => 'Demandes',
-            'planning' => 'Planning',
-            'history' => 'Historique'
         ];
 
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);

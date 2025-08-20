@@ -260,7 +260,7 @@
 }
 
 /* Style for black dropdown */
-.breadcrumb-item .dropdown-menu {
+/* .breadcrumb-item .dropdown-menu {
   background-color: #212529;
   color: #fff;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -284,4 +284,52 @@
   background-color: rgba(255, 255, 255, 0.15);
   color: #000000;
   font-weight: bold;
+} */
+
+/* Style for animated black dropdown */
+.breadcrumb-item .dropdown-menu {
+  background-color: #212529;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2000;
+
+  /* Animation initiale */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.97);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.35s;
+  pointer-events: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.breadcrumb-item:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Items */
+.breadcrumb-item .dropdown-menu .dropdown-item {
+  color: #fff !important;
+  transition: all 0.25s ease;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #000 !important;
+  font-weight: bold;
+  padding-left: 1.5rem; /* petit effet slide du texte */
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-header {
+  color: #969594;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
