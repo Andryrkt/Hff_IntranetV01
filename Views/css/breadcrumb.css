@@ -39,6 +39,8 @@
 .breadcrumb-separator {
   margin: 0 0.5rem;
   color: var(--bs-secondary, #6c757d);
+  display: flex;
+  align-items: center;
 }
 
 .dropdown-indicator {
@@ -88,3 +90,16 @@
 .modal-title {
   color: #333;
 } */
+
+/* Affichage du dropdown au survol */
+.breadcrumb-item.dropdown-hover .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+}
+
+.breadcrumb-item.dropdown-hover:hover .dropdown-menu {
+  display: block;
+}

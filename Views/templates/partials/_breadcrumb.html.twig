@@ -3,50 +3,7 @@
 {% set items = breadcrumbs() %}
 
 <nav aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid mx-4">
-	<div class="breadcrumb flat ms-3">
-		{% for item in items %}
-			{% if item.link and not item.is_active %}
-				<a href="{% if item.link is not null and (item.link == '#' or item.link starts with 'http' or item.link starts with '/') %}{{ item.link }}{% elseif item.link is not null and item.routeParams is defined %}{{ path(item.link, item.routeParams) }}{% elseif item.link is not null %}{{ path(item.link) }}{% else %}#{% endif %}" class="{% if item.is_active %}active{% endif %}">
-					{% if item.icon %}
-						<i class="{{ item.icon }} me-1"></i>
-					{% endif %}
-					{{ item.title }}
-				</a>
-			{% else %}
-				<a href="#">
-					{% if item.icon %}
-						<i class="{{ item.icon }} me-1"></i>
-					{% endif %}
-					{{ item.title }}
-				</a>
-			{% endif %}
-
-			{% if item.dropdown is defined and item.dropdown|length > 0 %}
-				<div class="dropdown-menu shadow-sm border-0 p-3 rounded-3">
-					<div class="dropdown-grid" style="--col-count: 1;">
-						<div class="dropdown-column">
-							<div class="dropdown-header text-primary fw-bold mb-2">
-								<i class="fas fa-list me-2"></i>
-								{{ item.title }}
-							</div>
-							{% for subitem in item.dropdown %}
-								<a class="dropdown-item {% if subitem.is_active %}active{% endif %} d-flex align-items-center" href="{% if subitem.link is not null and (subitem.link == '#' or subitem.link starts with 'http' or subitem.link starts with '/') %}{{ subitem.link }}{% elseif subitem.link is not null and subitem.routeParams is defined %}{{ path(subitem.link, subitem.routeParams) }}{% elseif subitem.link is not null %}{{ path(subitem.link) }}{% else %}#{% endif %}" {% if subitem.id %} data-bs-toggle="modal" data-bs-target="#{{ subitem.id }}" {% endif %}>
-									{% if subitem.icon %}
-										<i class="{{ subitem.icon }} me-2 text-secondary"></i>
-									{% endif %}
-									{{ subitem.title }}
-								</a>
-							{% endfor %}
-						</div>
-					</div>
-				</div>
-			{% endif %}
-		{% endfor %}
-	</div>
-</nav>
-
-{# <nav aria-label="Fil d'Ariane" class="breadcrumb-nav container">
-	<ol class="breadcrumb align-items-center mb-0">
+	<ol class="breadcrumb flat align-items-center mb-0">
 		{% for item in items %}
 			<li class="breadcrumb-item {% if item.is_active %}active{% endif %} position-relative {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">
 				{% if item.link and not item.is_active %}
@@ -94,7 +51,7 @@
 			{% endif %}
 		{% endfor %}
 	</ol>
-</nav> #}
+</nav>
 
 <!-- Modals pour les éléments de dropdown avec ID -->
 {% for item in items %}
