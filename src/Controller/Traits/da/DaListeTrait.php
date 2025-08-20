@@ -192,12 +192,12 @@ trait DaListeTrait
         }
 
         // résultat avec tri des données
-        usort(
+        /* usort(
             $datasPrepared,
             function ($a, $b) {
                 return $a['item']['joursDispo'] <=> $b['item']['joursDispo']; // tri croissant
             }
-        );
+        ); */
         return $datasPrepared;
     }
 }
