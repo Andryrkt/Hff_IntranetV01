@@ -1,5 +1,5 @@
 /* Styles pour le fil d'Ariane */
-.breadcrumb-nav {
+/* .breadcrumb-nav {
   background: transparent;
   padding: 0;
 }
@@ -41,65 +41,195 @@
   color: var(--bs-secondary, #6c757d);
   display: flex;
   align-items: center;
+} */
+
+/*===================================
+ Modal style verre dépoli + halo animé 
+===================================== */
+.modal-content {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgb(2 2 2 / 71%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+  text-align: start;
 }
 
-.dropdown-indicator {
-  cursor: pointer;
-}
-
-/* Adaptation pour vos styles dropdown existants */
-.breadcrumb .dropdown-menu {
-  background: white;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0.375rem;
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-  min-width: 200px;
-  padding: 0.5rem;
-}
-
-/* S'assurer que vos styles dropdown s'appliquent */
-.breadcrumb .dropdown-column {
-  padding: 0;
-}
-
-.breadcrumb .dropdown-item.active {
-  background-color: #fdc714;
-  color: #000;
-}
-
-/* Styles pour les modals */
-/* .modal-body .sub-item {
-  margin-left: 1rem;
-  border-left: 2px solid #fdc714;
-}
-
-.modal-body .sub-item a {
-  color: #6c757d;
-  transition: color 0.2s ease;
-}
-
-.modal-body .sub-item a:hover {
-  color: #fdc714;
+.modal-header,
+.modal-body {
+  position: relative;
+  z-index: 1;
 }
 
 .modal-header {
-  border-bottom: 2px solid #fdc714;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.modal-title {
-  color: #333;
-} */
+.modal-body .list-group {
+  padding: 0.5rem 0;
+}
 
-/* Affichage du dropdown au survol */
-.breadcrumb-item.dropdown-hover .dropdown-menu {
-  display: none;
+.modal-body .list-group-item {
+  background: transparent;
+  color: #c7bfbf;
+  border: none;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.modal-body .list-group-item:not(.sub-item) {
+  margin-bottom: 0.25rem;
+}
+
+.modal-body .list-group-item a {
+  color: #fbbb01;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin: -0.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-body .list-group-item a::before {
+  content: "";
   position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 1000;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
 }
 
-.breadcrumb-item.dropdown-hover:hover .dropdown-menu {
-  display: block;
+.modal-body .list-group-item a:hover::before {
+  left: 100%;
+}
+
+.modal-body .list-group-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
+  transition: all 0.3s ease;
+}
+
+.modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+.modal-body .list-group-item.sub-item {
+  font-size: 0.95rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.modal-body .list-group-item.sub-item a {
+  color: #e9c46a;
+  padding: 0.35rem 0.75rem 0.35rem 2rem;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.modal-body .list-group-item.sub-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+.modal-body .list-group-item.sub-item a:hover::before {
+  left: 100%;
+}
+
+.modal-body .list-group-item.sub-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
+  transition: all 0.3s ease;
+}
+
+.modal-body .list-group-item.sub-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+.modal-body .list-group-item h6 {
+  color: #838181;
+  font-weight: 600;
+  border-bottom: 1px solid #fbbb01;
+  font-size: 1.1rem;
+}
+
+.list-group-item.fw-bold {
+  color: #fff;
+  font-size: 1.05rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 0.75rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.modal-body .list-group-item i {
+  transition: transform 0.2s ease;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+/* Style for black dropdown */
+.breadcrumb-item .dropdown-menu {
+  background-color: #212529;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item {
+  color: #fff !important;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover {
+  color: #050505 !important;
+  font-weight: bolder;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-header {
+  color: #969594;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover,
+.breadcrumb-item .dropdown-menu .dropdown-item:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #000000;
+  font-weight: bold;
 }

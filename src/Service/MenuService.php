@@ -291,7 +291,7 @@ class MenuService
     /**
      * Crée un item simple sans sous-menu
      */
-    public function createSimpleItem(string $label, string $icon = null, string $link = '#', array $routeParams = []): array
+    public function createSimpleItem(string $label, ?string $icon = null, string $link = '#', array $routeParams = []): array
     {
         return [
             'title' => $label,
@@ -319,9 +319,9 @@ class MenuService
     public function createSubItem(
         string $label,
         string $icon,
-        string $link = '#',
+        ?string $link = null,
         array $routeParams = [],
-        string $modalId = null,
+        ?string $modalId = null,
         bool $isModalTrigger = false
     ): array {
         return [
