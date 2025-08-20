@@ -20,7 +20,6 @@ class BreadcrumbFactory
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $segments = array_filter(explode('/', trim($path, '/')));
         $breadcrumbs = [];
-        $currentPath = $this->baseUrl;
 
         // Toujours ajouter l'accueil en premier
         $homeItem = $this->createItem('Accueil', $this->baseUrl ?: '/', false, 'fas fa-home');
@@ -35,12 +34,11 @@ class BreadcrumbFactory
         // Traiter chaque segment de l'URL
         foreach ($segments as $index => $segment) {
             if ($index == 0) continue;
-            $currentPath .= '/' . $segment;
             $isLast = ($index === count($segments) - 1);
             $label = $this->formatLabel($segment);
             $icon = $this->getIconForSegment($segment);
 
-            $item = $this->createItem($label, $isLast ? null : $currentPath, $isLast, $icon);
+            $item = $this->createItem($label, $isLast ? null : '#', $isLast, $icon);
 
             // Ajouter dropdown si configuré pour ce segment
             $slug = strtolower($segment);
@@ -85,10 +83,6 @@ class BreadcrumbFactory
             'new' => 'Nouvelle demande',
             'liste' => 'Consultation',
             'demande-dintervention' => 'Demande d\'intervention',
-            'atelier' => 'Atelier',
-            'demandes' => 'Demandes',
-            'planning' => 'Planning',
-            'history' => 'Historique'
         ];
 
         $cleanSegment = str_replace(['-', '_'], ' ', $segment);

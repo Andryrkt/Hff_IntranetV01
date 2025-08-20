@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationBLService;
 
 /**
- * @Route("/bl")
+ * @Route("/magasin/sortie-de-pieces-lubs")
  */
 class BLSoumissionController extends Controller
 {

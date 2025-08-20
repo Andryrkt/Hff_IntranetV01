@@ -35,6 +35,7 @@ class BreadcrumbMenuService
             // Magasin - Sous-menus spécifiques
             'or'                   => $this->getOrSubMenu(),
             'cis'                  => $this->getCisSubMenu(),
+            'sortie-de-pieces-lubs' => $this->getSortiePieceLubSubMenu(),
             // Matériel - Sous-menus spécifiques
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
@@ -256,6 +257,19 @@ class BreadcrumbMenuService
         ];
     }
 
+    private function getSortiePieceLubSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Nouvelle demande',
+                'link'        => 'bl_soumission',
+                'icon'        => 'fas fa-plus-circle',
+                'routeParams' => []
+            ]
+        ];
+    }
+
     // ========== Matériel - Sous-menus spécifiques ==========
 
     private function getMouvementMaterielSubMenu(): array
@@ -384,7 +398,7 @@ class BreadcrumbMenuService
                 $breadcrumbItems[] = [
                     'id'       => null,
                     'title'    => $item['title'],
-                    'link'     => '#',
+                    'link'     => null,
                     'icon'     => $item['icon'],
                     'is_group' => true
                 ];
@@ -393,7 +407,7 @@ class BreadcrumbMenuService
                 foreach ($item['subitems'] as $subitem) {
                     $breadcrumbItems[] = [
                         'id'          => $subitem['modal_id'] ?? null,
-                        'title'       => $item['title'] . ' - ' . $subitem['title'], // Titre combiné pour éviter la confusion
+                        'title'       => $subitem['title'], // Titre combiné pour éviter la confusion
                         'short_title' => $subitem['title'], // Titre court pour l'affichage
                         'link'        => $subitem['link'],
                         'icon'        => $subitem['icon'],

@@ -200,6 +200,13 @@ class MenuService
                         $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
                     ]
                 ),
+                $this->createSubMenuItem(
+                    'SORTIE DE PIECES / LUBS',
+                    'arrow-left',
+                    [
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),
+                    ]
+                ),
                 $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur'),
                 $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer'),
                 $this->createSimpleItem('Commandes clients', 'shopping-basket'),
