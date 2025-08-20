@@ -128,7 +128,7 @@ class MenuService
         return $this->createMenuItem(
             'materielModal',
             'Matériel',
-            'boxes',
+            'snowplow',
             [
                 $this->createSubMenuItem(
                     'Mouvement matériel',
@@ -182,7 +182,7 @@ class MenuService
         return $this->createMenuItem(
             'magasinModal',
             'Magasin',
-            'store',
+            'dolly',
             [
                 $this->createSubMenuItem(
                     'OR',
@@ -235,7 +235,7 @@ class MenuService
         return $this->createMenuItem(
             'itModal',
             'IT',
-            'server',
+            'laptop-code',
             [
                 $this->createSimpleItem('support Info')
             ]
