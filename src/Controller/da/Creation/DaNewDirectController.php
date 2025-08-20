@@ -2,7 +2,6 @@
 
 namespace App\Controller\da\Creation;
 
-use App\Service\EmailService;
 use App\Controller\Controller;
 use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\da\creation\DaNewDirectTrait;
@@ -99,44 +98,9 @@ class DaNewDirectController extends Controller
             /** création de pdf et envoi dans docuware */
             $this->creationPdfSansDitAvaliderDW($demandeAppro);
 
-            // TODO: mail après la création d'une DA directe
-            // $this->envoyerMailAuxAppros([
-            //     'id'            => $demandeAppro->getId(),
-            //     'numDa'         => $numDa,
-            //     'objet'         => $demandeAppro->getObjetDal(),
-            //     'detail'        => $demandeAppro->getDetailDal(),
-            //     'dals'          => $demandeAppro->getDAL(),
-            //     'service'       => strtolower($demandeAppro->getServiceEmetteur()->getLibelleService()),
-            //     'observation'   => $demandeAppro->getObservation() !== null ? $demandeAppro->getObservation() : '-',
-            //     'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            // ]);
-
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
-    }
-
-    /** 
-     * Fonctions pour envoyer un mail à la service Appro 
-     */
-    private function envoyerMailAuxAppros(array $tab)
-    {
-        $email       = new EmailService;
-
-        $content = [
-            'to'        => DemandeAppro::MAIL_APPRO,
-            // 'cc'        => array_slice($emailValidateurs, 1),
-            'template'  => 'da/email/emailDa.html.twig',
-            'variables' => [
-                'statut'     => "newDa",
-                'subject'    => "{$tab['numDa']} - Nouvelle demande d'approvisionnement créé",
-                'tab'        => $tab,
-                'action_url' => $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/demande-appro/detail/" . $tab['id']),
-            ]
-        ];
-        $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-        // $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
-        $email->sendEmail($content['to'], [], $content['template'], $content['variables']);
     }
 
     /** 
