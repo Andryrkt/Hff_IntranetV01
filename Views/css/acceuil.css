@@ -12,13 +12,9 @@
 /* Carte style verre dépoli + halo animé */
 .vignette {
   cursor: pointer;
-  border-radius: 18px;
+  border-radius: 10px;
   height: 250px;
-  background: linear-gradient(
-    135deg,
-    rgba(248, 249, 250, 0.35) 0%,
-    rgba(248, 249, 250, 0.15) 100%
-  );
+  background: linear-gradient(rgb(239, 239, 239), rgba(255, 255, 255, 1));
   backdrop-filter: blur(16px) saturate(140%);
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   border: 2px solid rgba(248, 249, 250, 0.25);
@@ -35,10 +31,21 @@
 }
 
 .vignette:hover {
-  transform: translateY(-6px) scale(1.03);
-  /* background: rgba(255, 255, 255, 0.08); */
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-  /* box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); */
+  transform: translateY(8px) scale(1.02); /* léger lift et zoom */
+  box-shadow: inset 0 6px 8px rgba(248, 249, 250, 0.45),
+    0 15px 25px rgba(0, 0, 0, 0.2); /* ombre plus prononcée */
+  background: linear-gradient(rgb(255 255 255), rgb(239, 239, 239));
+}
+
+.vignette:hover .icon-container-bg i {
+  transform: rotate(-10deg) scale(1.02);
+  color: #fbbb01;
+  opacity: 1; /* légèrement plus visible */
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+
+.vignette-content {
+  transition: transform 0.3s ease;
 }
 
 /* Contenu interne */
@@ -52,6 +59,42 @@
   justify-content: space-between;
   align-items: center;
   color: #222222;
+}
+
+/* Effet de lumière sur le verre */
+.vignette::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  transform: rotate(25deg) translateX(-100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Animation du reflet au hover */
+.vignette:hover::after {
+  opacity: 1;
+  animation: light-sheen 1s forwards;
+}
+
+/* Animation de glissement de la lumière */
+@keyframes light-sheen {
+  0% {
+    transform: rotate(-45deg) translateX(-100%);
+  }
+  100% {
+    transform: rotate(-45deg) translateX(100%);
+  }
 }
 
 .icon-container {
