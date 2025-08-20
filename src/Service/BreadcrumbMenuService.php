@@ -384,7 +384,7 @@ class BreadcrumbMenuService
                 $breadcrumbItems[] = [
                     'id' => null,
                     'title' => $item['title'],
-                    'link' => '#',
+                    'link' => null,
                     'icon' => $item['icon'],
                     'is_group' => true
                 ];
@@ -393,7 +393,7 @@ class BreadcrumbMenuService
                 foreach ($item['subitems'] as $subitem) {
                     $breadcrumbItems[] = [
                         'id' => $subitem['modal_id'] ?? null,
-                        'title' => $item['title'] . ' - ' . $subitem['title'], // Titre combiné pour éviter la confusion
+                        'title' => $subitem['title'],
                         'short_title' => $subitem['title'], // Titre court pour l'affichage
                         'link' => $subitem['link'],
                         'icon' => $subitem['icon'],
@@ -499,7 +499,7 @@ class BreadcrumbMenuService
                 if (strtolower($mainItem['title']) === $section) {
                     $breadcrumb[] = [
                         'title' => $mainItem['title'],
-                        'link' => '#',
+                        'link' => null,
                         'icon' => $mainItem['icon']
                     ];
                     break;
