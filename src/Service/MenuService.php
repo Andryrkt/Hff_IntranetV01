@@ -33,7 +33,7 @@ class MenuService
             'folder',
             [
                 $this->createSimpleItem('Annuaire', 'address-book', '#'),
-                $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf'),
+                $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf', [], "_blank"),
                 $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne')
             ]
         );
@@ -128,7 +128,7 @@ class MenuService
         return $this->createMenuItem(
             'materielModal',
             'Matériel',
-            'boxes',
+            'snowplow',
             [
                 $this->createSubMenuItem(
                     'Mouvement matériel',
@@ -182,7 +182,7 @@ class MenuService
         return $this->createMenuItem(
             'magasinModal',
             'Magasin',
-            'store',
+            'dolly',
             [
                 $this->createSubMenuItem(
                     'OR',
@@ -235,7 +235,7 @@ class MenuService
         return $this->createMenuItem(
             'itModal',
             'IT',
-            'server',
+            'laptop-code',
             [
                 $this->createSimpleItem('support Info')
             ]
@@ -298,12 +298,13 @@ class MenuService
     /**
      * Crée un item simple sans sous-menu
      */
-    public function createSimpleItem(string $label, ?string $icon = null, string $link = '#', array $routeParams = []): array
+    public function createSimpleItem(string $label, ?string $icon = null, string $link = '#', array $routeParams = [], string $target = ""): array
     {
         return [
             'title' => $label,
             'link' => $link,
             'icon' => 'fas fa-' . ($icon ?? 'file'),
+            'target' => $target,
             'routeParams' => $routeParams
         ];
     }

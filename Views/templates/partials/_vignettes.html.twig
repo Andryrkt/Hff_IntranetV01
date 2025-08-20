@@ -42,12 +42,12 @@
 <div class="grid-container">
 	{% for item in menuItems %}
 		<!-- Vignette -->
-		<div class="vignette card border-0" data-bs-toggle="modal" data-bs-target="#{{ item.id }}">
-			<div class="vignette-content p-4 d-flex flex-column">
-				<div class="icon-container mb-3">
-					<i class="{{ item.icon }} fa-2x"></i>
-				</div>
-				<h4 class="vignette-title mt-auto">{{ item.title }}</h4>
+		<div class="vignette card" data-bs-toggle="modal" data-bs-target="#{{ item.id }}">
+			<div class="icon-container-bg">
+				<i class="{{ item.icon }}"></i>
+			</div>
+			<div class="vignette-content p-4">
+				<h4 class="vignette-title">{{ item.title }}</h4>
 			</div>
 		</div>
 
