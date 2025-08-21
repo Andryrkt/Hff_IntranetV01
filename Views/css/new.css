@@ -62,3 +62,37 @@
 .fond-btn {
   background-color: #e7dfc7;
 }
+
+/* Bouton principal : action clé (ex: Enregistrer) */
+.bouton-principal {
+  background-color: #fbbb01;
+  color: #000;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px; /* arrondi léger pour modernité */
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.bouton-principal:hover {
+  background-color: #fdcb4d;
+  transform: scale(1.05);
+}
+
+/* Bouton secondaire : action de soutien (ex: Ajouter une ligne) */
+.bouton-secondaire {
+  background-color: #4caf50; /* Vert tendre */
+  color: #fff;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.bouton-secondaire:hover {
+  background-color: #43a047; /* vert */
+  transform: scale(1.03);
+}
