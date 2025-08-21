@@ -25,6 +25,7 @@ use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
+
     private $historiqueOperation;
     private $tikRepository;
 
@@ -40,8 +41,7 @@ class DemandeSupportInformatiqueController extends Controller
      */
     public function new(Request $request)
     {
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         if ($this->conditionNouveauTicket($user->getId())) {
             $this->redirectToRoute('profil_acceuil');
