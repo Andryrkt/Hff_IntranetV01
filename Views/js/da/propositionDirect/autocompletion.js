@@ -85,7 +85,11 @@ function getFieldByGeneratedId(baseId, suffix) {
 }
 
 function onBlurEvents(found, designation, fieldName) {
-  const numPage = localStorage.getItem("currentTab");
+  const numeroDa = document
+    .querySelector(".tab-pane.fade.show.active")
+    .id.split("_")
+    .pop();
+  const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
   if (designation.value.trim() !== "") {
     const desi = `designation_${numPage}`;
 
@@ -204,7 +208,11 @@ function handleValuesOfFields(
     PU.value = item.prix;
     famille.value = item.codefamille;
     sousFamille.value = item.codesousfamille;
-    const numPage = localStorage.getItem("currentTab");
+    const numeroDa = document
+      .querySelector(".tab-pane.fade.show.active")
+      .id.split("_")
+      .pop();
+    const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
     const spinnerElement = document.querySelector(
       "#spinner_codeFams2_" + numPage
     );

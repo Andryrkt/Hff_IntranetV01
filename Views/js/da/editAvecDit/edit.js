@@ -95,18 +95,17 @@ window.addEventListener("load", () => {
 });
 
 function buildIndexFromLines() {
-  let maxIndex = 0;
+  const maxIndex = Array.from(
+    document.querySelectorAll(
+      "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+    )
+  ).reduce((max, el) => {
+    const value = parseInt(el.value, 10);
+    return !isNaN(value) && value > max ? value : max;
+  }, 0);
 
-  document.querySelectorAll("[id^='demande_appro_form_DAL_']").forEach((el) => {
-    let match = el.id.match(/demande_appro_form_DAL_(\d+)$/);
-    if (match) {
-      let index = parseInt(match[1]);
+  console.log("Max index:", maxIndex);
 
-      if (!isNaN(index) && index > maxIndex) {
-        maxIndex = index;
-      }
-    }
-  });
   localStorage.setItem("daWithDitLineCounter", maxIndex);
 }
 

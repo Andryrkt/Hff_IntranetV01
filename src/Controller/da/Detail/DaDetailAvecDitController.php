@@ -47,7 +47,9 @@ class DaDetailAvecDitController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
+		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+			'achatDirect' => $demandeAppro->getAchatDirect()
+		])->getForm();
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
