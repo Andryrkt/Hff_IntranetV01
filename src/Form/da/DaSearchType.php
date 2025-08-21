@@ -32,12 +32,12 @@ class DaSearchType extends  AbstractType
     ];
 
     private const STATUT_BC = [
-        'A générer'                         => 'A générer',
-        'A éditer'                          => 'A éditer',
-        'A soumettre à validation'          => 'A soumettre à validation',
-        'A envoyer au fournisseur'          => 'A envoyer au fournisseur',
-        DaSoumissionBc::STATUT_REFUSE       => DaSoumissionBc::STATUT_REFUSE,
-        DaSoumissionBc::STATUT_A_VALIDER_DA => DaSoumissionBc::STATUT_A_VALIDER_DA,
+        DaSoumissionBc::STATUT_A_GENERER                    => DaSoumissionBc::STATUT_A_GENERER,
+        DaSoumissionBc::STATUT_A_EDITER                     => DaSoumissionBc::STATUT_A_EDITER,
+        DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION     => DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION,
+        DaSoumissionBc::STATUT_A_VALIDER_DA                 => DaSoumissionBc::STATUT_A_VALIDER_DA,
+        DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR     => DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR,
+        DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR     => DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR
     ];
 
     private const TYPE_ACHAT = [

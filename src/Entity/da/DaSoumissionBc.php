@@ -15,6 +15,10 @@ class DaSoumissionBc
 {
     use DateTrait;
 
+    public const STATUT_A_GENERER = 'A générer';
+    public const STATUT_A_EDITER = 'A éditer';
+    public const STATUT_A_SOUMETTRE_A_VALIDATION = 'A soumettre à validation';
+    public const STATUT_A_ENVOYER_AU_FOURNISSEUR = 'A envoyer au fournisseur';
     public const STATUT_SOUMISSION = 'Soumis à validation';
     public const STATUT_A_VALIDER_DA = 'A Valider DA';
     public const STATUT_VALIDE = 'Validé';
