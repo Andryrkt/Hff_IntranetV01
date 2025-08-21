@@ -4,11 +4,9 @@ namespace App\Twig;
 
 use App\Controller\Traits\lienGenerique;
 use Twig\TwigFunction;
-use App\Service\navigation\MenuService;
 use App\Factory\BreadcrumbFactory;
 use Twig\Extension\AbstractExtension;
 use App\Service\navigation\BreadcrumbMenuService;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class BreadcrumbExtension extends AbstractExtension
 {

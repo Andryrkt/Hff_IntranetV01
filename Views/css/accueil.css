@@ -4,12 +4,12 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(4, minmax(220px, 1fr));
-  gap: 40px;
-  padding: 10px;
+  row-gap: 40px;
+  column-gap: 50px;
+  padding: 0 10px 30px;
   justify-content: center; /* Centre horizontalement */
   align-items: center; /* Centre verticalement */
   height: 90vh;
-  overflow: hidden;
 }
 
 /* ========================= */
@@ -38,14 +38,14 @@
   content: "";
   position: absolute;
   left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 .vignette::after {
-  top: -50%;
-  width: 200%;
-  height: 200%;
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0.15) 0%,
@@ -55,9 +55,6 @@
   transform: rotate(25deg) translateX(-100%);
 }
 .vignette::before {
-  top: -50%;
-  width: 200%;
-  height: 60rem;
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0.08) 0%,
