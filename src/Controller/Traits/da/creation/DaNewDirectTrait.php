@@ -70,6 +70,7 @@ trait DaNewDirectTrait
         ;
 
         $this->getEntityManager()->persist($daSoumisAValidation);
+        $this->getEntityManager()->flush();
     }
 
     /** 

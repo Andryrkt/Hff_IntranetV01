@@ -115,6 +115,7 @@ trait DaEditDirectTrait
         ;
 
         $this->getEntityManager()->persist($daSoumisAValidation);
+        $this->getEntityManager()->flush();
     }
 
     /** 
