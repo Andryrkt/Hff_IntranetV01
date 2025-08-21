@@ -17,6 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitDuplicationController extends Controller
 {
     use DitTrait;
@@ -31,7 +34,7 @@ class DitDuplicationController extends Controller
     }
 
     /**
-     * @Route("/ditDuplication/{id<\d+>}/{numDit<\w+>}", name="dit_duplication")
+     * @Route("/dit-duplication/{id<\d+>}/{numDit<\w+>}", name="dit_duplication")
      *
      * @return void
      */

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\navigation;
 
 class MenuService
 {
@@ -171,7 +171,7 @@ class MenuService
                 $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf'),
                 $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']),
                 $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']),
-                $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', 'planningAtelier_vue'),
+                $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', '#'),
             ]
         );
     }
@@ -198,6 +198,14 @@ class MenuService
                     [
                         $this->createSubItem('Liste à traiter', 'tasks', 'cis_liste_a_traiter'),
                         $this->createSubItem('Liste à livrer', 'truck-loading', 'cis_liste_a_livrer')
+                    ]
+                ),
+                $this->createSubMenuItem(
+                    'INVENTAIRE',
+                    'file-alt',
+                    [
+                        $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
+                        $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire', ['action' => 'oui']),
                     ]
                 ),
                 $this->createSubMenuItem(
@@ -237,7 +245,9 @@ class MenuService
             'IT',
             'laptop-code',
             [
-                $this->createSimpleItem('support Info')
+                $this->createSimpleItem('Nouvelle Demande', 'plus-circle', 'demande_support_informatique'),
+                $this->createSimpleItem('Consultation', 'search', 'liste_tik_index'),
+                $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning'),
             ]
         );
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dit\Ors;
 
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
@@ -32,6 +32,9 @@ use App\Entity\da\DaAfficher;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;

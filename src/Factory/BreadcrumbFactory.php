@@ -2,7 +2,7 @@
 
 namespace App\Factory;
 
-use App\Service\BreadcrumbMenuService;
+use App\Service\navigation\BreadcrumbMenuService;
 
 class BreadcrumbFactory
 {
@@ -33,7 +33,9 @@ class BreadcrumbFactory
 
         // Traiter chaque segment de l'URL
         foreach ($segments as $index => $segment) {
-            if ($index == 0) continue;
+            if ($index == 0 || is_numeric($segment) || preg_match('/\d$/', $segment)) {
+                continue;
+            }
             $isLast = ($index === count($segments) - 1);
             $label = $this->formatLabel($segment);
             $icon = $this->getIconForSegment($segment);

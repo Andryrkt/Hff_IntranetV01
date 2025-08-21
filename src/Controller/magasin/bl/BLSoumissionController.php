@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Controller\bl;
+namespace App\Controller\magasin\bl;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use App\Form\bl\BLSoumissionType;
 use App\Factory\bl\BLSoumissionFactory;
 use App\Service\fichier\TraitementDeFichier;
@@ -16,6 +18,8 @@ use App\Service\historiqueOperation\HistoriqueOperationBLService;
  */
 class BLSoumissionController extends Controller
 {
+    use AutorisationTrait;
+
     private $historiqueOperation;
     private string $cheminDeBase;
     private TraitementDeFichier $traitementDeFichier;
@@ -47,6 +51,8 @@ class BLSoumissionController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $this->autorisationAcces($this->getUser(), Application::ID_BON_DE_LIVRAISON);
 
         $form = self::$validator->createBuilder(BLSoumissionType::class)->getForm();
 

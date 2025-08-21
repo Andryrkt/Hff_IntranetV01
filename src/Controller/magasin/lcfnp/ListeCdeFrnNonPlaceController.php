@@ -31,7 +31,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
     }
     /**
-     * @Route("/lcfnp/liste_cde_frs_non_placer", name="liste_Cde_Frn_Non_Placer")
+     * @Route("/liste-commande-fournisseur-non-placer", name="liste_Cde_Frn_Non_Placer")
      *
      * @return void
      */

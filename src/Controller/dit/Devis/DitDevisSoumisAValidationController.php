@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dit\Devis;
 
 use DateTime;
 use App\Controller\Controller;
@@ -20,6 +20,9 @@ use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
 use App\Traits\CalculeTrait;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitDevisSoumisAValidationController extends Controller
 {
     use CalculeTrait;

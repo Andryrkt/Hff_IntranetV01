@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dit\Ri;
 
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
@@ -12,10 +12,14 @@ use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\dit\DitRiSoumisAValidationModel;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitRiSoumisAValidationController extends Controller
 {
     use DitRiSoumisAValidationTrait;
@@ -247,7 +251,7 @@ class DitRiSoumisAValidationController extends Controller
 
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|UploadedFile[]|null $file */
+                /** @var UploadedFile[]|null $file */
                 $file = $field->getData();
 
                 if ($file !== null) {

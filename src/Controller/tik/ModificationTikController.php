@@ -15,12 +15,12 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class ModificationTikController extends Controller
 {
     /**
-     * @Route("/tik-modification-edit/{id}", name="tik_modification_edit")
+     * @Route("/tik-modification/{id}", name="tik_modification_edit")
      *
      * @return void
      */

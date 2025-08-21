@@ -16,8 +16,8 @@ use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\CustomAnnotationClassLoader;
 use App\Twig\BreadcrumbExtension;
-use App\Service\MenuService;
-use App\Service\BreadcrumbMenuService;
+use App\Service\navigation\MenuService;
+use App\Service\navigation\BreadcrumbMenuService;
 use Symfony\Component\Validator\Validation;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Symfony\Component\HttpFoundation\Request;
@@ -149,7 +149,7 @@ $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
 $menuService = new MenuService();
 $breadcrumbMenuService = new BreadcrumbMenuService($menuService);
-$twig->addExtension(new BreadcrumbExtension($menuService, $breadcrumbMenuService, $generator));
+$twig->addExtension(new BreadcrumbExtension($breadcrumbMenuService));
 
 // Configurer le package pour le dossier 'public'
 $publicPath = $_ENV['BASE_PATH_COURT'] . '/public';

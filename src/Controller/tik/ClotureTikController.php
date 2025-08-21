@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class ClotureTikController extends Controller
 {

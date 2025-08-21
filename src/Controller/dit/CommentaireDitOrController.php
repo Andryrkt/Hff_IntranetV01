@@ -7,7 +7,7 @@ use App\Form\dit\CommentaireDitOrType;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/dit")
+ * @Route("/atelier/demande-intervention")
  */
 class CommentaireDitOrController extends Controller
 {

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\MenuService;
+use App\Service\navigation\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends Controller

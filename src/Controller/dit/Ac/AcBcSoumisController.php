@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dit\Ac;
 
 use Exception;
 use App\Entity\dit\AcSoumis;
@@ -20,7 +20,7 @@ use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
 
 /**
- * @Route("/dit")
+ * @Route("/atelier/demande-intervention")
  */
 class AcBcSoumisController extends Controller
 {

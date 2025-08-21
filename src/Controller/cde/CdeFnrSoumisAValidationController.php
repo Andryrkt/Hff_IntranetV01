@@ -18,7 +18,7 @@ use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
 
 /**
- * @Route("/commande")
+ * @Route("/magasin")
  */
 class CdefnrSoumisAValidationController extends Controller
 {

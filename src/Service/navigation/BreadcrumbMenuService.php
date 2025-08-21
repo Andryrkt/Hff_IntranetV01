@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\navigation;
 
 class BreadcrumbMenuService
 {
@@ -36,6 +36,7 @@ class BreadcrumbMenuService
             'or'                   => $this->getOrSubMenu(),
             'cis'                  => $this->getCisSubMenu(),
             'sortie-de-pieces-lubs' => $this->getSortiePieceLubSubMenu(),
+            'inventaire' => $this->getInventaireSubMenu(),
             // Matériel - Sous-menus spécifiques
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
@@ -43,7 +44,9 @@ class BreadcrumbMenuService
             'demande-intervention' => $this->getDemandeInterventionSubMenu(),
             // Compta - Sous-menus spécifiques
             'demande-de-paiement'  => $this->getDemandePaiementSubMenu(),
-            'bon-de-caisse'        => $this->getBonCaisseSubMenu()
+            'bon-de-caisse'        => $this->getBonCaisseSubMenu(),
+            // Appro - Sous-menus spécifiques
+            'demande-appro'        => $this->getDemandeApproSubMenu()
         ];
     }
 
@@ -270,6 +273,26 @@ class BreadcrumbMenuService
         ];
     }
 
+    private function getInventaireSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Liste inventaire',
+                'link'        => 'liste_inventaire',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => ['action' => 'oui']
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Inventaire détaillé',
+                'link'        => 'liste_detail_inventaire',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => ['action' => 'oui']
+            ]
+        ];
+    }
+
     // ========== Matériel - Sous-menus spécifiques ==========
 
     private function getMouvementMaterielSubMenu(): array
@@ -378,6 +401,34 @@ class BreadcrumbMenuService
                 'id'          => null,
                 'title'       => 'Consultation',
                 'link'        => '#',
+                'icon'        => 'fas fa-search',
+                'routeParams' => []
+            ]
+        ];
+    }
+
+    // ========== Appro - Sous-menus spécifiques ==========
+    private function getDemandeApproSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Nouvelle demande DA',
+                'link'        => 'da_first_form',
+                'icon'        => 'fas fa-plus-circle',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Liste des demandes DA',
+                'link'        => 'list_da',
+                'icon'        => 'fas fa-search',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Liste des Commandes fournisseur',
+                'link'        => 'da_list_cde_frn',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]

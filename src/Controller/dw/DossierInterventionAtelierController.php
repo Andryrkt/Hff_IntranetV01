@@ -12,7 +12,7 @@ use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 /**
- * @Route("/atelier")
+ * @Route("/atelier/demande-intervention")
  */
 class DossierInterventionAtelierController extends Controller
 {

@@ -18,7 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationMUTService;
 
 /**
- * @Route("/mutation")
+ * @Route("/rh/mutation")
  */
 class MutationController extends Controller
 {

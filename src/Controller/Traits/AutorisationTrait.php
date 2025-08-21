@@ -15,7 +15,7 @@ trait AutorisationTrait
         $roleIds = $user->getRoleIds();
 
         if (in_array(Role::ROLE_ADMINISTRATEUR, $roleIds)) {
-            return false;
+            return true;
         }
 
         if ($idServ === 0) {
