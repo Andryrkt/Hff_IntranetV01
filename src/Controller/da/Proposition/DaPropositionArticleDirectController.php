@@ -298,7 +298,7 @@ class DaPropositionArticleDirectController extends Controller
             $observation,
             $da,
             $refs,
-            "La proposition a été soumis à l'atelier",
+            "La proposition a été soumis au service",
             true
         );
 
