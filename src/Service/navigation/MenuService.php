@@ -30,7 +30,7 @@ class MenuService
         return $this->createMenuItem(
             'documentationModal',
             'Documentation',
-            'folder',
+            'book',
             [
                 $this->createSimpleItem('Annuaire', 'address-book', '#'),
                 $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf', [], "_blank"),
@@ -258,12 +258,12 @@ class MenuService
         return $this->createMenuItem(
             'polModal',
             'POL',
-            'oil-can',
+            'ring',
             [
                 $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
                 $this->createSimpleItem('Consultation des DLUB', 'search'),
                 $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul'),
-                $this->createSimpleItem('Pneumatiques', 'gauge'),
+                $this->createSimpleItem('Pneumatiques', 'ring'),
             ]
         );
     }
