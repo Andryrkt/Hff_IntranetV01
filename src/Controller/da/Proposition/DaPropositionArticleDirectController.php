@@ -51,7 +51,9 @@ class DaPropositionArticleDirectController extends Controller
         $daObservation = new DaObservation();
         $DapLRCollection = new DemandeApproLRCollection();
         $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation)->getForm();
+        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+            'achatDirect' => $da->getAchatDirect()
+        ])->getForm();
         $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//

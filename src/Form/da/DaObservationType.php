@@ -13,14 +13,16 @@ class DaObservationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $observationLabel = $options['achatDirect'] ? 'Autoriser le service à modifier' : 'Autoriser l’ATELIER à modifier';
+
         $builder
             ->add('statutChange', CheckboxType::class, [
-                'label' => 'Autoriser l\'ATELIER à modifier',
+                'label'    => $observationLabel,
                 'required' => false
             ])
             ->add('observation', TextareaType::class, [
                 'label' => 'Observation',
-                'attr' => [
+                'attr'  => [
                     'rows' => 5,
                 ],
                 'required' => true
@@ -31,6 +33,7 @@ class DaObservationType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => DaObservation::class,
+            'achatDirect' => null, // valeur par défaut
         ]);
     }
 }
