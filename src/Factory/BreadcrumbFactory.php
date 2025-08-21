@@ -2,7 +2,7 @@
 
 namespace App\Factory;
 
-use App\Service\BreadcrumbMenuService;
+use App\Service\navigation\BreadcrumbMenuService;
 
 class BreadcrumbFactory
 {

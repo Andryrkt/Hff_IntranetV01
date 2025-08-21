@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Controller\inventaire;
+namespace App\Controller\magasin\inventaire;
 
 use TCPDF;
 use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Entity\Bordereau\BordereauSearch;
@@ -13,16 +14,14 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\inventaire\InventaireSearch;
 use App\Form\bordereau\BordereauSearchType;
-use Symfony\Component\VarDumper\Cloner\Data;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\inventaire\InventaireSearchType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
-use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 
 /**
  * @Route("/magasin/inventaire")
@@ -31,6 +30,8 @@ class InventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
+    use AutorisationTrait;
+
     private InventaireModel $inventaireModel;
     private InventaireSearch $inventaireSearch;
     private BordereauSearch $bordereauSearch;
@@ -57,6 +58,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $this->autorisationAcces($this->getUser(), Application::ID_IVENTAIRE);
 
         $form = self::$validator->createBuilder(
             InventaireSearchType::class,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\bl;
+namespace App\Controller\magasin\bl;
 
 use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;

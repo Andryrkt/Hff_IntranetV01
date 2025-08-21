@@ -1,19 +1,20 @@
 <?php
 
-namespace App\Controller\inventaire;
+namespace App\Controller\magasin\inventaire;
 
 use DateTime;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Model\inventaire\InventaireModel;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
-use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 
 /**
  * @Route("/magasin/inventaire")
@@ -22,6 +23,8 @@ class DetailInventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;
+    use AutorisationTrait;
+
     private InventaireModel $InventaireModel;
     private DetailInventaireSearch $DetailInventaireSearch;
     private ?\DateTime $datefin = null;
@@ -64,6 +67,7 @@ class DetailInventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        $this->autorisationAcces($this->getUser(), Application::ID_IVENTAIRE);
 
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
         $this->dateDebut->modify('first day of this month');
