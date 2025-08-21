@@ -34,7 +34,8 @@ class MenuService
             [
                 $this->createSimpleItem('Annuaire', 'address-book', '#'),
                 $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf', [], "_blank"),
-                $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne')
+                $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne'),
+                $this->createSimpleItem('Contrat', 'file-contract', 'https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], "_blank")
             ]
         );
     }
@@ -107,7 +108,7 @@ class MenuService
                     'Congés',
                     'umbrella-beach',
                     [
-                        $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
+                        $this->createSubItem('Nouvelle demande', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], '_blank'),
                         $this->createSubItem('Consultation', 'search', '#')
                     ]
                 ),
@@ -168,7 +169,7 @@ class MenuService
                         $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier')
                     ]
                 ),
-                $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf'),
+                $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank'),
                 $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']),
                 $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']),
                 $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', '#'),
@@ -339,6 +340,7 @@ class MenuService
         string $icon,
         ?string $link = null,
         array $routeParams = [],
+        string $target = "",
         ?string $modalId = null,
         bool $isModalTrigger = false
     ): array {
@@ -347,6 +349,7 @@ class MenuService
             'link' => $link,
             'icon' => 'fas fa-' . $icon,
             'routeParams' => $routeParams,
+            'target' => $target,
             'modal_id' => $modalId,
             'is_modal' => $isModalTrigger
         ];
