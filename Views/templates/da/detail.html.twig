@@ -33,7 +33,7 @@
 							{{ include('da/shared/detail/' ~ detail_template ~ '.html.twig') }}
 						</div>
 						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
-							{{ include('da/shared/detail/observation.html.twig') }}
+							{{ include('da/shared/observation/observation.html.twig') }}
 						</div>
 						<div class="tab-pane fade" id="nav-document-rattache" role="tabpanel" aria-labelledby="nav-document-rattache-tab">
 							{{ include('da/shared/detail/document-rattache.html.twig') }}
@@ -47,6 +47,6 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/detail/observation.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js" type="module"></script>
 {% endblock %}
