@@ -4,12 +4,12 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(4, minmax(220px, 1fr));
-  gap: 40px;
-  padding: 10px;
+  row-gap: 40px;
+  column-gap: 50px;
+  padding: 0 10px 30px;
   justify-content: center; /* Centre horizontalement */
   align-items: center; /* Centre verticalement */
   height: 90vh;
-  overflow: hidden;
 }
 
 /* ========================= */
@@ -38,14 +38,14 @@
   content: "";
   position: absolute;
   left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 .vignette::after {
-  top: -50%;
-  width: 200%;
-  height: 200%;
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0.15) 0%,
@@ -55,9 +55,6 @@
   transform: rotate(25deg) translateX(-100%);
 }
 .vignette::before {
-  top: -50%;
-  width: 200%;
-  height: 60rem;
   background: linear-gradient(
     120deg,
     rgba(255, 255, 255, 0.08) 0%,
@@ -105,7 +102,7 @@
   animation: light-sheen 1s forwards;
 }
 .vignette:hover .vignette-title {
-  color: #000;
+  color: #fbbb01;
 }
 
 /* ========================= */
@@ -134,14 +131,20 @@
   font-size: 100px;
   opacity: 0.15; /* subtil */
 }
+.rotate-90 {
+  transform: rotate(90deg);
+}
 
 /* Effets hover sur icônes */
 .vignette:hover .icon-container {
   background: rgba(251, 187, 1, 0.3);
   transform: rotate(5deg) scale(1.08);
 }
-.vignette:hover .icon-container-bg i {
+.vignette:hover .icon-container-bg {
   transform: rotate(-10deg) scale(1.02);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+.vignette:hover .icon-container-bg i {
   color: #fbbb01;
   opacity: 1;
   transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;

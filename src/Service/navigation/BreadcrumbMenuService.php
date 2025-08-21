@@ -14,6 +14,7 @@ class BreadcrumbMenuService
     public function getFullMenuConfig(): array
     {
         return [
+            // Accueil - Sous-menus accueils
             'accueil'              => $this->getMainMenuItems(),
             'documentation'        => $this->getDocumentationSubMenu(),
             'reporting'            => $this->getReportingSubMenu(),

@@ -61,7 +61,7 @@
   transform: rotate(45deg);
   z-index: 1;
   background: linear-gradient(135deg, #666, #333);
-  box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 3px -3px 0 2px #ccc;
+  box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 2.2px -2.2px 0 2px #ccc;
   border-radius: 5px 5px 5px 50px;
 }
 /*we dont need an arrow after the last link*/
