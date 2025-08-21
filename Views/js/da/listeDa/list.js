@@ -9,8 +9,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const designations = document.querySelectorAll(".designation-btn");
   designations.forEach((designation) => {
     designation.addEventListener("click", function () {
-      let numeroLigne = this.getAttribute("data-numero-ligne");
-      localStorage.setItem("currentTab", numeroLigne);
+      let numeroLigne = this.dataset.numeroLigne;
+      let numeroDa = this.dataset.numeroDa;
+      localStorage.setItem(`currentTab_${numeroDa}`, numeroLigne);
     });
   });
   mergeCellsTable(1); // fusionne le tableau en fonction de la colonne DA

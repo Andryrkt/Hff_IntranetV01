@@ -79,5 +79,7 @@ export function initialiserIdTabs() {
     if (!numeroDa) numeroDa = parts[2]; // "DAPXXXXXXXX", on le récupère en une fois
   });
 
+  console.log(idTabs);
+
   localStorage.setItem(`idTabs_${numeroDa}`, JSON.stringify(idTabs)); // * localStorage ne peut stocker que des chaînes de caractères, donc convertir le tableau en JSON.
 }

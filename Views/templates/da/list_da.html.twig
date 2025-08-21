@@ -119,7 +119,7 @@
 							{% if item.verouille %}
 								{{ item.artDesi }}
 							{% else %}
-								<a href="{{ row.urlProposition }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" target="_blank">
+								<a href="{{ row.urlProposition }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" data-numero-da="{{ item.numeroDemandeAppro }}" target="_blank">
 									{{ item.artDesi }}
 								</a>
 							{% endif %}
