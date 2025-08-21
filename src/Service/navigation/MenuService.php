@@ -258,7 +258,7 @@ class MenuService
         return $this->createMenuItem(
             'polModal',
             'POL',
-            'ring',
+            'ring rotate-90',
             [
                 $this->createSimpleItem('Nouvelle DLUB', 'file-alt'),
                 $this->createSimpleItem('Consultation des DLUB', 'search'),
