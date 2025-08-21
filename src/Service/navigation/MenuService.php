@@ -299,10 +299,11 @@ class MenuService
     public function createMenuItem(string $id, string $title, string $icon, array $items): array
     {
         return [
-            'id' => $id,
+            'id'    => $id,
             'title' => $title,
-            'icon' => 'fas fa-' . $icon,
-            'items' => $items
+            'icon'  => 'fas fa-' . $icon,
+            'items' => $items,
+            'band'  => 'Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ducimus rerum mollitia eius fugiat aut harum ratione ipsum ab suscipit. Eligendi aspernatur tempora minus iusto repellendus a libero officiis, ut provident.',
         ];
     }
 
