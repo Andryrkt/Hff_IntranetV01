@@ -20,7 +20,7 @@ use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class DemandeSupportInformatiqueController extends Controller
 {

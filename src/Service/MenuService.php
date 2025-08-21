@@ -237,7 +237,9 @@ class MenuService
             'IT',
             'laptop-code',
             [
-                $this->createSimpleItem('support Info')
+                $this->createSimpleItem('Nouvelle Demande', 'file-alt', 'demande_support_informatique'),
+                $this->createSimpleItem('Consultation', 'search', 'liste_tik_index'),
+                $this->createSimpleItem('Planning', 'file-alt', 'tik_calendar_planning'),
             ]
         );
     }

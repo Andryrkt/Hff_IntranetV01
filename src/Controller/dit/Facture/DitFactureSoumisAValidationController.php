@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\dit;
+namespace App\Controller\dit\Facture;
 
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
@@ -20,6 +20,9 @@ use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitFactureSoumisAValidationController extends Controller
 {
 

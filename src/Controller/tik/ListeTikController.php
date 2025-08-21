@@ -17,7 +17,7 @@ use InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class ListeTikController extends Controller
 {

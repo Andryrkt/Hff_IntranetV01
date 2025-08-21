@@ -21,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class DetailTikController extends Controller
 {

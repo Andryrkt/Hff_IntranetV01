@@ -10,12 +10,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/tik")
+ * @Route("/it")
  */
 class CalendarPlanningController extends Controller
 {
     /**
-     * @Route("/tik-calendar-planning", name="tik_calendar_planning")
+     * @Route("/calendar-planning", name="tik_calendar_planning")
      */
     public function calendar(Request $request)
     {
