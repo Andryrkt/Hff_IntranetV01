@@ -68,19 +68,19 @@ class DaListCdeFrnController extends Controller
             'method' => 'GET',
         ])->getForm();
         $criteria = $this->traitementFormulaireRecherche($request, $form);
+        $this->sessionService->set('criteria_for_excel_Da_Cde_frn', $criteria);
 
         /** ==== récupération des données à afficher ==== */
         $daAfficherValides = $this->donnerAfficher($criteria);
+
+        /** mise à jour des donners daAfficher */
+        $this->quelqueMiseAjourDaAfficher($daAfficherValides);
 
         /** === Formulaire pour l'envoie de BC et FAC + Bl === */
         $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
-
-        /** mise à jour des donners daAfficher */
-        $this->quelqueMiseAjourDaAfficher($daAfficherValides);
-
 
         self::$twig->display('da/daListCdeFrn.html.twig', [
             'daAfficherValides' => $daAfficherValides,

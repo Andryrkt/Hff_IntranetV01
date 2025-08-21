@@ -30,7 +30,7 @@
 						{{ form_row(form.frn) }}
 						<div id="suggestion-nom-fournisseur" class="suggestions-container"></div>
 						<div id="loader-nom-fournisseur" class="spinner" style="display: none;">Chargement...</div>
-					{{ form_row(form.achatDirect)}}
+					{{ form_row(form.typeAchat)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.ref) }}
@@ -57,3 +57,14 @@
 		</div>
 	</div>
 </div>
+<div class="container">
+		<div class="d-flex  justify-content-between">
+			<div class="d-flex flex-row align-items-center">
+				<a href="{{ path("da_export_excel_list_cde_frn")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+					<i class="fas fa-table"></i>
+					Excel
+				</a>
+				{% include "/partials/_statutSituationPiece.html.twig" %}
+			</div>
+		</div>
+	</div>

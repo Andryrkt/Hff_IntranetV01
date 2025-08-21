@@ -52,6 +52,7 @@ class listeDaController extends Controller
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
+            $this->sessionService->set('criteria_for_excel', $criteria);
         }
 
         // Donnée à envoyer à la vue

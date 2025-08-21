@@ -250,7 +250,6 @@ class DaAfficherRepository extends EntityRepository
 
     private function applyDynamicFilters(QueryBuilder $qb, array $criteria, bool $estCdeFrn = false): void
     {
-
         if ($estCdeFrn) {
             $map = [
                 'numDa' => 'd.numeroDemandeAppro',
@@ -259,13 +258,11 @@ class DaAfficherRepository extends EntityRepository
                 'numOr' => 'd.numeroOr',
                 'numFrn' => 'd.numeroFournisseur',
                 'frn' => 'd.nomFournisseur',
-                'niveauUrgence' => 'd.niveauUrgence',
             ];
         } else {
             $map = [
                 'numDa' => 'd.numeroDemandeAppro',
                 'numDit' => 'd.numeroDemandeDit',
-                'niveauUrgence' => 'd.niveauUrgence',
                 'demandeur' => 'd.demandeur'
             ];
         }
@@ -276,6 +273,11 @@ class DaAfficherRepository extends EntityRepository
                 $qb->andWhere("$field = :$key")
                     ->setParameter($key, $criteria[$key]);
             }
+        }
+
+        if (!empty($criteria['niveauUrgence'])) {
+            $qb->andWhere("d.niveauUrgence = :niveau")
+                ->setParameter("niveau", $criteria['niveauUrgence']->getDescription());
         }
 
         if (!empty($criteria['ref'])) {
@@ -298,9 +300,9 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
-            if (!empty($criteria['statutBC'])) {
+            if (!empty($criteria['statutBc'])) {
                 $queryBuilder->andWhere('d.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBC']);
+                    ->setParameter('statutBc', $criteria['statutBc']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
