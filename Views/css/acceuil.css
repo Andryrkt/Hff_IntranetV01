@@ -181,7 +181,7 @@
 /* ========================= */
 /*        MODAL              */
 /* ========================= */
-.modal-content {
+.menu .modal-content {
   position: relative;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -193,20 +193,20 @@
   overflow: hidden;
   text-align: start;
 }
-.modal-header,
-.modal-body {
+.menu .modal-header,
+.menu .modal-body {
   position: relative;
   z-index: 1;
 }
-.modal-header {
+.menu .modal-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* Liste principale */
-.modal-body .list-group {
+.menu .modal-body .list-group {
   padding: 0.5rem 0;
 }
-.modal-body .list-group-item {
+.menu .modal-body .list-group-item {
   background: transparent;
   color: #c7bfbf;
   border: none;
@@ -214,13 +214,13 @@
   border-radius: 4px;
   transition: all 0.2s ease;
 }
-.modal-body .list-group-item:not(.sub-item) {
+.menu .modal-body .list-group-item:not(.sub-item) {
   margin-bottom: 0.25rem;
 }
 
 /* Liens (principaux & sous-liens partagent le même effet) */
-.modal-body .list-group-item a,
-.modal-body .list-group-item.sub-item a {
+.menu .modal-body .list-group-item a,
+.menu .modal-body .list-group-item.sub-item a {
   position: relative;
   display: flex;
   align-items: center;
@@ -228,18 +228,18 @@
   border-radius: 4px;
   transition: all 0.2s ease;
 }
-.modal-body .list-group-item a {
+.menu .modal-body .list-group-item a {
   color: #fbbb01;
   padding: 0.5rem 0.75rem;
   margin: -0.5rem 0;
 }
-.modal-body .list-group-item.sub-item a {
+.menu .modal-body .list-group-item.sub-item a {
   color: #e9c46a;
   padding: 0.35rem 0.75rem 0.35rem 2rem;
   margin-bottom: 0.5rem;
 }
-.modal-body .list-group-item a::before,
-.modal-body .list-group-item.sub-item a::before {
+.menu .modal-body .list-group-item a::before,
+.menu .modal-body .list-group-item.sub-item a::before {
   content: "";
   position: absolute;
   left: -100%;
@@ -254,38 +254,38 @@
   );
   transition: all 0.4s ease;
 }
-.modal-body .list-group-item a:hover::before,
-.modal-body .list-group-item.sub-item a:hover::before {
+.menu .modal-body .list-group-item a:hover::before,
+.menu .modal-body .list-group-item.sub-item a:hover::before {
   left: 100%;
 }
-.modal-body .list-group-item a:hover,
-.modal-body .list-group-item.sub-item a:hover {
+.menu .modal-body .list-group-item a:hover,
+.menu .modal-body .list-group-item.sub-item a:hover {
   color: #ffd43b;
   background-color: rgba(251, 187, 1, 0.12);
   transform: translateX(6px) scale(1.02);
   transition: all 0.3s ease;
 }
-.modal-body .list-group-item a:hover i,
-.modal-body .list-group-item.sub-item a:hover i {
+.menu .modal-body .list-group-item a:hover i,
+.menu .modal-body .list-group-item.sub-item a:hover i {
   transform: scale(1.2) rotate(5deg);
   color: #ffd43b;
 }
 
 /* Icônes */
-.modal-body .list-group-item i {
+.menu .modal-body .list-group-item i {
   width: 1.25rem;
   text-align: center;
   transition: transform 0.2s ease;
 }
 
 /* Sous-items */
-.modal-body .list-group-item.sub-item {
+.menu .modal-body .list-group-item.sub-item {
   font-size: 0.95rem;
   padding: 0.25rem 0;
 }
 
 /* Titres dans la liste */
-.modal-body .list-group-item h6 {
+.menu .modal-body .list-group-item h6 {
   color: #838181;
   font-weight: 600;
   font-size: 1.1rem;

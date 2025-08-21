@@ -96,7 +96,7 @@
 /*===================================
  Modal style verre dépoli + halo animé 
 ===================================== */
-.modal-content {
+.menu .modal-content {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgb(2 2 2 / 71%);
@@ -109,21 +109,21 @@
   text-align: start;
 }
 
-.modal-header,
-.modal-body {
+.menu .modal-header,
+.menu .modal-body {
   position: relative;
   z-index: 1;
 }
 
-.modal-header {
+.menu .modal-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.modal-body .list-group {
+.menu .modal-body .list-group {
   padding: 0.5rem 0;
 }
 
-.modal-body .list-group-item {
+.menu .modal-body .list-group-item {
   background: transparent;
   color: #c7bfbf;
   border: none;
@@ -132,11 +132,11 @@
   border-radius: 4px;
 }
 
-.modal-body .list-group-item:not(.sub-item) {
+.menu .modal-body .list-group-item:not(.sub-item) {
   margin-bottom: 0.25rem;
 }
 
-.modal-body .list-group-item a {
+.menu .modal-body .list-group-item a {
   color: #fbbb01;
   transition: all 0.2s ease;
   text-decoration: none;
@@ -149,7 +149,7 @@
   overflow: hidden;
 }
 
-.modal-body .list-group-item a::before {
+.menu .modal-body .list-group-item a::before {
   content: "";
   position: absolute;
   left: -100%;
@@ -165,11 +165,11 @@
   transition: all 0.4s ease;
 }
 
-.modal-body .list-group-item a:hover::before {
+.menu .modal-body .list-group-item a:hover::before {
   left: 100%;
 }
 
-.modal-body .list-group-item a:hover {
+.menu .modal-body .list-group-item a:hover {
   color: #ffd43b;
   background-color: rgba(251, 187, 1, 0.12);
   transform: translateX(6px) scale(1.02);
@@ -177,18 +177,18 @@
   transition: all 0.3s ease;
 }
 
-.modal-body .list-group-item a:hover i {
+.menu .modal-body .list-group-item a:hover i {
   transform: scale(1.2) rotate(5deg);
   color: #ffd43b;
 }
 
-.modal-body .list-group-item.sub-item {
+.menu .modal-body .list-group-item.sub-item {
   font-size: 0.95rem;
   padding-top: 0.25rem;
   padding-bottom: 0.25rem;
 }
 
-.modal-body .list-group-item.sub-item a {
+.menu .modal-body .list-group-item.sub-item a {
   color: #e9c46a;
   padding: 0.35rem 0.75rem 0.35rem 2rem;
   position: relative;
@@ -196,7 +196,7 @@
   margin-bottom: 0.5rem;
 }
 
-.modal-body .list-group-item.sub-item a::before {
+.menu .modal-body .list-group-item.sub-item a::before {
   content: "";
   position: absolute;
   left: -100%;
@@ -212,11 +212,11 @@
   transition: all 0.4s ease;
 }
 
-.modal-body .list-group-item.sub-item a:hover::before {
+.menu .modal-body .list-group-item.sub-item a:hover::before {
   left: 100%;
 }
 
-.modal-body .list-group-item.sub-item a:hover {
+.menu .modal-body .list-group-item.sub-item a:hover {
   color: #ffd43b;
   background-color: rgba(251, 187, 1, 0.12);
   transform: translateX(6px) scale(1.02);
@@ -224,12 +224,12 @@
   transition: all 0.3s ease;
 }
 
-.modal-body .list-group-item.sub-item a:hover i {
+.menu .modal-body .list-group-item.sub-item a:hover i {
   transform: scale(1.2) rotate(5deg);
   color: #ffd43b;
 }
 
-.modal-body .list-group-item h6 {
+.menu .modal-body .list-group-item h6 {
   color: #838181;
   font-weight: 600;
   border-bottom: 1px solid #fbbb01;
@@ -246,13 +246,13 @@
   border-radius: 6px;
 }
 
-.modal-body .list-group-item i {
+.menu .modal-body .list-group-item i {
   transition: transform 0.2s ease;
   width: 1.25rem;
   text-align: center;
 }
 
-.modal-body .list-group-item a:hover i {
+.menu .modal-body .list-group-item a:hover i {
   transform: scale(1.2) rotate(5deg);
   color: #ffd43b;
 }
