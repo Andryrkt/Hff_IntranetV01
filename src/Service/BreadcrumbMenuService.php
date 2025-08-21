@@ -36,6 +36,7 @@ class BreadcrumbMenuService
             'or'                   => $this->getOrSubMenu(),
             'cis'                  => $this->getCisSubMenu(),
             'sortie-de-pieces-lubs' => $this->getSortiePieceLubSubMenu(),
+            'inventaire' => $this->getInventaireSubMenu(),
             // Matériel - Sous-menus spécifiques
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
@@ -268,6 +269,26 @@ class BreadcrumbMenuService
                 'link'        => 'bl_soumission',
                 'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
+            ]
+        ];
+    }
+
+    private function getInventaireSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Liste inventaire',
+                'link'        => 'liste_inventaire',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => ['action' => 'oui']
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Inventaire détaillé',
+                'link'        => 'liste_detail_inventaire',
+                'icon'        => 'fas fa-tasks',
+                'routeParams' => ['action' => 'oui']
             ]
         ];
     }

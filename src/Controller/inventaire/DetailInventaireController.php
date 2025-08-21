@@ -16,7 +16,7 @@ use App\Form\inventaire\detailInventaireSearchType;
 use PhpOffice\PhpSpreadsheet\Calculation\TextData\Replace;
 
 /**
- * @Route("/inventaire")
+ * @Route("/magasin/inventaire")
  */
 class DetailInventaireController extends Controller
 {
