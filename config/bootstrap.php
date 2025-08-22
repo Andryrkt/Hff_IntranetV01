@@ -128,6 +128,7 @@ $twig = new Environment(new FilesystemLoader(array(
     VENDOR_TWIG_BRIDGE_DIR . '/Resources/views/Form',
 )), ['debug' => true]);
 
+$entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 //configurer securite
 $tokenStorage = new TokenStorage();
@@ -147,7 +148,7 @@ $twig->addExtension(new FormExtension());
 $twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
 $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
-$menuService = new MenuService();
+$menuService = new MenuService($entityManager);
 $breadcrumbMenuService = new BreadcrumbMenuService($menuService);
 $twig->addExtension(new BreadcrumbExtension($breadcrumbMenuService));
 
@@ -167,8 +168,6 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
         return new FormRenderer($formEngine);
     },
 ]));
-
-$entitymanager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 // Créer une instance de SimpleManagerRegistry
 $managerRegistry = new SimpleManagerRegistry($entityManager);
