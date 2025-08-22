@@ -9,7 +9,8 @@
 
 {% block bandeau %}
 	<span class="vignette-bande">
-		<span>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatem minima voluptatibus adipisci labore est at ipsum deleniti numquam repellat eaque veritatis sunt voluptates porro, ut corporis eius sint, exercitationem laborum.</span>
+		<span>Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa! Bienvenu! Welcome! Tongasoa!
+		</span>
 	</span>
 {% endblock %}
 
@@ -18,4 +19,8 @@
 		{% include "/partials/_notification.html.twig" %}
 		{% include 'partials/_vignettes.html.twig' with {'menuItems': menuItems} %}
 	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/accueil/script.js" type="module"></script>
 {% endblock %}
