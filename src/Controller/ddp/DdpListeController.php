@@ -40,7 +40,7 @@ class DdpListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_PAIEMENT);
+        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(DdpSearchType::class, $this->ddpSearch, [

@@ -48,7 +48,7 @@ class CasierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $casier = new Casier();
@@ -101,7 +101,7 @@ class CasierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $casier = new Casier();

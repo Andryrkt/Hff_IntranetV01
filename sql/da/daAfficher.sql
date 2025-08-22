@@ -105,3 +105,14 @@ FROM da_valider;
 update da_afficher set qte_dispo=0 where qte_dispo is NULL
 
 update da_afficher set qte_en_attent=0 where qte_en_attent  is NULL
+
+--? IMPORTANT requête de mise à jour en masse ?--
+
+UPDATE da
+SET 
+da.agence_emmetteur_id = d.agence_emmetteur_id,
+da.Service_emmetteur_id = d.Service_emmetteur_id,
+da.agence_debiteur_id = d.agence_debiteur_id,
+da.service_debiteur_id = d.service_debiteur_id,
+FROM da_afficher da
+JOIN Demande_Appro d ON da.numero_demande_appro = d.numero_demande_appro ;

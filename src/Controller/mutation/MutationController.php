@@ -42,7 +42,7 @@ class MutationController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_MUTATION);
+        $this->autorisationAcces($this->getUser(), Application::ID_MUT);
         /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
@@ -93,7 +93,7 @@ class MutationController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_MUTATION);
+        $this->autorisationAcces($this->getUser(), Application::ID_MUT);
         /** FIN AUtorisation acées */
 
         $mutationSearch = new MutationSearch();

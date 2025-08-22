@@ -46,9 +46,9 @@ class DitController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_INTERVENTION);
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         /** FIN AUtorisation acées */
-        
+
         $demandeIntervention = new DemandeIntervention();
 
         //INITIALISATION DU FORMULAIRE

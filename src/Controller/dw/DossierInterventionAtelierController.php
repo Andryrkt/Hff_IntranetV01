@@ -37,7 +37,7 @@ class DossierInterventionAtelierController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_INTERVENTION);
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();

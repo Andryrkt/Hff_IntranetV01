@@ -59,57 +59,66 @@ class MenuService
     }
 
     /**
+     * Définit les informations de l'utilisateur connecté :
+     * - son statut admin
+     * - la liste de ses applications
+     */
+    private function setConnectedUserContext()
+    {
+        $sessionManager = new SessionManagerService();
+
+        if ($sessionManager->has('user_id')) {
+            /** @var User|null $connectedUser */
+            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+
+            if ($connectedUser) {
+                $roleIds = $connectedUser->getRoleIds();
+
+                $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
+                $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
+            }
+        }
+    }
+
+    /**
+     * Vérifie si l’utilisateur a accès via ses applications
+     */
+    private function hasAccess(array $requiredIds, array $userApplications): bool
+    {
+        return !empty(array_intersect($requiredIds, $userApplications));
+    }
+
+    /**
      * Retourne la structure du menu organiséegit a
      */
     public function getMenuStructure(): array
     {
-        /** @var User $connectedUser objet User correspondant à l'utilisateur connecté en session */
-        $estAdmin = false;
-        $applicationIds = [];
-        $sessionManagerService = new SessionManagerService;
-        if ($sessionManagerService->has('user_id')) {
-            $connectedUser = $this->em->getRepository(User::class)->find((new SessionManagerService())->get('user_id'));
-            $roleIds = $connectedUser->getRoleIds();
-            $applicationIds = $connectedUser->getApplicationsIds();
-            $this->setApplicationIds($applicationIds);
-            $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
-            $this->setEstAdmin($estAdmin);
-        }
+        $this->setConnectedUserContext();
 
         $vignettes = [$this->menuDocumentation()]; // tout le monde
+        $estAdmin = $this->getEstAdmin(); // estAdmin
+        $applicationIds = $this->getApplicationIds(); // les ids des applications autorisées de l'utilisateur connecté
 
-        if ($estAdmin) {
-            $vignettes[] = $this->menuReportingBI(); // mbl tsis accès (tsis mahita)
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DEMANDE_DE_PAIEMENT, Application::ID_DOSSIER_DE_REGULATION], $applicationIds))) { // DDP + DDR
-            $vignettes[] = $this->menuCompta();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DEMANDE_D_ORDRE_DE_MISSION, Application::ID_DEMANDE_DE_MUTATION, Application::ID_DEMANDE_DE_CONGER], $applicationIds))) { // DOM + MUT + DDC
-            $vignettes[] = $this->menuRH();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_NOUVEAU_BORDEREAU_D_ACQUISITION_ET_DE_MOUVEMENT_MATERIEL, Application::ID_CHANGEMENT_CASIER], $applicationIds))) { // BDM + CAS
-            $vignettes[] = $this->menuMateriel();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DEMANDE_D_INTERVENTION, Application::ID_REPORTING], $applicationIds))) { // DIT + REP
-            $vignettes[] = $this->menuAtelier();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_MENU_MAGASIN, Application::ID_IVENTAIRE, Application::ID_BON_DE_LIVRAISON, Application::ID_COMMANDE_FOURNISSEUR, Application::ID_LISTE_COMMENDE_FOURNISSEUR], $applicationIds))) { // MAG + INV + BDL + CFR + LCF
-            $vignettes[] = $this->menuMagasin();
-        }
-        if ($estAdmin || in_array(Application::ID_DEMANDE_D_APPROVISIONNEMENT, $applicationIds)) { // DAP
-            $vignettes[] = $this->menuAppro();
-        }
-        if ($estAdmin || in_array(Application::ID_DEMANDE_SUPPORT_INFORMATIQUE, $applicationIds)) { // TIK
-            $vignettes[] = $this->menuIT();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuPOL();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuEnergie();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuHSE();
+        // Définition des règles d’accès pour chaque menu
+        $menus = [
+            [$this->menuReportingBI(), $estAdmin],
+            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR], $applicationIds)], // DDP + DDR
+            [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
+            [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
+            [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
+            [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
+            [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
+            [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
+            [$this->menuPOL(), $estAdmin],
+            [$this->menuEnergie(), $estAdmin],
+            [$this->menuHSE(), $estAdmin],
+        ];
+
+        // Ajout uniquement des menus accessibles
+        foreach ($menus as [$menu, $condition]) {
+            if ($condition) {
+                $vignettes[] = $menu;
+            }
         }
 
         return $vignettes;
@@ -184,7 +193,7 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
-        if ($this->getEstAdmin() || in_array(Application::ID_DEMANDE_D_ORDRE_DE_MISSION, $this->getApplicationIds())) { // DOM
+        if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
             $subitems[] = $this->createSubMenuItem(
                 'Ordre de mission',
                 'file-signature',
@@ -194,7 +203,7 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DEMANDE_DE_MUTATION, $this->getApplicationIds())) { // MUT
+        if ($this->getEstAdmin() || in_array(Application::ID_MUT, $this->getApplicationIds())) { // MUT
             $subitems[] = $this->createSubMenuItem(
                 'Mutations',
                 'user-friends',
@@ -204,7 +213,7 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DEMANDE_DE_CONGER, $this->getApplicationIds())) { // MUT
+        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // MUT
             $subitems[] = $this->createSubMenuItem(
                 'Congés',
                 'umbrella-beach',
@@ -269,7 +278,7 @@ class MenuService
     public function menuAtelier()
     {
         $subitems = [];
-        if ($this->getEstAdmin() || in_array(Application::ID_DEMANDE_D_INTERVENTION, $this->getApplicationIds())) { // DIT
+        if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subitems[] = $this->createSubMenuItem(
                 'Demande d\'intervention',
                 'toolbox',
@@ -281,9 +290,12 @@ class MenuService
             );
             $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_REPORTING, $this->getApplicationIds())) { // REP
+        if ($this->getEstAdmin() || in_array(Application::ID_REP, $this->getApplicationIds())) { // REP
             $subitems[] = $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']);
             $subitems[] = $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']);
+        }
+        if ($this->getEstAdmin() || in_array(Application::ID_PAT, $this->getApplicationIds())) { // PAT
+            $subitems[] = $this->createSimpleItem('Planning interne Atelier', 'calendar-alt', 'planningAtelier_vue');
         }
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', '#');
@@ -300,7 +312,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
-        if ($this->getEstAdmin() || in_array(Application::ID_MENU_MAGASIN, $this->getApplicationIds())) { // MAG
+        if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
                 'warehouse',
@@ -318,7 +330,7 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_IVENTAIRE, $this->getApplicationIds())) { // INV
+        if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
             $subitems[] = $this->createSubMenuItem(
                 'INVENTAIRE',
                 'file-alt',
@@ -328,7 +340,7 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_BON_DE_LIVRAISON, $this->getApplicationIds())) { // BDL
+        if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
                 'SORTIE DE PIECES / LUBS',
                 'arrow-left',
@@ -337,10 +349,10 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_COMMANDE_FOURNISSEUR, $this->getApplicationIds())) { // CFR
+        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
             $subitems[] = $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur');
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_LISTE_COMMENDE_FOURNISSEUR, $this->getApplicationIds())) { // LCF
+        if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
         if ($this->getEstAdmin()) {

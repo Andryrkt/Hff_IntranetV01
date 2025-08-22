@@ -21,8 +21,21 @@
 
 				<!-- Menu utilisateur -->
 				<ul class="navbar-nav ms-lg-auto">
+					<li class="me-3">
+						<a class="app-version" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+							<i class="fas fas fa-tag pe-2"></i>
+							Version: V20250822.1.2.0
+						</a>
+					</li>
+					<li class="me-3">
+						<a class="guide-link" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+							<i class="fas fa-info pe-2"></i>
+							Guide utilisateur
+						</a>
+					</li>
 					<li class="nav-item dropdown">
-						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-first-name="{{ App.user.Personnels.prenoms }}" data-user-last-name="{{ App.user.Personnels.nom }}" ria-expanded="false" style="color: #fbbb01;">
+							<i class="fas fa-user pe-1"></i>
 							{{ App.user.Personnels.prenoms ~ '.' ~ App.user.Personnels.nom }}
 						</a>
 						<ul class="dropdown-menu dropdown-menu-end">

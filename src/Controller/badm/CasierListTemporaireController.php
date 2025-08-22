@@ -30,7 +30,7 @@ class CasierListTemporaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_CHANGEMENT_CASIER);
+        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
         /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [

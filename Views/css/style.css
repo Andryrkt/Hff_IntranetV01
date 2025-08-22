@@ -311,3 +311,42 @@ button.swal2-styled {
 .dropdown-menu {
   background-color: #000;
 }
+
+.guide-link {
+  display: block; /* occupe toute la largeur comme un menu */
+  padding: 0.5rem 1rem; /* équivalent px-4 / py-2 */
+  background-color: var(--bs-primary); /* bleu bootstrap */
+  color: #fff; /* texte blanc */
+  font-weight: 400; /* fw-normal */
+  font-size: 0.875rem; /* fs-7 */
+  text-decoration: none; /* pas de soulignement */
+  border-radius: 0.25rem; /* petit arrondi (optionnel) */
+}
+
+.guide-link:hover {
+  background-color: #0b5ed7; /* bleu un peu plus foncé (hover Bootstrap) */
+  color: #fff;
+}
+
+.app-version {
+  display: inline-flex; /* alignement icône + texte */
+  align-items: center;
+  gap: 0.5rem; /* espace entre icône et texte */
+  padding: 0.25rem 0.75rem; /* un peu plus compact que guide-link */
+  background-color: var(--bs-secondary); /* couleur différente du guide */
+  color: #fff;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.app-version:hover {
+  background-color: #6c757d; /* gris un peu plus foncé au hover */
+  color: #fff;
+}
+
+.swal-text-left {
+  text-align: left;
+}

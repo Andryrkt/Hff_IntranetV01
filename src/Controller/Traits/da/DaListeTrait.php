@@ -150,6 +150,7 @@ trait DaListeTrait
                 'achatDirect'         => $achatDirect ? $safeIconSuccess : '',
                 'numeroDemandeDit'    => $item->getNumeroDemandeDit() ?? $safeIconBan,
                 'numeroOr'            => $achatDirect ? $safeIconBan : $item->getNumeroOr(),
+                'niveauUrgence'       => $item->getNiveauUrgence(),
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
