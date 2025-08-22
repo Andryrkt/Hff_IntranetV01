@@ -55,6 +55,9 @@ CREATE TABLE da_afficher
     CONSTRAINT PK_da_afficher PRIMARY KEY (id)
 );
 
+
+ALTER TABLE da_afficher DROP COLUMN id_da;
+
 ALTER TABLE da_afficher ADD bc_envoyer_fournisseur BIT NOT NULL DEFAULT 0;
 ALTER TABLE da_afficher ADD agence_emmetteur_id int;
 ALTER TABLE da_afficher ADD Service_emmetteur_id int;

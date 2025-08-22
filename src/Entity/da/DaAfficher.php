@@ -232,11 +232,6 @@ class DaAfficher
     private $bcEnvoyerFournisseur = false;
 
     /**
-     * @ORM\Column(type="integer", name="id_da")
-     */
-    private ?int $idDa;
-
-    /**
      * @ORM\Column(type="boolean", name="achat_direct")
      */
     private bool $achatDirect = false;
@@ -1143,27 +1138,6 @@ class DaAfficher
         return $this;
     }
 
-
-    /**
-     * Get the value of idDa
-     */
-    public function getIdDa()
-    {
-        return $this->idDa;
-    }
-
-    /**
-     * Set the value of idDa
-     *
-     * @return  self
-     */
-    public function setIdDa($idDa)
-    {
-        $this->idDa = $idDa;
-
-        return $this;
-    }
-
     /**
      * Get the value of achatDirect
      */
@@ -1495,7 +1469,6 @@ class DaAfficher
             ->setObjetDal($da->getObjetDal())
             ->setDetailDal($da->getDetailDal())
             ->setDemandeur($da->getDemandeur())
-            ->setIdDa($da->getId())
             ->setAchatDirect($da->getAchatDirect())
             ->setDateDemande($da->getDateCreation())
             ->setNiveauUrgence($da->getNiveauUrgence())
