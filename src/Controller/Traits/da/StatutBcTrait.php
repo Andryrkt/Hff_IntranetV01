@@ -104,10 +104,9 @@ trait StatutBcTrait
         return $statutSoumissionBc;
     }
 
-    private function numeroCde(array $infoDaDirect, array $situationCde, bool $achatDirect): string
+    private function numeroCde(array $infoDaDirect, array $situationCde, bool $achatDirect): ?string
     {
         if ($achatDirect) {
-
             $numCde = array_key_exists(0, $infoDaDirect) ? $infoDaDirect[0]['num_cde'] : '';
         } else {
             $numCde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : '';

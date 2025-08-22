@@ -68,8 +68,11 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         $user = self::$em->getRepository(User::class)->find($id);
-        $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
-        $user->setSuperieur($nomPrenomChefService);
+        if ($this->getUser()->getChefService()) {
+            $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+            $user->setSuperieur($nomPrenomChefService);
+        }
+
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
