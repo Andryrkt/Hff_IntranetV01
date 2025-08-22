@@ -32,7 +32,9 @@ class Application
     public const ID_IVENTAIRE = 12;
     public const ID_LISTE_COMMENDE_FOURNISSEUR = 13;
     public const ID_DOSSIER_DE_REGULATION = 14;
-    public const ID_BON_DE_LIVRAISON = 15;
+    public const ID_PLANNING_ATELIER = 15;
+    public const ID_DEMANDE_DE_CONGER = 16;
+    public const ID_BON_DE_LIVRAISON = 17;
 
     use DateTrait;
 
