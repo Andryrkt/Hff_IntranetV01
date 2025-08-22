@@ -328,6 +328,25 @@ button.swal2-styled {
   color: #fff;
 }
 
+.app-version {
+  display: inline-flex; /* alignement icône + texte */
+  align-items: center;
+  gap: 0.5rem; /* espace entre icône et texte */
+  padding: 0.25rem 0.75rem; /* un peu plus compact que guide-link */
+  background-color: var(--bs-secondary); /* couleur différente du guide */
+  color: #fff;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.app-version:hover {
+  background-color: #6c757d; /* gris un peu plus foncé au hover */
+  color: #fff;
+}
+
 .swal-text-left {
   text-align: left;
 }
