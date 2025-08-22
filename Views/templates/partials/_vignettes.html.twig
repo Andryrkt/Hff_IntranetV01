@@ -37,7 +37,9 @@
 	</div>
 {% endmacro %}
 
-
+<span class="vignette-bande">
+	<span>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Voluptatem minima voluptatibus adipisci labore est at ipsum deleniti numquam repellat eaque veritatis sunt voluptates porro, ut corporis eius sint, exercitationem laborum.</span>
+</span>
 <div class="grid-container">
 	{% for item in menuItems %}
 		<!-- Vignette -->
@@ -46,9 +48,6 @@
 				<i class="{{ item.icon }}"></i>
 			</div>
 			<div class="vignette-content p-4">
-				<span class="vignette-bande">
-					<span>{{ item.band }}</span>
-				</span>
 				<h4 class="vignette-title">{{ item.title }}</h4>
 			</div>
 		</div>

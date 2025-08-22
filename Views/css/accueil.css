@@ -10,6 +10,7 @@
   justify-content: center; /* Centre horizontalement */
   align-items: center; /* Centre verticalement */
   height: 90vh;
+  margin-top: 1.5rem;
 }
 
 /* ========================= */
@@ -107,17 +108,13 @@
 
 .vignette-bande {
   position: absolute;
-  top: 0;
+  top: 66px;
   left: 0;
   width: 100%;
   overflow: hidden;
   white-space: nowrap;
-  background: linear-gradient(
-    rgba(119, 119, 119, 0.7),
-    rgba(119, 119, 119, 0.4)
-  );
-  color: #fff;
-  font-size: 0.85rem;
+  background: #ffbb01;
+  color: rgba(0, 0, 0, 0.7);
   padding: 0.3rem 0;
   z-index: 2;
 }
