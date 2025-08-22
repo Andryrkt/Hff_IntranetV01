@@ -10,7 +10,7 @@ class MenuService
 {
     private $em;
     private $estAdmin;
-    private $applicationIds;
+    private $applicationIds = [];
 
     public function __construct($entityManager)
     {
@@ -63,12 +63,17 @@ class MenuService
     public function getMenuStructure(): array
     {
         /** @var User $connectedUser objet User correspondant à l'utilisateur connecté en session */
-        $connectedUser = $this->em->getRepository(User::class)->find((new SessionManagerService())->get('user_id'));
-        $roleIds = $connectedUser->getRoleIds();
-        $applicationIds = $connectedUser->getApplicationsIds();
-        $this->setApplicationIds($applicationIds);
-        $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
-        $this->setEstAdmin($estAdmin);
+        $estAdmin = false;
+        $applicationIds = [];
+        $sessionManagerService = new SessionManagerService;
+        if ($sessionManagerService->has('user_id')) {
+            $connectedUser = $this->em->getRepository(User::class)->find((new SessionManagerService())->get('user_id'));
+            $roleIds = $connectedUser->getRoleIds();
+            $applicationIds = $connectedUser->getApplicationsIds();
+            $this->setApplicationIds($applicationIds);
+            $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
+            $this->setEstAdmin($estAdmin);
+        }
 
         $vignettes = [$this->menuDocumentation()]; // tout le monde
 
