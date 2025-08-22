@@ -285,6 +285,9 @@ class MenuService
             $subitems[] = $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']);
             $subitems[] = $this->createSimpleItem('Planning détaillé', 'calendar-day', 'liste_planning', ['action' => 'oui']);
         }
+        if ($this->getEstAdmin() || in_array(Application::ID_PLANNING_ATELIER, $this->getApplicationIds())) { // PAT
+            $subitems[] = $this->createSimpleItem('Planning interne Atelier', 'calendar-alt', 'planningAtelier_vue');
+        }
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSimpleItem('Satisfaction client (Atelier excellence survey)', 'smile', '#');
         }
