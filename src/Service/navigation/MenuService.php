@@ -59,57 +59,66 @@ class MenuService
     }
 
     /**
+     * Définit les informations de l'utilisateur connecté :
+     * - son statut admin
+     * - la liste de ses applications
+     */
+    private function setConnectedUserContext()
+    {
+        $sessionManager = new SessionManagerService();
+
+        if ($sessionManager->has('user_id')) {
+            /** @var User|null $connectedUser */
+            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+
+            if ($connectedUser) {
+                $roleIds = $connectedUser->getRoleIds();
+
+                $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
+                $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
+            }
+        }
+    }
+
+    /**
+     * Vérifie si l’utilisateur a accès via ses applications
+     */
+    private function hasAccess(array $requiredIds, array $userApplications): bool
+    {
+        return !empty(array_intersect($requiredIds, $userApplications));
+    }
+
+    /**
      * Retourne la structure du menu organiséegit a
      */
     public function getMenuStructure(): array
     {
-        /** @var User $connectedUser objet User correspondant à l'utilisateur connecté en session */
-        $estAdmin = false;
-        $applicationIds = [];
-        $sessionManagerService = new SessionManagerService;
-        if ($sessionManagerService->has('user_id')) {
-            $connectedUser = $this->em->getRepository(User::class)->find((new SessionManagerService())->get('user_id'));
-            $roleIds = $connectedUser->getRoleIds();
-            $applicationIds = $connectedUser->getApplicationsIds();
-            $this->setApplicationIds($applicationIds);
-            $estAdmin = in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
-            $this->setEstAdmin($estAdmin);
-        }
+        $this->setConnectedUserContext();
 
         $vignettes = [$this->menuDocumentation()]; // tout le monde
+        $estAdmin = $this->getEstAdmin(); // estAdmin
+        $applicationIds = $this->getApplicationIds(); // les ids des applications autorisées de l'utilisateur connecté
 
-        if ($estAdmin) {
-            $vignettes[] = $this->menuReportingBI(); // mbl tsis accès (tsis mahita)
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DDP, Application::ID_DDR], $applicationIds))) { // DDP + DDR
-            $vignettes[] = $this->menuCompta();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds))) { // DOM + MUT + DDC
-            $vignettes[] = $this->menuRH();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_BADM, Application::ID_CAS], $applicationIds))) { // BDM + CAS
-            $vignettes[] = $this->menuMateriel();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_DIT, Application::ID_REP], $applicationIds))) { // DIT + REP
-            $vignettes[] = $this->menuAtelier();
-        }
-        if ($estAdmin || !empty(array_intersect([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds))) { // MAG + INV + BDL + CFR + LCF
-            $vignettes[] = $this->menuMagasin();
-        }
-        if ($estAdmin || in_array(Application::ID_DAP, $applicationIds)) { // DAP
-            $vignettes[] = $this->menuAppro();
-        }
-        if ($estAdmin || in_array(Application::ID_TIK, $applicationIds)) { // TIK
-            $vignettes[] = $this->menuIT();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuPOL();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuEnergie();
-        }
-        if ($estAdmin) { // tsis mahita
-            $vignettes[] = $this->menuHSE();
+        // Définition des règles d’accès pour chaque menu
+        $menus = [
+            [$this->menuReportingBI(), $estAdmin],
+            [$this->menuCompta(), $estAdmin || $this->hasAccess([Application::ID_DDP, Application::ID_DDR], $applicationIds)], // DDP + DDR
+            [$this->menuRH(), $estAdmin || $this->hasAccess([Application::ID_DOM, Application::ID_MUT, Application::ID_DDC], $applicationIds)],     // DOM + MUT + DDC
+            [$this->menuMateriel(), $estAdmin || $this->hasAccess([Application::ID_BADM, Application::ID_CAS], $applicationIds)], // BDM + CAS
+            [$this->menuAtelier(), $estAdmin || $this->hasAccess([Application::ID_DIT, Application::ID_REP], $applicationIds)], // DIT + REP
+            [$this->menuMagasin(), $estAdmin || $this->hasAccess([Application::ID_MAG, Application::ID_INV, Application::ID_BDL, Application::ID_CFR, Application::ID_LCF], $applicationIds)], // MAG + INV + BDL + CFR + LCF
+            [$this->menuAppro(), $estAdmin || in_array(Application::ID_DAP, $applicationIds, true)],         // DAP
+            [$this->menuIT(), $estAdmin || in_array(Application::ID_TIK, $applicationIds, true)],             // TIK
+            [$this->menuPOL(), $estAdmin],
+            [$this->menuEnergie(), $estAdmin],
+            [$this->menuHSE(), $estAdmin],
+        ];
+
+        // Ajout uniquement des menus accessibles
+        foreach ($menus as [$menu, $condition]) {
+            if ($condition) {
+                $vignettes[] = $menu;
+            }
         }
 
         return $vignettes;
