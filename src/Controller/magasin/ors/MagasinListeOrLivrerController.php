@@ -49,7 +49,7 @@ class MagasinListeOrLivrerController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MENU_MAGASIN);
+        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();

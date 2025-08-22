@@ -58,7 +58,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_IVENTAIRE);
+        $this->autorisationAcces($this->getUser(), Application::ID_INV);
 
         $form = self::$validator->createBuilder(
             InventaireSearchType::class,

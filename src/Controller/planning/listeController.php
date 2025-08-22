@@ -56,7 +56,7 @@ class ListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_REPORTING);
+        $this->autorisationAcces($this->getUser(), Application::ID_REP);
         /** FIN AUtorisation acées */
         //initialisation
         $this->conditionFormulaireRecherche();

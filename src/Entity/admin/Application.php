@@ -18,23 +18,40 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Application
 {
-    public const ID_DEMANDE_D_ORDRE_DE_MISSION = 1;
-    public const ID_NOUVEAU_BORDEREAU_D_ACQUISITION_ET_DE_MOUVEMENT_MATERIEL = 2;
-    public const ID_CHANGEMENT_CASIER = 3;
-    public const ID_DEMANDE_D_INTERVENTION = 4;
-    public const ID_MENU_MAGASIN = 5;
-    public const ID_REPORTING = 6;
-    public const ID_DEMANDE_SUPPORT_INFORMATIQUE = 7;
-    public const ID_COMMANDE_FOURNISSEUR = 8;
-    public const ID_DEMANDE_DE_PAIEMENT = 9;
-    public const ID_DEMANDE_DE_MUTATION = 10;
-    public const ID_DEMANDE_D_APPROVISIONNEMENT = 11;
-    public const ID_IVENTAIRE = 12;
-    public const ID_LISTE_COMMENDE_FOURNISSEUR = 13;
-    public const ID_DOSSIER_DE_REGULATION = 14;
-    public const ID_PLANNING_ATELIER = 15;
-    public const ID_DEMANDE_DE_CONGER = 16;
-    public const ID_BON_DE_LIVRAISON = 17;
+    /** Identifiant de l'application DOM (Demande d'Ordre de Mission). */
+    public const ID_DOM = 1;
+    /** Identifiant de l'application BADM (Nouveau Bordereau d'acquisition et de mouvement matériel). */
+    public const ID_BADM = 2;
+    /** Identifiant de l'application CAS (Changement de Casier) */
+    public const ID_CAS = 3;
+    /** Identifiant de l'application DIT (Demande d'intervention) */
+    public const ID_DIT = 4;
+    /** Identifiant de l'application MAG (Magasin) */
+    public const ID_MAG = 5;
+    /** Identifiant de l'application REP (Reporting) */
+    public const ID_REP = 6;
+    /** Identifiant de l'application TIK (Demande de support informatique) */
+    public const ID_TIK = 7;
+    /** Identifiant de l'application CFR (Commande Fournisseur) */
+    public const ID_CFR = 8;
+    /** Identifiant de l'application DDP (Demande de paiement) */
+    public const ID_DDP = 9;
+    /** Identifiant de l'application MUT (Demande de mutation) */
+    public const ID_MUT = 10;
+    /** Identifiant de l'application DAP (Demande d'approvisionnement) */
+    public const ID_DAP = 11;
+    /** Identifiant de l'application INV (Inventaire) */
+    public const ID_INV = 12;
+    /** Identifiant de l'application LCF (Liste de commande fournisseur) */
+    public const ID_LCF = 13;
+    /** Identifiant de l'application DDR (Dossier de régulation DDP) */
+    public const ID_DDR = 14;
+    /** Identifiant de l'application PAT (Planning Atelier interne) */
+    public const ID_PAT = 15;
+    /** Identifiant de l'application DDC (Demande de congé) */
+    public const ID_DDC = 16;
+    /** Identifiant de l'application BDL (Bon de livraison) */
+    public const ID_BDL = 17;
 
     use DateTrait;
 

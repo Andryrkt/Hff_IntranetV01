@@ -31,7 +31,7 @@ class BadmListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_NOUVEAU_BORDEREAU_D_ACQUISITION_ET_DE_MOUVEMENT_MATERIEL);
+        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
         /** FIN AUtorisation acées */
 
         $userId = $this->sessionService->get('user_id');

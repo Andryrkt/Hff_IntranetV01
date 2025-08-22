@@ -29,7 +29,7 @@ class CisATraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_MENU_MAGASIN);
+        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
         $cisATraiterModel = new CisATraiterModel();

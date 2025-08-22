@@ -67,7 +67,7 @@ class DetailInventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $this->autorisationAcces($this->getUser(), Application::ID_IVENTAIRE);
+        $this->autorisationAcces($this->getUser(), Application::ID_INV);
 
         $agence = $this->transformEnSeulTableauAvecKey($this->InventaireModel->recuperationAgenceIrium());
         $this->dateDebut->modify('first day of this month');

@@ -60,7 +60,7 @@ class DaListCdeFrnController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_APPROVISIONNEMENT, Service::ID_APPRO);
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_APPRO);
         /** FIN AUtorisation acées */
 
         /** ===  Formulaire pour la recherche === */

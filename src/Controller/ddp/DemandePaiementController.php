@@ -79,7 +79,7 @@ class DemandePaiementController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_DE_PAIEMENT);
+        $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();

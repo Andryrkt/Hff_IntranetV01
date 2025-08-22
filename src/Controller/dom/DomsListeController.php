@@ -36,7 +36,7 @@ class DomsListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DEMANDE_D_ORDRE_DE_MISSION);
+        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
         $autoriser = $this->autorisationRole(self::$em);
