@@ -32,7 +32,7 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/first-form", name="da_first_form")
+     * @Route("/da-first-form", name="da_first_form")
      */
     public function firstForm()
     {

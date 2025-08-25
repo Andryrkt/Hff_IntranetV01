@@ -23,7 +23,7 @@ class BadmListeController extends Controller
     use AutorisationTrait;
 
     /**
-     * @Route("/listBadm", name="badmListe_AffichageListeBadm")
+     * @Route("/liste", name="badmListe_AffichageListeBadm")
      */
     public function AffichageListeBadm(Request $request)
     {

@@ -7,7 +7,6 @@ use App\Controller\Controller;
 use App\Controller\Traits\AutorisationTrait;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
-use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierForm1Type;
 use App\Form\cas\CasierForm2Type;
 use App\Entity\admin\StatutDemande;
@@ -40,7 +39,7 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/new", name="casier_nouveau")
+     * @Route("/cas-form1", name="casier_nouveau")
      */
     public function NouveauCasier(Request $request)
     {
@@ -93,7 +92,7 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"GET","POST"})
+     * @Route("/cas-form2", name="casiser_formulaireCasier", methods={"GET","POST"})
      */
     public function FormulaireCasier(Request $request)
     {

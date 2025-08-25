@@ -28,7 +28,7 @@ class ListeCdeFrnNonGenererController extends Controller
     }
 
     /**
-     * @Route("/lcfng/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
+     * @Route("/liste_cde_frs_non_generer", name="liste_Cde_Frn_Non_Generer")
      *
      * @return void
      */

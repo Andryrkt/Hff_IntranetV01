@@ -31,7 +31,7 @@ class bordereauController extends Controller
     }
 
     /**
-     * @Route("/bordereau", name = "bordereau_liste")
+     * @Route("/liste", name = "bordereau_liste")
      * 
      * @return void
      */
