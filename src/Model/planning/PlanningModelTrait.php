@@ -62,7 +62,7 @@ trait PlanningModelTrait
         $vtypeligne = " ";
         break;
       case "PIECES_MAGASIN":
-        $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' ";
+        $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND slor_typlig = 'P' AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL') ";
         break;
       case "ACHAT_LOCAUX":
         $vtypeligne = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")";

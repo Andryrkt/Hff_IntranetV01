@@ -79,6 +79,7 @@ class DitDevisSoumisAValidationModel extends Model
                 FROM sav_lor slor
                 INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
                 WHERE slor.slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . ")
+                AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                 AND slor.slor_typlig = 'P'
                 AND seor.seor_numor = '$numDevis'
             ";
@@ -363,6 +364,7 @@ class DitDevisSoumisAValidationModel extends Model
                     on seor_soc= slor_soc and seor_succ = slor_succ and seor_numor = slor_numor and slor_soc ='HF'
                     WHERE slor_refp = '" . $infoPieceClient['ref_piece'] . "'
                     and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
+                    AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                     and seor_serv = 'SAV'
                     and slor_pos in('CP','FC') 
                     and slor_numcli = '" . $infoPieceClient['num_client'] . "'
@@ -382,6 +384,7 @@ class DitDevisSoumisAValidationModel extends Model
                         from sav_lor 
                         where slor_numor='{$numDevis}' 
                         and slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
+                        AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
                     ";
 
         $result = $this->connect->executeQuery($statement);

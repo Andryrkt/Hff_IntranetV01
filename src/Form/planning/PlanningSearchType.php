@@ -58,6 +58,7 @@ class PlanningSearchType extends AbstractType
         'ATE TMV' => 'ATE TMV',
         'ATE FTU' => 'ATE FTU',
         'ATE ABV' => 'ATE ABV',
+        'ATE LEV' => 'ATE LEV',
     ];
 
     public function __construct()

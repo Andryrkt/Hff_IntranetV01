@@ -128,12 +128,11 @@ class DaSoumissionBcController extends Controller
     private function modificationDaValider(string $numDa, string $numCde): void
     {
         $numeroVersionMaxCde = $this->daValiderRepository->getNumeroVersionMax($numDa);
-        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde]);
+        $daValiders = $this->daValiderRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMaxCde, 'numeroCde' => $numCde]);
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
                     ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION)
-                    ->setNumeroCde($numCde)
                 ;
                 self::$em->persist($daValider);
             }
