@@ -232,7 +232,9 @@ class DaAfficherRepository extends EntityRepository
         $this->applyFilterAppro($qb, $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, $criteria);
 
-        $qb->addOrderBy('d.dateDemande', 'DESC');
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
         return $qb->getQuery()->getResult();
     }
 
