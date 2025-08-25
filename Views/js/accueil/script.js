@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
     title: `Bienvenue <strong>${firstname} ${lastname}</strong> 👋 !`,
     html: `
       <p style="margin:0 0 8px;">
-        Ravi de vous voir ici&nbsp;!
+        Ravi de vous revoir&nbsp;!
       </p>
       <p style="margin:0 0 8px;">
         Pour bien démarrer, <strong>pensez à consulter le Guide utilisateur</strong> en cliquant sur </strong> 
@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", function () {
             <i class="fas fa-info pe-2"></i>
             Guide utilisateur
         </a> situé <strong>en haut de la page .
+      </p>
+      <p class="text-danger">
+          <strong><u>NB</u> :</strong> Veuillez appuyer sur 
+          <kbd>Ctrl</kbd> + <kbd>F5</kbd> avant de commencer à naviguer.
       </p>
       <label style="display:flex; align-items:center; gap:.5rem; margin-top:.75rem; cursor:pointer;">
         <input id="dontShowAgain" type="checkbox">

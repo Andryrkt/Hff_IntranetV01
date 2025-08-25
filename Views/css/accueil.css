@@ -338,3 +338,17 @@
   background-color: rgba(255, 255, 255, 0.03);
   border-radius: 6px;
 }
+
+/* boutons keyboard */
+kbd {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-family: monospace;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #111; /* fond noir */
+  color: #fff; /* texte blanc */
+  box-shadow: 0 2px 0 #000, 0 3px 6px rgba(0, 0, 0, 0.5);
+  margin: 0 3px;
+}
