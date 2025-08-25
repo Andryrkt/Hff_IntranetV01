@@ -11,6 +11,7 @@ class MenuService
 {
     private $em;
     private $estAdmin;
+    private $nomUtilisateur;
     private $applicationIds = [];
 
     public function __construct($entityManager)
@@ -59,6 +60,23 @@ class MenuService
     }
 
     /**
+     * Get the value of nomUtilisateur
+     */
+    public function getNomUtilisateur()
+    {
+        return $this->nomUtilisateur;
+    }
+
+    /**
+     * Set the value of nomUtilisateur
+     */
+    public function setNomUtilisateur($nomUtilisateur): self
+    {
+        $this->nomUtilisateur = $nomUtilisateur;
+        return $this;
+    }
+
+    /**
      * Définit les informations de l'utilisateur connecté :
      * - son statut admin
      * - la liste de ses applications
@@ -74,6 +92,7 @@ class MenuService
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();
 
+                $this->setNomUtilisateur($connectedUser->getNomUtilisateur());
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
             }
@@ -278,17 +297,22 @@ class MenuService
     public function menuAtelier()
     {
         $subitems = [];
+        $nomUtilisateur = $this->getNomUtilisateur();
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
+            $subSubitems = [];
+            if ($nomUtilisateur != 'stg.iaro') {
+                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
+                $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
+            }
+            $subSubitems[] = $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier');
             $subitems[] = $this->createSubMenuItem(
                 'Demande d\'intervention',
                 'toolbox',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new'),
-                    $this->createSubItem('Consultation', 'search', 'dit_index'),
-                    $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier')
-                ]
+                $subSubitems
             );
-            $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
+            if ($nomUtilisateur != 'stg.iaro') {
+                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
+            }
         }
         if ($this->getEstAdmin() || in_array(Application::ID_REP, $this->getApplicationIds())) { // REP
             $subitems[] = $this->createSimpleItem('Planning', 'calendar-alt', 'planning_vue', ['action' => 'oui']);
