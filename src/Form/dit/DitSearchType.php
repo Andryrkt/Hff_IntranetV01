@@ -148,6 +148,7 @@ class DitSearchType extends AbstractType
                     'choices' => self::INTERNE_EXTERNE,
                     'placeholder' => '-- Choisir --',
                     'required' => false,
+                    'data' => $options['interne_externe'] ?? '',
                     'attr' => ['class' => 'interneExterne']
                 ]
             )
@@ -504,6 +505,7 @@ class DitSearchType extends AbstractType
             'data_class' => DitSearch::class,
         ]);
         //$resolver->setDefined('idAgenceEmetteur');
+        $resolver->setDefined('interne_externe');
         $resolver->setDefined('autorisationRoleEnergie');
     }
 }

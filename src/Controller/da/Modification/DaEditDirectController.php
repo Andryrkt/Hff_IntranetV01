@@ -1,0 +1,135 @@
+<?php
+
+namespace App\Controller\da\Modification;
+
+use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\da\DaAfficherTrait;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\modification\DaEditDirectTrait;
+
+/**
+ * @Route("/demande-appro")
+ */
+class DaEditDirectController extends Controller
+{
+    use DaAfficherTrait;
+    use DaEditDirectTrait;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setEntityManager(self::$em);
+        $this->initDaEditDirectTrait();
+    }
+
+    /**
+     * @Route("/edit-direct/{id}", name="da_edit_direct")
+     */
+    public function edit(int $id, Request $request)
+    {
+        //verification si user connecter
+        $this->verifierSessionUtilisateur();
+        /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
+        $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
+
+        $ancienDals = $this->getAncienDAL($demandeAppro);
+
+        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+
+        $this->traitementForm($form, $request, $ancienDals);
+
+        $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
+
+        self::$twig->display('da/edit-da-direct.html.twig', [
+            'form'              => $form->createView(),
+            'observations'      => $observations,
+            'peutModifier'      => $this->PeutModifier($demandeAppro),
+            'numDa'             => $numDa,
+        ]);
+    }
+
+    /** 
+     * @Route("/delete-line-direct/{numDa}/{ligne}",name="da_delete_line_direct")
+     */
+    public function deleteLineDa(string $numDa, string $ligne)
+    {
+        $this->verifierSessionUtilisateur();
+
+        $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
+            'numeroDemandeAppro' => $numDa,
+            'numeroLigne'        => $ligne
+        ]);
+
+        if ($demandeApproLs) {
+            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
+                'numeroDemandeAppro' => $numDa,
+                'numeroLigne'        => $ligne
+            ]);
+
+            foreach ($demandeApproLs as $demandeApproL) {
+                self::$em->remove($demandeApproL);
+            }
+
+            foreach ($demandeApproLRs as $demandeApproLR) {
+                self::$em->remove($demandeApproLR);
+            }
+
+            self::$em->flush();
+
+            $notifType = "success";
+            $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
+        } else {
+            $notifType = "danger";
+            $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
+        }
+        $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->redirectToRoute("list_da");
+    }
+
+    private function traitementForm($form, Request $request, iterable $ancienDals): void
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $demandeAppro = $form->getData();
+            $numDa = $demandeAppro->getNumeroDemandeAppro();
+            $statutDaModifier = $this->statutDaModifier($demandeAppro);
+
+            $this->modificationDa($demandeAppro, $form->get('DAL'), $statutDaModifier);
+            if ($demandeAppro->getObservation() !== null) {
+                $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
+            }
+
+            // ajout des données dans la table DaAfficher
+            $this->ajouterDansTableAffichageParNumDa($numDa);
+
+            if ($statutDaModifier === DemandeAppro::STATUT_A_VALIDE_DW) {
+                // ajout des données dans la table DaSoumisAValidation
+                $this->ajouterDansDaSoumisAValidation($demandeAppro);
+
+                /** création de pdf et envoi dans docuware */
+                $this->creationPdfSansDitAvaliderDW($demandeAppro);
+            }
+
+            /** ENVOIE MAIL */
+            $this->emailDaService->envoyerMailModificationDaDirect($demandeAppro, [
+                'ancienDals'    => $ancienDals,
+                'nouveauDals'   => $demandeAppro->getDAL(),
+                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms()
+            ]);
+
+            //notification
+            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->redirectToRoute("list_da");
+        }
+    }
+}

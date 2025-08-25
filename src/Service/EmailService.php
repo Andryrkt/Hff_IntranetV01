@@ -23,8 +23,10 @@ class EmailService
         $this->mailer->isSMTP();
         $this->mailer->Host = 'smtp.gmail.com';
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'noreply.email@hff.mg';
-        $this->mailer->Password = 'aztq lelp kpzm qhff';
+        $this->mailer->Username = 'hasina.andrianadison@hff.mg';
+        $this->mailer->Password = 'pjld idch wnif byfm ';
+        // $this->mailer->Username = 'noreply.email@hff.mg';
+        // $this->mailer->Password = 'aztq lelp kpzm qhff';
         //$this->mailer->Password = '2b6615f71ff2a7';
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mailer->Port = 587;
@@ -50,32 +52,44 @@ class EmailService
         }
     }
 
-    public function sendEmail($to, $cc = [],  $template, $variables = [])
+    public function sendEmail($to, $cc = [], $template, $variables = [], $attachments = [])
     {
         try {
-
-
-            // Create email content using the template
+            // Créer le contenu de l'email via le template
             $this->twigMailer->create($template, $variables);
 
-            // Set the recipient
-            $this->twigMailer->getPhpMailer()->addAddress($to);
+            // Obtenir l'instance de PHPMailer
+            $mailer = $this->twigMailer->getPhpMailer();
+
+            // Ajouter le destinataire
+            $mailer->addAddress($to);
+
+            // Ajouter les CC
             if ($cc !== null) {
                 foreach ($cc as $c) {
-                    $this->twigMailer->getPhpMailer()->addCC($c);
+                    $mailer->addCC($c);
                 }
             }
 
-            // Send the email
+            // ajout du bcc
+            $mailer->addBCC('ranofimenjajam@gmail.com', 'fidison');
+
+            // Ajouter les pièces jointes
+            foreach ($attachments as $filePath => $fileName) {
+                $mailer->addAttachment($filePath, $fileName);
+            }
+
+            // Envoyer l'e-mail
             $this->twigMailer->send();
 
             return true;
         } catch (\Exception $e) {
-            // Log the error message or handle it as needed
+            // Gérer l'erreur
             dd('erreur: ' . $e->getMessage());
             return false;
         }
     }
+
 
     /**
      * Get the value of mailer

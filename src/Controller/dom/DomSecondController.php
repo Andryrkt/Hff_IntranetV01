@@ -5,19 +5,25 @@ namespace App\Controller\dom;
 
 use App\Entity\dom\Dom;
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomForm2Type;
-use App\Controller\Traits\dom\DomsTrait;
+use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
-use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 
-
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomSecondController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -33,6 +39,10 @@ class DomSecondController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
+        /** FIN AUtorisation acées */
+
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
         $user = self::$em->getRepository(User::class)->find($userId);
@@ -41,6 +51,8 @@ class DomSecondController extends Controller
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->sessionService->get('form1Data', []);
+        $sousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
+
         $this->initialisationSecondForm($form1Data, self::$em, $dom);
         $criteria = $this->criteria($form1Data, self::$em);
 
@@ -58,10 +70,9 @@ class DomSecondController extends Controller
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
 
-            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT') {
+            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' && $form1Data['sousTypeDocument']->getCodeSousType() !== 'TROP PERCU') {
                 if ($verificationDateExistant) {
                     $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
-
                     $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
@@ -94,7 +105,8 @@ class DomSecondController extends Controller
         self::$twig->display('doms/secondForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
-            'criteria'      => $criteria
+            'criteria'      => $criteria,
+            'sousTypeDoc'   => $sousTypeDoc
         ]);
     }
 }

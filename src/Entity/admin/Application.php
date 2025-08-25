@@ -18,8 +18,43 @@ use Doctrine\Common\Collections\ArrayCollection;
  */
 class Application
 {
+    /** Identifiant de l'application DOM (Demande d'Ordre de Mission). */
+    public const ID_DOM = 1;
+    /** Identifiant de l'application BADM (Nouveau Bordereau d'acquisition et de mouvement matériel). */
+    public const ID_BADM = 2;
+    /** Identifiant de l'application CAS (Changement de Casier) */
+    public const ID_CAS = 3;
+    /** Identifiant de l'application DIT (Demande d'intervention) */
+    public const ID_DIT = 4;
+    /** Identifiant de l'application MAG (Magasin) */
+    public const ID_MAG = 5;
+    /** Identifiant de l'application REP (Reporting) */
+    public const ID_REP = 6;
+    /** Identifiant de l'application TIK (Demande de support informatique) */
+    public const ID_TIK = 7;
+    /** Identifiant de l'application CFR (Commande Fournisseur) */
+    public const ID_CFR = 8;
+    /** Identifiant de l'application DDP (Demande de paiement) */
+    public const ID_DDP = 9;
+    /** Identifiant de l'application MUT (Demande de mutation) */
+    public const ID_MUT = 10;
+    /** Identifiant de l'application DAP (Demande d'approvisionnement) */
+    public const ID_DAP = 11;
+    /** Identifiant de l'application INV (Inventaire) */
+    public const ID_INV = 12;
+    /** Identifiant de l'application LCF (Liste de commande fournisseur) */
+    public const ID_LCF = 13;
+    /** Identifiant de l'application DDR (Dossier de régulation DDP) */
+    public const ID_DDR = 14;
+    /** Identifiant de l'application PAT (Planning Atelier interne) */
+    public const ID_PAT = 15;
+    /** Identifiant de l'application DDC (Demande de congé) */
+    public const ID_DDC = 16;
+    /** Identifiant de l'application BDL (Bon de livraison) */
+    public const ID_BDL = 17;
+
     use DateTrait;
-    
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -42,7 +77,7 @@ class Application
      *
      * @var ?string
      */
-    private ?string $derniereId = null ;
+    private ?string $derniereId = null;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="applications")
@@ -62,7 +97,7 @@ class Application
         $this->categorieAtes = new ArrayCollection();
     }
 
-    
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,14 +125,14 @@ class Application
         return $this;
     }
 
-   
-   
+
+
     public function getDerniereId()
     {
         return $this->derniereId;
     }
 
-  
+
     public function setDerniereId(?string $derniereId): self
     {
         $this->derniereId = $derniereId;
@@ -105,7 +140,7 @@ class Application
         return $this;
     }
 
-     /**
+    /**
      * @return Collection|User[]
      */
     public function getUsers(): Collection
@@ -131,7 +166,7 @@ class Application
         return $this;
     }
 
-  
+
     public function getCategorieAtes(): Collection
     {
         return $this->categorieAtes;

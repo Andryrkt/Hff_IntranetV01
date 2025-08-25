@@ -2,19 +2,20 @@
 
 namespace App\Controller\Traits\magasin\cis;
 
+use App\Service\TableauEnStringService;
 use App\Entity\admin\utilisateur\User;
+use App\Controller\Controller;
 
 trait ALivrerTrait
 {
     private function agenceUser($autoriser): ?string
     {
-        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
-        if($autoriser)
-        {
-            $agenceUser = null;
+        if ($autoriser) {
+            $agenceUser = "''";
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() .'-'.$agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
         return $agenceUser;
@@ -40,14 +41,13 @@ trait ALivrerTrait
     {
         $tab = [];
         foreach ($tabs as  $values) {
-            if(is_array($values)){
+            if (is_array($values)) {
                 foreach ($values as $value) {
                     $tab[] = $value;
                 }
             } else {
                 $tab[] = $values;
             }
-            
         }
 
         return $tab;

@@ -8,173 +8,175 @@
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	{# {% include "/partials/_loader.html.twig" %} #}
-	{% set role_ids = App.user.roleIds %}
-	{% set user_connecter = App.user.nom_utilisateur %}
+{# {% include "/partials/_loader.html.twig" %} #}
+{% set role_ids = App.user.roleIds %}
+{% set user_connecter = App.user.nom_utilisateur %}
 
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste des Demandes d'intervention
-		</h3>
-		{% include "/partials/_notification.html.twig" %}
+<div class="container">
+	<h3 class="perso-titre">
+		Liste des Demandes d'intervention
+	</h3>
+	{% include "/partials/_notification.html.twig" %}
 
-		{% include "/dit/shared/_formulaireRecherche.html.twig" %}
-		<div class="row">
+	{% include "/dit/shared/_formulaireRecherche.html.twig" %}
+	<div class="row">
 
-			<div class=" col-12 col-md-5 my-3">
-				<i class="fa-solid fa-circle text-info"></i>
-				<small class="text-info">Partiellement dispo |</small>
-				<i class="fa-solid fa-circle text-primary"></i>
-				<small class="text-primary">Complet non livré |</small>
-				<i class="fa-solid fa-circle text-warning"></i>
-				<small class="text-warning">Partiellement livré |</small>
-				<i class="fa-solid fa-circle text-success"></i>
-				<small class="text-success">Tout livré
-				</small>
-			</div>
+		<div class=" col-12 col-md-5 my-3">
+			<i class="fa-solid fa-circle text-info"></i>
+			<small class="text-info">Partiellement dispo |</small>
+			<i class="fa-solid fa-circle text-primary"></i>
+			<small class="text-primary">Complet non livré |</small>
+			<i class="fa-solid fa-circle text-warning"></i>
+			<small class="text-warning">Partiellement livré |</small>
+			<i class="fa-solid fa-circle text-success"></i>
+			<small class="text-success">Tout livré
+			</small>
+		</div>
 
-			<div class="col-12 col-md-7 my-3">
-				{% include "/dit/shared/_carteStatut.html.twig" %}
-			</div>
-
+		<div class="col-12 col-md-7 my-3">
+			{% include "/dit/shared/_carteStatut.html.twig" %}
 		</div>
 
 	</div>
 
-	<div
-		class="container-fluid">
-		<!-- DEBUT tableau -->
-		{% if empty == true %}
-			<div class="container">
-				{% include "/partials/_noResultList.html.twig" %}
-			</div>
-		{% else %}
-			<div class="container">
-				{% include "/dit/shared/_pagination.html.twig" %}
-			</div>
+</div>
 
-			<table class="table rounded table-plein-ecran">
-				<thead class="table-dark">
-					<tr>
-						<th>
-							<i class="fas fa-ellipsis-vertical"></i>
-						</th>
-						<th>Statut</th>
-						<th>N° DIT</th>
-						<th>Type document</th>
-						<th>Niveau urgence</th>
-						<th>Catégorie</th>
-						<th>N° Série</th>
-						<th>N° Parc</th>
-						<th>Date Demande</th>
-						<th>Int / Ext</th>
-						<th>Emetteur</th>
-						<th>Débiteur</th>
-						<th>Objet</th>
-						<th>Section affectée</th>
-						<th>N° devis</th>
-						<th>Statut Devis</th>
-						<th>N° OR</th>
-						<th class="fw-bold">Statut OR</th>
-						{# <th>Statut Livraison Pièces</th> #}
-						{# <th>Statut Achats Locaux</th> #}
-						<th>Statut facture</th>
-						<th>RI</th>
-						<th>Nbr PJ</th>
-						<th>Utilisateur</th>
-					</tr>
-				</thead>
-				<tbody>
-					{# DEBUT LOGIQUE #}
-					{% for item in data %}
+<div
+	class="container-fluid">
+	<!-- DEBUT tableau -->
+	{% if empty == true %}
+		<div class="container">
+			{% include "/partials/_noResultList.html.twig" %}
+		</div>
+	{% else %}
+		<div class="container">
+			{% include "/dit/shared/_pagination.html.twig" %}
+		</div>
+
+		<table class="table rounded table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th>Statut</th>
+					<th>N° DIT</th>
+					<th>Type document</th>
+					<th>Niveau urgence</th>
+					<th>Catégorie</th>
+					<th>N° Série</th>
+					<th>N° Parc</th>
+					<th>Date Demande</th>
+					<th>Int / Ext</th>
+					<th>Emetteur</th>
+					<th>Débiteur</th>
+					<th>Objet</th>
+					<th>Section affectée</th>
+					<th>N° devis</th>
+					<th>Statut Devis</th>
+					<th>N° OR</th>
+					<th class="fw-bold">Statut OR</th>
+					<th>Montant Total OR</th>
+					<th>Date Soumission OR</th>
+					{# <th>Statut Livraison Pièces</th> #}
+					{# <th>Statut Achats Locaux</th> #}
+					<th>Statut facture</th>
+					<th>RI</th>
+					<th>Nbr PJ</th>
+					<th>Utilisateur</th>
+				</tr>
+			</thead>
+			<tbody>
+				{# DEBUT LOGIQUE #}
+				{% for item in data %}
+					{% set classeStatutDit = '' %}
+					{% set styleStatutDit = '' %}
+
+					{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
+						{% set classeStatutDit ='aAffecter' %}
+					{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
+						{% set classeStatutDit ='affecterSection' %}
+					{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
+						{% set classeStatutDit ='cloturerValider' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
+						{% set classeStatutDit ='cloturerAnnuler' %}
+					{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
+						{% set classeStatutDit ='cloturerHorsDelai' %}
+					{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
+						{% set classeStatutDit ='terminer' %}
+					{% else %}
 						{% set classeStatutDit = '' %}
-						{% set styleStatutDit = '' %}
+					{% endif %}
 
-						{% if item.idStatutDemande.description | trim == 'A AFFECTER' %}
-							{% set classeStatutDit ='aAffecter' %}
-						{% elseif item.idStatutDemande.description | trim == 'AFFECTEE SECTION'  %}
-							{% set classeStatutDit ='affecterSection' %}
-						{% elseif  item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' %}
-							{% set classeStatutDit ='cloturerValider' %}
-						{% elseif item.idStatutDemande.description | trim == 'CLOTUREE ANNULEE' %}
-							{% set classeStatutDit ='cloturerAnnuler' %}
-						{% elseif item.idStatutDemande.description | trim == 'CLOTUREE HORS DELAI ' %}
-							{% set classeStatutDit ='cloturerHorsDelai' %}
-						{% elseif item.idStatutDemande.description | trim == 'TERMINEE' %}
-							{% set classeStatutDit ='terminer' %}
-						{% else %}
-							{% set classeStatutDit = '' %}
-						{% endif %}
-
+					{% set classeQuatreStatutOr = '' %}
+					{% if item.quatrestatutor == 'Tout livré' %}
+						{# total livré #}
+						{% set classeQuatreStatutOr = 'bg-success text-white' %}
+					{% elseif item.quatrestatutor == 'Partiellement livré' %}
+						{# partiellement livré #}
+						{% set classeQuatreStatutOr = 'bg-warning text-white' %}
+					{% elseif item.quatrestatutor == 'Partiellement dispo' %}
+						{% set classeQuatreStatutOr = 'bg-info text-white' %}
+						{# partiellement dispo #}
+					{%  elseif item.quatrestatutor == 'Complet non livré' %}
+						{% set classeQuatreStatutOr = 'bg-primary text-white' %}
+						{# complet non livré #}
+					{% else %}
 						{% set classeQuatreStatutOr = '' %}
-						{% if item.quatrestatutor == 'Tout livré' %}
-							{# total livré #}
-							{% set classeQuatreStatutOr = 'bg-success text-white' %}
-						{% elseif item.quatrestatutor == 'Partiellement livré' %}
-							{# partiellement livré #}
-							{% set classeQuatreStatutOr = 'bg-warning text-white' %}
-						{% elseif item.quatrestatutor == 'Partiellement dispo' %}
-							{% set classeQuatreStatutOr = 'bg-info text-white' %}
-							{# partiellement dispo #}
-						{%  elseif item.quatrestatutor == 'Complet non livré' %}
-							{% set classeQuatreStatutOr = 'bg-primary text-white' %}
-							{# complet non livré #}
-						{% else %}
-							{% set classeQuatreStatutOr = '' %}
-						{% endif %}
-						{# FIN LOGIQUE #}
-						<tr>
-							{# Début Action #}
-							<td class="align-middle" style="padding: 0px">
-								<div class="dropdown">
-									<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="fas fa-ellipsis-vertical"></i>
-									</button>
-									<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
-										<li>
-											<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
-										</li>
-										<li>
-											{% if item.estOrASoumi %}
-												<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Soumission document à valider</a>
-											{% endif %}
-										</li>
-										<li>
-											<a class="dropdown-item fw-bold" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeIntervention})}}">Dossier DIT</a>
-										</li>
-										<li>
-											{% if item.idStatutDemande.description | trim == 'A AFFECTER' or item.idStatutDemande.description | trim == 'AFFECTEE SECTION' or (item.idStatutDemande.description | trim == 'CLOTUREE VALIDEE' and (9 in role_ids or item.utilisateurDemandeur == user_connecter)) %}
-												<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
-											{% endif %}
-										</li>
-									</ul>
-								</div>
-							</td>
-							{# Fin Actions #}
+					{% endif %}
+					{# FIN LOGIQUE #}
+					<tr>
+						{# Début Action #}
+						<td class="align-middle" style="padding: 0px">
+							<div class="dropdown">
+								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+									<i class="fas fa-ellipsis-vertical"></i>
+								</button>
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+									<li>
+										<a class="dropdown-item fw-bold" href="{{ path("dit_duplication", {id: item.id, numDit: item.numeroDemandeIntervention})}}">Dupliquer</a>
+									</li>
+									<li>
+										{% if item.estOrASoumi %}
+											<a class="dropdown-item fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#docDansDw" data-id="{{item.numeroDemandeIntervention}}" id="">Soumission document à valider</a>
+										{% endif %}
+									</li>
+									<li>
+										<a class="dropdown-item fw-bold" target="_blank" href="{{ path("dw_interv_ate_avec_dit", {numDit: item.numeroDemandeIntervention})}}">Dossier DIT</a>
+									</li>
+									<li>
+										{% if item.estAnnulable %}
+											<a class="dropdown-item fw-bold clotureDit" href="{{ path("cloturer_annuler_dit_liste", {id: item.id})}}" data-id="{{ item.id }}">Clôturer la DIT</a>
+										{% endif %}
+									</li>
+								</ul>
+							</div>
+						</td>
+						{# Fin Actions #}
 
-							{# DEBUT Statut #}
+						{# DEBUT Statut #}
 
-							<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
+						<td class="{{classeStatutDit}}" style="{{styleStatutDit}}">{{item.idStatutDemande.description | trim}}</td>
 
-							{# FIN Statut #}
+						{# FIN Statut #}
 
-							<td>
-								<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
-							</td>
-							<td>{{ item.typeDocument.description}}</td>
-							<td class="text-center">
-								{{ item.idNiveauUrgence.description}}
-							</td>
-							<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
-							<td>{{ item.numSerie}}</td>
-							<td>{{ item.numParc}}</td>
-							<td>{{ item.dateDemande|date('d/m/Y')}}</td>
-							<td>{{ item.internetExterne}}</td>
-							<td>{{ item.agenceServiceEmetteur }}</td>
-							<td>{{ item.agenceServiceDebiteur}}</td>
-							<td>
-								{{ item.objetDemande}}</td>
-							{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
+						<td>
+							<a href="{{ path("dit_validationDit", {id: item.id, numDit: item.numeroDemandeIntervention})}}" target="_blank" data-bs-toggle="tooltip" title="Afficher le détail">{{ item.numeroDemandeIntervention }}</a>
+						</td>
+						<td>{{ item.typeDocument.description}}</td>
+						<td class="text-center">
+							{{ item.idNiveauUrgence.description}}
+						</td>
+						<td>{{item.categorieDemande.libelleCategorieAteApp}}</td>
+						<td>{{ item.numSerie}}</td>
+						<td>{{ item.numParc}}</td>
+						<td>{{ item.dateDemande|date('d/m/Y')}}</td>
+						<td>{{ item.internetExterne}}</td>
+						<td>{{ item.agenceServiceEmetteur }}</td>
+						<td>{{ item.agenceServiceDebiteur}}</td>
+						<td>
+							{{ item.objetDemande}}</td>
+						{% set mots_a_supprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'] %}
 							<td>
 								<a href="#" data-bs-toggle="modal" data-bs-target="#sectionAffectee" data-id="{{item.id}}" id="">
 									{{ item.sectionAffectee | remove_words(mots_a_supprimer)}}
@@ -190,6 +192,8 @@
 
 							{# <td class="fw-bold {{classeQuatreStatutOr}} ">{{ item.quatrestatutor}}</td> #}
 							<td class="fw-bold ">{{ item.statutor}}</td>
+							<td style="text-align: right;">{{ item.montantTotalOR is not null ? item.montantTotalOR|number_format(2, ',', '.') : '' }}</td>
+							<td>{{ item.dateSoumissionOR is not null ? item.dateSoumissionOR|date('d/m/Y') : '' }}</td>
 							{# <td>{{ item.statutachatpiece}}</td> #}
 							{# <td>{{ item.statutachatlocaux}}</td> #}
 							<td>
@@ -221,4 +225,4 @@
 	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDit.js" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/dit/listDitModal.js" type="module"></script>
-{% endblock %}
+{% endblock %} 

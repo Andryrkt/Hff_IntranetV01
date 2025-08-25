@@ -2,33 +2,42 @@
 
 namespace App\Controller\dom;
 
-use App\Controller\Controller;
-use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\dom\DomListeTrait;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
+use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomSearchType;
+use App\Entity\admin\Application;
+use App\Entity\admin\utilisateur\User;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/rh/ordre-de-mission")
+ */
 class DomsListeController extends Controller
 {
 
     use ConversionTrait;
     use DomListeTrait;
     use FormatageTrait;
+    use AutorisationTrait;
 
     /**
      * affichage de l'architecture de la liste du DOM
-     * @Route("/dom-liste", name="doms_liste")
+     * @Route("/liste", name="doms_liste")
      */
     public function listeDom(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
+        /** FIN AUtorisation acées */
 
         $autoriser = $this->autorisationRole(self::$em);
 
@@ -57,12 +66,13 @@ class DomsListeController extends Controller
         $limit = 10;
 
         $option = [
-            'boolean' => $autoriser,
+            'boolean'  => $autoriser,
             'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
-        $repository = self::$em->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+
+        $this->statutTropPercuDomList($paginationData['data']);
 
         //enregistre le critère dans la session
         $this->sessionService->set('dom_search_criteria', $criteria);
@@ -70,15 +80,15 @@ class DomsListeController extends Controller
 
         $criteriaTab = $criteria;
 
+        $criteriaTab['statut']           = $criteria['statut']           ? $criteria['statut']->getDescription()            : $criteria['statut'];
+        $criteriaTab['dateDebut']        = $criteria['dateDebut']        ? $criteria['dateDebut']->format('d-m-Y')          : $criteria['dateDebut'];
+        $criteriaTab['dateFin']          = $criteria['dateFin']          ? $criteria['dateFin']->format('d-m-Y')            : $criteria['dateFin'];
+        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin']   ? $criteria['dateMissionFin']->format('d-m-Y')     : $criteria['dateMissionFin'];
         $criteriaTab['sousTypeDocument'] = $criteria['sousTypeDocument'] ? $criteria['sousTypeDocument']->getCodeSousType() : $criteria['sousTypeDocument'];
-        $criteriaTab['statut']           = $criteria['statut'] ? $criteria['statut']->getDescription() : $criteria['statut'];
-        $criteriaTab['dateDebut']        = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : $criteria['dateDebut'];
-        $criteriaTab['dateFin']          = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : $criteria['dateFin'];
-        $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y') : $criteria['dateMissionDebut'];
-        $criteriaTab['dateMissionFin']   = $criteria['dateMissionFin'] ? $criteria['dateMissionFin']->format('d-m-Y') : $criteria['dateMissionFin'];
+        $criteriaTab['dateMissionDebut'] = $criteria['dateMissionDebut'] ? $criteria['dateMissionDebut']->format('d-m-Y')   : $criteria['dateMissionDebut'];
 
-        // Filtrer les critères pour supprimer les valeurs "falsy"
-        $filteredCriteria = array_filter($criteriaTab);
+        // Filtrer les critères pour supprimer les valeurs null
+        $filteredCriteria = array_filter($criteriaTab, fn($v) => $v !== null);
 
         // Déterminer le type de log
         $logType = empty($filteredCriteria) ? ['doms_liste'] : ['doms_liste_search', $filteredCriteria];
@@ -89,12 +99,13 @@ class DomsListeController extends Controller
         self::$twig->display(
             'doms/list.html.twig',
             [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
+                'form'        => $form->createView(),
+                'data'        => $paginationData['data'],
+                'page'        => 'doms_liste',
                 'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
+                'lastPage'    => $paginationData['lastPage'],
+                'resultat'    => $paginationData['totalItems'],
+                'criteria'    => $criteria,
             ]
         );
     }
@@ -210,8 +221,7 @@ class DomsListeController extends Controller
             'boolean' => $autoriser,
             'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
-        $repository = self::$em->getRepository(Dom::class);
-        $paginationData = $repository->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
 
 
         //enregistre le critère dans la session
@@ -225,6 +235,7 @@ class DomsListeController extends Controller
             [
                 'form' => $form->createView(),
                 'data' => $paginationData['data'],
+                'page' => 'dom_list_annuler',
                 'currentPage' => $paginationData['currentPage'],
                 'lastPage' => $paginationData['lastPage'],
                 'resultat' => $paginationData['totalItems'],

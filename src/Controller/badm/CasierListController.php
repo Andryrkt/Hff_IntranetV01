@@ -3,24 +3,34 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
+use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Controller\Traits\Transformation;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/materiel/casier")
+ */
 class CasierListController extends Controller
 {
 
     use Transformation;
+    use AutorisationTrait;
 
     /**
-     * @Route("/listCasier", name="liste_affichageListeCasier")
+     * @Route("/liste", name="liste_affichageListeCasier")
      */
     public function AffichageListeCasier(Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_CAS);
+        /** FIN AUtorisation acées */
 
         $form = self::$validator->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'

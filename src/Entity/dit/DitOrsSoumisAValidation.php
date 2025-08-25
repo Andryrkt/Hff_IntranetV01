@@ -15,6 +15,11 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
  */
 class DitOrsSoumisAValidation
 {
+
+    public const STATUT_VALIDE = 'Validé';
+    public const STATUT_VIDE = '';
+    public const STATUT_A_RESOUMETTRE_A_VALIDATION = 'A resoumettre à validation';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -22,13 +27,15 @@ class DitOrsSoumisAValidation
      */
     private $id;
 
-
+    /**
+     * @ORM\Column(type="string", length=11, name="numeroDIT")
+     */
     private ?string $numeroDit = null;
 
     /**
      * @ORM\Column(type="string", length=8)
      */
-    private ?string $numeroOR;
+    private ?string $numeroOR = '';
 
     /**
      * @ORM\Column(type="integer")
@@ -519,7 +526,7 @@ class DitOrsSoumisAValidation
 
     /**
      * Get the value of migration
-     */ 
+     */
     public function getMigration()
     {
         return $this->migration;
@@ -529,7 +536,7 @@ class DitOrsSoumisAValidation
      * Set the value of migration
      *
      * @return  self
-     */ 
+     */
     public function setMigration($migration)
     {
         $this->migration = $migration;

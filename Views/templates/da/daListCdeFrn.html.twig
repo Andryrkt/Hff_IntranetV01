@@ -1,0 +1,115 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+{% endblock %}
+
+{% block content %}
+	{% set styleStatutBC = {
+		'A générer': 'bg-bc-a-generer fw-bold',
+		'A éditer': 'bg-bc-a-editer fw-bold',
+		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
+		'Validé': 'bg-bc-valide fw-bold',
+		'Cloturé': 'bg-bc-valide fw-bold',
+		'Non validé': 'bg-bc-non-valide fw-bold',
+        'Tout livré': 'tout-livre bg-success text-white',
+        'Partiellement livré' : 'partiellement-livre bg-warning text-white',
+        'Partiellement dispo' : 'partiellement-dispo bg-info text-white',
+        'Complet non livré' : 'complet-non-livre bg-primary text-white'
+	} %}
+
+	<div class="container-fluid">
+		<div class="sticky-header-titre">
+			<div class="mb-3 container">
+				<h3 class="perso-titre">
+					Liste des commandes fournisseurs
+				</h3>
+				{% include "/partials/_notification.html.twig" %}
+				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
+
+			</div>
+		</div>
+
+		<table class="table table-plein-ecran">
+			<thead class="table-dark">
+				<tr>
+					<th class="text-center">N° DA</th>
+					<th class="text-center">Achat direct</th>
+					<th class="text-center">N° DIT</th>
+					<th class="text-center">Niv. Urgence</th>
+					<th class="text-center">N° OR</th>
+					<th class="text-center">Date planning OR</th>
+					<th class="text-center">N° Fournisseur</th>
+					<th class="text-center">Fournisseur</th>
+					<th class="text-center">N° Commande</th>
+					<th class="text-center">Statut BC</th>
+					<th class="text-center">Date fin souhaité</th>
+					<th class="text-center">Réference</th>
+					<th class="text-center">Désignation</th>
+					<th class="text-center">Qté demandée</th>
+					<th class="text-center">Qté en attente</th>
+					<th class="text-center">Qté Dispo (Qté à livrer)</th>
+					<th class="text-center">Qté livrée</th>
+					<th class="text-center">Date livraison prévue</th>
+					<th class="text-center">Nb jours dispo</th>
+					<th class="text-center">Demandeur</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in daAfficherValides %}
+
+					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
+					<tr>
+						<td class="text-center">
+							<a href="{{ path(url_detail, { id: item.demandeAppro.id }) }}" target="_blank">
+								{{ item.numeroDemandeAppro }}
+							</a>
+						</td>
+						<td class="text-center">
+							{% if item.achatDirect %}
+								<i class="fas fa-check text-success"></i>
+							{% endif %}
+						</td>
+						<td class="text-center">{{ item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}</td>
+						<td class="text-center">{{ item.niveauUrgence }}</td>
+						<td class="text-center">{{ item.numeroOr|default('<i class="fas fa-ban text-muted"></i>')|raw }}</td>
+						<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' : item.datePlannigOr == null ? '': item.datePlannigOr| date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.numeroFournisseur }}</td>
+						<td class="text-center">{{ item.nomFournisseur }}</td>
+						{% if item.numeroCde %}
+							<td class="text-center commande-cellule commande" data-commande-id="{{item.numeroCde}}" data-num-da="{{item.numeroDemandeAppro}}" data-num-or="{{item.numeroOr}}" data-statut-bc="{{item.statutCde}}" data-position-cde="{{item.positionBc}}">
+								{{ item.numeroCde }}
+							</td>
+						{% else %}
+							<td class="text-center">
+								{{ item.numeroCde }}
+							</td>
+						{% endif %}
+
+						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
+						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.artRefp }}</td>
+						<td class="text-left">{{ item.artDesi }}</td>
+						<td class="text-center ">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
+						<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
+						<td class="text-center">{{ item.qteALivrer == 0 ? '-': item.qteALivrer }}</td>
+						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
+						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue| date('d/m/Y')}}</td>
+						<td class="text-center">{{ item.joursDispo}}</td>
+						<td class="text-center">{{ item.demandeur}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	<!-- FIN tableau -->
+	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js" type="module"></script>
+{% endblock %}

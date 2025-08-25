@@ -1,17 +1,11 @@
 import { handleActionClick } from './tikFormHandler.js';
 
-import { disableForm } from '../utils/formUtils.js';
-
 import { resetDropdown } from '../utils/dropdownUtils.js';
 
 import { updateDropdown } from '../utils/selectionHandler.js';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (document.getElementById('formTik').getAttribute('edit') === 'false') {
-    disableForm('formTik');
-  } else {
-    handleActionClick('valider');
-  }
+  handleActionClick('valider', 'formTik');
 
   // Boutons d'action
   const buttons = [
@@ -22,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   buttons.forEach(({ id, action }) => {
     const btn = document.querySelector(id);
-    btn?.addEventListener('click', () => handleActionClick(action));
+    btn?.addEventListener('click', () => handleActionClick(action, 'formTik'));
   });
 
   // catégorie, sous-catégorie et autre catégorie

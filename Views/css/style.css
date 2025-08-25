@@ -1,11 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Nandinagari&display=swap");
+
+/* ========================================================================= */
+/* GENERALES */
+/* ========================================================================= */
 html {
   height: 100%;
+  overflow-y: scroll;
 }
 
 body {
+  overflow-x: hidden;
   background-color: #f8f9fa;
-  font-family: 'Noto Sans Nandinagari', sans-serif;
+  font-family: "Noto Sans Nandinagari", sans-serif;
   font-size: 0.6875rem;
   height: 100%;
 }
@@ -60,7 +66,9 @@ label {
   border-radius: 5px;
 }
 
+/* ========================================================================= */
 /* CHONOMETTRE */
+/* ========================================================================= */
 .chrono-container {
   display: flex;
   flex-direction: column;
@@ -92,7 +100,9 @@ label {
   font-weight: bold;
 }
 
-/* Overlay */
+/* ========================================================================= */
+/* OVERLAY */
+/* ========================================================================= */
 #loading-overlays {
   position: fixed;
   top: 0;
@@ -108,58 +118,63 @@ label {
   z-index: 9999;
 }
 
-
-/* Caché : avec une transition */
-/* #loading-overlay.hidden {
-  visibility: hidden;
-  opacity: 0;
-} */
-
-/* Spinner */
-/* .spinner-overlay {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #dbc234;
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  animation: spin 1s linear infinite;
+#loading-overlays.hidden {
+  display: none !important;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-} */
+#loading-overlays.active {
+  display: flex; /* ou block selon ton design */
+  position: fixed;
+  inset: 0; /* couvre tout l'écran */
+  z-index: 9999; /* au-dessus de tout quand actif */
+}
+
 .text-overlay {
   font-size: large;
 }
 
-.spinner-overlay {
+/* ========================================================================= */
+/* SPINNER */
+/* ========================================================================= */
+.little-spinner-overlay,
+.little-spinner-overlay::after {
+  width: 25px;
+  height: 25px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after {
   width: 48px;
   height: 48px;
+}
+
+.spinner-overlay,
+.spinner-overlay::after,
+.little-spinner-overlay,
+.little-spinner-overlay::after {
   border-radius: 50%;
+  box-sizing: border-box;
+}
+
+.spinner-overlay,
+.little-spinner-overlay {
   display: inline-block;
   border-top: 4px solid #fff;
   border-right: 4px solid transparent;
-  box-sizing: border-box;
   animation: rotation 1s linear infinite;
 }
-.spinner-overlay::after {
-  content: '';
-  box-sizing: border-box;
+
+.spinner-overlay::after,
+.little-spinner-overlay::after {
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
   border-left: 4px solid #d6a105;
   border-bottom: 4px solid transparent;
   animation: rotation 0.5s linear infinite reverse;
 }
+
 @keyframes rotation {
   0% {
     transform: rotate(0deg);
@@ -167,4 +182,171 @@ label {
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* ========================================================================= */
+/* TOAST */
+/* ========================================================================= */
+.toast.show {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================================================= */
+/* SWEETALERT */
+/* ========================================================================= */
+div:where(.swal2-container) div:where(.swal2-popup) span {
+  font-size: 1rem !important;
+}
+
+button.swal2-styled {
+  font-size: 1em !important;
+}
+
+/* ========================================================================= */
+/* DROPDOWN */
+/* ========================================================================= */
+.dropdown-grid {
+  display: grid;
+  gap: 0.5rem 1rem;
+  grid-template-columns: repeat(var(--col-count, 1), 1fr);
+  align-items: start;
+}
+
+.dropdown-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.dropdown-line {
+  min-height: 109px;
+  margin-bottom: 1rem;
+}
+
+.dropdown-header {
+  color: #616161;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  /* color: #fff; */
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #fdc7149f;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  color: #dee2e6; /* Couleur de texte claire pour le thème sombre */
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  margin: 0.15rem 0;
+}
+
+.dropdown-item:hover {
+  background-color: #fdc714 !important; /* Orange vif */
+  color: #000 !important;
+  font-weight: bold;
+  transform: translateX(3px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.dropdown-item:hover i {
+  animation: itemPulse 0.5s ease;
+}
+
+@keyframes itemPulse {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.dropdown-hover .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%; /* juste en dessous du lien */
+  left: 0;
+  z-index: 1000;
+  background: white;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu a {
+  display: block;
+  padding: 8px 12px;
+  text-decoration: none;
+}
+
+.dropdown-hover:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-hover:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu a:hover {
+  background-color: #f5f5f5;
+}
+
+.dropdown-menu {
+  background-color: #000;
+}
+
+.guide-link {
+  display: block; /* occupe toute la largeur comme un menu */
+  padding: 0.5rem 1rem; /* équivalent px-4 / py-2 */
+  background-color: var(--bs-primary); /* bleu bootstrap */
+  color: #fff; /* texte blanc */
+  font-weight: 400; /* fw-normal */
+  font-size: 0.875rem; /* fs-7 */
+  text-decoration: none; /* pas de soulignement */
+  border-radius: 0.25rem; /* petit arrondi (optionnel) */
+}
+
+.guide-link:hover {
+  background-color: #0b5ed7; /* bleu un peu plus foncé (hover Bootstrap) */
+  color: #fff;
+}
+
+.app-version {
+  display: inline-flex; /* alignement icône + texte */
+  align-items: center;
+  gap: 0.5rem; /* espace entre icône et texte */
+  padding: 0.25rem 0.75rem; /* un peu plus compact que guide-link */
+  background-color: var(--bs-secondary); /* couleur différente du guide */
+  color: #fff;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.app-version:hover {
+  background-color: #6c757d; /* gris un peu plus foncé au hover */
+  color: #fff;
+}
+
+.swal-text-left {
+  text-align: left;
 }

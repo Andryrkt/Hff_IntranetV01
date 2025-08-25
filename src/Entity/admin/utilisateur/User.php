@@ -5,14 +5,17 @@ namespace App\Entity\admin\utilisateur;
 use App\Entity\cas\Casier;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
+use App\Controller\Controller;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
+use App\Entity\da\DemandeAppro;
 use App\Entity\tik\TkiPlanning;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\Application;
 use App\Entity\dit\CommentaireDitOr;
 use App\Entity\admin\utilisateur\Role;
+use App\Entity\tik\TkiReplannification;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\utilisateur\Fonction;
 use Doctrine\Common\Collections\Collection;
@@ -31,6 +34,8 @@ use App\Entity\admin\historisation\pageConsultation\UserLogger;
 class User implements UserInterface
 {
     use DateTrait;
+
+    public const PROFIL_CHEF_ATELIER = 9;
 
     /**
      * @ORM\Id
@@ -89,9 +94,9 @@ class User implements UserInterface
 
 
     /**
-     * @ORM\Column(type="json", nullable=true)
+     * @ORM\Column(type="string", name="superieurs", nullable=true)
      */
-    private $superieurs = [];
+    private $superieur;
 
 
     /**
@@ -142,6 +147,16 @@ class User implements UserInterface
     private $commentaireDitOr;
 
     /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="user")
+     */
+    private $demandeApproUser;
+
+    /**
+     * @ORM\OneToOne(targetEntity=DemandeAppro::class, mappedBy="validateur")
+     */
+    private $demandeApproValidateur;
+
+    /**
      * @ORM\OneToMany(targetEntity=DemandeSupportInformatique::class, mappedBy="userId")
      */
     private $supportInfoUser;
@@ -156,11 +171,15 @@ class User implements UserInterface
      */
     private $supportInfoValidateur;
 
-
     /**
      * @ORM\OneToMany(targetEntity=TkiPlanning::class, mappedBy="userId")
      */
     private $tikPlanningUser;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TkiReplannification::class, mappedBy="user")
+     */
+    private $replanificationUser;
 
     /**
      * @ORM\OneToMany(targetEntity=UserLogger::class, mappedBy="user", cascade={"persist", "remove"})
@@ -192,6 +211,7 @@ class User implements UserInterface
         $this->permissions = new ArrayCollection();
         $this->commentaireDitOr = new ArrayCollection();
         $this->supportInfoUser = new ArrayCollection();
+        $this->demandeApproUser = new ArrayCollection();
         $this->supportInfoIntervenant = new ArrayCollection();
         $this->tikPlanningUser = new ArrayCollection();
         $this->userLoggers = new ArrayCollection();
@@ -326,49 +346,18 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getSuperieurs(): array
+    public function getSuperieur()
     {
-        if ($this->superieurs !== null) {
-            return $this->superieurs;
-        } else {
-            return [];
-        }
+        return $this->superieur;
     }
 
-    public function setSuperieurs(array $superieurs): self
+    public function setSuperieur($superieur): self
     {
-        $this->superieurs = $superieurs;
+        $this->superieur = $superieur;
 
         return $this;
     }
 
-    public function addSuperieur(User $superieurId): self
-    {
-
-        $superieurIds[] = $superieurId->getId();
-
-        if ($this->superieurs === null) {
-            $this->superieurs = [];
-        }
-
-        if (!in_array($superieurIds, $this->superieurs, true)) {
-            $this->superieurs[] = $superieurId;
-        }
-
-        return $this;
-    }
-
-    public function removeSuperieur(User $superieurId): self
-    {
-        $superieurIds[] = $superieurId->getId();
-
-        if (($key = array_search($superieurId, $this->superieurs, true)) !== false) {
-            unset($this->superieurs[$key]);
-            $this->superieurs = array_values($this->superieurs);
-        }
-
-        return $this;
-    }
 
     /**
      * Get the value of demandeInterventions
@@ -605,7 +594,7 @@ class User implements UserInterface
     {
         if (!$this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser[] = $tikPlanningUser;
-            $tikPlanningUser->setUserId($this);
+            $tikPlanningUser->setUser($this);
         }
 
         return $this;
@@ -615,8 +604,8 @@ class User implements UserInterface
     {
         if ($this->tikPlanningUser->contains($tikPlanningUser)) {
             $this->tikPlanningUser->removeElement($tikPlanningUser);
-            if ($tikPlanningUser->getUserId() === $this) {
-                $tikPlanningUser->setUserId(null);
+            if ($tikPlanningUser->getUser() === $this) {
+                $tikPlanningUser->setUser(null);
             }
         }
 
@@ -666,7 +655,33 @@ class User implements UserInterface
         })->toArray();
     }
 
+    /**
+     * RECUPERE LES codes de l'agence Autoriser
+     */
+    public function getAgenceAutoriserCode(): array
+    {
+        return $this->agencesAutorisees->map(function ($agenceAutorise) {
+            return $agenceAutorise->getCodeAgence();
+        })->toArray();
+    }
 
+
+    /**
+     * RECUPERE LES code du service Autoriser
+     */
+    public function getServiceAutoriserCode(): array
+    {
+        return $this->serviceAutoriser->map(function ($serviceAutorise) {
+            return $serviceAutorise->getCodeService();
+        })->toArray();
+    }
+
+
+    /**
+     * RECUPERE LES id de l'application
+     *
+     * @return array
+     */
     public function getApplicationsIds(): array
     {
         return $this->applications->map(function ($app) {
@@ -674,6 +689,36 @@ class User implements UserInterface
         })->toArray();
     }
 
+    public function getAgenceIdUser()
+    {
+        $agenceRepository = Controller::getEntity()->getRepository(Agence::class);
+        return $agenceRepository->findOneBy(['codeAgence' => $this->getCodeAgenceUser()])->getId();
+    }
+
+    public function getServiceIdUser()
+    {
+        $serviceRepository = Controller::getEntity()->getRepository(Service::class);
+        return  $serviceRepository->findOneBy(['codeService' => $this->getCodeServiceUser()])->getId();
+    }
+
+    public function getCodeAgenceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;
+    }
+
+    public function getCodeServiceUser()
+    {
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getServiceIps() : null;
+    }
+
+    public function getChefService()
+    {
+        if ($this->agenceServiceIrium && method_exists($this->agenceServiceIrium, '__load')) {
+            $this->agenceServiceIrium->__load();
+        }
+
+        return $this->agenceServiceIrium ? $this->agenceServiceIrium->getChefServiceId() : null;
+    }
 
     public function getPassword() {}
 
@@ -724,7 +769,7 @@ class User implements UserInterface
      * Get the value of numTel
      *
      * @return  string
-     */ 
+     */
     public function getNumTel()
     {
         return $this->numTel;
@@ -736,7 +781,7 @@ class User implements UserInterface
      * @param  string  $numTel
      *
      * @return  self
-     */ 
+     */
     public function setNumTel(string $numTel)
     {
         $this->numTel = $numTel;
@@ -748,7 +793,7 @@ class User implements UserInterface
      * Get the value of poste
      *
      * @return  string
-     */ 
+     */
     public function getPoste()
     {
         return $this->poste;
@@ -760,10 +805,92 @@ class User implements UserInterface
      * @param  string  $poste
      *
      * @return  self
-     */ 
+     */
     public function setPoste(string $poste)
     {
         $this->poste = $poste;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of replanificationUser
+     */
+    public function getReplanificationUser()
+    {
+        return $this->replanificationUser;
+    }
+
+    /**
+     * Set the value of replanificationUser
+     *
+     * @return  self
+     */
+    public function setReplanificationUser($replanificationUser)
+    {
+        $this->replanificationUser = $replanificationUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproUser
+     */
+    public function getDemandeApproUser()
+    {
+        return $this->demandeApproUser;
+    }
+
+    public function addDemandeApproUser(DemandeAppro $demandeApproUser): self
+    {
+        if (!$this->demandeApproUser->contains($demandeApproUser)) {
+            $this->demandeApproUser[] = $demandeApproUser;
+            $demandeApproUser->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeApproUser(DemandeAppro $demandeApproUser): self
+    {
+        if ($this->demandeApproUser->contains($demandeApproUser)) {
+            $this->demandeApproUser->removeElement($demandeApproUser);
+            if ($demandeApproUser->getUser() === $this) {
+                $demandeApproUser->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of demandeApproUser
+     *
+     * @return  self
+     */
+    public function setDemandeApproUser($demandeApproUser)
+    {
+        $this->demandeApproUser = $demandeApproUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of demandeApproValidateur
+     */
+    public function getDemandeApproValidateur()
+    {
+        return $this->demandeApproValidateur;
+    }
+
+    /**
+     * Set the value of demandeApproValidateur
+     *
+     * @return  self
+     */
+    public function setDemandeApproValidateur($demandeApproValidateur)
+    {
+        $this->demandeApproValidateur = $demandeApproValidateur;
 
         return $this;
     }

@@ -28,3 +28,30 @@ export function limitInputLength(input, maxLength) {
     }
   });
 }
+
+export function populateServiceOptions(services, serviceInput) {
+  // Supprimer toutes les options existantes
+  while (serviceInput.options.length > 0) {
+    serviceInput.remove(0);
+  }
+
+  // Ajouter une option par défaut
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.text = " -- Choisir une service -- ";
+  serviceInput.add(defaultOption);
+
+  // Ajouter les options à partir des services récupérés
+  services.forEach((service) => {
+    const option = document.createElement("option");
+    option.value = service.value;
+    option.text = service.text;
+    serviceInput.add(option);
+  });
+
+  // Afficher les nouvelles valeurs et textes des options (pour débogage)
+  for (let i = 0; i < serviceInput.options.length; i++) {
+    const option = serviceInput.options[i];
+    console.log("Value:", option.value, "Text:", option.text);
+  }
+}

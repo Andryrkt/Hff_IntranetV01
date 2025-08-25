@@ -6,6 +6,8 @@ namespace App\Model\dit;
 use App\Model\Model;
 use App\Model\Traits\ConversionModel;
 use App\Service\GlobalVariablesService;
+use App\Service\TableauEnStringService;
+use Symfony\Component\Validator\Constraints\IsNull;
 
 class DitOrSoumisAValidationModel extends Model
 {
@@ -95,15 +97,8 @@ class DitOrSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        AND sitv_servcrt IN (
-            'ATE',
-            'FOR',
-            'GAR',
-            'MAN',
-            'CSP',
-            'MAS'
-        )
-        AND seor_numor = '".$numOr."'
+        --AND sitv_servcrt IN ('ATE','FOR','GAR','MAN','CSP','MAS')
+        AND seor_numor = '" . $numOr . "'
         --AND SEOR_SUCC = '01'
         group by
             1,
@@ -126,8 +121,7 @@ class DitOrSoumisAValidationModel extends Model
     {
         $statement = "SELECT  seor_numdev  
                 from sav_eor
-                where seor_numor = '".$numOr."'"
-                ;
+                where seor_numor = '" . $numOr . "'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -141,7 +135,7 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT 
             seor_numor as numOr
             from sav_eor
-            where seor_refdem = '".$numDit."'
+            where seor_refdem = '" . $numDit . "'
             AND seor_serv = 'SAV'
 
         ";
@@ -157,8 +151,8 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT 
             seor_nummat as numMatricule
             from sav_eor
-            where seor_refdem = '".$numDit."'
-            AND seor_numor = '".$numOr."'
+            where seor_refdem = '" . $numDit . "'
+            AND seor_numor = '" . $numOr . "'
             AND seor_serv = 'SAV'
 
         ";
@@ -173,7 +167,7 @@ class DitOrSoumisAValidationModel extends Model
     {
         $statement = "SELECT count(*) as nbPlanning
         from sav_itv 
-        where sitv_numor = '".$numOr."' 
+        where sitv_numor = '" . $numOr . "' 
         and sitv_datepla is null";
 
         $result = $this->connect->executeQuery($statement);
@@ -185,7 +179,7 @@ class DitOrSoumisAValidationModel extends Model
 
     public function recupPositonOr($numor)
     {
-        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '".$numor."'";
+        $statement = " SELECT seor_pos as position from sav_eor where seor_numor = '" . $numor . "'";
 
         $result = $this->connect->executeQuery($statement);
 
@@ -199,9 +193,10 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_sortie_magasin 
             from sav_lor 
-            where slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
+            where slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ")
+            AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')
             and slor_typlig = 'P' 
-            and slor_numor = '".$numOr."'
+            and slor_numor = '" . $numOr . "'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -216,8 +211,24 @@ class DitOrSoumisAValidationModel extends Model
         $statement = " SELECT
             count(slor_constp) as nbr_achat_locaux 
             from sav_lor 
-            where slor_constp in (".GlobalVariablesService::get('achat_locaux').")  
-            and slor_numor = '".$numOr."'
+            where slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ")  
+            and slor_numor = '" . $numOr . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function recupNbPol($numOr)
+    {
+        $statement = " SELECT
+            count(slor_constp) as nbr_pol 
+            from sav_lor 
+            where slor_constp in (" . GlobalVariablesService::get('lub') . ")  
+            and slor_numor = '" . $numOr . "'
         ";
 
         $result = $this->connect->executeQuery($statement);
@@ -229,9 +240,9 @@ class DitOrSoumisAValidationModel extends Model
 
     public function recupRefClient($numOr)
     {
-        $statement =" SELECT seor_lib  
+        $statement = " SELECT seor_lib  
                     from sav_eor 
-                    where seor_numor='".$numOr."'
+                    where seor_numor='" . $numOr . "'
                     ";
         $result = $this->connect->executeQuery($statement);
 
@@ -240,33 +251,109 @@ class DitOrSoumisAValidationModel extends Model
         return $this->convertirEnUtf8($data);
     }
 
-    public function recupBlockageStatut($numOr)
-    {
-        $sql = " SELECT
-                case when count(statut) > 0 then 'bloquer' else 'ne pas bloquer' end as retour
-            FROM ors_soumis_a_validation
-            WHERE numeroOR = '{$numOr}'
-            AND numeroVersion = (
-                SELECT MAX(numeroVersion)
-                FROM ors_soumis_a_validation
-                WHERE numeroOR = '{$numOr}'
-            )
-            and statut not like ('%Validé%')
-            and statut not like ('%Refusé%')
-        ";
+    // public function recupBlockageStatut($numOr)
+    // {
+    //     $sqlNumVersMax = " SELECT MAX(numeroVersion) as numversionMax
+    //             FROM ors_soumis_a_validation
+    //             WHERE numeroOR = '{$numOr}'";
 
-        return $this->retournerResult28($sql);
-    }
+    //     $numVersionMax = $this->retournerResult28($sqlNumVersMax);
+
+    //     if ($numVersionMax[0]['numversionMax'] == 0 || is_null($numVersionMax[0]['numversionMax'])) {
+    //         dump("pas de numéro or");
+    //         return "ne pas bloquer";
+    //     } else {
+    //         dump("misy version");
+    //         $sql1 = "SELECT
+    //             CASE
+    //                 WHEN COUNT(*) > 0 THEN 'ne pas bloquer'
+    //                 ELSE 'bloquer'
+    //             END AS retour
+    //         FROM ors_soumis_a_validation
+    //         WHERE numeroOR = '41326877'
+    //         AND numeroVersion = {$numVersionMax[0]['numversionMax']}
+    //         AND (
+    //             statut = 'Validé' 
+
+    //         )
+    //         ";
+
+    //         $sql2 = "SELECT
+    //                 statut
+    //             FROM
+    //                 ors_soumis_a_validation
+    //             WHERE
+    //                 numeroOR = '51303448'
+    //                 AND numeroVersion = :numVersionMax
+    //                 AND REPLACE(REPLACE(statut, 'b\"', ''), '\"', '') LIKE 'Validé%'
+    //             ";
+
+    //         $sql3 = "SELECT statut_or from demande_intervention where numero_or = '51303448'";
+    //     }
+
+
+
+
+    //     $statement = $this->connexion->query($sql2);
+    //     $data = [];
+    //     while ($tabType = odbc_fetch_array($statement)) {
+    //         $data[] = $tabType;
+    //     }
+    //     dd($data);
+
+    //     dd("fin");
+
+    //     $sql2 = " SELECT COUNT(*) as nb FROM ors_soumis_a_validation WHERE numeroOR= '{$numOr}' ";
+
+    //     // // if ($this->retournerResult28($sql2) == 0) {
+    //     //     // return 'ne pas bloquer';
+    //     // // } else {
+    //     //     $sql = " SELECT
+    //     //         CASE
+    //     //             WHEN COUNT(*) > 0 THEN 'ne pas bloquer'
+    //     //             ELSE 'bloquer'
+    //     //         END AS retour
+    //     //     FROM ors_soumis_a_validation
+    //     //     WHERE numeroOR = '{$numOr}'
+    //     //     AND numeroVersion = (
+    //     //         SELECT MAX(numeroVersion)
+    //     //         FROM ors_soumis_a_validation
+    //     //         WHERE numeroOR = '{$numOr}'
+    //     //     )
+    //     //     AND (
+    //     //         statut LIKE '%Validé%' OR
+    //     //         statut LIKE '%Refusé%' OR
+    //     //         statut LIKE '%Livré partiellement%' OR
+    //     //         statut LIKE '%Modification demandée par client%'
+    //     //     )
+    //     // ";
+
+    //     //return $this->retournerResult28($sql);
+    //     // }
+    // }
 
     public function constructeurPieceMagasin(string $numOr)
     {
         $statement = " SELECT
-            slor.slor_constp as constructeur
-            from sav_lor slor
-            INNER JOIN sav_eor seor ON slor.slor_numor = seor.seor_numor
-            where slor.slor_constp in (".GlobalVariablesService::get('pieces_magasin').") 
-            and slor.slor_typlig = 'P' 
-            and seor.seor_numor = '".$numOr."'
+            CASE
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                THEN TRIM('CP')
+            
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) > 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                THEN TRIM('C')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) = 0
+                THEN TRIM('N')
+
+                WHEN COUNT(CASE WHEN slor_constp = 'CAT' THEN 1 END) = 0
+                AND COUNT(CASE WHEN slor_constp IN (" . GlobalVariablesService::get('pieceMagasinSansCat') . ") THEN 1 END) > 0
+                THEN TRIM('P')
+            END AS retour
+        FROM sav_lor
+        WHERE slor_numor = '" . $numOr . "'
             ";
 
         $result = $this->connect->executeQuery($statement);
@@ -274,5 +361,153 @@ class DitOrSoumisAValidationModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function countAgServDebit($numOr)
+    {
+        $statement = " SELECT count(distinct sitv_servdeb) as retour
+                    from sav_itv 
+                    where sitv_numor = '{$numOr}'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getNumcli($numOr)
+    {
+        $statement = " SELECT seor_numcli as numcli
+                    FROM sav_eor
+                    WHERE seor_numor = '$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numcli');
+    }
+
+    public function numcliExiste($numcli)
+    {
+        $statement = " SELECT  
+        case
+            when count(*) = 1 then 'existe_bdd' else ''
+        end as numcli
+        from cli_bse
+        INNER JOIN cli_soc on csoc_numcli = cbse_numcli and csoc_soc = 'HF' where cbse_numcli ='$numcli' and cbse_numcli > 0
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'numcli');
+    }
+
+    public function validationArticleZstDa($numOr)
+    {
+        $statement = " SELECT 
+                    --TRIM(isl.slor_constp) as contructeur, 
+                    ROUND(isl.slor_qterel) as quantite, 
+                    TRIM(isl.slor_refp) as reference, 
+                    isl.slor_pxnreel as montant,
+                    TRIM(isl.slor_desi) as designation
+                    from Informix.sav_lor isl 
+                    where slor_constp ='ZST' 
+                    and slor_soc ='HF' 
+                    --and isl.slor_refp != 'ST'
+                    and isl.slor_numor ='$numOr'
+                    order by isl.slor_refp DESC
+                    -- and isl.slor_numor ='" . $numOr . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getTypeLigne($numOr)
+    {
+        $statement = "SELECT 
+            TRIM(CASE 
+                WHEN slor_constp IN (" . GlobalVariablesService::get('pieces_magasin') . GlobalVariablesService::get('achat_locaux') . ", 'ZST') 
+                THEN 'bloquer' 
+                ELSE 'pas bloquer' 
+            END) AS est_bloquer
+        FROM sav_lor 
+        WHERE slor_numor = $numOr
+    
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'est_bloquer');
+    }
+
+    public function getNumItv($numOr)
+    {
+        $statement = " SELECT sitv_interv  as num_itv
+                    from sav_itv
+                    where sitv_numor='$numOr'
+        ";
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'num_itv');
+    }
+
+    public function getNumeroLigne(string $ref, string $designation, string $numOr)
+    {
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statement = "  SELECT 
+                MAX(slor_nolign) as numero_ligne
+                from informix.sav_lor
+                WHERE slor_constp = 'ZST' 
+                and slor_typlig = 'P'
+                and slor_refp not like ('PREST%')
+                and REPLACE(slor_refp, '	','') = '$ref'
+                and REPLACE(slor_desi, '	','') = '$designation'
+                and slor_numor ='$numOr'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
+
+    public function getListeArticlesSavLorString(string $numOr): string
+    {
+        $statement = " SELECT TRIM(slor_refp) || REPLACE(TRIM(slor_desi), \"'\", \"''\") as refp_desi
+            from sav_lor where slor_constp = 'ZST' and slor_numor = '$numOr'
+            ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return TableauEnStringService::TableauEnString(',', array_column($data, 'refp_desi'));
+    }
+
+    public function getNbrComparaisonArticleDaValiderEtSavLor(string $listeArticlesSavLorString, string $numOr): int
+    {
+        $sql = "SELECT count(*) 
+            from da_valider dav  
+            where dav.numero_or = '$numOr' 
+            and numero_version = (select max(numero_version) from da_valider where numero_or = dav.numero_or)
+            and concat(trim(art_refp),trim(art_desi)) in ($listeArticlesSavLorString)
+        ";
+        $data = $this->retournerResult28($sql);
+        return (int) ($data[0]['count'] ?? 0);
     }
 }

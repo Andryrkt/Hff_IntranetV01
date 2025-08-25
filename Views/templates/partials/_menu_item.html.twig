@@ -1,0 +1,22 @@
+{% macro render(item, is_subitem = false) %}
+	<li class="list-group-item {% if is_subitem %}sub-item border-0 ps-3{% else %}border-0 px-0{% endif %}">
+		{% if item.link %}
+			<a href="{% if item.link is not null and (item.link == '#' or item.link starts with 'http' or item.link starts with '/') %}{{ item.link }}{% elseif item.link is not null and item.routeParams is defined %}{{ path(item.link, item.routeParams) }}{% elseif item.link is not null %}{{ path(item.link) }}{% else %}#{% endif %}" class="text-decoration-none d-block {% if is_subitem %}py-1{% endif %}" target="{{ item.target}}">
+				{% if item.icon %}
+					<i class="{{ item.icon }} me-2 {% if is_subitem %}text-muted{% endif %}"></i>
+				{% else %}
+					<i class="fas fa-file{% if is_subitem %}-alt{% endif %} me-2 {% if is_subitem %}text-muted{% endif %}"></i>
+				{% endif %}
+				{{ item.title }}
+			</a>
+		{% else %}
+			<h6>
+				{% if item.icon %}
+					<i class="{{ item.icon }} me-2 {% if is_subitem %}text-muted{% endif %}"></i>
+				{% else %}
+					<i class="fas fa-file{% if is_subitem %}-alt{% endif %} me-2 {% if is_subitem %}text-muted{% endif %}"></i>
+				{% endif %}
+				{{ item.title}}</h6>
+		{% endif %}
+	</li>
+{% endmacro %}

@@ -1,0 +1,78 @@
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="modalDal{{ DAL.id }}" tabindex="-1" aria-labelledby="modalDal{{ DAL.id }}Label" aria-hidden="true" aria-live="assertive">
+	<div class="modal-dialog modal-dialog-centered modal-xl">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title m-auto fw-bold" id="modalDal{{ DAL.id }}Label">
+					Lignes des propositions de l'APPRO
+				</h5>
+				<button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<div class="modal-body">
+				<div class="container-fluid">
+					<table class="table table-plein-ecran">
+						<thead class="table-dark">
+							<tr>
+								<th class="text-start">Famille</th>
+								<th class="text-start">Sous-famille</th>
+								<th class="text-start">Désignation</th>
+								<th class="text-start">Fournisseur</th>
+								<th class="text-center">Prix Unitaire</th>
+								<th class="text-center">Quantité dispo</th>
+								<th class="text-start">Commentaire / motif</th>
+								<th class="text-start">Fiche technique</th>
+								<th class="text-start">Pièces jointes</th>
+							</tr>
+						</thead>
+						<tbody id="tableBody">
+							{% if DAL.demandeApproLR|length > 0 %} {# Si au moins une ligne de proposition de DAL #}
+								{% for item in DAL.demandeApproLR %}
+									<tr>
+										<td class="text-start">{{ item.artFams1 ?? '-' }}</td>
+										<td class="text-start">{{ item.artFams2 ?? '-' }}</td>
+										<td class="text-start">{{ item.artDesi }}</td>
+										<td class="text-start">{{ item.nomFournisseur }}</td>
+										<td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
+										<td class="text-center">{{ item.qteDispo ?? '-' }}</td>
+										<td class="text-start">{{ item.motif }}</td>
+										<td class="text-start">
+											{% if DAL.estFicheTechnique %}
+												{% if item.nomFicheTechnique %}
+													<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.nomFicheTechnique }}" target="_blank">{{ item.nomFicheTechnique }}</a>
+												{% else %}
+													Fiche technique pas encore attachée
+												{% endif %}
+											{% else %}
+												NON	
+											{% endif %}
+										</td>
+										<td class="text-start">
+										{% if item.fileNames|length > 0 %}
+										<ul class="mb-0 px-0">
+											{% for file in item.fileNames %}
+												<li>
+													<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ file }}" target="_blank">{{ file }}</a>
+												</li>
+											{% endfor %}
+										</ul>
+									{% else %}
+										Aucune pièce jointe
+									{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							{% else %} {# Si aucune ligne de proposition de DAL #}
+								<tr>
+									<td colspan="9" class="text-center">Aucune ligne de proposition de l'APPRO</td>
+								</tr>
+							{% endif %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			{# <div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+			</div> #}
+		</div>
+	</div>
+</div>

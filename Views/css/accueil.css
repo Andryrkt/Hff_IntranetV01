@@ -1,0 +1,354 @@
+/* ========================= */
+/*   GRILLE PRINCIPALE       */
+/* ========================= */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  row-gap: 40px;
+  column-gap: 50px;
+  padding: 0 10px 30px;
+  justify-content: center; /* Centre horizontalement */
+  align-items: center; /* Centre verticalement */
+  height: 70vh;
+  margin-top: 0.25rem;
+}
+
+/* ========================= */
+/*        VIGNETTES          */
+/* ========================= */
+
+/* Carte style verre dépoli */
+.vignette {
+  position: relative;
+  cursor: pointer;
+  height: 250px;
+  border-radius: 10px;
+  background: linear-gradient(rgb(239, 239, 239), #fff);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 2px solid rgba(248, 249, 250, 0.25);
+  overflow: hidden;
+  transition: 0.5s all;
+  box-shadow: inset 0 6px 8px rgba(248, 249, 250, 0.45),
+    0 5px 10px rgba(0, 0, 0, 0.1); /* ombre portée */
+}
+
+/* Reflets lumineux (arrière & avant) */
+.vignette::after,
+.vignette::before {
+  content: "";
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.vignette::after {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.15) 100%
+  );
+  transform: rotate(25deg) translateX(-100%);
+}
+.vignette::before {
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.08) 100%
+  );
+  transform: rotate(-45deg) translateX(-100%);
+}
+/* Effets hover */
+.vignette:hover {
+  transform: translateY(8px) scale(1.02);
+  background: linear-gradient(#fff, rgb(239, 239, 239));
+  border: 1px solid #ffffff44;
+  box-shadow: inset 0 6px 8px rgba(248, 249, 250, 0.45),
+    0 15px 25px rgba(0, 0, 0, 0.2); /* ombre renforcée */
+}
+.vignette:hover::after,
+.vignette:hover::before {
+  opacity: 1;
+  animation: light-sheen 1s forwards;
+}
+
+/* Contenu interne */
+.vignette-content {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: center;
+  color: #222;
+  transition: transform 0.3s ease;
+}
+
+/* Titre */
+.vignette-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 0;
+  letter-spacing: 0.3px;
+  color: #000;
+  transition: color 0.2s ease;
+}
+
+.vignette:hover .vignette-title {
+  color: #fbbb01;
+}
+
+.vignette-bande {
+  position: relative;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  background: #ffbb01;
+  color: rgba(0, 0, 0, 0.7);
+  padding: 0.3rem 0;
+  z-index: 2;
+}
+
+.vignette:hover .vignette-bande {
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.7));
+  color: #ffbb01;
+}
+
+.vignette-bande span {
+  display: inline-block;
+  padding-left: 100%; /* démarre hors écran */
+  animation: defilement 60s linear infinite;
+}
+
+@keyframes defilement {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* ========================= */
+/*        ICONES             */
+/* ========================= */
+.icon-container {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(251, 187, 1, 0.15);
+  border-radius: 14px;
+  color: #333;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+.icon-container-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.icon-container-bg i {
+  font-size: 100px;
+  opacity: 0.15; /* subtil */
+}
+.rotate-90 {
+  transform: rotate(90deg);
+}
+
+/* Effets hover sur icônes */
+.vignette:hover .icon-container {
+  background: rgba(251, 187, 1, 0.3);
+  transform: rotate(5deg) scale(1.08);
+}
+.vignette:hover .icon-container-bg {
+  transform: rotate(-10deg) scale(1.02);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+.vignette:hover .icon-container-bg i {
+  color: #fbbb01;
+  opacity: 1;
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
+}
+
+/* ========================= */
+/*        ANIMATIONS         */
+/* ========================= */
+@keyframes light-sheen {
+  0% {
+    transform: rotate(-45deg) translateX(-100%);
+  }
+  100% {
+    transform: rotate(-45deg) translateX(100%);
+  }
+}
+
+/* ========================= */
+/*        RESPONSIVE         */
+/* ========================= */
+@media (max-width: 1200px) {
+  .grid-container {
+    grid-template-columns: repeat(3, minmax(200px, 1fr));
+  }
+}
+@media (max-width: 992px) {
+  .grid-container {
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+  }
+}
+@media (max-width: 576px) {
+  .grid-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========================= */
+/*        MODAL              */
+/* ========================= */
+.menu .modal-content {
+  position: relative;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgb(2 2 2 / 71%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  text-align: start;
+}
+.menu .modal-header,
+.menu .modal-body {
+  position: relative;
+  z-index: 1;
+}
+.menu .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Liste principale */
+.menu .modal-body .list-group {
+  padding: 0.5rem 0;
+}
+.menu .modal-body .list-group-item {
+  background: transparent;
+  color: #c7bfbf;
+  border: none;
+  padding: 0.5rem 0;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.menu .modal-body .list-group-item:not(.sub-item) {
+  margin-bottom: 0.25rem;
+}
+
+/* Liens (principaux & sous-liens partagent le même effet) */
+.menu .modal-body .list-group-item a,
+.menu .modal-body .list-group-item.sub-item a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+.menu .modal-body .list-group-item a {
+  color: #fbbb01;
+  padding: 0.5rem 0.75rem;
+  margin: -0.5rem 0;
+}
+.menu .modal-body .list-group-item.sub-item a {
+  color: #e9c46a;
+  padding: 0.35rem 0.75rem 0.35rem 2rem;
+  margin-bottom: 0.5rem;
+}
+.menu .modal-body .list-group-item a::before,
+.menu .modal-body .list-group-item.sub-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+.menu .modal-body .list-group-item a:hover::before,
+.menu .modal-body .list-group-item.sub-item a:hover::before {
+  left: 100%;
+}
+.menu .modal-body .list-group-item a:hover,
+.menu .modal-body .list-group-item.sub-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  transition: all 0.3s ease;
+}
+.menu .modal-body .list-group-item a:hover i,
+.menu .modal-body .list-group-item.sub-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+/* Icônes */
+.menu .modal-body .list-group-item i {
+  width: 1.25rem;
+  text-align: center;
+  transition: transform 0.2s ease;
+}
+
+/* Sous-items */
+.menu .modal-body .list-group-item.sub-item {
+  font-size: 0.95rem;
+  padding: 0.25rem 0;
+}
+
+/* Titres dans la liste */
+.menu .modal-body .list-group-item h6 {
+  color: #838181;
+  font-weight: 600;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #fbbb01;
+}
+
+/* Items en gras */
+.list-group-item.fw-bold {
+  color: #fff;
+  font-size: 1.05rem;
+  margin: 1rem 0 0.5rem;
+  padding: 0.75rem 0.75rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+/* boutons keyboard */
+kbd {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-family: monospace;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #111; /* fond noir */
+  color: #fff; /* texte blanc */
+  box-shadow: 0 2px 0 #000, 0 3px 6px rgba(0, 0, 0, 0.5);
+  margin: 0 3px;
+}

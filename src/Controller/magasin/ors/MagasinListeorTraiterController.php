@@ -6,8 +6,11 @@ namespace App\Controller\magasin\ors;
 // ini_set('max_execution_time', 10000);
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\TableauEnStringService;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrATraiterModel;
@@ -15,11 +18,15 @@ use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
 
+/**
+ * @Route("/magasin/or")
+ */
 class MagasinListeOrTraiterController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
+    use AutorisationTrait;
 
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
@@ -30,18 +37,21 @@ class MagasinListeOrTraiterController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_MAG);
+        /** FIN AUtorisation acées */
 
         $magasinModel = new MagasinListeOrATraiterModel;
-        $agenceServiceUser = $this->agenceServiceIpsObjet();
+        $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole(self::$em);
         //FIN AUTORISATION
 
         if ($autoriser) {
-            $agenceUser = null;
+            $agenceUser = "''";
         } else {
-            $agenceUser = $agenceServiceUser['agenceIps']->getCodeAgence() . '-' . $agenceServiceUser['agenceIps']->getLibelleAgence();
+            $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
         $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
@@ -152,8 +162,8 @@ class MagasinListeOrTraiterController extends Controller
                 $idMateriel = $ditRepository->getIdMateriel();
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
                 $data[$i]['idMateriel'] = $idMateriel;
-                $data[$i]['marque'] = $marqueCasier[0]['marque'];
-                $data[$i]['casier'] = $marqueCasier[0]['casier'];
+                $data[$i]['marque'] =  array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['marque'] : '';
+                $data[$i]['casier'] = array_key_exists(0, $marqueCasier) ? $marqueCasier[0]['casier'] : '';
             } else {
                 break;
             }

@@ -1,0 +1,56 @@
+<p>
+	Une nouvelle demande d'approvisionnement a été créée par
+	<b>{{ tab.userConnecter }}</b>.
+</p>
+<p>
+	<b>Détails du demande :</b>
+	<ul>
+		<li>
+			<b>Numéro du DA :</b>
+			{{ demandeAppro.numeroDemandeAppro }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ demandeAppro.objetDal }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ demandeAppro.detailDal|raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">
+				{{ tab.observation|raw }}
+			</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<table>
+	<thead style="background-color:#ffc107;">
+		<tr>
+			<th>Famille</th>
+			<th>Sous famille</th>
+			<th>Réference</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dal in demandeAppro.DAL %}
+			<tr>
+				<td>{{ dal.artFams1 ?? '-'}}</td>
+				<td>{{ dal.artFams2 ?? '-'}}</td>
+				<td>{{ dal.artRefp ?? '-'}}</td>
+				<td>{{ dal.artDesi }}</td>
+				<td>{{ dal.nomFournisseur }}</td>
+				<td>{{ dal.commentaire }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>

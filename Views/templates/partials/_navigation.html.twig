@@ -1,0 +1,131 @@
+{% set role_ids = App.user.roleIds %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-dark sticky-top border-bottom mb-3">
+	<div
+		class="container-fluid mx-4">
+
+		<!-- Logo -->
+		<a class="navbar-brand ms-3" href="{{ path('profil_acceuil') }}">
+			<img src="{{ asset('build/images/logoHFF.jpg') }}" id="LogoHFF" alt="Logo HFF" style="height: 40px;">
+		</a>
+
+		{% block chrono %}
+			<div class="chrono-container ms-5">
+				<div class="chrono-bar">
+					<div class="chrono-progress"></div>
+				</div>
+				<div class="chrono-text text-white" id="chrono-text">15:00</div>
+			</div>
+		{% endblock %}
+
+		<!-- Bouton burger -->
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+
+		<!-- Contenu -->
+		<div class="collapse navbar-collapse" id="mainNavbar">
+			<div
+				class="d-lg-flex justify-content-between w-100 align-items-center">
+
+				<!-- Menu utilisateur -->
+				<ul class="navbar-nav ms-lg-auto">
+					<li class="me-3">
+						<a class="app-version" href="{{ App.base_path_fichier }}/version/Versions Intranet.pdf" target="_blank" role="button">
+							<i class="fas fas fa-tag pe-2"></i>
+							Version: V20250822.1.2.0
+						</a>
+					</li>
+					<li class="me-3">
+						<a class="guide-link" href="{{ App.base_path_fichier }}/documentation/Guide utilisateur intranet.pdf" target="_blank" role="button">
+							<i class="fas fa-info pe-2"></i>
+							Guide utilisateur
+						</a>
+					</li>
+					<li class="nav-item dropdown">
+						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-first-name="{{ App.user.Personnels.prenoms }}" data-user-last-name="{{ App.user.Personnels.nom }}" ria-expanded="false" style="color: #fbbb01;">
+							<i class="fas fa-user pe-1"></i>
+							{{ App.user.Personnels.prenoms ~ '.' ~ App.user.Personnels.nom }}
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end">
+							{% if 1 in role_ids or 7 in role_ids %}
+								<li class="dropstart">
+									<a class="dropdown-item dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #fbbb01;">
+										<i class="fas fa-shield-alt pe-2"></i>
+										Administrateur
+									</a>
+									<ul class="dropdown-menu p-3" style="min-width: 600px;">
+										<div class="row">
+											<div class="col-md-4">
+												<li>
+													<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
+												</li>
+											</div>
+
+											<div class="col-md-4">
+												<li>
+													<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="#">Type de Document</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="#">Statut App</a>
+												</li>
+											</div>
+
+											<div class="col-md-4">
+												<li class="dropdown-header">Utilisateur</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
+												</li>
+												<li class="dropdown-header">Historique</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+												</li>
+												<li class="dropdown-header">Ticket</li>
+												<li>
+													<a class="dropdown-item" href="{{ path("tki_all_categorie_index") }}">Tous les catégories</a>
+												</li>
+											</div>
+										</div>
+									</ul>
+								</li>
+							{% endif %}
+							<li>
+								<a class="dropdown-item text-danger" href="{{ path('auth_deconnexion') }}" id="logoutLink">
+									<i class="fas fa-power-off pe-2"></i>
+									Se déconnecter
+								</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</nav>

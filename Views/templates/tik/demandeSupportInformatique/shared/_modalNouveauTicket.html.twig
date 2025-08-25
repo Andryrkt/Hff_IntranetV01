@@ -1,0 +1,24 @@
+<!-- Modal Bootstrap -->
+<div class="modal fade" id="modalNouveauTicket" tabindex="-1" aria-labelledby="modalNouveauTicketLabel" aria-hidden="true" aria-live="assertive">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div
+				class="modal-header">
+				<!-- Titre avec icône -->
+				<h4 class="modal-title m-auto fw-bold" id="modalNouveauTicketLabel">
+					<i class="fas fa-ban text-danger"></i>
+					Impossible de créer un ticket
+				</h4>
+				<button type="button" class="btn-close m-0" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<div class="modal-body" style="font-size: 0.85rem;">
+				<p>Votre adresse e-mail (<span class="text-danger" style="font-size: inherit !important;" id="modal-nouveau-ticket-content"></span>) ne correspond pas aux domaines autorisés. Veuillez utiliser une adresse valide pour soumettre votre demande de support.</p>
+				<p>Domaines autorisés: @hff.mg, @natema.mg, @airways.hff.mg, @travel.hff.mg, @somava.mg</p>
+				<p>Pour plus d'informations, veuillez contacter un administrateur.</p>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+			</div>
+		</div>
+	</div>
+</div>

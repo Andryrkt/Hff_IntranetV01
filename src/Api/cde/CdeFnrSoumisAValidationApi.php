@@ -18,7 +18,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     }
 
     /**
-     * @Route("api/liste-fournisseur", name="api-liste-fournisseur")
+     * @Route("/api/liste-fournisseur", name="api-liste-fournisseur")
      */
     public function listeFournisseur()
     {
@@ -39,7 +39,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     }
 
     /**
-     * @Route("api/cde-fnr-non-receptionner", name="api-cdefnr-non-receptionner")
+     * @Route("/api/cde-fnr-non-receptionner", name="api-cdefnr-non-receptionner")
      */
     public function cdeFnrNonReceptionner()
     {
@@ -50,8 +50,10 @@ class CdeFnrSoumisAValidationApi extends Controller
         echo json_encode($cdeFnrNonReceptionner);
     }
 
+
+
     /**
-     * @Route("api/num-cde-fnr", name="api_num_cde_frn")
+     * @Route("/api/commande-fournisseur", name="api_commande-fournisseur")
      */
     public function numCdeFnr()
     {

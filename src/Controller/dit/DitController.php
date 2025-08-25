@@ -4,6 +4,7 @@ namespace App\Controller\dit;
 
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
 use App\Entity\dit\DemandeIntervention;
@@ -15,11 +16,16 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
-
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
+    use AutorisationTrait;
+
+
     private $historiqueOperation;
 
     public function __construct()
@@ -29,7 +35,7 @@ class DitController extends Controller
     }
 
     /**
-     * @Route("/dit/new", name="dit_new")
+     * @Route("/new", name="dit_new")
      *
      * @param Request $request
      * @return void
@@ -39,12 +45,8 @@ class DitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-
         /** Autorisation accées */
-        $this->autorisationAcces($user);
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         /** FIN AUtorisation acées */
 
         $demandeIntervention = new DemandeIntervention();
@@ -52,13 +54,40 @@ class DitController extends Controller
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($demandeIntervention, self::$em);
 
-        //AFFICHE LE FORMULAIRE
+        //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
         $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+        $this->traitementFormulaire($form, $request, $demandeIntervention, $this->getUser());
 
+        $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
+
+        self::$twig->display('dit/new.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    private function traitementFormulaire($form, Request $request, $demandeIntervention, $user)
+    {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $dits = $this->infoEntrerManuel($form, self::$em, $user);
+            $dit = $form->getData();
+
+            if (empty($dit->getIdMateriel())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            }
+
+            if ($dit->getInternetExterne() === "EXTERNE" && empty($dit->getNomClient()) && empty($dit->getNumeroClient())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            }
+
+            if ($dit->getInternetExterne() === "EXTERNE" && empty($dit->getNomClient()) && empty($dit->getNumeroClient())) {
+                $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du client.';
+                $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
+            }
+
+            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $this->modificationDernierIdApp($dits);
@@ -67,8 +96,12 @@ class DitController extends Controller
             //recupération des donners dans le formulaire
             $pdfDemandeInterventions = $this->pdfDemandeIntervention($dits, $demandeIntervention);
 
-            //récupération des historique de materiel (informix)
-            $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            if (!in_array((int)$pdfDemandeInterventions->getIdMateriel(), [14571, 7669, 7670, 7671, 7672, 7673, 7674, 7675, 7677, 9863])) {
+                //récupération des historique de materiel (informix)
+                $historiqueMateriel = $this->historiqueInterventionMateriel($dits);
+            } else {
+                $historiqueMateriel = [];
+            }
 
             //genere le PDF
             $genererPdfDit = new GenererPdfDit();
@@ -87,12 +120,6 @@ class DitController extends Controller
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistrée', $pdfDemandeInterventions->getNumeroDemandeIntervention(), 'dit_index', true);
         }
-
-        $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
-
-        self::$twig->display('dit/new.html.twig', [
-            'form' => $form->createView()
-        ]);
     }
 
     private function modificationDernierIdApp($dits)
@@ -102,21 +129,5 @@ class DitController extends Controller
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
         self::$em->persist($application);
         self::$em->flush();
-    }
-
-    private function autorisationApp($user): bool
-    {
-        //id pour DIT est 4
-        $AppIds = $user->getApplicationsIds();
-        return in_array(4, $AppIds);
-    }
-
-    private function autorisationAcces($user)
-    {
-        if (!$this->autorisationApp($user)) {
-            $message = "vous n'avez pas l'autorisation";
-
-            $this->historiqueOperation->sendNotificationCreation($message, '-', 'profil_acceuil');
-        }
     }
 }

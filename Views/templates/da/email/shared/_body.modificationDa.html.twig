@@ -1,0 +1,95 @@
+<p>
+	La demande d’{{ da_name }}
+	n°
+	<b>{{ demandeAppro.numeroDemandeAppro }}</b>
+	a été modifiée par
+	<b>{{ tab.userConnecter }}</b>.
+</p>
+<p>
+	<b>Détails de la demande :</b>
+	<ul>
+		<li>
+			<b>Numéro de la demande :</b>
+			{{ demandeAppro.numeroDemandeAppro }}
+		</li>
+		<li>
+			<b>Objet de la demande :</b>
+			{{ demandeAppro.objetDal }}
+		</li>
+		<li>
+			<b>Détail de la demande :</b>
+			<div class="espace">
+				{{ demandeAppro.detailDal|raw }}
+			</div>
+		</li>
+		<li>
+			<b>Observation:</b>
+			<div class="espace">
+				{{ demandeAppro.observation|raw }}
+			</div>
+		</li>
+	</ul>
+</p>
+<hr>
+<p>Demande avant modification</p>
+<table>
+	<thead style="background-color:#D9E1F2;">
+		<tr>
+			{% if not demandeAppro.achatDirect %}
+				<th>Famille</th>
+				<th>Sous famille</th>
+			{% endif %}
+			<th>Réference</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for dala in tab.ancienDals %}
+			<tr>
+				{% if not demandeAppro.achatDirect %}
+					<td>{{ dala.artFams1 ?? '-'}}</td>
+					<td>{{ dala.artFams2 ?? '-'}}</td>
+				{% endif %}
+				<td>{{ dala.artRefp ?? '-'}}</td>
+				<td>{{ dala.artDesi }}</td>
+				<td>{{ dala.nomFournisseur }}</td>
+				<td>{{ dala.commentaire }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>
+<p>Demande modifiée par le service.</p>
+<table>
+	<thead style="background-color:#000; color:#f2f2f2;">
+		<tr>
+			{% if not demandeAppro.achatDirect %}
+				<th>Famille</th>
+				<th>Sous famille</th>
+			{% endif %}
+			<th>Réference</th>
+			<th>Désignation</th>
+			<th>Fournisseur</th>
+			<th>Commentaire</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for daln in tab.nouveauDals %}
+			<tr>
+				{% if not demandeAppro.achatDirect %}
+					<td>{{ daln.artFams1 ?? '-'}}</td>
+					<td>{{ daln.artFams2 ?? '-'}}</td>
+				{% endif %}
+				<td>{{ daln.artRefp ?? '-'}}</td>
+				<td>{{ daln.artDesi }}</td>
+				<td>{{ daln.nomFournisseur }}</td>
+				<td>{{ daln.commentaire }}</td>
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<br>
+<hr>

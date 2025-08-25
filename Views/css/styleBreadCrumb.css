@@ -1,0 +1,333 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  border-radius: 5px;
+  counter-reset: flag;
+}
+
+.breadcrumb .breadcrumb-item {
+  text-decoration: none;
+  outline: none;
+  display: block;
+  font-size: 12px;
+  line-height: 25px;
+  padding: 0 10px 0 25px;
+  background: #666;
+  background: linear-gradient(#666, #333);
+  position: relative;
+  transition: all 0.5s;
+}
+
+.breadcrumb .breadcrumb-item a {
+  color: white;
+  text-decoration: none;
+  display: block;
+}
+
+/*since the first link does not have a triangle before it we can reduce the left padding to make it look consistent with other links*/
+.breadcrumb .breadcrumb-item:first-child {
+  padding-left: 10px;
+  border-radius: 5px 0 0 5px; /*to match with the parent's radius*/
+}
+.breadcrumb .breadcrumb-item:first-child:before {
+  left: 14px;
+}
+.breadcrumb .breadcrumb-item:last-child {
+  border-radius: 0 5px 5px 0; /*this was to prevent glitches on hover*/
+  padding-right: 20px;
+}
+
+/*hover/active styles*/
+.breadcrumb .breadcrumb-item.active,
+.breadcrumb .breadcrumb-item:hover {
+  background: #333;
+  background: linear-gradient(#333, #000);
+}
+.breadcrumb .breadcrumb-item.active:after,
+.breadcrumb .breadcrumb-item:hover:after {
+  background: #333;
+  background: linear-gradient(135deg, #333, #000);
+}
+
+/*adding the arrows for the breadcrumbs using rotated pseudo elements*/
+.breadcrumb .breadcrumb-item:after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  right: -10px;
+  width: 19px;
+  height: 19px;
+  transform: rotate(45deg);
+  z-index: 1;
+  background: linear-gradient(135deg, #666, #333);
+  box-shadow: 2px -2px 0 2px rgba(0, 0, 0, 0.4), 2.2px -2.2px 0 2px #ccc;
+  border-radius: 5px 5px 5px 50px;
+}
+/*we dont need an arrow after the last link*/
+.breadcrumb .breadcrumb-item:last-child:after {
+  content: none;
+}
+
+.flat .breadcrumb-item a {
+  color: #fbbb01;
+}
+
+.flat .breadcrumb-item:before {
+  background: #000;
+  box-shadow: 0 0 0 1px #ccc;
+}
+.flat .breadcrumb-item:hover,
+.flat .breadcrumb-item.active,
+.flat .breadcrumb-item:last-child,
+.flat .breadcrumb-item:hover:after,
+.flat .breadcrumb-item.active:after,
+.flat .breadcrumb-item:last-child:after {
+  background: linear-gradient(355deg, #ffdd55, #fbbb01);
+}
+
+.flat .breadcrumb-item:hover a,
+.flat .breadcrumb-item.active a,
+.flat .breadcrumb-item:last-child a {
+  color: black;
+  font-weight: bold;
+}
+
+/*===================================
+ Modal style verre dépoli + halo animé 
+===================================== */
+.menu .modal-content {
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgb(2 2 2 / 71%);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  color: #fff;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  position: relative;
+  overflow: hidden;
+  text-align: start;
+}
+
+.menu .modal-header,
+.menu .modal-body {
+  position: relative;
+  z-index: 1;
+}
+
+.menu .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.menu .modal-body .list-group {
+  padding: 0.5rem 0;
+}
+
+.menu .modal-body .list-group-item {
+  background: transparent;
+  color: #c7bfbf;
+  border: none;
+  padding: 0.5rem 0;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.menu .modal-body .list-group-item:not(.sub-item) {
+  margin-bottom: 0.25rem;
+}
+
+.menu .modal-body .list-group-item a {
+  color: #fbbb01;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin: -0.5rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu .modal-body .list-group-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+.menu .modal-body .list-group-item a:hover::before {
+  left: 100%;
+}
+
+.menu .modal-body .list-group-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
+  transition: all 0.3s ease;
+}
+
+.menu .modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+.menu .modal-body .list-group-item.sub-item {
+  font-size: 0.95rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.menu .modal-body .list-group-item.sub-item a {
+  color: #e9c46a;
+  padding: 0.35rem 0.75rem 0.35rem 2rem;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.menu .modal-body .list-group-item.sub-item a::before {
+  content: "";
+  position: absolute;
+  left: -100%;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(251, 187, 1, 0.2),
+    transparent
+  );
+  transition: all 0.4s ease;
+}
+
+.menu .modal-body .list-group-item.sub-item a:hover::before {
+  left: 100%;
+}
+
+.menu .modal-body .list-group-item.sub-item a:hover {
+  color: #ffd43b;
+  background-color: rgba(251, 187, 1, 0.12);
+  transform: translateX(6px) scale(1.02);
+  /* box-shadow: 0 4px 12px rgba(251, 187, 1, 0.2); */
+  transition: all 0.3s ease;
+}
+
+.menu .modal-body .list-group-item.sub-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+.menu .modal-body .list-group-item h6 {
+  color: #838181;
+  font-weight: 600;
+  border-bottom: 1px solid #fbbb01;
+  font-size: 1.1rem;
+}
+
+.list-group-item.fw-bold {
+  color: #fff;
+  font-size: 1.05rem;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+  padding: 0.75rem 0.75rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+}
+
+.menu .modal-body .list-group-item i {
+  transition: transform 0.2s ease;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.menu .modal-body .list-group-item a:hover i {
+  transform: scale(1.2) rotate(5deg);
+  color: #ffd43b;
+}
+
+/* Style for black dropdown */
+/* .breadcrumb-item .dropdown-menu {
+  background-color: #212529;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item {
+  color: #fff !important;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover {
+  color: #050505 !important;
+  font-weight: bolder;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-header {
+  color: #969594;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover,
+.breadcrumb-item .dropdown-menu .dropdown-item:focus {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #000000;
+  font-weight: bold;
+} */
+
+/* Style for animated black dropdown */
+.breadcrumb-item .dropdown-menu {
+  background-color: #212529;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 2000;
+
+  /* Animation initiale */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.97);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.35s;
+  pointer-events: none;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.breadcrumb-item:hover .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Items */
+.breadcrumb-item .dropdown-menu .dropdown-item {
+  color: #fff !important;
+  transition: all 0.25s ease;
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-item:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #000 !important;
+  font-weight: bold;
+  padding-left: 1.5rem; /* petit effet slide du texte */
+}
+
+.breadcrumb-item .dropdown-menu .dropdown-header {
+  color: #969594;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

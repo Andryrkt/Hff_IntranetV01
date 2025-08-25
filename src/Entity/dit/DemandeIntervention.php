@@ -36,6 +36,13 @@ class DemandeIntervention
     use BilanFinancierMaterielTrait;
     use QuantiteDitTrait;
 
+    public const STATUT_A_AFFECTER = 50;
+    public const STATUT_AFFECTEE_SECTION = 51;
+    public const STATUT_CLOTUREE_ANNULEE = 52;
+    public const STATUT_CLOTUREE_VALIDER = 53;
+    public const STATUT_CLOTUREE_HORS_DELAI = 54;
+    public const STATUT_TERMINER = 57;
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -111,7 +118,7 @@ class DemandeIntervention
      * @ORM\Column(type="string", length=10, name="numero_telephone",nullable=true)
      * @Groups("intervention")
      */
-    private ?string $numeroTel= null;
+    private ?string $numeroTel = null;
 
     /**
      * @ORM\Column(type="string", length=100, name="mail_client",nullable=true)
@@ -506,7 +513,23 @@ class DemandeIntervention
      * @var integer
      */
     private int $numMigration;
-    
+
+    /**
+     * @ORM\Column(type="boolean", name="a_annuler")
+     */
+    private $aAnnuler = false;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_annulation")
+     */
+    private $dateAnnulation;
+
+    private $dateSoumissionOR;
+
+    private $montantTotalOR;
+
+    private bool $estAnnulable = false;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -671,7 +694,7 @@ class DemandeIntervention
 
     /**
      * Get the value of mailClient
-     */ 
+     */
     public function getMailClient()
     {
         return $this->mailClient;
@@ -681,14 +704,14 @@ class DemandeIntervention
      * Set the value of mailClient
      *
      * @return  self
-     */ 
+     */
     public function setMailClient($mailClient)
     {
         $this->mailClient = $mailClient;
 
         return $this;
     }
-   
+
     public function getDateOr()
     {
         return $this->dateOr;
@@ -1557,7 +1580,7 @@ class DemandeIntervention
      * Get the value of numMigration
      *
      * @return  integer
-     */ 
+     */
     public function getNumMigration()
     {
         return $this->numMigration;
@@ -1569,10 +1592,110 @@ class DemandeIntervention
      * @param  integer  $numMigration
      *
      * @return  self
-     */ 
+     */
     public function setNumMigration($numMigration)
     {
         $this->numMigration = $numMigration;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of aAnnuler
+     */
+    public function getAAnnuler()
+    {
+        return $this->aAnnuler;
+    }
+
+    /**
+     * Set the value of aAnnuler
+     *
+     * @return  self
+     */
+    public function setAAnnuler($aAnnuler)
+    {
+        $this->aAnnuler = $aAnnuler;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateAnnulation
+     */
+    public function getDateAnnulation()
+    {
+        return $this->dateAnnulation;
+    }
+
+    /**
+     * Set the value of dateAnnulation
+     *
+     * @return  self
+     */
+    public function setDateAnnulation($dateAnnulation)
+    {
+        $this->dateAnnulation = $dateAnnulation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateSoumissionOR
+     */
+    public function getDateSoumissionOR()
+    {
+        return $this->dateSoumissionOR;
+    }
+
+    /**
+     * Set the value of dateSoumissionOR
+     *
+     * @return  self
+     */
+    public function setDateSoumissionOR($dateSoumissionOR)
+    {
+        $this->dateSoumissionOR = $dateSoumissionOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantTotalOR
+     */
+    public function getMontantTotalOR()
+    {
+        return $this->montantTotalOR;
+    }
+
+    /**
+     * Set the value of montantTotalOR
+     *
+     * @return  self
+     */
+    public function setMontantTotalOR($montantTotalOR)
+    {
+        $this->montantTotalOR = $montantTotalOR;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAnnulable
+     */
+    public function getEstAnnulable()
+    {
+        return $this->estAnnulable;
+    }
+
+    /**
+     * Set the value of estAnnulable
+     *
+     * @return  self
+     */
+    public function setEstAnnulable($estAnnulable)
+    {
+        $this->estAnnulable = $estAnnulable;
 
         return $this;
     }

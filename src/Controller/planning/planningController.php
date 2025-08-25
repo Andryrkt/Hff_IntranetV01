@@ -4,25 +4,33 @@ namespace App\Controller\planning;
 
 
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Model\planning\PlanningModel;
 use App\Entity\planning\PlanningSearch;
 use App\Service\TableauEnStringService;
 use App\Controller\Traits\PlanningTraits;
 use App\Controller\Traits\Transformation;
-use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Form\planning\PlanningSearchType;
-use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Entity\dit\DitOrsSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
+/**
+ * @Route("/atelier")
+ */
 class PlanningController extends Controller
 {
     use Transformation;
     use PlanningTraits;
+    use AutorisationTrait;
 
     private PlanningModel $planningModel;
     private PlanningSearch $planningSearch;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private $historiqueOperation;
 
     public function __construct()
     {
@@ -30,10 +38,11 @@ class PlanningController extends Controller
         $this->planningModel = new PlanningModel();
         $this->planningSearch = new PlanningSearch();
         $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->historiqueOperation = new HistoriqueOperationDITService;
     }
 
     /**
-     * @Route("/planning", name="planning_vue")
+     * @Route("/planning-vue", name="planning_vue")
      * 
      * @return void
      */
@@ -41,7 +50,9 @@ class PlanningController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_REP);
+        /** FIN AUtorisation acées */
 
         //initialisation
         $this->planningSearch
@@ -57,7 +68,8 @@ class PlanningController extends Controller
             PlanningSearchType::class,
             $this->planningSearch,
             [
-                'method' => 'GET'
+                'method' => 'GET',
+                'planningDetaille' => false,
             ]
         )->getForm();
 
@@ -85,15 +97,14 @@ class PlanningController extends Controller
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
-            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria,$tousLesOrSoumis);
-            
+            $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $tousLesOrSoumis);
+
             if (is_array($back)) {
                 $backString = TableauEnStringService::orEnString($back);
             } else {
                 $backString = '';
             }
             $data = $this->planningModel->recuperationMaterielplanifier($criteria, $lesOrvalides['orAvecItv'], $backString, $touslesOrItvSoumis);
-   
         } else {
             $data = [];
             $back = [];
@@ -117,12 +128,16 @@ class PlanningController extends Controller
 
     private function allOrsItv()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrItvAll());
+        /** @var array */
+        $numOrItv = $this->ditOrsSoumisAValidationRepository->findNumOrItvAll();
+        return TableauEnStringService::TableauEnString(',', $numOrItv);
     }
 
     private function allOrs()
     {
-        return TableauEnStringService::TableauEnString(',',$this->ditOrsSoumisAValidationRepository->findNumOrAll());
+        /** @var array */
+        $numOrs = $this->ditOrsSoumisAValidationRepository->findNumOrAll();
+        return TableauEnStringService::TableauEnString(',', $numOrs);
     }
 
     /**
@@ -201,7 +216,7 @@ class PlanningController extends Controller
         $planningSearch = $this->creationObjetCriteria($criteria);
 
         $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
-        
+
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
         //  dd($data);
 
@@ -211,7 +226,7 @@ class PlanningController extends Controller
 
         // Convertir les entités en tableau de données
         $data = [];
-        $data[] = ['Agence\Service', 'N°OR-Itv','libellé de l\'Itv','planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning','Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
+        $data[] = ['Agence\Service', 'N°OR-Itv', 'libellé de l\'Itv', 'planification', 'ID', 'Marque', 'Modèle', 'N°Serie', 'N°Parc', 'Casier', 'Mois planning', 'Année planning', 'Statut IPS', 'COMMENTAIRE ICI', 'ACTION']; // En-têtes des colonnes
         foreach ($tabObjetPlanning as $entity) {
             $data[] = [
                 $entity->getLibsuc() . ' - ' . $entity->getLibServ(),
@@ -233,5 +248,4 @@ class PlanningController extends Controller
 
         $this->excelService->createSpreadsheet($data);
     }
-
 }

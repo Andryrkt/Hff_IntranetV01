@@ -10,7 +10,9 @@ use App\Entity\admin\Service;
 use App\Entity\Traits\DateTrait;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\cas\CasierValider;
+use App\Entity\mutation\Mutation;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\da\DemandeAppro;
 use App\Entity\dit\DemandeIntervention;
 use App\Repository\admin\AgenceRepository;
 use Doctrine\Common\Collections\Collection;
@@ -91,6 +93,16 @@ class Agence
     private $domAgenceDebiteur;
 
     /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="agenceEmetteur")
+     */
+    private $mutationAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Mutation::class, mappedBy="agenceDebiteur")
+     */
+    private $mutationAgenceDebiteur;
+
+    /**
      * @ORM\ManyToMany(targetEntity=User::class, mappedBy="agencesAutorisees")
      * @ORM\JoinTable(name="agence_user", 
      *      joinColumns={@ORM\JoinColumn(name="agence_id", referencedColumnName="id")},
@@ -109,6 +121,16 @@ class Agence
      */
     private $tkiAgenceDebiteur;
 
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="agenceEmetteur")
+     */
+    private $daAgenceEmetteur;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DemandeAppro::class, mappedBy="agenceDebiteur")
+     */
+    private $daAgenceDebiteur;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -122,6 +144,10 @@ class Agence
         $this->domAgenceDebiteur = new ArrayCollection();
         $this->tkiAgenceEmetteur = new ArrayCollection();
         $this->tkiAgenceDebiteur = new ArrayCollection();
+        $this->daAgenceEmetteur = new ArrayCollection();
+        $this->daAgenceDebiteur = new ArrayCollection();
+        $this->mutationAgenceEmetteur = new ArrayCollection();
+        $this->mutationAgenceDebiteur = new ArrayCollection();
     }
 
     public function getId()
@@ -142,7 +168,7 @@ class Agence
         return $this;
     }
 
- 
+
     public function getLibelleAgence()
     {
         return $this->libelleAgence;
@@ -155,7 +181,7 @@ class Agence
         return $this;
     }
 
-   
+
     public function getServices(): Collection
     {
         return $this->services;
@@ -182,7 +208,7 @@ class Agence
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getCasiers()
     {
         return $this->casiers;
@@ -206,10 +232,10 @@ class Agence
                 $casier->setAgenceRattacher(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setCasiers($casier)
     {
         $this->casiers = $casier;
@@ -220,9 +246,9 @@ class Agence
 
     /** DIT */
 
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDitAgenceEmetteurs()
     {
         return $this->ditAgenceEmetteur;
@@ -246,22 +272,22 @@ class Agence
                 $ditAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
-    
+
     public function setDitAgenceEmetteurs($ditAgenceEmetteur)
     {
         $this->ditAgenceEmetteur = $ditAgenceEmetteur;
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDitAgenceDebiteurs()
     {
         return $this->ditAgenceDebiteur;
@@ -285,7 +311,7 @@ class Agence
                 $ditAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -298,9 +324,9 @@ class Agence
 
 
     /** BADM */
-     /**
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getbadmAgenceEmetteurs()
     {
         return $this->badmAgenceEmetteur;
@@ -324,7 +350,7 @@ class Agence
                 $badmAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
     public function setbadmAgenceEmetteurs($badmAgenceEmetteur)
@@ -333,12 +359,12 @@ class Agence
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getbadmAgenceDebiteurs()
     {
         return $this->badmAgenceDebiteur;
@@ -362,7 +388,7 @@ class Agence
                 $badmAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -375,32 +401,32 @@ class Agence
 
 
     public function getUsersAutorises(): Collection
-{
-    return $this->usersAutorises;
-}
-
-public function addUserAutorise(User $user): self
-{
-    if (!$this->usersAutorises->contains($user)) {
-        $this->usersAutorises[] = $user;
-        $user->addAgenceAutorise($this);
+    {
+        return $this->usersAutorises;
     }
 
-    return $this;
-}
+    public function addUserAutorise(User $user): self
+    {
+        if (!$this->usersAutorises->contains($user)) {
+            $this->usersAutorises[] = $user;
+            $user->addAgenceAutorise($this);
+        }
 
-public function removeUserAutorise(User $user): self
-{
-    if ($this->usersAutorises->contains($user)) {
-        $this->usersAutorises->removeElement($user);
-        $user->removeAgenceAutorise($this);
+        return $this;
     }
 
-    return $this;
-}
+    public function removeUserAutorise(User $user): self
+    {
+        if ($this->usersAutorises->contains($user)) {
+            $this->usersAutorises->removeElement($user);
+            $user->removeAgenceAutorise($this);
+        }
+
+        return $this;
+    }
 
 
-    
+
 
 
 
@@ -429,7 +455,7 @@ public function removeUserAutorise(User $user): self
                 $domAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -439,12 +465,12 @@ public function removeUserAutorise(User $user): self
 
         return $this;
     }
-    
 
 
-     /**
+
+    /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getDomAgenceDebiteurs()
     {
         return $this->domAgenceDebiteur;
@@ -468,7 +494,7 @@ public function removeUserAutorise(User $user): self
                 $domAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
         return $this;
     }
 
@@ -504,13 +530,13 @@ public function removeUserAutorise(User $user): self
                 $tkiAgenceEmetteur->setAgenceEmetteurId(null);
             }
         }
-        
+
         return $this;
     }
 
     /**
      * Get the value of demandeInterventions
-     */ 
+     */
     public function getTkiAgenceDebiteur()
     {
         return $this->tkiAgenceDebiteur;
@@ -534,7 +560,127 @@ public function removeUserAutorise(User $user): self
                 $tkiAgenceDebiteur->setAgenceDebiteurId(null);
             }
         }
-        
+
+        return $this;
+    }
+
+    /** MUTATION */
+
+    /**
+     * Get the value of mutationAgenceEmetteur
+     */
+    public function getMutationAgenceEmetteur()
+    {
+        return $this->mutationAgenceEmetteur;
+    }
+
+    public function addMutationAgenceEmetteur(Mutation $mutation): self
+    {
+        if (!$this->mutationAgenceEmetteur->contains($mutation)) {
+            $this->mutationAgenceEmetteur[] = $mutation;
+            $mutation->setAgenceEmetteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutationAgenceEmetteur(Mutation $mutation): self
+    {
+        if ($this->mutationAgenceEmetteur->contains($mutation)) {
+            $this->mutationAgenceEmetteur->removeElement($mutation);
+            if ($mutation->getAgenceEmetteur() === $this) {
+                $mutation->setAgenceEmetteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutationAgenceEmetteur
+     *
+     * @return  self
+     */
+    public function setMutationAgenceEmetteur($mutationAgenceEmetteur)
+    {
+        $this->mutationAgenceEmetteur = $mutationAgenceEmetteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of mutationAgenceDebiteur
+     */
+    public function getMutationAgenceDebiteur()
+    {
+        return $this->mutationAgenceDebiteur;
+    }
+
+    public function addMutationAgenceDebiteur(Mutation $mutation): self
+    {
+        if (!$this->mutationAgenceDebiteur->contains($mutation)) {
+            $this->mutationAgenceDebiteur[] = $mutation;
+            $mutation->setAgenceDebiteur($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMutationAgenceDebiteur(Mutation $mutation): self
+    {
+        if ($this->mutationAgenceDebiteur->contains($mutation)) {
+            $this->mutationAgenceDebiteur->removeElement($mutation);
+            if ($mutation->getAgenceDebiteur() === $this) {
+                $mutation->setAgenceDebiteur(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * Set the value of mutationAgenceDebiteur
+     *
+     * @return  self
+     */
+    public function setMutationAgenceDebiteur($mutationAgenceDebiteur)
+    {
+        $this->mutationAgenceDebiteur = $mutationAgenceDebiteur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of daAgenceEmetteur
+     */
+    public function getDaAgenceEmetteur()
+    {
+        return $this->daAgenceEmetteur;
+    }
+
+    /**
+     * Set the value of daAgenceEmetteur
+     */
+    public function setDaAgenceEmetteur($daAgenceEmetteur): self
+    {
+        $this->daAgenceEmetteur = $daAgenceEmetteur;
+        return $this;
+    }
+
+    /**
+     * Get the value of daAgenceDebiteur
+     */
+    public function getDaAgenceDebiteur()
+    {
+        return $this->daAgenceDebiteur;
+    }
+
+    /**
+     * Set the value of daAgenceDebiteur
+     */
+    public function setDaAgenceDebiteur($daAgenceDebiteur): self
+    {
+        $this->daAgenceDebiteur = $daAgenceDebiteur;
         return $this;
     }
 }

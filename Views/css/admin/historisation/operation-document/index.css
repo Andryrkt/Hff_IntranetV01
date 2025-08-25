@@ -1,0 +1,10 @@
+/* Ancrer l'entête du tableau */
+.sticky-header {
+  top: 0;
+}
+
+.sticky-header,
+.sticky-table-header {
+  z-index: 2;
+  background-color: #f8f9fa;
+}

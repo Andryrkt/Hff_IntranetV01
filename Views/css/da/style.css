@@ -1,0 +1,380 @@
+.div-disabled {
+  pointer-events: none;
+}
+.div-disabled-2 {
+  overflow: hidden;
+}
+.div-disabled,
+.div-disabled-2 {
+  background-color: #e9ecef;
+  border: 1px solid #d2d2d2;
+  padding: 6px 7px 4px;
+  border-radius: 5px;
+}
+
+.btn.disabled {
+  pointer-events: none;
+  background-color: #f1d67a !important;
+  color: #5c5c5c !important;
+}
+
+.h-90 {
+  height: 90px !important;
+  align-items: unset !important;
+}
+.non-modifiable {
+  background-color: #e9ecef;
+  color: #212529;
+  pointer-events: none !important;
+  opacity: 1;
+}
+.champ-surligne-jaune {
+  background-color: #fff !important;
+  border-color: #fbbb01 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.25rem rgba(251, 187, 1, 0.25) !important;
+}
+.champ-surligne-jaune:focus {
+  background-color: #fff !important;
+  border-color: #fbbb01 !important;
+  outline: 0 !important;
+  box-shadow: 0 0 0 0.4rem rgba(251, 187, 1, 0.35) !important; /* halo plus marqué */
+}
+
+a.choix {
+  width: 300px;
+  background: #fbbb01;
+  margin: 15px auto;
+  padding: 15px;
+  text-decoration: none;
+  color: #000;
+  display: block;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+a.choix:hover {
+  background: #f8a900;
+  transform: scale(1.05);
+}
+
+#children-container .mt-3,
+#children-container .mt-2 {
+  width: 100%;
+  height: 2px;
+  background-color: rgba(0, 0, 0, 0.175);
+  border-radius: 2px;
+  margin-bottom: 0px;
+  border: none;
+}
+
+@media (min-width: 576px) {
+  .container.custom-width {
+    max-width: 768px;
+  }
+}
+@media (min-width: 768px) {
+  .container.custom-width {
+    max-width: 992px;
+  }
+}
+@media (min-width: 992px) {
+  .container.custom-width {
+    max-width: 1200px;
+  }
+}
+@media (min-width: 1200px) {
+  .container.custom-width {
+    max-width: 1400px;
+  }
+}
+@media (min-width: 1400px) {
+  .container.custom-width {
+    max-width: 1700px;
+  }
+}
+
+/* File list */
+.file-list {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+}
+
+.file-list li {
+  padding: 5px 8px;
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-list li .file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-list li .file-name a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-list li .file-size {
+  margin-left: 10px;
+  color: #666;
+}
+
+.file-list li .remove-file {
+  color: #d9534f;
+  cursor: pointer;
+  font-weight: bold;
+  margin-left: auto;
+  padding-left: 10px;
+}
+
+.w-1 {
+  width: 1% !important;
+}
+
+.w-2 {
+  width: 2% !important;
+}
+
+.w-3 {
+  width: 3% !important;
+}
+
+.w-5 {
+  width: 5% !important;
+}
+
+.w-7 {
+  width: 7% !important;
+}
+
+.w-9 {
+  width: 9% !important;
+}
+
+.w-10 {
+  width: 10% !important;
+}
+
+.w-13 {
+  width: 13% !important;
+}
+
+.w-15 {
+  width: 15% !important;
+}
+
+.w-19 {
+  width: 19% !important;
+}
+
+.w-20 {
+  width: 20% !important;
+}
+
+.w-23 {
+  width: 23% !important;
+}
+
+[id*="tableBody"] td {
+  text-align: center;
+}
+
+/**
+ * Pour le loader dans le suggestion-container
+ */
+.loader-points {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 10px;
+  color: #fff;
+  box-sizing: border-box;
+  animation: animloader 1s linear infinite alternate;
+}
+
+@keyframes animloader {
+  0% {
+    box-shadow: -15px -12px, -5px 0, 5px 0, 15px 0;
+  }
+  33% {
+    box-shadow: -15px 0px, -5px -12px, 5px 0, 15px 0;
+  }
+  66% {
+    box-shadow: -15px 0px, -5px 0, 5px -12px, 15px 0;
+  }
+  100% {
+    box-shadow: -15px 0, -5px 0, 5px 0, 15px -12px;
+  }
+}
+
+[id*="spinner_container_"]:not([id*="nomFournisseur"]) {
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8); /* Noir transparent */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* Bordure blanche translucide */
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Ombre subtile */
+  width: 40%; /* Assure que la liste occupe toute la largeur du champ */
+  margin-top: 5px;
+  padding: 10px;
+}
+
+[id*="spinner_container_"] .text-overlay {
+  font-size: 14px;
+  color: white;
+  margin-right: 10px;
+  display: inline-block;
+}
+
+[id*="estFicheTechnique"] {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
+}
+
+/*
+* pour le spiner
+*/
+.spinner-load {
+  margin-bottom: 2rem !important;
+  margin-left: 15px;
+  position: relative;
+  width: 10px; /* Taille totale du spinner */
+  height: 10px;
+}
+
+.spinner-load div {
+  position: absolute;
+  width: 3px; /* Largeur des barres */
+  height: 8px; /* Hauteur des barres */
+  background: #000; /* Couleur par défaut */
+  border-radius: 3px; /* Coins arrondis pour les barres */
+  transform-origin: center 15px; /* Point autour duquel les barres tournent */
+  animation: fade 1.2s linear infinite; /* Animation de disparition et réapparition */
+}
+
+/* Positionnement des barres autour du cercle */
+.spinner-load div:nth-child(1) {
+  transform: rotate(0deg);
+  animation-delay: -1.1s;
+}
+
+.spinner-load div:nth-child(2) {
+  transform: rotate(30deg);
+  animation-delay: -1s;
+}
+
+.spinner-load div:nth-child(3) {
+  transform: rotate(60deg);
+  animation-delay: -0.9s;
+}
+
+.spinner-load div:nth-child(4) {
+  transform: rotate(90deg);
+  animation-delay: -0.8s;
+}
+
+.spinner-load div:nth-child(5) {
+  transform: rotate(120deg);
+  animation-delay: -0.7s;
+}
+
+.spinner-load div:nth-child(6) {
+  transform: rotate(150deg);
+  animation-delay: -0.6s;
+}
+
+.spinner-load div:nth-child(7) {
+  transform: rotate(180deg);
+  animation-delay: -0.5s;
+}
+
+.spinner-load div:nth-child(8) {
+  transform: rotate(210deg);
+  animation-delay: -0.4s;
+}
+
+.spinner-load div:nth-child(9) {
+  transform: rotate(240deg);
+  animation-delay: -0.3s;
+}
+
+.spinner-load div:nth-child(10) {
+  transform: rotate(270deg);
+  animation-delay: -0.2s;
+}
+
+.spinner-load div:nth-child(11) {
+  transform: rotate(300deg);
+  animation-delay: -0.1s;
+}
+
+.spinner-load div:nth-child(12) {
+  transform: rotate(330deg);
+  animation-delay: 0s;
+}
+
+/* Animation de disparition progressive */
+@keyframes fade {
+  0%,
+  100% {
+    opacity: 0.1; /* Les barres commencent et terminent pâles */
+  }
+  50% {
+    opacity: 1; /* La barre devient complètement opaque */
+  }
+}
+
+.fichier_zst {
+  font-weight: bold;
+  color: #fbbb01;
+  background-color: #000;
+}
+
+.mise-en-evidence,
+.mise-en-evidence a {
+  color: #fbbb01 !important;
+  font-weight: bold;
+  text-shadow: 0.5px 0.5px 2px rgba(0, 0, 0, 0.1);
+}
+
+.urgency-level {
+  font-size: 2rem !important;
+  position: absolute;
+  left: 30px;
+  top: 20px;
+}
+
+/* Pour les statuts de la DA */
+.bg-demande-achat {
+  background-color: #ffff00 !important;
+}
+.bg-proposition-achat {
+  background-color: #d9d9d9 !important;
+}
+.bg-bon-achat-valide {
+  background-color: #a9d08e !important;
+}
+.bg-creation-demande-initiale {
+  background-color: #fbbb01 !important;
+}
+
+/* Pour les statuts de l'OR */
+.bg-or-non-valide {
+  background-color: #00ffff !important;
+}

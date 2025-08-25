@@ -10,18 +10,48 @@ class DitFactureSoumisAValidationModel extends Model
 {
     use ConversionTrait;
 
+    
+    public function recupTypeFacture($numFac)
+    {
+        $statement = "SELECT slor_typeor  
+                    FROM sav_lor 
+                    WHERE slor_numfac = '" . $numFac . "'
+        ";
+
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'slor_typeor');
+    }
+
+    public function recupQterea($numFac)
+    {
+        $statement = "SELECT  slor_qterea 
+                    FROM sav_lor 
+                    WHERE slor_numfac = '" . $numFac . "'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'slor_qterea');
+    }
+    
     public function recupNumeroSoumission($numOr) {
         $sql = "SELECT COALESCE(MAX(numero_soumission)+1, 1) AS numSoumissionEncours
                 FROM facture_soumis_a_validation
-                WHERE numero_or = '".$numOr."'";
-        
+                WHERE numero_or = '" . $numOr . "'";
+
         $exec = $this->connexion->query($sql);
         $result = odbc_fetch_array($exec);
-        
+
         return $result['numSoumissionEncours'];
     }
-    
-   /*
+
+    /*
     public function recupStatut($numOr, $numItv)
     {
         $sql = "SELECT statut 
@@ -60,22 +90,22 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                         AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
-                    AND slor_numor = '".$numOR."'
-                    AND slor_numfac = '".$numFact."'
+                slor_numor = '" . $numOR . "'
+                    AND slor_numfac = '" . $numFact . "'
+                    --AND sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST') 
                 GROUP BY
                     slor_numfac, slor_numor, numeroItv, slor_succdeb, slor_servdeb, libelleItv
                 ORDER BY
                     numeroItv;
             ";
 
-            $result = $this->connect->executeQuery($statement);
+        $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
-    
+
     public function recupEtatOr($numOr)
     {
         $statement = " SELECT 
@@ -84,7 +114,7 @@ class DitFactureSoumisAValidationModel extends Model
                     ELSE 'CF'
                 END AS etat_facturation_or
             FROM sav_lor
-            WHERE slor_numor = '".$numOr."' 
+            WHERE slor_numor = '" . $numOr . "' 
             AND NVL(slor_numfac, 0) = 0 ";
 
         $result = $this->connect->executeQuery($statement);
@@ -96,7 +126,7 @@ class DitFactureSoumisAValidationModel extends Model
 
     public function recupOrSoumisValidation($numOr, $numFact)
     {
-      $statement = "SELECT
+        $statement = "SELECT
         slor_numor,
         sitv_datdeb,
         trim(seor_refdem) as NUMERo_DIT,
@@ -179,9 +209,9 @@ class DitFactureSoumisAValidationModel extends Model
             AND sitv_interv = slor_nogrp / 100
 
         --AND sitv_pos NOT IN('FC', 'FE', 'CP', 'ST')
-        AND sitv_servcrt IN ('ATE','FOR','MAN','GAR','CSP','MAS', 'LR6', 'LST')
-        AND seor_numor = '".$numOr."'
-        AND slor_numfac = '".$numFact."'
+        --AND sitv_servcrt IN ('ATE','FOR','MAN','GAR','CSP','MAS', 'LR6', 'LST')
+        AND seor_numor = '" . $numOr . "'
+        AND slor_numfac = '" . $numFact . "'
         --AND SEOR_SUCC = '01'
         group by 1, 2, 3, 4, 5
         order by slor_numor, sitv_interv
@@ -197,13 +227,13 @@ class DitFactureSoumisAValidationModel extends Model
     public function recupNombreFacture($numOr, $numFact)
     {
         $statement = "SELECT count(slor_numfac) as nbFact 
-                    FROM sav_lor where slor_numor = '".$numOr."'
-                    AND slor_numfac = '".$numFact."'
+                    FROM sav_lor where slor_numor = '" . $numOr . "'
+                    AND slor_numfac = '" . $numFact . "'
                     ";
-        
-                    $result = $this->connect->executeQuery($statement);
 
-        $data = $this->connect->fetchResults($result);    
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
     }
@@ -218,9 +248,9 @@ class DitFactureSoumisAValidationModel extends Model
                     sav_itv ON sitv_numor = slor_numor
                             AND sitv_interv = slor_nogrp / 100
                 WHERE
-                    sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
-                    AND slor_numor = '".$numOr."'
-                    AND slor_numfac = '".$numFact."'
+                    --sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
+                    AND slor_numor = '" . $numOr . "'
+                    AND slor_numfac = '" . $numFact . "'
                 GROUP BY
                 numeroOr, numeroItv
                 ORDER BY
@@ -238,7 +268,7 @@ class DitFactureSoumisAValidationModel extends Model
         $statement = " SELECT 
             seor_numor as numOr
             from sav_eor
-            where seor_refdem = '".$numDit."'
+            where seor_refdem = '" . $numDit . "'
             AND seor_serv = 'SAV'
 
         ";
@@ -251,33 +281,95 @@ class DitFactureSoumisAValidationModel extends Model
 
     public function recuperationStatutItv($numOr, $numItv)
     {
+        // $statement = " SELECT 
+        //         trim(seor_refdem) as referenceDIT,
+        //         seor_numor as numeroOr,
+        //         TRUNC(sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+        //                         WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea 
+        //                 END)) AS quantiteDemander,
+        //         TRUNC(sum(slor_qteres)) as quantiteReserver,
+        //         CASE 
+        //             WHEN slor_typlig  IN ('F','M','U','C') THEN TRUNC(sum(slor_qterea)) ELSE TRUNC(sum(sliv_qteliv)) END 
+        //         as quantiteLivree,
+        //         TRUNC(sum(slor_qterel)) as quantiteReliquat
+        //         from sav_lor 
+        //         inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
+        //         and seor_numor = slor_numor
+        //         left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
+
+        //         where 
+        //         slor_soc = 'HF'
+        //         --and slor_succ = '01'
+        //         --and slor_typlig = 'P'
+        //         and seor_serv ='SAV'
+        //         and slor_constp in (".GlobalVariablesService::get('tous').")
+        //         and slor_numor = '".$numOr."'
+        //         and TRUNC(slor_nogrp/100) in (".$numItv.")
+        //         group by 1,2
+        // ";
+
         $statement = " SELECT 
-                trim(seor_refdem) as referenceDIT,
-                seor_numor as numeroOr,
-                TRUNC(sum(CASE WHEN slor_typlig = 'P' THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) WHEN slor_typlig IN ('F','M','U','C') THEN slor_qterea END)) AS quantiteDemander,
-                TRUNC(sum(slor_qteres)) as quantiteReserver,
-                TRUNC(sum(sliv_qteliv)) as quantiteLivree,
-                TRUNC(sum(slor_qterel)) as quantiteReliquat
-                from sav_lor 
-                inner join sav_eor on seor_soc = slor_soc and seor_succ = slor_succ 
-                and seor_numor = slor_numor
-                left join sav_liv on sliv_soc = slor_soc and sliv_succ = slor_succ and sliv_numor = seor_numor and slor_nolign = sliv_nolign
-                
-                where 
-                slor_soc = 'HF'
-                --and slor_succ = '01'
-                --and slor_typlig = 'P'
-                and seor_serv ='SAV'
-                and slor_constp in (".GlobalVariablesService::get('tous').")
-                and slor_numor = '".$numOr."'
-                and TRUNC(slor_nogrp/100) in (".$numItv.")
-                group by 1,2
+                    TRIM(seor_refdem) AS referenceDIT,
+                    seor_numor AS numeroOr,
+                    TRUNC(SUM(
+                        CASE 
+                            WHEN slor_typlig = 'P' 
+                            THEN (slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec) 
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') 
+                            THEN slor_qterea 
+                        END
+                    )) AS quantiteDemander,
+                    TRUNC(SUM(slor_qteres)) AS quantiteReserver,
+                    TRUNC(SUM(
+                        CASE 
+                            WHEN slor_typlig IN ('F', 'M', 'U', 'C') 
+                            THEN slor_qterea 
+                            ELSE sliv_qteliv 
+                        END
+                    )) AS quantiteLivree,
+                    TRUNC(SUM(slor_qterel)) AS quantiteReliquat
+                FROM sav_lor 
+                INNER JOIN sav_eor 
+                    ON seor_soc = slor_soc 
+                    AND seor_succ = slor_succ 
+                    AND seor_numor = slor_numor
+                LEFT JOIN sav_liv 
+                    ON sliv_soc = slor_soc 
+                    AND sliv_succ = slor_succ 
+                    AND sliv_numor = seor_numor 
+                    AND slor_nolign = sliv_nolign
+                WHERE 
+                    slor_soc = 'HF'
+                    AND seor_serv = 'SAV'
+                    --AND slor_constp IN (" . GlobalVariablesService::get('tous') . ")
+                    AND slor_numor = '" . $numOr . "'
+                    AND TRUNC(slor_nogrp / 100) IN (" . $numItv . ")
+                GROUP BY 
+                    1,2
         ";
-    
+
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function orStatutEstValide($numOr, $numItv)
+    {
+        $sql = " SELECT 
+                case when statut = 'Validé' then 'Validé'else 'Non validé' end as Statut
+                from ors_soumis_a_validation
+                where numeroOR = '$numOr' 
+                and numeroItv = '$numItv' 
+                and numeroVersion = (select max(numeroversion) from ors_soumis_a_validation where numeroOR = '$numOr' and numeroItv = '$numItv')
+        ";
+
+        $exec = $this->connexion->query($sql);
+        $tab = [];
+        while ($result = odbc_fetch_array($exec)) {
+            $tab[] = $result;
+        }
+        return array_column($tab, 'Statut');
     }
 }

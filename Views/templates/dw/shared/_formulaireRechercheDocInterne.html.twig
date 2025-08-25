@@ -1,0 +1,46 @@
+<!-- DEBUT recherche -->
+{% set role_ids = App.user.roleIds %}
+<div class="accordion mb-2" id="accordionExample">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+			<div class="accordion-body">
+				{{ form_start(form, {'method': 'GET'}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.motCle) }}
+						{{ form_row(form.dateDocumentDebut) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.nomDocument)}}
+						{{ form_row(form.dateDocumentFin) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.typeDocument)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.perimetre) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.processusLie)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.nomResponsable)}}
+					</div>
+				</div>
+
+				<div class="d-flex justify-content-end mb-2">
+					<button class="btn btn-warning fw-bold" type="submit">
+						<i class="fab fa-searchengin"></i>
+						Recherche</button>
+				</div>
+
+				{{ form_end(form) }}
+			</div>
+		</div>
+	</div>
+</div>

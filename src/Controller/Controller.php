@@ -32,7 +32,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
-
+use App\Entity\admin\utilisateur\Role;
+use App\Entity\da\DemandeAppro;
+use App\Model\da\DaModel;
 
 class Controller
 {
@@ -44,6 +46,7 @@ class Controller
     protected $badm;
     protected $Person;
     protected $DomModel;
+    protected $DaModel;
     protected $detailModel;
     protected $duplicata;
     protected $domList;
@@ -90,6 +93,7 @@ class Controller
         $this->Person           = new PersonnelModel();
 
         $this->DomModel         = new DomModel();
+        $this->DaModel          = new DaModel();
         $this->detailModel      = new DomDetailModel();
         $this->duplicata        = new DomDuplicationModel();
         $this->domList          = new DomListModel();
@@ -376,28 +380,46 @@ class Controller
         return $Result_Num;
     }
 
-
-    protected function arrayToObjet(User $user): User
+    /**
+     * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
+     *
+     * @param string $nomDemande
+     * @return string
+     */
+    protected function autoDecrement(string $nomDemande): string
     {
+        //NumDOM auto
+        $YearsOfcours = date('y'); //24
+        $MonthOfcours = date('m'); //01
+        $AnneMoisOfcours = $YearsOfcours . $MonthOfcours; //2401
 
-        $superieurs = [];
-        foreach ($user->getSuperieurs() as  $value) {
-            if (empty($value)) {
-                return $user;
-            } else {
-                $superieurs[] = self::$em->getRepository(user::class)->find($value);
-                $user->setSuperieurs($superieurs);
+        $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => $nomDemande])->getDerniereId();
+
+        //num_sequentielless
+        $vNumSequential =  substr($Max_Num, -4); // lay 4chiffre mdecremente
+        $DateAnneemoisnum = substr($Max_Num, -8);
+        $DateYearsMonthOfMax = substr($DateAnneemoisnum, 0, 4);
+        if ($DateYearsMonthOfMax == $AnneMoisOfcours) {
+            $vNumSequential =  $vNumSequential - 1;
+        } else {
+            if ($AnneMoisOfcours > $DateYearsMonthOfMax) {
+                $vNumSequential = 9999;
             }
         }
 
-        return $user;
+        return $nomDemande . $AnneMoisOfcours . $vNumSequential;
     }
 
 
+
     /**
-     * recupère l'agence et service de l'utilisateur connecté dans un tableau où les éléments sont des objets
+     * Récupère l'agence et le service de l'utilisateur connecté dans un tableau associatif
+     * où les éléments sont des objets.
      *
-     * @return array
+     * @return array{
+     *     agenceIps: Agence, 
+     *     serviceIps: Service
+     * }
      */
     protected function agenceServiceIpsObjet(): array
     {
@@ -511,5 +533,50 @@ class Controller
         if (!$this->sessionService->has('user_id')) {
             $this->redirectToRoute("security_signin");
         }
+    }
+
+    protected function getUserId(): int
+    {
+        return $this->sessionService->get('user_id');
+    }
+
+    protected function getUser(): ?User
+    {
+        $userId = $this->getUserId();
+        return $userId ? self::$em->getRepository(User::class)->find($userId) : null;
+    }
+
+    protected function getUserMail(): string
+    {
+        return $this->getUser()->getMail();
+    }
+
+    protected function getUserName(): string
+    {
+        return $this->getUser()->getNomUtilisateur();
+    }
+
+    protected function estUserDansServiceAtelier(): bool
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_ATELIER, $serviceIds);
+    }
+
+    protected function estUserDansServiceAppro(): bool
+    {
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
+        return in_array(DemandeAppro::ID_APPRO, $serviceIds);
+    }
+
+    protected function estAdmin(): bool
+    {
+        $roleIds = $this->getUser()->getRoleIds();
+        return in_array(Role::ROLE_ADMINISTRATEUR, $roleIds);
+    }
+
+    protected function estSuperAdmin(): bool
+    {
+        $roleIds = $this->getUser()->getRoleIds();
+        return in_array(Role::ROLE_SUPER_ADMINISTRATEUR, $roleIds);
     }
 }

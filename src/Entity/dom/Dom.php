@@ -179,6 +179,8 @@ class Dom
      */
     private ?string $totalGeneralPayer = null;
 
+    private ?string $totalDeplPlusAutres = null;
+
     /**
      * @ORM\Column(type="string", length=50, name="Mode_Paiement",nullable=true)
      */
@@ -367,10 +369,24 @@ class Dom
 
     private $rmq;
 
+    private $statutTropPercuOk = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="piece_justificatif")
+     */
+    private $pieceJustificatif = false;
+
     //======================================================================================================================================================
     public function getId()
     {
         return $this->id;
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
 
@@ -545,7 +561,7 @@ class Dom
         return $this->nombreJour;
     }
 
-    public function setNombreJour(string $nombreJour): self
+    public function setNombreJour(?string $nombreJour): self
     {
         $this->nombreJour = $nombreJour;
 
@@ -969,7 +985,7 @@ class Dom
         return $this->categorie;
     }
 
-    public function setCategorie(?Catg $categorie): self
+    public function setCategorie($categorie): self
     {
         $this->categorie = $categorie;
 
@@ -1274,5 +1290,65 @@ class Dom
             'prenom' => $this->prenom,
             'cin' => $this->cin
         ];
+    }
+
+    /**
+     * Get the value of statutTropPercuOk
+     */
+    public function getStatutTropPercuOk()
+    {
+        return $this->statutTropPercuOk;
+    }
+
+    /**
+     * Set the value of statutTropPercuOk
+     *
+     * @return  self
+     */
+    public function setStatutTropPercuOk($statutTropPercuOk)
+    {
+        $this->statutTropPercuOk = $statutTropPercuOk;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJustificatif
+     */
+    public function getPieceJustificatif()
+    {
+        return $this->pieceJustificatif;
+    }
+
+    /**
+     * Set the value of pieceJustificatif
+     *
+     * @return  self
+     */
+    public function setPieceJustificatif($pieceJustificatif)
+    {
+        $this->pieceJustificatif = $pieceJustificatif;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of totalDeplPlusAutres
+     */
+    public function getTotalDeplPlusAutres()
+    {
+        return $this->totalDeplPlusAutres;
+    }
+
+    /**
+     * Set the value of totalDeplPlusAutres
+     *
+     * @return  self
+     */
+    public function setTotalDeplPlusAutres($totalDeplPlusAutres)
+    {
+        $this->totalDeplPlusAutres = $totalDeplPlusAutres;
+
+        return $this;
     }
 }

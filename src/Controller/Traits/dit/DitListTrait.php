@@ -6,12 +6,14 @@ namespace App\Controller\Traits\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\utilisateur\Role;
 use App\Entity\dit\DitRiSoumisAValidation;
 use App\Entity\dit\DitOrsSoumisAValidation;
 
@@ -183,18 +185,18 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
-                
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
-                if (!empty($numSerieParc)) {
-                    $numSerie = $numSerieParc[0]['num_serie'];
-                    $numParc = $numSerieParc[0]['num_parc'];
-                    $data[$i]->setNumSerie($numSerie);
-                    $data[$i]->setNumParc($numParc);
-                } else {
-                    $data[$i]->setNumSerie('');
-                    $data[$i]->setNumParc('');
-                }
+
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    if (!empty($numSerieParc)) {
+                        $numSerie = $numSerieParc[0]['num_serie'];
+                        $numParc = $numSerieParc[0]['num_parc'];
+                        $data[$i]->setNumSerie($numSerie);
+                        $data[$i]->setNumParc($numParc);
+                    } else {
+                        $data[$i]->setNumSerie('');
+                        $data[$i]->setNumParc('');
+                    }
                 }
             }
         }
@@ -205,29 +207,30 @@ trait DitListTrait
         if (!empty($data)) {
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
-                // Associez chaque entité à ses valeurs de num_serie et num_parc
-                $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
-                if (!empty($marqueCasier)) {
-                    $marque = $marqueCasier[0]['marque'];
-                    $casier = $marqueCasier[0]['casier'];
-                    $data[$i]->setMarque($marque);
-                    $data[$i]->setCasier($casier);
-                } else {
-                    $data[$i]->setMarque('');
-                    $data[$i]->setCasier('');
+                    // Associez chaque entité à ses valeurs de num_serie et num_parc
+                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                    if (!empty($marqueCasier)) {
+                        $marque = $marqueCasier[0]['marque'];
+                        $casier = $marqueCasier[0]['casier'];
+                        $data[$i]->setMarque($marque);
+                        $data[$i]->setCasier($casier);
+                    } else {
+                        $data[$i]->setMarque('');
+                        $data[$i]->setCasier('');
+                    }
                 }
-            }
             }
         }
     }
 
-    private function ajoutStatutAchatPiece($data){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
-         
+    private function ajoutStatutAchatPiece($data)
+    {
+        for ($i = 0; $i < count($data); $i++) {
+
             if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
 
-                if(!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
-                    
+                if (!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+
                     foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
@@ -267,8 +270,9 @@ trait DitListTrait
         }
     }
 
-    private function ajoutNbrPj($data, $em){
-        for ($i=0 ; $i < count($data) ; $i++ ) { 
+    private function ajoutNbrPj($data, $em)
+    {
+        for ($i = 0; $i < count($data); $i++) {
             $nbrJr = $em->getRepository(DemandeIntervention::class)->findNbrPj($data[$i]->getNumeroDemandeIntervention());
             $data[$i]->setNbrPj($nbrJr);
         }
@@ -281,7 +285,7 @@ trait DitListTrait
         $userId = $this->sessionService->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds) || in_array(4, $roleIds) || in_array(6, $roleIds);
+        return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
     }
 
     private function autorisationRoleEnergie($em): bool
@@ -447,7 +451,9 @@ trait DitListTrait
             'autorisationRoleEnergie' => $autorisationRoleEnergie,
             'codeAgence' => $agenceServiceEmetteur['agence'] === null ? null : $agenceServiceEmetteur['agence']->getId(),
             'agenceAutoriserIds' => $agenceIds,
-            'serviceAutoriserIds' => $serviceIds
+            'serviceAutoriserIds' => $serviceIds,
+            'user_agency' => $this->getUser()->getAgenceIdUser(),
+            // 'InternetExterne' => 
             //'codeService' =>$agenceServiceEmetteur['service'] === null ? null : $agenceServiceEmetteur['service']->getCodeService()
         ];
     }
@@ -506,7 +512,7 @@ trait DitListTrait
     private function transformationEnTableauAvecEntet($entities): array
     {
         $data = [];
-        $data[] = ['Statut', 'N° DIT', 'Type Document','Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande','Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
+        $data[] = ['Statut', 'N° DIT', 'Type Document', 'Niveau', 'Catégorie de Demande', 'N°Serie', 'N°Parc', 'date demande', 'Int/Ext', 'Emetteur', 'Débiteur',  'Objet', 'sectionAffectee', 'N° devis', 'Statut Devis', 'N°Or', 'Statut Or', 'Statut facture', 'RI', 'Nbre Pj', 'utilisateur', 'Marque', 'Casier']; // En-têtes des colonnes
 
         foreach ($entities as $entity) {
             $data[] = [
@@ -550,24 +556,22 @@ trait DitListTrait
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
-        $limit = 50;
+        $limit = 20;
 
         //recupération des données filtrée
         $paginationData = $em->getRepository(DemandeIntervention::class)->findPaginatedAndFiltered($page, $limit, $ditSearch, $option);
         //ajout de donner du statut achat piece dans data
         $this->ajoutStatutAchatPiece($paginationData['data']);
-        
 
         //ajout de donner du statut achat locaux dans data
         $this->ajoutStatutAchatLocaux($paginationData['data']);
-        
+
         //ajout nombre de pièce joint
         $this->ajoutNbrPj($paginationData['data'], $em);
-      
+
         //recuperation de numero de serie et parc pour l'affichage
         $this->ajoutNumSerieNumParc($paginationData['data']);
 
-        
         $this->ajoutQuatreStatutOr($paginationData['data']);
 
         $this->ajoutConditionOrEqDit($paginationData['data']);
@@ -577,34 +581,88 @@ trait DitListTrait
         $this->ajoutMarqueCasierMateriel($paginationData['data']);
         $this->ajoutEstOrASoumis($paginationData['data'], $em);
 
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
+        $this->ajoutDateEtMontantOR($paginationData['data'], $em);
+
+        $this->ajoutConditionAnnulationDit($paginationData['data'], $ditListeModel);
+
+        // dd($paginationData['data']);
         return $paginationData;
+    }
+
+    private function ajoutConditionAnnulationDit($datas, $ditListeModel)
+    {
+        foreach ($datas as $data) {
+            $estAnnulable = $this->conditionAnnulationDit($data, $ditListeModel);
+            $data->setEstAnnulable($estAnnulable);
+        }
+    }
+
+    private function conditionAnnulationDit($data, $ditListeModel): bool
+    {
+        $estAnnulable = false; //cacher le boutton Annuler
+
+        //si le statut dit est A_AFFECTER
+        $condition1 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_A_AFFECTER;
+        //si le statut dit est AFFECTER_SECTION et l'utilisateur demandeur est l'utilisateur connecté ou profil de l'utilisateur connecté est CHEF_ATELIER
+        $condition2 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION && (strtolower($data->getUtilisateurDemandeur()) === strtolower($this->getUser()->getNomUtilisateur()) || in_array(User::PROFIL_CHEF_ATELIER, $this->getUser()->getRoleIds()));
+        //si le statut dit est CLOTUREE_VALIDER et il n'y a pas de numero OR soumi
+        $condition3 = $data->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER && $ditListeModel->getNbNumor($data->getNumeroDemandeIntervention()) == 0;
+
+        if ($condition1 || $condition2 || $condition3) {
+            $estAnnulable =  true; //affichage du boutton Annuler
+        }
+
+        return $estAnnulable;
+    }
+
+    private function ajoutDateEtMontantOR($datas, $em)
+    {
+        foreach ($datas as $data) {
+            if (!empty($data->getNumeroOR()) && $data->getNumeroOR() !== 'NULL') {
+                $dateEtMontant = $em->getRepository(DitOrsSoumisAValidation::class)->getDateEtMontantOR($data->getNumeroOR());
+                if (!empty($dateEtMontant)) {
+                    $data
+                        ->setDateSoumissionOR($dateEtMontant[0]['dateSoumission'])
+                        ->setMontantTotalOR($dateEtMontant[0]['totalMontant'])
+                    ;
+                }
+            }
+        }
     }
 
     private function ajoutEstOrASoumis($paginationData, $em)
     {
         foreach ($paginationData as $value) {
-            // dd($value);
-            $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOr($value->getNumeroOR());
+            // dump($value->getNumeroDemandeIntervention());
+            // dump($value->getInternetExterne());
+            // dump($value->getIdStatutDemande());
+            // dump($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53);
 
-            if ($value->getIdStatutDemande()->getId() === 51 && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
+            $statutAffecterSection = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_AFFECTEE_SECTION; //AFFECTER_SECTION
+            $statutCloturerValider = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; //CLOTUREE_VALIDER
+            $statutTerminer = $value->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_TERMINER; //TERMINER
+            $estOrSoumis = $em->getRepository(DitOrsSoumisAValidation::class)->existsNumOrEtDit($value->getNumeroOR(), $value->getNumeroDemandeIntervention());
+
+            if ($statutAffecterSection && !$estOrSoumis) { //si la statut DIT est AFFACTER SECTION et il n'y a pas encore d'OR déjà soumi (c'est la première soumission)
                 $value->setEstOrASoumi(true); //affichage du boutton Soumission document à valider
-            }  elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
+            } elseif ($value->getInternetExterne() == 'EXTERNE' && $value->getIdStatutDemande()->getId() === 53) { // 
                 $value->setEstOrASoumi(true);
-            } 
-            elseif ($value->getIdStatutDemande()->getId() === 53 && !$estOrSoumis) {
+            } elseif ($statutCloturerValider && !$estOrSoumis) {
                 $value->setEstOrASoumi(false); //cacher le boutton Soumission document à valider
-            } elseif ($value->getIdStatutDemande()->getId() === 53 && $estOrSoumis) {
+            } elseif ($statutCloturerValider && $estOrSoumis) {
                 $value->setEstOrASoumi(true);
-            } 
+            }
             // elseif ($value->getIdStatutDemande()->getId() === 57 && explode("-", $value->getAgenceServiceDebiteur())[1] === 'LST') {
             //     $value->setEstOrASoumi(true);
             // } 
-            elseif ($value->getIdStatutDemande()->getId() === 57 ) {
+            elseif ($statutTerminer) { // affichage du bouton Soumission document à valider si le statut dit "TERMINER"
                 $value->setEstOrASoumi(true);
-            }
-            else {
+            } else {
                 $value->setEstOrASoumi(false);
             }
         }
+        // die();
     }
 }

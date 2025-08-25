@@ -12,14 +12,20 @@ use App\Entity\admin\badm\TypeMouvement;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\BadmsForm2Trait;
 use App\Service\genererPdf\GenererPdfBadm;
-use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationBADMService;
 
+/**
+ * @Route("/materiel/mouvement-materiel")
+ */
 class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;
+    use AutorisationTrait;
+
     private $historiqueOperation;
 
     public function __construct()
@@ -37,6 +43,10 @@ class BadmsForm2Controller extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_BADM);
+        /** FIN AUtorisation acées */
 
         $badm = new Badm();
 
@@ -68,15 +78,18 @@ class BadmsForm2Controller extends Controller
             $idMateriels = self::$em->getRepository(Badm::class)->findIdMateriel();
 
 
+
             if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
                 $message = 'compléter tous les champs obligatoires';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-            } elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
-                $message = 'ce matériel est déjà en PARC';
+            }
+            // elseif ($idTypeMouvement === 1 && in_array($idMateriel, $idMateriels)) {
+            //     $message = 'ce matériel est déjà en PARC';
 
-                $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
-            } elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
+            //     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
+            // } 
+            elseif ($idTypeMouvement === 2 && $coditionAgenceService) {
                 $message = 'le choix du type devrait être Changement de Casier';
 
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');

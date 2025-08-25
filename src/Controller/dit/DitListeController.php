@@ -3,28 +3,42 @@
 namespace App\Controller\dit;
 
 
+use DateTime;
 use App\Entity\dit\DitSearch;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
+use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
-use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Model\dit\DitDevisSoumisAValidationModel;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
+use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitListeController extends Controller
 {
     use DitListTrait;
+    use AutorisationTrait;
+
+    private $historiqueOperation;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->historiqueOperation = new HistoriqueOperationDITService;
+    }
 
     /**
-     * @Route("/dit", name="dit_index")
+     * @Route("/dit-liste", name="dit_index")
      *
      * @return void
      */
@@ -33,16 +47,13 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
-
         //recuperation agence et service autoriser
-        $agenceIds = $user->getAgenceAutoriserIds();
-        $serviceIds = $user->getServiceAutoriserIds();
+        $agenceIds = $this->getUser()->getAgenceAutoriserIds();
+        $serviceIds = $this->getUser()->getServiceAutoriserIds();
 
         /** CREATION D'AUTORISATION */
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         $autoriser = $this->autorisationRole(self::$em);
-
         $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
         //FIN AUTORISATION
 
@@ -51,7 +62,7 @@ class DitListeController extends Controller
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
-      
+
         //création et initialisation du formulaire de la recherche
         $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
@@ -65,7 +76,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie));
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
@@ -83,15 +94,14 @@ class DitListeController extends Controller
         //recupères les données du criteria dans une session nommé dit_serch_criteria
         $this->sessionService->set('dit_search_criteria', $criteria);
 
+
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
         $this->sessionService->set('dit_search_option', $option);
-        
+
         //recupération des donnée
         $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
-        //ajout de numero devis
-        $paginationData = $this->updateNumeroDevis($paginationData, $ditListeModel);
-        
+
         /**  Docs à intégrer dans DW * */
         $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
@@ -99,21 +109,23 @@ class DitListeController extends Controller
 
         // $this->dossierDit($request, $formDocDansDW);
         $formDocDansDW->handleRequest($request);
-            
-        if($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
-            if($formDocDansDW->getData()['docDansDW'] === 'OR'){
+
+        if ($formDocDansDW->isSubmitted() && $formDocDansDW->isValid()) {
+            if ($formDocDansDW->getData()['docDansDW'] === 'OR') {
                 $this->redirectToRoute("dit_insertion_or", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif  ($formDocDansDW->getData()['docDansDW'] === 'FACTURE'){
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'FACTURE') {
                 $this->redirectToRoute("dit_insertion_facture", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'RI') {
                 $this->redirectToRoute("dit_insertion_ri", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
-            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS') {
-                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VP') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VP']);
+            } elseif ($formDocDansDW->getData()['docDansDW'] === 'DEVIS-VA') {
+                $this->redirectToRoute("dit_insertion_devis", ['numDit' => $formDocDansDW->getData()['numeroDit'], 'type' => 'VA']);
             } elseif ($formDocDansDW->getData()['docDansDW'] === 'BC') {
                 $this->redirectToRoute("dit_ac_bc_soumis", ['numDit' => $formDocDansDW->getData()['numeroDit']]);
             }
-        } 
-        
+        }
+
         /** HISTORIQUE DES OPERATION */
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = $this->criteriaTab($criteria);
@@ -124,7 +136,7 @@ class DitListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        
+
         self::$twig->display('dit/list.html.twig', [
             'data'          => $paginationData['data'],
             'currentPage'   => $paginationData['currentPage'],
@@ -191,29 +203,86 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
-        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $ditRepository = self::$em->getRepository(DemandeIntervention::class);
 
-        $this->changementStatutDit($dit, $statutCloturerAnnuler);
+        $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
 
-        $fileName = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
-        $filePath = $_ENV['BASE_PATH_FICHIER'].'/dit/csv/' . $fileName;
+        $this->modificationTableDit($dit);
+
+        $fileNameUplode = 'fichier_cloturer_annuler_' . $dit->getNumeroDemandeIntervention() . '.csv';
+        $filePathUplode = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameUplode;
+        $fileNameDw = 'fichier_cloturer_annuler' . '.csv';
+        // $filePathDw = $_ENV['BASE_PATH_FICHIER'] . '/dit/csv/' . $fileNameDw;
         $headers = ['numéro DIT', 'statut'];
-        $data = [
-            $dit->getNumeroDemandeIntervention(),
-            'Clôturé annulé'
-        ];
-        $this->ajouterDansCsv($filePath, $data, $headers);
+        $numDits = $ditRepository->getNumDitAAnnuler();
+
+        $data = [];
+        foreach ($numDits as  $numDit) {
+            $data[] = [
+                $numDit,
+                'Clôturé annulé'
+            ];
+        }
+
+        if (file_exists($filePathUplode)) {
+            unlink($filePathUplode);
+        }
+
+        $this->ajouterDansCsv($filePathUplode, $data, $headers);
 
         $copyDocuwareService = new CopyDocuwareService();
-        $copyDocuwareService->copyCsvToDw($fileName, $filePath);
+        $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
         $this->redirectToRoute("dit_index");
     }
 
-   
+    private function modificationTableDit($dit)
+    {
+        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $dit
+            ->setIdStatutDemande($statutCloturerAnnuler)
+            ->setAAnnuler(true)
+            ->setDateAnnulation(new DateTime())
+        ;
+        self::$em->persist($dit);
+        self::$em->flush();
+    }
+
+    private function ajouterDansCsv($filePath, $data, $headers = null)
+    {
+        $fichierExiste = file_exists($filePath);
+        $handle = fopen($filePath, 'a');
+
+        // Si le fichier est nouveau, ajoute un BOM UTF-8
+        if (!$fichierExiste) {
+            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
+        }
+
+        // Fonction pour écrire une ligne sans guillemets
+        $ecrireLigne = function ($ligne) use ($handle) {
+            $ligneUtf8 = array_map(function ($field) {
+                if (is_array($field)) {
+                    // Tu peux choisir un séparateur ou une structure ici
+                    $field = implode(';', $field);
+                }
+                return mb_convert_encoding($field, 'UTF-8');
+            }, $ligne);
+            fwrite($handle, implode(';', $ligneUtf8) . PHP_EOL); // tu peux changer ';' par ',' si nécessaire
+        };
+        // Écrit les en-têtes si le fichier est nouveau
+        if (!$fichierExiste && $headers !== null) {
+            $ecrireLigne($headers);
+        }
+
+        // Écrit les données sans guillemets
+        foreach ($data as $ligne) {
+            $ecrireLigne($ligne);
+        }
+
+        fclose($handle);
+    }
 
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
@@ -225,50 +294,50 @@ class DitListeController extends Controller
 
         $dwModel = new DossierInterventionAtelierModel();
 
-        // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-        $dwDit = $dwModel->findDwDit($numDit) ?? [];
-        foreach ($dwDit as $key => $value) {
-            $dwDit[$key]['nomDoc'] = 'Demande d\'intervention';
-        }
-        // dump($dwDit);
-        $dwOr = $dwModel->findDwOr($numDit) ?? [];
-        // dump($dwOr);
-        $dwfac = [];
-        $dwRi = [];
-        $dwCde = [];
+        // Récupération initiale : Demande d'intervention
+        $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
+
+        // Ordre de réparation et documents liés
+        $dwOr = $this->fetchAndLabel($dwModel, 'findDwOr', $numDit, "Ordre de réparation");
+        $dwFac = $dwRi = $dwCde = $dwBca = $dwFacBl = [];
 
         // Si un ordre de réparation est trouvé, récupérer les autres données liées
         if (!empty($dwOr)) {
-            $dwfac = $dwModel->findDwFac($dwOr[0]['numero_doc']) ?? [];
-            $dwRi = $dwModel->findDwRi($dwOr[0]['numero_doc']) ?? [];
-            $dwCde = $dwModel->findDwCde($dwOr[0]['numero_doc']) ?? [];
-
-            foreach ($dwOr as $key => $value) {
-                $dwOr[$key]['nomDoc'] = 'Ordre de réparation';
-            }
-
-            foreach ($dwfac as $key => $value) {
-                $dwfac[$key]['nomDoc'] = 'Facture';
-            }
-
-            foreach ($dwRi as $key => $value) {
-                $dwRi[$key]['nomDoc'] = 'Rapport d\'intervention';
-            }
-            foreach ($dwCde as $key => $value) {
-                $dwCde[$key]['nomDoc'] = 'Commande';
-            }
+            $numeroDocOr = $dwOr[0]['numero_doc'];
+            $dwFac   = $this->fetchAndLabel($dwModel, 'findDwFac',   $numeroDocOr, "Facture");
+            $dwRi    = $this->fetchAndLabel($dwModel, 'findDwRi',    $numeroDocOr, "Rapport d'intervention");
+            $dwCde   = $this->fetchAndLabel($dwModel, 'findDwCde',   $numeroDocOr, "Commande");
+            $dwBca   = $this->fetchAndLabel($dwModel, 'findDwBca',   $numeroDocOr, "Bon de commande APPRO");
+            $dwFacBl = $this->fetchAndLabel($dwModel, 'findDwFacBl', $numeroDocOr, "Facture / Bon de livraison");
         }
 
-        // Fusionner toutes les données dans un tableau associatif
-        $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde);
+        // Documents liés à la demande d'intervention
+        $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
+        $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
+
+        // Fusionner toutes les données
+        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
 
         $this->logUserVisit('dw_interv_ate_avec_dit', [
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
         self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
-            'data' => $data,
+            'numDit' => $numDit,
+            'data'   => $data,
         ]);
+    }
+
+    /**
+     * Méthode utilitaire pour récupérer et étiqueter des documents
+     */
+    private function fetchAndLabel($model, string $method, $param, string $label): array
+    {
+        $items = $model->$method($param) ?? [];
+        foreach ($items as &$item) {
+            $item['nomDoc'] = $label;
+        }
+        return $items;
     }
 
     private function criteriaTab(array $criteria): array
@@ -288,44 +357,5 @@ class DitListeController extends Controller
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         return  array_filter($criteriaTab);
-
     }
-    
-    private function changementStatutDit($dit, $statutCloturerAnnuler)
-    {
-        $dit->setIdStatutDemande($statutCloturerAnnuler);
-        self::$em->persist($dit);
-        self::$em->flush();
-    }
-
-    private function ajouterDansCsv($filePath, $data, $headers = null)
-    {
-        $fichierExiste = file_exists($filePath);
-
-        // Ouvre le fichier en mode append
-        $handle = fopen($filePath, 'a');
-
-        // Si le fichier est nouveau, ajoute un BOM UTF-8
-        if (!$fichierExiste) {
-            fwrite($handle, "\xEF\xBB\xBF"); // Ajout du BOM
-        }
-
-        // Si le fichier est nouveau, ajouter les en-têtes
-        if (!$fichierExiste && $headers !== null) {
-            // Force l'encodage UTF-8 pour les en-têtes
-            fputcsv($handle, array_map(function ($header) {
-                return mb_convert_encoding($header, 'UTF-8');
-            }, $headers));
-        }
-
-        // Force l'encodage UTF-8 pour les données
-        fputcsv($handle, array_map(function ($field) {
-            return mb_convert_encoding($field, 'UTF-8');
-        }, $data));
-
-        // Ferme le fichier
-        fclose($handle);
-    }
-
-
 }

@@ -15,7 +15,7 @@
 		<div class="col-12 col-md-6">
 			<div class="container">
 				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
-				<table class="table rounded table-plein-ecran table-moitier">
+				<table class="table rounded table-plein-ecran">
 					<thead class="table-dark">
 						<tr>
 							<th>Date DIT</th>
@@ -48,31 +48,31 @@
 				<div class="dossier">DOSSIER:
 					<span id="numero-dit">DITXXXXX</span>
 				</div>
-
-				<table class="table rounded table-plein-ecran table-moitier">
-					<thead class="table-dark">
-						<tr>
-							<th>Type</th>
-							<th>
-								Nom document</th>
-							<th>N° de document</th>
-							<th>Date de création</th>
-							<th>Date de MAJ</th>
-							<th>N° Version</th>
-							<th>Nb de pages</th>
-							<th>Taille</th>
-						</tr>
-					</thead>
-					<tbody
-						id="documents-tbody">
-						<!-- Le contenu sera inséré ici via JS -->
-						<div id="spinner" style="display: none;">
-							<i class="fas fa-spinner fa-spin"></i>
-							Chargement...
-						</div>
-
-					</tbody>
-				</table>
+				<div class="table-moitier">
+					<table class="table rounded table-plein-ecran">
+						<thead class="table-dark">
+							<tr>
+								<th>Type</th>
+								<th>
+									Nom document</th>
+								<th>N° de document</th>
+								<th>Date de création</th>
+								<th>Date de MAJ</th>
+								<th>N° Version</th>
+								<th>Nb de pages</th>
+								<th>Taille</th>
+							</tr>
+						</thead>
+						<tbody
+							id="documents-tbody">
+							<!-- Le contenu sera inséré ici via JS -->
+							<div id="spinner" style="display: none;">
+								<i class="fas fa-spinner fa-spin"></i>
+								Chargement...
+							</div>
+						</tbody>
+					</table>
+				</div>
 				<div class="notice">
 					<span class="notice-icon">
 						<i class="fas fa-info-circle"></i>
@@ -84,10 +84,11 @@
 			</div>
 		</div>
 		<div class="col-12 col-md-6">
-			<div
-				id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
-				<!-- Le fichier sélectionné sera affiché ici -->
-				<div id="spinners" style="display: none;">Loading...</div>
+			<div class="container">
+				<div id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
+					<div id="spinners" style="display: none;">Loading...</div>
+					<!-- Le fichier sélectionné sera affiché ici -->
+				</div>
 			</div>
 		</div>
 	</div>

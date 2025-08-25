@@ -1,0 +1,30 @@
+<div class="email-header">
+	{{ demandeAppro.numeroDemandeAppro }}
+	-
+	{% if statut in ['validationDa', 'validationAteDa'] %}
+		PROPOSITION(S)
+		<span class="validationDa">
+			VALIDÉE(S) PAR LE SERVICE
+			{{ tab.service|upper }}
+		</span>
+	{% elseif statut == 'commente' %}
+		OBSERVATION AJOUTÉE PAR LE SERVICE
+		{{ tab.service|upper }}
+	{% else %}
+		DEMANDE D’{{ da_name|upper }}
+		:
+		<span class="{{ statut }}">
+			{% if statut == "newDa" %}
+				CRÉATION
+			{% elseif statut == 'propositionDa' %}
+				PROPOSITION
+			{% elseif statut == 'modificationDa' %}
+				MODIFICATION
+			{% elseif statut == 'demandeDeverouillage' %}
+				DEMANDE DE DÉVERROUILLAGE
+			{% elseif statut == 'confirmationDeverrouillage' %}
+				DEMANDE DÉVERROUILLÉE
+			{% endif %}
+		</span>
+	{% endif %}
+</div>

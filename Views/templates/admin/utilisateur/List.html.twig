@@ -33,8 +33,9 @@
 							<th>mail</th>
 							<th>Rôle</th>
 							<th>Applications</th>
-							<th>Societtes</th>
-							<th>Supérieur</th>
+							<th>Code Sage</th>
+							<th>Agence Autoriser</th>
+							<th>Service Autoriser</th>
 						</tr>
 					</thead>
 					<tbody id="tableBody">
@@ -77,23 +78,18 @@
 										{% endfor %}
 									</ul>
 								</td>
+								<td>{{item.agenceServiceIrium.serviceSagePaie}}</td>
 								<td>
-
 									<ul>
-										{% for a in item.societtes %}
-											<li>{{a.codeSociete}}</li>
+										{% for a in item.agenceAutoriserCode %}
+											<li>{{a}}</li>
 										{% endfor %}
 									</ul>
 								</td>
 								<td>
 									<ul>
-										{% for a in item.superieurs %}
-
-											<li>
-												{{ a.nomUtilisateur }}
-											</li>
-
-
+										{% for a in item.serviceAutoriserCode %}
+											<li>{{a}}</li>
 										{% endfor %}
 									</ul>
 								</td>
