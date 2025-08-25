@@ -25,7 +25,7 @@ class DemandeAppro
 
     public const ID_APPRO                   = 16;
     public const ID_ATELIER                 = 3;
-    public const MAIL_APPRO                 = 'appro@hff.mg'; // TODO: à changer en 'appro@hff.mg' si c'est en PROD
+    public const MAIL_APPRO                 = 'hoby.ralahy@hff.mg'; // TODO: à changer en 'appro@hff.mg' si c'est en PROD
     public const STATUT_VALIDE              = 'Bon d’achats validé';
     public const STATUT_TERMINER            = 'TERMINER';
     public const STATUT_SOUMIS_ATE          = 'Proposition achats';
