@@ -13,10 +13,10 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% block content %}
-
 {% set role_ids = App.user.roleIds %}
 {% set user_connecter = App.user.nom_utilisateur %}
+
+{% block content %}
 
 <div class="container">
 	<h3 class="perso-titre">
@@ -27,13 +27,12 @@
 	{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
 </div>
 
-<div
-	class="container-fluid">
-	<!-- DEBUT tableau -->
+<div class="container-fluid">
 	<div class="container">
 		{% include "/da/shared/listeDIT/_pagination.html.twig" %}
 	</div>
 
+	<!-- DEBUT tableau -->
 	<table class="table table-hover table-plein-ecran">
 		<thead class="table-dark">
 			<tr>
@@ -138,8 +137,4 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
-{% endblock %}  
- 
-					</tr>
- 
-					</tr>
+{% endblock %}   

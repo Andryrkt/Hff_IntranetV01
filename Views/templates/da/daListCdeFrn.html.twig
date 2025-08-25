@@ -95,7 +95,7 @@
 						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
 						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
 						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue| date('d/m/Y')}}</td>
-						<td class="text-center">{{ item.joursDispo}}</td>
+						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
 						<td class="text-center">{{ item.demandeur}}</td>
 					</tr>
 				{% endfor %}
