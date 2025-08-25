@@ -195,11 +195,14 @@ trait StatutBcTrait
 
     private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect): array
     {
-        if (empty($qte) || empty($infoDaDirect)) {
+        if (empty($qte)) {
             return [false, false, false, false];
         }
 
         if ($achatDirect) {
+            if (empty($infoDaDirect)) {
+                return [false, false, false, false];
+            }
             $q = $infoDaDirect[0];
             $qteDem = (int)$q['qte_dem'];
             $qteALivrer = (int)$q['qte_dispo'];
