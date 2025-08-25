@@ -70,7 +70,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="string", length=11, name="num_ligne")
      */
-    private string $numeroLigne;
+    private ?string $numeroLigne = '0';
 
     /**
      * @ORM\Column(type="integer", name="num_ligne_tableau", nullable=true)

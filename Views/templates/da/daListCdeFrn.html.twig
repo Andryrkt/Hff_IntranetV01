@@ -27,7 +27,7 @@
 				</h3>
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-				
+
 			</div>
 		</div>
 
@@ -62,7 +62,7 @@
 					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
 					<tr>
 						<td class="text-center">
-							<a href="{{ path(url_detail, { id: item.idDa }) }}" target="_blank">
+							<a href="{{ path(url_detail, { id: item.demandeAppro.id }) }}" target="_blank">
 								{{ item.numeroDemandeAppro }}
 							</a>
 						</td>

@@ -244,6 +244,8 @@ class DaModel extends Model
 
     public function getInfoDaDirect(string $numDa, ?string $ref = '', ?string $designation = '')
     {
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
         $statement = " SELECT
                 fcde_cdeext as num_da,
                 fcde_numfou as num_fou,
