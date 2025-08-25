@@ -7,11 +7,11 @@ import { preloadAllData } from "./da/data/preloadData";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-const loader = document.querySelector(".loader");
+// const loader = document.querySelector(".loader");
 
-window.addEventListener("load", () => {
-  loader.classList.add("fondu-out");
-});
+// window.addEventListener("load", () => {
+//   loader.classList.add("fondu-out");
+// });
 let timeout;
 
 // Variables pour le chronomètre
