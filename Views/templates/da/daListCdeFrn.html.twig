@@ -13,7 +13,7 @@
 		'Validé': 'bg-bc-valide fw-bold',
 		'Cloturé': 'bg-bc-valide fw-bold',
 		'Non validé': 'bg-bc-non-valide fw-bold',
-        'Tout livré': 'tout-livre bg-success text-white',
+        'Tous livrés': 'tout-livre bg-success text-white',
         'Partiellement livré' : 'partiellement-livre bg-warning text-white',
         'Partiellement dispo' : 'partiellement-dispo bg-info text-white',
         'Complet non livré' : 'complet-non-livre bg-primary text-white'
@@ -27,7 +27,6 @@
 				</h3>
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-
 			</div>
 		</div>
 
@@ -93,7 +92,7 @@
 						<td class="text-left">{{ item.artDesi }}</td>
 						<td class="text-center ">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
 						<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
-						<td class="text-center">{{ item.qteALivrer == 0 ? '-': item.qteALivrer }}</td>
+						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
 						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
 						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.joursDispo}}</td>
