@@ -19,9 +19,11 @@ class UserController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
         $user = new User();
-        $user->setSuperieur($nomPrenomChefService);
+        if ($this->getUser()->getChefService()) {
+            $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
+            $user->setSuperieur($nomPrenomChefService);
+        }
 
         $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
 
