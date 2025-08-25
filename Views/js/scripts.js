@@ -7,120 +7,120 @@ import { preloadAllData } from "./da/data/preloadData";
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-// const loader = document.querySelector(".loader");
+const loader = document.querySelector(".loader");
 
-// window.addEventListener("load", () => {
-//   loader.classList.add("fondu-out");
-// });
+window.addEventListener("load", () => {
+  loader.classList.add("fondu-out");
+});
 let timeout;
 
 // Variables pour le chronomètre
-// const totalTime = 900; // Total en secondes (15 minutes)
-// let timeRemaining = totalTime;
+const totalTime = 900; // Total en secondes (15 minutes)
+let timeRemaining = totalTime;
 
-// const chronoText = document.getElementById("chrono-text");
-// const chronoContainer = document.querySelector(".chrono-container");
-// const chronoProgress = document.querySelector(".chrono-progress");
+const chronoText = document.getElementById("chrono-text");
+const chronoContainer = document.querySelector(".chrono-container");
+const chronoProgress = document.querySelector(".chrono-progress");
 
-// if (location.pathname === `${baseUrl}/`) {
-//   chronoContainer.classList.add("d-none");
-// }
+if (location.pathname === `${baseUrl}/`) {
+  chronoContainer.classList.add("d-none");
+}
 
-// // Fonction pour mettre à jour le chrono
-// function updateChrono() {
-//   timeRemaining--;
+// Fonction pour mettre à jour le chrono
+function updateChrono() {
+  timeRemaining--;
 
-//   // Calculer le pourcentage de progression
-//   const progressPercentage = (timeRemaining / totalTime) * 100; // Pourcentage
-//   if (chronoProgress?.style) {
-//     chronoProgress.style.width = `${progressPercentage}%`;
+  // Calculer le pourcentage de progression
+  const progressPercentage = (timeRemaining / totalTime) * 100; // Pourcentage
+  if (chronoProgress?.style) {
+    chronoProgress.style.width = `${progressPercentage}%`;
 
-//     // Logique des couleurs
-//     if (progressPercentage > 50) {
-//       chronoProgress.style.backgroundColor = "#4caf50"; // Vert
-//     } else if (progressPercentage > 20) {
-//       chronoProgress.style.backgroundColor = "#ff9800"; // Orange
-//     } else {
-//       chronoProgress.style.backgroundColor = "#f44336"; // Rouge
-//     }
-//   }
+    // Logique des couleurs
+    if (progressPercentage > 50) {
+      chronoProgress.style.backgroundColor = "#4caf50"; // Vert
+    } else if (progressPercentage > 20) {
+      chronoProgress.style.backgroundColor = "#ff9800"; // Orange
+    } else {
+      chronoProgress.style.backgroundColor = "#f44336"; // Rouge
+    }
+  }
 
-//   // Mettre à jour le texte
-//   const hours = Math.floor(timeRemaining / 3600);
-//   const minutes = Math.floor((timeRemaining % 3600) / 60);
-//   const seconds = timeRemaining % 60;
-//   if (chronoText?.textContent) {
-//     chronoText.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
-//       .toString()
-//       .padStart(2, "0")}`;
-//   }
+  // Mettre à jour le texte
+  const hours = Math.floor(timeRemaining / 3600);
+  const minutes = Math.floor((timeRemaining % 3600) / 60);
+  const seconds = timeRemaining % 60;
+  if (chronoText?.textContent) {
+    chronoText.textContent = `${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  }
 
-//   // Rediriger à la fin
-//   if (timeRemaining <= 0) {
-//     clearInterval(timer);
-//     window.location.href = `${baseUrl}/logout`;
-//   } else if (timeRemaining <= 15) {
-//     afficherToast("erreur", `Votre session va expiré dans ${timeRemaining} s.`);
-//   }
-// }
+  // Rediriger à la fin
+  if (timeRemaining <= 0) {
+    clearInterval(timer);
+    window.location.href = `${baseUrl}/logout`;
+  } else if (timeRemaining <= 15) {
+    afficherToast("erreur", `Votre session va expiré dans ${timeRemaining} s.`);
+  }
+}
 
-// // Lancer le chrono
-// let timer = setInterval(updateChrono, 1000);
+// Lancer le chrono
+let timer = setInterval(updateChrono, 1000);
 
-// // Fonction pour réinitialiser le timeout et le chrono
-// function resetTimeout() {
-//   clearTimeout(timeout);
-//   clearInterval(timer);
+// Fonction pour réinitialiser le timeout et le chrono
+function resetTimeout() {
+  clearTimeout(timeout);
+  clearInterval(timer);
 
-//   // Réinitialiser le chrono
-//   timeRemaining = totalTime;
-//   updateChrono(); // Mise à jour immédiate de l'affichage du chrono
+  // Réinitialiser le chrono
+  timeRemaining = totalTime;
+  updateChrono(); // Mise à jour immédiate de l'affichage du chrono
 
-//   // Mettre à jour l'état dans localStorage
-//   localStorage.setItem("session-active", Date.now());
+  // Mettre à jour l'état dans localStorage
+  localStorage.setItem("session-active", Date.now());
 
-//   // Redémarrer le timer du chrono
-//   timer = setInterval(updateChrono, 1000);
+  // Redémarrer le timer du chrono
+  timer = setInterval(updateChrono, 1000);
 
-//   // Définir un nouveau timeout pour la déconnexion
-//   timeout = setTimeout(function () {
-//     window.location.href = `${baseUrl}/logout`; // URL de déconnexion
-//   }, 900000); // 15 minutes
-// }
+  // Définir un nouveau timeout pour la déconnexion
+  timeout = setTimeout(function () {
+    window.location.href = `${baseUrl}/logout`; // URL de déconnexion
+  }, 900000); // 15 minutes
+}
 
-// // Définir les événements pour détecter l'activité utilisateur
-// const events = [
-//   "load",
-//   "mousemove",
-//   "keypress",
-//   "touchstart",
-//   "click",
-//   "scroll",
-// ];
-// events.forEach((event) => window.addEventListener(event, resetTimeout));
+// Définir les événements pour détecter l'activité utilisateur
+const events = [
+  "load",
+  "mousemove",
+  "keypress",
+  "touchstart",
+  "click",
+  "scroll",
+];
+events.forEach((event) => window.addEventListener(event, resetTimeout));
 
-// // Surveiller les changements dans localStorage pour synchroniser les onglets
-// window.addEventListener("storage", function (event) {
-//   if (event.key === "session-active") {
-//     resetTimeout();
-//   }
-// });
+// Surveiller les changements dans localStorage pour synchroniser les onglets
+window.addEventListener("storage", function (event) {
+  if (event.key === "session-active") {
+    resetTimeout();
+  }
+});
 
-// // Vérification régulière de l'expiration de la session
-// function checkSessionExpiration() {
-//   const lastActive = localStorage.getItem("session-active");
-//   const now = Date.now();
+// Vérification régulière de l'expiration de la session
+function checkSessionExpiration() {
+  const lastActive = localStorage.getItem("session-active");
+  const now = Date.now();
 
-//   if (lastActive && now - lastActive > 900000) {
-//     window.location.href = `${baseUrl}/logout`; // Rediriger vers la déconnexion
-//   }
-// }
+  if (lastActive && now - lastActive > 900000) {
+    window.location.href = `${baseUrl}/logout`; // Rediriger vers la déconnexion
+  }
+}
 
-// // Vérifiez l'expiration à intervalles réguliers (toutes les 10 secondes)
-// setInterval(checkSessionExpiration, 10000);
+// Vérifiez l'expiration à intervalles réguliers (toutes les 10 secondes)
+setInterval(checkSessionExpiration, 10000);
 
-// // Démarrer le timeout et le chrono au chargement de la page
-// resetTimeout();
+// Démarrer le timeout et le chrono au chargement de la page
+resetTimeout();
 
 /**
  * modal pour la déconnexion

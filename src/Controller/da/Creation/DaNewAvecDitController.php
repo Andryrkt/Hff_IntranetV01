@@ -42,6 +42,7 @@ class DaNewAvecDitController extends Controller
 
         self::$twig->display('da/first-form.html.twig', [
             'estAte' => $this->estUserDansServiceAtelier(),
+            'estAdmin' => $this->estAdmin()
         ]);
     }
 

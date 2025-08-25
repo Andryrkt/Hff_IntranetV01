@@ -19,9 +19,11 @@
 								Demande d’achat avec DIT
 							</a>
 						{% endif %}
-						<a class="choix" href="{{ path('da_new_direct') }}">
-							Demande d’achat direct
-						</a>
+						{% if estAdmin %}
+							<a class="choix" href="{{ path('da_new_direct') }}">
+								Demande d’achat direct
+							</a>
+						{% endif %}
 					</div>
 				</div>
 			</div>
