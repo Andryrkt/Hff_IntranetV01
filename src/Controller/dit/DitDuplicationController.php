@@ -13,6 +13,7 @@ use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
@@ -24,6 +25,7 @@ class DitDuplicationController extends Controller
 {
     use DitTrait;
     use FormatageTrait;
+    use AutorisationTrait;
 
     private $historiqueOperation;
 
@@ -43,9 +45,12 @@ class DitDuplicationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        /** FIN AUtorisation acées */
+
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         //INITIALISATION DU FORMULAIRE
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
