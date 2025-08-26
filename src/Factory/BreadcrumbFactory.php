@@ -88,6 +88,7 @@ class BreadcrumbFactory
             'edit'                                  => 'Modification',
             'demande-dintervention'                 => 'Demande d\'intervention',
             'admin'                                 => 'Administration',
+            'list-agence'                           => 'Liste des Agences',
             'badm-form1'                            => 'Création BADM - Étape 1',
             'badm-form2'                            => 'Création BADM - Étape 2',
             'cas-form1'                             => 'Création Casier - Étape 1',
