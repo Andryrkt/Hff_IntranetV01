@@ -42,6 +42,5 @@ function adjustStickyTableHeaders() {
   });
 
   // Ajouter une marge au tableau pour libérer la place du header sticky
-  const tbodyRowHeight = getElementHeight(table.querySelector("tbody tr"));
-  table.style.marginTop = `${tbodyRowHeight}px`;
+  table.style.marginTop = "50px";
 }
