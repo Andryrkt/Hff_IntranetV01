@@ -351,6 +351,10 @@ button.swal2-styled {
   text-align: left;
 }
 
+.mt-6 {
+  margin-top: 4rem !important;
+}
+
 /* Fil d'Ariane */
 #fil-d-ariane {
   position: fixed;

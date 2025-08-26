@@ -88,6 +88,17 @@ Incluez le script qui gère le sticky dans le bloc `javascript` de votre templat
 {% endblock %}
 ```
 
+**⚠️ Point essentiel à retenir :**
+
+Dans le formulaire de recherche, l’élément d’accordéon doit impérativement avoir pour identifiant **`formAccordion`**.  
+Sans cela, certaines fonctionnalités risquent de ne pas fonctionner correctement.
+
+Exemple correct :
+
+```html
+<div class="accordion" id="formAccordion"></div>
+```
+
 Fonctionnalités du script :
 
 - Calcule automatiquement la hauteur cumulée des éléments fixes au-dessus (navbar, fil d’Ariane, header sticky).
