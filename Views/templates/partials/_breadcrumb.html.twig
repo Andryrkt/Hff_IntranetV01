@@ -2,7 +2,7 @@
 
 {% set items = breadcrumbs() %}
 
-<nav aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid ms-3">
+<nav id="fil-d-ariane" aria-label="Fil d'Ariane" class="breadcrumb-nav container-fluid ms-3">
 	<ol class="breadcrumb flat align-items-center mb-3">
 		{% for item in items %}
 			<li class="breadcrumb-item {% if item.is_active %}active{% endif %} position-relative {% if item.dropdown is defined and item.dropdown|length > 0 %}dropdown-hover{% endif %}">

@@ -21,7 +21,6 @@ use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
 use App\Model\dom\DomDetailModel;
 use App\Model\TransferDonnerModel;
-use App\Service\AccessControlService;
 use App\Entity\admin\utilisateur\User;
 use App\Model\dom\DomDuplicationModel;
 use App\Service\SessionManagerService;
@@ -74,8 +73,6 @@ class Controller
 
     protected $sessionService;
 
-    protected $accessControl;
-
     protected $excelService;
 
     public function __construct()
@@ -114,8 +111,6 @@ class Controller
 
 
         $this->sessionService   = new SessionManagerService();
-
-        $this->accessControl    = new AccessControlService();
 
         $this->excelService     = new ExcelService();
     }

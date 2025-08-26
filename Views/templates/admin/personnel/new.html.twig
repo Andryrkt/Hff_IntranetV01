@@ -5,11 +5,10 @@
 	<div class=" container">
 		<div class="card">
 			<div class="card-body">
-
 				<div class="container">
-					<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
+					<h3 class="perso-titre">
 						Formulaire Personnel
-					</h2>
+					</h3>
 
 					<a href="{{path("personnel_index")}}" class="btn btn-sm  text-white my-3 fw-bold" style="background-color: #FBBB01;">Liste</a>
 
@@ -18,25 +17,20 @@
 
 					<div class="row">
 						<div class="col-12 col-md-6">
-
 							{{ form_row(form.Matricule) }}
-							{{ form_row(form.Nom) }}
-							{{ form_row(form.CodeAgenceServiceSage) }}
 							{{ form_row(form.NumeroFournisseurIRIUM) }}
+							{{ form_row(form.Nom) }}
+							{{ form_row(form.Prenoms) }}
+							{{ form_row(form.CodeAgenceServiceSage) }}
 							{{ form_row(form.CodeAgenceServiceIRIUM) }}
-							{{ form_row(form.NumeroTelephone) }}
-
-
 						</div>
 						<div class="col-12 col-md-6">
-
 							{{ form_row(form.NumeroCompteBancaire) }}
 							{{ form_row(form.LibelleAgenceServiceSage) }}
+							{{ form_row(form.NumeroTelephone) }}
 							{{ form_row(form.CodeServiceAgenceIRIUM) }}
 							{{ form_row(form.LibelleServiceAgenceIRIUM) }}
-							{{ form_row(form.Prenoms) }}
 							{{ form_row(form.Qualification) }}
-
 						</div>
 					</div>
 

@@ -381,3 +381,16 @@ ADD a_annuler bit DEFAULT 0
 
 ALTER TABLE demande_intervention
 ADD date_annulation DATETIME2
+
+
+ALTER TABLE demande_intervention
+ADD numero_demande_dit_avoir VARCHAR(11)
+
+ALTER TABLE demande_intervention
+ADD numero_demande_dit_refacturation VARCHAR(11)
+
+ALTER TABLE demande_intervention
+ADD dit_avoir bit DEFAULT 0
+
+ALTER TABLE demande_intervention
+ADD dit_refacturation bit DEFAULT 0

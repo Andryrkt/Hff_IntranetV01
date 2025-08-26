@@ -136,3 +136,8 @@ ALTER TABLE DW_Facture
 ADD id INT IDENTITY (1, 1)
 
 ALTER TABLE DW_Facture ADD numero_or VARCHAR(8)
+
+ALTER TABLE DW_Demande_Intervention ADD numero_dit_avoir VARCHAR(11)
+ALTER TABLE DW_Demande_Intervention ADD numero_dit_refacturation VARCHAR(11)
+ALTER TABLE DW_Demande_Intervention ADD dit_avoir bit DEFAULT 0
+ALTER TABLE DW_Demande_Intervention ADD dit_refacturation bit DEFAULT 0

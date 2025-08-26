@@ -9,7 +9,6 @@ use App\Form\ddp\DdpDossierRegulType;
 use App\Model\ddp\DdpDossierRegulModel;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\FileUploaderService;
-use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\admin\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;

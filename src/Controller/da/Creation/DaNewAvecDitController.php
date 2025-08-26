@@ -9,9 +9,9 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
@@ -21,7 +21,6 @@ use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
  */
 class DaNewAvecDitController extends Controller
 {
-    use ApplicationTrait;
     use DaNewAvecDitTrait;
     use AutorisationTrait;
 
@@ -33,7 +32,7 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/first-form", name="da_first_form")
+     * @Route("/da-first-form", name="da_first_form")
      */
     public function firstForm()
     {
@@ -109,7 +108,8 @@ class DaNewAvecDitController extends Controller
             }
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $this->mettreAJourDerniereIdApplication('DAP', $numDa);
+            $applicationService = new ApplicationService(self::$em);
+            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);

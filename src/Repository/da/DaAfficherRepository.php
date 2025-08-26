@@ -8,6 +8,7 @@ use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\DBAL\ArrayParameterType;
 
@@ -143,7 +144,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function getDaOrValider(?array $criteria = []): array
+    public function getDaOrValider(?array $criteria = []): array // liste_cde_frn
     {
         if ($criteria == null) $criteria = [];
 
@@ -212,7 +213,7 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
     {
         $qb = $this->createQueryBuilder('d');
 
@@ -232,7 +233,9 @@ class DaAfficherRepository extends EntityRepository
         $this->applyFilterAppro($qb, $estAppro, $estAdmin);
         $this->applyStatutsFilters($qb, $criteria);
 
-        $qb->addOrderBy('d.dateDemande', 'DESC');
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
         return $qb->getQuery()->getResult();
     }
 
@@ -275,6 +278,16 @@ class DaAfficherRepository extends EntityRepository
                 $qb->andWhere("$field = :$key")
                     ->setParameter($key, $criteria[$key]);
             }
+        }
+
+        if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
+            $qb->leftJoin('d.dit', 'dit')
+                ->leftJoin('dit.idStatutDemande', 'statut')
+                ->andWhere('d.dit IS NULL OR statut.id NOT IN (:clotureStatut)')
+                ->setParameter('clotureStatut', [
+                    DemandeIntervention::STATUT_CLOTUREE_ANNULEE,
+                    DemandeIntervention::STATUT_CLOTUREE_HORS_DELAI
+                ]);
         }
 
         if (!empty($criteria['niveauUrgence'])) {
