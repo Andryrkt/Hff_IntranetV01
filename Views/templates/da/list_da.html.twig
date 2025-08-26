@@ -14,17 +14,14 @@
 {% block content %}
 
 	<div class="sticky-header-titre">
-		<div class="container mb-3">
-			<h3 class="perso-titre">
-				Liste des demandes d'achat
-			</h3>
+		<div class="container">
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 		</div>
 	</div>
 
 	<div class="container-fluid">
-		<table class="table table-plein-ecran">
+		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
 					<th>
