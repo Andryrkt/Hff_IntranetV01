@@ -46,9 +46,9 @@ class DaNewAvecDitController extends Controller
     }
 
     /**
-     * @Route("/new-avec-dit/{id}", name="da_new_avec_dit")
+     * @Route("/new-avec-dit/{daId<\d+>}/{ditId}", name="da_new_avec_dit")
      */
-    public function new($id, Request $request)
+    public function new(int $daId, int $ditId, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
@@ -58,9 +58,9 @@ class DaNewAvecDitController extends Controller
         /** FIN AUtorisation acées */
 
         /** 
-         * @var DemandeIntervention $dit DIT correspondant à l'id $id
+         * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
-        $dit = $this->ditRepository->find($id);
+        $dit = $this->ditRepository->find($ditId);
 
         $demandeAppro = $this->initialisationDemandeApproAvecDit($dit);
 
