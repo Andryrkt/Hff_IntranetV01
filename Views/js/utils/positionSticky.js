@@ -13,17 +13,20 @@ window.addEventListener("DOMContentLoaded", function () {
 });
 window.addEventListener("resize", adjustStickyTableHeaders);
 
+/* ---------------- Helpers ---------------- */
 function getElementHeight(el) {
   return el ? el.getBoundingClientRect().height : 0; // retourne la hauteur exacte avec décimales
 }
 
+/* ---------- Fonction principale ---------- */
 function adjustStickyTableHeaders() {
   const navBar = document.getElementById("main-nav-bar");
   const breadcrumb = document.getElementById("fil-d-ariane");
   const stickyTitle = document.querySelector(".sticky-header-titre");
-  const headerRows = document.querySelectorAll(".table-sticky thead tr");
+  const table = document.querySelector(".table-sticky");
+  const headerRows = table ? table.querySelectorAll("thead tr") : [];
 
-  if (headerRows.length === 0) return;
+  if (!table || headerRows.length === 0) return;
 
   // Calcule la hauteur cumulée des éléments fixes au-dessus du tableau
   const baseOffset =
@@ -37,4 +40,8 @@ function adjustStickyTableHeaders() {
     row.style.top = `${currentOffset}px`;
     currentOffset += getElementHeight(row);
   });
+
+  // Ajouter une marge au tableau pour libérer la place du header sticky
+  const tbodyRowHeight = getElementHeight(table.querySelector("tbody tr"));
+  table.style.marginTop = `${tbodyRowHeight}px`;
 }
