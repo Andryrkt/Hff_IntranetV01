@@ -54,14 +54,15 @@
 										<i class="fas fa-shield-alt pe-2"></i>
 										Administrateur
 									</a>
-									<ul class="dropdown-menu p-3" style="min-width: 600px;">
-										<div class="row">
+									<ul class="dropdown-menu p-3" style="min-width: 720px;">
+										<div
+											class="row g-3">
+
+											<!-- Colonne 1 -->
 											<div class="col-md-4">
+												<li class="dropdown-header">Accès & Sécurité</li>
 												<li>
-													<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
-												</li>
-												<li>
-													<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
+													<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateurs</a>
 												</li>
 												<li>
 													<a class="dropdown-item" href="{{ path('role_index') }}">Rôles</a>
@@ -69,47 +70,57 @@
 												<li>
 													<a class="dropdown-item" href="{{ path('permission_index') }}">Permissions</a>
 												</li>
+
+												<li class="dropdown-header mt-2">Applications & Intégrations</li>
 												<li>
 													<a class="dropdown-item" href="{{ path('application_index') }}">Applications</a>
 												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('AgServIrium_index') }}">Agence Service Irium</a>
+												</li>
 											</div>
 
+											<!-- Colonne 2 -->
 											<div class="col-md-4">
-												<li>
-													<a class="dropdown-item" href="{{ path('agence_index') }}">Agence</a>
-												</li>
-												<li>
-													<a class="dropdown-item" href="{{ path('service_index') }}">Service</a>
-												</li>
+												<li class="dropdown-header">Organisation</li>
 												<li>
 													<a class="dropdown-item" href="{{ path('societte_index') }}">Sociétés</a>
 												</li>
 												<li>
-													<a class="dropdown-item" href="#">Type de Document</a>
+													<a class="dropdown-item" href="{{ path('agence_index') }}">Agences</a>
 												</li>
 												<li>
-													<a class="dropdown-item" href="#">Statut App</a>
+													<a class="dropdown-item" href="{{ path('service_index') }}">Services</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('personnel_index') }}">Personnels</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contacts d'agence</a>
 												</li>
 											</div>
 
+											<!-- Colonne 3 -->
 											<div class="col-md-4">
-												<li class="dropdown-header">Utilisateur</li>
-												<li>
-													<a class="dropdown-item" href="{{ path('utilisateur_index') }}">Utilisateur</a>
-												</li>
-												<li>
-													<a class="dropdown-item" href="{{ path('contact_agence_ate_index') }}">Contact Agence</a>
-												</li>
-												<li class="dropdown-header">Historique</li>
+												<li class="dropdown-header mt-2">Historique</li>
 												<li>
 													<a class="dropdown-item" href="{{ path('consultation_page_index') }}">Consultation de pages</a>
 												</li>
 												<li>
-													<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique opération</a>
+													<a class="dropdown-item" href="{{ path('operation_document_index') }}">Historique des opérations</a>
 												</li>
-												<li class="dropdown-header">Ticket</li>
+
+												<li class="dropdown-header mt-2">Tickets</li>
 												<li>
-													<a class="dropdown-item" href="{{ path("tki_all_categorie_index") }}">Tous les catégories</a>
+													<a class="dropdown-item" href="{{ path('tki_all_categorie_index') }}">Toutes les catégories</a>
+												</li>
+
+												<li class="dropdown-header">Référentiels</li>
+												<li>
+													<a class="dropdown-item" href="#">Types de document</a>
+												</li>
+												<li>
+													<a class="dropdown-item" href="#">Statuts d’application</a>
 												</li>
 											</div>
 										</div>
