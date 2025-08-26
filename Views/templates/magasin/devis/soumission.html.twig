@@ -1,0 +1,50 @@
+{% extends "baseTemplate.html.twig" %}
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/magasin/devis/soumission.css" rel="stylesheet"/>
+{% endblock %}
+{% block content %}
+	<div class=" container">
+		<div class="card">
+			<div class="card-body">
+
+				<div class="container">
+					<div class="row">
+						<div class="col-12 col-md-11">
+							<h3 class="perso-titre">
+								SOUMISSION DEVIS - vérification de prix magasin
+							</h3>
+						</div>
+						<div class=" col-12 col-md-1">
+							<a href="{{ path("profil_acceuil")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
+						</div>
+					</div>
+					{{ form_start(form, {'attr': {'enctype': 'multipart/form-data', 'id': 'upload-form'}}) }}
+					{{ form_errors(form)}}
+					<div class="row">
+						<div class="col-12 col-md-3">
+							<p>Veuillez insérer
+								<strong>le devis à valider *</strong>
+							</p>
+							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
+						</div>
+						<div id="pdf-preview-1" class="pdf-preview" style="display: none;">
+							<embed id="pdf-embed-1" type="application/pdf" width="100%" height="500px">
+						</div>
+					</div>
+					<div class="d-flex justify-content-end">
+						<button type="submit" class="btn bouton mt-2" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le devis N° {{numDevis}} pour {{message}}">
+							<i class="fas fa-save"></i>
+							Enregistrer
+						</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/soumission.js"></script>
+{% endblock %}
