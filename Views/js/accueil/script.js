@@ -14,10 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
         Ravi de vous revoir&nbsp;!
       </p>
       <p style="margin:0 0 8px;">
-        Pour bien démarrer, <strong>pensez à consulter le Guide utilisateur</strong> en cliquant sur </strong> 
+        Pour bien démarrer, <strong>pensez à consulter le Guide utilisateur intranet</strong> en cliquant sur </strong> <br>
         <a class="guide-link d-inline me-1">
             <i class="fas fa-info pe-2"></i>
-            Guide utilisateur
+            Guide utilisateur intranet
         </a> situé <strong>en haut de la page .
       </p>
       <p class="text-danger">
