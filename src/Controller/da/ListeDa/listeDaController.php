@@ -52,11 +52,11 @@ class listeDaController extends Controller
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
-            $this->sessionService->set('criteria_for_excel', $criteria);
         }
+        $this->sessionService->set('criteria_for_excel', $criteria);
 
         // Donnée à envoyer à la vue
-        $data = $this->getData($criteria, $fonctions);
+        $data = $this->getData($criteria);
         $dataPrepared = $this->prepareDataForDisplay($data, $numDaNonDeverrouillees);
         self::$twig->display('da/list_da.html.twig', [
             'data'                   => $dataPrepared,
@@ -65,11 +65,10 @@ class listeDaController extends Controller
             'serviceAtelier'         => $this->estUserDansServiceAtelier(),
             'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
-            'fonctions'              => $fonctions,
         ]);
     }
 
-    public function getData(array $criteria, &$fonctions): array
+    public function getData(array $criteria): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
