@@ -1,79 +1,68 @@
-
-/* Conteneur pour l'en-tête fixe */
-.sticky-header-titre {
-  position: sticky;
-  top: 0; /* Fixe au sommet de la page */
-  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
-  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
-  padding-bottom: 10px;
-  /* border-bottom: 1px solid #ddd; Optionnel : ajoute une séparation visuelle */
+.form-check-all {
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5em;
+  margin-bottom: 0.125rem;
+}
+.form-check-all .form-check-input-all {
+  float: left;
+  margin-left: -1.5em;
 }
 
-.form-check-all {
-    display: block;
-    min-height: 1.5rem;
-    padding-left: 1.5em;
-    margin-bottom: 0.125rem;
-  }
-  .form-check-all .form-check-input-all {
-    float: left;
-    margin-left: -1.5em;
-  }
-  
-  .form-check-reverse {
-    padding-right: 1.5em;
-    padding-left: 0;
-    text-align: right;
-  }
-  .form-check-reverse .form-check-input-all {
-    float: right;
-    margin-right: -1.5em;
-    margin-left: 0;
-  }
-  
-  .form-check-input-all {
-    width: 1em;
-    height: 1em;
-    margin-top: 0.25em;
-    vertical-align: top;
-    background-color: #fff;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: contain;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    -webkit-appearance: none;
-       -moz-appearance: none;
-            appearance: none;
-    -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-  }
-  .form-check-input-all[type=checkbox] {
-    border-radius: 0.25em;
-  }
-  .form-check-input-all[type=radio] {
-    border-radius: 50%;
-  }
-  .form-check-input-all:active {
-    filter: brightness(90%);
-  }
-  .form-check-input-all:focus {
-    border-color: #86b7fe;
-    outline: 0;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-  }
-  .form-check-input-all:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-  }
-  .form-check-input-all:checked[type=checkbox] {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
-  }
-  .form-check-input-all:checked[type=radio] {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
-  }
-  
-  .total th {
-    background-color: #ABABAB;
-    color: black;
-    border-bottom: #fff;
-  }
+.form-check-reverse {
+  padding-right: 1.5em;
+  padding-left: 0;
+  text-align: right;
+}
+.form-check-reverse .form-check-input-all {
+  float: right;
+  margin-right: -1.5em;
+  margin-left: 0;
+}
+
+.form-check-input-all {
+  width: 1em;
+  height: 1em;
+  margin-top: 0.25em;
+  vertical-align: top;
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.form-check-input-all[type="checkbox"] {
+  border-radius: 0.25em;
+}
+.form-check-input-all[type="radio"] {
+  border-radius: 50%;
+}
+.form-check-input-all:active {
+  filter: brightness(90%);
+}
+.form-check-input-all:focus {
+  border-color: #86b7fe;
+  outline: 0;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.form-check-input-all:checked {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+.form-check-input-all:checked[type="checkbox"] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e");
+}
+.form-check-input-all:checked[type="radio"] {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='2' fill='%23fff'/%3e%3c/svg%3e");
+}
+
+.total th {
+  background-color: #ababab;
+  color: black;
+  border-bottom: #fff;
+}
