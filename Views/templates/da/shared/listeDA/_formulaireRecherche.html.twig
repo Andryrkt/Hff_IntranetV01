@@ -51,7 +51,8 @@
 				<div class="d-flex justify-content-end mb-2">
 					<button class="btn btn-warning fw-bold" type="submit">
 						<i class="fab fa-searchengin"></i>
-						Recherche</button>
+						Recherche
+					</button>
 				</div>
 
 				{{ form_end(form) }}
@@ -65,7 +66,7 @@
 					<i class="fas fa-table"></i>
 					Excel
 				</a>
-				{% include "/partials/_statutSituationPiece.html.twig" %}
+				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : false } %}
 			</div>
 			{% if serviceAppro %}
 				<div class="my-3 d-flex flex-row">

@@ -124,7 +124,7 @@ class BreadcrumbFactory
             'bl-soumission'                         => 'Soumission Bon de Livraison',
             'cis-liste-a-livrer'                    => 'Liste des CIS à livrer',
             'cis-liste-a-traiter'                   => 'Liste des CIS à traiter',
-            'inventaire_detail'                     => 'Fiche détail',
+            'inventaire_detail'                     => 'Liste détaillée des inventaires',
             'inventaire-ctrl'                       => 'Liste des inventaires',
             'detailInventaire'                      => 'Fiche détail',
             'liste_cde_frs_non_generer'             => 'Liste des commandes fournisseurs non générées',

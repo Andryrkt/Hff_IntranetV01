@@ -21,17 +21,14 @@
 
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
-			<div class="mb-3 container">
-				<h3 class="perso-titre">
-					Liste des commandes fournisseurs
-				</h3>
+			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
 			</div>
 		</div>
 
-		<table class="table table-plein-ecran">
-			<thead class="table-dark">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">N° DA</th>
 					<th class="text-center">Achat direct</th>
@@ -110,5 +107,6 @@
 {% endblock %}
 
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
 	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js" type="module"></script>
 {% endblock %}
