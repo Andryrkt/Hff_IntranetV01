@@ -72,7 +72,7 @@ class DwDemandeIntervention
      * @ORM\Column(type="string", length=50, name="numero_parc")
      */
     private $numeroParc;
-    
+
     /**
      * @ORM\Column(type="string", length=100, name="numero_serie")
      */
@@ -107,16 +107,36 @@ class DwDemandeIntervention
      * @ORM\JoinColumn(name="id_tiroir", referencedColumnName="id_tiroir", nullable=true)
      */
     private $tiroir;
-    
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_avoir")
+     */
+    private $numeroDemandeDitAvoit;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_refacturation")
+     */
+    private $numeroDemandeDitRefacturation;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_avoir")
+     */
+    private bool $estDitAvoir = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_refacturation")
+     */
+    private bool $estDitRefacturation = false;
+
     /** ===========================================================================
- * getteur and setteur
- *
- * ================================================================================
- */
+     * getteur and setteur
+     *
+     * ================================================================================
+     */
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -124,7 +144,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of idDit
-     */ 
+     */
     public function getIdDit()
     {
         return $this->idDit;
@@ -134,7 +154,7 @@ class DwDemandeIntervention
      * Set the value of idDit
      *
      * @return  self
-     */ 
+     */
     public function setIdDit($idDit)
     {
         $this->idDit = $idDit;
@@ -144,7 +164,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of numeroDit
-     */ 
+     */
     public function getNumeroDit()
     {
         return $this->numeroDit;
@@ -154,7 +174,7 @@ class DwDemandeIntervention
      * Set the value of numeroDit
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDit($numeroDit)
     {
         $this->numeroDit = $numeroDit;
@@ -166,7 +186,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of dateCreation
-     */ 
+     */
     public function getDateCreation()
     {
         return $this->dateCreation;
@@ -176,7 +196,7 @@ class DwDemandeIntervention
      * Set the value of dateCreation
      *
      * @return  self
-     */ 
+     */
     public function setDateCreation($dateCreation)
     {
         $this->dateCreation = $dateCreation;
@@ -186,7 +206,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of heureCreation
-     */ 
+     */
     public function getHeureCreation()
     {
         return $this->heureCreation;
@@ -196,7 +216,7 @@ class DwDemandeIntervention
      * Set the value of heureCreation
      *
      * @return  self
-     */ 
+     */
     public function setHeureCreation($heureCreation)
     {
         $this->heureCreation = $heureCreation;
@@ -206,7 +226,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of dateDerniereModification
-     */ 
+     */
     public function getDateDerniereModification()
     {
         return $this->dateDerniereModification;
@@ -216,7 +236,7 @@ class DwDemandeIntervention
      * Set the value of dateDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setDateDerniereModification($dateDerniereModification)
     {
         $this->dateDerniereModification = $dateDerniereModification;
@@ -226,7 +246,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of heureDerniereModification
-     */ 
+     */
     public function getHeureDerniereModification()
     {
         return $this->heureDerniereModification;
@@ -236,7 +256,7 @@ class DwDemandeIntervention
      * Set the value of heureDerniereModification
      *
      * @return  self
-     */ 
+     */
     public function setHeureDerniereModification($heureDerniereModification)
     {
         $this->heureDerniereModification = $heureDerniereModification;
@@ -246,7 +266,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of extensionFichier
-     */ 
+     */
     public function getExtensionFichier()
     {
         return $this->extensionFichier;
@@ -256,7 +276,7 @@ class DwDemandeIntervention
      * Set the value of extensionFichier
      *
      * @return  self
-     */ 
+     */
     public function setExtensionFichier($extensionFichier)
     {
         $this->extensionFichier = $extensionFichier;
@@ -266,7 +286,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of typeReparation
-     */ 
+     */
     public function getTypeReparation()
     {
         return $this->typeReparation;
@@ -276,7 +296,7 @@ class DwDemandeIntervention
      * Set the value of typeReparation
      *
      * @return  self
-     */ 
+     */
     public function setTypeReparation($typeReparation)
     {
         $this->typeReparation = $typeReparation;
@@ -286,7 +306,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of idMateriel
-     */ 
+     */
     public function getIdMateriel()
     {
         return $this->idMateriel;
@@ -296,7 +316,7 @@ class DwDemandeIntervention
      * Set the value of idMateriel
      *
      * @return  self
-     */ 
+     */
     public function setIdMateriel($idMateriel)
     {
         $this->idMateriel = $idMateriel;
@@ -306,7 +326,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of numeroParc
-     */ 
+     */
     public function getNumeroParc()
     {
         return $this->numeroParc;
@@ -316,7 +336,7 @@ class DwDemandeIntervention
      * Set the value of numeroParc
      *
      * @return  self
-     */ 
+     */
     public function setNumeroParc($numeroParc)
     {
         $this->numeroParc = $numeroParc;
@@ -326,7 +346,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of numeroSerie
-     */ 
+     */
     public function getNumeroSerie()
     {
         return $this->numeroSerie;
@@ -336,7 +356,7 @@ class DwDemandeIntervention
      * Set the value of numeroSerie
      *
      * @return  self
-     */ 
+     */
     public function setNumeroSerie($numeroSerie)
     {
         $this->numeroSerie = $numeroSerie;
@@ -346,7 +366,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of designationMateriel
-     */ 
+     */
     public function getDesignationMateriel()
     {
         return $this->designationMateriel;
@@ -356,7 +376,7 @@ class DwDemandeIntervention
      * Set the value of designationMateriel
      *
      * @return  self
-     */ 
+     */
     public function setDesignationMateriel($designationMateriel)
     {
         $this->designationMateriel = $designationMateriel;
@@ -366,7 +386,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of totalPage
-     */ 
+     */
     public function getTotalPage()
     {
         return $this->totalPage;
@@ -376,7 +396,7 @@ class DwDemandeIntervention
      * Set the value of totalPage
      *
      * @return  self
-     */ 
+     */
     public function setTotalPage($totalPage)
     {
         $this->totalPage = $totalPage;
@@ -386,7 +406,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of tailleFichier
-     */ 
+     */
     public function getTailleFichier()
     {
         return $this->tailleFichier;
@@ -396,7 +416,7 @@ class DwDemandeIntervention
      * Set the value of tailleFichier
      *
      * @return  self
-     */ 
+     */
     public function setTailleFichier($tailleFichier)
     {
         $this->tailleFichier = $tailleFichier;
@@ -406,7 +426,7 @@ class DwDemandeIntervention
 
     /**
      * Get the value of path
-     */ 
+     */
     public function getPath()
     {
         return $this->path;
@@ -416,7 +436,7 @@ class DwDemandeIntervention
      * Set the value of path
      *
      * @return  self
-     */ 
+     */
     public function setPath($path)
     {
         $this->path = $path;
@@ -444,7 +464,7 @@ class DwDemandeIntervention
         $this->ordreDeReparation = $ordreDeReparation;
         return $this;
     }
-    
+
     public function getTiroir(): ?DwTiroir
     {
         return $this->tiroir;
@@ -453,6 +473,86 @@ class DwDemandeIntervention
     public function setTiroir(?DwTiroir $tiroir): self
     {
         $this->tiroir = $tiroir;
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitAvoit
+     */
+    public function getNumeroDemandeDitAvoit()
+    {
+        return $this->numeroDemandeDitAvoit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitAvoit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitAvoit($numeroDemandeDitAvoit)
+    {
+        $this->numeroDemandeDitAvoit = $numeroDemandeDitAvoit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitRefacturation
+     */
+    public function getNumeroDemandeDitRefacturation()
+    {
+        return $this->numeroDemandeDitRefacturation;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitRefacturation
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitRefacturation($numeroDemandeDitRefacturation)
+    {
+        $this->numeroDemandeDitRefacturation = $numeroDemandeDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitAvoir
+     */
+    public function getEstDitAvoir()
+    {
+        return $this->estDitAvoir;
+    }
+
+    /**
+     * Set the value of estDitAvoir
+     *
+     * @return  self
+     */
+    public function setEstDitAvoir($estDitAvoir)
+    {
+        $this->estDitAvoir = $estDitAvoir;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitRefacturation
+     */
+    public function getEstDitRefacturation()
+    {
+        return $this->estDitRefacturation;
+    }
+
+    /**
+     * Set the value of estDitRefacturation
+     *
+     * @return  self
+     */
+    public function setEstDitRefacturation($estDitRefacturation)
+    {
+        $this->estDitRefacturation = $estDitRefacturation;
+
         return $this;
     }
 }
