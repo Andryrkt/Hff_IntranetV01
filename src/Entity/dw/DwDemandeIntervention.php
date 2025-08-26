@@ -111,12 +111,12 @@ class DwDemandeIntervention
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit_avoir")
      */
-    private $numeroDemandeDitAvoit;
+    private ?string $numeroDemandeDitAvoit = null;
 
     /**
      * @ORM\Column(type="string", length=11, name="numero_demande_dit_refacturation")
      */
-    private $numeroDemandeDitRefacturation;
+    private ?string $numeroDemandeDitRefacturation = null;
 
     /**
      * @ORM\Column(type="boolean", name="dit_avoir")

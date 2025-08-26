@@ -22,6 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
 use App\Repository\admin\dit\WorTypeDocumentRepository;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 
@@ -33,7 +34,6 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
 class demandeInterventionType extends AbstractType
 {
-    private $serviceRepository;
     private $agenceRepository;
     const TYPE_REPARATION = [
         'EN COURS' => 'EN COURS',
@@ -65,7 +65,6 @@ class demandeInterventionType extends AbstractType
 
     public function __construct()
     {
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
         $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
     }
 
@@ -73,7 +72,15 @@ class demandeInterventionType extends AbstractType
     {
 
         $builder
-            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
+            ->add('estDitAvoir', CheckboxType::class, [
+                'required' => false, // obligatoire false
+                'label'    => "Cette demande est un avoir (annulation de la <numero_dit_initale>)",
+            ])
+            ->add('estDitRefacturation', CheckboxType::class, [
+                'required' => false, //obligatoire false
+                'label'    => "Cette demande est une refacturation (reprise de la DIT <numero_dit_initale> avec nouvelle facturation>",
+            ])
+            ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
                 $services = null;
@@ -81,9 +88,6 @@ class demandeInterventionType extends AbstractType
                 if ($data instanceof DemandeIntervention && $data->getAgence()) {
                     $services = $data->getAgence()->getServices();
                 }
-                //$services = $data->getAgence()->getServices();
-                // $agence = $event->getData()->getAgence() ?? null;
-                // $services = $agence->getServices();
 
                 $form->add(
                     'service',
@@ -111,20 +115,14 @@ class demandeInterventionType extends AbstractType
             ->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) {
                 $form = $event->getForm();
                 $data = $event->getData();
-
-
                 $agenceId = $data['agence'] ?? null;
-
                 $services = [];
-
                 if ($agenceId) {
                     $agence = $this->agenceRepository->find($agenceId);
                     if ($agence) {
                         $services = $agence->getServices();
                     }
                 }
-
-
                 $form->add('service', EntityType::class, [
                     'label' => 'Service Débiteur *',
                     'class' => Service::class,
@@ -159,7 +157,6 @@ class demandeInterventionType extends AbstractType
                     }
                 ]
             )
-
             ->add(
                 'typeReparation',
                 ChoiceType::class,
@@ -221,7 +218,6 @@ class demandeInterventionType extends AbstractType
                 'agence',
                 EntityType::class,
                 [
-
                     'label' => 'Agence Debiteur *',
                     'placeholder' => '-- Choisir une agence Debiteur --',
                     'class' => Agence::class,
@@ -236,7 +232,6 @@ class demandeInterventionType extends AbstractType
                     'attr' => ['class' => 'agenceDebiteur']
                 ]
             )
-
             ->add(
                 'agenceEmetteur',
                 TextType::class,
@@ -250,7 +245,6 @@ class demandeInterventionType extends AbstractType
                     'data' => $options["data"]->getAgenceEmetteur() ?? null
                 ]
             )
-
             ->add(
                 'serviceEmetteur',
                 TextType::class,
@@ -265,19 +259,6 @@ class demandeInterventionType extends AbstractType
                     'data' => $options["data"]->getServiceEmetteur() ?? null
                 ]
             )
-            // ->add('service', 
-            // EntityType::class,
-            // [
-
-            //     'label' => 'Service Débiteut',
-            //     'placeholder' => '-- Choisir une service débiteur --',
-            //     'class' => Service::class,
-            //     'choice_label' => function (Service $service): string {
-            //         return $service->getCodeService() . ' ' . $service->getLibelleService();
-            //     },
-            //     'required' => false,
-
-            // ])
             ->add(
                 'nomClient',
                 TextType::class,
@@ -288,7 +269,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'nomClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' //  la route de l'autocomplétion
                     ]
                 ]
             )
@@ -302,7 +283,7 @@ class demandeInterventionType extends AbstractType
                         'disabled' => true,
                         'class' => 'numClient noEntrer autocomplete',
                         'autocomplete' => 'off',
-                        'data-autocomplete-url' => 'autocomplete/all-client' // Mettez ici la route de l'autocomplétion
+                        'data-autocomplete-url' => 'autocomplete/all-client' // la route de l'autocomplétion
                     ]
                 ]
             )
@@ -539,11 +520,6 @@ class demandeInterventionType extends AbstractType
                     ],
                 ]
             )
-
-            // ->addEventListener(FormEvents::PRE_SUBMIT, function(FormEvent $event){
-            //     $nomUtilisateur = $event->getData();
-            //     dd($nomUtilisateur);
-            // })
         ;
     }
 

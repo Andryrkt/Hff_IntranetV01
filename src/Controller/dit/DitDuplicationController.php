@@ -66,6 +66,11 @@ class DitDuplicationController extends Controller
         ]);
     }
 
+    private function estAvoireOuRefacturation(): bool
+    {
+        return false;
+    }
+
     private function traitementFormulaire($form, Request $request, $demandeIntervention, $user)
     {
         $form->handleRequest($request);

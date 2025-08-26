@@ -28,6 +28,12 @@
 				{{ form_errors(form)}}
 
 				<div class="row">
+					<div class="d-none">
+						{{ form_row(form.estDitAvoir)}}
+					</div>
+					<div class="text-danger">
+						{{ form_row(form.estDitRefacturation, {'required':true})}}
+					</div>
 					{{ form_row(form.objetDemande)}}
 					<div class="mb-3 position-relative">
 						{{ form_row(form.detailDemande) }}
