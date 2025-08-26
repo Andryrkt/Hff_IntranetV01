@@ -530,6 +530,26 @@ class DemandeIntervention
 
     private bool $estAnnulable = false;
 
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_avoir")
+     */
+    private ?string $numeroDemandeDitAvoit = null;
+
+    /**
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit_refacturation")
+     */
+    private ?string $numeroDemandeDitRefacturation = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_avoir")
+     */
+    private bool $estDitAvoir = false;
+
+    /**
+     * @ORM\Column(type="boolean", name="dit_refacturation")
+     */
+    private bool $estDitRefacturation = false;
+
     /** ===================================================================================================================
      * 
      * GETTER and SETTER
@@ -1696,6 +1716,86 @@ class DemandeIntervention
     public function setEstAnnulable($estAnnulable)
     {
         $this->estAnnulable = $estAnnulable;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitAvoit
+     */
+    public function getNumeroDemandeDitAvoit()
+    {
+        return $this->numeroDemandeDitAvoit;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitAvoit
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitAvoit($numeroDemandeDitAvoit)
+    {
+        $this->numeroDemandeDitAvoit = $numeroDemandeDitAvoit;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroDemandeDitRefacturation
+     */
+    public function getNumeroDemandeDitRefacturation()
+    {
+        return $this->numeroDemandeDitRefacturation;
+    }
+
+    /**
+     * Set the value of numeroDemandeDitRefacturation
+     *
+     * @return  self
+     */
+    public function setNumeroDemandeDitRefacturation($numeroDemandeDitRefacturation)
+    {
+        $this->numeroDemandeDitRefacturation = $numeroDemandeDitRefacturation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitAvoir
+     */
+    public function getEstDitAvoir()
+    {
+        return $this->estDitAvoir;
+    }
+
+    /**
+     * Set the value of estDitAvoir
+     *
+     * @return  self
+     */
+    public function setEstDitAvoir($estDitAvoir)
+    {
+        $this->estDitAvoir = $estDitAvoir;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estDitRefacturation
+     */
+    public function getEstDitRefacturation()
+    {
+        return $this->estDitRefacturation;
+    }
+
+    /**
+     * Set the value of estDitRefacturation
+     *
+     * @return  self
+     */
+    public function setEstDitRefacturation($estDitRefacturation)
+    {
+        $this->estDitRefacturation = $estDitRefacturation;
 
         return $this;
     }

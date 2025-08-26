@@ -28,6 +28,10 @@
 				{{ form_errors(form)}}
 
 				<div class="row">
+					<div class="d-none">
+						{{ form_row(form.estDitAvoir)}}
+						{{ form_row(form.estDitRefacturation)}}
+					</div>
 					{{ form_row(form.objetDemande)}}
 					<div class="mb-3 position-relative">
 						{{ form_row(form.detailDemande) }}
