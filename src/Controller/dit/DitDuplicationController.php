@@ -44,8 +44,7 @@ class DitDuplicationController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         //INITIALISATION DU FORMULAIRE
         $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
@@ -59,15 +58,39 @@ class DitDuplicationController extends Controller
             'id'     => $id,
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
-
+        $estAvoir = $this->estAvoir($dit); // TODO : encore à faire
+        $estRefactorisation = $this->estRefacturation($dit); //
         self::$twig->display('dit/duplication.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
+            'estAvoir' => $estAvoir,
+            'estRefactorisation' => $estRefactorisation
         ]);
     }
 
-    private function estAvoireOuRefacturation(): bool
+    private function estAvoir(DemandeIntervention $dit): bool
     {
+        $position = $this->ditModel->getPosition($dit->getNumeroDemandeIntervention());
+        if (!empty($position)) {
+            $positionOR =  in_array($position[0], ['FC', 'CP']); //l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
+            $statutDit = $dit->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; // le dernier statut de la DIT inital est 'Validé'
+            $numeroAvoir = $dit->getNumeroDemandeDitAvoit() === null;
+            return $positionOR && $statutDit && $numeroAvoir;
+        }
+
+        return false;
+    }
+
+    private function estRefacturation(DemandeIntervention $dit): bool
+    {
+        $position = $this->ditModel->getPosition($dit->getNumeroDemandeIntervention());
+        if (!empty($position)) {
+            $niAvoirNiRefac = $dit->getEstDitAvoir() === false && $dit->getEstDitRefacturation() === false;
+            $positionOR =  in_array($position[0], ['FC', 'CP']); //l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
+            $numeroAvoir = $dit->getNumeroDemandeDitAvoit() <> null;
+            return $positionOR && $niAvoirNiRefac && $numeroAvoir;
+        }
+
         return false;
     }
 
