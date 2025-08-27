@@ -20,7 +20,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use App\Service\historiqueOperation\HistoriqueOperationDaBcService\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
 
 /**
  * @Route("/demande-appro")
@@ -132,8 +132,7 @@ class DaSoumissionBcController extends Controller
         if (!empty($daValiders)) {
             foreach ($daValiders as $key => $daValider) {
                 $daValider
-                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION)
-                ;
+                    ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION);
                 self::$em->persist($daValider);
             }
 
