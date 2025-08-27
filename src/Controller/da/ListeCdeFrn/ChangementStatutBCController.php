@@ -26,7 +26,7 @@ class ChangementStatutBCController extends Controller
         $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
     }
     /**
-     * @Route(path="/demande-appro/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
+     * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
      *
      * @return void
      */
@@ -43,12 +43,13 @@ class ChangementStatutBCController extends Controller
                 self::$em->persist($soumissionBc);
             }
 
-            //modification dans la table da_valider
+            //modification dans la table da_afficher
             $numVersionMaxDaValider = $this->daAfficherRepository->getNumeroVersionMaxCde($numCde);
-            $daValider = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
-            foreach ($daValider as $valider) {
+            $daAffichers = $this->daAfficherRepository->findBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxDaValider]);
+            foreach ($daAffichers as $valider) {
                 $valider->setStatutCde(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR)
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
+                    ->setBcEnvoyerFournisseur(true)
                 ;
                 self::$em->persist($valider);
             }
