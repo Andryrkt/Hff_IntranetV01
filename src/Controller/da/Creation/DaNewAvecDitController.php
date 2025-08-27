@@ -67,6 +67,7 @@ class DaNewAvecDitController extends Controller
         $dit = $this->ditRepository->find($ditId);
 
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro->setDit($dit);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
