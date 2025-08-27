@@ -10,6 +10,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Model\da\DaSoumissionBcModel;
 use App\Repository\dit\DitRepository;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GeneratePdf;
 use App\Repository\da\DaValiderRepository;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
@@ -17,10 +18,9 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\da\soumissionBC\DaSoumissionBcType;
-use App\Service\genererPdf\GeneratePdf;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationDaBcService\HistoriqueOperationDaBcService;
 
 /**
  * @Route("/demande-appro")

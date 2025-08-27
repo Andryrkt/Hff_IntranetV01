@@ -9,15 +9,15 @@ use App\Entity\da\DaSoumissionFacBl;
 use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Service\genererPdf\GeneratePdf;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
-use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Service\historiqueOperation\HistoriqueOperationDaBcService\HistoriqueOperationDaBcService;
 
 /**
  * @Route("/demande-appro")
