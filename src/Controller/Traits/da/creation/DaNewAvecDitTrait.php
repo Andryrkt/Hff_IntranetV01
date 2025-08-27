@@ -2,10 +2,11 @@
 
 namespace App\Controller\Traits\da\creation;
 
-use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DemandeIntervention;
 use App\Model\da\DaModel;
+use App\Entity\da\DemandeAppro;
 use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
+use Symfony\Component\HttpFoundation\Request;
 
 trait DaNewAvecDitTrait
 {
@@ -14,6 +15,7 @@ trait DaNewAvecDitTrait
     //=====================================================================================
     private DaModel $daModel;
     private DitRepository $ditRepository;
+    private $fournisseurs;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -24,6 +26,7 @@ trait DaNewAvecDitTrait
         $this->initDaTrait();
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daModel = new DaModel();
+        $this->setAllFournisseurs();
     }
     //=====================================================================================
 
@@ -50,7 +53,6 @@ trait DaNewAvecDitTrait
             ->setServiceEmetteur($dit->getServiceEmetteurId())
             ->setAgenceServiceDebiteur($dit->getAgenceDebiteurId()->getCodeAgence() . '-' . $dit->getServiceDebiteurId()->getCodeService())
             ->setAgenceServiceEmetteur($dit->getAgenceEmetteurId()->getCodeAgence() . '-' . $dit->getServiceEmetteurId()->getCodeService())
-            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
             ->setUser($this->getUser())
             ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())
@@ -58,5 +60,30 @@ trait DaNewAvecDitTrait
         ;
 
         return $demandeAppro;
+    }
+
+    /** 
+     * Fonction pour retourner le nom du bouton cliqué
+     *  - enregistrerBrouillon
+     *  - soumissionAppro
+     */
+    private function getButtonName(Request $request): string
+    {
+        if ($request->request->has('enregistrerBrouillon')) {
+            return 'enregistrerBrouillon';
+        } elseif ($request->request->has('soumissionAppro')) {
+            return 'soumissionAppro';
+        } else {
+            return '';
+        }
+    }
+
+    /** 
+     * Fonctions pour définir les fournisseurs dans le propriété $fournisseur
+     */
+    private function setAllFournisseurs()
+    {
+        $fournisseurs = $this->daModel->getAllFournisseur();
+        $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
     }
 }
