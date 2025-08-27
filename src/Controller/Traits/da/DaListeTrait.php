@@ -51,8 +51,9 @@ trait DaListeTrait
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide fw-bold',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white fw-bold',
             DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat fw-bold',
+            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation fw-bold',
             DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat fw-bold',
-            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-warning text-secondary',
+            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation fw-bold',
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale fw-bold',
         ];
         $this->styleStatutOR = [
@@ -131,10 +132,16 @@ trait DaListeTrait
                 $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
-            $urlProposition = $this->urlGenerator->generate(
+            $urlDesignation = $this->urlGenerator->generate(
                 $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
+            if ($item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION) {
+                $urlDesignation = $this->urlGenerator->generate('da_new_avec_dit', [
+                    'daId'  => $item->getDemandeAppro()->getId(),
+                    'ditId' => $item->getDit()->getId(),
+                ]);
+            }
             $urlDelete = $this->urlGenerator->generate(
                 $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
                 ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
@@ -181,7 +188,7 @@ trait DaListeTrait
                 'styleStatutBC'       => $styleStatutBC,
                 'aDeverouiller'       => $aDeverouiller,
                 'urlDetail'           => $urlDetail,
-                'urlProposition'      => $urlProposition,
+                'urlDesignation'      => $urlDesignation,
                 'urlDelete'           => $urlDelete,
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
