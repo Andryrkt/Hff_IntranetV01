@@ -58,7 +58,7 @@ class listeDaController extends Controller
         // Donnée à envoyer à la vue
         $data = $this->getData($criteria);
         $dataPrepared = $this->prepareDataForDisplay($data, $numDaNonDeverrouillees);
-        self::$twig->display('da/list_da.html.twig', [
+        self::$twig->display('da/list-da.html.twig', [
             'data'                   => $dataPrepared,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),

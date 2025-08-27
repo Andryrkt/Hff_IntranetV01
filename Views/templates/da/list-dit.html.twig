@@ -17,23 +17,15 @@
 {% set user_connecter = App.user.nom_utilisateur %}
 
 {% block content %}
-
-<div class="container">
-	<h3 class="perso-titre">
-		Veuillez sélectionner un DIT parmi la liste
-	</h3>
-	{% include "/partials/_notification.html.twig" %}
-
-	{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
-</div>
-
-<div class="container-fluid">
+<div class="sticky-header-titre">
 	<div class="container">
+		{% include "/partials/_notification.html.twig" %}
+		{% include "/da/shared/listeDIT/_formulaireRecherche.html.twig" %}
 		{% include "/da/shared/listeDIT/_pagination.html.twig" %}
 	</div>
-
-	<!-- DEBUT tableau -->
-	<table class="table table-hover table-plein-ecran">
+</div>
+<div class="container-fluid">
+	<table class="table table-hover table-sticky">
 		<thead class="table-dark">
 			<tr>
 				<th style="width: 2%;"></th>
@@ -111,7 +103,7 @@
 		</tbody>
 	</table>
 	<div class="d-flex justify-content-end mb-2">
-		<button class="btn btn-warning fw-bold" id="suivant" data-uri="{{ path('da_new_avec_dit', { id:'__id__' } ) }}">
+		<button class="btn btn-warning fw-bold" id="suivant" data-uri="{{ path('da_new_avec_dit', { daId: 0, ditId:'__id__' } ) }}">
 			Suivant
 			<i class="fas fa-arrow-right"></i>
 		</button>
@@ -131,10 +123,9 @@
 	</div>
 	{% endif %}
 </div>
-
-	<!-- FIN tableau -->
 {% endblock %}
 
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeDit/list.js" type="module"></script>
 {% endblock %}   
