@@ -17,6 +17,11 @@ class DevisMagasin
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private ?int $numeroVersion = 0;
+
     private $pieceJoint01;
 
     /** =========================================
@@ -29,6 +34,26 @@ class DevisMagasin
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * Get the value of numeroVersion
+     */
+    public function getNumeroVersion()
+    {
+        return $this->numeroVersion;
+    }
+
+    /**
+     * Set the value of numeroVersion
+     *
+     * @return  self
+     */
+    public function setNumeroVersion($numeroVersion)
+    {
+        $this->numeroVersion = $numeroVersion;
+
+        return $this;
     }
 
     /**
