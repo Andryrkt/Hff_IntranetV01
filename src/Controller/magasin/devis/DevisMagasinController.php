@@ -7,7 +7,7 @@ use App\Form\magasin\devis\DevisMagasinType;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/magasin")
+ * @Route("/magasin/dematerialisation")
  */
 class DevisMagasinController extends Controller
 {

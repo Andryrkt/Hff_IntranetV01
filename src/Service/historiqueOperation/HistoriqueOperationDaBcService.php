@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+namespace App\Service\historiqueOperation;
 
 use App\Service\historiqueOperation\HistoriqueOperationService;
 
