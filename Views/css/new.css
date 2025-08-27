@@ -96,3 +96,20 @@
   background-color: #43a047; /* vert */
   transform: scale(1.03);
 }
+
+/* Bouton brouillon */
+.bouton-brouillon {
+  background-color: #2196f3; /* Bleu */
+  color: #fff;
+  font-weight: 500;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.bouton-brouillon:hover {
+  background-color: #1976d2; /* Bleu foncé */
+  transform: scale(1.03);
+}
