@@ -80,64 +80,79 @@ class listeDaController extends Controller
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
 
-        // Vérification du verrouillage des DA
-        $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
-        // Retourne les DA filtrées
-        return $daAffichers;
+        // Vérification du verrouillage des DA et Retourne les DA filtrées
+        return $this->appliquerVerrouillageSelonProfil(
+            $daAffichers,
+            $this->estAdmin(),
+            $this->estUserDansServiceAppro(),
+            $this->estUserDansServiceAtelier()
+        );
     }
 
 
-    /** 
-     * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
-     * @param array $dasFiltered
-     * @return array
+    /**
+     * Applique le verrouillage ou déverrouillage des DA en fonction du profil utilisateur
+     * 
+     * @param iterable<DaAfficher> $daAffichers
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
+     * 
+     * @return iterable<DaAfficher>
      */
-    private function verouillerOuNonLesDa($daAffichers)
-    {
+    private function appliquerVerrouillageSelonProfil(
+        iterable $daAffichers,
+        bool $estAdmin,
+        bool $estAppro,
+        bool $estAtelier
+    ): iterable {
         foreach ($daAffichers as $daAfficher) {
-            $this->estVerouillerOuNon($daAfficher);
+            $this->determinerEtatVerrouillage($daAfficher, $estAdmin, $estAppro, $estAtelier);
         }
         return $daAffichers;
     }
 
-    /** 
-     * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
+    /**
+     * Détermine si une DA doit être verrouillée ou non selon son statut et le profil utilisateur
+     * 
+     * @param DaAfficher $daAfficher
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
      */
-    private function estVerouillerOuNon($daAfficher)
-    {
-        $statutDa = $daAfficher->getStatutDal(); // Récupération du statut de la DA
-        $statutBc = $daAfficher->getStatutCde(); // Récupération du statut du BC
+    private function determinerEtatVerrouillage(
+        DaAfficher $daAfficher,
+        bool $estAdmin,
+        bool $estAppro,
+        bool $estAtelier
+    ): void {
+        $statutDa = $daAfficher->getStatutDal();
+        $statutBc = $daAfficher->getStatutCde();
 
-        $estAppro = $this->estUserDansServiceAppro();
-        $estAtelier = $this->estUserDansServiceAtelier();
-        $estAdmin = $this->estAdmin();
-        $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
+        $verrouille = true; // verrouillage par défaut
 
-        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_A_VALIDE_DW];
-        $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_A_VALIDE_DW];
+        $statutsDeverouillageAppro = [
+            DemandeAppro::STATUT_SOUMIS_APPRO,
+            DemandeAppro::STATUT_SOUMIS_ATE,
+        ];
 
-        if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
-            /** 
-             * Si l'utilisateur est Appro mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE,
-             * et que le statut de la soumission BC n'est pas REFUSE, alors on verrouille la DA. 
-             **/
-            $verouiller = true;
-        } elseif (!$estAdmin && $estAtelier && in_array($statutDa, $statutDaVerouillerAtelier)) {
-            /** 
-             * Si l'utilisateur est Atelier mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE ou SOUMIS A APPRO, 
-             * alors on verrouille la DA.
-             **/
-            $verouiller = true;
-        } elseif (!$estAtelier && !$estAppro && !$estAdmin) {
-            /** 
-             * Si l'utilisateur n'est ni Appro ni Atelier, et n'est pas Administrateur,
-             * alors on verrouille la DA.
-             */
-            $verouiller = true;
+        $statutsDeverouillageAtelier = [
+            DemandeAppro::STATUT_SOUMIS_ATE,
+            DemandeAppro::STATUT_EN_COURS_CREATION,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+        ];
+
+        // Déverrouillage selon le profil et les statuts
+        if ($estAdmin) {
+            $verrouille = false;
+        } elseif ($estAppro && (in_array($statutDa, $statutsDeverouillageAppro) ||
+            ($statutDa === DemandeAppro::STATUT_VALIDE && $statutBc === DaSoumissionBc::STATUT_REFUSE))) {
+            $verrouille = false;
+        } elseif ($estAtelier && in_array($statutDa, $statutsDeverouillageAtelier)) {
+            $verrouille = false;
         }
 
-        // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
-        $daAfficher->setVerouille($verouiller);
+        $daAfficher->setVerouille($verrouille);
     }
 
     private function quelqueModifictionDansDatabase(array $datas)
