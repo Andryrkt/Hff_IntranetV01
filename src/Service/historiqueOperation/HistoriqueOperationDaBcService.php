@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Service\historiqueOperation;
+namespace App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+
+use App\Service\historiqueOperation\HistoriqueOperationService;
 
 class HistoriqueOperationDaBcService extends HistoriqueOperationService
 {
