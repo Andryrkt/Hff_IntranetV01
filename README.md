@@ -24,7 +24,7 @@ vendor/bin/doctrine orm:generate-proxies
 
 ## ajouter ceci si on vient de le deploier
 
-fichier config.js
+fichier config.js à crée dans Views > js > utils > config.js
 
 ```Bash
 export const baseUrl = "/Hffintranet";

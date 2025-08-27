@@ -1,0 +1,61 @@
+/* Style de la zone de dépôt */
+.dropzone {
+  border: 2px dashed #007bff;
+  border-radius: 10px;
+  padding: 50px;
+  text-align: center;
+  color: #6c757d;
+  background-color: #f8f9fa;
+  transition: background-color 0.3s, border-color 0.3s;
+  position: relative;
+}
+
+/* Contenu centré dans la zone de dépôt */
+.dropzone-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+/* Style de l'icône de téléchargement */
+.upload-icon {
+  font-size: 40px;
+  color: #fbbb01;
+  margin-bottom: 20px;
+}
+
+/* Hover et focus sur la zone de dépôt */
+.dropzone:hover,
+.dropzone:focus {
+  background-color: #e2e6ea;
+  border-color: #fbbb01;
+}
+
+/* Bouton de sélection de fichier */
+.btn-primary {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #fbbb01;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Hover et focus sur les boutons */
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #fbbb01;
+}
+
+/* Style de l'aperçu PDF */
+.pdf-preview {
+  margin-top: 20px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow: hidden;
+}

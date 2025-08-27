@@ -1,9 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets%}
-<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
-{% endblock%}
+	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+{% endblock %}
 
 
 {% block content %}
@@ -82,7 +82,7 @@
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
-Swal.fire( {
+Swal.fire({
 
 title: "Attention !",
 text: "{{ App.session.get('message') }}", // Correcte en Twig
@@ -91,9 +91,9 @@ showCancelButton: true,
 confirmButtonText: "Continuer",
 cancelButtonText: "Quitter"
 
-} ).then( ( result ) => {
+}).then((result) => {
 
-if ( result.isConfirmed ) { // L'utilisateur veut continuer
+if (result.isConfirmed) { // L'utilisateur veut continuer
 
 window.location.href = window.location.href + "?continueDevis=1";
 
@@ -102,6 +102,6 @@ window.location.href = "{{ path('dit_index') }}";
 
 }
 
-} );{% endif %}
+});{% endif %}
 	</script>
 {% endblock %}
