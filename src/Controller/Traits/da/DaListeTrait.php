@@ -99,6 +99,78 @@ trait DaListeTrait
         }
     }
 
+    public function getData(array $criteria): array
+    {
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $userConnecter = $this->getUser();
+        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
+        /** @var array $daAffichers Filtrage des DA en fonction des critères */
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+
+        // mise à jours des donner dans la base de donner
+        $this->quelqueModifictionDansDatabase($daAffichers);
+
+        // Vérification du verrouillage des DA et Retourne les DA filtrées
+        return $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+    }
+
+    private function quelqueModifictionDansDatabase(array $datas)
+    {
+        $em = $this->getEntityManager();
+        foreach ($datas as $data) {
+            $this->modificationDateRestant($data, $em);
+            $this->modificationStatutBC($data, $em);
+        }
+        $em->flush();
+    }
+
+    /** 
+     * Permet de calculer le nombre de jours restants pour chaque DAL
+     */
+    private function modificationDateRestant(DaAfficher $data, $em): void
+    {
+        $this->ajoutNbrJourRestant($data);
+        $em->persist($data);
+    }
+
+    /**
+     * Cette methode permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC(DaAfficher $data, $em)
+    {
+        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $data->setStatutCde($statutBC);
+        $em->persist($data);
+    }
+
+    /**
+     * Applique le verrouillage ou déverrouillage des DA en fonction du profil utilisateur
+     * 
+     * @param iterable<DaAfficher> $daAffichers
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
+     * 
+     * @return iterable<DaAfficher>
+     */
+    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier): iterable
+    {
+        foreach ($daAffichers as $daAfficher) {
+            $verrouille = $this->estDaVerrouillee(
+                $daAfficher->getStatutDal(),
+                $daAfficher->getStatutCde(),
+                $estAdmin,
+                $estAppro,
+                $estAtelier
+            );
+            $daAfficher->setVerouille($verrouille);
+        }
+        return $daAffichers;
+    }
+
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      *  @param DaAfficher[] $data données avant préparation
