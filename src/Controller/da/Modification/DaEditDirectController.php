@@ -3,6 +3,7 @@
 namespace App\Controller\da\Modification;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
@@ -19,6 +20,7 @@ class DaEditDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaEditDirectTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -34,6 +36,9 @@ class DaEditDirectController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
+
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $numDa = $demandeAppro->getNumeroDemandeAppro();

@@ -4,15 +4,17 @@ namespace App\Controller\da\Detail;
 
 use App\Model\dit\DitModel;
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 
 /**
  * @Route("/demande-appro")
@@ -22,6 +24,7 @@ class DaDetailAvecDitController extends Controller
 	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailAvecDitTrait;
+	use AutorisationTrait;
 
 	public function __construct()
 	{
@@ -37,6 +40,11 @@ class DaDetailAvecDitController extends Controller
 	{
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
+
+		/** Autorisation accès */
+		$this->autorisationAcces($this->getUser(), Application::ID_DAP);
+		/** FIN AUtorisation accès */
+
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA

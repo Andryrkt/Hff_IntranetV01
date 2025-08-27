@@ -6,11 +6,13 @@ use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
+use App\Form\da\HistoriqueModifDaType;
 use App\Controller\Traits\da\DaListeTrait;
 use App\Controller\Traits\da\StatutBcTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
-use App\Form\da\HistoriqueModifDaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,6 +23,7 @@ class listeDaController extends Controller
 {
     use DaListeTrait;
     use StatutBcTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -36,6 +39,10 @@ class listeDaController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
