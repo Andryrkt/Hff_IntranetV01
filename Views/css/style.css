@@ -384,3 +384,8 @@ button.swal2-styled {
   color: white; /* Texte blanc pour correspondre au style "table-dark" */
   padding: 10px;
 }
+
+/* Background light */
+.bg-light {
+  background-color: #f8f9fa !important;
+}
