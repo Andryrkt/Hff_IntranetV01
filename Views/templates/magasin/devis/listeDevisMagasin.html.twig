@@ -31,7 +31,25 @@
 					<th class="text-center">Statut IPS</th>
 				</tr>
 			</thead>
-			<tbody id="tableBody"></tbody>
+			<tbody id="tableBody">
+				{% for item in listeDevis %}
+					<tr>
+						<td>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</td>
+						<td>{{item.statutDw}}</td>
+						<td>{{item.numeroDevis}}</td>
+						<td>{{item.dateCreation}}</td>
+						<td>{{item.succursaleServiceEmetteur}}</td>
+						<td>{{item.codeClientLibelleClient}}</td>
+						<td>{{item.referenceCLient}}</td>
+						<td>{{item.montant}}</td>
+						<td>{{item.operateur}}</td>
+						<td>{{item.dateDenvoiDevisAuClient}}</td>
+						<td>{{item.statutIps}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
 		</table>
 	</div>
 {% endblock %}
