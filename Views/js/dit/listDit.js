@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
           affichageSpinner();
 
           // Redirection après confirmation
-          window.location.href = `${baseUrl}/cloturer-annuler/${id}`;
+          window.location.href = `${baseUrl}/atelier/demande-intervention/cloturer-annuler/${id}`;
         }
       });
     });

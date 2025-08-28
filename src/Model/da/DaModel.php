@@ -309,8 +309,12 @@ class DaModel extends Model
                         END
                     ) AS qte_dem,
                 ROUND(CASE WHEN slor_typlig = 'P' THEN ( slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec)END) - (select sum(fllf_qteliv) from frn_llf l where fllf_ligne = slor.slor_noligncm and fllf_numcde = cde.fcde_numcde) as qte_reliquat,
-                    (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
-                    slor_qterea as qte_livree,
+                (select sum(fllf_qteliv) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') as qte_receptionnee,
+                    --slor_qterea as qte_livree,
+                CASE 
+                            WHEN slor_natcm = 'L' then slor_qterea
+                            else 0
+                        END as qte_livree,
 
                 ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') - slor_qterea) as qte_dispo,
                 

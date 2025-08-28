@@ -166,7 +166,7 @@ class DitFactureSoumisAValidationController extends Controller
                         $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
                     } else {
                         $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                        // $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
                     }
 
                     /** ENVOIE des DONNEE dans BASE DE DONNEE */
