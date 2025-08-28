@@ -317,6 +317,7 @@ class DaModel extends Model
                             WHEN slor_natcm = 'L' then slor_qterea
                             else 0
                         END as qte_livree,
+
                 ROUND((select sum(fllf_qteaff) from frn_llf l where  l.fllf_numcde = cde.fcde_numcde and slor.slor_refp = l.fllf_refp and l.fllf_ligne = slor.slor_noligncm and cde.fcde_cdeext like 'DAP%') - slor_qterea) as qte_dispo,
                 
                     CASE
