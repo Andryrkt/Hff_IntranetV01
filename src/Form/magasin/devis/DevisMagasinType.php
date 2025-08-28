@@ -14,6 +14,14 @@ class DevisMagasinType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
+            ->add('numeroDevis', null, [
+                'label' => 'Numéro de devis',
+                'required' => false,
+                'attr' => [
+                    'disabled' => true,
+                ],
+                'data' => $options['data']->getNumeroDevis(),
+            ])
             ->add(
                 'pieceJoint01',
                 FileType::class,

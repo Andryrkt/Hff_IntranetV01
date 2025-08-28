@@ -301,7 +301,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Devis',
-                'link'        => 'devis_magasion_soumission',
+                'link'        => 'devis_magasin_liste',
                 'icon'        => 'fas fa-file-invoice',
                 'routeParams' => []
             ],
