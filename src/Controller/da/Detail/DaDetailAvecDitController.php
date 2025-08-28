@@ -30,7 +30,7 @@ class DaDetailAvecDitController extends Controller
 	{
 		parent::__construct();
 		$this->setEntityManager(self::$em);
-		$this->initDaDetailAvecDitTrait();
+		$this->initDaDetailAvecDitTrait(self::$generator);
 	}
 
 	/**
@@ -70,9 +70,12 @@ class DaDetailAvecDitController extends Controller
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
 
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
+
 		self::$twig->display('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
+			'demandeApproLines'   		=> $demandeApproLPrepared,
 			'observations'      		=> $observations,
 			'numSerie'          		=> $dataModel[0]['num_serie'],
 			'numParc'           		=> $dataModel[0]['num_parc'],

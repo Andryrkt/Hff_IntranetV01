@@ -29,7 +29,7 @@ class DaDetailDirectController extends Controller
 	{
 		parent::__construct();
 		$this->setEntityManager(self::$em);
-		$this->initDaDetailDirectTrait();
+		$this->initDaDetailDirectTrait(self::$generator);
 	}
 
 	/**
@@ -58,6 +58,8 @@ class DaDetailDirectController extends Controller
 
 		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
+		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());
+
 		$fichiers = $this->getAllDAFile([
 			'baPath'    => $this->getBaPath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
@@ -67,6 +69,7 @@ class DaDetailDirectController extends Controller
 		self::$twig->display('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
+			'demandeApproLines'   		=> $demandeApproLPrepared,
 			'observations'      		=> $observations,
 			'fichiers'            		=> $fichiers,
 			'connectedUser'     		=> $this->getUser(),

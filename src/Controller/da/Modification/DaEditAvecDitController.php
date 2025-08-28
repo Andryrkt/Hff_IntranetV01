@@ -91,7 +91,8 @@ class DaEditAvecDitController extends Controller
                 self::$em->remove($demandeApproLR);
             }
 
-            self::$em->flush();
+            self::$em->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
+            $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             $notifType = "success";
             $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";
