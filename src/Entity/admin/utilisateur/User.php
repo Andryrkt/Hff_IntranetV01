@@ -689,18 +689,6 @@ class User implements UserInterface
         })->toArray();
     }
 
-    public function getAgenceIdUser()
-    {
-        $agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        return $agenceRepository->findOneBy(['codeAgence' => $this->getCodeAgenceUser()])->getId();
-    }
-
-    public function getServiceIdUser()
-    {
-        $serviceRepository = Controller::getEntity()->getRepository(Service::class);
-        return  $serviceRepository->findOneBy(['codeService' => $this->getCodeServiceUser()])->getId();
-    }
-
     public function getCodeAgenceUser()
     {
         return $this->agenceServiceIrium ? $this->agenceServiceIrium->getAgenceIps() : null;

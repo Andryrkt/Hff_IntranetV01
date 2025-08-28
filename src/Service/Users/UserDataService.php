@@ -15,6 +15,11 @@ class UserDataService
         $this->em = $em;
     }
 
+    /**
+     * Récupère l'identifiant de l'agence associée à l'utilisateur
+     *
+     * @param User $user L'utilisateur dont on veut obtenir l'ID de l'agence
+     */
     public function getAgenceId(User $user)
     {
         $codeAgence = $user->getCodeAgenceUser();
@@ -25,6 +30,11 @@ class UserDataService
         return $agence ? $agence->getId() : null;
     }
 
+    /**
+     * Récupère l'identifiant du service associé à l'utilisateur
+     *
+     * @param User $user L'utilisateur dont on veut obtenir l'ID du service
+     */
     public function getServiceId(User $user)
     {
         $codeService = $user->getCodeServiceUser();
