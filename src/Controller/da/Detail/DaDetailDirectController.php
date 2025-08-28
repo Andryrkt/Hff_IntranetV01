@@ -3,15 +3,17 @@
 namespace App\Controller\da\Detail;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\detail\DaDetailDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -21,6 +23,7 @@ class DaDetailDirectController extends Controller
 	use lienGenerique;
 	use DaAfficherTrait;
 	use DaDetailDirectTrait;
+	use AutorisationTrait;
 
 	public function __construct()
 	{
@@ -36,6 +39,9 @@ class DaDetailDirectController extends Controller
 	{
 		//verification si user connecter
 		$this->verifierSessionUtilisateur();
+
+		$this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
+
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
 		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
 

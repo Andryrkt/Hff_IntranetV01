@@ -51,8 +51,9 @@ trait DaListeTrait
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide fw-bold',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white fw-bold',
             DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat fw-bold',
+            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation fw-bold',
             DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat fw-bold',
-            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-warning text-secondary',
+            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation fw-bold',
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale fw-bold',
         ];
         $this->styleStatutOR = [
@@ -98,6 +99,78 @@ trait DaListeTrait
         }
     }
 
+    public function getData(array $criteria): array
+    {
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $userConnecter = $this->getUser();
+        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
+        /** @var array $daAffichers Filtrage des DA en fonction des critères */
+        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+
+        // mise à jours des donner dans la base de donner
+        $this->quelqueModifictionDansDatabase($daAffichers);
+
+        // Vérification du verrouillage des DA et Retourne les DA filtrées
+        return $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+    }
+
+    private function quelqueModifictionDansDatabase(array $datas)
+    {
+        $em = $this->getEntityManager();
+        foreach ($datas as $data) {
+            $this->modificationDateRestant($data, $em);
+            $this->modificationStatutBC($data, $em);
+        }
+        $em->flush();
+    }
+
+    /** 
+     * Permet de calculer le nombre de jours restants pour chaque DAL
+     */
+    private function modificationDateRestant(DaAfficher $data, $em): void
+    {
+        $this->ajoutNbrJourRestant($data);
+        $em->persist($data);
+    }
+
+    /**
+     * Cette methode permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC(DaAfficher $data, $em)
+    {
+        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $data->setStatutCde($statutBC);
+        $em->persist($data);
+    }
+
+    /**
+     * Applique le verrouillage ou déverrouillage des DA en fonction du profil utilisateur
+     * 
+     * @param iterable<DaAfficher> $daAffichers
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
+     * 
+     * @return iterable<DaAfficher>
+     */
+    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier): iterable
+    {
+        foreach ($daAffichers as $daAfficher) {
+            $verrouille = $this->estDaVerrouillee(
+                $daAfficher->getStatutDal(),
+                $daAfficher->getStatutCde(),
+                $estAdmin,
+                $estAppro,
+                $estAtelier
+            );
+            $daAfficher->setVerouille($verrouille);
+        }
+        return $daAffichers;
+    }
+
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      *  @param DaAfficher[] $data données avant préparation
@@ -131,10 +204,16 @@ trait DaListeTrait
                 $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
-            $urlProposition = $this->urlGenerator->generate(
+            $urlDesignation = $this->urlGenerator->generate(
                 $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
+            if ($item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION) {
+                $urlDesignation = $this->urlGenerator->generate('da_new_avec_dit', [
+                    'daId'  => $item->getDemandeAppro()->getId(),
+                    'ditId' => $item->getDit()->getId(),
+                ]);
+            }
             $urlDelete = $this->urlGenerator->generate(
                 $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
                 ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
@@ -181,7 +260,7 @@ trait DaListeTrait
                 'styleStatutBC'       => $styleStatutBC,
                 'aDeverouiller'       => $aDeverouiller,
                 'urlDetail'           => $urlDetail,
-                'urlProposition'      => $urlProposition,
+                'urlDesignation'      => $urlDesignation,
                 'urlDelete'           => $urlDelete,
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,

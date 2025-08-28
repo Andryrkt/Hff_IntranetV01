@@ -9,6 +9,7 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
@@ -26,6 +27,7 @@ class DaPropositionArticleDirectController extends Controller
     use DaAfficherTrait;
     use DaValidationDirectTrait;
     use DaPropositionDirectTrait;
+    use AutorisationTrait;
 
     private const EDIT = 0;
 
@@ -43,6 +45,8 @@ class DaPropositionArticleDirectController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
 
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();

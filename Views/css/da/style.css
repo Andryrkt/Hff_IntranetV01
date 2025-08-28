@@ -363,15 +363,27 @@ a.choix:hover {
 /* Pour les statuts de la DA */
 .bg-demande-achat {
   background-color: #ffff00 !important;
+  color: #7d7d00 !important;
 }
 .bg-proposition-achat {
-  background-color: #d9d9d9 !important;
+  background-color: #9fc5e8 !important;
+  color: #073763 !important;
 }
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
+  color: #274e13 !important;
 }
-.bg-creation-demande-initiale {
+.bg-modif-autorisee {
   background-color: #fbbb01 !important;
+  color: #5a3000 !important;
+}
+.bg-soumis-validation {
+  background-color: #ffd966 !important; /* orange clair soutenu */
+  color: #7f6000 !important;
+}
+.bg-en-cours-creation {
+  background-color: #e2e3e5 !important; /* gris clair */
+  color: #41464b !important;
 }
 
 /* Pour les statuts de l'OR */

@@ -57,9 +57,9 @@ class DaNewAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation accées */
+        /** Autorisation accès */
         $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_ATELIER);
-        /** FIN AUtorisation acées */
+        /** FIN AUtorisation accès */
 
         /** 
          * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
@@ -67,6 +67,7 @@ class DaNewAvecDitController extends Controller
         $dit = $this->ditRepository->find($ditId);
 
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro->setDit($dit);
 
         $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);

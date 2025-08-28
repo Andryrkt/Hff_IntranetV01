@@ -25,15 +25,15 @@ class DemandeAppro
 
     public const ID_APPRO                   = 16;
     public const ID_ATELIER                 = 3;
-    public const MAIL_APPRO                 = 'hoby.ralahy@hff.mg'; // TODO: à changer en 'appro@hff.mg' si c'est en PROD
-    public const STATUT_VALIDE              = 'Bon d’achats validé';
-    public const STATUT_TERMINER            = 'TERMINER';
-    public const STATUT_SOUMIS_ATE          = 'Proposition achats';
-    public const STATUT_A_VALIDE_DW         = 'Soumis à validation';
-    public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';
-    public const STATUT_DW_A_MODIFIER       = 'DA à modifier';
-    public const STATUT_EN_COURS_CREATION   = 'En cours de création';
-    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale';
+    public const MAIL_APPRO                 = 'hoby.ralahy@hff.mg';        // TODO: à changer en 'appro@hff.mg' si c'est en PROD
+    public const STATUT_VALIDE              = 'Bon d’achats validé';       // ! non cliquable par quiconque
+    public const STATUT_TERMINER            = 'TERMINER';                  // ! non cliquable par quiconque
+    public const STATUT_SOUMIS_ATE          = 'Proposition achats';        // cliquable par Admin et Atelier et Appro
+    public const STATUT_A_VALIDE_DW         = 'Soumis à validation';       // ! non cliquable par quiconque
+    public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';          // cliquable par Admin et Appro
+    public const STATUT_DW_A_MODIFIER       = 'DA à modifier';             // ? est-ce cliquable ou non, si oui par qui?
+    public const STATUT_EN_COURS_CREATION   = 'En cours de création';      // cliquable par Admin et Atelier
+    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale'; // ? est-ce cliquable ou non, si oui par qui?
 
     /**
      * @ORM\Id

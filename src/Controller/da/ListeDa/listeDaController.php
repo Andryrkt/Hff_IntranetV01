@@ -6,11 +6,13 @@ use App\Entity\da\DaAfficher;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
+use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
+use App\Form\da\HistoriqueModifDaType;
 use App\Controller\Traits\da\DaListeTrait;
 use App\Controller\Traits\da\StatutBcTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
-use App\Form\da\HistoriqueModifDaType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -21,6 +23,7 @@ class listeDaController extends Controller
 {
     use DaListeTrait;
     use StatutBcTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -36,6 +39,10 @@ class listeDaController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
         $historiqueModifDA = new DaHistoriqueDemandeModifDA();
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
@@ -66,122 +73,6 @@ class listeDaController extends Controller
             'serviceAppro'           => $this->estUserDansServiceAppro(),
             'numDaNonDeverrouillees' => $numDaNonDeverrouillees,
         ]);
-    }
-
-    public function getData(array $criteria): array
-    {
-        //recuperation de l'id de l'agence de l'utilisateur connecter
-        $userConnecter = $this->getUser();
-        $codeAgence = $userConnecter->getCodeAgenceUser();
-        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
-
-        // mise à jours des donner dans la base de donner
-        $this->quelqueModifictionDansDatabase($daAffichers);
-
-        // Vérification du verrouillage des DA
-        $daAffichers = $this->verouillerOuNonLesDa($daAffichers);
-        // Retourne les DA filtrées
-        return $daAffichers;
-    }
-
-
-    /** 
-     * Vérifie si la DA doit être verrouillée ou non pour chaque DA filtrée
-     * @param array $dasFiltered
-     * @return array
-     */
-    private function verouillerOuNonLesDa($daAffichers)
-    {
-        foreach ($daAffichers as $daAfficher) {
-            $this->estVerouillerOuNon($daAfficher);
-        }
-        return $daAffichers;
-    }
-
-    /** 
-     * Vérifie si la DA doit être verrouillée ou non en fonction de son statut et du service de l'utilisateur
-     */
-    private function estVerouillerOuNon($daAfficher)
-    {
-        $statutDa = $daAfficher->getStatutDal(); // Récupération du statut de la DA
-        $statutBc = $daAfficher->getStatutCde(); // Récupération du statut du BC
-
-        $estAppro = $this->estUserDansServiceAppro();
-        $estAtelier = $this->estUserDansServiceAtelier();
-        $estAdmin = $this->estAdmin();
-        $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
-
-        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_A_VALIDE_DW];
-        $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_A_VALIDE_DW];
-
-        if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
-            /** 
-             * Si l'utilisateur est Appro mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE,
-             * et que le statut de la soumission BC n'est pas REFUSE, alors on verrouille la DA. 
-             **/
-            $verouiller = true;
-        } elseif (!$estAdmin && $estAtelier && in_array($statutDa, $statutDaVerouillerAtelier)) {
-            /** 
-             * Si l'utilisateur est Atelier mais n'est pas Admin, et que le statut de la DA est TERMINER ou VALIDE ou SOUMIS A APPRO, 
-             * alors on verrouille la DA.
-             **/
-            $verouiller = true;
-        } elseif (!$estAtelier && !$estAppro && !$estAdmin) {
-            /** 
-             * Si l'utilisateur n'est ni Appro ni Atelier, et n'est pas Administrateur,
-             * alors on verrouille la DA.
-             */
-            $verouiller = true;
-        }
-
-        // On applique le verrouillage ou non à l'entité Da Valider ou Proposer
-        $daAfficher->setVerouille($verouiller);
-    }
-
-    private function quelqueModifictionDansDatabase(array $datas)
-    {
-        foreach ($datas as $data) {
-            $this->modificationDateRestant($data);
-            // $this->modificationStatutDa($data);
-            $this->modificationStatutBC($data);
-        }
-        self::$em->flush();
-    }
-
-    /** 
-     * Permet de calculer le nombre de jours restants pour chaque DAL
-     */
-    private function modificationDateRestant(DaAfficher $data): void
-    {
-        $this->ajoutNbrJourRestant($data);
-        self::$em->persist($data);
-    }
-
-    /**
-     * ctee methode parmer de mettre à jour le statut de la DA
-     *
-     * @return void
-     */
-    private function modificationStatutDa(DaAfficher $data)
-    {
-        $statutDa = $this->demandeApproRepository->getStatutDa($data->getNumeroDemandeAppro());
-        $data->setStatutDal($statutDa);
-        self::$em->persist($data);
-    }
-
-
-    /**
-     * Cette methode permet de modifier le statut du BC
-     *
-     * @return void
-     */
-    private function modificationStatutBC(DaAfficher $data)
-    {
-        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
-        $data->setStatutCde($statutBC);
-        self::$em->persist($data);
     }
 
     private function traitementFormulaireDeverouillage($form, $request)

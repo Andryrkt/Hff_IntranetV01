@@ -1279,7 +1279,7 @@ class DaAfficher
     }
 
     /**
-     * Get the value of estVerouillerOuNon
+     * Get the value of verouille
      */
     public function getVerouille()
     {
@@ -1287,7 +1287,7 @@ class DaAfficher
     }
 
     /**
-     * Set the value of estVerouillerOuNon
+     * Set the value of verouille
      *
      * @return  self
      */

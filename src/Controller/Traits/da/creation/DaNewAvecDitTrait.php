@@ -42,7 +42,6 @@ trait DaNewAvecDitTrait
         $demandeAppro = new DemandeAppro;
 
         $demandeAppro
-            ->setDit($dit)
             ->setNiveauUrgence($dit->getIdNiveauUrgence()->getDescription())
             ->setObjetDal($dit->getObjetDemande())
             ->setDetailDal($dit->getDetailDemande())

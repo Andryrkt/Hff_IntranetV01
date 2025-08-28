@@ -616,6 +616,9 @@ class DaPropositionRefAvecDitController extends Controller
                 ->setNumeroDemandeDit($DAL->getNumeroDit())
                 ->setJoursDispo($DAL->getJoursDispo())
             ;
+            if ($demandeApproLR->getNumeroFournisseur() == 0) {
+                $demandeApproLR->setNumeroFournisseur($this->fournisseurs[$demandeApproLR->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
+            }
 
             if ($file) {
                 $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);

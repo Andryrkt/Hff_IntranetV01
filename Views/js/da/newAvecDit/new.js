@@ -47,7 +47,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (result.isConfirmed) {
           displayOverlay(true);
           document.getElementById("child-prototype").remove();
-          document.getElementById("myForm").submit();
+
+          // ajouter un champ caché avec l’action choisie
+          const hidden = document.createElement("input");
+          hidden.type = "hidden";
+          hidden.name = action;
+          hidden.value = "1";
+          document.getElementById("myForm").appendChild(hidden);
+
+          document.getElementById("myForm").submit(); // n’émule pas le clic sur le bouton d’envoi → donc le name et value du bouton cliqué ne sont pas envoyés.
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           // ❌ Si l'utilisateur annule
           Swal.fire({
