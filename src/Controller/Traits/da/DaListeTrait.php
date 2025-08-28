@@ -15,6 +15,7 @@ use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use App\Service\Users\UserDataService;
 use Twig\Markup;
 
 trait DaListeTrait
@@ -36,6 +37,7 @@ trait DaListeTrait
     private DaSoumissionBcRepository $daSoumissionBcRepository;
     private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private UserDataService $userDataService;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -77,6 +79,7 @@ trait DaListeTrait
         //----------------------------------------------------------------------------------------------------
         $this->daModel = new DaModel();
         $this->dwModel = new DossierInterventionAtelierModel();
+        $this->userDataService = new UserDataService($em);
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
         $this->historiqueModifDARepository = $em->getRepository(DaHistoriqueDemandeModifDA::class);
@@ -161,10 +164,10 @@ trait DaListeTrait
         foreach ($daAffichers as $daAfficher) {
             $verrouille = $this->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
-                $daAfficher->getStatutCde(),
                 $estAdmin,
                 $estAppro,
-                $estAtelier
+                $estAtelier,
+                $daAfficher->getAchatDirect() && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
             );
             $daAfficher->setVerouille($verrouille);
         }
