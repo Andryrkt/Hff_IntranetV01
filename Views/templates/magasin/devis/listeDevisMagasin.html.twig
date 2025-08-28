@@ -1,0 +1,59 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+{% endblock %}
+
+{% block content %}
+
+	<div class="container-fluid">
+		<div class="sticky-header-titre">
+			<div class="container">
+				{% include "/partials/_notification.html.twig" %}
+			</div>
+		</div>
+
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
+				<tr>
+					<th>
+						<i class="fas fa-ellipsis-vertical"></i>
+					</th>
+					<th class="text-center">Statut DW</th>
+					<th class="text-center">Numéro devis</th>
+					<th class="text-center">Date de création</th>
+					<th class="text-center">Succursale + service émetteur</th>
+					<th class="text-center">Code client + libellé client</th>
+					<th class="text-center">Référence client</th>
+					<th class="text-center">Montant</th>
+					<th class="text-center">Opérateur</th>
+					<th class="text-center">Date d'envoi devis au client</th>
+					<th class="text-center">Statut IPS</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody">
+				{% for item in listeDevis %}
+					<tr>
+						<td>
+							<i class="fas fa-ellipsis-vertical"></i>
+						</td>
+						<td>{{item.statutDw}}</td>
+						<td>{{item.numeroDevis}}</td>
+						<td>{{item.dateCreation}}</td>
+						<td>{{item.succursaleServiceEmetteur}}</td>
+						<td>{{item.codeClientLibelleClient}}</td>
+						<td>{{item.referenceCLient}}</td>
+						<td>{{item.montant}}</td>
+						<td>{{item.operateur}}</td>
+						<td>{{item.dateDenvoiDevisAuClient}}</td>
+						<td>{{item.statutIps}}</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
+{% endblock %}
