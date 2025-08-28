@@ -175,26 +175,37 @@ trait DaTrait
      * Détermine si une DA doit être verrouillée selon son statut et le profil utilisateur
      * 
      * @param string $statutDa
-     * @param string|null $statutBc
      * @param bool $estAdmin
      * @param bool $estAppro
      * @param bool $estAtelier
+     * @param bool $estEmetteurDaDirect
      * 
      * @return bool True si la DA doit être verrouillée, false sinon
      */
-    private function estDaVerrouillee(string $statutDa, ?string $statutBc, bool $estAdmin, bool $estAppro, bool $estAtelier): bool
+    private function estDaVerrouillee(string $statutDa, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estEmetteurDaDirect): bool
     {
+        $statutDaCliquable = [
+            DemandeAppro::STATUT_EN_COURS_CREATION,
+            DemandeAppro::STATUT_DW_A_MODIFIER,
+            DemandeAppro::STATUT_SOUMIS_APPRO,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            DemandeAppro::STATUT_SOUMIS_ATE,
+        ];
         // Définition des règles de déverrouillage par profil
         $reglesDeverouillage = [
-            'admin' => fn() => true,
+            'admin' => fn() => in_array($statutDa, $statutDaCliquable),
             'appro' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_SOUMIS_ATE,
                 DemandeAppro::STATUT_SOUMIS_APPRO,
-                DemandeAppro::STATUT_SOUMIS_ATE
-            ]) || ($statutDa === DemandeAppro::STATUT_VALIDE && $statutBc === DaSoumissionBc::STATUT_REFUSE),
+            ]),
             'atelier' => fn() => in_array($statutDa, [
                 DemandeAppro::STATUT_SOUMIS_ATE,
                 DemandeAppro::STATUT_EN_COURS_CREATION,
-                DemandeAppro::STATUT_AUTORISER_MODIF_ATE
+                DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            ]),
+            'service_emetteur_da_direct' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_SOUMIS_ATE,
+                DemandeAppro::STATUT_DW_A_MODIFIER,
             ]),
         ];
 
@@ -203,9 +214,10 @@ trait DaTrait
 
         // Vérifie chaque profil : si l'utilisateur correspond et la règle est vraie, déverrouille
         $profils = [
-            'admin'   => $estAdmin,
-            'appro'   => $estAppro,
-            'atelier' => $estAtelier,
+            'admin'                      => $estAdmin,
+            'appro'                      => $estAppro,
+            'atelier'                    => $estAtelier,
+            'service_emetteur_da_direct' => $estEmetteurDaDirect,
         ];
 
         foreach ($profils as $profil => $actif) {
