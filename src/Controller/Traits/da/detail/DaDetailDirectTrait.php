@@ -2,11 +2,12 @@
 
 namespace App\Controller\Traits\da\detail;
 
-use App\Entity\da\DaObservation;
-use App\Entity\dw\DwBcAppro;
 use App\Entity\dw\DwFacBl;
-use App\Repository\da\DaObservationRepository;
+use App\Entity\dw\DwBcAppro;
+use App\Entity\da\DaObservation;
+use App\Entity\da\DemandeApproL;
 use App\Repository\dw\DwBcApproRepository;
+use App\Repository\da\DaObservationRepository;
 use App\Repository\dw\DwFactureBonLivraisonRepository;
 
 trait DaDetailDirectTrait
@@ -17,14 +18,16 @@ trait DaDetailDirectTrait
     private DwBcApproRepository $dwBcApproRepository;
     private DaObservationRepository $daObservationRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
+    private $urlGenerator;
 
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaDetailDirectTrait(): void
+    public function initDaDetailDirectTrait($generator): void
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
+        $this->urlGenerator = $generator;
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
@@ -59,5 +62,39 @@ trait DaDetailDirectTrait
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
             ],
         ];
+    }
+
+    /** 
+     * Fonction pour préparer les données à afficher dans Twig 
+     * @param iterable<DemandeApproL> $dals lignes demande appro avant affichage twig
+     * 
+     * @return iterable
+     **/
+    private function prepareDataForDisplayDetail(iterable $dals): iterable
+    {
+        $datasPrepared = [];
+
+        foreach ($dals as $dal) {
+            $datasPrepared[] = [
+                "artRefp"            => $dal->getArtRefp() ?? "-",
+                "artDesi"            => $dal->getArtDesi(),
+                "nomFournisseur"     => $dal->getNomFournisseur(),
+                "dateFinSouhaite"    => $dal->getDateFinSouhaite() ? $dal->getDateFinSouhaite()->format('d/m/Y') : '',
+                "prixUnitaire"       => $dal->getPrixUnitaire(),
+                "qteDem"             => $dal->getQteDem(),
+                "commentaire"        => $dal->getCommentaire() == "" ? "-" : $dal->getCommentaire(),
+                "fileNames"          => $dal->getFileNames(),
+                "nomFicheTechnique"  => $dal->getNomFicheTechnique(),
+                "numeroDemandeAppro" => $dal->getNumeroDemandeAppro(),
+                "demandeApproLR"     => $dal->getDemandeApproLR(),
+                "estFicheTechnique"  => $dal->getEstFicheTechnique(),
+                "urlDelete"          => $this->urlGenerator->generate(
+                    'da_delete_line_direct',
+                    ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
+                ),
+            ];
+        }
+
+        return $datasPrepared;
     }
 }
