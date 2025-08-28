@@ -26,14 +26,14 @@ class DemandeAppro
     public const ID_APPRO                   = 16;
     public const ID_ATELIER                 = 3;
     public const MAIL_APPRO                 = 'hoby.ralahy@hff.mg';        // TODO: à changer en 'appro@hff.mg' si c'est en PROD
-    public const STATUT_VALIDE              = 'Bon d’achats validé';       // ! non cliquable par quiconque
-    public const STATUT_TERMINER            = 'TERMINER';                  // ! non cliquable par quiconque
-    public const STATUT_SOUMIS_ATE          = 'Proposition achats';        // cliquable par Admin et Atelier et Appro
-    public const STATUT_A_VALIDE_DW         = 'Soumis à validation';       // ! non cliquable par quiconque
-    public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';          // cliquable par Admin et Appro
-    public const STATUT_DW_A_MODIFIER       = 'DA à modifier';             // ? est-ce cliquable ou non, si oui par qui?
-    public const STATUT_EN_COURS_CREATION   = 'En cours de création';      // cliquable par Admin et Atelier
-    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale'; // ? est-ce cliquable ou non, si oui par qui?
+    public const STATUT_VALIDE              = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ // "modifiable par APPRO" // ! non cliquable par quiconque 
+    public const STATUT_TERMINER            = 'TERMINER';                  /*__ DA direct et DA via OR __*/ // ! non cliquable par quiconque
+    public const STATUT_SOUMIS_ATE          = 'Proposition achats';        /*__ DA direct et DA via OR __*/ // cliquable par Admin et (Atelier ou service emetteur) et Appro
+    public const STATUT_A_VALIDE_DW         = 'Soumis à validation';       /*_________ DA direct ________*/ // ! non cliquable par quiconque
+    public const STATUT_SOUMIS_APPRO        = 'Demande d’achats';          /*__ DA direct et DA via OR __*/ // cliquable par Admin et Appro
+    public const STATUT_DW_A_MODIFIER       = 'DA à modifier';             /*_________ DA direct ________*/ // Admin , service emetteur + chef de service
+    public const STATUT_EN_COURS_CREATION   = 'En cours de création';      /*_________ DA via OR ________*/ // cliquable par Admin et Atelier
+    public const STATUT_AUTORISER_MODIF_ATE = 'Création demande initiale'; /*_________ DA via OR ________*/ // cliquable par Admin et Atelier
 
     /**
      * @ORM\Id
