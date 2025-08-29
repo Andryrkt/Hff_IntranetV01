@@ -3,17 +3,20 @@
 namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
-use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Entity\admin\Application;
+use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\devis\DevisMagasinType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
+use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Service\genererPdf\GeneratePdfDevisMagasin;
+use App\Service\magasin\devis\DevisMagasinValidationService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -29,6 +32,7 @@ class DevisMagasinController extends Controller
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
     private GeneratePdfDevisMagasin $generatePdfDevisMagasin;
+    private DevisMagasinRepository $devisMagasinRepository;
 
     public function __construct()
     {
@@ -37,6 +41,7 @@ class DevisMagasinController extends Controller
         $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
+        $this->devisMagasinRepository = self::$em->getRepository(DevisMagasin::class);
     }
 
     /**
@@ -50,9 +55,16 @@ class DevisMagasinController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        if ($numeroDevis === null) {
-            $message = "Le numero de devis est obligatoire pour la soumission.";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, '', 'devis_magasin_liste', false);
+        // Instantiation et validation de la présence du numéro de devis
+        $validationService = new DevisMagasinValidationService($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
+        if (!$validationService->checkMissingIdentifier($numeroDevis)) {
+            // Le service a envoyé la notification, on arrête le traitement ici.
+            return;
+        }
+
+        // Validation du statut du devis
+        if ($validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
+            return; // Arrête le traitement si le statut est bloquant
         }
 
         //instancier le devis magasin
@@ -63,7 +75,7 @@ class DevisMagasinController extends Controller
         $form = self::$validator->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin);
+        $this->traitementFormualire($form, $request,  $devisMagasin, $validationService);
 
         //affichage du formulaire
         self::$twig->display('magasin/devis/soumission.html.twig', [
@@ -71,12 +83,15 @@ class DevisMagasinController extends Controller
         ]);
     }
 
-    private function postControle() {}
-
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationService $validationService)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // Validation du fichier soumis via le service dédié
+            if (!$validationService->validateSubmittedFile($form)) {
+                return; // Arrête le traitement si la validation échoue
+            }
 
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
             //recupération des informations utile dans IPS
@@ -85,8 +100,14 @@ class DevisMagasinController extends Controller
             if (!empty($devisIps)) {
                 $firstDevisIps = reset($devisIps);
 
+                // Validation de la somme des lignes
+                $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+                if ($validationService->estSommeDeLigneChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                    return; // Arrête le traitement si la somme des lignes est identique
+                }
+
                 // recupération de numero version max
-                $numeroVersion = self::$em->getRepository(DevisMagasin::class)->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+                $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
                 //TODO: creation de pdf (à specifier par Antsa)
 
