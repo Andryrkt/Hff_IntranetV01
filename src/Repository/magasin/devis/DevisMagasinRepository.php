@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityRepository;
 
 class DevisMagasinRepository extends EntityRepository
 {
-    public function findNumeroVersionMax(string $numDevis)
+    public function getNumeroVersionMax(string $numDevis)
     {
         $numeroVersionMax = $this->createQueryBuilder('dsv')
             ->select('MAX(dsv.numeroVersion)')

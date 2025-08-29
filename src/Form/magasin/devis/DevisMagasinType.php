@@ -16,11 +16,9 @@ class DevisMagasinType extends AbstractType
         $builder
             ->add('numeroDevis', null, [
                 'label' => 'Numéro de devis',
-                'required' => false,
                 'attr' => [
-                    'disabled' => true,
-                ],
-                'data' => $options['data']->getNumeroDevis(),
+                    'readonly' => true,
+                ]
             ])
             ->add(
                 'pieceJoint01',

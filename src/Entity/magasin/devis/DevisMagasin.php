@@ -403,6 +403,26 @@ class DevisMagasin
     }
 
     /**
+     * Get the value of dateEnvoiDevisAuClient
+     */
+    public function getDateEnvoiDevisAuClient()
+    {
+        return $this->dateEnvoiDevisAuClient;
+    }
+
+    /**
+     * Set the value of dateEnvoiDevisAuClient
+     *
+     * @return  self
+     */
+    public function setDateEnvoiDevisAuClient($dateEnvoiDevisAuClient)
+    {
+        $this->dateEnvoiDevisAuClient = $dateEnvoiDevisAuClient;
+
+        return $this;
+    }
+
+    /**
      * Get the value of pieceJoint01
      */
     public function getPieceJoint01()
