@@ -8,6 +8,7 @@ use App\Entity\admin\Application;
 use App\Form\bl\BLSoumissionType;
 use App\Factory\bl\BLSoumissionFactory;
 use App\Service\fichier\TraitementDeFichier;
+use App\Service\genererPdf\GeneratePdfBlFut;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -23,6 +24,7 @@ class BLSoumissionController extends Controller
     private $historiqueOperation;
     private string $cheminDeBase;
     private TraitementDeFichier $traitementDeFichier;
+    private GeneratePdfBlFut $generatePdfBlFut;
 
     public function __construct()
     {
@@ -42,6 +44,7 @@ class BLSoumissionController extends Controller
         }
 
         $this->traitementDeFichier = new TraitementDeFichier();
+        $this->generatePdfBlFut = new GeneratePdfBlFut();
     }
 
     /**
@@ -88,6 +91,7 @@ class BLSoumissionController extends Controller
             self::$em->flush();
 
             //envoie dans DW
+            $this->generatePdfBlFut->copyToDWBlFut($nomFichiers[0]);
 
             // Historisation et notification
             $message = 'Le document est soumis pour validation';

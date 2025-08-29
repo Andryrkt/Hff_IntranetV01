@@ -177,6 +177,14 @@ class GeneratePdf
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
+    // bl FUT
+    public function copyToDWBlFut($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BON DE SORTIE FTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
     /**
      * Méthode pour ajouter un titre au PDF
      * 
