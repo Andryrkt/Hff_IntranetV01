@@ -3,6 +3,7 @@
 namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
+use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Entity\admin\Application;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
@@ -10,7 +11,6 @@ use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\devis\DevisMagasinType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\uplodFile\FileUploadConfigBuilder;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,6 +28,7 @@ class DevisMagasinController extends Controller
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
+    private GeneratePdfDevisMagasin $generatePdfDevisMagasin;
 
     public function __construct()
     {
@@ -35,18 +36,24 @@ class DevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
+        $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
     }
 
     /**
-     * @Route("/soumission-devis-magasin/{numeroDevis}", name="devis_magasion_soumission")
+     * @Route("/soumission-devis-magasin-verification-de-prix/{numeroDevis}", name="devis_magasin_soumission_verification_prix", defaults={"numeroDevis"=null})
      */
-    public function soumission(string $numeroDevis = '', Request $request)
+    public function soumission(?string $numeroDevis = null, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+
+        if ($numeroDevis === null) {
+            $message = "Le numero de devis est obligatoire pour la soumission.";
+            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, '', 'devis_magasin_liste', false);
+        }
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
@@ -64,6 +71,8 @@ class DevisMagasinController extends Controller
         ]);
     }
 
+    private function postControle() {}
+
     private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin)
     {
         $form->handleRequest($request);
@@ -79,9 +88,10 @@ class DevisMagasinController extends Controller
                 // recupération de numero version max
                 $numeroVersion = self::$em->getRepository(DevisMagasin::class)->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
+                //TODO: creation de pdf (à specifier par Antsa)
+
                 /** @var array  enregistrement du fichier*/
                 $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), $this->autoIncrement($numeroVersion), $suffixConstructeur);
-
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
                 //ajout des informations de IPS et des informations manuel comment nombre de lignes, cat, nonCatdans le devis magasin
@@ -103,9 +113,8 @@ class DevisMagasinController extends Controller
                 self::$em->persist($devisMagasin);
                 self::$em->flush();
 
-
-                //TODO : envoie du fichier dans DW
-
+                //envoie du fichier dans DW
+                $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier);
             } else {
                 //message d'erreur
                 $message = "Aucune information trouvé dans IPS pour le devis numero : " . $devisMagasin->getNumeroDevis();
