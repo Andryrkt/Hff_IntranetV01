@@ -1,12 +1,17 @@
 <?php
 
-namespace App\Controller\Traits;
+namespace App\Service\application;
 
 use App\Entity\admin\Application;
 
-trait ApplicationTrait
+class ApplicationService
 {
-    use EntityManagerAwareTrait;
+    private $em;
+
+    public function __construct($em)
+    {
+        $this->em = $em;
+    }
 
     /**
      * Met à jour la dernière ID utilisée pour une application donnée.
@@ -14,16 +19,15 @@ trait ApplicationTrait
      * @param string $codeApp Le code de l'application à mettre à jour.
      * @param string $numero  La nouvelle valeur du champ `derniereId`.
      */
-    private function mettreAJourDerniereIdApplication(string $codeApp, string $numero): void
+    public function mettreAJourDerniereIdApplication(string $codeApp, string $numero): void
     {
-        $em = $this->getEntityManager();
-        $application = $em->getRepository(Application::class)->findOneBy(['codeApp' => $codeApp]);
+        $application = $this->em->getRepository(Application::class)->findOneBy(['codeApp' => $codeApp]);
 
         if ($application === null) {
             throw new \RuntimeException("Aucune application trouvée pour le code : $codeApp");
         }
 
         $application->setDerniereId($numero);
-        $em->persist($application);
+        $this->em->persist($application);
     }
 }

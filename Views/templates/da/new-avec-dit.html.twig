@@ -13,21 +13,15 @@
 {% endblock %}
 
 {% block content %}
-	<div class=" container-fluid">
+	<div class="container-fluid mt-6">
 		<div class="card">
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 				{{ form_errors(form)}}
 				<div class="container-fluid">
 					<div class="row">
-						<h3 class="perso-titre">
-							Formulaire Demande d'achat
-						</h3>
-					</div>
-
-					<div class="row">
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information sur la demande') }}
+							{{ macroForm.sousTitre3('Information sur la demande') }}
 							{{ form_row(form.objetDal)}}
 							<div class="mb-3 position-relative">
 								{{ form_row(form.detailDal) }}
@@ -36,7 +30,7 @@
 							{{ form_row(form.dateFinSouhaite) }}
 						</div>
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Agence et service') }}
+							{{ macroForm.sousTitre3('Agence et service') }}
 							<div class="row">
 								<div class="col-6 col-md-6">
 									{{ macroForm.sousTitre('Emetteur') }}
@@ -51,7 +45,7 @@
 							</div>
 						</div>
 						<div class="col-12 col-md-4">
-							{{ macroForm.sousTitre('Information Matériel / DIT') }}
+							{{ macroForm.sousTitre3('Information Matériel / DIT') }}
 							<div class="row">
 								<div class="col-md-6 col-6">
 									{{ form_row(form.idMateriel) }}
@@ -197,10 +191,14 @@
 					</div>
 				</div>
 
-				<div class="d-flex justify-content-end container-fluid">
-					<button type="submit" class="bouton-principal mt-2">
-						<i class="fas fa-save"></i>
-						Enregistrer
+				<div class="d-flex justify-content-end container-fluid mt-2">
+					<button type="submit" class="bouton-brouillon mx-3" name="enregistrerBrouillon">
+						<i class="fas fa-floppy-disk"></i>
+						Enregistrer en brouillon
+					</button>
+					<button type="submit" class="bouton-principal" name="soumissionAppro">
+						<i class="fas fa-paper-plane"></i>
+						Soumettre la demande
 					</button>
 				</div>
 				{{ form_end(form) }}

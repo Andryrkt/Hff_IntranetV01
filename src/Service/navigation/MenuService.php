@@ -336,6 +336,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
+        /** =====================Magasin========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -354,6 +355,7 @@ class MenuService
                 ]
             );
         }
+        /** =====================Inventaire========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
             $subitems[] = $this->createSubMenuItem(
                 'INVENTAIRE',
@@ -364,6 +366,7 @@ class MenuService
                 ]
             );
         }
+        /** =====================sortie de pieces / lubs========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
                 'SORTIE DE PIECES / LUBS',
@@ -373,16 +376,26 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
-            $subitems[] = $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSubMenuItem(
+                'DEMATERIALISATION',
+                'cloud-arrow-up',
+                [
+                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
+                    $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
+                    $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
+                ]
+            );
         }
+        /** =====================soumission commande fournisseur========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
+            $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        }
+        /** =====================liste des commandes fournisseur non generer========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSimpleItem('Commandes clients', 'shopping-basket');
-            $subitems[] = $this->createSimpleItem('Planning magasin', 'calendar-alt');
-        }
+
         return $this->createMenuItem(
             'magasinModal',
             'Magasin',

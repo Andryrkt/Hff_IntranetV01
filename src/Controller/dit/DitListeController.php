@@ -20,6 +20,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\Users\UserDataService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -30,11 +31,13 @@ class DitListeController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private UserDataService $userDataService;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->userDataService = new UserDataService(self::$em);
     }
 
     /**

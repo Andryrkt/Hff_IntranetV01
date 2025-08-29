@@ -34,10 +34,11 @@ class BreadcrumbMenuService
             'conges'               => $this->getCongesSubMenu(),
             'temporaires'          => $this->getTemporairesSubMenu(),
             // Magasin - Sous-menus spécifiques
-            'or'                   => $this->getOrSubMenu(),
-            'cis'                  => $this->getCisSubMenu(),
+            'or'                    => $this->getOrSubMenu(),
+            'cis'                   => $this->getCisSubMenu(),
             'sortie-de-pieces-lubs' => $this->getSortiePieceLubSubMenu(),
-            'inventaire' => $this->getInventaireSubMenu(),
+            'inventaire'            => $this->getInventaireSubMenu(),
+            'dematerialisation'     => $this->getDematerialisationSubMenu(),
             // Matériel - Sous-menus spécifiques
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
@@ -294,6 +295,32 @@ class BreadcrumbMenuService
         ];
     }
 
+    public function getDematerialisationSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Devis',
+                'link'        => 'devis_magasin_liste',
+                'icon'        => 'fas fa-file-invoice',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Commandes clients',
+                'link'        => '#',
+                'icon'        => 'fas fa-shopping-basket',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Planning magasin',
+                'link'        => '#',
+                'icon'        => 'fas fa-calendar-alt',
+                'routeParams' => []
+            ]
+        ];
+    }
     // ========== Matériel - Sous-menus spécifiques ==========
 
     private function getMouvementMaterielSubMenu(): array

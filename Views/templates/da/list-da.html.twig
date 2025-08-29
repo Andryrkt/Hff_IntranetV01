@@ -14,17 +14,14 @@
 {% block content %}
 
 	<div class="sticky-header-titre">
-		<div class="container mb-3">
-			<h3 class="perso-titre">
-				Liste des demandes d'achat
-			</h3>
+		<div class="container">
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 		</div>
 	</div>
 
 	<div class="container-fluid">
-		<table class="table table-plein-ecran">
+		<table class="table table-sticky">
 			<thead class="table-dark align-middle">
 				<tr>
 					<th>
@@ -119,7 +116,7 @@
 							{% if item.verouille %}
 								{{ item.artDesi }}
 							{% else %}
-								<a href="{{ row.urlProposition }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" data-numero-da="{{ item.numeroDemandeAppro }}" target="_blank">
+								<a href="{{ row.urlDesignation }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" data-numero-da="{{ item.numeroDemandeAppro }}" target="_blank">
 									{{ item.artDesi }}
 								</a>
 							{% endif %}
@@ -149,6 +146,6 @@
 {% endblock %}
 
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
 	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/positionSticky.js" type="module"></script>
 {% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Controller\da\Proposition;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
@@ -24,6 +25,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class DaPropositionRefAvecDitController extends Controller
 {
     use DaAfficherTrait;
+    use AutorisationTrait;
     use DaValidationAvecDitTrait;
     use DaPropositionAvecDitTrait;
 
@@ -45,6 +47,9 @@ class DaPropositionRefAvecDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
+        $statutDa = $da->getStatutDal();
+        $this->checkPageAccess(!$this->estDaVerrouillee($statutDa, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
+
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
@@ -616,6 +621,9 @@ class DaPropositionRefAvecDitController extends Controller
                 ->setNumeroDemandeDit($DAL->getNumeroDit())
                 ->setJoursDispo($DAL->getJoursDispo())
             ;
+            if ($demandeApproLR->getNumeroFournisseur() == 0) {
+                $demandeApproLR->setNumeroFournisseur($this->fournisseurs[$demandeApproLR->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
+            }
 
             if ($file) {
                 $this->daFileUploader->uploadFTForDalr($file, $demandeApproLR);

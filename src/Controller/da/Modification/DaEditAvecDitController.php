@@ -3,14 +3,16 @@
 namespace App\Controller\da\Modification;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
-use App\Form\da\DemandeApproFormType;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
+use App\Form\da\DemandeApproFormType;
+use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
 
 /**
  * @Route("/demande-appro")
@@ -19,6 +21,7 @@ class DaEditAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use DaEditAvecDitTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -34,6 +37,11 @@ class DaEditAvecDitController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
+
         /** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
         $demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
@@ -83,7 +91,8 @@ class DaEditAvecDitController extends Controller
                 self::$em->remove($demandeApproLR);
             }
 
-            self::$em->flush();
+            self::$em->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
+            $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             $notifType = "success";
             $notifMessage = "Réussite de l'opération: la ligne de DA a été supprimée avec succès.";

@@ -20,6 +20,8 @@ trait DaPropositionAvecDitTrait
     private DaObservationRepository $daObservationRepository;
     private DitRepository $ditRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private $fournisseurs;
+
     /**
      * Initialise les valeurs par défaut du trait
      */
@@ -31,6 +33,16 @@ trait DaPropositionAvecDitTrait
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
+        $this->setAllFournisseurs();
     }
     //==================================================================================================
+
+    /** 
+     * Fonctions pour définir les fournisseurs dans le propriété $fournisseur
+     */
+    private function setAllFournisseurs()
+    {
+        $fournisseurs = $this->daModel->getAllFournisseur();
+        $this->fournisseurs = array_column($fournisseurs, 'numerofournisseur', 'nomfournisseur');
+    }
 }

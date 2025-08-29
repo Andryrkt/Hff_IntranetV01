@@ -4,17 +4,18 @@ namespace App\Controller\Traits\da;
 
 use DateTime;
 use App\Entity\da\DaAfficher;
-use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Service\da\EmailDaService;
-use App\Service\da\FileUploaderForDAService;
+use App\Controller\Traits\lienGenerique;
 use App\Repository\da\DaAfficherRepository;
+use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\EntityManagerAwareTrait;
 
 trait DaTrait
@@ -168,5 +169,64 @@ trait DaTrait
         }
 
         return $date;
+    }
+
+    /**
+     * Détermine si une DA doit être verrouillée selon son statut et le profil utilisateur
+     * 
+     * @param string $statutDa
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
+     * @param bool $estEmetteurDaDirect
+     * 
+     * @return bool True si la DA doit être verrouillée, false sinon
+     */
+    private function estDaVerrouillee(string $statutDa, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estEmetteurDaDirect): bool
+    {
+        $statutDaCliquable = [
+            DemandeAppro::STATUT_EN_COURS_CREATION,
+            DemandeAppro::STATUT_DW_A_MODIFIER,
+            DemandeAppro::STATUT_SOUMIS_APPRO,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            DemandeAppro::STATUT_SOUMIS_ATE,
+        ];
+        // Définition des règles de déverrouillage par profil
+        $reglesDeverouillage = [
+            'admin' => fn() => in_array($statutDa, $statutDaCliquable),
+            'appro' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_SOUMIS_ATE,
+                DemandeAppro::STATUT_SOUMIS_APPRO,
+            ]),
+            'atelier' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_SOUMIS_ATE,
+                DemandeAppro::STATUT_EN_COURS_CREATION,
+                DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+            ]),
+            'service_emetteur_da_direct' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_SOUMIS_ATE,
+                DemandeAppro::STATUT_DW_A_MODIFIER,
+            ]),
+        ];
+
+        // Par défaut, la DA est verrouillée
+        $verrouille = true;
+
+        // Vérifie chaque profil : si l'utilisateur correspond et la règle est vraie, déverrouille
+        $profils = [
+            'admin'                      => $estAdmin,
+            'appro'                      => $estAppro,
+            'atelier'                    => $estAtelier,
+            'service_emetteur_da_direct' => $estEmetteurDaDirect,
+        ];
+
+        foreach ($profils as $profil => $actif) {
+            if ($actif && $reglesDeverouillage[$profil]()) {
+                $verrouille = false;
+                break; // dès qu'une règle déverrouille, on s'arrête
+            }
+        }
+
+        return $verrouille;
     }
 }

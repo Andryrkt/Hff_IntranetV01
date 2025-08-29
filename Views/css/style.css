@@ -66,6 +66,10 @@ label {
   border-radius: 5px;
 }
 
+.card {
+  margin-top: 4rem !important;
+}
+
 /* ========================================================================= */
 /* CHONOMETTRE */
 /* ========================================================================= */
@@ -349,4 +353,43 @@ button.swal2-styled {
 
 .swal-text-left {
   text-align: left;
+}
+
+.mt-6 {
+  margin-top: 4rem !important;
+}
+
+/* Fil d'Ariane */
+#fil-d-ariane {
+  position: fixed;
+  z-index: 60;
+  padding-top: 1rem;
+  padding-left: 3.4rem;
+  background: #f8f9fa;
+}
+
+/*========================================*
+ * fixer l'en-tête du tableau et le titre *
+ *========================================*/
+/* Conteneur pour l'en-tête fixe */
+.sticky-header-titre {
+  position: sticky;
+  top: 8rem; /* Fixe en bas du fil d'Ariane */
+  z-index: 50; /* Place l'en-tête au-dessus des autres éléments */
+  background-color: #f8f9fa; /* Assurez une couleur de fond pour éviter les chevauchements */
+  padding: 10px 0;
+}
+
+/* Style pour fixer l'en-tête du tableau */
+.table-sticky thead tr {
+  position: sticky;
+  z-index: 10; /* Assurez que l'en-tête du tableau reste visible */
+  background-color: #343a40; /* Couleur de fond sombre pour "table-dark" */
+  color: white; /* Texte blanc pour correspondre au style "table-dark" */
+  padding: 10px;
+}
+
+/* Background light */
+.bg-light {
+  background-color: #f8f9fa !important;
 }

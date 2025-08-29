@@ -3,13 +3,14 @@
 namespace App\Controller\da\Creation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\ApplicationTrait;
-use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
@@ -18,7 +19,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 class DaNewDirectController extends Controller
 {
     use DaNewDirectTrait;
-    use ApplicationTrait;
+    use AutorisationTrait;
 
     public function __construct()
     {
@@ -34,6 +35,8 @@ class DaNewDirectController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        $this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
@@ -80,7 +83,8 @@ class DaNewDirectController extends Controller
             self::$em->persist($demandeAppro);
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $this->mettreAJourDerniereIdApplication('DAP', $numDa);
+            $applicationService = new ApplicationService(self::$em);
+            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {

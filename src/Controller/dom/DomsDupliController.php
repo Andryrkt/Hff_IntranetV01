@@ -45,7 +45,7 @@ class DomsDupliController extends Controller
         // $this->initialisationSecondForm($form1Data, self::$em, $dom);
 
         $dom = self::$em->getRepository(Dom::class)->find($id);
-        dd($dom);
+        // dd($dom);
         $criteria = $this->criteria($form1Data, self::$em);
 
         $is_temporaire = $form1Data['salarier'];

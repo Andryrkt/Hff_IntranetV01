@@ -19,12 +19,7 @@ const totalTime = 900; // Total en secondes (15 minutes)
 let timeRemaining = totalTime;
 
 const chronoText = document.getElementById("chrono-text");
-const chronoContainer = document.querySelector(".chrono-container");
 const chronoProgress = document.querySelector(".chrono-progress");
-
-if (location.pathname === `${baseUrl}/`) {
-  chronoContainer.classList.add("d-none");
-}
 
 // Fonction pour mettre à jour le chrono
 function updateChrono() {
@@ -46,7 +41,6 @@ function updateChrono() {
   }
 
   // Mettre à jour le texte
-  const hours = Math.floor(timeRemaining / 3600);
   const minutes = Math.floor((timeRemaining % 3600) / 60);
   const seconds = timeRemaining % 60;
   if (chronoText?.textContent) {
