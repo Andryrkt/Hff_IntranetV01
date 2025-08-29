@@ -87,6 +87,8 @@ class BLSoumissionController extends Controller
             self::$em->persist($blSoumission);
             self::$em->flush();
 
+            //envoie dans DW
+
             // Historisation et notification
             $message = 'Le document est soumis pour validation';
             $this->historiqueOperation->sendNotificationSoumission($message, 'bl', 'profil_acceuil', true);
