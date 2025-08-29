@@ -116,6 +116,15 @@ document.addEventListener("DOMContentLoaded", function () {
         if (result.isConfirmed) {
           displayOverlay(true);
           window.location = deletePath;
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "La suppression de la ligne de demande a été annulée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
         }
       });
     });
