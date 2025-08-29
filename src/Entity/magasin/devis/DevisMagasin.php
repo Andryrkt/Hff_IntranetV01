@@ -107,6 +107,13 @@ class DevisMagasin
      */
     private $dateEnvoiDevisAuClient = null;
 
+    /**
+     * @ORM\Column(type="integer", name="somme_numero_lignes", nullable=false)
+     *
+     * @var integer
+     */
+    private int $sommeNumeroLignes;
+
     private $pieceJoint01;
 
     /** =========================================
@@ -396,6 +403,26 @@ class DevisMagasin
     }
 
     /**
+     * Get the value of dateEnvoiDevisAuClient
+     */
+    public function getDateEnvoiDevisAuClient()
+    {
+        return $this->dateEnvoiDevisAuClient;
+    }
+
+    /**
+     * Set the value of dateEnvoiDevisAuClient
+     *
+     * @return  self
+     */
+    public function setDateEnvoiDevisAuClient($dateEnvoiDevisAuClient)
+    {
+        $this->dateEnvoiDevisAuClient = $dateEnvoiDevisAuClient;
+
+        return $this;
+    }
+
+    /**
      * Get the value of pieceJoint01
      */
     public function getPieceJoint01()
@@ -411,6 +438,30 @@ class DevisMagasin
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of sommeNumeroLignes
+     *
+     * @return  integer
+     */ 
+    public function getSommeNumeroLignes()
+    {
+        return $this->sommeNumeroLignes;
+    }
+
+    /**
+     * Set the value of sommeNumeroLignes
+     *
+     * @param  integer  $sommeNumeroLignes
+     *
+     * @return  self
+     */ 
+    public function setSommeNumeroLignes($sommeNumeroLignes)
+    {
+        $this->sommeNumeroLignes = $sommeNumeroLignes;
 
         return $this;
     }

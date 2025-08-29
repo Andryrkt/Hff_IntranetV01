@@ -381,15 +381,17 @@ class MenuService
                 'DEMATERIALISATION',
                 'cloud-arrow-up',
                 [
-                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasion_soumission'),
+                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
                     $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
                     $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
                 ]
             );
         }
+        /** =====================soumission commande fournisseur========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
             $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
         }
+        /** =====================liste des commandes fournisseur non generer========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }

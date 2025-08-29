@@ -55,7 +55,7 @@ class ListeDevisMagasinController extends Controller
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
             //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $this->devisMagasinRepository->findNumeroVersionMax($devisIp['numero_devis']);
+            $numeroVersionMax = $this->devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
             $devisSoumi = $this->devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
             //ajout des informations manquantes
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
