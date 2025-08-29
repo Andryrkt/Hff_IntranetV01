@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/tik/detailTik.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/tik/supportInfo.css" rel="stylesheet">
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.15.05" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/tik/detailTik.css?v=2025.08.29.15.05" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/tik/supportInfo.css?v=2025.08.29.15.05" rel="stylesheet">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -271,8 +271,6 @@
 	{% include "/tik/demandeSupportInformatique/shared/_modalNiveauUrgence.html.twig"  %}
 
 {% endblock %}
-
-{% block footer %}{% endblock %}
 
 {% block javascript %}
 	{% if validateur and statutOuvert %} 

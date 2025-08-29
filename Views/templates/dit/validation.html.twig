@@ -1,9 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block nav %}{% endblock %}
-{% block stylesheets%}
-<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-{% endblock%}
+{% block stylesheets %}
+<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.15.05" rel="stylesheet"/>
+{% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
@@ -247,8 +247,6 @@
 
 	<div id="materielInfos"></div>
 {% endblock %}
-
-{% block footer %}{% endblock %}
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/dit/ditValidation.js"></script>
