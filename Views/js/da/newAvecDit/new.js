@@ -2,7 +2,7 @@ import { displayOverlay } from "../../utils/spinnerUtils";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {
-  localStorage.setItem("daWithDitLineCounter", 0); // initialiser le compteur de ligne pour la création d'une DA avec DIT
+  buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA avec DIT
 
   document
     .getElementById("add-child")
@@ -76,6 +76,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  document.querySelectorAll(".delete-DA").forEach((deleteButton) => {
+    deleteButton.addEventListener("click", function () {
+      deleteLigneDa(this);
+    });
+  });
+
   /** Message */
   document.getElementById("info-icon").addEventListener("click", function () {
     Swal.fire({
@@ -100,3 +106,69 @@ document.addEventListener("DOMContentLoaded", function () {
 window.addEventListener("load", () => {
   displayOverlay(false);
 });
+
+function buildIndexFromLines() {
+  const maxIndex = Array.from(
+    document.querySelectorAll(
+      "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+    )
+  ).reduce((max, el) => {
+    const value = parseInt(el.value, 10);
+    return !isNaN(value) && value > max ? value : max;
+  }, 0);
+
+  console.log("Max index:", maxIndex);
+
+  localStorage.setItem("daWithDitLineCounter", maxIndex);
+}
+
+function deleteLigneDa(button) {
+  Swal.fire({
+    title: "Êtes-vous sûr(e) ?",
+    html: `Voulez-vous vraiment supprimer cette ligne de demande d’achat?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#6c757d",
+    confirmButtonText: "Oui, supprimer",
+    cancelButtonText: "Non, annuler",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      let ligne = button.dataset.numLigne;
+      let container = document.getElementById(
+        `demande_appro_form_DAL_${ligne}`
+      );
+      let deletedCheck = document.getElementById(
+        `demande_appro_form_DAL_${ligne}_deleted`
+      );
+      container.classList.add("d-none"); // cacher la ligne de DA
+      deletedCheck.checked = true; // cocher le champ deleted
+
+      console.log("ligne = ");
+      console.log(ligne);
+      console.log("container = ");
+      console.log(container);
+      console.log("deletedCheck = ");
+      console.log(deletedCheck);
+      console.log("deletedCheck.checked = ");
+      console.log(deletedCheck.checked);
+
+      Swal.fire({
+        icon: "success",
+        title: "Supprimé",
+        text: "La ligne de demande d'achat a bien été supprimée avec succès.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      // ❌ Si l'utilisateur annule
+      Swal.fire({
+        icon: "info",
+        title: "Annulé",
+        text: "La suppression de la ligne de demande a été annulée.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    }
+  });
+}

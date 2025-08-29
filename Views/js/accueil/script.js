@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", function () {
     customClass: {
       htmlContainer: "swal-text-left",
     },
+    heightAuto: false,
   }).then(() => {
     // Gérer la case "ne plus afficher"
     const dontShow = document.getElementById("dontShowAgain")?.checked;
