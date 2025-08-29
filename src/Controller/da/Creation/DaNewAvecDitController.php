@@ -91,8 +91,15 @@ class DaNewAvecDitController extends Controller
             // Récupérer le nom du bouton cliqué
             $clickedButtonName = $this->getButtonName($request);
             $demandeAppro->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
-            /** ajout de ligne de demande appro dans la table Demande_Appro_L */
-            foreach ($demandeAppro->getDAL() as $ligne => $demandeApproL) {
+
+            foreach ($formDAL as $subFormDAL) {
+                /** 
+                 * @var DemandeApproL $demandeApproL
+                 * On récupère les données du formulaire DAL
+                 */
+                $demandeApproL = $subFormDAL->getData();
+                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+
                 if ($demandeApproL->getDeleted() == 1) {
                     self::$em->remove($demandeApproL);
                 } else {
@@ -101,7 +108,6 @@ class DaNewAvecDitController extends Controller
                      */
                     $demandeApproL
                         ->setNumeroDemandeAppro($numDa)
-                        ->setNumeroLigne($ligne + 1)
                         ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
                         ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
                         ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
@@ -111,7 +117,7 @@ class DaNewAvecDitController extends Controller
                     if ($demandeApproL->getNumeroFournisseur() == 0) {
                         $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
                     }
-                    $this->traitementFichiers($demandeApproL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
+                    $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
                     self::$em->persist($demandeApproL);
                 }
             }
@@ -122,6 +128,7 @@ class DaNewAvecDitController extends Controller
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
             self::$em->persist($demandeAppro);
+            self::$em->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
@@ -129,7 +136,7 @@ class DaNewAvecDitController extends Controller
             }
 
             // ajout des données dans la table DaAfficher
-            $this->ajouterDaDansTableAffichage($demandeAppro, $dit); // il y a self::$em->flush() dans cette fonction
+            $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
             if ($clickedButtonName === "soumissionAppro") {
                 $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [

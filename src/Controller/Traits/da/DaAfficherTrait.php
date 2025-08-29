@@ -16,6 +16,10 @@ trait DaAfficherTrait
      * Ajoute les données d'une Demande d'Achat dans la table `DaAfficher`, 
      * par le numéro de la Demande d'Achat.
      *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     self::$em->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
      * @param string $numDa  le numéro de la Demande d'Achat à traiter
      * @return void
      */
