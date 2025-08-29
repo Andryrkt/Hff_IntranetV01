@@ -4,6 +4,7 @@ namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Service\autres\VersionService;
 use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
@@ -13,8 +14,8 @@ use App\Form\magasin\devis\DevisMagasinType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
-use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\genererPdf\GeneratePdfDevisMagasin;
+use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\magasin\devis\DevisMagasinValidationService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
@@ -112,7 +113,7 @@ class DevisMagasinController extends Controller
                 //TODO: creation de pdf (à specifier par Antsa)
 
                 /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), $this->autoIncrement($numeroVersion), $suffixConstructeur);
+                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
                 //ajout des informations de IPS et des informations manuel comment nombre de lignes, cat, nonCatdans le devis magasin
@@ -122,7 +123,7 @@ class DevisMagasinController extends Controller
                     ->setDevise($firstDevisIps['devise'])
                     ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                    ->setNumeroVersion($this->autoIncrement($numeroVersion))
+                    ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
                     ->setStatutDw(self::STATUT_SOUMISSION_A_VALIDATION)
                     ->setTypeSoumission(self::TYPE_SOUMISSION_VERIFICATION_PRIX)
                     ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
@@ -159,13 +160,5 @@ class DevisMagasinController extends Controller
                 'suffix' => $suffix
             ]
         ]);
-    }
-
-    private function autoIncrement(?int $num)
-    {
-        if ($num === null || $num === 0) {
-            $num = 0;
-        }
-        return (int) $num + 1;
     }
 }
