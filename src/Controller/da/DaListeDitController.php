@@ -101,7 +101,7 @@ class DaListeDitController extends BaseController
         //recupération des donnée
         $paginationData = $this->data($request, $option, $criteria);
 
-        $this->getTwig()->render('da/list-dit.html.twig', [
+        return $this->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,
             'currentPage'     => $paginationData['currentPage'] ?? 0,
             'totalPages'      => $paginationData['lastPage'] ?? 0,

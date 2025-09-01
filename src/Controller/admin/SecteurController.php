@@ -28,10 +28,10 @@ class SecteurController extends BaseController
         $data = $this->getEntityManager()->getRepository(Secteur::class)->findBy([], ['id'=>'DESC']);
 
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/secteur/list.html.twig', [
+        return $this->render('admin/secteur/list.html.twig', [
         
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -55,7 +55,7 @@ class SecteurController extends BaseController
                 $this->redirectToRoute("secteur_index");
             }
     
-            $this->getTwig()->render('admin/secteur/new.html.twig', 
+            return $this->render('admin/secteur/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -86,7 +86,7 @@ class SecteurController extends BaseController
             
         }
 
-        $this->getTwig()->render('admin/secteur/edit.html.twig', 
+        return $this->render('admin/secteur/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

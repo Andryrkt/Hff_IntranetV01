@@ -90,7 +90,7 @@ class ListeTikController extends BaseController
 
         $this->logUserVisit('liste_tik_index'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('tik/demandeSupportInformatique/list.html.twig', [
+        return $this->render('tik/demandeSupportInformatique/list.html.twig', [
             'autorisation'    => $autorisation,
             'data'            => $paginationData['data'],
             'ticketsEdit'     => $ticketsWithEditPermission,

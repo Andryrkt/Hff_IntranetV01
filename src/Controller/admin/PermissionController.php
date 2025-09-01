@@ -27,12 +27,12 @@ class PermissionController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(Permission::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/permission/list.html.twig',
             [
                 'data' => $data
             ]
-        ));
+        );
     }
 
     /**
@@ -56,7 +56,7 @@ class PermissionController extends BaseController
             $this->redirectToRoute("permission_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/permission/new.html.twig',
             [
                 'form' => $form->createView()
@@ -88,7 +88,7 @@ class PermissionController extends BaseController
             $this->redirectToRoute("permission_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/permission/edit.html.twig',
             [
                 'form' => $form->createView(),

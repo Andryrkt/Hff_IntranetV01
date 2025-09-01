@@ -66,7 +66,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
             $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
             $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
         }
-        $this->getTwig()->render('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
+        return $this->render('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
         ]);

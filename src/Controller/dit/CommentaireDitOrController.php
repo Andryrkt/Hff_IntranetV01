@@ -24,7 +24,7 @@ class CommentaireDitOrController extends BaseController
 
         $form = $this->getFormFactory()->createBuilder(CommentaireDitOrType::class)->getForm();
 
-        $this->getTwig()->render('dit/newCommentaireDitOr.html.twig', [
+        return $this->render('dit/newCommentaireDitOr.html.twig', [
             'form' => $form->createView()
         ]);
     }

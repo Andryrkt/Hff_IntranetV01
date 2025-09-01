@@ -107,7 +107,7 @@ class OperationDocumentController extends BaseController
 
         $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : $this->getEntityManager()->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
 
-        $this->getTwig()->render('admin/historisation/operation-document/index.html.twig', [
+        return $this->render('admin/historisation/operation-document/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -122,9 +122,7 @@ class OperationDocumentController extends BaseController
      */
     public function dashboard()
     {
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
-            'admin/historisation/operation-document/dashboard.html.twig'
-        ));
+        return $this->render('admin/historisation/operation-document/dashboard.html.twig');
     }
 
     /**
@@ -132,9 +130,7 @@ class OperationDocumentController extends BaseController
      */
     public function detail()
     {
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
-            'admin/historisation/operation-document/detail.html.twig'
-        ));
+        return $this->render('admin/historisation/operation-document/detail.html.twig');
     }
 
     /** 

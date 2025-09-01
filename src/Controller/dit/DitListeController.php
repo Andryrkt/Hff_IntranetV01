@@ -330,10 +330,10 @@ class DitListeController extends BaseController
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('dw/dwIntervAteAvecDit.html.twig', [
+        return $this->render('dw/dwIntervAteAvecDit.html.twig', [
             'numDit' => $numDit,
             'data'   => $data,
-        ]));
+        ]);
     }
 
     /**

@@ -103,7 +103,7 @@ class DomSecondController extends BaseController
 
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('doms/secondForm.html.twig', [
+        return $this->render('doms/secondForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria'      => $criteria,

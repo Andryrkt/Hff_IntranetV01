@@ -50,7 +50,7 @@ class PageConsultationController extends BaseController
 
         $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : $this->getEntityManager()->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
 
-        $this->getTwig()->render('admin/historisation/consultation-page/index.html.twig', [
+        return $this->render('admin/historisation/consultation-page/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -100,9 +100,7 @@ class PageConsultationController extends BaseController
      */
     public function dashboard()
     {
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
-            'admin/historisation/consultation-page/dashboard.html.twig'
-        ));
+        return $this->render('admin/historisation/consultation-page/dashboard.html.twig');
     }
 
     /**
@@ -110,8 +108,6 @@ class PageConsultationController extends BaseController
      */
     public function detail()
     {
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
-            'admin/historisation/consultation-page/detail.html.twig'
-        ));
+        return $this->render('admin/historisation/consultation-page/detail.html.twig');
     }
 }

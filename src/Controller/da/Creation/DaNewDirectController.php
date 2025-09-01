@@ -44,7 +44,7 @@ class DaNewDirectController extends BaseController
         $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
-        $this->getTwig()->render('da/new-da-direct.html.twig', [
+        return $this->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
     }

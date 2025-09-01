@@ -26,10 +26,10 @@ class FonctionController extends BaseController
         $data = $this->getEntityManager()->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
     
     
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/fonction/list.html.twig', 
+        return $this->render('admin/fonction/list.html.twig', 
         [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -55,7 +55,7 @@ class FonctionController extends BaseController
             $this->redirectToRoute("fonction_index");
         }
 
-        $this->getTwig()->render('admin/fonction/new.html.twig', 
+        return $this->render('admin/fonction/new.html.twig', 
         [
             'form' => $form->createView()
         ]);

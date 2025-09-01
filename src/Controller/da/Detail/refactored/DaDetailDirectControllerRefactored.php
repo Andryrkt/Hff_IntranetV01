@@ -115,7 +115,7 @@ class DaDetailDirectController extends BaseController
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
 
-		$this->getTwig()->render('da/detail.html.twig', [
+		return $this->render('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,

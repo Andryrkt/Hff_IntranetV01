@@ -32,6 +32,6 @@ class DaPickingController extends BaseController
 
         $form = $this->getFormFactory()->createBuilder(DaPicking::class, null)->getForm();
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('da/picking.html.twig', []));
+        return $this->render('da/picking.html.twig', []);
     }
 }

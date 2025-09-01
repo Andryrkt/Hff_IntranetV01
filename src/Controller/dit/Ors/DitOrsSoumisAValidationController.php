@@ -169,7 +169,7 @@ class DitOrsSoumisAValidationController extends BaseController
         ]); // historisation du page visité par l'utilisateur
 
         $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
-        $this->getTwig()->render('dit/DitInsertionOr.html.twig', [
+        return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
         ]);

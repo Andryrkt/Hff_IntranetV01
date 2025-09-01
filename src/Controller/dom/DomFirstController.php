@@ -83,7 +83,7 @@ class DomFirstController extends BaseController
 
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('doms/firstForm.html.twig', [
+        return $this->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),
         ]);
     }

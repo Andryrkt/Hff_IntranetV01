@@ -125,7 +125,7 @@ class BadmDupliController extends BaseController
             'numBadm' => $numBadm,
         ]); // historisation du page visité par l'utilisateur 
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/duplication.html.twig',
             [
                 'items' => $data,

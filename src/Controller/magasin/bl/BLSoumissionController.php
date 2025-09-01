@@ -62,7 +62,7 @@ class BLSoumissionController extends BaseController
 
         $this->traitementFormulaire($form, $request);
 
-        $this->getTwig()->render('bl/blsoumision.html.twig', [
+        return $this->render('bl/blsoumision.html.twig', [
             'form' => $form->createView(),
         ]);
     }

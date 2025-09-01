@@ -84,7 +84,7 @@ class CasierController extends BaseController
 
         $this->logUserVisit('casier_nouveau'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/casier/nouveauCasier.html.twig',
             [
                 'form' => $form->createView()
@@ -169,7 +169,7 @@ class CasierController extends BaseController
 
         $this->logUserVisit('casiser_formulaireCasier'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/casier/formulaireCasier.html.twig',
             [
                 'form' => $form->createView()

@@ -55,7 +55,7 @@ class ListeCdeFrnNonGenererController extends BaseController
 
         $data = $this->listeCdeFrnNonGenererModel->getListeCdeFrnNonGenerer($criteria, $numOrValides);
 
-        $this->getTwig()->render('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
+        return $this->render('magasin/lcfng/listCdeFnrNonGenerer.html.twig', [
             'data' => $data,
             'form' => $form->createView(),
         ]);

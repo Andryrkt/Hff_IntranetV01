@@ -28,9 +28,9 @@ class ContactAgenceAteController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(ContactAgenceAte::class)->findBy([]);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/contactAgenceAte/index.html.twig', [
+        return $this->render('admin/contactAgenceAte/index.html.twig', [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -67,7 +67,7 @@ class ContactAgenceAteController extends BaseController
                 $this->redirectToRoute("contact_agence_ate_index");
             }
 
-        $this->getTwig()->render('admin/contactAgenceAte/new.html.twig', [
+        return $this->render('admin/contactAgenceAte/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -111,7 +111,7 @@ class ContactAgenceAteController extends BaseController
                 $this->redirectToRoute("contact_agence_ate_index");
             }
 
-        $this->getTwig()->render('admin/contactAgenceAte/edit.html.twig', [
+        return $this->render('admin/contactAgenceAte/edit.html.twig', [
             'form' => $form->createView()
         ]);
     }

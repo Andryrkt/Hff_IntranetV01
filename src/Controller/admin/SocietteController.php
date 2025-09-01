@@ -30,10 +30,10 @@ class SocietteController extends BaseController
     $data = $this->getEntityManager()->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
 
 
-    return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/societte/list.html.twig', 
+    return $this->render('admin/societte/list.html.twig', 
     [
         'data' => $data
-    ]));
+    ]);
     }
 
     /**
@@ -59,7 +59,7 @@ class SocietteController extends BaseController
                 $this->redirectToRoute("societte_index");
             }
     
-            $this->getTwig()->render('admin/societte/new.html.twig', 
+            return $this->render('admin/societte/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -90,7 +90,7 @@ class SocietteController extends BaseController
             
         }
 
-        $this->getTwig()->render('admin/societte/edit.html.twig', 
+        return $this->render('admin/societte/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

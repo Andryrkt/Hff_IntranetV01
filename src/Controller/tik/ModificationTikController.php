@@ -74,7 +74,7 @@ class ModificationTikController extends BaseController
             'id' => $id
         ]); // historisation du page visité par l'utilisateur 
 
-        $this->getTwig()->render('tik/demandeSupportInformatique/edit.html.twig', [
+        return $this->render('tik/demandeSupportInformatique/edit.html.twig', [
             'fichiers' => $fichiers,
             'form' => $form->createView()
         ]);

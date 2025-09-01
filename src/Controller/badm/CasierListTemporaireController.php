@@ -58,7 +58,7 @@ class CasierListTemporaireController extends BaseController
 
         $this->logUserVisit('listeTemporaire_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/casier/listTemporaireCasier.html.twig',
             [
                 'casier' => $paginationData['data'],

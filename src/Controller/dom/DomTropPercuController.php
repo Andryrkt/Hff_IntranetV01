@@ -96,7 +96,7 @@ class DomTropPercuController extends BaseController
 
         // $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('doms/tropPercuForm.html.twig', [
+        return $this->render('doms/tropPercuForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => 'PERMANENT',
             'criteria'      => $criteria

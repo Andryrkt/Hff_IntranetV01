@@ -73,7 +73,7 @@ class DitRiSoumisAValidationController extends BaseController
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('dit/DitRiSoumisAValidation.html.twig', [
+        return $this->render('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'itvAfficher' => $itvAfficher
         ]);

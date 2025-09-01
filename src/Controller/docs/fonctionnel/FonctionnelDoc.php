@@ -33,9 +33,9 @@ class FonctionnelDoc extends BaseController
         $htmlContent = $this->parsedown->text($markdownContent);
 
         // Rendre le template avec le contenu HTML
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/fonctionnel/fonctionnel.html.twig', 
+        return $this->render('doc/fonctionnel/fonctionnel.html.twig', 
         [
             'content' => $htmlContent
-        ]));
+        ]);
     }
 }

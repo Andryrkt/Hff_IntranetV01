@@ -58,7 +58,7 @@ class DaEditAvecDitController extends BaseController
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
-        $this->getTwig()->render('da/edit-avec-dit.html.twig', [
+        return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
             'peutModifier' => $this->PeutModifier($demandeAppro),

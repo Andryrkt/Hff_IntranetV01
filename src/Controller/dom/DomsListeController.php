@@ -97,7 +97,7 @@ class DomsListeController extends BaseController
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        $this->getTwig()->render(
+        return $this->render(
             'doms/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -231,7 +231,7 @@ class DomsListeController extends BaseController
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'doms/list.html.twig',
             [
                 'form' => $form->createView(),

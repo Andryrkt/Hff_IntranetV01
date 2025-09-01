@@ -127,7 +127,7 @@ class MagasinListeOrTraiterController extends BaseController
 
         $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('magasin/ors/listOrATraiter.html.twig', [
+        return $this->render('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

@@ -109,7 +109,7 @@ class DdpDossierRegularisationController extends BaseController
 
 
 
-        $this->getTwig()->render('ddp/DdpDossierRegul.html.twig', [
+        return $this->render('ddp/DdpDossierRegul.html.twig', [
             'form' => $form->createView(),
             'groupes' => $groupes
         ]);

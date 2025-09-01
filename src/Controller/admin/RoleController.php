@@ -27,12 +27,12 @@ class RoleController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/role/list.html.twig',
             [
                 'data' => $data
             ]
-        ));
+        );
     }
 
     /**
@@ -63,8 +63,7 @@ class RoleController extends BaseController
             $this->redirectToRoute("role_index");
         }
 
-        $this->getTwig()->render(
-            'admin/role/new.html.twig',
+        return $this->render('admin/role/new.html.twig', 
             [
                 'form' => $form->createView()
             ]
@@ -96,7 +95,7 @@ class RoleController extends BaseController
             $this->redirectToRoute("role_index");
         }
 
-        $this->getTwig()->render('admin/role/edit.html.twig', [
+        return $this->render('admin/role/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

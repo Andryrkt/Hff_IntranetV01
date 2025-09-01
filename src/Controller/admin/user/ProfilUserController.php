@@ -45,7 +45,7 @@ class ProfilUserController extends BaseController
 
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/user/profilUser.html.twig',
             [
                 'form' => $form->createView(),
@@ -65,12 +65,12 @@ class ProfilUserController extends BaseController
 
         $data =  $this->getEntityManager()->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/user/listProfilUser.html.twig',
             [
                 'data' => $data
             ]
-        ));
+        );
     }
 
     /**
@@ -107,7 +107,7 @@ class ProfilUserController extends BaseController
 
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/user/editProfilUser.html.twig',
             [
                 'form' => $form->createView(),

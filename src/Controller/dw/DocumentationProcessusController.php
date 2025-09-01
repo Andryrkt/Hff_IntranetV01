@@ -42,7 +42,7 @@ class DocumentationProcessusController extends BaseController
 
         $paginationData = $this->getEntityManager()->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
 
-        $this->getTwig()->render('dw/documentationInterne.html.twig', [
+        return $this->render('dw/documentationInterne.html.twig', [
             'form' => $form->createView(),
             'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],

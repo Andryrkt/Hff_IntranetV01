@@ -17,9 +17,9 @@ class UtilisateurExceptionController extends BaseController
      */
     public function utilisateurNonTrouver($message)
     {
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/exception/utilisateurException.html.twig', 
+        return $this->render('admin/exception/utilisateurException.html.twig', 
     [
         'message' => $message,
-    ]));
+    ]);
     }
 }

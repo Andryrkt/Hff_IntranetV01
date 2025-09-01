@@ -82,7 +82,7 @@ class MutationController extends BaseController
             }
         }
 
-        $this->getTwig()->render('mutation/new.html.twig', [
+        return $this->render('mutation/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -124,7 +124,7 @@ class MutationController extends BaseController
         //enregistre le critère dans la session
         $this->sessionService->set('mutation_search_criteria', $criteria);
 
-        $this->getTwig()->render(
+        return $this->render(
             'mutation/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -189,11 +189,11 @@ class MutationController extends BaseController
             'pieceJoint01'                  => $mutation->getPieceJoint01(),
             'pieceJoint02'                  => $mutation->getPieceJoint02(),
         ];
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'mutation/detail.html.twig',
             [
                 'mutation' => $mutation
             ]
-        ));
+        );
     }
 }

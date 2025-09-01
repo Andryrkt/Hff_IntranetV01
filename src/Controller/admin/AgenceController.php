@@ -26,12 +26,12 @@ class AgenceController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/agence/list.html.twig',
             [
                 'data' => $data
             ]
-        ));
+        );
     }
 
     /**
@@ -62,7 +62,7 @@ class AgenceController extends BaseController
             $this->redirectToRoute("agence_index");
         }
 
-        $this->getTwig()->render('admin/agence/new.html.twig', [
+        return $this->render('admin/agence/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -98,7 +98,7 @@ class AgenceController extends BaseController
             throw new \Exception('FormView is null');
         }
 
-        $this->getTwig()->render('admin/agence/edit.html.twig', [
+        return $this->render('admin/agence/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

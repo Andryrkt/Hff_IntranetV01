@@ -29,12 +29,12 @@ class AgenceServiceIriumController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/AgenceServiceIrium/list.html.twig',
             [
                 'data' => $data
             ]
-        ));
+        );
     }
 
     /**
@@ -59,7 +59,7 @@ class AgenceServiceIriumController extends BaseController
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/AgenceServiceIrium/new.html.twig',
             [
                 'form' => $form->createView()
@@ -91,7 +91,7 @@ class AgenceServiceIriumController extends BaseController
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/AgenceServiceIrium/edit.html.twig',
             [
                 'form' => $form->createView(),

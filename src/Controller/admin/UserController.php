@@ -55,7 +55,7 @@ class UserController extends BaseController
 
         //$this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('admin/utilisateur/new.html.twig', [
+        return $this->render('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -92,7 +92,7 @@ class UserController extends BaseController
 
         //$this->logUserVisit('utilisateur_update', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
-        $this->getTwig()->render('admin/utilisateur/edit.html.twig', [
+        return $this->render('admin/utilisateur/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -112,9 +112,9 @@ class UserController extends BaseController
 
         //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/utilisateur/list.html.twig', [
+        return $this->render('admin/utilisateur/list.html.twig', [
             'data' => $data
-        ]));
+        ]);
     }
 
     private function transformIdEnObjetEntitySuperieur(array $data): array
@@ -196,8 +196,8 @@ class UserController extends BaseController
 
         //$this->logUserVisit('utilisateur_show', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/utilisateur/details.html.twig', [
+        return $this->render('admin/utilisateur/details.html.twig', [
             'data' => $data
-        ]));
+        ]);
     }
 }

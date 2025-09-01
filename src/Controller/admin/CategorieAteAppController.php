@@ -27,10 +27,10 @@ class CategorieAteAppController extends BaseController
         $data = $this->getEntityManager()->getRepository(CategorieAteApp::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/categorieAte/list.html.twig', [
+        return $this->render('admin/categorieAte/list.html.twig', [
             
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -54,7 +54,7 @@ class CategorieAteAppController extends BaseController
                 $this->redirectToRoute("categorieAte_index");
             }
     
-            $this->getTwig()->render('admin/categorieAte/new.html.twig', 
+            return $this->render('admin/categorieAte/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);

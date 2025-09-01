@@ -66,7 +66,7 @@ class planningAtelierControler extends BaseController
             $this->sessionService->set('data_export_planningAtelier_excel', $output);
             $this->sessionService->set('dates_export_planningAtelier_excel', $dates);
         }
-        $this->getTwig()->render('planningAtelier/planningAtelier.html.twig', [
+        return $this->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
             'dates' => $dates,
             'filteredDates' => $filteredDates,

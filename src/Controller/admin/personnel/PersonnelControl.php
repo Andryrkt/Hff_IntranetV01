@@ -66,7 +66,7 @@ class PersonnelControl extends BaseController
           
         }
 
-        $this->getTwig()->render('test.html.twig', [
+       return $this->render('test.html.twig', [
             'form' => $form->createView()
         ]);
 }
@@ -85,14 +85,14 @@ class PersonnelControl extends BaseController
             $serviceIrium = $this->transformEnSeulTableau($this->Person->recupServiceIrium());
 
 
-            return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+            return $this->render(
                 'admin/personnel/addPersonnel.html.twig',
                 [
                     'codeSage' => $codeSage,
                     'codeIrium' => $codeIrium,
                     'serviceIrium' => $serviceIrium
                 ]
-            ));
+            );
         }
     }
 
@@ -108,12 +108,12 @@ class PersonnelControl extends BaseController
 
 
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/personnel/listPersonnel.html.twig',
             [
                 'infoPersonnel' => $infoPersonnel
             ]
-        ));
+        );
     }
 
     public function updatePersonnel()
@@ -126,13 +126,13 @@ class PersonnelControl extends BaseController
 
 
         $infoPersonnelId = $this->Person->recupInfoPersonnelMatricule($_GET['matricule']);
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/personnel/addPersonnel.html.twig',
             [
                 'codeSage' => $codeSage,
                 'codeIrium' => $codeIrium,
                 'infoPersonnelId' => $infoPersonnelId
             ]
-        ));
+        );
     }
 }

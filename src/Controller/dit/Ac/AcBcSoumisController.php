@@ -128,7 +128,7 @@ class AcBcSoumisController extends BaseController
             $this->historiqueOperation->sendNotificationCreation($message, $numBc, 'dit_index', true);
         }
 
-        $this->getTwig()->render('dit/AcBcSoumis.html.twig', [
+        return $this->render('dit/AcBcSoumis.html.twig', [
             'form' => $form->createView()
         ]);
     }

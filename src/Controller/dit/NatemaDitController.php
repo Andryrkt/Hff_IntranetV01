@@ -13,13 +13,14 @@ use App\Controller\BaseController;
 
 class NatemaDitController extends BaseController
 {
-    public function index(){
-        $data = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
-    
-    
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('natemadit/list.html.twig', [
+    public function index()
+    {
+        $data = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findBy([], ['id' => 'DESC']);
+
+
+        return $this->render('natemadit/list.html.twig', [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -28,8 +29,9 @@ class NatemaDitController extends BaseController
      * @param Request $request
      * @return void
      */
-    public function new(Request $request){
-        
+    public function new(Request $request)
+    {
+
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
@@ -37,9 +39,8 @@ class NatemaDitController extends BaseController
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $utilisateur= $form->getData(); 
+        if ($form->isSubmitted() && $form->isValid()) {
+            $utilisateur = $form->getData();
 
             $selectedApplications = $form->get('applications')->getData();
 
@@ -55,7 +56,7 @@ class NatemaDitController extends BaseController
             $this->redirectToRoute("natemadit_index");
         }
 
-        $this->getTwig()->render('natemadit/new.html.twig', [
+        return $this->render('natemadit/new.html.twig', [
             'form' => $form->createView()
         ]);
     }

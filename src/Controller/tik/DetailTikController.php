@@ -59,7 +59,7 @@ class DetailTikController extends BaseController
         $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
 
         if (!$supportInfo) {
-            return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('404.html.twig'));
+            return $this->render('404.html.twig');
         } else {
             $formDetail = $this->getFormFactory()->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 
@@ -99,7 +99,7 @@ class DetailTikController extends BaseController
 
             $template = $this->determineTemplate($connectedUser, $supportInfo);
 
-            $this->getTwig()->render("tik/demandeSupportInformatique/$template.html.twig", [
+            return $this->render("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,
                 'form'              => $formDetail->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),

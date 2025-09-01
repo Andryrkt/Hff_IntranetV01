@@ -23,9 +23,9 @@ class AgenceServiceAutoriserController extends BaseController
 
         $data = $this->getEntityManager()->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/AgenceServiceAutoriser/list.html.twig', [
+        return $this->render('admin/AgenceServiceAutoriser/list.html.twig', [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -48,7 +48,7 @@ class AgenceServiceAutoriserController extends BaseController
             $this->redirectToRoute("autoriser_index");
         }
 
-        $this->getTwig()->render('admin/AgenceServiceAutoriser/new.html.twig', [
+        return $this->render('admin/AgenceServiceAutoriser/new.html.twig', [
 
             'form' => $form->createView()
         ]);
@@ -77,7 +77,7 @@ class AgenceServiceAutoriserController extends BaseController
             $this->redirectToRoute("autoriser_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/AgenceServiceAutoriser/edit.html.twig',
             [
                 'form' => $form->createView(),

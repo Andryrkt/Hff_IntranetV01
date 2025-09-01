@@ -61,7 +61,7 @@ class DitDuplicationController extends BaseController
         ]); // historisation du page visité par l'utilisateur
         $estAvoir = $this->estAvoir($dit); // TODO : encore à faire
         $estRefactorisation = $this->estRefacturation($dit); //
-        $this->getTwig()->render('dit/duplication.html.twig', [
+        return $this->render('dit/duplication.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
             'estAvoir' => $estAvoir,

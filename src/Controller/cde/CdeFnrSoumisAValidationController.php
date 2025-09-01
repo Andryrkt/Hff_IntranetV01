@@ -47,7 +47,7 @@ class CdefnrSoumisAValidationController extends BaseController
 
         $this->traitementFormulaire($request, $form);
 
-        $this->getTwig()->render('cde/cdeFnr.html.twig', [
+        return $this->render('cde/cdeFnr.html.twig', [
             'form' => $form->createView(),
         ]);
     }

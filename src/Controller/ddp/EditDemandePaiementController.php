@@ -78,7 +78,7 @@ class EditDemandePaiementController extends BaseController
         $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement, $id);
         $numeroFournisseur = $demandePaiement->getNumeroFournisseur();
         $listeGcot = $this->listGcot($numeroFournisseur, $id);
-        $this->getTwig()->render('ddp/EditdemandePaiement.html.twig', [
+        return $this->render('ddp/EditdemandePaiement.html.twig', [
             'id_type' => $id,
             'form' => $form->createView(),
             'listeGcot' => $listeGcot,

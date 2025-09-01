@@ -91,7 +91,7 @@ class DitDevisSoumisAValidationController extends BaseController
             $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion, $request);
         }
 
-        $this->getTwig()->render('dit/DitDevisSoumisAValidation.html.twig', [
+        return $this->render('dit/DitDevisSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'numDevis' => $numDevis,
             'numDit' => $numDit,

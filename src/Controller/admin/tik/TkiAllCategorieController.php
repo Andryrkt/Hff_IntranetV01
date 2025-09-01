@@ -23,13 +23,13 @@ class TkiAllCategorieController extends BaseController
         $dataSousCategorie  = $this->getEntityManager()->getRepository(TkiSousCategorie::class)->findBy([], ['id' => 'DESC']);
         $dataAutreCategorie = $this->getEntityManager()->getRepository(TkiAutresCategorie::class)->findBy([], ['id' => 'DESC']);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'admin/tik/tousCategorie/List.html.twig',
             [
                 'dataCategorie'      => $dataCategorie,
                 'dataSousCategorie'  => $dataSousCategorie,
                 'dataAutreCategorie' => $dataAutreCategorie
             ]
-        ));
+        );
     }
 }

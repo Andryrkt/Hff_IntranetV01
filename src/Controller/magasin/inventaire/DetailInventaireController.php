@@ -97,7 +97,7 @@ class DetailInventaireController extends BaseController
             $listInvent = $this->InventaireModel->ligneInventaire($criteria);
             $data = $this->recupData($listInvent);
         }
-        $this->getTwig()->render('inventaire/detailInventaire.html.twig', [
+        return $this->render('inventaire/detailInventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);

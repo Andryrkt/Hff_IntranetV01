@@ -46,7 +46,7 @@ class CalendarPlanningController extends BaseController
 
         $this->logUserVisit('tik_calendar_planning'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('tik/planning/calendar.html.twig', [
+        return $this->render('tik/planning/calendar.html.twig', [
             'form' => $form->createView(),
             'formSearch' => $formSearch->createView(),
         ]);

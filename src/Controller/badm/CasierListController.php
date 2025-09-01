@@ -58,7 +58,7 @@ class CasierListController extends BaseController
 
         $this->logUserVisit('liste_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/casier/listCasier.html.twig',
             [
                 'casier' => $paginationData['data'],

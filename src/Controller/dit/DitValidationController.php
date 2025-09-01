@@ -131,7 +131,7 @@ class DitValidationController extends BaseController
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur       
 
-        $this->getTwig()->render('dit/validation.html.twig', [
+        return  $this->render('dit/validation.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
             'autoriser' => $autoriser,

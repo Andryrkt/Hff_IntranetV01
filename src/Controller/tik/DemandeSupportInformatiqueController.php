@@ -88,7 +88,7 @@ class DemandeSupportInformatiqueController extends BaseController
 
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('tik/demandeSupportInformatique/new.html.twig', [
+        return $this->render('tik/demandeSupportInformatique/new.html.twig', [
             'form' => $form->createView()
         ]);
     }

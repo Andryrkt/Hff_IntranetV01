@@ -67,7 +67,7 @@ class DossierInterventionAtelierController extends BaseController
 
         $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('dw/dossierInterventionAtelier.html.twig', [
+        return $this->render('dw/dossierInterventionAtelier.html.twig', [
             'form'   => $form->createView(),
             'dwDits' => $dwDits
         ]);

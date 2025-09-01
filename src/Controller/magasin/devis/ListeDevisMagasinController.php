@@ -48,7 +48,7 @@ class ListeDevisMagasinController extends BaseController
         $listeDevisFactory = $this->recuperationDonner();
 
         // affichage de la liste des devis magasin
-        $this->getTwig()->render('magasin/devis/listeDevisMagasin.html.twig', [
+        return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView()
         ]);

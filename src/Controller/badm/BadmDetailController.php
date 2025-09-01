@@ -33,12 +33,12 @@ class BadmDetailController extends BaseController
             'id' => $id
         ]); // historisation du page visité par l'utilisateur
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'badm/detail.html.twig',
             [
                 'badm' => $badm,
                 'data' => $data
             ]
-        ));
+        );
     }
 }

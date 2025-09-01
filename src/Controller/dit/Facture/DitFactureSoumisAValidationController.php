@@ -183,7 +183,7 @@ class DitFactureSoumisAValidationController extends BaseController
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('dit/DitFactureSoumisAValidation.html.twig', [
+        return $this->render('dit/DitFactureSoumisAValidation.html.twig', [
             'form' => $form->createView(),
         ]);
     }

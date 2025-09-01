@@ -52,7 +52,7 @@ class PersonnelController extends BaseController
 
         $totalPages = ceil($totalBadms / $limit);
 
-        $this->getTwig()->render('admin/Personnel/list.html.twig', [
+        return $this->render('admin/Personnel/list.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'currentPage' => $page,
@@ -97,7 +97,7 @@ class PersonnelController extends BaseController
             $this->redirectToRoute("personnel_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/Personnel/new.html.twig',
             [
                 'form' => $form->createView()
@@ -132,7 +132,7 @@ class PersonnelController extends BaseController
             $this->redirectToRoute("personnel_index");
         }
 
-        $this->getTwig()->render('admin/Personnel/edit.html.twig', [
+        return $this->render('admin/Personnel/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -165,8 +165,8 @@ class PersonnelController extends BaseController
 
         $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/Personnel/show.html.twig', [
+        return $this->render('admin/Personnel/show.html.twig', [
             'personnel' => $user
-        ]));
+        ]);
     }
 }

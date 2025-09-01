@@ -116,7 +116,7 @@ class CisATraiterController extends BaseController
 
         $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('magasin/cis/listATraiter.html.twig', [
+        return $this->render('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

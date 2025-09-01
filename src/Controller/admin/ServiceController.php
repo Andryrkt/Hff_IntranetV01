@@ -28,10 +28,10 @@ class ServiceController extends BaseController
         $data = $this->getEntityManager()->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
 
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/service/list.html.twig', 
+        return $this->render('admin/service/list.html.twig', 
         [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -55,7 +55,7 @@ class ServiceController extends BaseController
                 $this->redirectToRoute("service_index");
             }
     
-            $this->getTwig()->render('admin/service/new.html.twig', 
+            return $this->render('admin/service/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -85,7 +85,7 @@ class ServiceController extends BaseController
             
         }
 
-        $this->getTwig()->render('admin/service/edit.html.twig', 
+        return $this->render('admin/service/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

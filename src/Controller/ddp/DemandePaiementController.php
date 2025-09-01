@@ -87,7 +87,7 @@ class DemandePaiementController extends BaseController
 
         $this->traitementForm($request, $form, $id);
 
-        $this->getTwig()->render('ddp/demandePaiementNew.html.twig', [
+        return $this->render('ddp/demandePaiementNew.html.twig', [
             'id_type' => $id,
             'form' => $form->createView()
         ]);

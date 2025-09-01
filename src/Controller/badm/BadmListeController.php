@@ -83,7 +83,7 @@ class BadmListeController extends BaseController
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/listBadm.html.twig',
             [
                 'form' => $form->createView(),
@@ -219,7 +219,7 @@ class BadmListeController extends BaseController
 
         $this->logUserVisit('badm_list_annuler'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/listBadm.html.twig',
             [
                 'form' => $form->createView(),

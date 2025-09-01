@@ -132,7 +132,7 @@ class InventaireController extends BaseController
             $data = $this->recupDataList($listInvent, true);
             // dump($data);
         }
-        $this->getTwig()->render('inventaire/inventaire.html.twig', [
+        return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -166,7 +166,7 @@ class InventaireController extends BaseController
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
         $sumData = $this->dataSumInventaireDetail($numinv);
-        $this->getTwig()->render('inventaire/inventaireDetail.html.twig', [
+        return $this->render('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
             'sumData' => $sumData
@@ -583,7 +583,7 @@ class InventaireController extends BaseController
         $criteriaTab = $criteria->toArray();
         $this->sessionManagerService->set('bordereau_search_criteria', $criteriaTab);
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
-        $this->getTwig()->render('bordereau/bordereau.html.twig', [
+        return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'numinvpdf' => $numInv,

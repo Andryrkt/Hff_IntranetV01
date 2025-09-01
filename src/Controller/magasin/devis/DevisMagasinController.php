@@ -80,7 +80,7 @@ class DevisMagasinController extends BaseController
         $this->traitementFormualire($form, $request,  $devisMagasin, $validationService);
 
         //affichage du formulaire
-        $this->getTwig()->render('magasin/devis/soumission.html.twig', [
+        return $this->render('magasin/devis/soumission.html.twig', [
             'form' => $form->createView()
         ]);
     }

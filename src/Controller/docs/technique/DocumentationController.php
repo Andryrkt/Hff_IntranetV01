@@ -44,9 +44,9 @@ class DocumentationController extends BaseController
 
         ksort($groupedDocuments);
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/technique/index.html.twig', [
+        return $this->render('doc/technique/index.html.twig', [
             'groupedDocuments' => $groupedDocuments,
-        ]));
+        ]);
     }
 
     private function getTitleFromFilename(string $filename): string
@@ -82,11 +82,11 @@ class DocumentationController extends BaseController
         // Use title from metadata if available, otherwise generate from filename
         $title = $metadata['title'] ?? $this->getTitleFromFilename(pathinfo($safeFilename, PATHINFO_FILENAME));
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/technique/show.html.twig', [
+        return $this->render('doc/technique/show.html.twig', [
             'title' => $title,
             'content' => $htmlContent,
             'metadata' => $metadata, // Pass metadata to template
-        ]));
+        ]);
     }
 
     private function getDocumentMetadata(string $filePath): array

@@ -170,7 +170,7 @@ class BadmsController extends BaseController
 
         $this->logUserVisit('badms_newForm1'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render(
+        return $this->render(
             'badm/firstForm.html.twig',
             [
                 'form' => $form->createView()

@@ -66,7 +66,7 @@ class DaSoumissionFacBlController extends BaseController
 
         $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
-        $this->getTwig()->render('da/soumissionFacBl.html.twig', [
+        return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
             'numCde' => $numCde,
         ]);

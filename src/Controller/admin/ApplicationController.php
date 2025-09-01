@@ -26,10 +26,10 @@ class ApplicationController extends BaseController
         $data = $this->getEntityManager()->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/application/list.html.twig', 
+        return $this->render('admin/application/list.html.twig', 
         [
             'data' => $data
-        ]));
+        ]);
     }
 
     /**
@@ -50,7 +50,7 @@ class ApplicationController extends BaseController
             $this->redirectToRoute("application_index");
         }
 
-        $this->getTwig()->render('admin/application/new.html.twig', 
+        return $this->render('admin/application/new.html.twig', 
         [
             'form' => $form->createView()
         ]);
@@ -77,7 +77,7 @@ class ApplicationController extends BaseController
             
         }
 
-        $this->getTwig()->render('admin/application/edit.html.twig', 
+        return $this->render('admin/application/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

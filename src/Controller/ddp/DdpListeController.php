@@ -61,7 +61,7 @@ class DdpListeController extends BaseController
         }
 
 
-        $this->getTwig()->render('ddp/demandePaiementList.html.twig', [
+        return $this->render('ddp/demandePaiementList.html.twig', [
             'data' => $data,
             'form' => $form->createView(),
         ]);

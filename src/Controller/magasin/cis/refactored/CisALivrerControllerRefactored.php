@@ -119,7 +119,7 @@ class CisALivrerController extends BaseController
 
         $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('magasin/cis/listALivrer.html.twig', [
+        return $this->render('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

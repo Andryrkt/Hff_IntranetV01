@@ -44,7 +44,7 @@ class DaNewAvecDitController extends BaseController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->getTwig()->render('da/first-form.html.twig', [
+        return $this->render('da/first-form.html.twig', [
             'estAte' => $this->estUserDansServiceAtelier(),
             'estAdmin' => $this->estAdmin()
         ]);
@@ -73,7 +73,7 @@ class DaNewAvecDitController extends BaseController
         $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
 
-        $this->getTwig()->render('da/new-avec-dit.html.twig', [
+        return $this->render('da/new-avec-dit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

@@ -87,7 +87,7 @@ class MagasinListeOrLivrerController extends BaseController
 
         $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('magasin/ors/listOrLivrer.html.twig', [
+        return $this->render('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);

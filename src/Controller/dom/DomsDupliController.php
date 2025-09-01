@@ -137,7 +137,7 @@ class DomsDupliController extends BaseController
             return $this->redirectToRoute('domList_ShowListDomRecherche');
         }
 
-        $this->getTwig()->render('doms/dupli.html.twig', [
+        return $this->render('doms/dupli.html.twig', [
             'form' => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria' => $criteria

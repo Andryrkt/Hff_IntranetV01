@@ -120,7 +120,7 @@ class PlanningController extends BaseController
         // dd($forDisplay);
         $this->logUserVisit('planning_vue'); // historisation du page visité par l'utilisateur
 
-        $this->getTwig()->render('planning/planning.html.twig', [
+        return $this->render('planning/planning.html.twig', [
             'form' => $form->createView(),
             'preparedData' => $forDisplay['preparedData'],
             'uniqueMonths' => $forDisplay['uniqueMonths'],

@@ -39,7 +39,7 @@ class TkiSousCategorieController extends BaseController
             $this->redirectToRoute("tki_all_categorie_index");
         }
 
-        $this->getTwig()->render(
+        return $this->render(
             'admin/tik/sousCategorie/new.html.twig',
             [
                 'form' => $form->createView()
@@ -83,7 +83,7 @@ class TkiSousCategorieController extends BaseController
             $this->redirectToRoute("tki_all_categorie_index");
         }
 
-        $this->getTwig()->render('admin/tik/sousCategorie/edit.html.twig', [
+        return $this->render('admin/tik/sousCategorie/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

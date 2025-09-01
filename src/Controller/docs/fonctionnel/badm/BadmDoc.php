@@ -33,11 +33,11 @@ class BadmDoc extends BaseController
         $this->logUserVisit('badm_index'); // historisation du page visité par l'utilisateur
 
         // Rendre le template avec le contenu HTML
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'doc/fonctionnel/badm/badm.html.twig',
             [
                 'content' => $htmlContent
             ]
-        ));
+        );
     }
 }

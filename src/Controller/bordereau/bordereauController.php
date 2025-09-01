@@ -63,7 +63,7 @@ class bordereauController extends BaseController
         if ($request->query->get('action') !== 'oui') {
             $data = $this->recupData($criteria->getNuminv());
         }
-        $this->getTwig()->render('bordereau/bordereau.html.twig', [
+        return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);

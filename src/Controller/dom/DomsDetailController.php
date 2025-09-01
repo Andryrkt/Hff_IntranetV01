@@ -36,12 +36,12 @@ class DomsDetailController extends BaseController
             'id' => $id,
         ]); // historisation du page visité par l'utilisateur
 
-        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
+        return $this->render(
             'doms/detail.html.twig',
             [
                 'dom' => $dom,
                 'is_temporaire' => $is_temporaire
             ]
-        ));
+        );
     }
 }
