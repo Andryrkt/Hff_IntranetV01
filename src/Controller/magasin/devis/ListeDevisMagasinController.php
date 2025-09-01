@@ -7,6 +7,7 @@ use App\Entity\admin\Application;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
@@ -39,11 +40,16 @@ class ListeDevisMagasinController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
+        //formulaire de recherhce
+        $form = self::$validator->creatBuilder(DevisMagasinSearchType::class)->getForm();
+
+        // recupération des données
         $listeDevisFactory = $this->recuperationDonner();
 
         // affichage de la liste des devis magasin
         self::$twig->display('magasin/devis/listeDevisMagasin.html.twig', [
-            'listeDevis' => $listeDevisFactory
+            'listeDevis' => $listeDevisFactory,
+            'form' => $form->createView()
         ]);
     }
 
