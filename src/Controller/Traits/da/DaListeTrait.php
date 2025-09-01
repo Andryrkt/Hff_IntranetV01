@@ -230,9 +230,9 @@ trait DaListeTrait
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
-                'urlDetail'           => $urls[''],
-                'urlDesignation'      => $urls[''],
-                'urlDelete'           => $urls[''],
+                'urlDetail'           => $urls['detail'],
+                'urlDesignation'      => $urls['designation'],
+                'urlDelete'           => $urls['delete'],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'telechargerOR'       => $telechargerOR,
@@ -244,27 +244,40 @@ trait DaListeTrait
         return $datasPrepared;
     }
 
-    /** 
-     * Fonctions pour construire les url sur chaque item
+    /**
+     * Construit l'ensemble des URLs associées à un item de demande d'approvisionnement.
+     *
+     * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
+     *
+     * @return array{detail:string,designation:string,delete:string}
      */
     private function buildItemUrls(DaAfficher $item): array
     {
         $urls = [];
+
+        // URL détail
         $urls['detail'] = $this->urlGenerator->generate(
             $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
             ['id' => $item->getDemandeAppro()->getId()]
         );
-        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION ? $this->urlGenerator->generate('da_new_avec_dit', [
-            'daId'  => $item->getDemandeAppro()->getId(),
-            'ditId' => $item->getDit()->getId(),
-        ]) : $this->urlGenerator->generate(
-            $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
-            ['id' => $item->getDemandeAppro()->getId()]
-        );
+
+        // URL désignation (peut basculer sur "new" si statut en cours de création)
+        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
+            ? $this->urlGenerator->generate('da_new_avec_dit', [
+                'daId'  => $item->getDemandeAppro()->getId(),
+                'ditId' => $item->getDit()->getId(),
+            ])
+            : $this->urlGenerator->generate(
+                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
+                ['id' => $item->getDemandeAppro()->getId()]
+            );
+
+        // URL suppression de ligne
         $urls['delete'] = $this->urlGenerator->generate(
             $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
             ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
         );
+
         return $urls;
     }
 }
