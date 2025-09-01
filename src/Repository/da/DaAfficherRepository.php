@@ -212,39 +212,79 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
+    {
+        $subQb = $this->createQueryBuilder('d')
+            ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
+            ->groupBy('d.numeroDemandeAppro');
+
+        $this->applyDynamicFilters($subQb, $criteria);
+        $this->applyAgencyServiceFilters($subQb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($subQb, $criteria);
+        $this->applyFilterAppro($subQb, $estAppro, $estAdmin);
+        $this->applyStatutsFilters($subQb, $criteria);
+
+        // ⚡ Cloner avant de limiter les résultats
+        $countQb = clone $subQb;
+        $countQb->resetDQLPart('orderBy'); // pas besoin d'ORDER BY dans un COUNT
+
+        // Nombre total de DA distincts
+        $totalItems = count($countQb->getQuery()->getResult());
+
+        // Pagination + order by
+        $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
+            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
+            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return [
+            'results'    => $subQb->getQuery()->getArrayResult(),
+            'totalItems' => $totalItems
+        ];
+    }
+
     /**
      * fonction Pour récupérer les données filtrées
      */
-    public function findPaginatedAndFilteredDA(int $page = 1, int $limit = 10, User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    public function findPaginatedAndFilteredDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit)
     {
-        $qb = $this->createQueryBuilder('d');
+        $paginatedDAs = $this->getPaginatedDas($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
+        $numeroDAsPage = array_column($paginatedDAs['results'], 'numeroDemandeAppro');
+        $versionsMax = array_column($paginatedDAs['results'], 'maxVersion', 'numeroDemandeAppro');
 
-        $qb->where(
-            'd.numeroVersion = (
-                    SELECT MAX(d2.numeroVersion)
-                    FROM ' . DaAfficher::class . ' d2
-                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
-                )'
-        );
+        if (empty($numeroDAsPage)) {
+            return [
+                'data'        => [],
+                'totalItems'  => 0,
+                'currentPage' => $page,
+                'lastPage'    => 0,
+            ];
+        }
 
-        $this->applyDynamicFilters($qb, $criteria);
-        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($qb, $criteria);
+        $qb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
+            ->setParameter('numeroDAs', $numeroDAsPage);
 
-        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, $criteria);
+        // Ajouter condition version max (évite duplications)
+        $orX = $qb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            $orX->add($qb->expr()->andX(
+                $qb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                $qb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+            ));
+            $qb->setParameter('da_' . $numeroDA, $numeroDA);
+            $qb->setParameter('ver_' . $numeroDA, $versionMax);
+        }
+        $qb->andWhere($orX);
 
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
-
-        $qb->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-        ;
+        $qb->orderBy('daf.dateDemande', 'DESC')
+            ->addOrderBy('daf.numeroFournisseur', 'DESC')
+            ->addOrderBy('daf.numeroCde', 'DESC');
 
         $paginator = new DoctrinePaginator($qb->getQuery());
 
-        $totalItems = count($paginator);
+        $totalItems = $paginatedDAs['totalItems'];
         $lastPage = ceil($totalItems / $limit);
 
         return [
