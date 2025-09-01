@@ -49,12 +49,22 @@ class listeDaController extends Controller
         }
         $this->sessionService->set('criteria_for_excel', $criteria);
 
+        //recupère le numero de page
+        $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
+        $limit = 20;
+
         // Donnée à envoyer à la vue
-        $data = $this->getData($criteria);
-        $dataPrepared = $this->prepareDataForDisplay($data);
+        $paginationData = $this->getPaginationData($criteria, $page, $limit);
+        $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
+
         self::$twig->display('da/list-da.html.twig', [
-            'data' => $dataPrepared,
-            'form' => $form->createView(),
+            'data'        => $dataPrepared,
+            'form'        => $form->createView(),
+            'criteria'    => $criteria,
+            'currentPage' => $paginationData['currentPage'],
+            'totalPages'  => $paginationData['lastPage'],
+            'resultat'    => $paginationData['totalItems'],
         ]);
     }
 }

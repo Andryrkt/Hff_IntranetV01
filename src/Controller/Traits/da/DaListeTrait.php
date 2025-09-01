@@ -98,20 +98,23 @@ trait DaListeTrait
         }
     }
 
-    public function getData(array $criteria): array
+    public function getPaginationData(array $criteria, int $page, int $limit): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
-        $daAffichers = $this->daAfficherRepository->findDerniereVersionDesDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+        $daAffichers = $paginationData['data'];
 
         // mise à jours des donner dans la base de donner
         $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
-        return $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+
+        return $paginationData;
     }
 
     private function quelqueModifictionDansDatabase(array $datas)
