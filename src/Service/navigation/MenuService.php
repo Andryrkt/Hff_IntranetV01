@@ -212,14 +212,17 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
+        $nomUtilisateur = $this->getNomUtilisateur();
         if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
+            $subSubitems = [];
+            if ($nomUtilisateur != 'roddy') {
+                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'doms_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Ordre de mission',
                 'file-signature',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form'),
-                    $this->createSubItem('Consultation', 'search', 'doms_liste')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin() || in_array(Application::ID_MUT, $this->getApplicationIds())) { // MUT
@@ -300,7 +303,7 @@ class MenuService
         $nomUtilisateur = $this->getNomUtilisateur();
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subSubitems = [];
-            if ($nomUtilisateur != 'stg.iaro') {
+            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
                 $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
                 $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
             }
@@ -310,7 +313,7 @@ class MenuService
                 'toolbox',
                 $subSubitems
             );
-            if ($nomUtilisateur != 'stg.iaro') {
+            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
                 $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
             }
         }
