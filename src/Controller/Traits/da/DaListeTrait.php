@@ -10,11 +10,9 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\da\DaHistoriqueDemandeModifDARepository;
 use App\Service\Users\UserDataService;
 use Twig\Markup;
 
@@ -35,7 +33,6 @@ trait DaListeTrait
     private DossierInterventionAtelierModel $dwModel;
     private AgenceRepository $agenceRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private UserDataService $userDataService;
 
@@ -82,7 +79,6 @@ trait DaListeTrait
         $this->userDataService = new UserDataService($em);
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->historiqueModifDARepository = $em->getRepository(DaHistoriqueDemandeModifDA::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         //----------------------------------------------------------------------------------------------------
     }
@@ -177,9 +173,8 @@ trait DaListeTrait
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      *  @param DaAfficher[] $data données avant préparation
-     *  @param array $numDaNonDeverrouillees
      **/
-    private function prepareDataForDisplay(array $data, array $numDaNonDeverrouillees): array
+    private function prepareDataForDisplay(array $data): array
     {
         $datasPrepared = [];
 
@@ -195,37 +190,16 @@ trait DaListeTrait
 
             // Pré-calculer les booléens
             $ajouterDA = false && !$item->getAchatDirect() && ($this->estUserDansServiceAtelier() || $this->estAdmin()); // pas achat direct && (atelier ou admin)  
-            $aDeverouiller = $this->estUserDansServiceAppro() && in_array($item->getNumeroDemandeAppro(), $numDaNonDeverrouillees);
-            $demandeDeverouiller = $this->estUserDansServiceAtelier() && $item->getDemandeDeverouillage();
             $supprimable = ($this->estUserDansServiceAppro() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO) || ($this->estUserDansServiceAtelier() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_ATE);
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
-            // Pré-calculer les URLs
-            $urlDetail = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            $urlDesignation = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            if ($item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION) {
-                $urlDesignation = $this->urlGenerator->generate('da_new_avec_dit', [
-                    'daId'  => $item->getDemandeAppro()->getId(),
-                    'ditId' => $item->getDit()->getId(),
-                ]);
-            }
-            $urlDelete = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
-                ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
-            );
-
             $achatDirect = $item->getAchatDirect();
+            $urls = $this->buildItemUrls($item);
 
-            // formatter l'item (DaAfficher) à afficher
-            $formattedItem = [
+            // Tout regrouper
+            $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
@@ -253,34 +227,44 @@ trait DaListeTrait
                 'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
                 'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
                 'joursDispo'          => $item->getJoursDispo(),
-            ];
-
-            // Tout regrouper
-            $datasPrepared[] = [
-                'item'                => $formattedItem,
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
-                'aDeverouiller'       => $aDeverouiller,
-                'urlDetail'           => $urlDetail,
-                'urlDesignation'      => $urlDesignation,
-                'urlDelete'           => $urlDelete,
+                'urlDetail'           => $urls[''],
+                'urlDesignation'      => $urls[''],
+                'urlDelete'           => $urls[''],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'telechargerOR'       => $telechargerOR,
                 'pathOrMax'           => $pathOrMax,
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
-                'demandeDeverouiller' => $demandeDeverouiller,
             ];
         }
 
-        // résultat avec tri des données
-        /* usort(
-            $datasPrepared,
-            function ($a, $b) {
-                return $a['item']['joursDispo'] <=> $b['item']['joursDispo']; // tri croissant
-            }
-        ); */
         return $datasPrepared;
+    }
+
+    /** 
+     * Fonctions pour construire les url sur chaque item
+     */
+    private function buildItemUrls(DaAfficher $item): array
+    {
+        $urls = [];
+        $urls['detail'] = $this->urlGenerator->generate(
+            $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
+            ['id' => $item->getDemandeAppro()->getId()]
+        );
+        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION ? $this->urlGenerator->generate('da_new_avec_dit', [
+            'daId'  => $item->getDemandeAppro()->getId(),
+            'ditId' => $item->getDit()->getId(),
+        ]) : $this->urlGenerator->generate(
+            $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
+            ['id' => $item->getDemandeAppro()->getId()]
+        );
+        $urls['delete'] = $this->urlGenerator->generate(
+            $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
+            ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
+        );
+        return $urls;
     }
 }

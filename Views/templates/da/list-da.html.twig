@@ -73,17 +73,6 @@
 											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
 										</li>
 									{% endif %}
-									{% if row.demandeDeverouiller %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Demander le déverrouillage de la DA</a>
-										</li>
-									{% endif %}
-									{% if row.aDeverouiller %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Déverouiller la DA</a>
-										</li>
-									{% endif %}
-
 									{% if row.telechargerOR %}
 										{% set chemin = row.pathOrMax.chemin %}
 										<li>
@@ -141,8 +130,6 @@
 	</div>
 
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
-	{% include "/da/shared/listeDA/_modalConfirmation.html.twig" %}
-	{% include "/da/shared/listeDA/_modalDemandeDeverouillage.html.twig" %}
 {% endblock %}
 
 {% block javascript %}
