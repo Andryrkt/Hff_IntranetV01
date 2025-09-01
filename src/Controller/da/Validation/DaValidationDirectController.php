@@ -20,7 +20,7 @@ class DaValidationDirectController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
+
         $this->initDaValidationDirectTrait();
     }
 
@@ -53,7 +53,7 @@ class DaValidationDirectController extends BaseController
         ]);
 
         /** NOTIFICATION */
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("list_da");
     }
 }

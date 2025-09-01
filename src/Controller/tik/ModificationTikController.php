@@ -66,7 +66,7 @@ class ModificationTikController extends BaseController
 
             $this->historiqueStatut($supportInfo, $statutOuvert);
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("liste_tik_index");
         }
 
@@ -87,7 +87,7 @@ class ModificationTikController extends BaseController
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 

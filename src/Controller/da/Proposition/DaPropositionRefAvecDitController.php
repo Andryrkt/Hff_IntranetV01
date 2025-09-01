@@ -35,7 +35,7 @@ class DaPropositionRefAvecDitController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
+
         $this->initDaPropositionAvecDitTrait();
     }
 
@@ -62,10 +62,16 @@ class DaPropositionRefAvecDitController extends BaseController
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = $this->getFormFactory()->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_avec_dit', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(
+            DaPropositionValidationType::class,
+            [],
+            [
+                'action' => $this->getUrlGenerator()->generate('da_validate_avec_dit', ['numDa' => $numDa])
+            ]
+        )->getForm();
 
-        //================== Traitement du formulaire en géneral ===========================//
-        $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
+        //================== Traitement du formulaire en général ===========================//
+        $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da);
         // =================================================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
@@ -151,7 +157,7 @@ class DaPropositionRefAvecDitController extends BaseController
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
     }
 
@@ -187,7 +193,7 @@ class DaPropositionRefAvecDitController extends BaseController
             ];
         }
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -222,7 +228,7 @@ class DaPropositionRefAvecDitController extends BaseController
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -252,7 +258,7 @@ class DaPropositionRefAvecDitController extends BaseController
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -323,7 +329,7 @@ class DaPropositionRefAvecDitController extends BaseController
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 

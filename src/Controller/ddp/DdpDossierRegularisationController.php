@@ -91,10 +91,10 @@ class DdpDossierRegularisationController extends BaseController
             $this->historiqueOperation->sendNotificationSoumission('Les documents de régularisation a été stockée avec succès', $numDdr, 'ddp_liste', true);
         }
 
-        if (!$this->sessionService->has('page_loaded')) {
+        if (!$this->getSessionService()->has('page_loaded')) {
 
             /** creation du session */
-            $this->sessionService->set('page_loaded', true);
+            $this->getSessionService()->set('page_loaded', true);
 
             /** COPIER LES FICHIERS */
             $this->copierFichierDistant($numDdp);

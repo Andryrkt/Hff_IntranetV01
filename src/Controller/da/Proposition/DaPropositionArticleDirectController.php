@@ -35,8 +35,8 @@ class DaPropositionArticleDirectController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
-        $this->initDaPropositionDirectTrait();
+
+        $this->initDaPropositionDirectTrait($this->getUrlGenerator());
     }
 
     /**
@@ -59,9 +59,15 @@ class DaPropositionArticleDirectController extends BaseController
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = $this->getFormFactory()->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(
+            DaPropositionValidationType::class,
+            [],
+            [
+                'action' => $this->getUrlGenerator()->generate('da_validate_direct', ['numDa' => $numDa])
+            ]
+        )->getForm();
 
-        // Traitement du formulaire en géneral ===========================//
+        // Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
@@ -147,7 +153,7 @@ class DaPropositionArticleDirectController extends BaseController
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
     }
 
@@ -183,7 +189,7 @@ class DaPropositionArticleDirectController extends BaseController
             ];
         }
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -218,7 +224,7 @@ class DaPropositionArticleDirectController extends BaseController
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -248,7 +254,7 @@ class DaPropositionArticleDirectController extends BaseController
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -319,7 +325,7 @@ class DaPropositionArticleDirectController extends BaseController
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 

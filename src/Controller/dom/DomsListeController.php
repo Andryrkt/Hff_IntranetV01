@@ -76,8 +76,8 @@ class DomsListeController extends BaseController
         $this->statutTropPercuDomList($paginationData['data']);
 
         //enregistre le critère dans la session
-        $this->sessionService->set('dom_search_criteria', $criteria);
-        $this->sessionService->set('dom_search_option', $option);
+        $this->getSessionService()->set('dom_search_criteria', $criteria);
+        $this->getSessionService()->set('dom_search_option', $option);
 
         $criteriaTab = $criteria;
 
@@ -121,8 +121,8 @@ class DomsListeController extends BaseController
         $this->verifierSessionUtilisateur();
 
         // Récupère les critères dans la session
-        $criteria = $this->sessionService->get('dom_search_criteria', []);
-        $option = $this->sessionService->get('dom_search_option', []);
+        $criteria = $this->getSessionService()->get('dom_search_criteria', []);
+        $option = $this->getSessionService()->get('dom_search_option', []);
 
         $domSearch = new DomSearch();
         $domSearch->setSousTypeDocument($criteria['sousTypeDocument'])
@@ -226,8 +226,8 @@ class DomsListeController extends BaseController
 
 
         //enregistre le critère dans la session
-        $this->sessionService->set('dom_search_criteria', $criteria);
-        $this->sessionService->set('dom_search_option', $option);
+        $this->getSessionService()->set('dom_search_criteria', $criteria);
+        $this->getSessionService()->set('dom_search_option', $option);
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 

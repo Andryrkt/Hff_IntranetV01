@@ -30,7 +30,7 @@ class ExportExcelCdefrnController extends BaseController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('criteria_for_excel_Da_Cde_frn');
+        $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
 
         // recupération des données de la DA
         $dasFiltered = $this->donnerAfficher($criteria);

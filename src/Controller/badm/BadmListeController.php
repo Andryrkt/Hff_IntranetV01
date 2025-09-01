@@ -35,7 +35,7 @@ class BadmListeController extends BaseController
         $this->autorisationAcces($this->getUser(), Application::ID_BADM);
         /** FIN AUtorisation acées */
 
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -64,7 +64,7 @@ class BadmListeController extends BaseController
         //transformer l'objet ditSearch en tableau
         $criteria = $badmSearch->toArray();
         //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
+        $this->getSessionService()->set('badm_search_criteria', $criteria);
 
 
         //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
@@ -110,8 +110,8 @@ class BadmListeController extends BaseController
         $this->verifierSessionUtilisateur();
 
         // Récupère les critères dans la session
-        $criteria = $this->sessionService->get('badm_search_criteria', []);
-        $option = $this->sessionService->get('badm_search_option', []);
+        $criteria = $this->getSessionService()->get('badm_search_criteria', []);
+        $option = $this->getSessionService()->get('badm_search_option', []);
 
         // Récupère les entités filtrées
         $entities = $this->getEntityManager()->getRepository(Badm::class)->findAndFilteredExcel($criteria, $option);
@@ -199,8 +199,8 @@ class BadmListeController extends BaseController
         ];
 
         //enregistre le critère dans la session
-        $this->sessionService->set('badm_search_criteria', $criteria);
-        $this->sessionService->set('badm_search_option', $option);
+        $this->getSessionService()->set('badm_search_criteria', $criteria);
+        $this->getSessionService()->set('badm_search_option', $option);
 
         $repository = $this->getEntityManager()->getRepository(Badm::class);
         $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);

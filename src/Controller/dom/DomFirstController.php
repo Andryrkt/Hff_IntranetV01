@@ -37,7 +37,7 @@ class DomFirstController extends BaseController
 
         $dom = new Dom();
 
-        $userId = $this->sessionService->get('user_id', []);
+        $userId = $this->getSessionService()->get('user_id', []);
         $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
         $agenceAutoriserId = $user->getAgenceAutoriserIds();
         $codeAgences = [];
@@ -75,7 +75,7 @@ class DomFirstController extends BaseController
             $formData = $form->getData()->toArray();
 
 
-            $this->sessionService->set('form1Data', $formData);
+            $this->getSessionService()->set('form1Data', $formData);
 
             // Redirection vers le second formulaire
             return $this->redirectToRoute('dom_second_form');
@@ -91,7 +91,7 @@ class DomFirstController extends BaseController
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds) || in_array(4, $roleIds);
@@ -99,7 +99,7 @@ class DomFirstController extends BaseController
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dom_first_form");
     }
 }

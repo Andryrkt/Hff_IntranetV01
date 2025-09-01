@@ -25,7 +25,7 @@ class DitValidationController extends BaseController
 
 
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
         $roleNames = [];
         foreach ($userConnecter->getRoles() as $role) {
@@ -80,7 +80,7 @@ class DitValidationController extends BaseController
         //         dump($userDemandeur);
         //         $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
         //         dump($emailSuperieurs);
-        //         $id = $this->sessionService->get('user_id');
+        //         $id = $this->getSessionService()->get('user_id');
         //         dump($id);
         //         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($id);
         //         dump($userDemandeur);
@@ -226,9 +226,9 @@ class DitValidationController extends BaseController
     private function confirmationEmail($email, array $content)
     {
         if ($email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables'])) {
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Une email a été envoyé au demandeur ']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Une email a été envoyé au demandeur ']);
         } else {
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => "l'email n'a pas été envoyé au demandeur"]);
+            $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => "l'email n'a pas été envoyé au demandeur"]);
         }
     }
 }

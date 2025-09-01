@@ -76,7 +76,7 @@ class CasierController extends BaseController
                     'numParc' => $casier->getNumParc(),
                     'numSerie' => $casier->getNumSerie()
                 ];
-                $this->sessionService->set('casierform1Data', $formData);
+                $this->getSessionService()->set('casierform1Data', $formData);
 
                 $this->redirectToRoute("casiser_formulaireCasier");
             }
@@ -105,7 +105,7 @@ class CasierController extends BaseController
         /** FIN AUtorisation acées */
 
         $casier = new Casier();
-        $form1Data = $this->sessionService->get('casierform1Data', []);
+        $form1Data = $this->getSessionService()->get('casierform1Data', []);
 
         //Recupérations de tous les matériel
         $casierModel = new CasierModel();
@@ -144,7 +144,7 @@ class CasierController extends BaseController
 
 
             $NumCAS = $casier->getNumeroCas();
-            $user = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
+            $user = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
             $casier->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(55));

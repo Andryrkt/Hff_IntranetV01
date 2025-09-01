@@ -115,7 +115,7 @@ class BadmDupliController extends BaseController
                 $this->getEntityManager()->persist($application);
                 $this->getEntityManager()->flush();
 
-                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
+                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
                 $this->redirectToRoute("badmListe_AffichageListeBadm");
             }
         }

@@ -33,7 +33,7 @@ class ExportExcelController extends BaseController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('criteria_for_excel');
+        $criteria = $this->getSessionService()->get('criteria_for_excel');
 
         // recupération des données de la DA
         $dasFiltered = $this->getDataExcel($criteria);

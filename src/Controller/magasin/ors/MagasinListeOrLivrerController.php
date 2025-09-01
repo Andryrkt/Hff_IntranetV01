@@ -81,7 +81,7 @@ class MagasinListeOrLivrerController extends BaseController
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
+        $this->getSessionService()->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
         $data = $this->recupData($criteria);
 
@@ -106,7 +106,7 @@ class MagasinListeOrLivrerController extends BaseController
         $this->verifierSessionUtilisateur();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
+        $criteria = $this->getSessionService()->get('magasin_liste_or_livrer_search_criteria', []);
 
         $entities = $this->recupData($criteria);
 

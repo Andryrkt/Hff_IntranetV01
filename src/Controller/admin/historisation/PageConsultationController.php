@@ -41,7 +41,7 @@ class PageConsultationController extends BaseController
         // transformer l'objet pageConsultationSearch en tableau
         $criteria = $pageConsultationSearch->toArray();
         //recupères les données du criteria dans une session nommé page_consultation_search_criteria
-        $this->sessionService->set('page_consultation_search_criteria', $criteria);
+        $this->getSessionService()->set('page_consultation_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -81,7 +81,7 @@ class PageConsultationController extends BaseController
     private function initialisationFormRecherche(PageConsultationSearch $pageConsultationSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('page_consultation_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('page_consultation_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {

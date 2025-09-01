@@ -26,7 +26,7 @@ class DaEditDirectController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
+
         $this->initDaEditDirectTrait();
     }
 
@@ -97,7 +97,7 @@ class DaEditDirectController extends BaseController
             $notifType = "danger";
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
         }
-        $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
         $this->redirectToRoute("list_da");
     }
 
@@ -135,7 +135,7 @@ class DaEditDirectController extends BaseController
             ]);
 
             //notification
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

@@ -69,7 +69,7 @@ class DaListCdeFrnController extends BaseController
             'method' => 'GET',
         ])->getForm();
         $criteria = $this->traitementFormulaireRecherche($request, $form);
-        $this->sessionService->set('criteria_for_excel_Da_Cde_frn', $criteria);
+        $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteria);
 
         /** ==== récupération des données à afficher ==== */
         $daAfficherValides = $this->donnerAfficher($criteria);

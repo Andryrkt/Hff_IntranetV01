@@ -86,7 +86,7 @@ class ListeController extends BaseController
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('planning_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('planning_search_criteria', $criteriaTAb);
 
         $data = ['data' => []];
         $count = [];
@@ -106,7 +106,7 @@ class ListeController extends BaseController
             $data = $this->recupData($result, $back);
             //    dump($data);
             $count = $this->planningModel->recupMatListeTousCount($criteria, $lesOrvalides['orAvecItv'], $backString, $tousLesOrSoumis);
-            $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
+            $this->getSessionService()->set('data_planning_detail_excel', $data['data_excel']);
             // dump($data['data'], $data['data_excel']);
         }
         return $this->render('planning/listePlanning.html.twig', [
@@ -137,7 +137,7 @@ class ListeController extends BaseController
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $data = $this->sessionService->get('data_planning_detail_excel');
+        $data = $this->getSessionService()->get('data_planning_detail_excel');
         $header = [
             'agenceServiceTravaux' => 'Agence - Service',
             'Marque' => 'Marque',
@@ -209,7 +209,7 @@ class ListeController extends BaseController
             ->setMonths(3)
         ;
 
-        $criteria = $this->sessionService->get('planning_search_criteria');
+        $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         if (!empty($criteria)) {
             $this->planningSearch

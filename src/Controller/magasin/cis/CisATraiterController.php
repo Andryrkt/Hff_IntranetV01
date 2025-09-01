@@ -57,7 +57,7 @@ class CisATraiterController extends BaseController
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('cis_a_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('cis_a_traiter_search_criteria', $criteria);
 
         $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
 
@@ -78,7 +78,7 @@ class CisATraiterController extends BaseController
         $cisATraiterModel = new CisATraiterModel();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('cis_a_traiter_search_criteria', []);
+        $criteria = $this->getSessionService()->get('cis_a_traiter_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
 

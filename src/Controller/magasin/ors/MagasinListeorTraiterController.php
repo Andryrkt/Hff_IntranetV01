@@ -66,7 +66,7 @@ class MagasinListeOrTraiterController extends BaseController
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
 
         $data = $this->recupData($criteria, $magasinModel);
 
@@ -93,7 +93,7 @@ class MagasinListeOrTraiterController extends BaseController
 
         $magasinModel = new MagasinListeOrATraiterModel;
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('magasin_liste_or_traiter_search_criteria', []);
+        $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
 
         $entities = $this->recupData($criteria, $magasinModel);
 
@@ -139,7 +139,7 @@ class MagasinListeOrTraiterController extends BaseController
         $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('magasin_liste_or_traiter_search_criteria', $criteria);
+        $this->getSessionService()->set('magasin_liste_or_traiter_search_criteria', $criteria);
 
         //ajouter le numero dit dans data
         for ($i = 0; $i < count($data); $i++) {

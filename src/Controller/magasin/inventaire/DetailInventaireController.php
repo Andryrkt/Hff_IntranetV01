@@ -87,7 +87,7 @@ class DetailInventaireController extends BaseController
         $form->handleRequest($request);
         $criteria = $this->DetailInventaireSearch;
 
-        $this->sessionService->set('detail_invetaire_search_criteria', $criteria);
+        $this->getSessionService()->set('detail_invetaire_search_criteria', $criteria);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
         }
@@ -109,7 +109,7 @@ class DetailInventaireController extends BaseController
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteria = $this->sessionService->get('detail_invetaire_search_criteria');
+        $criteria = $this->getSessionService()->get('detail_invetaire_search_criteria');
         $listInvent = $this->InventaireModel->ligneInventaire($criteria);
         $data = $this->recupData($listInvent);
         $header = [

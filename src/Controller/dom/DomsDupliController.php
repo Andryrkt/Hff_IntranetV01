@@ -42,7 +42,7 @@ class DomsDupliController extends BaseController
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
-        // $form1Data = $this->sessionService->get('form1Data', []);
+        // $form1Data = $this->getSessionService()->get('form1Data', []);
         // $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
 
         $dom = $this->getEntityManager()->getRepository(Dom::class)->find($id);
@@ -147,7 +147,7 @@ class DomsDupliController extends BaseController
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dom_first_form");
     }
 }

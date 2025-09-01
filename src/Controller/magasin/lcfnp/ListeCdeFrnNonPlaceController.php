@@ -59,7 +59,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
             // dd($criteria);
-            $this->sessionService->set('lcfnp_liste_cde_frs_non_placer', $criteria);
+            $this->getSessionService()->set('lcfnp_liste_cde_frs_non_placer', $criteria);
 
             $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
             $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);

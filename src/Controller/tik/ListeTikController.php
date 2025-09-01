@@ -32,7 +32,7 @@ class ListeTikController extends BaseController
 
         $tikSearch = new TikSearch();
 
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         /** CREATION D'AUTORISATION */
@@ -63,7 +63,7 @@ class ListeTikController extends BaseController
         // transformer l'objet tikSearch en tableau
         $criteria = $tikSearch->toArray();
         //recupères les données du criteria dans une session nommé tik_search_criteria
-        $this->sessionService->set('tik_search_criteria', $criteria);
+        $this->getSessionService()->set('tik_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -107,7 +107,7 @@ class ListeTikController extends BaseController
     private function initialisationFormRecherche(array $autorisation, array $agenceServiceIps, TikSearch $tikSearch, User $user)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('tik_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('tik_search_criteria', []) ?? [];
 
         // Définition des valeurs par défaut en fonction des autorisations
         $agenceIpsEmetteur  = $autorisation['autoriser'] ? null : $agenceServiceIps['agenceIps'];
@@ -204,7 +204,7 @@ class ListeTikController extends BaseController
 
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 
@@ -237,7 +237,7 @@ class ListeTikController extends BaseController
     {
         $result = [];
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         /** 
          * @var User $utilisateur l'utilisateur connecté
@@ -270,7 +270,7 @@ class ListeTikController extends BaseController
     {
         $result = [];
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         /** 
          * @var User $utilisateur l'utilisateur connecté

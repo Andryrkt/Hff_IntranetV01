@@ -43,7 +43,7 @@ class OperationDocumentController extends BaseController
         // transformer l'objet historiqueOperationDocumentSearch en tableau
         $criteria = $historiqueOperationDocumentSearch->toArray();
         //recupères les données du criteria dans une session nommé historique_operation_document_search_criteria
-        $this->sessionService->set('historique_operation_document_search_criteria', $criteria);
+        $this->getSessionService()->set('historique_operation_document_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -101,7 +101,7 @@ class OperationDocumentController extends BaseController
     private function initialisationFormRecherche(HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('historique_operation_document_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('historique_operation_document_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {

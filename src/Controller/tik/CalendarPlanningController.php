@@ -42,7 +42,7 @@ class CalendarPlanningController extends BaseController
         if ($formSearch->isSubmitted() && $formSearch->isValid()) {
             $tikPlanningSearch = $formSearch->getData();
         }
-        $this->sessionService->set('tik_planning_search', $tikPlanningSearch->toArray());
+        $this->getSessionService()->set('tik_planning_search', $tikPlanningSearch->toArray());
 
         $this->logUserVisit('tik_calendar_planning'); // historisation du page visité par l'utilisateur
 

@@ -34,7 +34,7 @@ class ClotureTikController extends BaseController
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
@@ -63,7 +63,7 @@ class ClotureTikController extends BaseController
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         /** 
          * @var User $utilisateur l'utilisateur connecté

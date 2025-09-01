@@ -153,7 +153,7 @@ class Controller
         }
 
         // Supprime l'utilisateur de la session
-        $this->sessionService->remove('user');
+        $this->getSessionService()->remove('user');
 
         // Détruit la session
         session_destroy();
@@ -372,7 +372,7 @@ class Controller
     protected function agenceServiceIpsObjet(): array
     {
         try {
-            $userId = $this->sessionService->get('user_id');
+            $userId = $this->getSessionService()->get('user_id');
 
             if (!$userId) {
                 throw new \Exception("User ID not found in session");
@@ -416,7 +416,7 @@ class Controller
     protected function agenceServiceIpsString(): array
     {
         try {
-            $userId = $this->sessionService->get('user_id');
+            $userId = $this->getSessionService()->get('user_id');
             if (!$userId) {
                 throw new \Exception("User ID not found in session");
             }
@@ -456,7 +456,7 @@ class Controller
      */
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
-        $idUtilisateur = $this->sessionService->get('user_id');
+        $idUtilisateur = $this->getSessionService()->get('user_id');
         $utilisateur = $idUtilisateur !== '-' ? $this->entityManager->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->entityManager->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
@@ -479,7 +479,7 @@ class Controller
      */
     protected function verifierSessionUtilisateur()
     {
-        if (!$this->sessionService->has('user_id')) {
+        if (!$this->getSessionService()->has('user_id')) {
             $this->redirectToRoute("security_signin");
         }
     }
@@ -489,7 +489,7 @@ class Controller
      */
     protected function getUserId(): int
     {
-        return $this->sessionService->get('user_id');
+        return $this->getSessionService()->get('user_id');
     }
 
     /**

@@ -45,7 +45,7 @@ class BadmsController extends BaseController
         /** FIN AUtorisation acées */
 
         /** RECUPERATION ID USER CONNECTER */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         /** INITIALISATION*/
         $badm = new Badm();
         $agenceServiceIps = $this->agenceServiceIpsString();
@@ -155,7 +155,7 @@ class BadmsController extends BaseController
                     'typeMouvemnt' => $badm->getTypeMouvement()
                 ];
                 //envoie des donner dan la session
-                $this->sessionService->set('badmform1Data', $formData);
+                $this->getSessionService()->set('badmform1Data', $formData);
                 if ($conditionRoleUtilisateur) {
                     $this->redirectToRoute("badms_newForm2");
                 } elseif (!$conditionAgenceServiceAutoriser) {

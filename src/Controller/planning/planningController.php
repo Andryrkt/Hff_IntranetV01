@@ -90,7 +90,7 @@ class PlanningController extends BaseController
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('planning_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('planning_search_criteria', $criteriaTAb);
 
 
         if ($request->query->get('action') !== 'oui') {
@@ -149,7 +149,7 @@ class PlanningController extends BaseController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('planning_search_criteria');
+        $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 
@@ -212,7 +212,7 @@ class PlanningController extends BaseController
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('planning_search_criteria');
+        $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 

@@ -39,7 +39,7 @@ class DomTropPercuController extends BaseController
         $this->verifierSessionUtilisateur();
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $dom = new Dom;
@@ -51,10 +51,10 @@ class DomTropPercuController extends BaseController
         $this->statutTropPercu($oldDom);
 
         if (!$this->DomModel->verifierSiTropPercu($oldDom->getNumeroOrdreMission())) {
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
+            $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause des dates.']);
             $this->redirectToRoute("doms_liste");
         } elseif (!$oldDom->getStatutTropPercuOk()) {
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause de son statut.']);
+            $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : On ne peut pas créer de DOM trop perçu à partir de ce DOM à cause de son statut.']);
             $this->redirectToRoute("doms_liste");
         }
 

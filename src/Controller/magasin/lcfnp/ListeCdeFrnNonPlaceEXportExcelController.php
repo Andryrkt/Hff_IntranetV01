@@ -38,7 +38,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends BaseController
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
         $vheure = $today->format("H:i:s");
         $vinstant = str_replace(":", "", $vheure);
-        $criteria = $this->sessionService->get('lcfnp_liste_cde_frs_non_placer');
+        $criteria = $this->getSessionService()->get('lcfnp_liste_cde_frs_non_placer');
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
         $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
         $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller\da\Detail;
+
 use App\Service\FusionPdf;
 use App\Model\ProfilModel;
 use App\Model\badm\BadmModel;
@@ -15,7 +16,6 @@ use App\Service\SessionManagerService;
 use App\Service\ExcelService;
 
 
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
@@ -35,18 +35,18 @@ use App\Controller\BaseController;
  */
 class DaDetailAvecDitController extends BaseController
 {
-    private FusionPdf $fusionPdfService;
-    private ProfilModel $profilModelService;
-    private BadmModel $badmModelService;
-    private PersonnelModel $personnelModelService;
-    private DomModel $domModelService;
-    private DaModel $daModelService;
-    private DomDetailModel $domDetailModelService;
-    private DomDuplicationModel $domDuplicationModelService;
-    private DomListModel $domListModelService;
-    private DitModel $ditModelService;
-    private SessionManagerService $sessionManagerService;
-    private ExcelService $excelServiceService;
+	private FusionPdf $fusionPdfService;
+	private ProfilModel $profilModelService;
+	private BadmModel $badmModelService;
+	private PersonnelModel $personnelModelService;
+	private DomModel $domModelService;
+	private DaModel $daModelService;
+	private DomDetailModel $domDetailModelService;
+	private DomDuplicationModel $domDuplicationModelService;
+	private DomListModel $domListModelService;
+	private DitModel $ditModelService;
+	private SessionManagerService $sessionManagerService;
+	private ExcelService $excelServiceService;
 
 	use lienGenerique;
 	use DaAfficherTrait;
@@ -54,33 +54,33 @@ class DaDetailAvecDitController extends BaseController
 	use AutorisationTrait;
 
 	public function __construct(
-        FusionPdf $fusionPdfService,
-        ProfilModel $profilModelService,
-        BadmModel $badmModelService,
-        PersonnelModel $personnelModelService,
-        DomModel $domModelService,
-        DaModel $daModelService,
-        DomDetailModel $domDetailModelService,
-        DomDuplicationModel $domDuplicationModelService,
-        DomListModel $domListModelService,
-        DitModel $ditModelService,
-        SessionManagerService $sessionManagerService,
-        ExcelService $excelServiceService
-    ) {
-        parent::__construct();
-        $this->fusionPdfService = $fusionPdfService;
-        $this->profilModelService = $profilModelService;
-        $this->badmModelService = $badmModelService;
-        $this->personnelModelService = $personnelModelService;
-        $this->domModelService = $domModelService;
-        $this->daModelService = $daModelService;
-        $this->domDetailModelService = $domDetailModelService;
-        $this->domDuplicationModelService = $domDuplicationModelService;
-        $this->domListModelService = $domListModelService;
-        $this->ditModelService = $ditModelService;
-        $this->sessionManagerService = $sessionManagerService;
-        $this->excelServiceService = $excelServiceService;
-    }
+		FusionPdf $fusionPdfService,
+		ProfilModel $profilModelService,
+		BadmModel $badmModelService,
+		PersonnelModel $personnelModelService,
+		DomModel $domModelService,
+		DaModel $daModelService,
+		DomDetailModel $domDetailModelService,
+		DomDuplicationModel $domDuplicationModelService,
+		DomListModel $domListModelService,
+		DitModel $ditModelService,
+		SessionManagerService $sessionManagerService,
+		ExcelService $excelServiceService
+	) {
+		parent::__construct();
+		$this->fusionPdfService = $fusionPdfService;
+		$this->profilModelService = $profilModelService;
+		$this->badmModelService = $badmModelService;
+		$this->personnelModelService = $personnelModelService;
+		$this->domModelService = $domModelService;
+		$this->daModelService = $daModelService;
+		$this->domDetailModelService = $domDetailModelService;
+		$this->domDuplicationModelService = $domDuplicationModelService;
+		$this->domListModelService = $domListModelService;
+		$this->ditModelService = $ditModelService;
+		$this->sessionManagerService = $sessionManagerService;
+		$this->excelServiceService = $excelServiceService;
+	}
 
 	/**
 	 * @Route("/detail-avec-dit/{id}", name="da_detail_avec_dit")

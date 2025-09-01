@@ -29,8 +29,8 @@ class listeDaController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
-        $this->initDaListeTrait(self::$generator);
+
+        $this->initDaListeTrait($this->getUrlGenerator());
     }
 
     /**
@@ -61,7 +61,7 @@ class listeDaController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        $this->sessionService->set('criteria_for_excel', $criteria);
+        $this->getSessionService()->set('criteria_for_excel', $criteria);
 
         // Donnée à envoyer à la vue
         $data = $this->getData($criteria);
@@ -88,7 +88,7 @@ class listeDaController extends BaseController
             $historiqueModifDA = $this->historiqueModifDARepository->findOneBy(['demandeAppro' => $demandeAppro]);
 
             if ($historiqueModifDA) {
-                $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Echec de la demande: une demande de déverouillage a déjà été envoyé sur cette DA.']);
+                $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Echec de la demande: une demande de déverouillage a déjà été envoyé sur cette DA.']);
                 return $this->redirectToRoute('list_da');
             } else {
                 /** @var DaHistoriqueDemandeModifDA $historiqueModifDA */
@@ -109,7 +109,7 @@ class listeDaController extends BaseController
                 //     'userConnecter' => $this->getUser()->getNomUtilisateur(),
                 // ]);
 
-                $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
+                $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande de déverrouillage a été envoyée avec succès.']);
                 return $this->redirectToRoute('list_da');
             }
         }

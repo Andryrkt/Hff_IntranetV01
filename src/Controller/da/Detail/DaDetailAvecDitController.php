@@ -2,20 +2,21 @@
 
 namespace App\Controller\da\Detail;
 
-use App\Model\dit\DitModel;
-use App\Controller\Controller;
+
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
+use App\Controller\BaseController;
 use App\Form\da\DaObservationType;
+use App\Service\da\EmailDaService;
+use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
-use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
@@ -30,8 +31,8 @@ class DaDetailAvecDitController extends BaseController
 	public function __construct()
 	{
 		parent::__construct();
-		$this->setEntityManager($this->getEntityManager());
-		$this->initDaDetailAvecDitTrait(self::$generator);
+
+		$this->initDaDetailAvecDitTrait($this->getUrlGenerator());
 	}
 
 	/**
@@ -47,12 +48,11 @@ class DaDetailAvecDitController extends BaseController
 		/** FIN AUtorisation accès */
 
 		/** @var DemandeAppro $demandeAppro la demande appro correspondant à l'id $id */
-		$demandeAppro = $this->demandeApproRepository->find($id); // recupération de la DA
-		$dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
-		$ditModel = new DitModel;
-		$dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
+		$demandeAppro = $this->getEntityManager()->getRepository(DemandeAppro::class)->find($id); // recupération de la DA
+		$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $demandeAppro->getNumeroDemandeDit()]); // recupération du DIT associée à la DA
+		$dataModel = $this->getDitModel()->recupNumSerieParcPourDa($dit->getIdMateriel());
 
-		$numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
 		$demandeAppro = $this->filtreDal($demandeAppro, $dit, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
@@ -62,7 +62,7 @@ class DaDetailAvecDitController extends BaseController
 
 		$this->traitementFormulaire($formObservation, $request, $demandeAppro);
 
-		$observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
+		$observations = $this->getEntityManager()->getRepository(DaObservation::class)->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()]);
 
 		$fichiers = $this->getAllDAFile([
 			'baPath'    => $this->getBaPath($demandeAppro),
@@ -133,13 +133,13 @@ class DaDetailAvecDitController extends BaseController
 
 			/** ENVOIE D'EMAIL pour l'observation */
 			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			$this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
+			(new EmailDaService($this->getEntityManager()))->envoyerMailObservationDaAvecDit($demandeAppro, [
 				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
-			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
 	}

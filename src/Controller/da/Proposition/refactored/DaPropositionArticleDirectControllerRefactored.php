@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controller\da\Proposition;
+
 use App\Service\FusionPdf;
 use App\Model\ProfilModel;
 use App\Model\badm\BadmModel;
@@ -107,7 +108,7 @@ class DaPropositionArticleDirectController extends BaseController
         $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = $this->getFormFactory()->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(DaPropositionValidationType::class, [], ['action' => $this->getUrlGenerator()->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
 
         // Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //

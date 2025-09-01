@@ -32,7 +32,6 @@ class DaNewAvecDitController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
         $this->initDaNewAvecDitTrait();
     }
 
@@ -147,7 +146,7 @@ class DaNewAvecDitController extends BaseController
                 ]);
             }
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

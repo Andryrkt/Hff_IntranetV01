@@ -78,7 +78,7 @@ class DitDevisSoumisAValidationController extends BaseController
         // Vérification si une version du devis est déjà validée
         if ($this->verificationTypeDevis($numDevis, $type, $numDit)) {
             if ($request->query->get('continueDevis') == 1) {
-                $this->sessionService->set('devis_version_valide', 'KO');
+                $this->getSessionService()->set('devis_version_valide', 'KO');
             }
         }
 
@@ -147,8 +147,8 @@ class DitDevisSoumisAValidationController extends BaseController
             } elseif ((int)$devisValide !== 0) {
                 $message = " Une version du devis est déjà validé ";
                 $this->historiqueOperation->sendNotificationSoumissionSansRedirection($message, $numDevis, 'dit_index');
-                $this->sessionService->set('devis_version_valide', 'OK');
-                $this->sessionService->set('message', $message);
+                $this->getSessionService()->set('devis_version_valide', 'OK');
+                $this->getSessionService()->set('message', $message);
                 return true;
             } elseif ($condition['conditionStatutDevisVp']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
@@ -470,7 +470,7 @@ class DitDevisSoumisAValidationController extends BaseController
 
     private function nomUtilisateur($em): array
     {
-        $userId = $this->sessionService->get('user_id', []);
+        $userId = $this->getSessionService()->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),

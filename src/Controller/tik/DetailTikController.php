@@ -54,7 +54,7 @@ class DetailTikController extends BaseController
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
         $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
 

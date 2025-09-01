@@ -60,7 +60,7 @@ class CisALivrerController extends BaseController
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
+        $this->getSessionService()->set('cis_a_Livrer_search_criteria', $criteria);
 
         $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
@@ -81,7 +81,7 @@ class CisALivrerController extends BaseController
         $cisATraiterModel = new CisALivrerModel();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
+        $criteria = $this->getSessionService()->get('cis_a_Livrer_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
 

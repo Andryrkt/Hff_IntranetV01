@@ -45,13 +45,13 @@ class DomSecondController extends BaseController
         /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
-        $form1Data = $this->sessionService->get('form1Data', []);
+        $form1Data = $this->getSessionService()->get('form1Data', []);
         $sousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
 
         $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);

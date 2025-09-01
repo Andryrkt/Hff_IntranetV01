@@ -56,10 +56,10 @@ class ChangementStatutBCController extends BaseController
             }
             $this->getEntityManager()->flush();
             // envoyer une notification de succès
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("da_list_cde_frn");
         } else {
-            $this->sessionService->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
+            $this->getSessionService()->set('notification', ['type' => 'error', 'message' => 'Erreur lors de la modification du statut... vous n\'avez pas cocher la cage à cocher.']);
             $this->redirectToRoute("da_list_cde_frn");
         }
     }

@@ -17,7 +17,7 @@ class GenerationPDFController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
+
         $this->initDaValidationAvecDitTrait();
         $this->initDaValidationDirectTrait();
     }

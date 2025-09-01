@@ -80,7 +80,7 @@ class InventaireController extends BaseController
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('inventaire_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_search_criteria', $criteriaTAb);
 
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
@@ -117,7 +117,7 @@ class InventaireController extends BaseController
         //transformer l'objet InventaireDetailSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé inventaire_detail_search_criteria
-        $this->sessionService->set('inventaire_detail_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_detail_search_criteria', $criteriaTAb);
 
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
@@ -136,7 +136,7 @@ class InventaireController extends BaseController
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteriaTAb = $this->sessionService->get('inventaire_search_criteria');
+        $criteriaTAb = $this->getSessionService()->get('inventaire_search_criteria');
         $this->inventaireSearch->arrayToObjet($criteriaTAb);
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
         $data = $this->recupDataList($listInvent);
@@ -343,7 +343,7 @@ class InventaireController extends BaseController
 
     public function dataDetail($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -409,7 +409,7 @@ class InventaireController extends BaseController
     }
     public function dataDetailExcel($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -455,7 +455,7 @@ class InventaireController extends BaseController
     }
     public function dataSumInventaireDetail($numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -537,7 +537,7 @@ class InventaireController extends BaseController
         }
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();
-        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('bordereau_search_criteria', $criteriaTab);
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
@@ -553,7 +553,7 @@ class InventaireController extends BaseController
     {
         // Vérification si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
-        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         $this->generetePdfBordereau->genererPDF($data);
     }

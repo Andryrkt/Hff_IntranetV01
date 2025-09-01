@@ -99,7 +99,7 @@ trait DitListTrait
     private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
 
-        $criteria = $this->sessionService->get('dit_search_criteria', []);
+        $criteria = $this->getSessionService()->get('dit_search_criteria', []);
         if ($criteria !== null) {
             // if ($autoriser) {
             $agenceIpsEmetteur = null;
@@ -282,7 +282,7 @@ trait DitListTrait
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
@@ -291,7 +291,7 @@ trait DitListTrait
     private function autorisationRoleEnergie($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(5, $roleIds);
@@ -547,7 +547,7 @@ trait DitListTrait
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => $message]);
         $this->redirectToRoute("dit_index");
     }
 

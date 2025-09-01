@@ -63,8 +63,8 @@ class planningAtelierControler extends BaseController
             }
             $output = $this->recupdata($result, $dates, $output);
 
-            $this->sessionService->set('data_export_planningAtelier_excel', $output);
-            $this->sessionService->set('dates_export_planningAtelier_excel', $dates);
+            $this->getSessionService()->set('data_export_planningAtelier_excel', $output);
+            $this->getSessionService()->set('dates_export_planningAtelier_excel', $dates);
         }
         return $this->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
@@ -126,8 +126,8 @@ class planningAtelierControler extends BaseController
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $data = $this->sessionService->get('data_export_planningAtelier_excel', []);
-        $dates = $this->sessionService->get('dates_export_planningAtelier_excel', []);
+        $data = $this->getSessionService()->get('data_export_planningAtelier_excel', []);
+        $dates = $this->getSessionService()->get('dates_export_planningAtelier_excel', []);
 
 
         $data = $this->transformerDataPourExcel($data, $dates);

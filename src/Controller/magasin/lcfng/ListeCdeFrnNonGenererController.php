@@ -49,7 +49,7 @@ class ListeCdeFrnNonGenererController extends BaseController
             $criteria = $form->getData();
         }
 
-        $this->sessionService->set('lcfng_liste_cde_frs_non_generer', $criteria);
+        $this->getSessionService()->set('lcfng_liste_cde_frs_non_generer', $criteria);
 
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
 

@@ -23,8 +23,8 @@ trait DomsDupliTrait
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
 
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->sessionService->get('user'));
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->sessionService->get('user'));
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->getSessionService()->get('user'));
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->getSessionService()->get('user'));
 
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
@@ -79,8 +79,8 @@ trait DomsDupliTrait
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
         $catg = $form1Data['categorie'];
-        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->sessionService->get('user'));
-        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->sessionService->get('user'));
+        $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->getSessionService()->get('user'));
+        $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->getSessionService()->get('user'));
 
         if ($CodeServiceofCours[0]['agence_ips'] === '50') {
             $rmq = $em->getRepository(Rmq::class)->findOneBy(['description' => '50']);
@@ -204,8 +204,8 @@ trait DomsDupliTrait
             ->setSousTypeDocument($sousTypeDocument)
             ->setCategorie($categoryId)
             ->setMatricule($matricule)
-            ->setUtilisateurCreation($this->sessionService->get('user'))
-            ->setNomSessionUtilisateur($this->sessionService->get('user'))
+            ->setUtilisateurCreation($this->getSessionService()->get('user'))
+            ->setNomSessionUtilisateur($this->getSessionService()->get('user'))
             ->setNumeroOrdreMission($this->autoINcriment('DOM'))
             ->setIdStatutDemande($statutDemande)
             ->setCodeAgenceServiceDebiteur($agenceDebiteur->getCodeagence() . $serviceDebiteur->getCodeService())
@@ -237,7 +237,7 @@ trait DomsDupliTrait
             $mode = 'TEL' . explode(':', $dom->getModePayement())[1];
         }
 
-        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $this->sessionService->get('user')])->getMail();
+        $email = $em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $this->getSessionService()->get('user')])->getMail();
         return  [
             "Devis" => $dom->getDevis(),
             "Prenoms" => $dom->getPrenom(),

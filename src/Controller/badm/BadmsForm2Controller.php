@@ -52,7 +52,7 @@ class BadmsForm2Controller extends BaseController
         $badm = new Badm();
 
         //recupération des donnée qui vient du formulaire 1
-        $form1Data = $this->sessionService->get('badmform1Data', []);
+        $form1Data = $this->getSessionService()->get('badmform1Data', []);
         // recuperation des information du matériel entrer par l'utilisateur dans le formulaire 1
         $data = $this->badm->findAll($form1Data['idMateriel'],  $form1Data['numParc'], $form1Data['numSerie']);
 

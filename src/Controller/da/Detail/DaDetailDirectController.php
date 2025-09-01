@@ -29,8 +29,8 @@ class DaDetailDirectController extends BaseController
 	public function __construct()
 	{
 		parent::__construct();
-		$this->setEntityManager($this->getEntityManager());
-		$this->initDaDetailDirectTrait(self::$generator);
+
+		$this->initDaDetailDirectTrait($this->getUrlGenerator());
 	}
 
 	/**
@@ -127,7 +127,7 @@ class DaDetailDirectController extends BaseController
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
-			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
 	}

@@ -25,7 +25,6 @@ class DaNewDirectController extends BaseController
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager($this->getEntityManager());
         $this->initDaNewDirectTrait();
     }
 
@@ -68,7 +67,7 @@ class DaNewDirectController extends BaseController
              **/
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 if (null === $DAL->getNumeroFournisseur()) {
-                    $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
+                    $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("list_da");
                 }
 
@@ -103,7 +102,7 @@ class DaNewDirectController extends BaseController
             /** création de pdf et envoi dans docuware */
             $this->creationPdfSansDitAvaliderDW($demandeAppro);
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

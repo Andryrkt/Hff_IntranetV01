@@ -58,7 +58,7 @@ class bordereauController extends BaseController
 
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();
-        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('bordereau_search_criteria', $criteriaTab);
         $data = [];
         if ($request->query->get('action') !== 'oui') {
             $data = $this->recupData($criteria->getNuminv());
@@ -76,7 +76,7 @@ class bordereauController extends BaseController
     {
         // Vérification si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
-        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupData($criteriaTab['numInv']);
         // dd($data);
         $this->generetePdfBordereau->genererPDF($data);

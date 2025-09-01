@@ -49,7 +49,7 @@ class MutationController extends BaseController
         /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $mutation = new Mutation;
@@ -122,7 +122,7 @@ class MutationController extends BaseController
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $mutationSearch);
 
         //enregistre le critère dans la session
-        $this->sessionService->set('mutation_search_criteria', $criteria);
+        $this->getSessionService()->set('mutation_search_criteria', $criteria);
 
         return $this->render(
             'mutation/list.html.twig',

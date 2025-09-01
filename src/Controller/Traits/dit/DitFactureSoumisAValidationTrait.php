@@ -14,7 +14,7 @@ trait DitFactureSoumisAValidationtrait
 
     private function nomUtilisateur($em)
     {
-        $userId = $this->sessionService->get('user_id', []);
+        $userId = $this->getSessionService()->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),
