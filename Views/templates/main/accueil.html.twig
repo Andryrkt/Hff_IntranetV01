@@ -9,18 +9,27 @@
 
 {% block bandeau %}
 	<span class="vignette-bande">
-		<span>
-			22/08/2025 - V20250822.1.2.0 : Déploiement du nouveau design intranet / Quelques correctifs dans l’interface DA / Mise à disposition du formulaire pour les congés (phase test)
-		</span>
-		<span>
-			22/08/2025 - V20250822.1.2.0 : Déploiement du nouveau design intranet / Quelques correctifs dans l’interface DA / Mise à disposition du formulaire pour les congés (phase test)
-		</span>
-		<span>
-			22/08/2025 - V20250822.1.2.0 : Déploiement du nouveau design intranet / Quelques correctifs dans l’interface DA / Mise à disposition du formulaire pour les congés (phase test)
-		</span>
-		<span>
-			22/08/2025 - V20250822.1.2.0 : Déploiement du nouveau design intranet / Quelques correctifs dans l’interface DA / Mise à disposition du formulaire pour les congés (phase test)
-		</span>
+		{% for i in 0..4 %}
+			<span>
+				22/08/2025 - V20250822.1.2.0 :
+				<div class="news-ticker">
+					<ul>
+						<li>Déploiement du nouveau design intranet</li>
+						<li>Quelques correctifs dans l’interface DA</li>
+						<li>Mise à disposition du formulaire pour les congés (phase test)</li>
+						<li>
+							Amélioration apportée sur les droits d’accès au DIT
+							<ul>
+								<li>Équipes rattachées à 01 → ATE TANA, ATE STAR, ATE MAS</li>
+								<li>Équipe 30 → ATE ABV</li>
+								<li>Équipe 40 → ATE TMV, ATE LEV</li>
+								<li>Équipe 20 → ATE FT</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</span>
+		{% endfor %}
 	</span>
 {% endblock %}
 
