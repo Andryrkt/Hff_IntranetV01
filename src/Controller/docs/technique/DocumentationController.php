@@ -117,8 +117,7 @@ class DocumentationController extends Controller
             $text = trim($match[2]);    // Heading text
 
             // Generate a simple slug for the anchor
-            $slug = strtolower(str_replace([' ', '.', ',', '!', '?', '(', ')', '[', ']', '{', '}', '/', '\', '&', '%', '
-, '#', '@', '^', '*', '+', '=', '|', '<', '>', '~', '`', '''], '-', $text));
+            $slug = strtolower(str_replace([' ', '.', ',', '!', '?', '(', ')', '[', ']', '{', '}', '/', '\\', '&', '%', "\n", '#', '@', '^', '*', '+', '=', '|', '<', '>', '~', '`', "'"], '-', $text));
             $slug = preg_replace('/-+/', '-', $slug); // Replace multiple hyphens with single
             $slug = trim($slug, '-'); // Trim leading/trailing hyphens
 

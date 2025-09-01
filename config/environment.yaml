@@ -1,0 +1,45 @@
+# Configuration d'environnement pour l'application Hffintranet
+
+# Configuration de l'application
+app:
+    env: 'dev'
+    debug: true
+    secret: 'votre_secret_ici_changez_le_en_production'
+
+# Configuration de la base de données
+database:
+    host: 'localhost'
+    port: 3306
+    name: 'hffintranet'
+    user: 'root'
+    password: ''
+
+# Configuration des chemins
+paths:
+    base_path: '/Hffintranet'
+    views_dir: '%kernel.project_dir%/Views/templates'
+    public_dir: '%kernel.project_dir%/public'
+
+# Configuration des sessions
+session:
+    name: 'HFFSESSION'
+    lifetime: 3600
+
+# Configuration de la sécurité
+security:
+    csrf_enabled: true
+    session_fixation_strategy: 'migrate'
+
+# Configuration Twig
+twig:
+    debug: true
+    cache: false
+
+# Configuration des formulaires
+form:
+    default_theme: 'bootstrap_5_layout.html.twig'
+
+# Configuration de la pagination
+pagination:
+    items_per_page: 20
+    max_pages: 10
