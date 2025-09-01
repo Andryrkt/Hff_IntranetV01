@@ -24,8 +24,9 @@ use App\Repository\da\DemandeApproRepository;
 use App\Repository\dit\DitRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class DaListeDitController extends Controller
+class DaListeDitController extends BaseController
 {
     use DaListeDitTrait;
 
@@ -44,14 +45,14 @@ class DaListeDitController extends Controller
         parent::__construct();
 
         $this->ditSearch = new DitSearch();
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->worTypeDocumentRepository = self::$em->getRepository(WorTypeDocument::class);
-        $this->worNiveauUrgenceRepository = self::$em->getRepository(WorNiveauUrgence::class);
-        $this->statutDemandeRepository = self::$em->getRepository(StatutDemande::class);
-        $this->serviceRepository = self::$em->getRepository(Service::class);
-        $this->agenceRepository = self::$em->getRepository(Agence::class);
-        $this->categorieAteAppRepository = self::$em->getRepository(CategorieAteApp::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->worTypeDocumentRepository = $this->getEntityManager()->getRepository(WorTypeDocument::class);
+        $this->worNiveauUrgenceRepository = $this->getEntityManager()->getRepository(WorNiveauUrgence::class);
+        $this->statutDemandeRepository = $this->getEntityManager()->getRepository(StatutDemande::class);
+        $this->serviceRepository = $this->getEntityManager()->getRepository(Service::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+        $this->categorieAteAppRepository = $this->getEntityManager()->getRepository(CategorieAteApp::class);
     }
 
     /**
@@ -79,7 +80,7 @@ class DaListeDitController extends Controller
         $ditSearch = $this->initialisationRechercheDit();
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
+        $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
             'interne_externe' => 'INTERNE',
             'autorisationRoleEnergie' => $autorisationRoleEnergie
@@ -100,7 +101,7 @@ class DaListeDitController extends Controller
         //recupération des donnée
         $paginationData = $this->data($request, $option, $criteria);
 
-        self::$twig->display('da/list-dit.html.twig', [
+        $this->getTwig()->render('da/list-dit.html.twig', [
             'data'            => $paginationData['data'] ?? null,
             'currentPage'     => $paginationData['currentPage'] ?? 0,
             'totalPages'      => $paginationData['lastPage'] ?? 0,

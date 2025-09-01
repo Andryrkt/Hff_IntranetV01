@@ -13,11 +13,12 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmsController extends Controller
+class BadmsController extends BaseController
 {
     use AutorisationTrait;
 
@@ -55,7 +56,7 @@ class BadmsController extends Controller
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
         ;
 
-        $form = self::$validator->createBuilder(BadmForm1Type::class, $badm)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BadmForm1Type::class, $badm)->getForm();
 
 
         $form->handleRequest($request);
@@ -86,21 +87,21 @@ class BadmsController extends Controller
                     $this->historiqueOperation->sendNotificationCreation($message, '-', 'badms_newForm1');
                 } else {
                     //recuperation du materiel dan sl abase de donner sqlserver
-                    $materiel = self::$em->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
+                    $materiel = $this->getEntityManager()->getRepository(Badm::class)->findOneBy(['idMateriel' => $data[0]['num_matricule']], ['numBadm' => 'DESC']);
 
                     //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
                     $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
 
                     //recuperati
-                    $user = self::$em->getRepository(User::class)->find($userId);
+                    $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
-                    $agenceMaterielId = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
+                    $agenceMaterielId = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
 
 
                     if ($data[0]["code_service"] === null || $data[0]["code_service"] === '' || $data[0]["code_service"] === null) {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
+                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => 'COM'])->getId();
                     } else {
-                        $serviceMaterilId =  self::$em->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
+                        $serviceMaterilId =  $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $data[0]["code_service"]])->getId();
                     }
                     // dd($agenceMaterielId, $serviceMaterilId);
                     //condition de blocage
@@ -169,7 +170,7 @@ class BadmsController extends Controller
 
         $this->logUserVisit('badms_newForm1'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/firstForm.html.twig',
             [
                 'form' => $form->createView()

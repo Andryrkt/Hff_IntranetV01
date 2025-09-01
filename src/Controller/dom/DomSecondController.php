@@ -14,11 +14,12 @@ use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomSecondController extends Controller
+class DomSecondController extends BaseController
 {
     use FormatageTrait;
     use DomsTrait;
@@ -45,7 +46,7 @@ class DomSecondController extends Controller
 
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $dom = new Dom();
         /** INITIALISATION des données  */
@@ -53,20 +54,20 @@ class DomSecondController extends Controller
         $form1Data = $this->sessionService->get('form1Data', []);
         $sousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
 
-        $this->initialisationSecondForm($form1Data, self::$em, $dom);
-        $criteria = $this->criteria($form1Data, self::$em);
+        $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
+        $criteria = $this->criteria($form1Data, $this->getEntityManager());
 
         $is_temporaire = $form1Data['salarier'];
 
 
-        $form = self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             $domForm = $form->getData();
 
-            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em, $user);
+            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager(), $user);
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
 
@@ -76,10 +77,10 @@ class DomSecondController extends Controller
                     $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 } else {
                     if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
+                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
                     } else {
                         if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
                         } else {
                             $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
@@ -89,7 +90,7 @@ class DomSecondController extends Controller
                 }
             } else {
                 if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
-                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user);
+                    $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
                 } else {
                     $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
@@ -102,7 +103,7 @@ class DomSecondController extends Controller
 
         $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('doms/secondForm.html.twig', [
+        $this->getTwig()->render('doms/secondForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria'      => $criteria,

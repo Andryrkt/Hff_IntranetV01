@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 
@@ -8,9 +10,10 @@ use App\Entity\admin\utilisateur\User;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 
-class UserController extends Controller
+class UserController extends BaseController
 {
     /**
      * @Route("/admin/utilisateur/new", name="utilisateur_new")
@@ -25,7 +28,7 @@ class UserController extends Controller
             $user->setSuperieur($nomPrenomChefService);
         }
 
-        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
@@ -44,15 +47,15 @@ class UserController extends Controller
                 $utilisateur->addRole($role);
             }
 
-            self::$em->persist($utilisateur);
-            self::$em->flush();
+            $this->getEntityManager()->persist($utilisateur);
+            $this->getEntityManager()->flush();
 
             $this->redirectToRoute("utilisateur_index");
         }
 
         //$this->logUserVisit('utilisateur_new'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('admin/utilisateur/new.html.twig', [
+        $this->getTwig()->render('admin/utilisateur/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -69,27 +72,27 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(User::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($id);
         if ($this->getUser()->getChefService()) {
             $nomPrenomChefService = $this->getUser()->getChefService()->getNom() . ' ' . $this->getUser()->getChefService()->getPrenoms();
             $user->setSuperieur($nomPrenomChefService);
         }
 
 
-        $form = self::$validator->createBuilder(UserType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(UserType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             return $this->redirectToRoute("utilisateur_index");
         }
 
         //$this->logUserVisit('utilisateur_update', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
-        self::$twig->display('admin/utilisateur/edit.html.twig', [
+        $this->getTwig()->render('admin/utilisateur/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -104,14 +107,14 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(User::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(User::class)->findBy([], ['id' => 'DESC']);
         $data = $this->transformIdEnObjetEntitySuperieur($data);
 
         //$this->logUserVisit('utilisateur_index'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('admin/utilisateur/list.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/utilisateur/list.html.twig', [
             'data' => $data
-        ]);
+        ]));
     }
 
     private function transformIdEnObjetEntitySuperieur(array $data): array
@@ -131,7 +134,7 @@ class UserController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Récupération de l'utilisateur
-        $user = self::$em->getRepository(User::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($id);
 
 
         // Supprimer les relations manuellement avant suppression
@@ -156,24 +159,24 @@ class UserController extends Controller
         }
 
         foreach ($user->getUserLoggers() as $logger) {
-            self::$em->remove($logger);
+            $this->getEntityManager()->remove($logger);
         }
 
         // foreach ($user->getCommentaireDitOrs() as $commentaire) {
-        //     self::$em->remove($commentaire);
+        //     $this->getEntityManager()->remove($commentaire);
         // }
 
         // foreach ($user->getSupportInfoUser() as $support) {
-        //     self::$em->remove($support);
+        //     $this->getEntityManager()->remove($support);
         // }
 
         // foreach ($user->getTikPlanningUser() as $planning) {
-        //     self::$em->remove($planning);
+        //     $this->getEntityManager()->remove($planning);
         // }
 
         // Supprimer l'utilisateur
-        self::$em->remove($user);
-        self::$em->flush();
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
 
         return $this->redirectToRoute("utilisateur_index");
     }
@@ -189,12 +192,12 @@ class UserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(User::class)->find($id);
+        $data = $this->getEntityManager()->getRepository(User::class)->find($id);
 
         //$this->logUserVisit('utilisateur_show', ['id' => $id]); // historisation du page visité par l'utilisateur 
 
-        self::$twig->display('admin/utilisateur/details.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/utilisateur/details.html.twig', [
             'data' => $data
-        ]);
+        ]));
     }
 }

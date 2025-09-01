@@ -28,7 +28,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         parent::__construct();
 
         $this->listeCdeFrnNonPlacerModel = new listeCdeFrnNonPlacerModel();
-        $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
     /**
      * @Route("/liste-commande-fournisseur-non-placer", name="liste_Cde_Frn_Non_Placer")
@@ -44,7 +44,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
         $this->autorisationAcces($this->getUser(), Application::ID_LCF);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [
+        $form = $this->getFormFactory()->createBuilder(ListeCdeFrnNonPlaceSearchType::class, [], [
             'method' => 'GET'
         ])->getForm();
 
@@ -66,7 +66,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
             $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
             $this->listeCdeFrnNonPlacerModel->dropView($vinstant);
         }
-        self::$twig->display('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
+        $this->getTwig()->render('magasin/lcfnp/listCdeFnrNonPlacer.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
         ]);

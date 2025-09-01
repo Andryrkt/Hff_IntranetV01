@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 
@@ -9,8 +11,9 @@ use App\Controller\Controller;
 use App\Form\admin\ServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class ServiceController extends Controller
+class ServiceController extends BaseController
 {
     /**
      * @Route("/admin/service", name="service_index")
@@ -22,13 +25,13 @@ class ServiceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(Service::class)->findBy([], ['id'=>'DESC']);
 
 
-        self::$twig->display('admin/service/list.html.twig', 
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/service/list.html.twig', 
         [
             'data' => $data
-        ]);
+        ]));
     }
 
     /**
@@ -39,7 +42,7 @@ class ServiceController extends Controller
             //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-            $form = self::$validator->createBuilder(ServiceType::class)->getForm();
+            $form = $this->getFormFactory()->createBuilder(ServiceType::class)->getForm();
     
             $form->handleRequest($request);
     
@@ -47,12 +50,12 @@ class ServiceController extends Controller
             {
                 $service= $form->getData();
                     
-                self::$em->persist($service);
-                self::$em->flush();
+                $this->getEntityManager()->persist($service);
+                $this->getEntityManager()->flush();
                 $this->redirectToRoute("service_index");
             }
     
-            self::$twig->display('admin/service/new.html.twig', 
+            $this->getTwig()->render('admin/service/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -68,21 +71,21 @@ class ServiceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
-        $permission = self::$em->getRepository(Service::class)->find($id);
+        $permission = $this->getEntityManager()->getRepository(Service::class)->find($id);
         
-        $form = self::$validator->createBuilder(ServiceType::class, $permission)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ServiceType::class, $permission)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("service_index");
             
         }
 
-        self::$twig->display('admin/service/edit.html.twig', 
+        $this->getTwig()->render('admin/service/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

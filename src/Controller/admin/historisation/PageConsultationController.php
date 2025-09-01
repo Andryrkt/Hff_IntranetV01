@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
@@ -8,8 +10,9 @@ use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class PageConsultationController extends Controller
+class PageConsultationController extends BaseController
 {
     /**
      * @Route("/admin/consultation-page", name="consultation_page_index")
@@ -24,7 +27,7 @@ class PageConsultationController extends Controller
         $this->initialisationFormRecherche($pageConsultationSearch);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(PageConsultationSearchType::class, $pageConsultationSearch, [
+        $form = $this->getFormFactory()->createBuilder(PageConsultationSearchType::class, $pageConsultationSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -45,9 +48,9 @@ class PageConsultationController extends Controller
         //nombre de ligne par page
         $limit = 20;
 
-        $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : self::$em->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
+        $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : $this->getEntityManager()->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
 
-        self::$twig->display('admin/historisation/consultation-page/index.html.twig', [
+        $this->getTwig()->render('admin/historisation/consultation-page/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -97,9 +100,9 @@ class PageConsultationController extends Controller
      */
     public function dashboard()
     {
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/historisation/consultation-page/dashboard.html.twig'
-        );
+        ));
     }
 
     /**
@@ -107,8 +110,8 @@ class PageConsultationController extends Controller
      */
     public function detail()
     {
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/historisation/consultation-page/detail.html.twig'
-        );
+        ));
     }
 }

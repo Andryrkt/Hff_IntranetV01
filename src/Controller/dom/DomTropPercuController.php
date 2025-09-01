@@ -14,11 +14,12 @@ use App\Form\dom\DomTropPercuFormType;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomTropPercuController extends Controller
+class DomTropPercuController extends BaseController
 {
     use FormatageTrait;
     use DomsTrait;
@@ -39,13 +40,13 @@ class DomTropPercuController extends Controller
 
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $dom = new Dom;
         /** 
          * @var Dom $oldDom
          */
-        $oldDom = self::$em->getRepository(Dom::class)->find($id);
+        $oldDom = $this->getEntityManager()->getRepository(Dom::class)->find($id);
 
         $this->statutTropPercu($oldDom);
 
@@ -57,7 +58,7 @@ class DomTropPercuController extends Controller
             $this->redirectToRoute("doms_liste");
         }
 
-        $this->initialisationFormTropPercu(self::$em, $dom, $oldDom);
+        $this->initialisationFormTropPercu($this->getEntityManager(), $dom, $oldDom);
         $criteria = [
             'oldDateDebut' => $oldDom->getDateDebut()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
             'oldDateFin' => $oldDom->getDateFin()->format('m/d/Y'),  // formater en mois/jour/année pour faciliter le traitement en JS
@@ -66,7 +67,7 @@ class DomTropPercuController extends Controller
             'totalGeneral' => $oldDom->getTotalGeneralPayer(),
         ];
 
-        $form = self::$validator->createBuilder(DomTropPercuFormType::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomTropPercuFormType::class, $dom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -85,17 +86,17 @@ class DomTropPercuController extends Controller
                 ->setNumeroOrdreMissionTp($dom->getNumeroOrdreMission())
                 ->setNombreJourTp($dom->getNombreJour())
             ;
-            self::$em->persist($domTp);
-            self::$em->flush();
+            $this->getEntityManager()->persist($domTp);
+            $this->getEntityManager()->flush();
 
-            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em, $this->fusionPdf, $user, true);
+            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user, true);
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $dom->getNumeroOrdreMission(), 'doms_liste', true);
         }
 
         // $this->logUserVisit('dom_second_form'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('doms/tropPercuForm.html.twig', [
+        $this->getTwig()->render('doms/tropPercuForm.html.twig', [
             'form'          => $form->createView(),
             'is_temporaire' => 'PERMANENT',
             'criteria'      => $criteria

@@ -18,11 +18,12 @@ use App\Service\genererPdf\GenererPdfCasier;
 use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/materiel/casier")
  */
-class CasierController extends Controller
+class CasierController extends BaseController
 {
 
     use Transformation;
@@ -57,7 +58,7 @@ class CasierController extends Controller
         $casier->setAgenceEmetteur($agenceService['agenceIps']);
         $casier->setServiceEmetteur($agenceService['serviceIps']);
 
-        $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CasierForm1Type::class, $casier)->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -83,7 +84,7 @@ class CasierController extends Controller
 
         $this->logUserVisit('casier_nouveau'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/casier/nouveauCasier.html.twig',
             [
                 'form' => $form->createView()
@@ -126,7 +127,7 @@ class CasierController extends Controller
         ;
 
 
-        $form = self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CasierForm2Type::class, $casier)->getForm();
 
 
         $form->handleRequest($request);
@@ -135,18 +136,18 @@ class CasierController extends Controller
 
             $casier->setNumeroCas($this->autoINcriment('CAS'));
             //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
+            $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
             $application->setDerniereId($casier->getNumeroCas());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+            $this->getEntityManager()->persist($application);
+            $this->getEntityManager()->flush();
 
 
             $NumCAS = $casier->getNumeroCas();
-            $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+            $user = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
-            $casier->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(55));
+            $casier->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(55));
             $casier->setNomSessionUtilisateur($user);
             $agenceEmetteur = $data[0]['agence'];
             $serviceEmetteur = $data[0]['code_service'];
@@ -160,15 +161,15 @@ class CasierController extends Controller
             $genererPdfCasier->genererPdfCasier($generPdfCasier);
             $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
 
-            self::$em->persist($casier);
-            self::$em->flush();
+            $this->getEntityManager()->persist($casier);
+            $this->getEntityManager()->flush();
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $NumCAS, 'listeTemporaire_affichageListeCasier', true);
         }
 
         $this->logUserVisit('casiser_formulaireCasier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/casier/formulaireCasier.html.twig',
             [
                 'form' => $form->createView()

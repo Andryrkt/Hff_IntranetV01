@@ -18,11 +18,12 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/it")
  */
-class DemandeSupportInformatiqueController extends Controller
+class DemandeSupportInformatiqueController extends BaseController
 {
     use lienGenerique;
 
@@ -33,7 +34,7 @@ class DemandeSupportInformatiqueController extends Controller
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationTIKService;
-        $this->tikRepository = self::$em->getRepository(DemandeSupportInformatique::class);
+        $this->tikRepository = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class);
     }
 
     /**
@@ -51,7 +52,7 @@ class DemandeSupportInformatiqueController extends Controller
         //INITIALISATION DU FORMULAIRE
         $this->initialisationForm($supportInfo, $user);
 
-        $form = self::$validator->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
 
         $form->handleRequest($request);
 
@@ -71,8 +72,8 @@ class DemandeSupportInformatiqueController extends Controller
             $supportInfo->setDetailDemande($text);
 
             //envoi les donnée dans la base de donnée
-            self::$em->persist($supportInfo);
-            self::$em->flush();
+            $this->getEntityManager()->persist($supportInfo);
+            $this->getEntityManager()->flush();
 
             $this->envoyerMailAuxValidateurs([
                 'id'            => $dataForm->getId(),
@@ -87,7 +88,7 @@ class DemandeSupportInformatiqueController extends Controller
 
         $this->logUserVisit('demande_support_informatique'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('tik/demandeSupportInformatique/new.html.twig', [
+        $this->getTwig()->render('tik/demandeSupportInformatique/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -104,18 +105,18 @@ class DemandeSupportInformatiqueController extends Controller
         $agenceService = $this->agenceServiceIpsObjet();
         $supportInfo->setAgenceEmetteur($agenceService['agenceIps']->getCodeAgence() . ' ' . $agenceService['agenceIps']->getLibelleAgence());
         $supportInfo->setServiceEmetteur($agenceService['serviceIps']->getCodeService() . ' ' . $agenceService['serviceIps']->getLibelleService());
-        $supportInfo->setAgence(self::$em->getRepository(Agence::class)->find('08'));    // agence Administration
-        $supportInfo->setService(self::$em->getRepository(Service::class)->find('13'));   // service Informatique
+        $supportInfo->setAgence($this->getEntityManager()->getRepository(Agence::class)->find('08'));    // agence Administration
+        $supportInfo->setService($this->getEntityManager()->getRepository(Service::class)->find('13'));   // service Informatique
         $supportInfo->setDateFinSouhaiteeAutomatique();
         $supportInfo->setCodeSociete($user->getSociettes()->getCodeSociete());
     }
 
     private function ajoutDonnerDansEntity($dataForm, DemandeSupportInformatique $supportInfo, User $user)
     {
-        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $dataForm->getAgenceEmetteur())[0]]);
-        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $dataForm->getServiceEmetteur())[0]]);
+        $agenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => explode(' ', $dataForm->getAgenceEmetteur())[0]]);
+        $serviceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => explode(' ', $dataForm->getServiceEmetteur())[0]]);
 
-        $statut = self::$em->getRepository(StatutDemande::class)->find('58');
+        $statut = $this->getEntityManager()->getRepository(StatutDemande::class)->find('58');
 
         $supportInfo
             ->setAgenceDebiteurId($dataForm->getAgence())
@@ -144,18 +145,18 @@ class DemandeSupportInformatiqueController extends Controller
             ->setCodeStatut($statut->getCodeStatut())
             ->setIdStatutDemande($statut)
         ;
-        self::$em->persist($tikStatut);
-        self::$em->flush();
+        $this->getEntityManager()->persist($tikStatut);
+        $this->getEntityManager()->flush();
     }
 
     private function rectificationDernierIdApplication($supportInfo)
     {
         //RECUPERATION de la dernière NumeroDemandeIntervention 
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'TIK']);
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'TIK']);
         $application->setDerniereId($supportInfo->getNumeroTicket());
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
+        $this->getEntityManager()->persist($application);
+        $this->getEntityManager()->flush();
     }
 
     private function traitementEtEnvoiDeFichier($form, $supportInfo)
@@ -206,7 +207,7 @@ class DemandeSupportInformatiqueController extends Controller
 
         $emailValidateurs = array_map(function ($validateur) {
             return $validateur->getMail();
-        }, self::$em->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
+        }, $this->getEntityManager()->getRepository(User::class)->findByRole('VALIDATEUR')); // tous les validateurs
 
         $content = [
             'to'        => $emailValidateurs[0],

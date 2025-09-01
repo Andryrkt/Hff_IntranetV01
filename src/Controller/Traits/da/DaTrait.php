@@ -16,12 +16,10 @@ use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
-use App\Controller\Traits\EntityManagerAwareTrait;
 
 trait DaTrait
 {
     use lienGenerique;
-    use EntityManagerAwareTrait;
 
     private bool $daTraitInitialise = false;
 

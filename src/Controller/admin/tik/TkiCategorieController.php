@@ -7,16 +7,17 @@ use App\Entity\admin\tik\TkiCategorie;
 use App\Form\admin\tik\TkiCategorieType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 
-class TkiCategorieController extends Controller
+class TkiCategorieController extends BaseController
 {
     /**
      * @Route("/admin/tki-categorie-new", name="tki_categorie_new")
      */
     public function new(Request $request)
     {
-        $form = self::$validator->createBuilder(TkiCategorieType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(TkiCategorieType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -30,13 +31,13 @@ class TkiCategorieController extends Controller
                 $categorie->addSousCategorie($sousCategorie);
             }
 
-            self::$em->persist($categorie);
-            self::$em->flush();
+            $this->getEntityManager()->persist($categorie);
+            $this->getEntityManager()->flush();
 
             $this->redirectToRoute("tki_all_categorie_index");
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/tik/categorie/new.html.twig',
             [
                 'form' => $form->createView()
@@ -53,9 +54,9 @@ class TkiCategorieController extends Controller
      */
     public function edit(Request $request, int $id)
     {
-        $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
+        $categorie = $this->getEntityManager()->getRepository(TkiCategorie::class)->find($id);
 
-        $form = self::$validator->createBuilder(TkiCategorieType::class, $categorie)->getForm();
+        $form = $this->getFormFactory()->createBuilder(TkiCategorieType::class, $categorie)->getForm();
 
         $form->handleRequest($request);
 
@@ -77,11 +78,11 @@ class TkiCategorieController extends Controller
                 }
             }
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("tki_all_categorie_index");
         }
 
-        self::$twig->display('admin/tik/categorie/edit.html.twig', [
+        $this->getTwig()->render('admin/tik/categorie/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -93,23 +94,23 @@ class TkiCategorieController extends Controller
      */
     public function delete($id)
     {
-        $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
+        $categorie = $this->getEntityManager()->getRepository(TkiCategorie::class)->find($id);
 
         if ($categorie) {
             $SousCategories = $categorie->getSousCategories();
             foreach ($SousCategories as $sousCategorie) {
                 $categorie->removeSousCategorie($sousCategorie);
-                self::$em->persist($sousCategorie); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($sousCategorie); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $categorie->getSousCategories()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
-            self::$em->remove($categorie);
-            self::$em->flush();
+            $this->getEntityManager()->remove($categorie);
+            $this->getEntityManager()->flush();
         }
 
         $this->redirectToRoute("tki_all_categorie_index");

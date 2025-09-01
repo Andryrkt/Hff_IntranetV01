@@ -22,11 +22,12 @@ use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/inventaire")
  */
-class InventaireController extends Controller
+class InventaireController extends BaseController
 {
     use FormatageTrait;
     use Transformation;
@@ -60,7 +61,7 @@ class InventaireController extends Controller
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_INV);
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,
             [
@@ -87,7 +88,7 @@ class InventaireController extends Controller
             $data = $this->recupDataList($listInvent, true);
             // dump($data);
         }
-        self::$twig->display('inventaire/inventaire.html.twig', [
+        $this->getTwig()->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -99,7 +100,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
             [
@@ -121,7 +122,7 @@ class InventaireController extends Controller
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
         $sumData = $this->dataSumInventaireDetail($numinv);
-        self::$twig->display('inventaire/inventaireDetail.html.twig', [
+        $this->getTwig()->render('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
             'sumData' => $sumData
@@ -521,7 +522,7 @@ class InventaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $this->bordereauSearch->setNumInv($numInv);
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
             [
@@ -538,7 +539,7 @@ class InventaireController extends Controller
         $criteriaTab = $criteria->toArray();
         $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
-        self::$twig->display('bordereau/bordereau.html.twig', [
+        $this->getTwig()->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'numinvpdf' => $numInv,

@@ -1,11 +1,14 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin\exception;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class UtilisateurExceptionController extends Controller
+class UtilisateurExceptionController extends BaseController
 {
     /**
      * @Route("/erreur-utilisateur-non-trouver/{message}", name="utilisateur_non_touver")
@@ -14,9 +17,9 @@ class UtilisateurExceptionController extends Controller
      */
     public function utilisateurNonTrouver($message)
     {
-        self::$twig->display('admin/exception/utilisateurException.html.twig', 
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/exception/utilisateurException.html.twig', 
     [
         'message' => $message,
-    ]);
+    ]));
     }
 }

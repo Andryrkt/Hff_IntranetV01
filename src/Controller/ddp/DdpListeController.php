@@ -13,11 +13,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
+use App\Controller\BaseController;
 
 /**
  * @Route("/compta/demande-de-paiement")
  */
-class DdpListeController extends Controller
+class DdpListeController extends BaseController
 {
     use AutorisationTrait;
 
@@ -26,7 +27,7 @@ class DdpListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->demandePaiementRepository = self::$em->getRepository(DemandePaiement::class);
+        $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->ddpSearch = new DdpSearch();
     }
 
@@ -43,7 +44,7 @@ class DdpListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(DdpSearchType::class, $this->ddpSearch, [
+        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
         ])->getForm();
         $form->handleRequest($request);
@@ -60,7 +61,7 @@ class DdpListeController extends Controller
         }
 
 
-        self::$twig->display('ddp/demandePaiementList.html.twig', [
+        $this->getTwig()->render('ddp/demandePaiementList.html.twig', [
             'data' => $data,
             'form' => $form->createView(),
         ]);

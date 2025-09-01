@@ -21,11 +21,12 @@ use App\Form\da\soumissionBC\DaSoumissionBcType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaSoumissionBcController extends Controller
+class DaSoumissionBcController extends BaseController
 {
 
     private  DaSoumissionBc $daSoumissionBc;
@@ -47,11 +48,11 @@ class DaSoumissionBcController extends Controller
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->generatePdf = new GeneratePdf();
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->daValiderRepository = self::$em->getRepository(DaValider::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $this->daValiderRepository = $this->getEntityManager()->getRepository(DaValider::class);
         $this->daSoumissionBcModel = new DaSoumissionBcModel();
     }
 
@@ -65,13 +66,13 @@ class DaSoumissionBcController extends Controller
 
         $this->daSoumissionBc->setNumeroCde($numCde);
 
-        $form = self::$validator->createBuilder(DaSoumissionBcType::class, $this->daSoumissionBc, [
+        $form = $this->getFormFactory()->createBuilder(DaSoumissionBcType::class, $this->daSoumissionBc, [
             'method' => 'POST',
         ])->getForm();
 
         $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
-        self::$twig->display('da/soumissionBc.html.twig', [
+        $this->getTwig()->render('da/soumissionBc.html.twig', [
             'form' => $form->createView(),
             'numCde' => $numCde,
         ]);
@@ -108,8 +109,8 @@ class DaSoumissionBcController extends Controller
                 $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-                self::$em->persist($soumissionBc);
-                self::$em->flush();
+                $this->getEntityManager()->persist($soumissionBc);
+                $this->getEntityManager()->flush();
 
                 /** COPIER DANS DW */
                 $this->generatePdf->copyToDWBcDa($nomPdfFusionner, $numDa);
@@ -133,10 +134,10 @@ class DaSoumissionBcController extends Controller
             foreach ($daValiders as $key => $daValider) {
                 $daValider
                     ->setStatutCde(DaSoumissionBc::STATUT_SOUMISSION);
-                self::$em->persist($daValider);
+                $this->getEntityManager()->persist($daValider);
             }
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
         }
     }
 

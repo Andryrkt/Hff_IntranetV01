@@ -16,11 +16,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin")
  */
-class CdefnrSoumisAValidationController extends Controller
+class CdefnrSoumisAValidationController extends BaseController
 {
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
@@ -29,7 +30,7 @@ class CdefnrSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
+        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->historiqueOperation = new HistoriqueOperationCDEFNRService();
         $this->traitementDeFichier = new TraitementDeFichier();
     }
@@ -42,11 +43,11 @@ class CdefnrSoumisAValidationController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
 
         $this->traitementFormulaire($request, $form);
 
-        self::$twig->display('cde/cdeFnr.html.twig', [
+        $this->getTwig()->render('cde/cdeFnr.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -177,8 +178,8 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function ajoutDonnerDansDb($cdeFournisseur)
     {
-        self::$em->persist($cdeFournisseur);
-        self::$em->flush();
+        $this->getEntityManager()->persist($cdeFournisseur);
+        $this->getEntityManager()->flush();
     }
 
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)

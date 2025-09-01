@@ -1,11 +1,14 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\docs\fonctionnel;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class FonctionnelDoc extends Controller
+class FonctionnelDoc extends BaseController
 {
     /**
      * @Route("/doc/fonctionnel", name="index_index")
@@ -30,9 +33,9 @@ class FonctionnelDoc extends Controller
         $htmlContent = $this->parsedown->text($markdownContent);
 
         // Rendre le template avec le contenu HTML
-        self::$twig->display('doc/fonctionnel/fonctionnel.html.twig', 
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/fonctionnel/fonctionnel.html.twig', 
         [
             'content' => $htmlContent
-        ]);
+        ]));
     }
 }

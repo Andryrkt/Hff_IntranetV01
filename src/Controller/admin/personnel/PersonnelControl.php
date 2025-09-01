@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin\personnel;
 
 use App\Controller\Controller;
@@ -14,10 +16,11 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use App\Controller\BaseController;
 
 
 
-class PersonnelControl extends Controller
+class PersonnelControl extends BaseController
 {
 
     use Transformation;
@@ -30,7 +33,7 @@ class PersonnelControl extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder()
+        $form = $this->getFormFactory()->createBuilder()
         ->add('firstName', TextType::class, array(
             'constraints' => array(
                 new NotBlank(),
@@ -63,7 +66,7 @@ class PersonnelControl extends Controller
           
         }
 
-        self::$twig->display('test.html.twig', [
+        $this->getTwig()->render('test.html.twig', [
             'form' => $form->createView()
         ]);
 }
@@ -82,14 +85,14 @@ class PersonnelControl extends Controller
             $serviceIrium = $this->transformEnSeulTableau($this->Person->recupServiceIrium());
 
 
-            self::$twig->display(
+            return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
                 'admin/personnel/addPersonnel.html.twig',
                 [
                     'codeSage' => $codeSage,
                     'codeIrium' => $codeIrium,
                     'serviceIrium' => $serviceIrium
                 ]
-            );
+            ));
         }
     }
 
@@ -105,12 +108,12 @@ class PersonnelControl extends Controller
 
 
 
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/personnel/listPersonnel.html.twig',
             [
                 'infoPersonnel' => $infoPersonnel
             ]
-        );
+        ));
     }
 
     public function updatePersonnel()
@@ -123,13 +126,13 @@ class PersonnelControl extends Controller
 
 
         $infoPersonnelId = $this->Person->recupInfoPersonnelMatricule($_GET['matricule']);
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/personnel/addPersonnel.html.twig',
             [
                 'codeSage' => $codeSage,
                 'codeIrium' => $codeIrium,
                 'infoPersonnelId' => $infoPersonnelId
             ]
-        );
+        ));
     }
 }

@@ -26,7 +26,6 @@ trait DaDetailAvecDitTrait
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
-    private $urlGenerator;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -35,7 +34,6 @@ trait DaDetailAvecDitTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->urlGenerator = $generator;
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
@@ -106,7 +104,7 @@ trait DaDetailAvecDitTrait
                 "numeroDemandeAppro" => $dal->getNumeroDemandeAppro(),
                 "demandeApproLR"     => $dal->getDemandeApproLR(),
                 "estFicheTechnique"  => $dal->getEstFicheTechnique(),
-                "urlDelete"          => $this->urlGenerator->generate(
+                "urlDelete"          => $this->getUrlGenerator()->generate(
                     'da_delete_line_avec_dit',
                     ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
                 ),

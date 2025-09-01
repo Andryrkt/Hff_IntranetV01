@@ -16,11 +16,12 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitRiSoumisAValidationController extends Controller
+class DitRiSoumisAValidationController extends BaseController
 {
     use DitRiSoumisAValidationTrait;
     private $historiqueOperation;
@@ -61,7 +62,7 @@ class DitRiSoumisAValidationController extends Controller
         $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numOr);
         $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($numOr, $itvDejaSoumis);
 
-        $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
+        $form = $this->getFormFactory()->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
             'itvAfficher' => $itvAfficher
         ])->getForm();
 
@@ -72,7 +73,7 @@ class DitRiSoumisAValidationController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
+        $this->getTwig()->render('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'itvAfficher' => $itvAfficher
         ]);
@@ -154,7 +155,7 @@ class DitRiSoumisAValidationController extends Controller
                         ->setNumeroItv((int)$value)
                     ;
                     // Persist les entités liées
-                    self::$em->persist($riSoumisAValidation);
+                    $this->getEntityManager()->persist($riSoumisAValidation);
 
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
@@ -162,7 +163,7 @@ class DitRiSoumisAValidationController extends Controller
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 // Flushe toutes les entités et l'historique
-                self::$em->flush();
+                $this->getEntityManager()->flush();
 
                 $this->historiqueOperation->sendNotificationSoumission('Le rapport d\'intervention a été soumis avec succès', 'RI_' . $dataForm->getNumeroOR(), 'dit_index', true);
             }

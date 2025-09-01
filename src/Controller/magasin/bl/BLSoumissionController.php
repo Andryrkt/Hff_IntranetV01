@@ -13,11 +13,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationBLService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/sortie-de-pieces-lubs")
  */
-class BLSoumissionController extends Controller
+class BLSoumissionController extends BaseController
 {
     use AutorisationTrait;
 
@@ -57,11 +58,11 @@ class BLSoumissionController extends Controller
 
         $this->autorisationAcces($this->getUser(), Application::ID_BDL);
 
-        $form = self::$validator->createBuilder(BLSoumissionType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BLSoumissionType::class)->getForm();
 
         $this->traitementFormulaire($form, $request);
 
-        self::$twig->display('bl/blsoumision.html.twig', [
+        $this->getTwig()->render('bl/blsoumision.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -87,8 +88,8 @@ class BLSoumissionController extends Controller
             $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier);
 
             // Sauvegarde
-            self::$em->persist($blSoumission);
-            self::$em->flush();
+            $this->getEntityManager()->persist($blSoumission);
+            $this->getEntityManager()->flush();
 
             //envoie dans DW
             $this->generatePdfBlFut->copyToDWBlFut($nomFichiers[0]);

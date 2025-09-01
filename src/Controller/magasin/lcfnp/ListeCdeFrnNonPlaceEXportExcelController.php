@@ -9,11 +9,12 @@ use App\Model\magasin\lcfnp\ListeCdeFrnNonplacerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use DateTime;
 use DateTimeZone;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin")
  */
-class ListeCdeFrnNonPlaceEXportExcelController extends Controller
+class ListeCdeFrnNonPlaceEXportExcelController extends BaseController
 {
 
     private ListeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
@@ -22,7 +23,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     {
         parent::__construct();
         $this->listeCdeFrnNonPlacerModel = new ListeCdeFrnNonplacerModel();
-        $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**

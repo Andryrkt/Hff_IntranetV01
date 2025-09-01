@@ -14,11 +14,12 @@ use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfBadm;
 use App\Controller\Traits\BadmDuplicationTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmDupliController extends Controller
+class BadmDupliController extends BaseController
 {
     use FormatageTrait;
     use BadmDuplicationTrait;
@@ -33,23 +34,23 @@ class BadmDupliController extends Controller
 
         $badm = new Badm();
 
-        $dataDb = self::$em->getRepository(Badm::class)->find($id);
+        $dataDb = $this->getEntityManager()->getRepository(Badm::class)->find($id);
 
 
         $data = $this->badm->findAll($dataDb->getIdMateriel(), '', '');
 
         /** INITIALISATION du formulaire 2*/
-        $badm = $this->initialisation($badm, $dataDb->getTypeMouvement(), $data, self::$em);
+        $badm = $this->initialisation($badm, $dataDb->getTypeMouvement(), $data, $this->getEntityManager());
 
         //création du formulaire
-        $form = self::$validator->createBuilder(BadmForm2Type::class, $badm)->getForm();
+        $form = $this->getFormFactory()->createBuilder(BadmForm2Type::class, $badm)->getForm();
 
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $badm->setTypeMouvement(self::$em->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
+            $badm->setTypeMouvement($this->getEntityManager()->getRepository(TypeMouvement::class)->find($badm->getTypeMouvement()));
             //recuperatin de l'id du type de mouvemnet choisi par l'utilisateur dans le formulaire 1
             $idTypeMouvement = $badm->getTypeMouvement()->getId();
 
@@ -59,7 +60,7 @@ class BadmDupliController extends Controller
             $conditionAgenceServices = $badm->getAgence() === null && $badm->getService() === null || $coditionAgenceService;
             $conditionVide = $badm->getAgence() === null && $badm->getService() === null && $badm->getCasierDestinataire() === null && $badm->getDateMiseLocation() === null;
             $idMateriel = (int)$data[0]['num_matricule'];
-            $idMateriels = self::$em->getRepository(Badm::class)->findIdMateriel();
+            $idMateriels = $this->getEntityManager()->getRepository(Badm::class)->findIdMateriel();
 
 
             if (($idTypeMouvement === 1 || $idTypeMouvement === 2) && $conditionVide) {
@@ -76,7 +77,7 @@ class BadmDupliController extends Controller
                 $this->notification($message);
             } else {
 
-                $this->ajoutDesDonnnerFormulaire($data, self::$em, $badm, $form, $idTypeMouvement);
+                $this->ajoutDesDonnnerFormulaire($data, $this->getEntityManager(), $badm, $form, $idTypeMouvement);
 
 
                 //recuperation des ordres de réparation
@@ -87,10 +88,10 @@ class BadmDupliController extends Controller
                 //envoie des pièce jointe dans une dossier et le fusionner
                 $this->envoiePieceJoint($form, $badm);
 
-                $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, self::$em, $idTypeMouvement);
+                $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, $this->getEntityManager(), $idTypeMouvement);
 
-                $idAgenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
-                $idServiceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
+                $idAgenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => substr($badm->getAgenceEmetteur(), 0, 2)]);
+                $idServiceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => substr($badm->getServiceEmetteur(), 0, 3)]);
 
                 $badm
                     ->setAgenceEmetteurId($idAgenceEmetteur)
@@ -99,8 +100,8 @@ class BadmDupliController extends Controller
                     ->setServiceDebiteurId($badm->getService())
                 ;
                 //ENVOIE DANS LE BASE DE DONNEE
-                self::$em->persist($badm);
-                self::$em->flush();
+                $this->getEntityManager()->persist($badm);
+                $this->getEntityManager()->flush();
 
                 /** CREATION PDF */
                 $createPdf = new GenererPdfBadm();
@@ -108,11 +109,11 @@ class BadmDupliController extends Controller
                 $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 
                 //RECUPERATION de la dernière NumeroDemandeIntervention 
-                $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
+                $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'BDM']);
                 $application->setDerniereId($badm->getNumBadm());
                 // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-                self::$em->persist($application);
-                self::$em->flush();
+                $this->getEntityManager()->persist($application);
+                $this->getEntityManager()->flush();
 
                 $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrer']);
                 $this->redirectToRoute("badmListe_AffichageListeBadm");
@@ -124,7 +125,7 @@ class BadmDupliController extends Controller
             'numBadm' => $numBadm,
         ]); // historisation du page visité par l'utilisateur 
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/duplication.html.twig',
             [
                 'items' => $data,

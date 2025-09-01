@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
@@ -10,8 +12,9 @@ use App\Entity\admin\historisation\documentOperation\TypeOperation;
 use App\Form\admin\historisation\documentOperation\HistoriqueOperationDocumentSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class OperationDocumentController extends Controller
+class OperationDocumentController extends BaseController
 {
     /**
      * @Route("/admin/operation-document", name="operation_document_index")
@@ -26,7 +29,7 @@ class OperationDocumentController extends Controller
         $this->initialisationFormRecherche($historiqueOperationDocumentSearch);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(HistoriqueOperationDocumentSearchType::class, $historiqueOperationDocumentSearch, [
+        $form = $this->getFormFactory()->createBuilder(HistoriqueOperationDocumentSearchType::class, $historiqueOperationDocumentSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -47,9 +50,9 @@ class OperationDocumentController extends Controller
         //nombre de ligne par page
         $limit = 50;
 
-        $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : self::$em->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
+        $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : $this->getEntityManager()->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
 
-        self::$twig->display('admin/historisation/operation-document/index.html.twig', [
+        $this->getTwig()->render('admin/historisation/operation-document/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -64,9 +67,9 @@ class OperationDocumentController extends Controller
      */
     public function dashboard()
     {
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/historisation/operation-document/dashboard.html.twig'
-        );
+        ));
     }
 
     /**
@@ -74,9 +77,9 @@ class OperationDocumentController extends Controller
      */
     public function detail()
     {
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/historisation/operation-document/detail.html.twig'
-        );
+        ));
     }
 
     /** 
@@ -106,8 +109,8 @@ class OperationDocumentController extends Controller
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {
-            $typeOperation = isset($criteria['typeOperation']) && $criteria['typeOperation'] !== null ? self::$em->getRepository(TypeOperation::class)->find($criteria['typeOperation']) : null;
-            $typeDocument = isset($criteria['typeDocument']) && $criteria['typeDocument'] !== null ? self::$em->getRepository(TypeDocument::class)->find($criteria['typeDocument']) : null;
+            $typeOperation = isset($criteria['typeOperation']) && $criteria['typeOperation'] !== null ? $this->getEntityManager()->getRepository(TypeOperation::class)->find($criteria['typeOperation']) : null;
+            $typeDocument = isset($criteria['typeDocument']) && $criteria['typeDocument'] !== null ? $this->getEntityManager()->getRepository(TypeDocument::class)->find($criteria['typeDocument']) : null;
 
             $historiqueOperationDocumentSearch
                 ->setNumeroDocument($criteria['numeroDocument'])

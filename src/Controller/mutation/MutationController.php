@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\mutation;
 
 use App\Controller\Controller;
@@ -16,11 +18,12 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationMUTService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/rh/mutation")
  */
-class MutationController extends Controller
+class MutationController extends BaseController
 {
     use MutationTrait;
     use AutorisationTrait;
@@ -47,12 +50,12 @@ class MutationController extends Controller
 
         //recuperation de l'utilisateur connecter
         $userId = $this->sessionService->get('user_id');
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
         $mutation = new Mutation;
-        $this->initialisationMutation($mutation, self::$em);
+        $this->initialisationMutation($mutation, $this->getEntityManager());
 
-        $form = self::$validator->createBuilder(MutationFormType::class, $mutation)->getForm();
+        $form = $this->getFormFactory()->createBuilder(MutationFormType::class, $mutation)->getForm();
 
         $form->handleRequest($request);
 
@@ -70,7 +73,7 @@ class MutationController extends Controller
             } else if ((int) $mutationModel->getNombreDM($dateDebut, $dateFin, $matricule) > 0) {
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
-                $mutation = $this->enregistrementValeurDansMutation($form, self::$em, $user);
+                $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager(), $user);
                 $generatePdf = new GeneratePdfMutation;
                 $generatePdf->genererPDF($this->donneePourPdf($form, $user));
                 $this->envoyerPieceJointes($form, $this->fusionPdf);
@@ -79,7 +82,7 @@ class MutationController extends Controller
             }
         }
 
-        self::$twig->display('mutation/new.html.twig', [
+        $this->getTwig()->render('mutation/new.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -98,7 +101,7 @@ class MutationController extends Controller
 
         $mutationSearch = new MutationSearch();
 
-        $form = self::$validator->createBuilder(MutationSearchType::class, $mutationSearch, [
+        $form = $this->getFormFactory()->createBuilder(MutationSearchType::class, $mutationSearch, [
             'method' => 'GET'
         ])->getForm();
 
@@ -115,13 +118,13 @@ class MutationController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
-        $repository = self::$em->getRepository(Mutation::class);
+        $repository = $this->getEntityManager()->getRepository(Mutation::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $mutationSearch);
 
         //enregistre le critère dans la session
         $this->sessionService->set('mutation_search_criteria', $criteria);
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'mutation/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -145,7 +148,7 @@ class MutationController extends Controller
         /** 
          * @var Mutation entité correspondant à l'id $id
          */
-        $mutation = self::$em->getRepository(Mutation::class)->find($id);
+        $mutation = $this->getEntityManager()->getRepository(Mutation::class)->find($id);
 
         $avanceSurIndemnite = !($mutation->getNombreJourAvance() === null);
         $tabModePaiement = explode(':', $mutation->getModePaiement());
@@ -186,11 +189,11 @@ class MutationController extends Controller
             'pieceJoint01'                  => $mutation->getPieceJoint01(),
             'pieceJoint02'                  => $mutation->getPieceJoint02(),
         ];
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'mutation/detail.html.twig',
             [
                 'mutation' => $mutation
             ]
-        );
+        ));
     }
 }

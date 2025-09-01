@@ -8,11 +8,12 @@ use App\Controller\Controller;
 use App\Repository\admin\AgenceRepository;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class ExportExcelController extends Controller
+class ExportExcelController extends BaseController
 {
     private DaAfficherRepository $daAfficherRepository;
     private AgenceRepository $agenceRepository;
@@ -20,8 +21,8 @@ class ExportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->agenceRepository = self::$em->getRepository(Agence::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
     }
 
     /** 

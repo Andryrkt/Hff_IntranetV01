@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
@@ -9,8 +11,9 @@ use App\Form\admin\PersonnelType;
 use App\Form\admin\PersonnelSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class PersonnelController extends Controller
+class PersonnelController extends BaseController
 {
     /**
      * @Route("/admin/personnel", name="personnel_index")
@@ -23,7 +26,7 @@ class PersonnelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Personnel::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(Personnel::class)->findBy([], ['id' => 'DESC']);
 
         $criteria = [
 
@@ -31,7 +34,7 @@ class PersonnelController extends Controller
 
         ];
 
-        $form = self::$validator->createBuilder(PersonnelSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(PersonnelSearchType::class, null, ['method' => 'GET'])->getForm();
 
         $form->handleRequest($request);
 
@@ -43,13 +46,13 @@ class PersonnelController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
-        $repository = self::$em->getRepository(Personnel::class);
+        $repository = $this->getEntityManager()->getRepository(Personnel::class);
         $data = $repository->findPaginatedAndFiltered($page, $limit, $criteria);
         $totalBadms = $repository->countFiltered($criteria);
 
         $totalPages = ceil($totalBadms / $limit);
 
-        self::$twig->display('admin/Personnel/list.html.twig', [
+        $this->getTwig()->render('admin/Personnel/list.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'currentPage' => $page,
@@ -69,13 +72,13 @@ class PersonnelController extends Controller
 
         $personnel = new Personnel();
 
-        $form = self::$validator->createBuilder(PersonnelType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PersonnelType::class)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $personnelData = $form->getData();
-            $agServIrium = self::$em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
+            $agServIrium = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
             $personnel->setNom($personnelData->getNom())
                 ->setMatricule($personnelData->getMatricule())
                 ->setCodeAgenceServiceSage($personnelData->getCodeAgenceServiceSage())
@@ -87,14 +90,14 @@ class PersonnelController extends Controller
                 ->setAgenceServiceIriumId($agServIrium)
             ;
 
-            self::$em->persist($personnel);
-            self::$em->flush();
+            $this->getEntityManager()->persist($personnel);
+            $this->getEntityManager()->flush();
 
 
             $this->redirectToRoute("personnel_index");
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/Personnel/new.html.twig',
             [
                 'form' => $form->createView()
@@ -113,23 +116,23 @@ class PersonnelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(Personnel::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
-        $form = self::$validator->createBuilder(PersonnelType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PersonnelType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $personnelData = $form->getData();
-            $agServIrium = self::$em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
+            $agServIrium = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnelData->getCodeAgenceServiceSage()]);
             $user->setAgenceServiceIriumId($agServIrium);
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("personnel_index");
         }
 
-        self::$twig->display('admin/Personnel/edit.html.twig', [
+        $this->getTwig()->render('admin/Personnel/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -144,10 +147,10 @@ class PersonnelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(Personnel::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
-        self::$em->remove($user);
-        self::$em->flush();
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
 
         $this->redirectToRoute("personnel_index");
     }
@@ -160,10 +163,10 @@ class PersonnelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(Personnel::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(Personnel::class)->find($id);
 
-        self::$twig->display('admin/Personnel/show.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/Personnel/show.html.twig', [
             'personnel' => $user
-        ]);
+        ]));
     }
 }

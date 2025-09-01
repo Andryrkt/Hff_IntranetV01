@@ -15,11 +15,12 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class listeDaController extends Controller
+class listeDaController extends BaseController
 {
     use DaListeTrait;
     use StatutBcTrait;
@@ -28,7 +29,7 @@ class listeDaController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+        $this->setEntityManager($this->getEntityManager());
         $this->initDaListeTrait(self::$generator);
     }
 
@@ -48,10 +49,10 @@ class listeDaController extends Controller
         $numDaNonDeverrouillees = $this->historiqueModifDARepository->findNumDaOfNonDeverrouillees();
 
         //formulaire de recherche
-        $form = self::$validator->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
 
         // Formulaire de l'historique de modification des DA
-        $formHistorique = self::$validator->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
+        $formHistorique = $this->getFormFactory()->createBuilder(HistoriqueModifDaType::class, $historiqueModifDA)->getForm();
 
         $this->traitementFormulaireDeverouillage($formHistorique, $request); // traitement du formulaire de déverrouillage de la DA
         $form->handleRequest($request);
@@ -65,7 +66,7 @@ class listeDaController extends Controller
         // Donnée à envoyer à la vue
         $data = $this->getData($criteria);
         $dataPrepared = $this->prepareDataForDisplay($data, $numDaNonDeverrouillees);
-        self::$twig->display('da/list-da.html.twig', [
+        $this->getTwig()->render('da/list-da.html.twig', [
             'data'                   => $dataPrepared,
             'form'                   => $form->createView(),
             'formHistorique'         => $formHistorique->createView(),
@@ -97,8 +98,8 @@ class listeDaController extends Controller
                     ->setDemandeAppro($demandeAppro)
                 ;
 
-                self::$em->persist($historiqueModifDA);
-                self::$em->flush();
+                $this->getEntityManager()->persist($historiqueModifDA);
+                $this->getEntityManager()->flush();
 
                 // todo: envoyer un mail aux appro pour les informer de la demande de déverrouillage
                 // $this->envoyerMailAuxAppro([

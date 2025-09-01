@@ -1,11 +1,14 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\docs\fonctionnel\badm;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class BadmDoc extends Controller
+class BadmDoc extends BaseController
 {
     /**
      * @Route("/doc/badm", name="badm_index")
@@ -30,11 +33,11 @@ class BadmDoc extends Controller
         $this->logUserVisit('badm_index'); // historisation du page visité par l'utilisateur
 
         // Rendre le template avec le contenu HTML
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'doc/fonctionnel/badm/badm.html.twig',
             [
                 'content' => $htmlContent
             ]
-        );
+        ));
     }
 }

@@ -11,11 +11,12 @@ use App\Form\bordereau\BordereauSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
+use App\Controller\BaseController;
 
 /**
  * @Route("/bordereau")
  */
-class bordereauController extends Controller
+class bordereauController extends BaseController
 {
 
     use FormatageTrait;
@@ -39,7 +40,7 @@ class bordereauController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
             [
@@ -62,7 +63,7 @@ class bordereauController extends Controller
         if ($request->query->get('action') !== 'oui') {
             $data = $this->recupData($criteria->getNuminv());
         }
-        self::$twig->display('bordereau/bordereau.html.twig', [
+        $this->getTwig()->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);

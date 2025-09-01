@@ -182,14 +182,8 @@ $formFactory = Forms::createFormFactoryBuilder()
 
 Paginator::useBootstrap();
 
-//envoyer twig au controller
-Controller::setTwig($twig);
-
-Controller::setValidator($formFactory);
-
-Controller::setGenerator($generator);
-
-Controller::setEntity($entityManager);
+// Le contrôleur principal utilise maintenant l'injection de dépendances
+// Plus besoin de configuration statique
 
 //Controller::setPaginator($paginator);
 

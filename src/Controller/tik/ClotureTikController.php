@@ -9,11 +9,12 @@ use App\Entity\tik\DemandeSupportInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/it")
  */
-class ClotureTikController extends Controller
+class ClotureTikController extends BaseController
 {
     private $historiqueOperation;
 
@@ -33,12 +34,12 @@ class ClotureTikController extends Controller
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
         if (!$this->canCloturer($supportInfo)) {
@@ -48,7 +49,7 @@ class ClotureTikController extends Controller
         $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
 
         $handleRequestService
-            ->setStatut(self::$em->getRepository(StatutDemande::class)->find(64))  // statut cloturé
+            ->setStatut($this->getEntityManager()->getRepository(StatutDemande::class)->find(64))  // statut cloturé
             ->cloturerTicket()
         ;
 
@@ -67,7 +68,7 @@ class ClotureTikController extends Controller
         /** 
          * @var User $utilisateur l'utilisateur connecté
          */
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();

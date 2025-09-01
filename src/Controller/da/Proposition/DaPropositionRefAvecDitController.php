@@ -18,11 +18,12 @@ use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaPropositionRefAvecDitController extends Controller
+class DaPropositionRefAvecDitController extends BaseController
 {
     use DaAfficherTrait;
     use AutorisationTrait;
@@ -34,7 +35,7 @@ class DaPropositionRefAvecDitController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+        $this->setEntityManager($this->getEntityManager());
         $this->initDaPropositionAvecDitTrait();
     }
 
@@ -57,11 +58,11 @@ class DaPropositionRefAvecDitController extends Controller
 
         $DapLRCollection = new DemandeApproLRCollection();
         $daObservation = new DaObservation();
-        $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+        $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_avec_dit', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_avec_dit', ['numDa' => $numDa])])->getForm();
 
         //================== Traitement du formulaire en géneral ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
@@ -69,7 +70,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display("da/proposition.html.twig", [
+        $this->getTwig()->render("da/proposition.html.twig", [
             'da'                      => $da,
             'id'                      => $id,
             'dit'                     => $dit,
@@ -290,7 +291,7 @@ class DaPropositionRefAvecDitController extends Controller
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
-        self::$em->flush();
+        $this->getEntityManager()->flush();
 
         return $nomEtChemin;
     }
@@ -410,25 +411,25 @@ class DaPropositionRefAvecDitController extends Controller
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     $dalr->setDemandeApproL($dal);
-                    self::$em->persist($dalr);
+                    $this->getEntityManager()->persist($dalr);
                 }
             }
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDal(string $numDa, string $statut): void
     {
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
             $dal->setStatutDal($statut);
             $dal->setEdit(self::EDIT);
-            self::$em->persist($dal);
+            $this->getEntityManager()->persist($dal);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDa(string $numDa, string $statut): void
@@ -436,8 +437,8 @@ class DaPropositionRefAvecDitController extends Controller
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         $da->setStatutDal($statut);
 
-        self::$em->persist($da);
-        self::$em->flush();
+        $this->getEntityManager()->persist($da);
+        $this->getEntityManager()->flush();
     }
 
     private function modificationTableDaL(array $refs,  $data): void
@@ -450,10 +451,10 @@ class DaPropositionRefAvecDitController extends Controller
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
             ;
-            self::$em->persist($dals[$i][0]);
+            $this->getEntityManager()->persist($dals[$i][0]);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
 
@@ -531,9 +532,9 @@ class DaPropositionRefAvecDitController extends Controller
     private function resetBd(array $dalrsAll): void
     {
         foreach ($dalrsAll as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function recupEntiteAModifier(array $refs, $data): array
@@ -559,9 +560,9 @@ class DaPropositionRefAvecDitController extends Controller
     private function modificationBd(array $dalrs): void
     {
         foreach ($dalrs as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function notification(string $type, string $message): array
@@ -577,9 +578,9 @@ class DaPropositionRefAvecDitController extends Controller
         foreach ($dalrList as $demandeApproLR) {
             $DAL = $this->filtreDal($dals, $demandeApproLR);
             $demandeApproLR = $this->ajoutDonnerDaLR($DAL, $demandeApproLR, $statut);
-            self::$em->persist($demandeApproLR);
+            $this->getEntityManager()->persist($demandeApproLR);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function filtreDal($dals, $demandeApproLR): ?object

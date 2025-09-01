@@ -4,15 +4,22 @@ namespace App\Controller;
 
 use App\Service\navigation\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
+use Exception;
 
-class HomeController extends Controller
+/**
+ * Contrôleur de la page d'accueil refactorisé pour utiliser l'injection de dépendances
+ */
+class HomeController extends BaseController
 {
-    private $menuService;
-
     public function __construct()
     {
         parent::__construct();
-        $this->menuService = new MenuService(self::$em);
+    }
+
+    private function getMenuService(): MenuService
+    {
+        return $this->getContainer()->get('App\Service\navigation\MenuService');
     }
 
     /**
@@ -20,18 +27,32 @@ class HomeController extends Controller
      */
     public function showPageAcceuil()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
+        $menu = [];
+        $user = null;
 
-        $this->logUserVisit('profil_acceuil'); // historisation du page visité par l'utilisateur
+        // Vérifier si l'utilisateur est connecté
+        if ($this->isUserConnected()) {
+            try {
+                // Utiliser le MenuService pour récupérer le menu
+                $menuService = $this->getMenuService();
+                $menu = $menuService->getMenuStructure();
+                $user = $this->getUser();
+            } catch (Exception $e) {
+                // En cas d'erreur, on continue sans menu
+                error_log("Erreur MenuService: " . $e->getMessage());
+            }
+        } else {
+            // Si l'utilisateur n'est pas connecté, on utilise le menu par défaut
+            // ou on laisse le template gérer l'affichage
+        }
 
-        $menuItems = $this->menuService->getMenuStructure();
-
-        self::$twig->display(
-            'main/accueil.html.twig',
-            [
-                'menuItems' => $menuItems,
+        return $this->render('main/accueil.html.twig', [
+            'menuItems' => $menu,
+            'App' => [
+                'base_path' => '/Hffintranet',
+                'base_path_fichier' => '/Hffintranet',
+                'user' => $user
             ]
-        );
+        ]);
     }
 }

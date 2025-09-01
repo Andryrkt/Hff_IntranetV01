@@ -14,11 +14,12 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomFirstController extends Controller
+class DomFirstController extends BaseController
 {
     use AutorisationTrait;
 
@@ -37,17 +38,17 @@ class DomFirstController extends Controller
         $dom = new Dom();
 
         $userId = $this->sessionService->get('user_id', []);
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
         $agenceAutoriserId = $user->getAgenceAutoriserIds();
         $codeAgences = [];
         foreach ($agenceAutoriserId as $value) {
-            $codeAgences[] = self::$em->getRepository(Agence::class)->find($value)->getCodeAgence();
+            $codeAgences[] = $this->getEntityManager()->getRepository(Agence::class)->find($value)->getCodeAgence();
         }
 
         $serviceAutoriserId = $user->getServiceAutoriserIds();
         $codeService = [];
         foreach ($serviceAutoriserId as $value) {
-            $codeService[] = self::$em->getRepository(Service::class)->find($value)->getCodeService();
+            $codeService[] = $this->getEntityManager()->getRepository(Service::class)->find($value)->getCodeService();
         }
 
         //INITIALISATION 
@@ -55,14 +56,14 @@ class DomFirstController extends Controller
         $dom
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
-            ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2))
+            ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
             ->setCodeAgenceAutoriser($codeAgences)
             ->setCodeServiceAutoriser($codeService)
         ;
 
 
-        $form = self::$validator->createBuilder(DomForm1Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
 
         $form->handleRequest($request);
 
@@ -82,7 +83,7 @@ class DomFirstController extends Controller
 
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('doms/firstForm.html.twig', [
+        $this->getTwig()->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),
         ]);
     }

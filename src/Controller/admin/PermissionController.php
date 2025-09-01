@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 
@@ -9,8 +11,9 @@ use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\utilisateur\PermissionType;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class PermissionController extends Controller
+class PermissionController extends BaseController
 {
     /**
      * @Route("/admin/permission", name="permission_index")
@@ -22,14 +25,14 @@ class PermissionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Permission::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(Permission::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/permission/list.html.twig',
             [
                 'data' => $data
             ]
-        );
+        ));
     }
 
     /**
@@ -41,19 +44,19 @@ class PermissionController extends Controller
         $this->verifierSessionUtilisateur();
 
 
-        $form = self::$validator->createBuilder(PermissionType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PermissionType::class)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $permission = $form->getData();
 
-            self::$em->persist($permission);
-            self::$em->flush();
+            $this->getEntityManager()->persist($permission);
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("permission_index");
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/permission/new.html.twig',
             [
                 'form' => $form->createView()
@@ -72,20 +75,20 @@ class PermissionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $permission = self::$em->getRepository(Permission::class)->find($id);
+        $permission = $this->getEntityManager()->getRepository(Permission::class)->find($id);
 
-        $form = self::$validator->createBuilder(PermissionType::class, $permission)->getForm();
+        $form = $this->getFormFactory()->createBuilder(PermissionType::class, $permission)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("permission_index");
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/permission/edit.html.twig',
             [
                 'form' => $form->createView(),
@@ -103,23 +106,23 @@ class PermissionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $permission = self::$em->getRepository(Permission::class)->find($id);
+        $permission = $this->getEntityManager()->getRepository(Permission::class)->find($id);
 
         if ($permission) {
             $roles = $permission->getRoles();
             foreach ($roles as $role) {
                 $permission->removeRole($role);
-                self::$em->persist($role); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($role); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $permission->getRoles()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
-            self::$em->remove($permission);
-            self::$em->flush();
+            $this->getEntityManager()->remove($permission);
+            $this->getEntityManager()->flush();
         }
 
         $this->redirectToRoute("permission_index");

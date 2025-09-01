@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin\user;
 
 
@@ -9,9 +11,10 @@ use App\Entity\admin\utilisateur\ProfilUser;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\utilisateur\ProfilUserType;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 
-class ProfilUserController extends Controller
+class ProfilUserController extends BaseController
 {
 
     /**
@@ -25,24 +28,24 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(ProfilUserType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ProfilUserType::class)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
             $profilUser = $form->getData();
-            self::$em->persist($profilUser);
+            $this->getEntityManager()->persist($profilUser);
 
             // Sauvegarder l'entité dans la base de données
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("user_list");
 
             //$this->profilUser->insertData($this->nomTable, $profilUser);
 
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/user/profilUser.html.twig',
             [
                 'form' => $form->createView(),
@@ -60,14 +63,14 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data =  self::$em->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
+        $data =  $this->getEntityManager()->getRepository(ProfilUser::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display(
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render(
             'admin/user/listProfilUser.html.twig',
             [
                 'data' => $data
             ]
-        );
+        ));
     }
 
     /**
@@ -81,14 +84,14 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(ProfilUser::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(ProfilUser::class)->find($id);
 
 
         //$user = $this->profilUser->find($this->nomTable, "ID_Profil = {$id}", ProfilUser::class);
 
 
 
-        $form = self::$validator->createBuilder(ProfilUserType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ProfilUserType::class, $user)->getForm();
 
 
         $form->handleRequest($request);
@@ -96,7 +99,7 @@ class ProfilUserController extends Controller
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("user_list");
             // $profilUser = $form->getData();
             //dd($user);
@@ -104,7 +107,7 @@ class ProfilUserController extends Controller
 
         }
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'admin/user/editProfilUser.html.twig',
             [
                 'form' => $form->createView(),
@@ -122,10 +125,10 @@ class ProfilUserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(ProfilUser::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(ProfilUser::class)->find($id);
 
-        self::$em->remove($user);
-        self::$em->flush();
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
 
         // $condition = "ID_Profil = {$id}";
         // $this->profilUser->delete($this->nomTable, $condition);

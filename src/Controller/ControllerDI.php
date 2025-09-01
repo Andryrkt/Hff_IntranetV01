@@ -3,23 +3,10 @@
 namespace App\Controller;
 
 use Parsedown;
-use App\Model\LdapModel;
-use App\Model\ProfilModel;
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
-use App\Model\dom\DomModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Model\badm\BadmModel;
-use App\Service\ExcelService;
-use App\Model\dom\DomListModel;
 use App\Entity\admin\Application;
-use App\Model\dom\DomDetailModel;
-use App\Model\TransferDonnerModel;
 use App\Entity\admin\utilisateur\User;
-use App\Model\dom\DomDuplicationModel;
-use App\Service\SessionManagerService;
-use App\Model\admin\personnel\PersonnelModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -40,31 +27,11 @@ use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
  * Classe Controller avec injection de dépendances
  * Cette classe remplace l'ancienne classe Controller statique
  */
-class ControllerDI
+class Controller
 {
-    protected $fusionPdf;
-    protected $ldap;
-    protected $profilModel;
-    protected $casier;
-    protected $badm;
-    protected $Person;
-    protected $DomModel;
-    protected $DaModel;
-    protected $detailModel;
-    protected $duplicata;
-    protected $domList;
-    protected $ProfilModel;
-    protected $loader;
-    protected $request;
-    protected $response;
     protected $parsedown;
-    protected $profilUser;
-    protected $ditModel;
-    protected $transfer04;
-    protected $sessionService;
-    protected $excelService;
 
-    // Services injectés
+    // Services injectés (accessibles via getters)
     protected $entityManager;
     protected $urlGenerator;
     protected $twig;
@@ -73,55 +40,12 @@ class ControllerDI
     protected $tokenStorage;
     protected $authorizationChecker;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        UrlGeneratorInterface $urlGenerator,
-        Environment $twig,
-        FormFactoryInterface $formFactory,
-        SessionInterface $session,
-        TokenStorageInterface $tokenStorage,
-        AuthorizationCheckerInterface $authorizationChecker,
-        FusionPdf $fusionPdf,
-        LdapModel $ldap,
-        ProfilModel $profilModel,
-        BadmModel $badm,
-        PersonnelModel $personnel,
-        DomModel $domModel,
-        DaModel $daModel,
-        DomDetailModel $domDetailModel,
-        DomDuplicationModel $domDuplicationModel,
-        DomListModel $domListModel,
-        DitModel $ditModel,
-        TransferDonnerModel $transferDonnerModel,
-        SessionManagerService $sessionManagerService,
-        ExcelService $excelService
-    ) {
-        // Services injectés
-        $this->entityManager = $entityManager;
-        $this->urlGenerator = $urlGenerator;
-        $this->twig = $twig;
-        $this->formFactory = $formFactory;
-        $this->session = $session;
-        $this->tokenStorage = $tokenStorage;
-        $this->authorizationChecker = $authorizationChecker;
+    // Propriétés publiques avec getters lazy pour les modèles et services
+    public $request;
+    public $response;
 
-        // Services instanciés
-        $this->fusionPdf = $fusionPdf;
-        $this->ldap = $ldap;
-        $this->profilModel = $profilModel;
-        $this->badm = $badm;
-        $this->Person = $personnel;
-        $this->DomModel = $domModel;
-        $this->DaModel = $daModel;
-        $this->detailModel = $domDetailModel;
-        $this->duplicata = $domDuplicationModel;
-        $this->domList = $domListModel;
-        $this->ProfilModel = $profilModel;
-        $this->ditModel = $ditModel;
-        $this->transfer04 = $transferDonnerModel;
-        $this->sessionService = $sessionManagerService;
-        $this->excelService = $excelService;
-
+    public function __construct()
+    {
         // Créer la requête et la réponse
         $this->request = Request::createFromGlobals();
         $this->response = new Response();
@@ -133,7 +57,7 @@ class ControllerDI
      */
     public function getEntityManager(): EntityManagerInterface
     {
-        return $this->entityManager;
+        return $this->getContainer()->get('doctrine.orm.entity_manager');
     }
 
     /**
@@ -141,7 +65,7 @@ class ControllerDI
      */
     public function getUrlGenerator(): UrlGeneratorInterface
     {
-        return $this->urlGenerator;
+        return $this->getContainer()->get('router');
     }
 
     /**
@@ -149,7 +73,7 @@ class ControllerDI
      */
     public function getTwig(): Environment
     {
-        return $this->twig;
+        return $this->getContainer()->get('twig');
     }
 
     /**
@@ -157,7 +81,7 @@ class ControllerDI
      */
     public function getFormFactory(): FormFactoryInterface
     {
-        return $this->formFactory;
+        return $this->getContainer()->get('form.factory');
     }
 
     /**
@@ -165,7 +89,7 @@ class ControllerDI
      */
     public function getSession(): SessionInterface
     {
-        return $this->session;
+        return $this->getContainer()->get('session');
     }
 
     /**
@@ -173,7 +97,7 @@ class ControllerDI
      */
     public function getTokenStorage(): TokenStorageInterface
     {
-        return $this->tokenStorage;
+        return $this->getContainer()->get('security.token_storage');
     }
 
     /**
@@ -181,7 +105,41 @@ class ControllerDI
      */
     public function getAuthorizationChecker(): AuthorizationCheckerInterface
     {
-        return $this->authorizationChecker;
+        return $this->getContainer()->get('security.authorization_checker');
+    }
+
+    /**
+     * Récupérer le conteneur de services
+     */
+    protected function getContainer()
+    {
+        global $container;
+        return $container;
+    }
+
+    /**
+     * Récupérer les services depuis le conteneur
+     */
+    protected function getService(string $serviceId)
+    {
+        return $this->getContainer()->get($serviceId);
+    }
+
+
+
+    /**
+     * Getter magique pour charger les services à la demande
+     */
+    public function __get(string $name)
+    {
+        switch ($name) {
+            case 'request':
+                return $this->request;
+            case 'response':
+                return $this->response;
+            default:
+                throw new \InvalidArgumentException("Propriété '$name' non trouvée");
+        }
     }
 
     /**
@@ -195,7 +153,7 @@ class ControllerDI
         }
 
         // Supprime l'utilisateur de la session
-        unset($_SESSION['user']);
+        $this->sessionService->remove('user');
 
         // Détruit la session
         session_destroy();

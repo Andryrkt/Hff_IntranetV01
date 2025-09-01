@@ -7,18 +7,19 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class ExportExcelCdefrnController extends Controller
+class ExportExcelCdefrnController extends BaseController
 {
     private DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
     }
 
     /** 

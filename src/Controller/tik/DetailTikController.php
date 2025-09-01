@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\tik;
 
 use App\Service\EmailService;
@@ -19,11 +21,12 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
+use App\Controller\BaseController;
 
 /**
  * @Route("/it")
  */
-class DetailTikController extends Controller
+class DetailTikController extends BaseController
 {
     use lienGenerique;
     use EnvoiFichier;
@@ -46,19 +49,19 @@ class DetailTikController extends Controller
         /** 
          * @var DemandeSupportInformatique $supportInfo l'entité du DemandeSupportInformatique correspondant à l'id $id
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->sessionService->get('user_id'));
 
         $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
 
         if (!$supportInfo) {
-            self::$twig->display('404.html.twig');
+            return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('404.html.twig'));
         } else {
-            $formDetail = self::$validator->createBuilder(DetailTikType::class, $supportInfo)->getForm();
+            $formDetail = $this->getFormFactory()->createBuilder(DetailTikType::class, $supportInfo)->getForm();
 
             $formDetail->handleRequest($request);
 
@@ -79,7 +82,7 @@ class DetailTikController extends Controller
 
             $commentaire = new TkiCommentaires($supportInfo->getNumeroTicket(), $connectedUser->getNomUtilisateur());
 
-            $formCommentaire = self::$validator->createBuilder(TkiCommentairesType::class, $commentaire)->getForm();
+            $formCommentaire = $this->getFormFactory()->createBuilder(TkiCommentairesType::class, $commentaire)->getForm();
 
             $formCommentaire->handleRequest($request);
 
@@ -96,7 +99,7 @@ class DetailTikController extends Controller
 
             $template = $this->determineTemplate($connectedUser, $supportInfo);
 
-            self::$twig->display("tik/demandeSupportInformatique/$template.html.twig", [
+            $this->getTwig()->render("tik/demandeSupportInformatique/$template.html.twig", [
                 'tik'               => $supportInfo,
                 'form'              => $formDetail->createView(),
                 'formCommentaire'   => $formCommentaire->createView(),
@@ -106,12 +109,12 @@ class DetailTikController extends Controller
                 'validateur'        => in_array("VALIDATEUR", $connectedUser->getRoleNames()),                                  // vérifie si parmi les roles de l'utilisateur on trouve "VALIDATEUR"
                 'intervenant'       => !$statutOuvert && $isIntervenant,                   // statut différent de ouvert et l'utilisateur connecté est l'intervenant
                 'connectedUser'     => $connectedUser,
-                'commentaires'      => self::$em->getRepository(TkiCommentaires::class)
+                'commentaires'      => $this->getEntityManager()->getRepository(TkiCommentaires::class)
                     ->findBy(
                         ['numeroTicket' => $supportInfo->getNumeroTicket()],
                         ['dateCreation' => 'ASC']
                     ),
-                'historiqueStatut'  => self::$em->getRepository(TkiStatutTicketInformatique::class)
+                'historiqueStatut'  => $this->getEntityManager()->getRepository(TkiStatutTicketInformatique::class)
                     ->findBy(
                         ['numeroTicket' => $supportInfo->getNumeroTicket()],
                         ['dateStatut'  => 'DESC']
@@ -138,7 +141,7 @@ class DetailTikController extends Controller
         /** 
          * @var StatutDemandeRepository $statutDemande repository pour StatutDemande
          */
-        $statutDemande = self::$em->getRepository(StatutDemande::class);
+        $statutDemande = $this->getEntityManager()->getRepository(StatutDemande::class);
 
         // Trouver la clé correspondante
         foreach ($actions as $code => $action) {

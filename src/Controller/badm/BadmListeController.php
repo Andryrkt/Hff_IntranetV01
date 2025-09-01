@@ -13,11 +13,12 @@ use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmListeController extends Controller
+class BadmListeController extends BaseController
 {
     use BadmListTrait;
     use AutorisationTrait;
@@ -35,18 +36,18 @@ class BadmListeController extends Controller
         /** FIN AUtorisation acées */
 
         $userId = $this->sessionService->get('user_id');
-        $userConnecter = self::$em->getRepository(User::class)->find($userId);
+        $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $badmSearch = new BadmSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($badmSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
+        $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
             'idAgenceEmetteur' => $agenceServiceIps['agenceIps']
         ])->getForm();
@@ -66,11 +67,11 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_criteria', $criteria);
 
 
-        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
+        //$agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
         $criteria['agenceAutoriser'] = $userConnecter->getAgenceAutoriserIds();
 
 
-        $repository = self::$em->getRepository(Badm::class);
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $criteria, $autoriser);
@@ -82,7 +83,7 @@ class BadmListeController extends Controller
 
         $this->logUserVisit('badmListe_AffichageListeBadm'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/listBadm.html.twig',
             [
                 'form' => $form->createView(),
@@ -113,7 +114,7 @@ class BadmListeController extends Controller
         $option = $this->sessionService->get('badm_search_option', []);
 
         // Récupère les entités filtrées
-        $entities = self::$em->getRepository(Badm::class)->findAndFilteredExcel($criteria, $option);
+        $entities = $this->getEntityManager()->getRepository(Badm::class)->findAndFilteredExcel($criteria, $option);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -165,14 +166,14 @@ class BadmListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $badmSearch = new BadmSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($badmSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($badmSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(BadmSearchType::class, $badmSearch, [
+        $form = $this->getFormFactory()->createBuilder(BadmSearchType::class, $badmSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -190,7 +191,7 @@ class BadmListeController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, self::$em);
+        $agenceServiceEmetteur = $this->agenceServiceEmetteur($autoriser, $this->getEntityManager());
 
         $option = [
             'boolean' => $autoriser,
@@ -201,7 +202,7 @@ class BadmListeController extends Controller
         $this->sessionService->set('badm_search_criteria', $criteria);
         $this->sessionService->set('badm_search_option', $option);
 
-        $repository = self::$em->getRepository(Badm::class);
+        $repository = $this->getEntityManager()->getRepository(Badm::class);
         $paginationData = $repository->findPaginatedAndFilteredListAnnuler($page, $limit, $criteria, $option);
 
 
@@ -218,7 +219,7 @@ class BadmListeController extends Controller
 
         $this->logUserVisit('badm_list_annuler'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'badm/listBadm.html.twig',
             [
                 'form' => $form->createView(),
@@ -240,7 +241,7 @@ class BadmListeController extends Controller
 
         if (!empty($numParc) || !empty($numSerie)) {
 
-            $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, $numSerie);
+            $idMateriel = $this->getDitModel()->recuperationIdMateriel($numParc, $numSerie);
 
             if (!empty($idMateriel)) {
                 $this->recuperationCriterie($badmSearch, $form);

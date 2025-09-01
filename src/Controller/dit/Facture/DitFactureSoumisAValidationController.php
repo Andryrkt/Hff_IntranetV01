@@ -19,11 +19,12 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitFactureSoumisAValidationController extends Controller
+class DitFactureSoumisAValidationController extends BaseController
 {
 
     use DitFactureSoumisAValidationtrait;
@@ -42,7 +43,7 @@ class DitFactureSoumisAValidationController extends Controller
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
         $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'] . '/vfac/');
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -68,13 +69,13 @@ class DitFactureSoumisAValidationController extends Controller
         $this->ditFactureSoumiAValidation->setNumeroDit($numDit);
         $this->ditFactureSoumiAValidation->setNumeroOR($numOrBaseDonner[0]['numor']);
 
-        $form = self::$validator->createBuilder(DitFactureSoumisAValidationType::class, $this->ditFactureSoumiAValidation)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DitFactureSoumisAValidationType::class, $this->ditFactureSoumiAValidation)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            //$demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+            //$demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
 
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
@@ -107,7 +108,7 @@ class DitFactureSoumisAValidationController extends Controller
             $nbFact = $this->nombreFact($this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation);
 
             // $numItv = $this->ditFactureSoumiAValidationModel->recupNumeroItv($numOrBaseDonner[0]['numor'], $numFac);
-            // $numItvValide = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
+            // $numItvValide = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumItvValide($numOrBaseDonner[0]['numor']);
 
             // if(in_array($numItv, $numItvValide)) {
             //     echo "
@@ -124,7 +125,7 @@ class DitFactureSoumisAValidationController extends Controller
             //     exit;
             // }
 
-            $nbFactSqlServer = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
+            $nbFactSqlServer = $this->getEntityManager()->getRepository(DitFactureSoumisAValidation::class)->findNbrFact($numFac);
 
 
 
@@ -146,7 +147,7 @@ class DitFactureSoumisAValidationController extends Controller
 
                 $this->ajoutInfoEntityDitFactur($this->ditFactureSoumiAValidation, $numDit, $dataForm, $numeroSoumission);
 
-                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, self::$em, $this->ditFactureSoumiAValidation);
+                $factureSoumisAValidation = $this->ditFactureSoumisAValidation($numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $numeroSoumission, $this->getEntityManager(), $this->ditFactureSoumiAValidation);
 
                 $estRi = $this->conditionSurInfoFacture($this->ditFactureSoumiAValidationModel, $dataForm, $this->ditFactureSoumiAValidation, $numDit);
 
@@ -182,25 +183,25 @@ class DitFactureSoumisAValidationController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dit/DitFactureSoumisAValidation.html.twig', [
+        $this->getTwig()->render('dit/DitFactureSoumisAValidation.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
     public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne)
     {
-        $orSoumisValidationModel = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
+        $orSoumisValidationModel = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
 
         $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
         $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $this->ditFactureSoumiAValidation);
         $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
-        $statut = $this->affectationStatutFac(self::$em, $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
+        $statut = $this->affectationStatutFac($this->getEntityManager(), $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
         $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
 
         $etatOr = $this->etatOr($dataForm, $this->ditFactureSoumiAValidationModel);
         $this->modificationEtatFacturDit($etatOr, $numDit);
 
-        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur(self::$em)['emailUtilisateur'], $interneExterne);
+        return $this->genererPdfFacture->GenererPdfFactureSoumisAValidation($this->ditFactureSoumiAValidation, $numDevis, $montantPdf, $etatOr, $this->nomUtilisateur($this->getEntityManager())['emailUtilisateur'], $interneExterne);
     }
 
     public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission, $interneExterne): array
@@ -223,18 +224,18 @@ class DitFactureSoumisAValidationController extends Controller
     private function ajoutDataFactureAValidation(array $factureSoumisAValidation): void
     {
         foreach ($factureSoumisAValidation as $entity) {
-            self::$em->persist($entity); // Persister chaque entité individuellement
+            $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationEtatFacturDit($etatOr, $numDit): void
     {
-        $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $demandeIntervention->setEtatFacturation($etatOr);
-        self::$em->persist($demandeIntervention);
-        self::$em->flush();
+        $this->getEntityManager()->persist($demandeIntervention);
+        $this->getEntityManager()->flush();
     }
 
     private function conditionSurInfoFacture($ditFactureSoumiAValidationModel, $dataForm, $ditFactureSoumiAValidation, $numDit)
@@ -243,7 +244,7 @@ class DitFactureSoumisAValidationController extends Controller
 
 
         $estRi = false;
-        $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
+        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findRiSoumis($ditFactureSoumiAValidation->getNumeroOR(), $numDit);
 
         if (empty($riSoumis)) {
             $estRi = true;

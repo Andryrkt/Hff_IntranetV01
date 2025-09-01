@@ -1,14 +1,17 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\docs\technique;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
+use App\Controller\BaseController;
 
 
-class DocumentationController extends Controller
+class DocumentationController extends BaseController
 {
     /**
      * @Route("/doc/technique", name="app_doc_tech_index")
@@ -41,9 +44,9 @@ class DocumentationController extends Controller
 
         ksort($groupedDocuments);
 
-        self::$twig->display('doc/technique/index.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/technique/index.html.twig', [
             'groupedDocuments' => $groupedDocuments,
-        ]);
+        ]));
     }
 
     private function getTitleFromFilename(string $filename): string
@@ -79,11 +82,11 @@ class DocumentationController extends Controller
         // Use title from metadata if available, otherwise generate from filename
         $title = $metadata['title'] ?? $this->getTitleFromFilename(pathinfo($safeFilename, PATHINFO_FILENAME));
 
-        self::$twig->display('doc/technique/show.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('doc/technique/show.html.twig', [
             'title' => $title,
             'content' => $htmlContent,
             'metadata' => $metadata, // Pass metadata to template
-        ]);
+        ]));
     }
 
     private function getDocumentMetadata(string $filePath): array

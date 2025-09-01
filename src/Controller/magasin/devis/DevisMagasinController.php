@@ -18,11 +18,12 @@ use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\magasin\devis\DevisMagasinValidationService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/dematerialisation")
  */
-class DevisMagasinController extends Controller
+class DevisMagasinController extends BaseController
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
@@ -42,7 +43,7 @@ class DevisMagasinController extends Controller
         $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
-        $this->devisMagasinRepository = self::$em->getRepository(DevisMagasin::class);
+        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
     }
 
     /**
@@ -73,13 +74,13 @@ class DevisMagasinController extends Controller
         $devisMagasin->setNumeroDevis($numeroDevis);
 
         //création du formulaire
-        $form = self::$validator->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formualire
         $this->traitementFormualire($form, $request,  $devisMagasin, $validationService);
 
         //affichage du formulaire
-        self::$twig->display('magasin/devis/soumission.html.twig', [
+        $this->getTwig()->render('magasin/devis/soumission.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -132,8 +133,8 @@ class DevisMagasinController extends Controller
                 ;
 
                 //enregistrement du devis magasin
-                self::$em->persist($devisMagasin);
-                self::$em->flush();
+                $this->getEntityManager()->persist($devisMagasin);
+                $this->getEntityManager()->flush();
 
                 //envoie du fichier dans DW
                 $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier);

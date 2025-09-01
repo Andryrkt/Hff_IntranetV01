@@ -230,7 +230,7 @@ trait DaListeDitTrait
                 if (!empty($data[$i]->getIdMateriel())) {
 
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    $numSerieParc = $this->getDitModel()->recupNumSerieParc($data[$i]->getIdMateriel());
                     if (!empty($numSerieParc)) {
                         $numSerie = $numSerieParc[0]['num_serie'];
                         $numParc = $numSerieParc[0]['num_parc'];

@@ -3,56 +3,83 @@
 namespace App\Controller;
 
 use Exception;
-use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
+use App\Model\LdapModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class Authentification extends Controller
+/**
+ * Contrôleur d'authentification refactorisé pour utiliser l'injection de dépendances
+ */
+class Authentification extends BaseController
 {
+    private ?LdapModel $ldapModel = null;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    private function getLdapModel(): LdapModel
+    {
+        if ($this->ldapModel === null) {
+            $this->ldapModel = new LdapModel();
+        }
+        return $this->ldapModel;
+    }
+
     /**
      * @Route("/login", name="security_signin", methods={"GET", "POST"})
      */
     public function affichageSingnin(Request $request)
     {
         $error_msg = null;
+
         if ($request->isMethod('POST')) {
             $Username = $request->request->get('Username', '');
             $Password = $request->request->get('Pswd', '');
 
             try {
-                $user   = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
+                $user = $this->getEntityManager()->getRepository(User::class)->findOneBy(['nom_utilisateur' => $Username]);
                 $userId = ($user) ? $user->getId() : '-';
-                $this->sessionService->set('user_id', $userId);
+
+                // Utiliser le service de session injecté
+                $this->getSessionService()->set('user_id', $userId);
+
                 if (!$user) {
                     throw new \Exception('Utilisateur non trouvé avec le nom d\'utilisateur : ' . $Username);
                 }
 
-                if (!$this->ldap->userConnect($Username, $Password)) {
-                    $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
+                if (!$this->getLdapModel()->userConnect($Username, $Password)) {
+                    $this->logUserVisit('security_signin');
                     $error_msg = "Vérifier les informations de connexion, veuillez saisir le nom d'utilisateur et le mot de passe de votre session Windows";
                 } else {
-                    $this->sessionService->set('user', $Username);
-                    $this->sessionService->set('password', $Password);
+                    $this->getSessionService()->set('user', $Username);
+                    $this->getSessionService()->set('password', $Password);
 
-                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller/authentification.csv";
+                    $filename = $_ENV['BASE_PATH_LONG'] . "\src\Controller\authentification.csv";
                     $newData = [$userId, $Username, $Password];
                     $this->updateOrInsertCSV($filename, $newData);
 
                     if (preg_match('/Hffintranet_pre_prod/i', $_SERVER['REQUEST_URI'])) {
                         // Donner accès qu'à certains utilisateurs
-                        in_array(1, $user->getRoleIds()) ? $this->redirectToRoute('profil_acceuil') : $this->redirectTo('/Hffintranet/login');
+                        if (in_array(1, $user->getRoleIds())) {
+                            $this->redirectToRoute('profil_acceuil');
+                        } else {
+                            $this->redirectTo('/Hffintranet/login');
+                        }
                     }
 
                     $this->redirectToRoute('profil_acceuil');
                 }
             } catch (Exception $e) {
-                $this->logUserVisit('security_signin'); // historisation du page visité par l'utilisateur
+                $this->logUserVisit('security_signin');
                 $error_msg = $e->getMessage();
             }
         }
 
-        self::$twig->display('signin.html.twig', [
+        return $this->render('signin.html.twig', [
             'error_msg' => $error_msg,
         ]);
     }
@@ -71,7 +98,6 @@ class Authentification extends Controller
             }
 
             while (($data = fgetcsv($handle, 1000, ";")) !== FALSE) {
-
                 if ($data[0] == $newData[0]) { // Vérifie si l'ID existe déjà
                     if ($data[2] !== $newData[2]) { // Vérifie si l'email est différent
                         $data[2] = $newData[2]; // Met à jour l'email
@@ -102,24 +128,21 @@ class Authentification extends Controller
         }
 
         foreach ($rows as $row) {
-            fputcsv($handle, $row, ";"); // Définir explicitement le séparateur
+            fputcsv($handle, $row, ";");
         }
 
         fclose($handle);
     }
 
-
-
     /**
      * @Route("/logout", name="auth_deconnexion")
-     *
-     * @return void
      */
     public function deconnexion()
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
+        // Détruire la session utilisateur
         $this->SessionDestroy();
+
+        // Rediriger vers la page de connexion
+        return $this->redirectToRoute('security_signin');
     }
 }

@@ -12,11 +12,12 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaNewDirectController extends Controller
+class DaNewDirectController extends BaseController
 {
     use DaNewDirectTrait;
     use AutorisationTrait;
@@ -24,7 +25,7 @@ class DaNewDirectController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+        $this->setEntityManager($this->getEntityManager());
         $this->initDaNewDirectTrait();
     }
 
@@ -40,10 +41,10 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
-        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
-        self::$twig->display('da/new-da-direct.html.twig', [
+        $this->getTwig()->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -76,14 +77,14 @@ class DaNewDirectController extends Controller
                     ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
                     ->setJoursDispo($this->getJoursRestants($DAL));
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
-                self::$em->persist($DAL);
+                $this->getEntityManager()->persist($DAL);
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            self::$em->persist($demandeAppro);
+            $this->getEntityManager()->persist($demandeAppro);
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService(self::$em);
+            $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
@@ -91,7 +92,7 @@ class DaNewDirectController extends Controller
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);

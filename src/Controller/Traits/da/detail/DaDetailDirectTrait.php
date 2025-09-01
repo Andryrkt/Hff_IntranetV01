@@ -18,7 +18,6 @@ trait DaDetailDirectTrait
     private DwBcApproRepository $dwBcApproRepository;
     private DaObservationRepository $daObservationRepository;
     private DwFactureBonLivraisonRepository $dwFacBlRepository;
-    private $urlGenerator;
 
     /**
      * Initialise les valeurs par défaut du trait
@@ -27,7 +26,6 @@ trait DaDetailDirectTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->urlGenerator = $generator;
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
@@ -88,7 +86,7 @@ trait DaDetailDirectTrait
                 "numeroDemandeAppro" => $dal->getNumeroDemandeAppro(),
                 "demandeApproLR"     => $dal->getDemandeApproLR(),
                 "estFicheTechnique"  => $dal->getEstFicheTechnique(),
-                "urlDelete"          => $this->urlGenerator->generate(
+                "urlDelete"          => $this->getUrlGenerator()->generate(
                     'da_delete_line_direct',
                     ['numDa' => $dal->getNumeroDemandeAppro(), 'ligne' => $dal->getNumeroLigne()]
                 ),

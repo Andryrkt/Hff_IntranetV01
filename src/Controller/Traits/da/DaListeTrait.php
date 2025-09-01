@@ -23,8 +23,6 @@ trait DaListeTrait
     use DaTrait;
 
     //=====================================================================================
-    private $urlGenerator;
-
     // Styles des DA, OR, BC dans le css
     private $styleStatutDA = [];
     private $styleStatutOR = [];
@@ -46,7 +44,6 @@ trait DaListeTrait
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->urlGenerator = $generator;
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
@@ -203,21 +200,21 @@ trait DaListeTrait
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
             // Pré-calculer les URLs
-            $urlDetail = $this->urlGenerator->generate(
+            $urlDetail = $this->getUrlGenerator()->generate(
                 $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
-            $urlDesignation = $this->urlGenerator->generate(
+            $urlDesignation = $this->getUrlGenerator()->generate(
                 $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
             if ($item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION) {
-                $urlDesignation = $this->urlGenerator->generate('da_new_avec_dit', [
+                $urlDesignation = $this->getUrlGenerator()->generate('da_new_avec_dit', [
                     'daId'  => $item->getDemandeAppro()->getId(),
                     'ditId' => $item->getDit()->getId(),
                 ]);
             }
-            $urlDelete = $this->urlGenerator->generate(
+            $urlDelete = $this->getUrlGenerator()->generate(
                 $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
                 ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
             );

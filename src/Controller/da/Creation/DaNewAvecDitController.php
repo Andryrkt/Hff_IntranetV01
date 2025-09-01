@@ -15,11 +15,12 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaNewAvecDitController extends Controller
+class DaNewAvecDitController extends BaseController
 {
     use DaNewAvecDitTrait;
     use AutorisationTrait;
@@ -31,7 +32,7 @@ class DaNewAvecDitController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+        $this->setEntityManager($this->getEntityManager());
         $this->initDaNewAvecDitTrait();
     }
 
@@ -43,7 +44,7 @@ class DaNewAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        self::$twig->display('da/first-form.html.twig', [
+        $this->getTwig()->render('da/first-form.html.twig', [
             'estAte' => $this->estUserDansServiceAtelier(),
             'estAdmin' => $this->estAdmin()
         ]);
@@ -69,10 +70,10 @@ class DaNewAvecDitController extends Controller
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
         $demandeAppro->setDit($dit);
 
-        $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
 
-        self::$twig->display('da/new-avec-dit.html.twig', [
+        $this->getTwig()->render('da/new-avec-dit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -101,7 +102,7 @@ class DaNewAvecDitController extends Controller
                 $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
 
                 if ($demandeApproL->getDeleted() == 1) {
-                    self::$em->remove($demandeApproL);
+                    $this->getEntityManager()->remove($demandeApproL);
                 } else {
                     /** 
                      * @var DemandeApproL $demandeApproL
@@ -118,17 +119,17 @@ class DaNewAvecDitController extends Controller
                         $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
                     }
                     $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
-                    self::$em->persist($demandeApproL);
+                    $this->getEntityManager()->persist($demandeApproL);
                 }
             }
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService(self::$em);
+            $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            self::$em->persist($demandeAppro);
-            self::$em->flush();
+            $this->getEntityManager()->persist($demandeAppro);
+            $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {

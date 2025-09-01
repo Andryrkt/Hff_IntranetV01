@@ -20,11 +20,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Controller\BaseController;
 
 /**
  * @Route("/atelier")
  */
-class ListeController extends Controller
+class ListeController extends BaseController
 {
     use Transformation;
     use PlanningTraits;
@@ -40,7 +41,7 @@ class ListeController extends Controller
         parent::__construct();
         $this->planningSearch = new PlanningSearch();
         $this->planningModel = new PlanningModel();
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $this->historiqueOperation = new HistoriqueOperationDITService;
     }
     /**
@@ -61,7 +62,7 @@ class ListeController extends Controller
         //initialisation
         $this->conditionFormulaireRecherche();
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             PlanningSearchType::class,
             $this->planningSearch,
             [
@@ -91,7 +92,7 @@ class ListeController extends Controller
         $count = [];
         if ($request->query->get('action') !== 'oui') {
 
-            $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
+            $lesOrvalides = $this->recupNumOrValider($criteria, $this->getEntityManager());
             // dump($lesOrvalides['orSansItv']);
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
@@ -108,7 +109,7 @@ class ListeController extends Controller
             $this->sessionService->set('data_planning_detail_excel', $data['data_excel']);
             // dump($data['data'], $data['data_excel']);
         }
-        self::$twig->display('planning/listePlanning.html.twig', [
+        $this->getTwig()->render('planning/listePlanning.html.twig', [
             'form' => $form->createView(),
             'criteria' => $criteriaTAb,
             'data' => $data['data'],

@@ -12,11 +12,12 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/cis")
  */
-class CisALivrerController extends Controller
+class CisALivrerController extends BaseController
 {
     use ALivrerTrait;
     use AutorisationTrait;
@@ -36,12 +37,12 @@ class CisALivrerController extends Controller
         $cisATraiterModel = new CisALivrerModel();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
 
         $agenceUser = $this->agenceUser($autoriser);
 
-        $form = self::$validator->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -63,7 +64,7 @@ class CisALivrerController extends Controller
 
         $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('magasin/cis/listALivrer.html.twig', [
+        $this->getTwig()->render('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -115,14 +116,14 @@ class CisALivrerController extends Controller
 
     private function recupData($cisATraiterModel, $criteria)
     {
-        $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
         $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
         for ($i = 0; $i < count($data); $i++) {
 
             $numeroOr = $data[$i]['num_or'];
-            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
             $idMateriel = $ditRepository->getIdMateriel();
             $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
             $data[$i]['idMateriel'] = $idMateriel;

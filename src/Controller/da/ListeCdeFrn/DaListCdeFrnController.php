@@ -25,12 +25,13 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Controller\BaseController;
 
 
 /**
  * @Route("/demande-appro")
  */
-class DaListCdeFrnController extends Controller
+class DaListCdeFrnController extends BaseController
 {
     use StatutBcTrait;
     use AutorisationTrait;
@@ -45,11 +46,11 @@ class DaListCdeFrnController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $this->daModel = new DaModel();
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
     }
 
     /**
@@ -64,7 +65,7 @@ class DaListCdeFrnController extends Controller
         /** FIN AUtorisation acées */
 
         /** ===  Formulaire pour la recherche === */
-        $form = self::$validator->createBuilder(CdeFrnListType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, null, [
             'method' => 'GET',
         ])->getForm();
         $criteria = $this->traitementFormulaireRecherche($request, $form);
@@ -77,12 +78,12 @@ class DaListCdeFrnController extends Controller
         $this->quelqueMiseAjourDaAfficher($daAfficherValides);
 
         /** === Formulaire pour l'envoie de BC et FAC + Bl === */
-        $formSoumission = self::$validator->createBuilder(DaSoumissionType::class, null, [
+        $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, [
             'method' => 'GET',
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
-        self::$twig->display('da/daListCdeFrn.html.twig', [
+        $this->getTwig()->render('da/daListCdeFrn.html.twig', [
             'daAfficherValides' => $daAfficherValides,
             'formSoumission' => $formSoumission->createView(),
             'form' => $form->createView(),
@@ -94,7 +95,7 @@ class DaListCdeFrnController extends Controller
         foreach ($daAfficherValides as $davalide) {
             $this->modificationStatutBC($davalide);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -106,7 +107,7 @@ class DaListCdeFrnController extends Controller
     {
         $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
         $data->setStatutCde($statutBC);
-        self::$em->persist($data);
+        $this->getEntityManager()->persist($data);
     }
 
     private function donnerAfficher(?array $criteria): array

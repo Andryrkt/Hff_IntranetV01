@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 
@@ -9,8 +11,9 @@ use App\Controller\Controller;
 use App\Form\admin\SecteurType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class SecteurController extends Controller
+class SecteurController extends BaseController
 {
     /**
      * @Route("/admin/secteur", name="secteur_index")
@@ -22,13 +25,13 @@ class SecteurController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Secteur::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(Secteur::class)->findBy([], ['id'=>'DESC']);
 
 
-        self::$twig->display('admin/secteur/list.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/secteur/list.html.twig', [
         
             'data' => $data
-        ]);
+        ]));
     }
 
     /**
@@ -39,7 +42,7 @@ class SecteurController extends Controller
             //verification si user connecter
         $this->verifierSessionUtilisateur();
     
-            $form = self::$validator->createBuilder(SecteurType::class)->getForm();
+            $form = $this->getFormFactory()->createBuilder(SecteurType::class)->getForm();
     
             $form->handleRequest($request);
     
@@ -47,12 +50,12 @@ class SecteurController extends Controller
             {
                 $secteur= $form->getData();
                     
-                self::$em->persist($secteur);
-                self::$em->flush();
+                $this->getEntityManager()->persist($secteur);
+                $this->getEntityManager()->flush();
                 $this->redirectToRoute("secteur_index");
             }
     
-            self::$twig->display('admin/secteur/new.html.twig', 
+            $this->getTwig()->render('admin/secteur/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -69,21 +72,21 @@ class SecteurController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
-        $secteur = self::$em->getRepository(Secteur::class)->find($id);
+        $secteur = $this->getEntityManager()->getRepository(Secteur::class)->find($id);
         
-        $form = self::$validator->createBuilder(SecteurType::class, $secteur)->getForm();
+        $form = $this->getFormFactory()->createBuilder(SecteurType::class, $secteur)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("secteur_index");
             
         }
 
-        self::$twig->display('admin/secteur/edit.html.twig', 
+        $this->getTwig()->render('admin/secteur/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);

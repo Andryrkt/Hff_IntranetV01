@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
  * Contrôleur de base qui étend ControllerDI avec des méthodes helper communes
  * Utilise l'injection de dépendances pour tous les services
  */
-abstract class BaseController extends ControllerDI
+abstract class BaseController extends Controller
 {
     /**
      * Méthode helper pour le rendu Twig avec Response
@@ -54,7 +54,7 @@ abstract class BaseController extends ControllerDI
      */
     public function isUserConnected(): bool
     {
-        return $this->sessionService->has('user_id');
+        return $this->getSessionService()->has('user_id');
     }
 
     /**
@@ -62,7 +62,7 @@ abstract class BaseController extends ControllerDI
      */
     protected function getCurrentUserId()
     {
-        return $this->sessionService->get('user_id');
+        return $this->getSessionService()->get('user_id');
     }
 
     /**
@@ -70,6 +70,6 @@ abstract class BaseController extends ControllerDI
      */
     protected function getCurrentUsername()
     {
-        return $this->sessionService->get('user');
+        return $this->getSessionService()->get('user');
     }
 }

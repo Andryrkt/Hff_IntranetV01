@@ -12,11 +12,12 @@ use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/cis")
  */
-class CisATraiterController extends Controller
+class CisATraiterController extends BaseController
 {
     use AtraiterTrait;
     use AutorisationTrait;
@@ -35,12 +36,12 @@ class CisATraiterController extends Controller
         $cisATraiterModel = new CisATraiterModel();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
 
         $agenceUser = $this->agenceUser($autoriser);
 
-        $form = self::$validator->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(ATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -60,7 +61,7 @@ class CisATraiterController extends Controller
 
         $this->logUserVisit('cis_liste_a_traiter'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('magasin/cis/listATraiter.html.twig', [
+        $this->getTwig()->render('magasin/cis/listATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -111,7 +112,7 @@ class CisATraiterController extends Controller
 
     private function recupData($cisATraiterModel, $criteria)
     {
-        $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
 
         $data = $cisATraiterModel->listOrATraiter($criteria, $numORItvValides);
@@ -119,7 +120,7 @@ class CisATraiterController extends Controller
         for ($i = 0; $i < count($data); $i++) {
 
             $numeroOr = $data[$i]['numor'];
-            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
             if ($ditRepository != null) {
                 $idMateriel = $ditRepository->getIdMateriel();
                 $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);

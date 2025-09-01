@@ -7,11 +7,12 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaValidationAvecDitController extends Controller
+class DaValidationAvecDitController extends BaseController
 {
     use DaAfficherTrait;
     use DaValidationAvecDitTrait;
@@ -19,7 +20,7 @@ class DaValidationAvecDitController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+        $this->setEntityManager($this->getEntityManager());
         $this->initDaValidationAvecDitTrait();
     }
 

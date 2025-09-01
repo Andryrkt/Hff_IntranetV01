@@ -65,6 +65,9 @@ $loader->load('services.yaml');
 // Créer l'EntityManager manuellement (comme dans l'ancien bootstrap)
 $entityManager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
+// Créer le ManagerRegistry pour Doctrine
+$registry = new \core\SimpleManagerRegistry($entityManager);
+
 // Créer le service EntityManager dans le conteneur AVANT de charger la configuration
 $container->register('doctrine.orm.entity_manager', get_class($entityManager))
     ->setSynthetic(true)
@@ -146,6 +149,7 @@ $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
     ->addExtension(new \Symfony\Component\Form\Extension\Validator\ValidatorExtension(\Symfony\Component\Validator\Validation::createValidator()))
     ->addExtension(new \Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension())
+    ->addExtension(new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($registry))
     ->getFormFactory();
 
 $container->set('form.factory', $formFactory);
@@ -166,20 +170,12 @@ $accessDecisionManager = new \Symfony\Component\Security\Core\Authorization\Acce
 $authorizationChecker = new \Symfony\Component\Security\Core\Authorization\AuthorizationChecker($tokenStorage, $accessDecisionManager);
 $container->set('security.authorization_checker', $authorizationChecker);
 
-// Créer un router simple
-$urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator(
-    new \Symfony\Component\Routing\RouteCollection(),
-    new \Symfony\Component\Routing\RequestContext()
-);
-$container->set('router', $urlGenerator);
-
 // Créer et assigner le translator
 $translator = new \Symfony\Component\Translation\Translator('fr_FR');
 $translator->addLoader('xlf', new \Symfony\Component\Translation\Loader\XliffFileLoader());
 $container->set('translator', $translator);
 
 // Récupérer les services du conteneur
-$urlGenerator = $container->get('router');
 $session = $container->get('session');
 $requestStack = $container->get('request_stack');
 $tokenStorage = $container->get('security.token_storage');
@@ -224,14 +220,20 @@ $apiLoader = new AnnotationDirectoryLoader(
 );
 $apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
 
+// Configurer le contexte de requête
+$context = new RequestContext();
+$context->fromRequest($request);
+
 // Fusionner les collections de routes
 $collection = new RouteCollection();
 $collection->addCollection($controllerCollection);
 $collection->addCollection($apiCollection);
 
+// Créer le UrlGenerator avec la vraie collection de routes
+$urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);
+$container->set('router', $urlGenerator);
+
 // Configurer le matcher d'URL
-$context = new RequestContext();
-$context->fromRequest($request);
 $matcher = new UrlMatcher($collection, $context);
 
 // Configurer les resolvers
@@ -265,11 +267,8 @@ $twig->addRuntimeLoader(new FactoryRuntimeLoader([
 // Configurer la pagination
 Paginator::useBootstrap();
 
-// Configurer le contrôleur principal
-\App\Controller\Controller::setTwig($twig);
-\App\Controller\Controller::setValidator($formFactory);
-\App\Controller\Controller::setGenerator($urlGenerator);
-\App\Controller\Controller::setEntity($entityManager);
+// Le contrôleur principal utilise maintenant l'injection de dépendances
+// Plus besoin de configuration statique
 
 // Stocker le conteneur dans une variable globale pour y accéder
 global $container;

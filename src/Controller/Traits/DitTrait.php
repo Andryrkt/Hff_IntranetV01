@@ -49,7 +49,7 @@ trait DitTrait
         $demandeIntervention->setClientSousContrat($dits->getClientSousContrat());
         //INFORMATION MATERIEL
         if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            $data = $this->getDitModel()->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
@@ -122,7 +122,7 @@ trait DitTrait
         $demandeIntervention->setMailClient($dits->getMailClient());
 
         if (!empty($dits->getIdMateriel()) || !empty($dits->getNumParc()) || !empty($dits->getNumSerie())) {
-            $data = $this->ditModel->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
+            $data = $this->getDitModel()->findAll($dits->getIdMateriel(), $dits->getNumParc(), $dits->getNumSerie());
 
             if (empty($data)) {
                 $message = 'Echec lors de l\'enregistrement de la dit, ce matériel n\'est pas enregistré dans IPS';
@@ -161,7 +161,7 @@ trait DitTrait
 
     private function historiqueInterventionMateriel($dits): array
     {
-        $historiqueMateriel = $this->ditModel->historiqueMateriel($dits->getIdMateriel());
+        $historiqueMateriel = $this->getDitModel()->historiqueMateriel($dits->getIdMateriel());
         foreach ($historiqueMateriel as $keys => $values) {
             foreach ($values as $key => $value) {
                 if ($key == "datedebut") {

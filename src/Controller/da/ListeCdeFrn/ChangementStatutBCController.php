@@ -8,11 +8,12 @@ use App\Entity\da\DaSoumissionBc;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class ChangementStatutBCController extends Controller
+class ChangementStatutBCController extends BaseController
 {
 
     private DaAfficherRepository $daAfficherRepository;
@@ -22,8 +23,8 @@ class ChangementStatutBCController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->daSoumissionBcRepository = self::$em->getRepository(DaSoumissionBc::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
     }
     /**
      * @Route(path="/changement-statuts-envoyer-fournisseur/{numCde}/{datePrevue}/{estEnvoyer}", name="changement_statut_envoyer_fournisseur")
@@ -40,7 +41,7 @@ class ChangementStatutBCController extends Controller
             // $soumissionBc = $this->daSoumissionBcRepository->findOneBy(['numeroCde' => $numCde, 'numeroVersion' => $numVersionMaxSoumissionBc]);
             // if ($soumissionBc) {
             //     $soumissionBc->setStatut(DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR);
-            //     self::$em->persist($soumissionBc);
+            //     $this->getEntityManager()->persist($soumissionBc);
             // }
 
             //modification dans la table da_afficher
@@ -51,9 +52,9 @@ class ChangementStatutBCController extends Controller
                     ->setDateLivraisonPrevue(new \DateTime($datePrevue))
                     ->setBcEnvoyerFournisseur(true)
                 ;
-                self::$em->persist($valider);
+                $this->getEntityManager()->persist($valider);
             }
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             // envoyer une notification de succès
             $this->sessionService->set('notification', ['type' => 'success', 'message' => 'statut modifié avec succès.']);
             $this->redirectToRoute("da_list_cde_frn");

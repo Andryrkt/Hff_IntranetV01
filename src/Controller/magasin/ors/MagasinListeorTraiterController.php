@@ -17,11 +17,12 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/or")
  */
-class MagasinListeOrTraiterController extends Controller
+class MagasinListeOrTraiterController extends BaseController
 {
     use Transformation;
     use OrsMagasinTrait;
@@ -45,7 +46,7 @@ class MagasinListeOrTraiterController extends Controller
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
 
         if ($autoriser) {
@@ -54,7 +55,7 @@ class MagasinListeOrTraiterController extends Controller
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = self::$validator->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrATraiterSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -71,7 +72,7 @@ class MagasinListeOrTraiterController extends Controller
 
         $this->logUserVisit('magasinListe_index'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('magasin/ors/listOrATraiter.html.twig', [
+        $this->getTwig()->render('magasin/ors/listOrATraiter.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -133,7 +134,7 @@ class MagasinListeOrTraiterController extends Controller
     }
     private function recupData($criteria, $magasinModel)
     {
-        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, self::$em);
+        $lesOrSelonCondition = $this->recupNumOrTraiterSelonCondition($criteria, $magasinModel, $this->getEntityManager());
 
         $data = $magasinModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
@@ -155,7 +156,7 @@ class MagasinListeOrTraiterController extends Controller
             }
 
 
-            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
             if (!empty($ditRepository)) {
                 $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();
                 $data[$i]['niveauUrgence'] = $ditRepository->getIdNiveauUrgence()->getDescription();

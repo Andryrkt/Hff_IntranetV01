@@ -11,11 +11,12 @@ use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Controller\BaseController;
 
 /**
  * @Route("/magasin/dematerialisation")
  */
-class ListeDevisMagasinController extends Controller
+class ListeDevisMagasinController extends BaseController
 {
     use AutorisationTrait;
 
@@ -26,7 +27,7 @@ class ListeDevisMagasinController extends Controller
     {
         parent::__construct();
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->devisMagasinRepository = self::$em->getRepository(DevisMagasin::class);
+        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
     }
 
     /**
@@ -41,13 +42,13 @@ class ListeDevisMagasinController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         //formulaire de recherhce
-        $form = self::$validator->creatBuilder(DevisMagasinSearchType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class)->getForm();
 
         // recupération des données
         $listeDevisFactory = $this->recuperationDonner();
 
         // affichage de la liste des devis magasin
-        self::$twig->display('magasin/devis/listeDevisMagasin.html.twig', [
+        $this->getTwig()->render('magasin/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
             'form' => $form->createView()
         ]);

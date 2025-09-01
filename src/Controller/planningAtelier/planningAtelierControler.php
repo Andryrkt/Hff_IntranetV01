@@ -12,11 +12,12 @@ use App\Model\planningAtelier\planningAtelierModel;
 use App\Entity\planningAtelier\planningAtelierSearch;
 use App\Form\planningAtelier\planningAtelierSearchType;
 use Symfony\Component\Translation\Provider\Dsn;
+use App\Controller\BaseController;
 
 /**
  * @Route("/planningAte")
  */
-class planningAtelierControler extends Controller
+class planningAtelierControler extends BaseController
 {
     private planningAtelierSearch $planningAtelierSearch;
     private planningAtelierModel $planningAtelierModel;
@@ -35,7 +36,7 @@ class planningAtelierControler extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             PlanningAtelierSearchType::class,
             $this->planningAtelierSearch,
             ['method' => 'GET']
@@ -65,7 +66,7 @@ class planningAtelierControler extends Controller
             $this->sessionService->set('data_export_planningAtelier_excel', $output);
             $this->sessionService->set('dates_export_planningAtelier_excel', $dates);
         }
-        self::$twig->display('planningAtelier/planningAtelier.html.twig', [
+        $this->getTwig()->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
             'dates' => $dates,
             'filteredDates' => $filteredDates,

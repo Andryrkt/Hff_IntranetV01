@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\dit;
 
 use App\Controller\Controller;
@@ -7,16 +9,17 @@ use App\Form\dit\NatemaDitType;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class NatemaDitController extends Controller
+class NatemaDitController extends BaseController
 {
     public function index(){
-        $data = self::$em->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findBy([], ['id'=>'DESC']);
     
     
-        self::$twig->display('natemadit/list.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('natemadit/list.html.twig', [
             'data' => $data
-        ]);
+        ]));
     }
 
     /**
@@ -30,7 +33,7 @@ class NatemaDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(NatemaDitType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(NatemaDitType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -45,14 +48,14 @@ class NatemaDitController extends Controller
             }
 
 
-            self::$em->persist($utilisateur);
-            self::$em->flush();
+            $this->getEntityManager()->persist($utilisateur);
+            $this->getEntityManager()->flush();
 
 
             $this->redirectToRoute("natemadit_index");
         }
 
-        self::$twig->display('natemadit/new.html.twig', [
+        $this->getTwig()->render('natemadit/new.html.twig', [
             'form' => $form->createView()
         ]);
     }

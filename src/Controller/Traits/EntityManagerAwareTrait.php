@@ -2,16 +2,18 @@
 
 namespace App\Controller\Traits;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 trait EntityManagerAwareTrait
 {
-    protected $entityManager;
+    protected EntityManagerInterface $entityManager;
 
-    public function setEntityManager($entityManager): void
+    public function setEntityManager(EntityManagerInterface $entityManager): void
     {
         $this->entityManager = $entityManager;
     }
 
-    public function getEntityManager()
+    public function getEntityManager(): EntityManagerInterface
     {
         return $this->entityManager;
     }

@@ -1,5 +1,7 @@
 <?php
 
+use Symfony\Component\HttpFoundation\Response;
+
 namespace App\Controller\admin;
 
 
@@ -8,8 +10,9 @@ use App\Entity\admin\dit\CategorieAteApp;
 use App\Form\admin\dit\CategorieAteAppType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
-class CategorieAteAppController extends Controller
+class CategorieAteAppController extends BaseController
 {
     /**
      * @Route("/admin/categorieAte", name="categorieAte_index")
@@ -21,13 +24,13 @@ class CategorieAteAppController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(CategorieAteApp::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(CategorieAteApp::class)->findBy([], ['id'=>'DESC']);
     
         //  dd($data[0]->getDerniereId());
-        self::$twig->display('admin/categorieAte/list.html.twig', [
+        return new \Symfony\Component\HttpFoundation\Response($this->getTwig()->render('admin/categorieAte/list.html.twig', [
             
             'data' => $data
-        ]);
+        ]));
     }
 
     /**
@@ -38,7 +41,7 @@ class CategorieAteAppController extends Controller
             //verification si user connecter
         $this->verifierSessionUtilisateur();
     
-            $form = self::$validator->createBuilder(CategorieAteAppType::class)->getForm();
+            $form = $this->getFormFactory()->createBuilder(CategorieAteAppType::class)->getForm();
     
             $form->handleRequest($request);
     
@@ -46,12 +49,12 @@ class CategorieAteAppController extends Controller
             {
                 $categorieAte= $form->getData();
                 
-                self::$em->persist($categorieAte);
-                self::$em->flush();
+                $this->getEntityManager()->persist($categorieAte);
+                $this->getEntityManager()->flush();
                 $this->redirectToRoute("categorieAte_index");
             }
     
-            self::$twig->display('admin/categorieAte/new.html.twig', 
+            $this->getTwig()->render('admin/categorieAte/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);

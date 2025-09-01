@@ -14,11 +14,12 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
+use App\Controller\BaseController;
 
 /**
  * @Route("/demande-appro")
  */
-class DaDetailDirectController extends Controller
+class DaDetailDirectController extends BaseController
 {
 	use lienGenerique;
 	use DaAfficherTrait;
@@ -28,7 +29,7 @@ class DaDetailDirectController extends Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->setEntityManager(self::$em);
+		$this->setEntityManager($this->getEntityManager());
 		$this->initDaDetailDirectTrait(self::$generator);
 	}
 
@@ -50,7 +51,7 @@ class DaDetailDirectController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
 			'achatDirect' => $demandeAppro->getAchatDirect()
 		])->getForm();
 
@@ -66,7 +67,7 @@ class DaDetailDirectController extends Controller
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
 
-		self::$twig->display('da/detail.html.twig', [
+		$this->getTwig()->render('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
@@ -133,24 +134,24 @@ class DaDetailDirectController extends Controller
 
 	private function modificationStatutDal(string $numDa, string $statut): void
 	{
-		$numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
-		$dals = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+		$dals = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
 		foreach ($dals as  $dal) {
 			$dal->setStatutDal($statut);
 			$dal->setEdit(3);
-			self::$em->persist($dal);
+			$this->getEntityManager()->persist($dal);
 		}
 
-		self::$em->flush();
+		$this->getEntityManager()->flush();
 	}
 
 	private function modificationStatutDa(string $numDa, string $statut): void
 	{
-		$da = self::$em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
+		$da = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
 		$da->setStatutDal($statut);
 
-		self::$em->persist($da);
-		self::$em->flush();
+		$this->getEntityManager()->persist($da);
+		$this->getEntityManager()->flush();
 	}
 }

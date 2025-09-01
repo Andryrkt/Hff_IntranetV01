@@ -14,11 +14,12 @@ use App\Controller\Traits\ConversionTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\BaseController;
 
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomsListeController extends Controller
+class DomsListeController extends BaseController
 {
 
     use ConversionTrait;
@@ -39,15 +40,15 @@ class DomsListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $domSearch = new DomSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
+        $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
             'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
@@ -67,10 +68,10 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean'  => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
         ];
 
-        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
 
         $this->statutTropPercuDomList($paginationData['data']);
 
@@ -96,7 +97,7 @@ class DomsListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'doms/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -138,7 +139,7 @@ class DomsListeController extends Controller
             ->setNumDom($criteria['numDom'])
         ;
         // Récupère les entités filtrées
-        $entities = self::$em->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
+        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -191,15 +192,15 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $domSearch = new DomSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
+        $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
             'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
@@ -219,9 +220,9 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
         ];
-        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
 
 
         //enregistre le critère dans la session
@@ -230,7 +231,7 @@ class DomsListeController extends Controller
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        $this->getTwig()->render(
             'doms/list.html.twig',
             [
                 'form' => $form->createView(),

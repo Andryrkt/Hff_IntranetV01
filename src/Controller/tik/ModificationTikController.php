@@ -13,11 +13,12 @@ use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
 use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
+use App\Controller\BaseController;
 
 /**
  * @Route("/it")
  */
-class ModificationTikController extends Controller
+class ModificationTikController extends BaseController
 {
     /**
      * @Route("/tik-modification/{id}", name="tik_modification_edit")
@@ -29,7 +30,7 @@ class ModificationTikController extends Controller
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
         if (!$this->canEdit($supportInfo->getNumeroTicket())) {
@@ -37,11 +38,11 @@ class ModificationTikController extends Controller
         }
 
         //agence et service
-        $agenceRepository = self::$em->getRepository(Agence::class);
-        $serviceRepository = self::$em->getRepository(Service::class);
+        $agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+        $serviceRepository = $this->getEntityManager()->getRepository(Service::class);
         $agenceEmetteur = $agenceRepository->find($supportInfo->getAgenceEmetteurId())->getCodeAgence() . ' ' . $agenceRepository->find($supportInfo->getAgenceEmetteurId())->getLibelleAgence();
         $serviceEmetteur = $serviceRepository->find($supportInfo->getServiceEmetteurId())->getCodeService() . ' ' . $serviceRepository->find($supportInfo->getServiceEmetteurId())->getLibelleService();
-        $statutOuvert = self::$em->getRepository(StatutDemande::class)->find('58');
+        $statutOuvert = $this->getEntityManager()->getRepository(StatutDemande::class)->find('58');
         $supportInfo
             ->setAgenceEmetteur($agenceEmetteur)
             ->setServiceEmetteur($serviceEmetteur)
@@ -54,14 +55,14 @@ class ModificationTikController extends Controller
         $fichiers = $supportInfo->getFileNames();
 
         //formulaire
-        $form = self::$validator->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeSupportInformatiqueType::class, $supportInfo)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             //envoi les donnée dans la base de donnée
-            self::$em->persist($supportInfo);
-            self::$em->flush();
+            $this->getEntityManager()->persist($supportInfo);
+            $this->getEntityManager()->flush();
 
             $this->historiqueStatut($supportInfo, $statutOuvert);
 
@@ -73,7 +74,7 @@ class ModificationTikController extends Controller
             'id' => $id
         ]); // historisation du page visité par l'utilisateur 
 
-        self::$twig->display('tik/demandeSupportInformatique/edit.html.twig', [
+        $this->getTwig()->render('tik/demandeSupportInformatique/edit.html.twig', [
             'fichiers' => $fichiers,
             'form' => $form->createView()
         ]);
@@ -88,7 +89,7 @@ class ModificationTikController extends Controller
 
         $idUtilisateur  = $this->sessionService->get('user_id');
 
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();
@@ -116,7 +117,7 @@ class ModificationTikController extends Controller
             ->setCodeStatut($statut->getCodeStatut())
             ->setIdStatutDemande($statut)
         ;
-        self::$em->persist($tikStatut);
-        self::$em->flush();
+        $this->getEntityManager()->persist($tikStatut);
+        $this->getEntityManager()->flush();
     }
 }

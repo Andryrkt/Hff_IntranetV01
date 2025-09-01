@@ -17,7 +17,7 @@ trait DaAfficherTrait
      * par le numéro de la Demande d'Achat.
      *
      * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
-     *     self::$em->flush();
+     *     $this->getEntityManager()->flush();
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param string $numDa  le numéro de la Demande d'Achat à traiter
