@@ -66,10 +66,6 @@ label {
   border-radius: 5px;
 }
 
-.card {
-  margin-top: 4rem !important;
-}
-
 /* ========================================================================= */
 /* CHONOMETTRE */
 /* ========================================================================= */
@@ -409,4 +405,11 @@ button.swal2-styled {
 /* Background light */
 .bg-light {
   background-color: #f8f9fa !important;
+}
+
+/* Conteneur personnalisé */
+.container-spaced {
+  margin: 4rem 2rem;
+  padding: 0 1.25rem; /* léger padding interne */
+  box-sizing: border-box; /* évite les soucis avec padding */
 }
