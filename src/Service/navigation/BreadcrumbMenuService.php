@@ -441,14 +441,14 @@ class BreadcrumbMenuService
         return [
             [
                 'id'          => null,
-                'title'       => 'Nouvelle demande DA',
+                'title'       => 'Nouvelle demande d’achat',
                 'link'        => 'da_first_form',
                 'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
                 'id'          => null,
-                'title'       => 'Liste des demandes DA',
+                'title'       => 'Liste des demandes d’achats',
                 'link'        => 'list_da',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
