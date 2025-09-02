@@ -195,26 +195,6 @@ trait DaListeTrait
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
-            // Pré-calculer les URLs
-            $urlDetail = $this->getUrlGenerator()->generate(
-                $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            $urlDesignation = $this->getUrlGenerator()->generate(
-                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            if ($item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION) {
-                $urlDesignation = $this->getUrlGenerator()->generate('da_new_avec_dit', [
-                    'daId'  => $item->getDemandeAppro()->getId(),
-                    'ditId' => $item->getDit()->getId(),
-                ]);
-            }
-            $urlDelete = $this->getUrlGenerator()->generate(
-                $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
-                ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
-            );
-
             $achatDirect = $item->getAchatDirect();
             $urls = $this->buildItemUrls($item);
 
@@ -276,24 +256,24 @@ trait DaListeTrait
         $urls = [];
 
         // URL détail
-        $urls['detail'] = $this->urlGenerator->generate(
+        $urls['detail'] = $this->getUrlGenerator()->generate(
             $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
             ['id' => $item->getDemandeAppro()->getId()]
         );
 
         // URL désignation (peut basculer sur "new" si statut en cours de création)
         $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
-            ? $this->urlGenerator->generate('da_new_avec_dit', [
+            ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
                 'daId'  => $item->getDemandeAppro()->getId(),
                 'ditId' => $item->getDit()->getId(),
             ])
-            : $this->urlGenerator->generate(
+            : $this->getUrlGenerator()->generate(
                 $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
                 ['id' => $item->getDemandeAppro()->getId()]
             );
 
         // URL suppression de ligne
-        $urls['delete'] = $this->urlGenerator->generate(
+        $urls['delete'] = $this->getUrlGenerator()->generate(
             $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
             ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
         );
