@@ -5,7 +5,6 @@ namespace App\Controller\magasin\devis;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Service\autres\VersionService;
-use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
@@ -22,7 +21,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 /**
  * @Route("/magasin/dematerialisation")
  */
-class DevisMagasinController extends Controller
+class DevisMagasinVerificationPrixController extends Controller
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
@@ -112,11 +111,14 @@ class DevisMagasinController extends Controller
 
                 //TODO: creation de pdf (à specifier par Antsa)
 
+                /** @var User $utilisateur */
+                $utilisateur = $this->getUser();
+                $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
                 /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur);
+                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, $email);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
-                //ajout des informations de IPS et des informations manuel comment nombre de lignes, cat, nonCatdans le devis magasin
+                //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
                 $devisMagasin
                     ->setNumeroDevis($devisMagasin->getNumeroDevis())
                     ->setMontantDevis($firstDevisIps['montant_total'])
@@ -144,20 +146,21 @@ class DevisMagasinController extends Controller
             }
 
             //HISTORISATION DE L'OPERATION
-            $message = "Le devis numero : " . $devisMagasin->getNumeroDevis() . " a été soumis avec succès.";
+            $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', true);
         }
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix): array
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail): array
     {
         return (new UploderFileService($this->cheminBaseUpload))->getNomsFichiers($form, [
             'repertoire' => $this->cheminBaseUpload,
-            'format_nom' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}.{extension}',
+            'format_nom' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
             'variables' => [
                 'numDevis' => $numDevis,
                 'numeroVersion' => $numeroVersion,
-                'suffix' => $suffix
+                'suffix' => $suffix,
+                'mail' => $mail
             ]
         ]);
     }

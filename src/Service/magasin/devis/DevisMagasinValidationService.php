@@ -2,8 +2,9 @@
 
 namespace App\Service\magasin\devis;
 
-use App\Service\validation\ValidationServiceBase;
 use Symfony\Component\Form\FormInterface;
+use App\Service\validation\ValidationServiceBase;
+use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 class DevisMagasinValidationService extends ValidationServiceBase
@@ -60,18 +61,34 @@ class DevisMagasinValidationService extends ValidationServiceBase
     }
 
     public function checkBlockingStatusOnSubmission(
-        \App\Repository\Interfaces\StatusRepositoryInterface $repository,
+        StatusRepositoryInterface $repository,
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
             'prix à confirmer',
-            'prix validé magasin',
-            'prix refusé magasin',
             'Soumis à validation'
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Le devis ne peut pas être soumis car son statut est bloquant.";
+            $message = "Soumission bloquée car le devis est en cours de verification de prix.";
+            $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
+            return false; // Validation failed
+        }
+
+        return true; // Validation passed
+    }
+    public function checkBlockingStatusOnSubmissionForVd( //blockage pour que le l'utilisateur soumis le devis à validation n'est pas à verification prix
+        StatusRepositoryInterface $repository,
+        string $numeroDevis
+    ): bool {
+        $blockingStatuses = [
+            'prix validé magasin',
+            'prix refusé magasin',
+            'A valider chef agence'
+        ];
+
+        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
+            $message = "Le prix a été déjà vérifié ... Veuillez soumettre le devis à validation";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
@@ -92,7 +109,7 @@ class DevisMagasinValidationService extends ValidationServiceBase
         }
 
         if ($this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {
-            $message = "Le prix a été déjà vérifié ... Veuillez soumettre à validation";
+            $message = "soumission bloquée (doit passer par validation devis)";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return true; // Is blocking
         }
