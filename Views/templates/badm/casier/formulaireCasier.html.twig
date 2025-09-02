@@ -1,7 +1,11 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Création casier - 2
+{% endblock %}
+
 {% block stylesheets %}
-<link href="{{ App.base_path }}/Views/css/badm/formulaireCasier.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/badm/formulaireCasier.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
@@ -9,7 +13,7 @@
 
 {% block content %}
 
-<div class="container my-5">
+<div class="container mt-6 mb-4">
 
 	<div class="row">
 		<div class="col-12 col-md-11">
@@ -77,4 +81,4 @@
 
     {% block javascript %}
     <script type="module" src="{{ App.base_path }}/Views/js/casier/form2.js?v=2025.08.29.16.20"></script>
-    {% endblock %}
+	{% endblock %}
