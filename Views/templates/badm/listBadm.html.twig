@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-{% endblock%}
+{% block stylesheets %}
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+{% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
 
@@ -121,7 +121,9 @@
 		</table>
 	{% endif %}
 </div>
+<!-- FIN tableau -->
+{% endblock %}
 
-<!-- FIN tableau -->{% endblock %}{% block javascript %}
-<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-<script src="{{ App.base_path }}/Views/js/badm/listBadm.js" type="module"></script>{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/badm/listBadm.js?v=2025.08.29.16.20" type="module"></script>
+{% endblock %}

@@ -62,14 +62,10 @@
 	<div class="container">
 		<div class=" d-flex  justify-content-between">
 			<div class="d-flex flex-row align-items-center">
-				<a href="{{ path("da_export_excel_list_da")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
-					<i class="fas fa-table"></i>
-					Excel
-				</a>
 				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : false } %}
 			</div>
 			{% if serviceAppro %}
-				<div class="my-3 d-flex flex-row">
+				<div class="my-2 d-flex flex-row">
 					<div role="button" tabindex="0">
 						<i class="fa-solid fa-circle text-danger"></i>
 						<small class="text-danger">DA à déverrouiller</small>

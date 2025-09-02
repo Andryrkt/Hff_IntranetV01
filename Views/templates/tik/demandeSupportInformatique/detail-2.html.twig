@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="/Hffintranet/Views/css/new.css" rel="stylesheet"/>
-	<link href="/Hffintranet/Views/css/tik/detailTik.css" rel="stylesheet"/>
-	<link href="/Hffintranet/Views/css/tik/supportInfo.css" rel="stylesheet">
+	<link href="/Hffintranet/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/detailTik.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="/Hffintranet/Views/css/tik/supportInfo.css?v=2025.08.29.16.20" rel="stylesheet">
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -197,13 +197,11 @@
 
 	{% endblock %}
 
-	{% block footer %}{% endblock %}
-
 	{% block javascript %}
 		{% if validateur and statutOuvert %}
-			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js"></script>
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailValidateur.js?v=2025.08.29.16.20"></script>
 		{% else %}
-			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js"></script>
+			<script type="module" src="/Hffintranet/Views/js/tik/tikDetailIntervenant.js?v=2025.08.29.16.20"></script>
 		{% endif %}
 
 		<script>

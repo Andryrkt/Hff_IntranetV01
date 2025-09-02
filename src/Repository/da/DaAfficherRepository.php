@@ -6,11 +6,11 @@ use App\Entity\da\DaAfficher;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\da\DemandeAppro;
 use Doctrine\ORM\EntityRepository;
-use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -212,6 +212,48 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
+    /**
+     * fonction Pour récupérer les données filtrées
+     */
+    public function findPaginatedAndFilteredDA(int $page = 1, int $limit = 10, User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->where(
+            'd.numeroVersion = (
+                    SELECT MAX(d2.numeroVersion)
+                    FROM ' . DaAfficher::class . ' d2
+                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
+                )'
+        );
+
+        $this->applyDynamicFilters($qb, $criteria);
+        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, $criteria);
+
+        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, $criteria);
+
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
+
+        $qb->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit)
+        ;
+
+        $paginator = new DoctrinePaginator($qb->getQuery());
+
+        $totalItems = count($paginator);
+        $lastPage = ceil($totalItems / $limit);
+
+        return [
+            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'totalItems'  => $totalItems,
+            'currentPage' => $page,
+            'lastPage'    => $lastPage,
+        ];
+    }
 
     public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
     {

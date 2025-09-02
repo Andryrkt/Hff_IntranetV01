@@ -40,6 +40,14 @@
 							Guide utilisateur intranet
 						</a>
 					</li>
+					{% if 7 in role_ids %}
+						<li class="me-3">
+							<a class="tech-doc-link" href="{{ path('app_doc_tech_index') }}" role="button">
+								<i class="fas fa-code pe-2"></i>
+								Documentation Technique
+							</a>
+						</li>
+					{% endif %}
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="userName" data-user-first-name="{{ App.user.Personnels.prenoms }}" data-user-last-name="{{ App.user.Personnels.nom }}" ria-expanded="false" style="color: #fbbb01;">
 							<i class="fas fa-user pe-1"></i>
