@@ -6,18 +6,18 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,15 +25,13 @@ use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Controller\BaseController;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
-class DemandePaiementController extends BaseController
+class DemandePaiementController extends Controller
 {
     use DdpTrait;
     use AutorisationTrait;

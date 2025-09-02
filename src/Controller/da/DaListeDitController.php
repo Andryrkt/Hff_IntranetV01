@@ -2,31 +2,30 @@
 
 namespace App\Controller\da;
 
-use App\Controller\Controller;
-use App\Controller\Traits\da\DaListeDitTrait;
 use App\Entity\admin\Agence;
-use App\Entity\admin\dit\CategorieAteApp;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\dit\WorTypeDocument;
 use App\Entity\admin\Service;
-use App\Entity\admin\StatutDemande;
-use App\Entity\da\DemandeAppro;
-use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitSearch;
+use App\Controller\Controller;
+use App\Entity\da\DemandeAppro;
 use App\Form\dit\DitSearchType;
-use App\Repository\admin\AgenceRepository;
-use App\Repository\admin\dit\CategorieAteAppRepository;
-use App\Repository\admin\dit\WorNiveauUrgenceRepository;
-use App\Repository\admin\dit\WorTypeDocumentRepository;
-use App\Repository\admin\ServiceRepository;
-use App\Repository\admin\StatutDemandeRepository;
-use App\Repository\da\DemandeApproRepository;
+use App\Entity\admin\StatutDemande;
 use App\Repository\dit\DitRepository;
+use App\Entity\dit\DemandeIntervention;
+use App\Entity\admin\dit\CategorieAteApp;
+use App\Entity\admin\dit\WorTypeDocument;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Repository\admin\AgenceRepository;
+use App\Repository\admin\ServiceRepository;
+use App\Controller\Traits\da\DaListeDitTrait;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
+use App\Repository\admin\StatutDemandeRepository;
+use App\Repository\admin\dit\CategorieAteAppRepository;
+use App\Repository\admin\dit\WorTypeDocumentRepository;
+use App\Repository\admin\dit\WorNiveauUrgenceRepository;
 
-class DaListeDitController extends BaseController
+class DaListeDitController extends Controller
 {
     use DaListeDitTrait;
 

@@ -1,7 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
@@ -9,13 +7,10 @@ use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\admin\utilisateur\AgenceServiceIriumType;
-use App\Controller\BaseController;
-
-
 /**
  * @Route("/admin/agServIrium")
  */
-class AgenceServiceIriumController extends BaseController
+class AgenceServiceIriumController extends Controller
 {
     /**
      * @Route("/", name="AgServIrium_index")

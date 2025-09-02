@@ -3,24 +3,22 @@
 namespace App\Controller\tik;
 
 use App\Entity\tik\TikSearch;
+use InvalidArgumentException;
 use App\Controller\Controller;
-use App\Entity\admin\dit\WorNiveauUrgence;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiAutresCategorie;
-use App\Entity\admin\tik\TkiCategorie;
-use App\Entity\admin\tik\TkiSousCategorie;
 use App\Form\tik\TikSearchType;
+use App\Entity\admin\StatutDemande;
+use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\utilisateur\User;
+use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
-use InvalidArgumentException;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/it")
  */
-class ListeTikController extends BaseController
+class ListeTikController extends Controller
 {
     /**
      * @Route("/tik-liste", name="liste_tik_index")

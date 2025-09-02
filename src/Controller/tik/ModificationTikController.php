@@ -6,19 +6,17 @@ use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Entity\admin\utilisateur\User;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
+use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use PhpOffice\PhpSpreadsheet\Calculation\Logical\Boolean;
-use App\Controller\BaseController;
-
 /**
  * @Route("/it")
  */
-class ModificationTikController extends BaseController
+class ModificationTikController extends Controller
 {
     /**
      * @Route("/tik-modification/{id}", name="tik_modification_edit")

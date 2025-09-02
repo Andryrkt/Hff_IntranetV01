@@ -5,12 +5,10 @@ namespace App\Controller\dit;
 use App\Controller\Controller;
 use App\Form\dit\CommentaireDitOrType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class CommentaireDitOrController extends BaseController
+class CommentaireDitOrController extends Controller
 {
     /**
      * @Route("/commentaire-dit-or-new", name="commentaire_Dit_or_new")

@@ -3,27 +3,25 @@
 namespace App\Controller\da\Proposition;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
-use App\Entity\da\DemandeApproLRCollection;
 use App\Form\da\DaObservationType;
+use App\Entity\da\DemandeApproLRCollection;
+use App\Controller\Traits\AutorisationTrait;
 use App\Form\da\DaPropositionValidationType;
+use App\Controller\Traits\da\DaAfficherTrait;
 use App\Form\da\DemandeApproLRCollectionType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaPropositionRefAvecDitController extends BaseController
+class DaPropositionRefAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use AutorisationTrait;

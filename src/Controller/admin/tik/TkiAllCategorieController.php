@@ -1,18 +1,15 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin\tik;
 
 use App\Controller\Controller;
-use App\Entity\admin\tik\TkiAutresCategorie;
 use App\Entity\admin\tik\TkiCategorie;
 use App\Entity\admin\tik\TkiSousCategorie;
+use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-
-class TkiAllCategorieController extends BaseController
+class TkiAllCategorieController extends Controller
 {
     /**
      * @Route("/admin/tki-tous-categorie-liste", name="tki_all_categorie_index")

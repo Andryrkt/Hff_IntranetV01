@@ -1,6 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\dit;
 
@@ -13,7 +12,7 @@ use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
+use App\Service\Users\UserDataService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -22,13 +21,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Service\Users\UserDataService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitListeController extends BaseController
+class DitListeController extends Controller
 {
     use DitListTrait;
     use AutorisationTrait;
@@ -252,7 +248,7 @@ class DitListeController extends BaseController
         $dit
             ->setIdStatutDemande($statutCloturerAnnuler)
             ->setAAnnuler(true)
-            ->setDateAnnulation(new DateTime())
+            ->setDateAnnulation(new \DateTime())
         ;
         $this->getEntityManager()->persist($dit);
         $this->getEntityManager()->flush();

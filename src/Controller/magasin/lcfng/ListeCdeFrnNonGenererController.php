@@ -9,12 +9,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Form\magasin\lcfng\ListeCdeFrnNonGenererSearchType;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin")
  */
-class ListeCdeFrnNonGenererController extends BaseController
+class ListeCdeFrnNonGenererController extends Controller
 {
 
     private ListeCdeFrnNonGenererModel $listeCdeFrnNonGenererModel;

@@ -21,12 +21,10 @@ use App\Form\da\soumissionBC\DaSoumissionBcType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaSoumissionBcController extends BaseController
+class DaSoumissionBcController extends Controller
 {
 
     private  DaSoumissionBc $daSoumissionBc;

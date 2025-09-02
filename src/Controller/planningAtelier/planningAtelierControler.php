@@ -8,16 +8,14 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Translation\Provider\Dsn;
 use App\Model\planningAtelier\planningAtelierModel;
 use App\Entity\planningAtelier\planningAtelierSearch;
 use App\Form\planningAtelier\planningAtelierSearchType;
-use Symfony\Component\Translation\Provider\Dsn;
-use App\Controller\BaseController;
-
 /**
  * @Route("/planningAte")
  */
-class planningAtelierControler extends BaseController
+class planningAtelierControler extends Controller
 {
     private planningAtelierSearch $planningAtelierSearch;
     private planningAtelierModel $planningAtelierModel;

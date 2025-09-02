@@ -6,6 +6,7 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Entity\da\DaValider;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -28,15 +29,12 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Entity\da\DaAfficher;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitOrsSoumisAValidationController extends BaseController
+class DitOrsSoumisAValidationController extends Controller
 {
     use FormatageTrait;
     use DitOrSoumisAValidationTrait;

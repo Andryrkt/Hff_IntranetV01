@@ -8,9 +8,8 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class DitValidationController extends BaseController
+class DitValidationController extends Controller
 {
 
     /**

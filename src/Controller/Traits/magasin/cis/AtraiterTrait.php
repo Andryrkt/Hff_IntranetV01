@@ -5,8 +5,6 @@ namespace App\Controller\Traits\magasin\cis;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Controller;
-
 trait AtraiterTrait
 {
     private function agenceUser($autoriser): ?string

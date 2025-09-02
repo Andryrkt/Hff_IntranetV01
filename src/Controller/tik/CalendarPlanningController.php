@@ -3,17 +3,15 @@
 namespace App\Controller\tik;
 
 use App\Controller\Controller;
-use App\Entity\tik\TikPlanningSearch;
 use App\Form\tik\CalendarType;
+use App\Entity\tik\TikPlanningSearch;
 use App\Form\tik\TikPlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/it")
  */
-class CalendarPlanningController extends BaseController
+class CalendarPlanningController extends Controller
 {
     /**
      * @Route("/calendar-planning", name="tik_calendar_planning")

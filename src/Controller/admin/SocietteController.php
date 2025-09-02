@@ -1,21 +1,15 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
-use App\Form\RoleType;
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\Societte;
 use App\Form\admin\SocietteType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
-class SocietteController extends BaseController
+class SocietteController extends Controller
 {
     /**
      * @Route("/admin/societte", name="societte_index")

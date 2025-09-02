@@ -1,31 +1,29 @@
 <?php
 
 namespace App\Controller\da\Validation;
-use App\Service\FusionPdf;
-use App\Model\ProfilModel;
-use App\Model\badm\BadmModel;
-use App\Model\admin\personnel\PersonnelModel;
-use App\Model\dom\DomModel;
 use App\Model\da\DaModel;
+use App\Model\ProfilModel;
+use App\Service\FusionPdf;
+use App\Model\dit\DitModel;
+use App\Model\dom\DomModel;
+use App\Model\badm\BadmModel;
+use App\Service\ExcelService;
+use App\Controller\Controller;
+use App\Model\dom\DomListModel;
 use App\Model\dom\DomDetailModel;
 use App\Model\dom\DomDuplicationModel;
-use App\Model\dom\DomListModel;
-use App\Model\dit\DitModel;
 use App\Service\SessionManagerService;
-use App\Service\ExcelService;
 
 
-use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Model\admin\personnel\PersonnelModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationDirectController extends BaseController
+class DaValidationDirectController extends Controller
 {
     private FusionPdf $fusionPdfService;
     private ProfilModel $profilModelService;

@@ -18,12 +18,10 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaSoumissionFacBlController extends BaseController
+class DaSoumissionFacBlController extends Controller
 {
     const STATUT_SOUMISSION = 'Soumis à validation';
 

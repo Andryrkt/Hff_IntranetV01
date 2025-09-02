@@ -1,19 +1,15 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
-
-
 
 use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\admin\ServiceType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class ServiceController extends BaseController
+class ServiceController extends Controller
 {
     /**
      * @Route("/admin/service", name="service_index")

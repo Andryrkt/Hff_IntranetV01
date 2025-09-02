@@ -25,13 +25,10 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Controller\BaseController;
-
-
 /**
  * @Route("/demande-appro")
  */
-class DaListCdeFrnController extends BaseController
+class DaListCdeFrnController extends Controller
 {
     use StatutBcTrait;
     use AutorisationTrait;

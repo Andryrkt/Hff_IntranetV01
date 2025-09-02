@@ -4,15 +4,13 @@ namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaValidationDirectController extends BaseController
+class DaValidationDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaValidationDirectTrait;

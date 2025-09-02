@@ -4,25 +4,23 @@ namespace App\Controller\ddp;
 
 use Exception;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\ddp\DdpDossierRegulType;
 use App\Model\ddp\DdpDossierRegulModel;
+use App\Service\genererPdf\GeneratePdfDdr;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\FileUploaderService;
-use App\Entity\admin\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\admin\ddp\DocDemandePaiementRepository;
-use App\Service\genererPdf\GeneratePdfDdr;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
-class DdpDossierRegularisationController extends BaseController
+class DdpDossierRegularisationController extends Controller
 {
     private DdpDossierRegulModel $DdpDossierRegulModel;
     private DemandePaiementRepository $demandePaiementRepository;

@@ -11,12 +11,10 @@ use App\Form\magasin\devis\DevisMagasinSearchType;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/dematerialisation")
  */
-class ListeDevisMagasinController extends BaseController
+class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
 

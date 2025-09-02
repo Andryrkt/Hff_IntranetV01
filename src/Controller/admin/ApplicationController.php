@@ -1,6 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
@@ -9,10 +8,10 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class ApplicationController extends BaseController
+class ApplicationController extends Controller
 {
     /**
      * @Route("/admin/application", name="application_index")

@@ -15,12 +15,10 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaNewAvecDitController extends BaseController
+class DaNewAvecDitController extends Controller
 {
     use DaNewAvecDitTrait;
     use AutorisationTrait;

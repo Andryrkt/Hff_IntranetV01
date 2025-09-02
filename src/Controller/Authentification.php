@@ -7,12 +7,10 @@ use App\Entity\admin\utilisateur\User;
 use App\Model\LdapModel;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * Contrôleur d'authentification refactorisé pour utiliser l'injection de dépendances
  */
-class Authentification extends BaseController
+class Authentification extends Controller
 {
     private ?LdapModel $ldapModel = null;
 

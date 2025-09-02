@@ -12,12 +12,10 @@ use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/cis")
  */
-class CisATraiterController extends BaseController
+class CisATraiterController extends Controller
 {
     use AtraiterTrait;
     use AutorisationTrait;

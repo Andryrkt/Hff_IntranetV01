@@ -3,22 +3,20 @@
 namespace App\Controller\magasin\bl;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Form\bl\BLSoumissionType;
 use App\Factory\bl\BLSoumissionFactory;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\fichier\TraitementDeFichier;
 use App\Service\genererPdf\GeneratePdfBlFut;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationBLService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/sortie-de-pieces-lubs")
  */
-class BLSoumissionController extends BaseController
+class BLSoumissionController extends Controller
 {
     use AutorisationTrait;
 

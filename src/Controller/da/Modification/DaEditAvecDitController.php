@@ -13,12 +13,10 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaEditAvecDitController extends BaseController
+class DaEditAvecDitController extends Controller
 {
     use DaAfficherTrait;
     use DaEditAvecDitTrait;

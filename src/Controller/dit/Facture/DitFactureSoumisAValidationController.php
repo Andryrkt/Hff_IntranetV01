@@ -19,12 +19,10 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitFactureSoumisAValidationController extends BaseController
+class DitFactureSoumisAValidationController extends Controller
 {
 
     use DitFactureSoumisAValidationtrait;

@@ -1,7 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin;
 
 
@@ -10,10 +8,8 @@ use App\Entity\admin\utilisateur\User;
 use App\Form\admin\utilisateur\UserType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-
-class UserController extends BaseController
+class UserController extends Controller
 {
     /**
      * @Route("/admin/utilisateur/new", name="utilisateur_new")

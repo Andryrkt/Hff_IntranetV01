@@ -4,8 +4,6 @@ namespace App\Controller\Traits\magasin\cis;
 
 use App\Service\TableauEnStringService;
 use App\Entity\admin\utilisateur\User;
-use App\Controller\Controller;
-
 trait ALivrerTrait
 {
     private function agenceUser($autoriser): ?string

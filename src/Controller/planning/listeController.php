@@ -15,17 +15,14 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
-use Symfony\Component\VarDumper\Cloner\Data;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier")
  */
-class ListeController extends BaseController
+class ListeController extends Controller
 {
     use Transformation;
     use PlanningTraits;

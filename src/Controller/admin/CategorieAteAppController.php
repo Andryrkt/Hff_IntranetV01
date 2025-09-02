@@ -1,6 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
@@ -9,10 +8,10 @@ use App\Controller\Controller;
 use App\Entity\admin\dit\CategorieAteApp;
 use App\Form\admin\dit\CategorieAteAppType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class CategorieAteAppController extends BaseController
+class CategorieAteAppController extends Controller
 {
     /**
      * @Route("/admin/categorieAte", name="categorieAte_index")

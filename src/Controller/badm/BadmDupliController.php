@@ -14,12 +14,10 @@ use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfBadm;
 use App\Controller\Traits\BadmDuplicationTrait;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmDupliController extends BaseController
+class BadmDupliController extends Controller
 {
     use FormatageTrait;
     use BadmDuplicationTrait;

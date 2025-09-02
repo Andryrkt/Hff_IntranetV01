@@ -18,12 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaPropositionArticleDirectController extends BaseController
+class DaPropositionArticleDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaValidationDirectTrait;

@@ -1,19 +1,14 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin;
 
 
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
 use App\Form\admin\utilisateur\RoleType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
-class RoleController extends BaseController
+class RoleController extends Controller
 {
     /**
      * @Route("/admin/role", name="role_index")

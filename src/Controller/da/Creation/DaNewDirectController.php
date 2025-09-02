@@ -12,12 +12,10 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaNewDirectController extends BaseController
+class DaNewDirectController extends Controller
 {
     use DaNewDirectTrait;
     use AutorisationTrait;

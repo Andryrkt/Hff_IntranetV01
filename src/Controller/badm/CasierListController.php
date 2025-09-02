@@ -3,19 +3,17 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/casier")
  */
-class CasierListController extends BaseController
+class CasierListController extends Controller
 {
 
     use Transformation;

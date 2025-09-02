@@ -7,12 +7,10 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class ExportExcelCdefrnController extends BaseController
+class ExportExcelCdefrnController extends Controller
 {
     private DaAfficherRepository $daAfficherRepository;
 

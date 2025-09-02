@@ -13,12 +13,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
-use App\Controller\BaseController;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
-class DdpListeController extends BaseController
+class DdpListeController extends Controller
 {
     use AutorisationTrait;
 

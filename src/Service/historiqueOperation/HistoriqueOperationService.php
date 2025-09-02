@@ -2,6 +2,7 @@
 
 namespace App\Service\historiqueOperation;
 
+use DateTime;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
@@ -88,7 +89,8 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * @param boolean $success
      * @return void
      */
-    protected function enregistrerDansSession(string $message,  bool $success = false) {
+    protected function enregistrerDansSession(string $message,  bool $success = false)
+    {
         $this->sessionService->set('notification', [
             'type'    => $success ? 'success' : 'danger',
             'message' => $message,
@@ -124,7 +126,15 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
 
         $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
-        header("Location: " . Controller::getGenerator()->generate($routeName));
+        global $container;
+        if ($container && $container->has('router')) {
+            $urlGenerator = $container->get('router');
+            $url = $urlGenerator->generate($routeName);
+        } else {
+            // Fallback si le conteneur n'est pas disponible
+            $url = '/' . $routeName;
+        }
+        header("Location: " . $url);
         exit();
     }
 

@@ -18,12 +18,10 @@ use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\magasin\devis\DevisMagasinValidationService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/dematerialisation")
  */
-class DevisMagasinController extends BaseController
+class DevisMagasinController extends Controller
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';

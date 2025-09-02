@@ -4,7 +4,6 @@ namespace App\Controller\dit;
 
 
 
-use App\Controller\BaseController;
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
@@ -15,11 +14,12 @@ use App\Service\genererPdf\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Controller;
 
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitController extends BaseController
+class DitController extends Controller
 {
     use DitTrait;
     use FormatageTrait;

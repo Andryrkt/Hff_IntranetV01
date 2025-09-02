@@ -3,13 +3,11 @@
 namespace App\Controller\admin\generationPDF;
 
 use App\Controller\Controller;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 /** @Route(path="/admin/generation-PDF") */
-class GenerationPDFController extends BaseController
+class GenerationPDFController extends Controller
 {
     use DaValidationDirectTrait;
     use DaValidationAvecDitTrait;

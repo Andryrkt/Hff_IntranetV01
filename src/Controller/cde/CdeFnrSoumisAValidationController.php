@@ -16,12 +16,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin")
  */
-class CdefnrSoumisAValidationController extends BaseController
+class CdefnrSoumisAValidationController extends Controller
 {
     private CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private HistoriqueOperationCDEFNRService $historiqueOperation;

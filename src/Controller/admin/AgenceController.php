@@ -1,6 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
@@ -9,10 +8,10 @@ use App\Entity\admin\Agence;
 use App\Controller\Controller;
 use App\Form\admin\AgenceType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class AgenceController extends BaseController
+class AgenceController extends Controller
 {
     /**
      * @Route("/admin/agence/list-agence", name="agence_index")

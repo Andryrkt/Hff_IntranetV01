@@ -18,12 +18,10 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/it")
  */
-class DemandeSupportInformatiqueController extends BaseController
+class DemandeSupportInformatiqueController extends Controller
 {
     use lienGenerique;
 

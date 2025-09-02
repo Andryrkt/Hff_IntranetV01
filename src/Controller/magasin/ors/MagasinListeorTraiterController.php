@@ -17,12 +17,10 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/or")
  */
-class MagasinListeOrTraiterController extends BaseController
+class MagasinListeOrTraiterController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;

@@ -7,12 +7,10 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfng\ListeCdeFrnNonGenererModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin")
  */
-class ListeCdeFrnNonGenererExportExcelController extends BaseController
+class ListeCdeFrnNonGenererExportExcelController extends Controller
 {
     private ListeCdeFrnNonGenererModel $listeCdeFrnNonGenererModel;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;

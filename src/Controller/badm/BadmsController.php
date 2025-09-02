@@ -13,12 +13,10 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmsController extends BaseController
+class BadmsController extends Controller
 {
     use AutorisationTrait;
 

@@ -1,11 +1,8 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\mutation;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Entity\mutation\Mutation;
 use App\Model\mutation\MutationModel;
@@ -14,16 +11,15 @@ use App\Entity\mutation\MutationSearch;
 use App\Form\mutation\MutationFormType;
 use App\Controller\Traits\MutationTrait;
 use App\Form\mutation\MutationSearchType;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationMUTService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/rh/mutation")
  */
-class MutationController extends BaseController
+class MutationController extends Controller
 {
     use MutationTrait;
     use AutorisationTrait;

@@ -1,18 +1,16 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
-use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
-use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
+use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 
-class PageConsultationController extends BaseController
+class PageConsultationController extends Controller
 {
     /**
      * @Route("/admin/consultation-page", name="consultation_page_index")

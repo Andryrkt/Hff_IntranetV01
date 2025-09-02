@@ -4,21 +4,19 @@ namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\badm\BadmSearch;
 use App\Entity\admin\Application;
 use App\Form\badm\BadmSearchType;
 use App\Entity\admin\utilisateur\User;
 use App\Model\badm\BadmRechercheModel;
 use App\Controller\Traits\BadmListTrait;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmListeController extends BaseController
+class BadmListeController extends Controller
 {
     use BadmListTrait;
     use AutorisationTrait;

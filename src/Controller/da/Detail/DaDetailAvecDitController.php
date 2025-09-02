@@ -3,11 +3,11 @@
 namespace App\Controller\da\Detail;
 
 
+use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
-use App\Controller\BaseController;
 use App\Form\da\DaObservationType;
 use App\Service\da\EmailDaService;
 use App\Entity\dit\DemandeIntervention;
@@ -21,7 +21,7 @@ use App\Controller\Traits\da\detail\DaDetailAvecDitTrait;
 /**
  * @Route("/demande-appro")
  */
-class DaDetailAvecDitController extends BaseController
+class DaDetailAvecDitController extends Controller
 {
 	use lienGenerique;
 	use DaAfficherTrait;

@@ -15,12 +15,10 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DaHistoriqueDemandeModifDA;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class listeDaController extends BaseController
+class listeDaController extends Controller
 {
     use DaListeTrait;
     use StatutBcTrait;

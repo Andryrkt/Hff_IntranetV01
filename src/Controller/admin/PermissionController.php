@@ -1,19 +1,18 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
-
-
 use App\Controller\Controller;
+
+
 use App\Entity\admin\utilisateur\Permission;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\utilisateur\PermissionType;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class PermissionController extends BaseController
+class PermissionController extends Controller
 {
     /**
      * @Route("/admin/permission", name="permission_index")

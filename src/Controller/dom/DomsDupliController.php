@@ -4,28 +4,16 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use App\Form\dom\DomForm2Type;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\Application;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Service\genererPdf\GeneratePdfDom;
 use App\Controller\Traits\dom\DomsDupliTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomsDupliController extends BaseController
+class DomsDupliController extends Controller
 {
     use FormatageTrait;
     use DomsDupliTrait;

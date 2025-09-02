@@ -5,16 +5,14 @@ namespace App\Controller\tik;
 use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Service\historiqueOperation\HistoriqueOperationTIKService;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
-use App\Controller\BaseController;
-
+use App\Entity\tik\DemandeSupportInformatique;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 /**
  * @Route("/it")
  */
-class ClotureTikController extends BaseController
+class ClotureTikController extends Controller
 {
     private $historiqueOperation;
 

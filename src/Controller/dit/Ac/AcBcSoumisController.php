@@ -18,12 +18,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class AcBcSoumisController extends BaseController
+class AcBcSoumisController extends Controller
 {
     private $acSoumis;
     private $bcSoumis;

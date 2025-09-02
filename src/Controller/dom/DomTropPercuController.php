@@ -4,22 +4,20 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
+use App\Entity\dom\Domtp;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
-use App\Controller\Traits\dom\DomsTrait;
 use App\Entity\admin\utilisateur\User;
-use App\Controller\Traits\FormatageTrait;
-use App\Entity\dom\Domtp;
 use App\Form\dom\DomTropPercuFormType;
-use App\Service\historiqueOperation\HistoriqueOperationDOMService;
+use App\Controller\Traits\dom\DomsTrait;
+use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomTropPercuController extends BaseController
+class DomTropPercuController extends Controller
 {
     use FormatageTrait;
     use DomsTrait;

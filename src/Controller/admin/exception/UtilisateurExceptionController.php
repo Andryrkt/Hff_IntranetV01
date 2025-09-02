@@ -1,14 +1,11 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin\exception;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class UtilisateurExceptionController extends BaseController
+class UtilisateurExceptionController extends Controller
 {
     /**
      * @Route("/erreur-utilisateur-non-trouver/{message}", name="utilisateur_non_touver")

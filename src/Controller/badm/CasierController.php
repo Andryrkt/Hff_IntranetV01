@@ -4,7 +4,6 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
 use App\Form\cas\CasierForm1Type;
@@ -14,16 +13,15 @@ use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\genererPdf\GenererPdfCasier;
-use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
+use App\Service\historiqueOperation\HistoriqueOperationCASService;
 /**
  * @Route("/materiel/casier")
  */
-class CasierController extends BaseController
+class CasierController extends Controller
 {
 
     use Transformation;

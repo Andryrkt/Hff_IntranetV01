@@ -1,6 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
@@ -8,10 +7,10 @@ use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Fonction;
 use App\Form\admin\utilisateur\FonctionType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class FonctionController extends BaseController
+class FonctionController extends Controller
 {
     /**
      * @Route("/admin/fonction", name="fonction_index")

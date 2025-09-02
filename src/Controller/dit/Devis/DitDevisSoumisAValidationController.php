@@ -3,7 +3,9 @@
 namespace App\Controller\dit\Devis;
 
 use DateTime;
+use App\Traits\CalculeTrait;
 use App\Controller\Controller;
+use App\Repository\dit\DitRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\autres\MontantPdfService;
@@ -15,16 +17,12 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
-use App\Traits\CalculeTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitDevisSoumisAValidationController extends BaseController
+class DitDevisSoumisAValidationController extends Controller
 {
     use CalculeTrait;
 

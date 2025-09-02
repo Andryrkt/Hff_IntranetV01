@@ -1,15 +1,13 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\da;
 
-use App\Controller\Controller;
 use App\Entity\da\DaPicking;
+use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class DaPickingController extends BaseController
+class DaPickingController extends Controller
 {
     private DaPicking $daPicking;
 

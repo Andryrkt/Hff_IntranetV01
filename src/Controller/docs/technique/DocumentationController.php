@@ -1,17 +1,14 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\docs\technique;
 
 use App\Controller\Controller;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
-use App\Controller\BaseController;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Routing\Annotation\Route;
 
-
-class DocumentationController extends BaseController
+class DocumentationController extends Controller
 {
     /**
      * @Route("/doc/technique", name="app_doc_tech_index")

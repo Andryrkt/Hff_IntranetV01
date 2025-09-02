@@ -118,7 +118,14 @@ class Connexion
 
     protected function redirectToRoute(string $routeName, array $params = [])
     {
-        $url = Controller::getGenerator()->generate($routeName, $params);
+        global $container;
+        if ($container && $container->has('router')) {
+            $urlGenerator = $container->get('router');
+            $url = $urlGenerator->generate($routeName, $params);
+        } else {
+            // Fallback si le conteneur n'est pas disponible
+            $url = '/' . $routeName;
+        }
         header("Location: $url");
         exit();
     }

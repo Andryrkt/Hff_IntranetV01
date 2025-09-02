@@ -7,19 +7,17 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomForm1Type;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomFirstController extends BaseController
+class DomFirstController extends Controller
 {
     use AutorisationTrait;
 

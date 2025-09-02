@@ -12,12 +12,10 @@ use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/casier")
  */
-class CasierListTemporaireController extends BaseController
+class CasierListTemporaireController extends Controller
 {
     use Transformation;
     use AutorisationTrait;

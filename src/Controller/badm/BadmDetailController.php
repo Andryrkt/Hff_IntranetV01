@@ -1,19 +1,14 @@
 <?php
-
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\badm;
 
 use App\Entity\badm\Badm;
 use App\Controller\Controller;
 use App\Model\badm\BadmDetailModel;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmDetailController extends BaseController
+class BadmDetailController extends Controller
 {
 
     /**

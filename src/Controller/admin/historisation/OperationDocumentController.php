@@ -1,20 +1,18 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
 use App\Form\admin\historisation\documentOperation\HistoriqueOperationDocumentSearchType;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class OperationDocumentController extends BaseController
+class OperationDocumentController extends Controller
 {
     /**
      * @Route("/admin/operation-document", name="operation_document_index")

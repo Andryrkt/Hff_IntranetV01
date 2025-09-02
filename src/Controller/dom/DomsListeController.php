@@ -5,21 +5,19 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomSearchType;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomsListeController extends BaseController
+class DomsListeController extends Controller
 {
 
     use ConversionTrait;

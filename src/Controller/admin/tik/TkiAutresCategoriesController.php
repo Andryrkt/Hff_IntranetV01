@@ -7,9 +7,8 @@ use App\Entity\admin\tik\TkiAutresCategorie;
 use Symfony\Component\HttpFoundation\Request;
 use App\Form\admin\tik\TkiAutresCategorieType;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class TkiAutresCategoriesController extends BaseController
+class TkiAutresCategoriesController extends Controller
 {
     /**
      * @Route("/admin/tki-autres-categories-new", name="tki_autres_categories_new")

@@ -19,12 +19,10 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/or")
  */
-class MagasinListeOrLivrerController extends BaseController
+class MagasinListeOrLivrerController extends Controller
 {
     use Transformation;
     use OrsMagasinTrait;

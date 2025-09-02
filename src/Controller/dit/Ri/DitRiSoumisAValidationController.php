@@ -16,12 +16,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitRiSoumisAValidationController extends BaseController
+class DitRiSoumisAValidationController extends Controller
 {
     use DitRiSoumisAValidationTrait;
     private $historiqueOperation;

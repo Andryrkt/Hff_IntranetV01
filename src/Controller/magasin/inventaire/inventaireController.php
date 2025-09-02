@@ -22,12 +22,10 @@ use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/inventaire")
  */
-class InventaireController extends BaseController
+class InventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;

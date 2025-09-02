@@ -1,14 +1,12 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\docs\fonctionnel\badm;
 
 use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class BadmDoc extends BaseController
+class BadmDoc extends Controller
 {
     /**
      * @Route("/doc/badm", name="badm_index")

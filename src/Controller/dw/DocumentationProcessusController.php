@@ -4,16 +4,14 @@ namespace App\Controller\dw;
 
 use App\Controller\Controller;
 use App\Entity\dw\DocInternesearch;
-use App\Entity\dw\DwProcessusProcedure;
 use App\Form\dw\DocInterneSearchType;
+use App\Entity\dw\DwProcessusProcedure;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/documentation")
  */
-class DocumentationProcessusController extends BaseController
+class DocumentationProcessusController extends Controller
 {
     /**
      * @Route("/documentation-interne", name="documentation_interne")

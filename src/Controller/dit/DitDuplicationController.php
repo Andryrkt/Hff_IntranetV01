@@ -16,12 +16,10 @@ use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DitDuplicationController extends BaseController
+class DitDuplicationController extends Controller
 {
     use DitTrait;
     use FormatageTrait;

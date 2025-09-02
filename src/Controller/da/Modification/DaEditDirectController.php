@@ -3,21 +3,19 @@
 namespace App\Controller\da\Modification;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DemandeApproDirectFormType;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditDirectTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaEditDirectController extends BaseController
+class DaEditDirectController extends Controller
 {
     use DaAfficherTrait;
     use DaEditDirectTrait;

@@ -16,12 +16,10 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/materiel/mouvement-materiel")
  */
-class BadmsForm2Controller extends BaseController
+class BadmsForm2Controller extends Controller
 {
     use FormatageTrait;
     use BadmsForm2Trait;

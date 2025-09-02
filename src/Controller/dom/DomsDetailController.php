@@ -1,18 +1,14 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\dom;
 
-use App\Controller\Controller;
 use App\Entity\dom\Dom;
+use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
-class DomsDetailController extends BaseController
+class DomsDetailController extends Controller
 {
 
     /**

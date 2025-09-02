@@ -2,19 +2,17 @@
 
 namespace App\Controller\magasin\lcfnp;
 
+use DateTime;
+use DateTimeZone;
 use App\Controller\Controller;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfnp\ListeCdeFrnNonplacerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use DateTime;
-use DateTimeZone;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin")
  */
-class ListeCdeFrnNonPlaceEXportExcelController extends BaseController
+class ListeCdeFrnNonPlaceEXportExcelController extends Controller
 {
 
     private ListeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;

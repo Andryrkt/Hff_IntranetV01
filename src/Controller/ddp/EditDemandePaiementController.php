@@ -6,11 +6,10 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\ddp\DdpTrait;
-use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
@@ -20,18 +19,14 @@ use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
-class EditDemandePaiementController extends BaseController
+class EditDemandePaiementController extends Controller
 {
     use DdpTrait;
 

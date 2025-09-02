@@ -3,23 +3,20 @@
 namespace App\Controller\da\Detail;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/demande-appro")
  */
-class DaDetailDirectController extends BaseController
+class DaDetailDirectController extends Controller
 {
 	use lienGenerique;
 	use DaAfficherTrait;

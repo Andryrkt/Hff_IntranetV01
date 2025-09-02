@@ -1,19 +1,17 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
-use App\Entity\admin\AgenceServiceIrium;
+
 use App\Entity\admin\Personnel;
 use App\Form\admin\PersonnelType;
 use App\Form\admin\PersonnelSearchType;
+use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 
-class PersonnelController extends BaseController
+class PersonnelController extends Controller
 {
     /**
      * @Route("/admin/personnel", name="personnel_index")

@@ -1,7 +1,5 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
-
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
@@ -9,9 +7,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\AgenceServiceAutoriser;
 use App\Form\admin\utilisateur\AgenceServiceAutoriserType;
-use App\Controller\BaseController;
 
-class AgenceServiceAutoriserController extends BaseController
+class AgenceServiceAutoriserController extends Controller
 {
     /**
      * @Route("/admin/autoriser", name="autoriser_index")

@@ -10,12 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Controller\BaseController;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
-class DossierInterventionAtelierController extends BaseController
+class DossierInterventionAtelierController extends Controller
 {
     use AutorisationTrait;
 

@@ -11,12 +11,10 @@ use App\Form\bordereau\BordereauSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
-use App\Controller\BaseController;
-
 /**
  * @Route("/bordereau")
  */
-class bordereauController extends BaseController
+class bordereauController extends Controller
 {
 
     use FormatageTrait;

@@ -12,12 +12,10 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/cis")
  */
-class CisALivrerController extends BaseController
+class CisALivrerController extends Controller
 {
     use ALivrerTrait;
     use AutorisationTrait;

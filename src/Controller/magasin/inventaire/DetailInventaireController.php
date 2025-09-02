@@ -15,12 +15,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
-use App\Controller\BaseController;
-
 /**
  * @Route("/magasin/inventaire")
  */
-class DetailInventaireController extends BaseController
+class DetailInventaireController extends Controller
 {
     use FormatageTrait;
     use Transformation;

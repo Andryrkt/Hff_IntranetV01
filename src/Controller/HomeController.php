@@ -4,13 +4,12 @@ namespace App\Controller;
 
 use App\Service\navigation\MenuService;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Controller\BaseController;
 use Exception;
 
 /**
  * Contrôleur de la page d'accueil refactorisé pour utiliser l'injection de dépendances
  */
-class HomeController extends BaseController
+class HomeController extends Controller
 {
     public function __construct()
     {

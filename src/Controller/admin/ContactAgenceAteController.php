@@ -1,19 +1,17 @@
 <?php
 
-use Symfony\Component\HttpFoundation\Response;
 
 namespace App\Controller\admin;
 
-use App\Controller\Controller;
 use App\Entity\admin\Agence;
+use App\Controller\Controller;
 use App\Entity\admin\utilisateur\User;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Form\admin\utilisateur\ContactAgenceAteType;
-use Symfony\Component\HttpFoundation\Request;
-use App\Controller\BaseController;
 
-class ContactAgenceAteController extends BaseController
+class ContactAgenceAteController extends Controller
 {
 
     /**
