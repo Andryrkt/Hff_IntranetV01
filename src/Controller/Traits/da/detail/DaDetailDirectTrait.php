@@ -22,7 +22,7 @@ trait DaDetailDirectTrait
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaDetailDirectTrait($generator): void
+    public function initDaDetailDirectTrait(): void
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();

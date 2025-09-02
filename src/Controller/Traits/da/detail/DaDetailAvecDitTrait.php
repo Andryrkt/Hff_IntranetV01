@@ -30,7 +30,7 @@ trait DaDetailAvecDitTrait
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaDetailAvecDitTrait($generator): void
+    public function initDaDetailAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
