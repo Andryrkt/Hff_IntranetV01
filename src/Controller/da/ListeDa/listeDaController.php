@@ -10,6 +10,7 @@ use App\Controller\Traits\da\StatutBcTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/demande-appro")
  */
@@ -23,7 +24,7 @@ class listeDaController extends Controller
     {
         parent::__construct();
 
-        $this->initDaListeTrait($this->getUrlGenerator());
+        $this->initDaListeTrait();
     }
 
     /**

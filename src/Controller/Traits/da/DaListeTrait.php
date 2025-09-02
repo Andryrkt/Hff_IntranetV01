@@ -37,7 +37,7 @@ trait DaListeTrait
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaListeTrait($generator)
+    public function initDaListeTrait()
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
