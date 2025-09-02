@@ -2,6 +2,8 @@
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.09.02.11.13">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/devis/listeDevisMagasin.css?v=2025.09.02.11.13">
 {% endblock %}
 
 {% block content %}
@@ -10,6 +12,7 @@
 		<div class="sticky-header-titre">
 			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
+				{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
 			</div>
 		</div>
 
@@ -65,4 +68,5 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.09.02.10.05"></script>
 {% endblock %}

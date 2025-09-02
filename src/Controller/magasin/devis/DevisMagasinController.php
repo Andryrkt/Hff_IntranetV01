@@ -18,6 +18,7 @@ use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\magasin\devis\DevisMagasinValidationService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+
 /**
  * @Route("/magasin/dematerialisation")
  */
@@ -63,7 +64,7 @@ class DevisMagasinController extends Controller
         }
 
         // Validation du statut du devis
-        if ($validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
+        if (!$validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
             return; // Arrête le traitement si le statut est bloquant
         }
 

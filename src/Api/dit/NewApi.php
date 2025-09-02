@@ -11,34 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 class NewApi extends Controller
 {
-    /**
-     * @Route("/agence-fetch/{id}", name="fetch_agence", methods={"GET"})
-     * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
-     * @return void
-     */
-    public function agence($id) {
 
-        $agence = self::$em->getRepository(Agence::class)->find($id);
-    
-        $service = $agence->getServices();
-
-        //   $services = $service->getValues();
-            $services = [];
-        foreach ($service as $key => $value) {
-            $services[] = [
-                'value' => $value->getId(),
-                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-            ];
-        }
-
-        
-        //dd($services);
-        header("Content-type:application/json");
-
-        echo json_encode($services);
-
-        //echo new JsonResponse($services);
-    }
 
 
     /**
@@ -61,5 +34,4 @@ class NewApi extends Controller
 
         $this->testJson($jsonData);
     }
-
 }

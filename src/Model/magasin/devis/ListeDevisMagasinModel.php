@@ -90,4 +90,17 @@ class ListeDevisMagasinModel extends Model
 
         return array_column($this->convertirEnUtf8($data), 'retour')[0];
     }
+
+    public function getCodeLibelleClient()
+    {
+        $statement = "SELECT nent_numcli as code_client, nent_nomcli as nom_client
+                        from neg_ent
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
+    }
 }
