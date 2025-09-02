@@ -60,15 +60,16 @@ class DevisMagasinSearchType extends AbstractType
                 'service_label' => 'Service Emetteur',
                 'agence_placeholder' => '-- Agence Emetteur --',
                 'service_placeholder' => '-- Service Emetteur --',
+                'em' => $options['em'] ?? null,
             ])
-            ->add('debitteur', AgenceServiceType::class, [
-                'label' => false,
-                'required' => false,
-                'agence_label' => 'Agence Debiteur',
-                'service_label' => 'Service Debiteur',
-                'agence_placeholder' => '-- Agence Debiteur --',
-                'service_placeholder' => '-- Service Debiteur --',
-            ])
+            // ->add('debitteur', AgenceServiceType::class, [
+            //     'label' => false,
+            //     'required' => false,
+            //     'agence_label' => 'Agence Debiteur',
+            //     'service_label' => 'Service Debiteur',
+            //     'agence_placeholder' => '-- Agence Debiteur --',
+            //     'service_placeholder' => '-- Service Debiteur --',
+            // ])
             ->add('dateCreation', DateRangeType::class, [
                 'label' => false,
                 'debut_label' => 'Date création (début)',
@@ -78,6 +79,8 @@ class DevisMagasinSearchType extends AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'em' => null,
+        ]);
     }
 }

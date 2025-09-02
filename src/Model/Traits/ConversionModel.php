@@ -11,8 +11,26 @@ trait ConversionModel
                 $element[$key] = $this->convertirEnUtf8($value);
             }
         } elseif (is_string($element)) {
-            // return mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
-            return iconv('ISO-8859-1', 'UTF-8', $element);
+            // Vérifier si la chaîne est déjà en UTF-8
+            if (mb_check_encoding($element, 'UTF-8')) {
+                return $element;
+            }
+
+            // Essayer avec ISO-8859-1 d'abord (encodage le plus courant)
+            $converted = @mb_convert_encoding($element, 'UTF-8', 'ISO-8859-1');
+            if ($converted !== false && mb_check_encoding($converted, 'UTF-8')) {
+                return $converted;
+            }
+
+            // Fallback vers Windows-1252
+            $converted = @mb_convert_encoding($element, 'UTF-8', 'Windows-1252');
+            if ($converted !== false && mb_check_encoding($converted, 'UTF-8')) {
+                return $converted;
+            }
+
+            // Dernier recours : nettoyer et forcer UTF-8
+            $cleaned = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $element);
+            return mb_convert_encoding($cleaned, 'UTF-8', 'UTF-8');
         }
         return $element;
     }

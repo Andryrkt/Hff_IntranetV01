@@ -16,28 +16,29 @@ class AgenceServiceApi extends Controller
      * cette fonction permet d'envoyer les donner du service debiteur selon l'agence debiteur en ajax
      * @return void
      */
-    public function agence($id) {
+    public function agence($id)
+    {
+        try {
+            $agence = $this->getEntityManager()->getRepository(Agence::class)->find($id);
 
-        $agence = self::$em->getRepository(Agence::class)->find($id);
-    
-        $service = $agence->getServices();
+            if (!$agence) {
+                return new JsonResponse(['error' => 'Agence not found'], Response::HTTP_NOT_FOUND);
+            }
 
-        //   $services = $service->getValues();
+            $service = $agence->getServices();
+
             $services = [];
-        foreach ($service as $key => $value) {
-            $services[] = [
-                'value' => $value->getId(),
-                'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
-            ];
+            foreach ($service as $key => $value) {
+                $services[] = [
+                    'value' => $value->getId(),
+                    'text' => $value->getCodeService() . ' ' . $value->getLibelleService()
+                ];
+            }
+
+            return new JsonResponse($services);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        
-        //dd($services);
-        header("Content-type:application/json");
-
-        echo json_encode($services);
-
-        //echo new JsonResponse($services);
     }
 
 
