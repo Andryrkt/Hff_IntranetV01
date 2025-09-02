@@ -11,8 +11,6 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
 use App\Entity\da\DaSoumissionBc;
-use App\Model\da\DaListeCdeFrnModel;
-use App\Service\TableauEnStringService;
 use App\Form\da\daCdeFrn\CdeFrnListType;
 use Symfony\Component\Form\FormInterface;
 use App\Form\da\daCdeFrn\DaSoumissionType;
@@ -25,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+
 /**
  * @Route("/demande-appro")
  */
@@ -68,11 +67,16 @@ class DaListCdeFrnController extends Controller
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteria);
 
+        //recupère le numero de page
+        $page = $request->query->getInt('page', 1);
+        //nombre de ligne par page
+        $limit = 20;
+
         /** ==== récupération des données à afficher ==== */
-        $daAfficherValides = $this->donnerAfficher($criteria);
+        $paginationData = $this->getPaginationData($criteria, $page, $limit);
 
         /** mise à jour des donners daAfficher */
-        $this->quelqueMiseAjourDaAfficher($daAfficherValides);
+        $this->quelqueMiseAjourDaAfficher($paginationData['data']);
 
         /** === Formulaire pour l'envoie de BC et FAC + Bl === */
         $formSoumission = $this->getFormFactory()->createBuilder(DaSoumissionType::class, null, [
@@ -81,9 +85,13 @@ class DaListCdeFrnController extends Controller
         $this->traitementFormulaireSoumission($request, $formSoumission);
 
         return $this->render('da/daListCdeFrn.html.twig', [
-            'daAfficherValides' => $daAfficherValides,
-            'formSoumission' => $formSoumission->createView(),
-            'form' => $form->createView(),
+            'daAfficherValides' => $paginationData['data'],
+            'formSoumission'    => $formSoumission->createView(),
+            'form'              => $form->createView(),
+            'criteria'          => $criteria,
+            'currentPage'       => $page,
+            'totalPages'        => $paginationData['lastPage'],
+            'resultat'          => $paginationData['totalItems'],
         ]);
     }
 
@@ -115,6 +123,20 @@ class DaListCdeFrnController extends Controller
         return $daAfficherValiders;
     }
 
+    /** 
+     * Fonction qui retourne les données avec pagination des lignes de DA validé et OR validés
+     * 
+     * @param null|array $criteria le criteria du formulaire de recherche
+     * @param int $page la page actuelle
+     * @param int $limit la limite par page
+     * 
+     * @return array{results:array,totalItems:int}
+     */
+    private function getPaginationData(?array $criteria, int $page, int $limit): array
+    {
+        return $this->daAfficherRepository->findValidatedPaginatedDas($criteria, $page, $limit);
+    }
+
     private function traitementFormulaireSoumission(Request $request, $formSoumission): void
     {
         $formSoumission->handleRequest($request);
@@ -135,14 +157,14 @@ class DaListCdeFrnController extends Controller
         $form->handleRequest($request);
 
         if (!$form->isSubmitted() || !$form->isValid()) {
-            return null;
+            return [];
         }
 
         $data = $form->getData();
 
         // Filtrer les champs vides ou nuls
-        $dataFiltrée = array_filter($data, fn($val) => $val !== null && $val !== '');
+        $dataFiltered = array_filter($data, fn($val) => $val !== null && $val !== '');
 
-        return empty($dataFiltrée) ? null : $data;
+        return empty($dataFiltered) ? [] : $data;
     }
 }

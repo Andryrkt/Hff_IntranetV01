@@ -143,67 +143,85 @@ class DaAfficherRepository extends EntityRepository
         return array_column($result, 'refDesi');
     }
 
-    public function findValidatedPaginatedDas(?array $criteria = [], int $page = 1, int $limit = 20): array
+    public function findValidatedPaginatedDas(?array $criteria = [], int $page, int $limit): array
     {
-        $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
+        $criteria = $criteria ?? [];
+
+        // Vérifier si achatDirect existe dans l'entité
+        $classMetadata   = $this->_em->getClassMetadata(DaAfficher::class);
         $hasAchatDirecte = $classMetadata->hasField('achatDirect');
 
-        // 1. Sous-requête pour DA + version max
+        // ----------------------
+        // 1. Sous-requête : versions maximales
+        // ----------------------
         $subQb = $this->_em->createQueryBuilder();
         $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
             ->from(DaAfficher::class, 'd')
             ->where('d.statutDal = :statutValide')
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
             ->groupBy('d.numeroDemandeAppro');
 
-        $criteria = $criteria ?? [];
+        // Filtres applicables
+        if ($hasAchatDirecte) {
+            $subQb->andWhere('
+            (d.achatDirect = true OR 
+            (d.achatDirect = false AND d.statutOr = :statutOR))
+        ')->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+        } else {
+            $subQb->andWhere('d.statutOr = :statutOR')
+                ->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+        }
 
         $this->applyDynamicFilters($subQb, $criteria, true);
         $this->applyStatutsFilters($subQb, $criteria, true);
         $this->applyDateFilters($subQb, $criteria, true);
 
+        // ----------------------
+        // 2. Compter distinctement les DA
+        // ----------------------
+        $countQb = clone $subQb;
+        $countQb->resetDQLPart('select');
+        $countQb->resetDQLPart('orderBy');
+        $countQb->resetDQLPart('groupBy');
+        $countQb->select('COUNT(DISTINCT d.numeroDemandeAppro)');
+
+        $totalItems = (int) $countQb->getQuery()
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->getSingleScalarResult();
+
+        $lastPage = (int) ceil($totalItems / $limit);
+
+        // ----------------------
+        // 3. Paginer la sous-requête
+        // ----------------------
         $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
             ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
-            ->addOrderBy('MAX(d.numeroCde)', 'DESC');
-
-        // 2. Paginator sur la sous-requête
-        $paginator = new DoctrinePaginator($subQb->getQuery(), false);
-        $totalItems = count($paginator);
-        $lastPage   = (int) ceil($totalItems / $limit);
-
-        if ($totalItems === 0) {
-            return [
-                'results'    => [],
-                'totalItems' => 0,
-                'lastPage'   => 0,
-            ];
-        }
-
-        // Pagination réelle
-        $latestVersions = $subQb
+            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit)
-            ->getQuery()
+            ->setMaxResults($limit);
+
+        $latestVersions = $subQb->getQuery()
             ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
             ->getArrayResult();
 
-        // 3. Requête principale
+        if (empty($latestVersions)) {
+            return [
+                'data'        => [],
+                'totalItems'  => 0,
+                'currentPage' => $page,
+                'lastPage'    => 0,
+            ];
+        }
+
+        // ----------------------
+        // 4. Construire la requête principale
+        // ----------------------
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
             ->where('d.statutDal = :statutDa')
             ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
 
-        if ($hasAchatDirecte) {
-            $qb->andWhere('
-            (d.achatDirect = true OR 
-            (d.achatDirect = false AND d.statutOr = :statutOR))
-        ')->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
-        } else {
-            $qb->andWhere('d.statutOr = :statutOR')
-                ->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
-        }
-
+        // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
         foreach ($latestVersions as $i => $version) {
             $orX->add(
@@ -217,22 +235,22 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        $this->applyDynamicFilters($qb, $criteria, true);
-        $this->applyStatutsFilters($qb, $criteria, true);
-        $this->applyDateFilters($qb, $criteria, true);
-
+        // Ordre final
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
 
-        $results = $qb->getQuery()->getResult();
-
+        // ----------------------
+        // 5. Retour
+        // ----------------------
         return [
-            'results'    => $results,
-            'totalItems' => $totalItems,
-            'lastPage'   => $lastPage,
+            'data'        => $qb->getQuery()->getResult(),
+            'totalItems'  => $totalItems,   // ✅ Compte correct avec filtres
+            'currentPage' => $page,
+            'lastPage'    => $lastPage,
         ];
     }
+
 
     public function getDaOrValider(?array $criteria = []): array // liste_cde_frn
     {
@@ -372,13 +390,11 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
-        $paginator = new DoctrinePaginator($qb->getQuery());
-
         $totalItems = $paginatedDAs['totalItems'];
         $lastPage = ceil($totalItems / $limit);
 
         return [
-            'data'        => iterator_to_array($paginator->getIterator()), // Convertir en tableau si nécessaire
+            'data'        => $qb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,
