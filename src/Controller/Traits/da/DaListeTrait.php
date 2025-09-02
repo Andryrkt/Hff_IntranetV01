@@ -101,7 +101,7 @@ trait DaListeTrait
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($page, $limit, $userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin());
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
