@@ -34,7 +34,7 @@ try {
     echo "2. Test de HomeControllerRefactored...\n";
 
     try {
-        $homeController = new \App\Controller\HomeControllerRefactored(
+        $homeController = new \App\Controller\HomeController(
             $container->get('doctrine.orm.entity_manager'),
             $container->get('router'),
             $container->get('twig'),
@@ -59,7 +59,7 @@ try {
             $container->get('App\Service\navigation\MenuService')
         );
 
-        echo "✅ HomeControllerRefactored instancié avec succès\n";
+        echo "✅ HomeController instancié avec succès\n";
 
         // Tester les méthodes getter
         $em = $homeController->getEntityManager();
@@ -68,17 +68,17 @@ try {
 
         echo "✅ Méthodes getter fonctionnelles\n";
     } catch (Exception $e) {
-        echo "❌ Erreur lors de l'instanciation de HomeControllerRefactored: " . $e->getMessage() . "\n";
+        echo "❌ Erreur lors de l'instanciation de HomeController: " . $e->getMessage() . "\n";
         echo "Stack trace:\n" . $e->getTraceAsString() . "\n";
     }
 
     echo "\n";
 
-    // Test de AuthentificationRefactored
-    echo "3. Test de AuthentificationRefactored...\n";
+    // Test de Authentification
+    echo "3. Test de Authentification...\n";
 
     try {
-        $authController = new \App\Controller\AuthentificationRefactored(
+        $authController = new \App\Controller\Authentification(
             $container->get('doctrine.orm.entity_manager'),
             $container->get('router'),
             $container->get('twig'),
@@ -102,7 +102,7 @@ try {
             $container->get('App\Service\ExcelService')
         );
 
-        echo "✅ AuthentificationRefactored instancié avec succès\n";
+        echo "✅ Authentification instancié avec succès\n";
 
         // Tester les méthodes getter
         $em = $authController->getEntityManager();
@@ -110,7 +110,7 @@ try {
 
         echo "✅ Méthodes getter fonctionnelles\n";
     } catch (Exception $e) {
-        echo "❌ Erreur lors de l'instanciation de AuthentificationRefactored: " . $e->getMessage() . "\n";
+        echo "❌ Erreur lors de l'instanciation de Authentification: " . $e->getMessage() . "\n";
         echo "Stack trace:\n" . $e->getTraceAsString() . "\n";
     }
 
@@ -121,18 +121,22 @@ try {
 
     try {
         // Tester la méthode render
-        $response = $homeController->render('test.html.twig', ['test' => 'value']);
-        if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
-            echo "✅ Méthode render() fonctionnelle\n";
+        if (method_exists($homeController, 'render')) {
+            $response = $homeController->render('test.html.twig', ['test' => 'value']);
+            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+                echo "✅ Méthode render() fonctionnelle\n";
+            } else {
+                echo "❌ Méthode render() ne retourne pas une Response\n";
+            }
         } else {
-            echo "❌ Méthode render() ne retourne pas une Response\n";
+            echo "❌ La méthode render() n'existe pas dans HomeController\n";
         }
 
         // Tester la méthode isUserConnected
         $isConnected = $homeController->isUserConnected();
-        echo "✅ Méthode isUserConnected() fonctionnelle (résultat: " . ($isConnected ? 'true' : 'false') . ")\n";
+        echo "✅ Méthode isUserConnected() fonctionnelle (résultat : " . ($isConnected ? 'true' : 'false') . ")\n";
     } catch (Exception $e) {
-        echo "❌ Erreur lors du test des méthodes helper: " . $e->getMessage() . "\n";
+        echo "❌ Erreur lors du test des méthodes helper : " . $e->getMessage() . "\n";
     }
 
     echo "\n";
