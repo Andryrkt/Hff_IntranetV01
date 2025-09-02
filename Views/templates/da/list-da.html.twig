@@ -1,10 +1,10 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20">
 {% endblock %}
 
 {% block overlay %}
@@ -17,6 +17,7 @@
 		<div class="container">
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
+			{% include "/da/shared/listeDA/_pagination.html.twig" %}
 		</div>
 	</div>
 
@@ -54,7 +55,6 @@
 			</thead>
 			<tbody id="tableBody" class="align-middle">
 				{% for row in data %}
-					{% set item = row.item %}
 					<tr>
 						{# === Début Action ==== #}
 						<td style="padding: 0px">
@@ -65,25 +65,14 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
 									{% if row.ajouterDA %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : item.dit.id }) }}">Créer une DA à partir du DIT</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Créer une DA à partir du DIT</a>
 										</li>
 									{% endif %}
 									{% if row.statutValide %}
 										<li>
-											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
+											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ row.numeroDemandeAppro }}/{{ row.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
 										</li>
 									{% endif %}
-									{% if row.demandeDeverouiller %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#demandeDeverouillageModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Demander le déverrouillage de la DA</a>
-										</li>
-									{% endif %}
-									{% if row.aDeverouiller %}
-										<li>
-											<a href="#" class="dropdown-item fw-bold" data-bs-toggle="modal" data-bs-target="#confirmationModal" data-numero-da="{{ item.numeroDemandeAppro }}" data-id-da="{{ item.demandeAppro.id }}">Déverouiller la DA</a>
-										</li>
-									{% endif %}
-
 									{% if row.telechargerOR %}
 										{% set chemin = row.pathOrMax.chemin %}
 										<li>
@@ -96,39 +85,39 @@
 						{# === Fin Actions ==== #}
 						<td class="{{ row.aDeverouiller ? 'bg-danger' : '' }}">
 							<a href="{{ row.urlDetail }}" target="_blank" class="{{ row.aDeverouiller ? 'text-white' : '' }}" data-bs-toggle="tooltip" title="Afficher le détail">
-								{{ item.numeroDemandeAppro }}
+								{{ row.numeroDemandeAppro }}
 							</a>
 						</td>
 						<td class="text-center">
-							{{ item.achatDirect }}</td>
-						<td>{{ item.numeroDemandeDit }}</td>
-						<td>{{ item.niveauUrgence }}</td>
-						<td>{{ item.numeroOr }}</td>
-						<td>{{ item.demandeur }}</td>
-						<td>{{ item.dateDemande }}</td>
-						<td class="{{ row.styleStatutDA }} fw-bold">{{ item.statutDal }}</td>
-						<td class="text-start {{ row.styleStatutOR }} fw-bold text-center">{{ item.statutOr }}</td>
-						<td class="text-start {{ row.styleStatutBC }} fw-bold">{{ item.statutCde }}</td>
-						<td class="text-center">{{ item.datePlannigOr }}</td>
-						<td class="text-start">{{ item.nomFournisseur }}</td>
-						<td class="text-start">{{ item.artRefp }}</td>
-						<td class="text-start {{ item.estDalr ? 'mise-en-evidence' : '' }}">
-							{% if item.verouille %}
-								{{ item.artDesi }}
+							{{ row.achatDirect }}</td>
+						<td>{{ row.numeroDemandeDit }}</td>
+						<td>{{ row.niveauUrgence }}</td>
+						<td>{{ row.numeroOr }}</td>
+						<td>{{ row.demandeur }}</td>
+						<td>{{ row.dateDemande }}</td>
+						<td class="{{ row.styleStatutDA }} fw-bold">{{ row.statutDal }}</td>
+						<td class="text-start {{ row.styleStatutOR }} fw-bold text-center">{{ row.statutOr }}</td>
+						<td class="text-start {{ row.styleStatutBC }} fw-bold">{{ row.statutCde }}</td>
+						<td class="text-center">{{ row.datePlannigOr }}</td>
+						<td class="text-start">{{ row.nomFournisseur }}</td>
+						<td class="text-start">{{ row.artRefp }}</td>
+						<td class="text-start {{ row.estDalr ? 'mise-en-evidence' : '' }}">
+							{% if row.verouille %}
+								{{ row.artDesi }}
 							{% else %}
-								<a href="{{ row.urlDesignation }}" class="designation-btn" data-numero-ligne="{{ item.numeroligne }}" data-numero-da="{{ item.numeroDemandeAppro }}" target="_blank">
-									{{ item.artDesi }}
+								<a href="{{ row.urlDesignation }}" class="designation-btn" data-numero-ligne="{{ row.numeroligne }}" data-numero-da="{{ row.numeroDemandeAppro }}" target="_blank">
+									{{ row.artDesi }}
 								</a>
 							{% endif %}
 						</td>
-						<td class="text-center">{{ item.estFicheTechnique }}</td>
-						<td class="text-center">{{ item.qteDem }}</td>
-						<td class="text-center">{{ item.qteEnAttent }}</td>
-						<td class="text-center">{{ item.qteDispo }}</td>
-						<td class="text-center">{{ item.qteLivrer }}</td>
-						<td class="text-center">{{ item.dateFinSouhaite }}</td>
-						<td class="text-center">{{ item.dateLivraisonPrevue }}</td>
-						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo }}</td>
+						<td class="text-center">{{ row.estFicheTechnique }}</td>
+						<td class="text-center">{{ row.qteDem }}</td>
+						<td class="text-center">{{ row.qteEnAttent }}</td>
+						<td class="text-center">{{ row.qteDispo }}</td>
+						<td class="text-center">{{ row.qteLivrer }}</td>
+						<td class="text-center">{{ row.dateFinSouhaite }}</td>
+						<td class="text-center">{{ row.dateLivraisonPrevue }}</td>
+						<td class="text-center {{ row.joursDispo < 0 ? 'text-danger' : '' }}">{{ row.joursDispo }}</td>
 						<td class="text-center">
 							{% if row.supprimable %}
 								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
@@ -141,11 +130,9 @@
 	</div>
 
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
-	{% include "/da/shared/listeDA/_modalConfirmation.html.twig" %}
-	{% include "/da/shared/listeDA/_modalDemandeDeverouillage.html.twig" %}
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

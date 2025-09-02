@@ -347,7 +347,24 @@ button.swal2-styled {
 }
 
 .app-version:hover {
-  background-color: #6c757d; /* gris un peu plus foncé au hover */
+  background-color: #535a61; /* gris un peu plus foncé au hover */
+  color: #fff;
+}
+
+.tech-doc-link {
+  display: block;
+  padding: 0.5rem 1rem;
+  background-color: var(--bs-success); /* vert Bootstrap */
+  color: #fff;
+  font-weight: 400;
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.tech-doc-link:hover {
+  background-color: #157247; /* vert plus foncé */
   color: #fff;
 }
 

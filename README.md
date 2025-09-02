@@ -34,6 +34,23 @@ export const baseUrl = "/Hffintranet";
 
 Branche ts maints andalovana aloha: "dev", "pre_prod"
 
+Ref nikitika JS na CSS de ampiakarina ny version ny CSS sy JS
+**_Exemple actuel:_**
+
+```html
+<link
+  href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20"
+  rel="stylesheet"
+/>
+<script
+  src="{{ App.base_path }}/Views/js/scripts.js?v=2025.08.29.16.20"
+  type="module"
+></script>
+```
+
+Mila ovaina daholo ny version.
+===> Ctrl + Shift + H (raccourci pour remplacer tout) - mot à chercher = 2025.08.29.16.20 - remplacer par = <YYYY>.<MM>.<dd>.<HH>.<mm>
+
 ## Guide : Création d'une Position Sticky pour les Tableaux
 
 Ce guide explique comment rendre un tableau **sticky** avec un en-tête qui reste visible lors du scroll, tout en prenant en compte les éléments fixes au-dessus comme la **navbar** ou le **fil d'Ariane**.

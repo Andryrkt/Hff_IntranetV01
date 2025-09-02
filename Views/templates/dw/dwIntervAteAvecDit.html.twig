@@ -1,8 +1,8 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css">
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css?v=2025.08.29.16.20">
 {% endblock %}
 
 {% block nav %}
@@ -83,8 +83,8 @@
 			</div>
 		</div>
 	</div>
-
-
-	<script src="{{ App.base_path }}/Views/js/dw/dwIntervAteAvecDit.js" type="module"></script>
 {% endblock %}
-{% block javascript %}{% endblock %}
+
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/dw/dwIntervAteAvecDit.js?v=2025.08.29.16.20" type="module"></script>
+{% endblock %}
