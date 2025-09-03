@@ -13,9 +13,9 @@ class NumMatMarqCasierApi extends Controller
      * @Route("/api/numMat-marq-casier/{numOr}", name="api_numMat_marq_casier")
      */
     public function NumMatMarqCasier($numOr)
-    {   
-        $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numOr]);
-        if($ditRepository != null){
+    {
+        $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numOr]);
+        if ($ditRepository != null) {
             $idMateriel = $ditRepository->getIdMateriel();
 
             $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
@@ -40,6 +40,5 @@ class NumMatMarqCasierApi extends Controller
 
             echo json_encode($numMatMarqCasier);
         }
-        
     }
 }

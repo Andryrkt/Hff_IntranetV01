@@ -27,29 +27,44 @@ class DomApi extends Controller
      */
     public function categoriefetch(int $id)
     {
-        $userId = $this->sessionService->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        try {
+            $userId = $this->getSessionService()->get('user_id');
+            $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
-        $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($id);
+            if (!$user) {
+                throw new \Exception('Utilisateur non trouvé');
+            }
 
-        if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
-            $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => '50']);
-        } else {
-            $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+            $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($id);
+
+            if (!$sousTypedocument) {
+                throw new \Exception('Sous-type de document non trouvé');
+            }
+
+            if ($user->getAgenceServiceIrium()->getAgenceIps() === '50') {
+                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => '50']);
+            } else {
+                $rmq = $this->getEntityManager()->getRepository(Rmq::class)->findOneBy(['description' => 'STD']);
+            }
+
+            if (!$rmq) {
+                throw new \Exception('Rmq non trouvé');
+            }
+
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq
+            ];
+
+            $catg = $this->getEntityManager()->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
+
+            header("Content-type:application/json");
+            echo json_encode($catg);
+        } catch (\Exception $e) {
+            header("Content-type:application/json");
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur lors de la récupération des catégories', 'message' => $e->getMessage()]);
         }
-
-        $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq
-        ];
-
-
-        $catg = $this->getEntityManager()->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
-
-
-        header("Content-type:application/json");
-
-        echo json_encode($catg);;
     }
 
 
@@ -61,10 +76,15 @@ class DomApi extends Controller
      */
     public function form1DataFetch()
     {
-        $form1Data = $this->sessionService->get('form1Data', []);
-        header("Content-type:application/json");
-
-        echo json_encode($form1Data);
+        try {
+            $form1Data = $this->getSessionService()->get('form1Data', []);
+            header("Content-type:application/json");
+            echo json_encode($form1Data);
+        } catch (\Exception $e) {
+            header("Content-type:application/json");
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur lors de la récupération des données', 'message' => $e->getMessage()]);
+        }
     }
 
 
@@ -76,25 +96,39 @@ class DomApi extends Controller
      */
     public function siteIndemniteFetch(int $siteId, int $docId, int $catgId, int $rmqId)
     {
-        $site = $this->getEntityManager()->getRepository(Site::class)->find($siteId);
-        $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($docId);
-        $catg = $this->getEntityManager()->getRepository(Catg::class)->find($catgId);
-        $rmq = $this->getEntityManager()->getRepository(Rmq::class)->find($rmqId);
+        try {
+            $site = $this->getEntityManager()->getRepository(Site::class)->find($siteId);
+            $sousTypedocument = $this->getEntityManager()->getRepository(SousTypeDocument::class)->find($docId);
+            $catg = $this->getEntityManager()->getRepository(Catg::class)->find($catgId);
+            $rmq = $this->getEntityManager()->getRepository(Rmq::class)->find($rmqId);
 
-        $criteria = [
-            'sousTypeDoc' => $sousTypedocument,
-            'rmq' => $rmq,
-            'categorie' => $catg,
-            'site' => $site
-        ];
+            if (!$site || !$sousTypedocument || !$catg || !$rmq) {
+                throw new \Exception('Une ou plusieurs entités non trouvées');
+            }
 
-        $montant = $this->getEntityManager()->getRepository(Indemnite::class)->findOneBy($criteria)->getMontant();
+            $criteria = [
+                'sousTypeDoc' => $sousTypedocument,
+                'rmq' => $rmq,
+                'categorie' => $catg,
+                'site' => $site
+            ];
 
-        $montant = $this->formatNumber($montant);
+            $indemnite = $this->getEntityManager()->getRepository(Indemnite::class)->findOneBy($criteria);
 
-        header("Content-type:application/json");
+            if (!$indemnite) {
+                throw new \Exception('Indemnité non trouvée');
+            }
 
-        echo json_encode(['montant' => $montant]);
+            $montant = $indemnite->getMontant();
+            $montant = $this->formatNumber($montant);
+
+            header("Content-type:application/json");
+            echo json_encode(['montant' => $montant]);
+        } catch (\Exception $e) {
+            header("Content-type:application/json");
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur lors de la récupération du montant', 'message' => $e->getMessage()]);
+        }
     }
 
     /**
@@ -105,15 +139,25 @@ class DomApi extends Controller
      */
     public function personnelFetch($matricule)
     {
-        $personne = $this->getEntityManager()->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
-        // $numTel = self::$em->getRepository(Dom::class)->findLastNumtel($matricule);
-        $tab = [
-            'compteBancaire' => $personne->getNumeroCompteBancaire(),
-            // 'telephone' => $numTel
-        ];
+        try {
+            $personne = $this->getEntityManager()->getRepository(Personnel::class)->findOneBy(['Matricule' => $matricule]);
 
-        header("Content-type:application/json");
+            if (!$personne) {
+                throw new \Exception('Personnel non trouvé pour le matricule: ' . $matricule);
+            }
 
-        echo json_encode($tab);
+            // $numTel = $this->getEntityManager()->getRepository(Dom::class)->findLastNumtel($matricule);
+            $tab = [
+                'compteBancaire' => $personne->getNumeroCompteBancaire(),
+                // 'telephone' => $numTel
+            ];
+
+            header("Content-type:application/json");
+            echo json_encode($tab);
+        } catch (\Exception $e) {
+            header("Content-type:application/json");
+            http_response_code(500);
+            echo json_encode(['error' => 'Erreur lors de la récupération du personnel', 'message' => $e->getMessage()]);
+        }
     }
 }

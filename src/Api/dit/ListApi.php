@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ListApi extends Controller
 {
-     /**
+    /**
      * @Route("/command-modal/{numOr}", name="liste_commandModal")
      *
      * @return void
@@ -37,11 +37,11 @@ class ListApi extends Controller
      */
     public function sectionAffecteeModal($id)
     {
-        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section','Chef d\'équipe'];
+        $motsASupprimer = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
 
         // Récupération des données
-        $sectionSupportAffectee = self::$em->getRepository(DemandeIntervention::class)->findSectionSupport($id);
-        
+        $sectionSupportAffectee = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findSectionSupport($id);
+
         // Parcourir chaque élément du tableau et supprimer les mots
         foreach ($sectionSupportAffectee as &$value) {
             foreach ($value as &$texte) {
@@ -65,21 +65,21 @@ class ListApi extends Controller
     public function facturation($numOr)
     {
         $ditListeModel = new DitListModel();
-        $facture = self::$em->getRepository(DitFactureSoumisAValidation::class)->findNumItvFacStatut($numOr);
+        $facture = $this->getEntityManager()->getRepository(DitFactureSoumisAValidation::class)->findNumItvFacStatut($numOr);
         $itvNumFac = $ditListeModel->recupItvNumFac($numOr);
 
         $result = [];
         foreach ($itvNumFac as $value) {
             $found = false;
-                foreach ($facture as $item) {
-                    if ($item['numeroItv'] == $value['itv']) {
-                        $result[] = $item;
-                        $found = true;
-                        break;
-                    }
+            foreach ($facture as $item) {
+                if ($item['numeroItv'] == $value['itv']) {
+                    $result[] = $item;
+                    $found = true;
+                    break;
                 }
-            
-            
+            }
+
+
             if (!$found) {
                 $result[] = [
                     "numeroItv" => $value['itv'],
@@ -89,32 +89,32 @@ class ListApi extends Controller
             }
         }
 
-        
+
         header("Content-type:application/json");
         echo json_encode($result);
     }
-    
+
     /** 
      * RECUPERATION numero intervention, numero facture et statut du facture
      * @Route("/ri-fetch/{numOr}", name="ri_fetch") 
      * */
     public function ri($numOr)
     {
-        if(empty($numOr)){
+        if (empty($numOr)) {
             header("Content-type:application/json");
             echo json_encode([]);
             return;
         }
-        
+
         $ditListeModel = new DitListModel();
         $ri = $ditListeModel->recupItvComment($numOr);
-        $riSoumis = self::$em->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);
-        
+        $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);
+
         foreach ($ri as &$value) {
             $estRiSoumis = in_array($value['numeroitv'], $riSoumis);
             $value['riSoumis'] = $estRiSoumis;
         }
-        unset($value);// Libère la référence
+        unset($value); // Libère la référence
 
         header("Content-type:application/json");
         echo json_encode($ri);
@@ -134,5 +134,4 @@ class ListApi extends Controller
         header("Content-type:application/json");
         echo json_encode($niveauUrgence);
     }
-
 }
