@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         cacheResultFile=".phpunit.result.cache">
+    
+    <testsuites>
+        <testsuite name="DOM Unit Tests">
+            <directory>dom/unit</directory>
+        </testsuite>
+        <testsuite name="DOM Functional Tests">
+            <directory>dom/functional</directory>
+        </testsuite>
+        <testsuite name="DOM Integration Tests">
+            <directory>dom/integration</directory>
+        </testsuite>
+        <testsuite name="DOM All Tests">
+            <directory>dom</directory>
+        </testsuite>
+    </testsuites>
+    
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">../src/Controller/dom</directory>
+            <directory suffix=".php">../src/Service/dom</directory>
+            <directory suffix=".php">../src/Form/dom</directory>
+            <directory suffix=".php">../src/Entity/dom</directory>
+            <directory suffix=".php">../src/Repository/dom</directory>
+        </include>
+        <exclude>
+            <directory>../vendor</directory>
+            <directory>../var</directory>
+            <directory>../tests</directory>
+        </exclude>
+    </coverage>
+    
+    <php>
+        <env name="APP_ENV" value="test"/>
+        <env name="APP_DEBUG" value="true"/>
+        <env name="DATABASE_URL" value="sqlite:///:memory:"/>
+    </php>
+</phpunit>

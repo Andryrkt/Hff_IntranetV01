@@ -27,6 +27,18 @@ class DomManager {
             input.addEventListener('change', () => this.checkDateOverlap());
         });
 
+        // Chargement dynamique des catégories selon le type de mission
+        const typeMissionSelect = document.querySelector('#dom_form2_sousTypeDocument');
+        if (typeMissionSelect) {
+            typeMissionSelect.addEventListener('change', () => this.loadCategories());
+        }
+
+        // Chargement dynamique des sites selon la catégorie
+        const categorieSelect = document.querySelector('#dom_form2_categorie');
+        if (categorieSelect) {
+            categorieSelect.addEventListener('change', () => this.loadSites());
+        }
+
         // Calcul automatique des indemnités
         const indemnityInputs = document.querySelectorAll('#dom_form2_categorie, #dom_form2_site, #dom_form2_nombreJour');
         indemnityInputs.forEach(input => {
@@ -121,6 +133,91 @@ class DomManager {
             }
         } catch (error) {
             console.error('Erreur lors de la vérification des dates:', error);
+        }
+    }
+
+    async loadCategories() {
+        const typeMissionId = document.querySelector('#dom_form2_sousTypeDocument')?.value;
+        const categorieSelect = document.querySelector('#dom_form2_categorie');
+        
+        if (!typeMissionId || !categorieSelect) return;
+
+        try {
+            // Afficher un indicateur de chargement
+            categorieSelect.disabled = true;
+            categorieSelect.innerHTML = '<option value="">Chargement...</option>';
+
+            const response = await fetch(`${this.apiBaseUrl}/categories/${typeMissionId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // Vider le select
+                categorieSelect.innerHTML = '<option value="">-- Choisir une catégorie --</option>';
+                
+                // Ajouter les options
+                result.data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = `${category.code} - ${category.libelle}`;
+                    categorieSelect.appendChild(option);
+                });
+                
+                // Réactiver le select
+                categorieSelect.disabled = false;
+                
+                // Vider le champ site car il dépend de la catégorie
+                const siteSelect = document.querySelector('#dom_form2_site');
+                if (siteSelect) {
+                    siteSelect.innerHTML = '<option value="">-- Choisir d\'abord une catégorie --</option>';
+                    siteSelect.disabled = true;
+                }
+            } else {
+                categorieSelect.innerHTML = '<option value="">Aucune catégorie disponible</option>';
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des catégories:', error);
+            categorieSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+        } finally {
+            categorieSelect.disabled = false;
+        }
+    }
+
+    async loadSites() {
+        const categorieId = document.querySelector('#dom_form2_categorie')?.value;
+        const siteSelect = document.querySelector('#dom_form2_site');
+        
+        if (!categorieId || !siteSelect) return;
+
+        try {
+            // Afficher un indicateur de chargement
+            siteSelect.disabled = true;
+            siteSelect.innerHTML = '<option value="">Chargement...</option>';
+
+            const response = await fetch(`${this.apiBaseUrl}/sites/${categorieId}`);
+            const result = await response.json();
+            
+            if (result.success) {
+                // Vider le select
+                siteSelect.innerHTML = '<option value="">-- Choisir un site --</option>';
+                
+                // Ajouter les options
+                result.data.forEach(site => {
+                    const option = document.createElement('option');
+                    option.value = site.id;
+                    option.textContent = `${site.code} - ${site.libelle}`;
+                    siteSelect.appendChild(option);
+                });
+                
+                // Réactiver le select
+                siteSelect.disabled = false;
+            } else {
+                siteSelect.innerHTML = '<option value="">Aucun site disponible</option>';
+            }
+        } catch (error) {
+            console.error('Erreur lors du chargement des sites:', error);
+            siteSelect.innerHTML = '<option value="">Erreur de chargement</option>';
+        } finally {
+            siteSelect.disabled = false;
         }
     }
 

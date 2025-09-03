@@ -198,16 +198,18 @@ class DomForm2Type extends AbstractType
             )
             ->add(
                 'categorie',
-                TextType::class,
+                ChoiceType::class,
                 [
                     'label' => 'Catégorie :',
+                    'choices' => [], // Sera rempli dynamiquement via JavaScript
+                    'placeholder' => '-- Choisir d\'abord un type de mission --',
                     'row_attr' => [
                         'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                     ],
                     'attr' => [
                         'disabled' => true
                     ],
-                    'data' => $options["data"]->getCategorie() !== null ? $options["data"]->getCategorie()->getDescription() : null
+                    'required' => false
                 ]
             )
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($idSousTypeDocument) {
@@ -236,26 +238,20 @@ class DomForm2Type extends AbstractType
 
                 $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
 
-                $sites = [];
-                foreach ($indemites as $value) {
-
-                    $sites[] = $value->getSite();
-                }
-
                 $form->add(
                     'site',
-                    EntityType::class,
+                    ChoiceType::class,
                     [
                         'label' => 'Site:',
-                        'class' => Site::class,
-                        'choice_label' => 'nomZone',
-                        'choices' => $sites,
+                        'choices' => [], // Sera rempli dynamiquement via JavaScript
+                        'placeholder' => '-- Choisir d\'abord une catégorie --',
                         'row_attr' => [
                             'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                         ],
                         'attr' => [
-                            'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
-                        ]
+                            'disabled' => true,
+                        ],
+                        'required' => false
                     ]
                 );
             })
@@ -283,25 +279,20 @@ class DomForm2Type extends AbstractType
 
                 $indemites = $this->em->getRepository(Indemnite::class)->findBy($criteria);
 
-                $sites = [];
-                foreach ($indemites as $key => $value) {
-                    $sites[] = $value->getSite();
-                }
-
                 $form->add(
                     'site',
-                    EntityType::class,
+                    ChoiceType::class,
                     [
                         'label' => 'Site:',
-                        'class' => Site::class,
-                        'choice_label' => 'nomZone',
-                        'choices' => $sites,
+                        'choices' => [], // Sera rempli dynamiquement via JavaScript
+                        'placeholder' => '-- Choisir d\'abord une catégorie --',
                         'row_attr' => [
                             'style' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10 ? 'display: none;' : ''
                         ],
                         'attr' => [
-                            'disabled' => $idSousTypeDocument === 3 || $idSousTypeDocument === 4 || $idSousTypeDocument === 10,
-                        ]
+                            'disabled' => true,
+                        ],
+                        'required' => false
                     ]
                 );
             })

@@ -104,7 +104,7 @@ class DomBusinessLogicService
         $total = 0;
 
         // Indemnité de déplacement
-        $totalIndemniteDeplacement = $dom->get();
+        $totalIndemniteDeplacement = $dom->getTotalDeplPlusAutres();
         if ($totalIndemniteDeplacement) {
             $total += (float) str_replace('.', '', $totalIndemniteDeplacement);
         }

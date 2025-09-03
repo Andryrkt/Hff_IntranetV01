@@ -64,7 +64,7 @@ class DomController extends Controller
     /**
      * Formulaire de création DOM - Étape 1
      * @Route("/create/step1", name="dom_create_step1")
-     */
+     */g
     public function createStep1(Request $request)
     {
         $this->initializeServices();
