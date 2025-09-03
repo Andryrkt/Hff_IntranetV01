@@ -14,6 +14,8 @@ use App\Controller\Traits\FormatageTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
+use App\Model\dom\DomModel;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -22,11 +24,13 @@ class DomTropPercuController extends Controller
     use FormatageTrait;
     use DomsTrait;
     private $historiqueOperation;
+    private $DomModel;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDOMService;
+        $this->DomModel = new DomModel();
     }
     /**
      * @Route("/trop-percu/{id}", name="dom_trop_percu_form")

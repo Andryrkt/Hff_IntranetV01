@@ -10,6 +10,8 @@ use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\dom\DomsDupliTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dom\DomModel;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -17,6 +19,14 @@ class DomsDupliController extends Controller
 {
     use FormatageTrait;
     use DomsDupliTrait;
+
+    private $DomModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->DomModel = new DomModel();
+    }
 
 
     /**
