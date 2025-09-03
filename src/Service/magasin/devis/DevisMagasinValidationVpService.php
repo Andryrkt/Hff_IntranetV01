@@ -7,7 +7,13 @@ use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
-class DevisMagasinValidationService extends ValidationServiceBase
+/**
+ * Service de validation pour les devis magasin - Validation de Prix (VP)
+ * 
+ * Ce service gère toutes les validations nécessaires pour la validation de prix des devis magasin,
+ * incluant la vérification des fichiers, des statuts et des modifications de contenu.
+ */
+class DevisMagasinValidationVpService extends ValidationServiceBase
 {
     private const FILE_FIELD_NAME = 'pieceJoint01';
     private const FILENAME_PATTERN = '/^(DEVIS MAGASIN|CONTROLE DEVIS)_(\d+)_(\d+)_(\d+)\\.pdf$/';
@@ -15,12 +21,24 @@ class DevisMagasinValidationService extends ValidationServiceBase
     private HistoriqueOperationDevisMagasinService $historiqueService;
     private string $expectedNumeroDevis;
 
+    /**
+     * Constructeur du service de validation de prix des devis magasin
+     * 
+     * @param HistoriqueOperationDevisMagasinService $historiqueService Service pour l'historique des opérations
+     * @param string $expectedNumeroDevis Le numéro de devis attendu pour la validation
+     */
     public function __construct(HistoriqueOperationDevisMagasinService $historiqueService, string $expectedNumeroDevis)
     {
         $this->historiqueService = $historiqueService;
         $this->expectedNumeroDevis = $expectedNumeroDevis;
     }
 
+    /**
+     * Vérifie si le numéro de devis est manquant lors de la validation de prix
+     * 
+     * @param string|null $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si le numéro de devis est présent, false sinon
+     */
     public function checkMissingIdentifier(?string $numeroDevis): bool
     {
         if ($this->isIdentifierMissing($numeroDevis)) {
@@ -31,6 +49,17 @@ class DevisMagasinValidationService extends ValidationServiceBase
         return true; // Validation passed
     }
 
+    /**
+     * Valide le fichier soumis pour la validation de prix d'un devis magasin
+     * 
+     * Cette méthode vérifie :
+     * - Si un fichier a été soumis
+     * - Si le nom du fichier correspond au format attendu (DEVIS MAGASIN_XXX_XXX_XXX.pdf)
+     * - Si le numéro de devis dans le nom du fichier correspond au numéro attendu
+     * 
+     * @param FormInterface $form Le formulaire contenant le fichier à valider
+     * @return bool true si le fichier est valide, false sinon
+     */
     public function validateSubmittedFile(FormInterface $form): bool
     {
         // Vérifie si un fichier a été soumis
@@ -60,6 +89,16 @@ class DevisMagasinValidationService extends ValidationServiceBase
         return true;
     }
 
+    /**
+     * Vérifie si le statut du devis bloque la soumission pour la validation de prix
+     * 
+     * Cette méthode vérifie si le devis est dans un statut qui empêche sa soumission
+     * pour la validation de prix (ex: "prix à confirmer", "Soumis à validation")
+     * 
+     * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si la soumission est autorisée, false si elle est bloquée
+     */
     public function checkBlockingStatusOnSubmission(
         StatusRepositoryInterface $repository,
         string $numeroDevis
@@ -77,7 +116,17 @@ class DevisMagasinValidationService extends ValidationServiceBase
 
         return true; // Validation passed
     }
-    public function checkBlockingStatusOnSubmissionForVd( //blockage pour que le l'utilisateur soumis le devis à validation n'est pas à verification prix
+    /**
+     * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
+     * 
+     * Cette méthode empêche l'utilisateur de soumettre un devis à validation de prix
+     * si le prix a déjà été vérifié ou si le devis est dans un autre statut bloquant
+     * 
+     * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si la soumission est autorisée, false si elle est bloquée
+     */
+    public function checkBlockingStatusOnSubmissionForVd(
         StatusRepositoryInterface $repository,
         string $numeroDevis
     ): bool {
@@ -96,6 +145,18 @@ class DevisMagasinValidationService extends ValidationServiceBase
         return true; // Validation passed
     }
 
+    /**
+     * Vérifie si le nombre de lignes du devis a changé pour la validation de prix
+     * 
+     * Cette méthode compare le nombre de lignes actuel avec le nombre de lignes précédent
+     * pour détecter les modifications qui nécessitent une validation de devis avant
+     * la validation de prix
+     * 
+     * @param \App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données de lignes
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @return bool true si le nombre de lignes est inchangé (bloquant), false sinon
+     */
     public function estSommeDeLigneChanger(
         \App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface $repository,
         string $numeroDevis,

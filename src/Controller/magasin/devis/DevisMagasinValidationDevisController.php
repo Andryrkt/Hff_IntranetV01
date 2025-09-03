@@ -15,16 +15,17 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\magasin\devis\DevisMagasinValidationVpService;
+use App\Service\magasin\devis\DevisMagasinValidationVdService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
  * @Route("/magasin/dematerialisation")
  */
-class DevisMagasinVerificationPrixController extends Controller
+class DevisMagasinValidationDevisController extends Controller
 {
-    private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
-    private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
+    private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
+    private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef agence';
+    private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
 
     use AutorisationTrait;
 
@@ -45,7 +46,7 @@ class DevisMagasinVerificationPrixController extends Controller
     }
 
     /**
-     * @Route("/soumission-devis-magasin-verification-de-prix/{numeroDevis}", name="devis_magasin_soumission_verification_prix", defaults={"numeroDevis"=null})
+     * @Route("/soumission-devis-magasin-validation-devis/{numeroDevis}", name="devis_magasin_soumission_validation_devis", defaults={"numeroDevis"=null})
      */
     public function soumission(?string $numeroDevis = null, Request $request)
     {
@@ -56,20 +57,28 @@ class DevisMagasinVerificationPrixController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         // Instantiation et validation de la présence du numéro de devis
-        $validationService = new DevisMagasinValidationVpService($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
+        $validationService = new DevisMagasinValidationVdService($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
         if (!$validationService->checkMissingIdentifier($numeroDevis)) {
             // Le service a envoyé la notification, on arrête le traitement ici.
             return;
         }
 
-        // Validation du statut du devis pour la verification de prix (encours de validation)
+        if (!$validationService->isDevisExiste($this->devisMagasinRepository, $numeroDevis)) {
+            // Le service a envoyé la notification, on arrête le traitement ici.
+            return;
+        }
+
+        // Validation du statut du devis
         if (!$validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
             return; // Arrête le traitement si le statut est bloquant
         }
-        // Validation du statut du devis pour la validation de devis (doit passer par validation devis)
-        if (!$validationService->checkBlockingStatusOnSubmissionForVd($this->devisMagasinRepository, $numeroDevis)) {
+        if (!$validationService->checkBlockingStatusOnSubmissionVp($this->devisMagasinRepository, $numeroDevis)) {
             return; // Arrête le traitement si le statut est bloquant
         }
+        if (!$validationService->checkBlockingStatusOnSubmissionForVp($this->devisMagasinRepository, $numeroDevis)) {
+            return; // Arrête le traitement si le statut est bloquant
+        }
+
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
@@ -83,11 +92,12 @@ class DevisMagasinVerificationPrixController extends Controller
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'type' => self::TYPE_SOUMISSION_VALIDATION_DEVIS
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVpService $validationService)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVdService $validationService)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -104,9 +114,13 @@ class DevisMagasinVerificationPrixController extends Controller
             if (!empty($devisIps)) {
                 $firstDevisIps = reset($devisIps);
 
-                // Validation de la somme des lignes
+                // Validation de la somme des lignes et statut prix refusé
                 $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-                if ($validationService->estSommeDeLigneChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                if (!$validationService->isSumOfLinesUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, self::STATUT_PRIX_REFUSE)) {
+                    return; // Arrête le traitement si la somme des lignes est identique
+                }
+                // Validation de la somme des lignes qui est différent de la dernière version
+                if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 
@@ -130,8 +144,8 @@ class DevisMagasinVerificationPrixController extends Controller
                     ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
                     ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                    ->setStatutDw(self::STATUT_PRIX_A_CONFIRMER)
-                    ->setTypeSoumission(self::TYPE_SOUMISSION_VERIFICATION_PRIX)
+                    ->setStatutDw(self::STATUT_A_VALIDER_CHEF_AGENCE)
+                    ->setTypeSoumission(self::TYPE_SOUMISSION_VALIDATION_DEVIS)
                     ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
                     ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
                     ->setNomFichier($nomFichier)
@@ -150,7 +164,7 @@ class DevisMagasinVerificationPrixController extends Controller
             }
 
             //HISTORISATION DE L'OPERATION
-            $message = "la vérification de prix du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
+            $message = "la validation du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', true);
         }
     }
@@ -159,7 +173,7 @@ class DevisMagasinVerificationPrixController extends Controller
     {
         return (new UploderFileService($this->cheminBaseUpload))->getNomsFichiers($form, [
             'repertoire' => $this->cheminBaseUpload,
-            'format_nom' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
+            'format_nom' => 'validationdevis_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
             'variables' => [
                 'numDevis' => $numDevis,
                 'numeroVersion' => $numeroVersion,
