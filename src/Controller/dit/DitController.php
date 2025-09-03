@@ -15,6 +15,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Controller;
+use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -27,11 +28,13 @@ class DitController extends Controller
 
 
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**

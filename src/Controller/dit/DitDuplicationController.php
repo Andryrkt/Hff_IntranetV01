@@ -16,6 +16,8 @@ use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\FusionPdf;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -25,11 +27,13 @@ class DitDuplicationController extends Controller
     use FormatageTrait;
 
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**

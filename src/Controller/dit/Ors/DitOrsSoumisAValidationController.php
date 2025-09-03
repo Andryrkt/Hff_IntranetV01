@@ -32,6 +32,7 @@ use App\Model\dit\DitModel;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
+use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -53,6 +54,7 @@ class DitOrsSoumisAValidationController extends Controller
     private DemandeApproRepository $demandeApproRepository;
     private DaAfficherRepository $daAfficherRepository;
     private $ditModel;
+    private $fusionPdf;
 
 
     public function __construct()
@@ -69,6 +71,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->ditModel = new DitModel();
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**
