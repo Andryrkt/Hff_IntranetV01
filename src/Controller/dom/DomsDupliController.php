@@ -26,6 +26,7 @@ class DomsDupliController extends Controller
     {
         parent::__construct();
         $this->DomModel = new DomModel();
+        $this->initDomsDupliTrait();
     }
 
 

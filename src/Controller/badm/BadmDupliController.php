@@ -14,6 +14,8 @@ use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfBadm;
 use App\Controller\Traits\BadmDuplicationTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\badm\BadmModel;
+
 /**
  * @Route("/materiel/mouvement-materiel")
  */
@@ -21,6 +23,14 @@ class BadmDupliController extends Controller
 {
     use FormatageTrait;
     use BadmDuplicationTrait;
+
+    private $badm;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->badm = new BadmModel();
+    }
 
     /**
      * @Route("/duplication/{numBadm}/{id}", name="BadmDupli_dupliBadm")
