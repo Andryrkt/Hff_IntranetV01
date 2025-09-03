@@ -1,0 +1,210 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+    Création DOM - Étape 1
+{% endblock %}
+
+{% block stylesheets %}
+    <link href="{{ App.base_path }}/Views/css/dom/dom-forms.css?v=2025.01.15.10.00" rel="stylesheet"/>
+{% endblock %}
+
+{% block content %}
+    <div class="container mt-4 mb-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h4 class="mb-0">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    Demande d'Ordre de Mission - Étape 1
+                                </h4>
+                            </div>
+                            <div class="col-auto">
+                                <span class="badge bg-light text-primary">Étape 1/2</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        {% include "/shared/_notifications.html.twig" %}
+                        
+                        {{ form_start(form, {'attr': {'id': 'dom-step1-form', 'class': 'needs-validation', 'novalidate': true}}) }}
+                        
+                        <!-- Informations de base -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-building me-2"></i>
+                                    Informations de base
+                                </h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form_label(form.agenceEmetteur, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.agenceEmetteur, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.agenceEmetteur) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form_label(form.serviceEmetteur, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.serviceEmetteur, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.serviceEmetteur) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Type de mission -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-tasks me-2"></i>
+                                    Type de mission
+                                </h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form_label(form.sousTypeDocument, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.sousTypeDocument, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.sousTypeDocument) }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    {{ form_label(form.salarie, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.salarie, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.salarie) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Catégorie -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-users me-2"></i>
+                                    Catégorie du personnel
+                                </h5>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group mb-3">
+                                    {{ form_label(form.categorie, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                    {{ form_widget(form.categorie, {'attr': {'class': 'form-select'}}) }}
+                                    {{ form_errors(form.categorie) }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Informations du personnel -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h5 class="text-primary border-bottom pb-2">
+                                    <i class="fas fa-user me-2"></i>
+                                    Informations du personnel
+                                </h5>
+                            </div>
+                        </div>
+                        
+                        <!-- Personnel permanent -->
+                        <div id="personnel-permanent" class="personnel-section">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.matriculeNom, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.matriculeNom, {'attr': {'class': 'form-control', 'placeholder': 'Rechercher par nom...'}}) }}
+                                        {{ form_errors(form.matriculeNom) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.matricule, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.matricule, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 1234'}}) }}
+                                        {{ form_errors(form.matricule) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Personnel temporaire -->
+                        <div id="personnel-temporaire" class="personnel-section" style="display: none;">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.nom, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Nom de famille'}}) }}
+                                        {{ form_errors(form.nom) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.prenom, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.prenom, {'attr': {'class': 'form-control', 'placeholder': 'Prénom'}}) }}
+                                        {{ form_errors(form.prenom) }}
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group mb-3">
+                                        {{ form_label(form.cin, null, {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                                        {{ form_widget(form.cin, {'attr': {'class': 'form-control', 'placeholder': 'Ex: 123456789012'}}) }}
+                                        {{ form_errors(form.cin) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between">
+                                    <a href="{{ path('doms_liste') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>
+                                        Retour à la liste
+                                    </a>
+                                    
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-arrow-right me-2"></i>
+                                        Étape suivante
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="{{ App.base_path }}/Views/js/dom/domManager.js?v=2025.01.15.10.00" type="module"></script>
+    <script>
+        // Gestion du type de salarié
+        document.addEventListener('DOMContentLoaded', function() {
+            const salarieSelect = document.querySelector('#dom_form1_salarie');
+            const permanentSection = document.getElementById('personnel-permanent');
+            const temporaireSection = document.getElementById('personnel-temporaire');
+            
+            function togglePersonnelSections() {
+                const isPermanent = salarieSelect.value === 'PERMANENT';
+                permanentSection.style.display = isPermanent ? 'block' : 'none';
+                temporaireSection.style.display = isPermanent ? 'none' : 'block';
+            }
+            
+            salarieSelect.addEventListener('change', togglePersonnelSections);
+            togglePersonnelSections(); // Initial call
+        });
+    </script>
+{% endblock %}
