@@ -16,9 +16,6 @@
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
-			<h3 class="perso-titre">
-				Planning détaillé
-			</h3>
 			{% include "/planning/_formulaire.html.twig" %}
 			
 			<div class="d-flex justify-content-between">
@@ -45,8 +42,8 @@
 			{% include "/planning/_pagination.html.twig" %}
 		</div>
 	</div>
-	<table class="table rounded table-plein-ecran ">
-		<thead class="table-dark position-sticky">
+	<table class="table table-sticky">
+		<thead class="table-dark">
 			<tr class="align-middle text-center">
 				<th class="border border-1 border-white" rowspan="2" style="width: 194px;">Agence - Service Travaux</th>
 				<th class="border border-1 border-white" colspan="12">Matériel</th>
@@ -158,7 +155,7 @@
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
 	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js?v=2025.08.29.16.20" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/planning/planningListe.js?v=2025.08.29.16.20" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}
