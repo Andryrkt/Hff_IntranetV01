@@ -19,6 +19,7 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/or")
@@ -28,6 +29,9 @@ class MagasinListeOrLivrerController extends Controller
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrALIvrerTrait;
+
+    private $ditModel;
+
     use AutorisationTrait;
 
     private $magasinListOrLivrerModel;
@@ -35,6 +39,7 @@ class MagasinListeOrLivrerController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->ditModel = new DitModel();
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
 

@@ -12,6 +12,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/cis")
@@ -20,6 +21,14 @@ class CisALivrerController extends Controller
 {
     use ALivrerTrait;
     use AutorisationTrait;
+
+    private $ditModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->ditModel = new DitModel();
+    }
 
     /**
      * @Route("/cis-liste-a-livrer", name="cis_liste_a_livrer")

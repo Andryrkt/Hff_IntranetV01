@@ -19,6 +19,8 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
+use App\Model\dit\DitModel;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -32,6 +34,7 @@ class DitFactureSoumisAValidationController extends Controller
     private $ditFactureSoumiAValidation;
     private $fileUploaderService;
     private $ditRepository;
+    private $ditModel;
 
     public function __construct()
     {
@@ -42,6 +45,7 @@ class DitFactureSoumisAValidationController extends Controller
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
         $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'] . '/vfac/');
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $this->ditModel = new DitModel();
     }
 
     /**

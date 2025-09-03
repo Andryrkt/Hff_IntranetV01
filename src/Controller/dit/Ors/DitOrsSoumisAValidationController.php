@@ -28,9 +28,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
+use App\Model\dit\DitModel;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -50,6 +52,7 @@ class DitOrsSoumisAValidationController extends Controller
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaAfficherRepository $daAfficherRepository;
+    private $ditModel;
 
 
     public function __construct()
@@ -65,6 +68,7 @@ class DitOrsSoumisAValidationController extends Controller
         $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->ditModel = new DitModel();
     }
 
     /**
