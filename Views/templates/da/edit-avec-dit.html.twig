@@ -182,14 +182,14 @@
 										{{ form_widget(DAL.deleted, { 'attr': { 'disabled': peutModifier } }) }}
 									</div>
 									<div class="d-none">
-										{{ form_widget(DAL.numeroLigne, { 'attr': { 'disabled': peutModifier }, 'data': ligne}) }}
+										{{ form_widget(DAL.numeroLigne, { 'attr': { 'disabled': peutModifier }, 'data': dalData.numeroLigne}) }}
 									</div>
 									<div class="d-none">
 										{{ form_widget(DAL.fileNames) }}
 									</div>
 									<div class="w-2">
 										<a style="visibility:{{ peutModifier ? 'hidden' : 'visible'}}">
-											<span class="delete-DA" prototype-id="{{ ligne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
+											<span class="delete-DA" prototype-id="{{ dalData.numeroLigne }}" title="Supprimer la ligne de DA" style="cursor: pointer; ">
 												<i class="fas fa-times fs-4"></i>
 											</span>
 										</a>
@@ -245,5 +245,5 @@
 	</div>
 {% endblock %}
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/editAvecDit/edit.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}
