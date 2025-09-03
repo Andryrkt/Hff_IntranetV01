@@ -1,21 +1,16 @@
 <div class="d-flex justify-content-between">
 	<div>
-		{# Bouton EXCEL#}
-		<a href="{{ path('export_liste_planning') }}" id="" name="" class="btn btn bg-success text-white my-3 fw-bold" data-bs-toggle="tooltip" title="Exporter en Excel">
+		<a href="{{ path('export_liste_planning') }}" id="" name="" class="btn btn bg-success text-white my-0 fw-bold" data-bs-toggle="tooltip" title="Exporter en Excel">
 			<i class="fas fa-table"></i>
 			Excel
 		</a>
 	</div>
 	{% for item in count %}
-	<div>
-		<p class="fw-bold my-3" id="nombreResultat">Nombre d'OR :  {{ item.nb_numor }} </p>
+	<div class="align-self-center">
+		<p class="fw-bold m-0" id="nombreResultat">Nombre d'OR :  {{ item.nb_numor }} </p>
 	</div>
-	{# <div>
-		<p class="fw-bold my-3" id="nombreResultat">Nombre d'Intervention {{ item.nb_itv }} </p>
-	</div> #}
-	<div>
-		<p class="fw-bold my-3" id="nombreResultat">Nombre de ligne : {{ item.nb_ligne }} </p>
+	<div class="align-self-center">
+		<p class="fw-bold m-0" id="nombreResultat">Nombre de ligne : {{ item.nb_ligne }} </p>
 	</div>
 	{% endfor %}
-
 </div>
