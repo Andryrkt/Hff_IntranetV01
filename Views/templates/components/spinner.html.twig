@@ -1,0 +1,33 @@
+{#
+  Composant spinner réutilisable
+  
+  Paramètres :
+  - id (string, optionnel) : ID unique du spinner (par défaut : 'spinner')
+  - class (string, optionnel) : Classes CSS additionnelles
+  - size (string, optionnel) : Taille du spinner ('small', 'medium', 'large') - par défaut : 'medium'
+  - color (string, optionnel) : Couleur du spinner ('primary', 'secondary', 'success', 'warning', 'danger') - par défaut : 'primary'
+  - hidden (boolean, optionnel) : Si le spinner doit être caché par défaut - par défaut : true
+#}
+
+{% set spinnerId = id|default('spinner') %}
+{% set spinnerClass = class|default('') %}
+{% set spinnerSize = size|default('medium') %}
+{% set spinnerColor = color|default('primary') %}
+{% set isHidden = hidden|default(true) %}
+
+<div class="spinner {{ 'spinner-' ~ spinnerSize }} {{ 'spinner-' ~ spinnerColor }} {{ spinnerClass }}" 
+     id="{{ spinnerId }}" 
+     {% if isHidden %}style="display: none;"{% endif %}>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+</div>
