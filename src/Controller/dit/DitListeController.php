@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -195,7 +196,7 @@ class DitListeController extends Controller
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);
         //creation du fichier excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 

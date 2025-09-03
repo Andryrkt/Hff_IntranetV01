@@ -13,6 +13,8 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Model\badm\BadmModel;
+
 /**
  * @Route("/materiel/mouvement-materiel")
  */
@@ -21,11 +23,13 @@ class BadmsController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $badm;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->badm = new BadmModel();
     }
 
     /**

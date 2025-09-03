@@ -17,6 +17,8 @@ use App\Model\magasin\MagasinListeOrATraiterModel;
 use App\Form\magasin\MagasinListeOrATraiterSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrATraiterTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Model\dit\DitModel;
+
 /**
  * @Route("/magasin/or")
  */
@@ -26,6 +28,14 @@ class MagasinListeOrTraiterController extends Controller
     use OrsMagasinTrait;
     use MagasinOrATraiterTrait;
     use AutorisationTrait;
+
+    private $ditModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->ditModel = new DitModel();
+    }
 
     /**
      * @Route("/liste-magasin", name="magasinListe_index")
@@ -121,7 +131,7 @@ class MagasinListeOrTraiterController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     private function innitialisationCriteria($agenceUser)

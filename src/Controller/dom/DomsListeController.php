@@ -14,6 +14,8 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dom\DomListModel;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -24,6 +26,14 @@ class DomsListeController extends Controller
     use DomListeTrait;
     use FormatageTrait;
     use AutorisationTrait;
+
+    private $domList;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->domList = new DomListModel();
+    }
 
     /**
      * affichage de l'architecture de la liste du DOM
@@ -177,7 +187,7 @@ class DomsListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 

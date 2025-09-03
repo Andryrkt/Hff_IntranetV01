@@ -12,6 +12,8 @@ use App\Form\magasin\cis\ATraiterSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\AtraiterTrait;
+use App\Model\dit\DitModel;
+
 /**
  * @Route("/magasin/cis")
  */
@@ -19,6 +21,14 @@ class CisATraiterController extends Controller
 {
     use AtraiterTrait;
     use AutorisationTrait;
+
+    private $ditModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->ditModel = new DitModel();
+    }
 
     /**
      * @Route("/cis-liste-a-traiter", name="cis_liste_a_traiter")
@@ -104,7 +114,7 @@ class CisATraiterController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 

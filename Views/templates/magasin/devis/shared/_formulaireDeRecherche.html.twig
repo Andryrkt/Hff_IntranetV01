@@ -22,20 +22,11 @@
 					<div class="col-12 col-md-2">
 						<div class="spinner-container">
 							{{ form_row(form.emetteur.agence, {'attr': {'class': 'agenceEmetteur'}}) }}
-							<div class="spinner" id="spinner-service-emetteur" style="display: none;">
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-								<div></div>
-							</div>
+							{% include 'components/spinner.html.twig' with {
+								'id': 'spinner-service-emetteur',
+								'size': 'small',
+								'class': 'spinner-absolute'
+							} %}
 						</div>
 						<div id="service-container-emetteur" class="mb-3">
                             {{ form_label(form.emetteur.service) }}
@@ -62,5 +53,13 @@
 				{{ form_end(form) }}
 			</div>
 		</div>
+	</div>
+</div>
+<div class="row mt-2">
+	<div class="align-self-center">
+		<a href="{{ path("devis_magasin_export_excel_list_devis_magasin")}}" class="btn btn-sm bg-success text-white fw-bold me-3 afficher-overlay">
+			<i class="fas fa-table"></i>
+			Excel
+		</a>
 	</div>
 </div>

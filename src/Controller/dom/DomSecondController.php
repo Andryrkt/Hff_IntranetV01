@@ -14,6 +14,9 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
+use App\Model\dom\DomModel;
+use App\Service\FusionPdf;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -24,11 +27,15 @@ class DomSecondController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $DomModel;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDOMService;
+        $this->DomModel = new DomModel();
+        $this->fusionPdf = new FusionPdf();
     }
     /**
      * @Route("/dom-second-form", name="dom_second_form")

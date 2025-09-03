@@ -13,6 +13,7 @@ use App\Controller\Traits\BadmListTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/materiel/mouvement-materiel")
  */
@@ -150,7 +151,7 @@ class BadmListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     /**

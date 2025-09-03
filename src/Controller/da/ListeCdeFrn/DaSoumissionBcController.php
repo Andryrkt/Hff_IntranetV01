@@ -21,6 +21,7 @@ use App\Form\da\soumissionBC\DaSoumissionBcType;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+
 /**
  * @Route("/demande-appro")
  */
@@ -165,7 +166,7 @@ class DaSoumissionBcController extends Controller
 
         return [
             'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
-            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION,
+            'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];
     }

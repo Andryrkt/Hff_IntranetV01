@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Service\genererPdf\GeneratePdfMutation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationMUTService;
+use App\Service\FusionPdf;
+
 /**
  * @Route("/rh/mutation")
  */
@@ -25,11 +27,13 @@ class MutationController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationMUTService;
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**

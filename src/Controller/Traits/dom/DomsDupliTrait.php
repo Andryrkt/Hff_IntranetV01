@@ -16,10 +16,21 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Service\genererPdf\GeneratePdfDom;
+use App\Model\badm\BadmModel;
 
 
 trait DomsDupliTrait
 {
+    private $badm;
+
+    /**
+     * Initialise le trait DomsDupliTrait
+     */
+    public function initDomsDupliTrait()
+    {
+        $this->badm = new BadmModel();
+    }
+
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
 

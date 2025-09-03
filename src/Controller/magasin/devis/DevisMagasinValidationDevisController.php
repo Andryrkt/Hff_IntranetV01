@@ -92,8 +92,7 @@ class DevisMagasinValidationDevisController extends Controller
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView(),
-            'type' => self::TYPE_SOUMISSION_VALIDATION_DEVIS
+            'form' => $form->createView()
         ]);
     }
 

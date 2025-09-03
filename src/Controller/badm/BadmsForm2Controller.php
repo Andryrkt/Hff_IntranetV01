@@ -16,6 +16,9 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationBADMService;
+use App\Service\FusionPdf;
+use App\Model\badm\BadmModel;
+
 /**
  * @Route("/materiel/mouvement-materiel")
  */
@@ -26,11 +29,15 @@ class BadmsForm2Controller extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
+    private $fusionPdf;
+    private $badm;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->fusionPdf = new FusionPdf();
+        $this->badm = new BadmModel();
     }
 
     /**

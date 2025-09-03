@@ -25,6 +25,7 @@ class listeDaController extends Controller
         parent::__construct();
 
         $this->initDaListeTrait();
+        $this->initStatutBcTrait();
     }
 
     /**

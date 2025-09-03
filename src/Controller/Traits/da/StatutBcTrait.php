@@ -8,9 +8,20 @@ use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
+use App\Model\da\DaModel;
 
 trait StatutBcTrait
 {
+    private DaModel $daModel;
+
+    /**
+     * Initialise le trait StatutBcTrait
+     */
+    public function initStatutBcTrait()
+    {
+        $this->daModel = new DaModel();
+    }
+
     private function statutBc(?string $ref, string $numDit, string $numDa, ?string $designation, ?string $numeroOr): ?string
     {
         $em = self::getEntity();

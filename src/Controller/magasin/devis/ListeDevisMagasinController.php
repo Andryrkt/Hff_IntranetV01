@@ -57,6 +57,8 @@ class ListeDevisMagasinController extends Controller
             $criteria['dateCreation'] = $form->get('dateCreation')->getData();
         }
 
+        $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
+
         $listeDevisFactory = $this->recuperationDonner($criteria);
 
         // affichage de la liste des devis magasin
