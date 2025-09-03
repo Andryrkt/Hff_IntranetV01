@@ -8,7 +8,6 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Form\admin\ApplicationType;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApplicationController extends Controller
@@ -21,14 +20,16 @@ class ApplicationController extends Controller
     public function index()
     {    //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
-        $data = $this->getEntityManager()->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
-    
+
+        $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
+
         //  dd($data[0]->getDerniereId());
-        return $this->render('admin/application/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        return $this->render(
+            'admin/application/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
@@ -40,19 +41,19 @@ class ApplicationController extends Controller
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $application= $form->getData();
-            
+        if ($form->isSubmitted() && $form->isValid()) {
+            $application = $form->getData();
             $this->getEntityManager()->persist($application);
             $this->getEntityManager()->flush();
             $this->redirectToRoute("application_index");
         }
 
-        return $this->render('admin/application/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        return $this->render(
+            'admin/application/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -63,31 +64,30 @@ class ApplicationController extends Controller
     public function edit(Request $request, $id)
     {
         $user = $this->getEntityManager()->getRepository(Application::class)->find($id);
-        
+
         $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-
             $this->getEntityManager()->flush();
             $this->redirectToRoute("application_index");
-            
         }
 
-        return $this->render('admin/application/edit.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
-
+        return $this->render(
+            'admin/application/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
-     /**
-    * @Route("/admin/application/delete/{id}", name="application_delete")
-    *
-    * @return void
-    */
+    /**
+     * @Route("/admin/application/delete/{id}", name="application_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
         $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
@@ -104,12 +104,11 @@ class ApplicationController extends Controller
 
             // Flush the entity manager to ensure the removal of the join table entries
             $this->getEntityManager()->flush();
-        
-                $this->getEntityManager()->remove($application);
-                $this->getEntityManager()->flush();
+
+            $this->getEntityManager()->remove($application);
+            $this->getEntityManager()->flush();
         }
-        
-        
+
         $this->redirectToRoute("application_index");
     }
 }

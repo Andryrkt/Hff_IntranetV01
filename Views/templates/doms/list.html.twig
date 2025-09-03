@@ -1,7 +1,11 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+{% endblock %}
+
+{% block title %}
+	Liste des missions
 {% endblock %}
 
 {# {% import "macroForm.html.twig" as form %} #}
@@ -9,10 +13,7 @@
 {% block content %}
 	{# {% include "/partials/_loader.html.twig" %} #}
 
-	<div class="container">
-		<h3 class="perso-titre">
-			Liste de Demande d'ordre de mission
-		</h3>
+	<div class="container mt-6">
 		{% include "/doms/shared/_formulaireRecherche.html.twig" %}
 		{% include "/doms/shared/_pagination.html.twig" %}
 	</div>

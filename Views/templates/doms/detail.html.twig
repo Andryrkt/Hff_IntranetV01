@@ -1,7 +1,11 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Détail d'une mission
+{% endblock %}
+
 {% block stylesheets %}
-<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% block nav %}{% endblock %}
@@ -11,142 +15,126 @@
 
 {% block content %}
 
-
-<div class="container my-5">
-
-	<div class="row">
-		<div class="col-12 col-md-11">
-			<h2 class="fw-bold " style="color:#0e4194;">Détail Demande d'ordre de mission</h2>
-		</div>
-
-		<div class=" col-12 col-md-1">
-			<a href="{{path("doms_liste")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
-		</div>
-	</div>
-
-
-	<div class="row">
-		<div class="col-12 col-md-3">
-			{{  macroForm.affichage('Date', dom.dateDemande | date('d/m/Y'))}}
-		</div>
-		<div class="col-12 col-md-3">{{  macroForm.affichage('N° Dom', dom.numeroOrdreMission)}}</div>
-		<div class="codeMouvement">
-			<h3 id="codeMouvement">{{ macroForm.affichage('Salarier', is_temporaire)}}</h3>
-		</div>
-	</div>
-
-
-	<div class="row">
-
-		<div
-			class="col-12 col-md-6">
-
-			<!-- DEBUT Debiteur selecte -->
-			<label for="" class="col-4  fw-bold">Agence service débiteur</label>
-
+<div class="container mt-6 mb-4">
+	<div class="card">
+		<div class="card-body">
 			<div class="row">
-				<div class="col-6">
-					{{ macroForm.affichage('Agence débiteur', dom.agenceDebiteurId.codeAgence ~ ' ' ~ dom.agenceDebiteurId.libelleAgence)}}
-				</div>
-				<div class="col-6 ">
-					{{ macroForm.affichage('Service débiteur', dom.serviceDebiteurId.codeService ~ ' ' ~ dom.serviceDebiteurId.libelleService)}}
+				<div class="col-12 col-md-12">
+					<h3 class="perso-titre">Détail Demande d'ordre de mission</h3>
 				</div>
 			</div>
-		</div>
-		<!-- FIN Debiteur selecte -->
-
-		<!--DEBUT emetteur select -->
-		<div class="col-12 col-md-6">
-			<label for="" class="col-4  fw-bold">Agence service émetteur</label>
-			<!-- extern (temporaire) -->
 			<div class="row">
-				<div class="col-4 ">
-					{{ macroForm.affichage('Agence emetteur', dom.agenceEmetteurId.codeAgence ~ ' ' ~ dom.agenceEmetteurId.libelleAgence)}}
+				<div class="col-12 col-md-3">
+					{{  macroForm.affichage('Date', dom.dateDemande | date('d/m/Y'))}}
 				</div>
-				<div class="col-4 ">
-					{{ macroForm.affichage('Agence emetteur', dom.serviceEmetteurId.codeService ~ ' ' ~ dom.serviceEmetteurId.libelleService)}}
+				<div class="col-12 col-md-3">{{  macroForm.affichage('N° Dom', dom.numeroOrdreMission)}}</div>
+				<div class="codeMouvement">
+					<h3 id="codeMouvement">{{ macroForm.affichage('Salarier', is_temporaire)}}</h3>
 				</div>
 			</div>
-		</div>
-		<!-- FIN émetteur select -->
-	</div>
+			<div class="row">
+				<div
+					class="col-12 col-md-6">
 
+					<!-- DEBUT Debiteur selecte -->
+					<label for="" class="col-4  fw-bold">Agence service débiteur</label>
 
-	<div class="row">
-		<div class="col-12 col-md-6">
-			{{ macroForm.affichage('Sous type document', dom.sousTypeDocument.codeSousType)}}
-		</div>
-		{% if dom.sousTypeDocument.codeSousType == "COMPLEMENT" %}
-			{% set piece_a_justifier = dom.pieceJustificatif ? 'OUI' : 'NON' %}
-			<div class="col-12 col-md-6">
-				{{ macroForm.affichage('Pièce à justifier', piece_a_justifier)}}
-			</div>
-		{% endif %}
-	</div>
-	<div class="row">
-		<div class="col-12 col-md-6" id="categ">
-			{{ macroForm.affichage('Catégorie', dom.categoryId.description)}}
-		</div>
-		<!---->
-		{# <div class="col-12 col-md-6" id="MUTARENTAL"></div> #}
-		<div class="col-12 col-md-6" id="SITE">
-			{{ macroForm.affichage('Site', dom.siteId.nomZone)}}
-		</div>
-		<!---->
-	</div>
+					<div class="row">
+						<div class="col-6">
+							{{ macroForm.affichage('Agence débiteur', dom.agenceDebiteurId.codeAgence ~ ' ' ~ dom.agenceDebiteurId.libelleAgence)}}
+						</div>
+						<div class="col-6 ">
+							{{ macroForm.affichage('Service débiteur', dom.serviceDebiteurId.codeService ~ ' ' ~ dom.serviceDebiteurId.libelleService)}}
+						</div>
+					</div>
+				</div>
+				<!-- FIN Debiteur selecte -->
 
-
-	<div id="form-container">
-		<div class="row" id="Interne">
-			{% if is_temporaire == "PERMANENT" %}
+				<!--DEBUT emetteur select -->
 				<div class="col-12 col-md-6">
-					{{ macroForm.affichage('Matricule', dom.matricule)}}
+					<label for="" class="col-4  fw-bold">Agence service émetteur</label>
+					<!-- extern (temporaire) -->
+					<div class="row">
+						<div class="col-4 ">
+							{{ macroForm.affichage('Agence emetteur', dom.agenceEmetteurId.codeAgence ~ ' ' ~ dom.agenceEmetteurId.libelleAgence)}}
+						</div>
+						<div class="col-4 ">
+							{{ macroForm.affichage('Agence emetteur', dom.serviceEmetteurId.codeService ~ ' ' ~ dom.serviceEmetteurId.libelleService)}}
+						</div>
+					</div>
+				</div>
+				<!-- FIN émetteur select -->
+			</div>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					{{ macroForm.affichage('Sous type document', dom.sousTypeDocument.codeSousType)}}
+				</div>
+				{% if dom.sousTypeDocument.codeSousType == "COMPLEMENT" %}
+					{% set piece_a_justifier = dom.pieceJustificatif ? 'OUI' : 'NON' %}
+					<div class="col-12 col-md-6">
+						{{ macroForm.affichage('Pièce à justifier', piece_a_justifier)}}
+					</div>
+				{% endif %}
+			</div>
+			<div class="row">
+				<div class="col-12 col-md-6" id="categ">
+					{{ macroForm.affichage('Catégorie', dom.categoryId.description)}}
+				</div>
+				<!---->
+				{# <div class="col-12 col-md-6" id="MUTARENTAL"></div> #}
+				<div class="col-12 col-md-6" id="SITE">
+					{{ macroForm.affichage('Site', dom.siteId.nomZone)}}
+				</div>
+				<!---->
+			</div>
+			<div id="form-container">
+				<div class="row" id="Interne">
+					{% if is_temporaire == "PERMANENT" %}
+						<div class="col-12 col-md-6">
+							{{ macroForm.affichage('Matricule', dom.matricule)}}
 
-					{{ macroForm.affichage('Prénoms', dom.prenom)}}
+							{{ macroForm.affichage('Prénoms', dom.prenom)}}
+						</div>
+						<div class="col-12 col-md-6">
+
+							{{ macroForm.affichage('Nom', dom.nom)}}
+						</div>
+					{% endif %}
+				</div>
+
+				{% if is_temporaire == "TEMPORAIRE" %}
+					<div class="row">
+						<div class="col-12 col-md-4">
+
+							{{ macroForm.affichage('Nom', dom.nom)}}
+						</div>
+						<div class="col-12 col-md-4">
+
+							{{ macroForm.affichage('Prénoms', dom.prenom)}}
+						</div>
+						<div class="col-12 col-md-4">
+							{{ macroForm.affichage('Cin', dom.cin)}}
+						</div>
+					</div>
+				{% endif %}
+			</div>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					{{ macroForm.affichage('Date début', dom.dateDebut | date('d/m/Y'))}}
+					{{ macroForm.affichage('Date fin', dom.dateFin | date('d/m/Y'))}}
+					{{ macroForm.affichage('Nombre du Jour', dom.nombreJour)}}
+					{{ macroForm.affichage('Client', dom.client)}}
 				</div>
 				<div class="col-12 col-md-6">
-
-					{{ macroForm.affichage('Nom', dom.nom)}}
-				</div>
-			{% endif %}
-		</div>
-
-		{% if is_temporaire == "TEMPORAIRE" %}
-			<div class="row">
-				<div class="col-12 col-md-4">
-
-					{{ macroForm.affichage('Nom', dom.nom)}}
-				</div>
-				<div class="col-12 col-md-4">
-
-					{{ macroForm.affichage('Prénoms', dom.prenom)}}
-				</div>
-				<div class="col-12 col-md-4">
-					{{ macroForm.affichage('Cin', dom.cin)}}
+					{{ macroForm.affichage('Heure début', dom.heureDebut)}}
+					{{ macroForm.affichage('Heure fin', dom.heureFin)}}
+					{{ macroForm.affichage('Motif de déplacement', dom.motifDeplacement)}}
+					{{ macroForm.affichage('Fiche', dom.fiche)}}
 				</div>
 			</div>
-		{% endif %}
-	</div>
-
-
-	<div class="row">
-		<div class="col-12 col-md-6">
-			{{ macroForm.affichage('Date début', dom.dateDebut | date('d/m/Y'))}}
-			{{ macroForm.affichage('Date fin', dom.dateFin | date('d/m/Y'))}}
-			{{ macroForm.affichage('Nombre du Jour', dom.nombreJour)}}
-			{{ macroForm.affichage('Client', dom.client)}}
-		</div>
-		<div class="col-12 col-md-6">
-			{{ macroForm.affichage('Heure début', dom.heureDebut)}}
-			{{ macroForm.affichage('Heure fin', dom.heureFin)}}
-			{{ macroForm.affichage('Motif de déplacement', dom.motifDeplacement)}}
-			{{ macroForm.affichage('Fiche', dom.fiche)}}
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-12">
-			{{ macroForm.affichage('Lieu d\'intervention', dom.lieuIntervention)}}
+			<div class="row">
+				<div class="col-12">
+					{{ macroForm.affichage('Lieu d\'intervention', dom.lieuIntervention)}}
 			</div>
 		</div>
 
@@ -217,11 +205,13 @@
 			<div class="col-12 col-md-6">
 				{{ macroForm.affichageFile('Pièce jointe 02', dom.pieceJoint2, "/Upload/dom/fichier")}}
 			</div>
-
 		</div>
-	{% endblock content %}
+	</div>
+		</div>
+	</div>
+</div>
+{% endblock content %}
 
-
-	{% block javascript %}
-		<script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js?v=2025.08.29.16.20"></script>
-	{% endblock %}
+{% block javascript %}
+	<script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js?v=2025.08.29.16.20"></script>
+{% endblock %}

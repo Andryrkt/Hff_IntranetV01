@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	DIT - Soumission Devis
+{% endblock %}
+
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.08.29.16.20" rel="stylesheet"/>
@@ -14,7 +18,7 @@
 		{% set message = 'validation atelier' %}
 	{% endif %}
 
-	<div class=" container">
+	<div class=" container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
 
@@ -82,7 +86,9 @@
 
 	<script>
 		{% if App.session.get('devis_version_valide') == 'OK' %}
-Swal.fire({
+Swal.fire( {
+
+
 
 title: "Attention !",
 text: "{{ App.session.get('message') }}", // Correcte en Twig
@@ -91,17 +97,25 @@ showCancelButton: true,
 confirmButtonText: "Continuer",
 cancelButtonText: "Quitter"
 
-}).then((result) => {
 
-if (result.isConfirmed) { // L'utilisateur veut continuer
+
+} ).then( ( result ) => {
+
+
+
+if ( result.isConfirmed ) { // L'utilisateur veut continuer
 
 window.location.href = window.location.href + "?continueDevis=1";
+
+
 
 } else { // L'utilisateur annule, redirection vers l'accueil
 window.location.href = "{{ path('dit_index') }}";
 
+
+
 }
 
-});{% endif %}
+} );{% endif %}
 	</script>
 {% endblock %}
