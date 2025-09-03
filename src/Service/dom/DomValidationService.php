@@ -76,7 +76,7 @@ class DomValidationService
 
         if ($excludeDomId) {
             $qb->andWhere('d.id != :excludeId')
-               ->setParameter('excludeId', $excludeDomId);
+                ->setParameter('excludeId', $excludeDomId);
         }
 
         return $qb->getQuery()->getOneOrNullResult() !== null;
@@ -88,7 +88,7 @@ class DomValidationService
     public function validateAmount(string $modePaiement, float $montant): bool
     {
         $mode = explode(':', $modePaiement)[0] ?? $modePaiement;
-        
+
         // Limite pour Mobile Money
         if ($mode === 'MOBILE MONEY' && $montant > 500000) {
             return false;
@@ -192,9 +192,11 @@ class DomValidationService
         }
 
         // Vérification des pièces justificatives pour les compléments
-        if ($dom->getSousTypeDocument() && 
-            $dom->getSousTypeDocument()->getCodeSousType() === 'COMPLEMENT' && 
-            !$dom->getPieceJustificatif()) {
+        if (
+            $dom->getSousTypeDocument() &&
+            $dom->getSousTypeDocument()->getCodeSousType() === 'COMPLEMENT' &&
+            !$dom->getPieceJustificatif()
+        ) {
             $warnings[] = [
                 'field' => 'pieceJustificatif',
                 'message' => 'Pièce justificative recommandée pour un complément',

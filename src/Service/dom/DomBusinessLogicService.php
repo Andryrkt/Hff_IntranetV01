@@ -51,7 +51,6 @@ class DomBusinessLogicService
             $this->entityManager->flush();
 
             return new ProcessResult(true, ['DOM créé avec succès'], $dom);
-
         } catch (\Exception $e) {
             return new ProcessResult(false, ['Erreur lors de la création : ' . $e->getMessage()]);
         }
@@ -121,7 +120,7 @@ class DomBusinessLogicService
         }
 
         $dom->setTotalGeneralPayer(number_format($total, 0, ',', '.'));
-        
+
         return $total;
     }
 
@@ -132,7 +131,7 @@ class DomBusinessLogicService
     {
         $year = date('y');
         $month = date('m');
-        
+
         // Récupération du dernier numéro du mois
         $lastDom = $this->entityManager->getRepository(Dom::class)
             ->createQueryBuilder('d')
@@ -159,7 +158,7 @@ class DomBusinessLogicService
     public function duplicateDom(Dom $originalDom, User $user): Dom
     {
         $newDom = clone $originalDom;
-        
+
         // Réinitialisation des champs spécifiques
         $newDom->setId(null);
         $newDom->setNumeroOrdreMission($this->generateDomNumber());
@@ -201,7 +200,6 @@ class DomBusinessLogicService
             $this->entityManager->flush();
 
             return new ProcessResult(true, ['DOM trop perçu créé avec succès'], $tropPercuDom);
-
         } catch (\Exception $e) {
             return new ProcessResult(false, ['Erreur lors de la création du trop perçu : ' . $e->getMessage()]);
         }
@@ -286,8 +284,8 @@ class DomBusinessLogicService
             ->findOneBy(['codeSousType' => 'FORMATION']);
 
         $qb->setParameter('mission', $missionType)
-           ->setParameter('complement', $complementType)
-           ->setParameter('formation', $formationType);
+            ->setParameter('complement', $complementType)
+            ->setParameter('formation', $formationType);
 
         return $qb->getQuery()->getSingleResult();
     }

@@ -176,7 +176,7 @@ class DomRepository extends EntityRepository
     public function findPaginatedAndFilteredAnnuler(int $page = 1, int $limit = 10, DomSearch $domSearch, array $options): array
     {
         $queryBuilder = $this->createBaseQueryBuilder();
-        
+
         // Statuts annulés uniquement
         $excludedStatuses = [9, 18, 22, 24, 26, 32, 33, 34, 35];
         $queryBuilder->andWhere($queryBuilder->expr()->in('s.id', ':excludedStatuses'))
@@ -226,7 +226,7 @@ class DomRepository extends EntityRepository
     public function findByCriteriaWithCache(array $criteria, int $limit = 50): array
     {
         $queryBuilder = $this->createBaseQueryBuilder();
-        
+
         foreach ($criteria as $field => $value) {
             if ($value !== null) {
                 $queryBuilder->andWhere("d.{$field} = :{$field}")

@@ -50,7 +50,7 @@ class DomApiController extends Controller
     public function validateMatricule(Request $request): JsonResponse
     {
         $matricule = $request->get('matricule');
-        
+
         if (empty($matricule)) {
             return $this->json([
                 'valid' => false,
@@ -59,7 +59,7 @@ class DomApiController extends Controller
         }
 
         $result = $this->validationService->validateMatricule($matricule);
-        
+
         return $this->json($result);
     }
 
@@ -84,7 +84,6 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => $employeeInfo
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -101,7 +100,7 @@ class DomApiController extends Controller
     {
         try {
             $agence = $this->getEntityManager()->getRepository(Agence::class)->find($agenceId);
-            
+
             if (!$agence) {
                 return $this->json([
                     'success' => false,
@@ -130,7 +129,6 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => $servicesData
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -168,7 +166,6 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => $categoriesData
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -185,7 +182,7 @@ class DomApiController extends Controller
     {
         try {
             $categorie = $this->getEntityManager()->getRepository(Catg::class)->find($categorieId);
-            
+
             if (!$categorie) {
                 return $this->json([
                     'success' => false,
@@ -215,7 +212,6 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => $sitesData
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -232,7 +228,7 @@ class DomApiController extends Controller
     {
         try {
             $data = json_decode($request->getContent(), true);
-            
+
             $typeMissionId = $data['typeMissionId'] ?? null;
             $categorieId = $data['categorieId'] ?? null;
             $siteId = $data['siteId'] ?? null;
@@ -272,7 +268,6 @@ class DomApiController extends Controller
                     'nombre_jours' => $nombreJours
                 ]
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -289,7 +284,7 @@ class DomApiController extends Controller
     {
         try {
             $data = json_decode($request->getContent(), true);
-            
+
             $matricule = $data['matricule'] ?? null;
             $dateDebut = $data['dateDebut'] ?? null;
             $dateFin = $data['dateFin'] ?? null;
@@ -317,12 +312,11 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => [
                     'has_overlap' => $hasOverlap,
-                    'message' => $hasOverlap ? 
-                        'Un chevauchement de dates a été détecté' : 
+                    'message' => $hasOverlap ?
+                        'Un chevauchement de dates a été détecté' :
                         'Aucun chevauchement détecté'
                 ]
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -339,12 +333,12 @@ class DomApiController extends Controller
     {
         try {
             $data = json_decode($request->getContent(), true);
-            
+
             // Création d'un objet DOM temporaire pour la validation
             $dom = new Dom();
             // Remplir les propriétés du DOM avec les données reçues
             // (À adapter selon votre structure)
-            
+
             $validationResult = $this->validationService->validateDom($dom);
 
             return $this->json([
@@ -355,7 +349,6 @@ class DomApiController extends Controller
                     'warnings' => $validationResult->getWarnings()
                 ]
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -379,7 +372,6 @@ class DomApiController extends Controller
                     'numero' => $numero
                 ]
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -412,7 +404,6 @@ class DomApiController extends Controller
                 'success' => true,
                 'data' => $statistics
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,

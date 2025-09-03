@@ -1,0 +1,91 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}Debug - Vignettes{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1>Diagnostic des Vignettes</h1>
+            
+            <!-- Session -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>1. Informations de Session</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        <li><strong>Session ID:</strong> {{ debugInfo.session.session_id }}</li>
+                        <li><strong>User ID:</strong> {{ debugInfo.session.user_id ?? 'AUCUN' }}</li>
+                        <li><strong>Session Active:</strong> {{ debugInfo.session.session_active ? 'OUI' : 'NON' }}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Utilisateur -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>2. Utilisateur Connecté</h5>
+                </div>
+                <div class="card-body">
+                    {% if debugInfo.user.error is defined %}
+                        <div class="alert alert-danger">{{ debugInfo.user.error }}</div>
+                    {% else %}
+                        <ul>
+                            <li><strong>ID:</strong> {{ debugInfo.user.id }}</li>
+                            <li><strong>Nom:</strong> {{ debugInfo.user.nom }}</li>
+                            <li><strong>Applications:</strong> {{ debugInfo.user.applications|join(', ') }}</li>
+                            <li><strong>Rôles:</strong> {{ debugInfo.user.roles|join(', ') }}</li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Menu -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>3. Structure du Menu</h5>
+                </div>
+                <div class="card-body">
+                    {% if debugInfo.menu.error is defined %}
+                        <div class="alert alert-danger">{{ debugInfo.menu.error }}</div>
+                    {% else %}
+                        <p><strong>Nombre de vignettes:</strong> {{ debugInfo.menu.count }}</p>
+                        <h6>Vignettes disponibles:</h6>
+                        <ul>
+                            {% for vignette in debugInfo.menu.vignettes %}
+                                <li>{{ vignette.title }} (ID: {{ vignette.id }})</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Applications -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>4. Constantes d'Application</h5>
+                </div>
+                <div class="card-body">
+                    <ul>
+                        {% for key, value in debugInfo.applications %}
+                            <li><strong>{{ key }}:</strong> {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ path('profil_acceuil') }}" class="btn btn-primary">Retour à l'accueil</a>
+                    <a href="{{ path('debug_vignettes') }}" class="btn btn-secondary">Actualiser</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

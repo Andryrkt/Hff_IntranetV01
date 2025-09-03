@@ -87,14 +87,25 @@ class MenuService
 
         if ($sessionManager->has('user_id')) {
             /** @var User|null $connectedUser */
-            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+            $connectedUser = $this->em->getRepository(User::class)
+                ->createQueryBuilder('u')
+                ->leftJoin('u.applications', 'a')
+                ->addSelect('a')
+                ->where('u.id = :userId')
+                ->setParameter('userId', $sessionManager->get('user_id'))
+                ->getQuery()
+                ->getOneOrNullResult();
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();
+                $applicationIds = $connectedUser->getApplicationsIds();
 
                 $this->setNomUtilisateur($connectedUser->getNomUtilisateur());
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
-                $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
+                $this->setApplicationIds($applicationIds); // Les applications autorisées de l'utilisateur connecté
+                
+                // Debug: log les applications trouvées
+                error_log("MenuService - Applications de l'utilisateur " . $connectedUser->getNomUtilisateur() . ": " . implode(', ', $applicationIds));
             }
         }
     }

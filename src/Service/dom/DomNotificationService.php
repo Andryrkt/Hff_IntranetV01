@@ -255,7 +255,7 @@ class DomNotificationService
     public function getNotificationsByType(string $type): array
     {
         $allNotifications = $this->session->get('notifications', []);
-        return array_filter($allNotifications, function($notification) use ($type) {
+        return array_filter($allNotifications, function ($notification) use ($type) {
             return $notification['type'] === $type;
         });
     }

@@ -176,18 +176,18 @@ class Application
 
     public function addCategorieAte(CategorieAteApp $categorieAteApp): self
     {
-        if (!$this->categorieAtes->contains($$categorieAteApp)) {
-            $this->categorieAtes[] = $$categorieAteApp;
-            $$categorieAteApp->addApplication($this);
+        if (!$this->categorieAtes->contains($categorieAteApp)) {
+            $this->categorieAtes[] = $categorieAteApp;
+            $categorieAteApp->addApplication($this);
         }
         return $this;
     }
 
     public function removeCategorieAte(CategorieAteApp $categorieAteApp): self
     {
-        if ($this->categorieAtes->contains($$categorieAteApp)) {
-            $this->categorieAtes->removeElement($$categorieAteApp);
-            $$categorieAteApp->removeApplication($this);
+        if ($this->categorieAtes->contains($categorieAteApp)) {
+            $this->categorieAtes->removeElement($categorieAteApp);
+            $categorieAteApp->removeApplication($this);
         }
         return $this;
     }
