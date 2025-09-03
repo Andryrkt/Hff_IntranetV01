@@ -3,6 +3,7 @@
 namespace App\Controller\dom;
 
 use App\Controller\Controller;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\dom\Dom;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
@@ -21,6 +22,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class DomController extends Controller
 {
+    use AutorisationTrait;
+
     private DomValidationService $validationService;
     private DomBusinessLogicService $businessLogicService;
     private DomNotificationService $notificationService;
@@ -28,19 +31,34 @@ class DomController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->validationService = new DomValidationService(
-            $this->getEntityManager(),
-            $this->getValidator()
-        );
-        $this->businessLogicService = new DomBusinessLogicService(
-            $this->getEntityManager(),
-            $this->validationService
-        );
-        $this->notificationService = new DomNotificationService(
-            $this->getSessionService(),
-            $this->getMailer(),
-            $this->getTwig()
-        );
+    }
+
+    /**
+     * Initialise les services DOM
+     */
+    private function initializeServices(): void
+    {
+        if (!isset($this->validationService)) {
+            $this->validationService = new DomValidationService(
+                $this->getEntityManager()
+            );
+            $this->businessLogicService = new DomBusinessLogicService(
+                $this->getEntityManager(),
+                $this->validationService
+            );
+            $this->notificationService = new DomNotificationService(
+                $this->getSessionService(),
+                $this->getTwig()
+            );
+        }
+    }
+
+    /**
+     * Crée une réponse JSON
+     */
+    private function json($data, int $status = 200): JsonResponse
+    {
+        return new JsonResponse($data, $status);
     }
 
     /**
@@ -49,6 +67,7 @@ class DomController extends Controller
      */
     public function createStep1(Request $request)
     {
+        $this->initializeServices();
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
 
@@ -61,7 +80,7 @@ class DomController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $formData = $form->getData()->toArray();
             $this->getSessionService()->set('dom_step1_data', $formData);
-            
+
             return $this->redirectToRoute('dom_create_step2');
         }
 
@@ -78,6 +97,7 @@ class DomController extends Controller
      */
     public function createStep2(Request $request)
     {
+        $this->initializeServices();
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
 
@@ -95,7 +115,7 @@ class DomController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $result = $this->processDomCreation($dom, $step1Data);
-            
+
             if ($result->isSuccess()) {
                 $this->notificationService->notifyDomCreation($result->getDom(), $this->getUser());
                 $this->getSessionService()->remove('dom_step1_data');
@@ -119,6 +139,7 @@ class DomController extends Controller
      */
     public function apiValidateMatricule(Request $request): JsonResponse
     {
+        $this->initializeServices();
         $data = json_decode($request->getContent(), true);
         $matricule = $data['matricule'] ?? '';
 
@@ -133,8 +154,9 @@ class DomController extends Controller
      */
     public function apiCheckDateOverlap(Request $request): JsonResponse
     {
+        $this->initializeServices();
         $data = json_decode($request->getContent(), true);
-        
+
         $matricule = $data['matricule'] ?? '';
         $dateDebut = $data['dateDebut'] ?? null;
         $dateFin = $data['dateFin'] ?? null;
@@ -162,11 +184,10 @@ class DomController extends Controller
             return $this->json([
                 'success' => true,
                 'hasOverlap' => $hasOverlap,
-                'message' => $hasOverlap ? 
-                    'Un chevauchement de dates a été détecté' : 
+                'message' => $hasOverlap ?
+                    'Un chevauchement de dates a été détecté' :
                     'Aucun chevauchement détecté'
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -181,8 +202,9 @@ class DomController extends Controller
      */
     public function apiCalculateIndemnities(Request $request): JsonResponse
     {
+        $this->initializeServices();
         $data = json_decode($request->getContent(), true);
-        
+
         try {
             $calculations = $this->businessLogicService->calculateIndemnities(
                 $this->createDomFromApiData($data)
@@ -192,7 +214,6 @@ class DomController extends Controller
                 'success' => true,
                 'data' => $calculations
             ]);
-
         } catch (\Exception $e) {
             return $this->json([
                 'success' => false,
@@ -207,6 +228,7 @@ class DomController extends Controller
      */
     public function duplicateDom(int $id, Request $request)
     {
+        $this->initializeServices();
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
 
@@ -217,13 +239,13 @@ class DomController extends Controller
         }
 
         $newDom = $this->businessLogicService->duplicateDom($originalDom, $this->getUser());
-        
+
         $form = $this->getFormFactory()->createBuilder(DomForm2Type::class, $newDom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $result = $this->businessLogicService->processDomCreation($newDom, $this->getUser());
-            
+
             if ($result->isSuccess()) {
                 $this->notificationService->notifyDomCreation($result->getDom(), $this->getUser());
                 return $this->redirectToRoute('doms_liste');
@@ -244,6 +266,7 @@ class DomController extends Controller
      */
     public function createTropPercu(int $id, Request $request)
     {
+        $this->initializeServices();
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
 
@@ -260,17 +283,17 @@ class DomController extends Controller
 
         $tropPercuDom = new Dom();
         // Initialiser le DOM trop perçu avec les données de l'original
-        
+
         $form = $this->getFormFactory()->createBuilder(DomForm2Type::class, $tropPercuDom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $result = $this->businessLogicService->processTropPercu(
-                $originalDom, 
-                $tropPercuDom, 
+                $originalDom,
+                $tropPercuDom,
                 $this->getUser()
             );
-            
+
             if ($result->isSuccess()) {
                 $this->notificationService->addSuccess('DOM trop perçu créé avec succès');
                 return $this->redirectToRoute('doms_liste');
@@ -292,7 +315,7 @@ class DomController extends Controller
     {
         $user = $this->getUser();
         $agenceServiceIps = $this->agenceServiceIpsString();
-        
+
         $dom->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSalarier('PERMANENT')
@@ -327,10 +350,10 @@ class DomController extends Controller
     {
         // Appliquer les données de l'étape 1
         $this->applyStep1Data($dom, $step1Data);
-        
+
         // Calculer les indemnités
         $this->businessLogicService->calculateIndemnities($dom);
-        
+
         // Traiter la création
         return $this->businessLogicService->processDomCreation($dom, $this->getUser());
     }
@@ -354,10 +377,10 @@ class DomController extends Controller
     private function createDomFromApiData(array $data): Dom
     {
         $dom = new Dom();
-        
+
         // Remplir les propriétés nécessaires pour le calcul
         // À adapter selon votre structure
-        
+
         return $dom;
     }
 

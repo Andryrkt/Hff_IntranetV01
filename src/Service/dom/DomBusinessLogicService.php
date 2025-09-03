@@ -35,7 +35,7 @@ class DomBusinessLogicService
             // Génération du numéro DOM
             $dom->setNumeroOrdreMission($this->generateDomNumber());
             $dom->setDateDemande(new \DateTime());
-            $dom->setNomSessionUtilisateur(($user->getNom() ?? '') . ' ' . ($user->getPrenom() ?? ''));
+            $dom->setNomSessionUtilisateur($user->getNomUtilisateur() ?? '');
 
             // Calcul des indemnités
             $this->calculateIndemnities($dom);
@@ -73,7 +73,7 @@ class DomBusinessLogicService
                 'type' => $dom->getSousTypeDocument()->getCodeSousType(),
                 'catg' => $dom->getCategorie()->getCodeCatg(),
                 'destination' => $dom->getSite()->getCodeSite(),
-                'rmq' => $dom->getAgenceEmetteur()->getCodeAgence()
+                'rmq' => $dom->getAgence()->getCodeAgence()
             ]);
 
         if ($indemnite) {
@@ -104,7 +104,7 @@ class DomBusinessLogicService
         $total = 0;
 
         // Indemnité de déplacement
-        $totalIndemniteDeplacement = $dom->getTotalIndemniteDeplacement();
+        $totalIndemniteDeplacement = $dom->get();
         if ($totalIndemniteDeplacement) {
             $total += (float) str_replace('.', '', $totalIndemniteDeplacement);
         }
@@ -163,7 +163,7 @@ class DomBusinessLogicService
         $newDom->setId(null);
         $newDom->setNumeroOrdreMission($this->generateDomNumber());
         $newDom->setDateDemande(new \DateTime());
-        $newDom->setNomSessionUtilisateur(($user->getNom() ?? '') . ' ' . ($user->getPrenom() ?? ''));
+        $newDom->setNomSessionUtilisateur($user->getNomUtilisateur() ?? '');
         $newDom->setIdStatutDemande(null); // Nouveau statut
 
         return $newDom;
@@ -183,7 +183,7 @@ class DomBusinessLogicService
             // Configuration du DOM trop perçu
             $tropPercuDom->setNumeroOrdreMission($this->generateDomNumber());
             $tropPercuDom->setDateDemande(new \DateTime());
-            $tropPercuDom->setNomSessionUtilisateur(($user->getNom() ?? '') . ' ' . ($user->getPrenom() ?? ''));
+            $tropPercuDom->setNomSessionUtilisateur($user->getNomUtilisateur() ?? '');
             $tropPercuDom->setSousTypeDocument(
                 $this->entityManager->getRepository(\App\Entity\admin\dom\SousTypeDocument::class)
                     ->findOneBy(['codeSousType' => 'TROP PERCU'])

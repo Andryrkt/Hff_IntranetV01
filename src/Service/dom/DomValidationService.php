@@ -5,8 +5,6 @@ namespace App\Service\dom;
 use App\Entity\dom\Dom;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 
 /**
  * Service de validation pour les DOM (Dossiers de Mission)
@@ -14,14 +12,10 @@ use Symfony\Component\Validator\ConstraintViolationListInterface;
 class DomValidationService
 {
     private EntityManagerInterface $entityManager;
-    private ValidatorInterface $validator;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        ValidatorInterface $validator
-    ) {
+    public function __construct(EntityManagerInterface $entityManager)
+    {
         $this->entityManager = $entityManager;
-        $this->validator = $validator;
     }
 
     /**
@@ -31,18 +25,6 @@ class DomValidationService
     {
         $errors = [];
         $warnings = [];
-
-        // Validation des contraintes Symfony
-        $violations = $this->validator->validate($dom);
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[] = [
-                    'field' => $violation->getPropertyPath(),
-                    'message' => $violation->getMessage(),
-                    'code' => $violation->getCode()
-                ];
-            }
-        }
 
         // Validation métier spécifique
         $businessErrors = $this->validateBusinessRules($dom);

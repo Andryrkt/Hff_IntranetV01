@@ -103,7 +103,7 @@ class MenuService
                 $this->setNomUtilisateur($connectedUser->getNomUtilisateur());
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
                 $this->setApplicationIds($applicationIds); // Les applications autorisées de l'utilisateur connecté
-                
+
                 // Debug: log les applications trouvées
                 error_log("MenuService - Applications de l'utilisateur " . $connectedUser->getNomUtilisateur() . ": " . implode(', ', $applicationIds));
             }

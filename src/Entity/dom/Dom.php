@@ -56,7 +56,7 @@ class Dom
      * @ORM\ManyToOne(targetEntity=SousTypeDocument::class, inversedBy="dom")
      * @ORM\JoinColumn(name="Sous_Type_Document", referencedColumnName="ID_Sous_Type_Document")
      */
-    private ?SousTypeDocument $sousTypeDocument; //relation avec la table sousTypeDocument
+    private ?SousTypeDocument $sousTypeDocument = null; //relation avec la table sousTypeDocument
 
 
     /**

@@ -125,7 +125,7 @@ class DomNotificationService
         $this->addSuccess($message, [
             'dom_id' => $dom->getId(),
             'numero' => $dom->getNumeroOrdreMission(),
-            'user' => $user->getNom() ?? ''
+            'user' => $user->getNomUtilisateur() ?? ''
         ]);
     }
 
@@ -184,13 +184,13 @@ class DomNotificationService
         $message = sprintf(
             'DOM %s validé par %s',
             $dom->getNumeroOrdreMission(),
-            $validator->getNom() ?? ''
+            $validator->getNomUtilisateur() ?? ''
         );
 
         $this->addSuccess($message, [
             'dom_id' => $dom->getId(),
             'numero' => $dom->getNumeroOrdreMission(),
-            'validator' => $validator->getNom() ?? ''
+            'validator' => $validator->getNomUtilisateur() ?? ''
         ]);
     }
 
@@ -202,7 +202,7 @@ class DomNotificationService
         $message = sprintf(
             'DOM %s rejeté par %s',
             $dom->getNumeroOrdreMission(),
-            $rejector->getNom() ?? ''
+            $rejector->getNomUtilisateur() ?? ''
         );
 
         if ($reason) {
@@ -212,7 +212,7 @@ class DomNotificationService
         $this->addWarning($message, [
             'dom_id' => $dom->getId(),
             'numero' => $dom->getNumeroOrdreMission(),
-            'rejector' => $rejector->getNom() ?? '',
+            'rejector' => $rejector->getNomUtilisateur  () ?? '',
             'reason' => $reason
         ]);
     }

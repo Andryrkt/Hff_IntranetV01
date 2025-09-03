@@ -29,8 +29,7 @@ class DomApiController extends Controller
     {
         parent::__construct();
         $this->validationService = new DomValidationService(
-            $this->getEntityManager(),
-            $this->getValidator()
+            $this->getEntityManager()
         );
         $this->businessLogicService = new DomBusinessLogicService(
             $this->getEntityManager(),
@@ -38,9 +37,16 @@ class DomApiController extends Controller
         );
         $this->notificationService = new DomNotificationService(
             $this->getSessionService(),
-            $this->getMailer(),
             $this->getTwig()
         );
+    }
+
+    /**
+     * Crée une réponse JSON
+     */
+    private function json($data, int $status = 200): JsonResponse
+    {
+        return new JsonResponse($data, $status);
     }
 
     /**

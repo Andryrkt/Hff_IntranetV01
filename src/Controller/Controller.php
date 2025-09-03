@@ -542,7 +542,7 @@ class Controller
         $log = new UserLogger();
 
         $log->setUtilisateur($utilisateurNom ?: '-');
-        $log->setNom_page($page->getNom());
+        $log->setNom_page($page ? $page->getNom() : $nomRoute);
         $log->setParams($params ?: null);
         $log->setUser($utilisateur);
         $log->setMachineUser($machine);
