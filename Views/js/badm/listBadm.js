@@ -9,9 +9,16 @@ const fetchManager = new FetchManager();
 const agenceEmetteurInput = document.querySelector('.agenceEmetteur');
 const serviceEmetteurInput = document.querySelector('.serviceEmetteur');
 
-agenceEmetteurInput.addEventListener('change', selectAgenceEmetteur);
+if (agenceEmetteurInput) {
+  agenceEmetteurInput.addEventListener('change', selectAgenceEmetteur);
+}
 
 function selectAgenceEmetteur() {
+  if (!agenceEmetteurInput || !serviceEmetteurInput) {
+    console.warn('Éléments agenceEmetteurInput ou serviceEmetteurInput non trouvés');
+    return;
+  }
+
   const agenceEmetteur = agenceEmetteurInput.value;
 
   if (agenceEmetteur === '') {
@@ -54,9 +61,16 @@ function selectAgenceEmetteur() {
 const agenceDebiteurInput = document.querySelector('.agenceDebiteur');
 const serviceDebiteurInput = document.querySelector('.serviceDebiteur');
 
-agenceDebiteurInput.addEventListener('change', selectAgenceDebiteur);
+if (agenceDebiteurInput) {
+  agenceDebiteurInput.addEventListener('change', selectAgenceDebiteur);
+}
 
 function selectAgenceDebiteur() {
+  if (!agenceDebiteurInput || !serviceDebiteurInput) {
+    console.warn('Éléments agenceDebiteurInput ou serviceDebiteurInput non trouvés');
+    return;
+  }
+
   const agenceDebiteur = agenceDebiteurInput.value;
 
   if (agenceDebiteur === '') {
