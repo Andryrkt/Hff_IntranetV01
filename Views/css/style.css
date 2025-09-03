@@ -3,6 +3,18 @@
 /* ========================================================================= */
 /* GENERALES */
 /* ========================================================================= */
+
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #fil-d-ariane {
+    position:sticky !important;
+  }
+}
+
 html {
   height: 100%;
   overflow-y: scroll;
