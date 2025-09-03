@@ -47,6 +47,7 @@ class DaListCdeFrnController extends Controller
         $this->daModel = new DaModel();
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
+        $this->initStatutBcTrait();
     }
 
     /**
