@@ -50,7 +50,7 @@ class DevisMagasinExportExcelController extends Controller
 
         $data = $this->convertirObjetEnTableau($listeDevisFactory, $data);
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     /** 

@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+
 /**
  * @Route("/atelier")
  */
@@ -196,7 +197,7 @@ class PlanningController extends Controller
             $data[] = array_merge($row, $moisData);
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 
@@ -245,6 +246,6 @@ class PlanningController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 }

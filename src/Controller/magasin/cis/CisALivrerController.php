@@ -12,6 +12,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+
 /**
  * @Route("/magasin/cis")
  */
@@ -109,7 +110,7 @@ class CisALivrerController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     private function recupData($cisATraiterModel, $criteria)

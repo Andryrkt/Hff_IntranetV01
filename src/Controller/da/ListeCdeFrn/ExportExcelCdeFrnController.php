@@ -7,6 +7,7 @@ use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Repository\da\DaAfficherRepository;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/demande-appro")
  */
@@ -62,7 +63,7 @@ class ExportExcelCdefrnController extends Controller
         $data = $this->convertirObjetEnTableau($dasFiltered, $data);
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
 
