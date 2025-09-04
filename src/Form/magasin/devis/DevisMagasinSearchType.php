@@ -16,7 +16,8 @@ class DevisMagasinSearchType extends AbstractType
         'Prix à confirmer' => 'Prix à confirmer',
         'Prix validé magasin' => 'Prix validé magasin',
         'Prix refusé magasin' => 'Prix refusé magasin',
-        'Demande refusée par le PM' => 'Demande refusée par le PM'
+        'Demande refusée par le PM' => 'Demande refusée par le PM',
+        'A valider chef d\'agence' => 'A valider chef d\'agence'
     ];
 
     private const STATUT_IPS = [

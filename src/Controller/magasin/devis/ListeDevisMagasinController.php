@@ -71,7 +71,7 @@ class ListeDevisMagasinController extends Controller
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis();
+        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {

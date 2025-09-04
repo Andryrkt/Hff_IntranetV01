@@ -15,7 +15,7 @@ class ModalStatutApi extends Controller
     {
         parent::__construct();
 
-        $this->historiqueStatutDdpRepository = self::$em->getRepository(HistoriqueStatutDdp::class);
+        $this->historiqueStatutDdpRepository = $this->getEntityManager()->getRepository(HistoriqueStatutDdp::class);
     }
 
     /**
