@@ -22,7 +22,7 @@ class DaAfficherRepository extends EntityRepository
     {
         // Étape 1 : récupérer la version max pour ce numero_DA
         $maxVersion = $this->createQueryBuilder('d')
-            ->select('MAX(d.version)')
+            ->select('MAX(d.numeroVersion)')
             ->where('d.numeroDemandeAppro = :num')
             ->setParameter('num', $numeroDemandeAppro)
             ->getQuery()

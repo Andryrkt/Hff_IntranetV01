@@ -40,7 +40,7 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
-        $this->emailDaService = new EmailDaService($this->twig);
+        $this->emailDaService = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
         $this->daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
@@ -186,6 +186,7 @@ trait DaTrait
             DemandeAppro::STATUT_EN_COURS_CREATION,
             DemandeAppro::STATUT_DW_A_MODIFIER,
             DemandeAppro::STATUT_SOUMIS_APPRO,
+            DemandeAppro::STATUT_VALIDE,
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
             DemandeAppro::STATUT_SOUMIS_ATE,
         ];
@@ -193,6 +194,7 @@ trait DaTrait
         $reglesDeverouillage = [
             'admin' => fn() => in_array($statutDa, $statutDaCliquable),
             'appro' => fn() => in_array($statutDa, [
+                DemandeAppro::STATUT_VALIDE,
                 DemandeAppro::STATUT_SOUMIS_ATE,
                 DemandeAppro::STATUT_SOUMIS_APPRO,
             ]),
