@@ -12,11 +12,13 @@ class MenuService
     private $em;
     private $estAdmin;
     private $nomUtilisateur;
+    private $basePath;
     private $applicationIds = [];
 
     public function __construct($entityManager)
     {
         $this->em = $entityManager;
+        $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
     }
 
     /**
@@ -147,7 +149,7 @@ class MenuService
     {
         $subitems = [
             $this->createSimpleItem('Annuaire', 'address-book', '#'),
-            $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', '/Upload/documentation/Structure%20analytique%20HFF.pdf', [], "_blank"),
+            $this->createSimpleItem('Plan analytique HFF', 'ruler-vertical', "{$this->basePath}/documentation/Structure%20analytique%20HFF.pdf", [], "_blank"),
             $this->createSimpleItem('Documentation interne', 'folder-tree', 'documentation_interne'),
         ];
         if ($this->getEstAdmin()) {
@@ -308,13 +310,14 @@ class MenuService
                 $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
             }
             $subSubitems[] = $this->createSubItem('Dossier DIT', 'folder', 'dit_dossier_intervention_atelier');
+            $subSubitems[] = $this->createSubItem('Matrice des responsabilités', 'table', "{$this->basePath}/documentation/MATRICE DE RESPONSABILITES OR v9.xlsx");
             $subitems[] = $this->createSubMenuItem(
                 'Demande d\'intervention',
                 'toolbox',
                 $subSubitems
             );
             if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
-                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', '/Upload/dit/glossaire_or/Glossaire_OR.pdf', [], '_blank');
+                $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
             }
         }
         if ($this->getEstAdmin() || in_array(Application::ID_REP, $this->getApplicationIds())) { // REP
@@ -339,6 +342,7 @@ class MenuService
     public function menuMagasin()
     {
         $subitems = [];
+        /** =====================Magasin========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_MAG, $this->getApplicationIds())) { // MAG
             $subitems[] = $this->createSubMenuItem(
                 'OR',
@@ -357,6 +361,7 @@ class MenuService
                 ]
             );
         }
+        /** =====================Inventaire========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_INV, $this->getApplicationIds())) { // INV
             $subitems[] = $this->createSubMenuItem(
                 'INVENTAIRE',
@@ -367,6 +372,7 @@ class MenuService
                 ]
             );
         }
+        /** =====================sortie de pieces / lubs========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
                 'SORTIE DE PIECES / LUBS',
