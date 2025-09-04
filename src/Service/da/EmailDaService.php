@@ -285,6 +285,9 @@ class EmailDaService
 
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 
+        $content['cc'] = $content['cc'] ?? [];
+        $content['cc'][] = 'hoby.ralahy@hff.mg';
+
         $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
     }
 }
