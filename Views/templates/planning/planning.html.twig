@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Planning des OR
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.08.29.16.20">
@@ -9,6 +13,9 @@
 	<div class="sticky-header-titre">
 		<div class="container">
 			{% include "/planning/_formulaire.html.twig" %}
+			<div class="d-flex justify-content-between">
+				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : true } %}
+			</div>
 		</div>
 	</div>
 	<div class="container-fluid">

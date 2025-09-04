@@ -7,7 +7,7 @@
 				Formulaire de recherche
 			</button>
 		</h2>
-		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
 			<div class="accordion-body">
 				{{ form_start(form, { 'attr': { 'id': 'planning_search_form' } }) }}
 
@@ -60,13 +60,6 @@
 				</div>
 			</div>
 			{{ form_end(form)}}
-		</div>
-	</div>
-	<div class="container">
-		<div class=" d-flex  justify-content-between">
-			<div class="d-flex flex-row align-items-center">
-				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : false } %}
-			</div>
 		</div>
 	</div>
 </div>

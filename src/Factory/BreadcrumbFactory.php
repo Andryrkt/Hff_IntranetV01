@@ -132,6 +132,7 @@ class BreadcrumbFactory
             'liste-or-livrer'                       => 'Liste des OR à livrer',
             'liste-magasin'                         => 'Liste des OR à traiter',
             'planning-vue'                          => 'Planning des OR',
+            'planning-detaille'                     => 'Planning détaillé',
             'planningAtelier'                       => 'Planning Interne de l\'Atelier',
             'planningAte'                           => 'Planning',
         ];

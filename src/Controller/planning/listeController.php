@@ -42,7 +42,7 @@ class ListeController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDITService;
     }
     /**
-     * @Route("/Liste",name = "liste_planning")
+     * @Route("/planning-detaille",name = "liste_planning")
      * 
      *@return void
      */
