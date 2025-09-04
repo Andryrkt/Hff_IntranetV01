@@ -376,6 +376,7 @@ class MenuService
                 ]
             );
         }
+        /** =====================dematerialisation========================= */
         if ($this->getEstAdmin()) {
             $subitems[] = $this->createSubMenuItem(
                 'DEMATERIALISATION',
