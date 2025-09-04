@@ -1,0 +1,44 @@
+{% extends "baseTemplate.html.twig"%}
+
+{% block title %}
+	500 Erreur
+{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/erreur/404.css?v=2025.08.29.16.20" rel="stylesheet">
+{% endblock %}
+
+{% block breadCrumb %}{% endblock %}
+
+{% block content %}
+	<div id="notfound">
+		<div class="notfound-bg">
+			<div></div>
+			<div></div>
+			<div></div>
+			<div></div>
+		</div>
+		<div class="notfound">
+			<div class="notfound-404">
+				<h1>500</h1>
+			</div>
+			<h2>Erreur interne du serveur</h2>
+			<p>
+				Une erreur inattendue est survenue sur le serveur.
+				<div class="error-message">
+					<strong>Détails techniques :</strong>
+					<pre>{{ message }}</pre>
+				</div>
+			</p>
+
+			<a href="{{ path("profil_acceuil") }}">
+				<i class="fas fa-arrow-left-long pe-2"></i>
+				Accueil
+			</a>
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascript %}{% endblock %}

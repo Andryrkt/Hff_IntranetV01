@@ -52,7 +52,9 @@ try {
     $response->setStatusCode(403);
 } catch (Exception $e) {
     // Erreur générale
-    $htmlContent = "<html><body><h1>500</h1><p>Une erreur s'est produite : " . $e->getMessage() . "</p></body></html>";
+    $htmlContent = $twig->render('erreur/500.html.twig', [
+        'message' => $e->getMessage(),
+    ]);
     $response->setContent($htmlContent);
     $response->setStatusCode(500);
 }
