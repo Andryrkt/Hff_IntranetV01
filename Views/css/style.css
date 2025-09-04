@@ -3,6 +3,18 @@
 /* ========================================================================= */
 /* GENERALES */
 /* ========================================================================= */
+
+@media print {
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #fil-d-ariane {
+    position:sticky !important;
+  }
+}
+
 html {
   height: 100%;
   overflow-y: scroll;
@@ -64,10 +76,6 @@ label {
   padding: 10px;
   font-weight: bold;
   border-radius: 5px;
-}
-
-.card {
-  margin-top: 4rem !important;
 }
 
 /* ========================================================================= */
@@ -409,4 +417,11 @@ button.swal2-styled {
 /* Background light */
 .bg-light {
   background-color: #f8f9fa !important;
+}
+
+/* Conteneur personnalisé */
+.container-spaced {
+  margin: 4rem 2rem;
+  padding: 0 1.25rem; /* léger padding interne */
+  box-sizing: border-box; /* évite les soucis avec padding */
 }

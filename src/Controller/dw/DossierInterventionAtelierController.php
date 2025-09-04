@@ -10,7 +10,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -40,7 +39,7 @@ class DossierInterventionAtelierController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
         $dwModel = new DossierInterventionAtelierModel();
 
@@ -66,7 +65,7 @@ class DossierInterventionAtelierController extends Controller
 
         $this->logUserVisit('dit_dossier_intervention_atelier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dw/dossierInterventionAtelier.html.twig', [
+        return $this->render('dw/dossierInterventionAtelier.html.twig', [
             'form'   => $form->createView(),
             'dwDits' => $dwDits
         ]);

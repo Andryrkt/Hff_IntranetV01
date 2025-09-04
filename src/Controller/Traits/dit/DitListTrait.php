@@ -6,7 +6,6 @@ namespace App\Controller\Traits\dit;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\dit\DitSearch;
-use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
@@ -99,7 +98,7 @@ trait DitListTrait
     private function initialisationRechercheDit($ditSearch, $em, $agenceServiceIps, $autoriser)
     {
 
-        $criteria = $this->sessionService->get('dit_search_criteria', []);
+        $criteria = $this->getSessionService()->get('dit_search_criteria', []);
         if ($criteria !== null) {
             // if ($autoriser) {
             $agenceIpsEmetteur = null;
@@ -187,7 +186,7 @@ trait DitListTrait
                 if (!empty($data[$i]->getIdMateriel())) {
 
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    $numSerieParc = $this->getDitModel()->recupNumSerieParc($data[$i]->getIdMateriel());
                     if (!empty($numSerieParc)) {
                         $numSerie = $numSerieParc[0]['num_serie'];
                         $numParc = $numSerieParc[0]['num_parc'];
@@ -208,7 +207,7 @@ trait DitListTrait
             for ($i = 0; $i < count($data); $i++) {
                 if (!empty($data[$i]->getIdMateriel())) {
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
+                    $marqueCasier = $this->getDitModel()->recupMarqueCasierMateriel($data[$i]->getIdMateriel());
                     if (!empty($marqueCasier)) {
                         $marque = $marqueCasier[0]['marque'];
                         $casier = $marqueCasier[0]['casier'];
@@ -229,9 +228,9 @@ trait DitListTrait
 
             if ($data[$i]->getNumeroOR() !== null && $data[$i]->getNumeroOR() !== 'NULL') {
 
-                if (!empty($this->ditModel->recupQuantite($data[$i]->getNumeroOR()))) {
+                if (!empty($this->getDitModel()->recupQuantite($data[$i]->getNumeroOR()))) {
 
-                    foreach ($this->ditModel->recupQuantite($data[$i]->getNumeroOR()) as $value) {
+                    foreach ($this->getDitModel()->recupQuantite($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
                         $data[$i]->setQuantiteLivree($value['quantitelivree']);
@@ -252,8 +251,8 @@ trait DitListTrait
     {
         for ($i = 0; $i < count($data); $i++) {
             if ($data[$i]->getNumeroOR() !== null) {
-                if (!empty($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
-                    foreach ($this->ditModel->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
+                if (!empty($this->getDitModel()->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()))) {
+                    foreach ($this->getDitModel()->recupQuantiteStatutAchatLocaux($data[$i]->getNumeroOR()) as $value) {
                         $data[$i]->setQuantiteDemander($value['quantitedemander']);
                         $data[$i]->setQuantiteReserver($value['quantitereserver']);
                         $data[$i]->setQuantiteLivree($value['quantitelivree']);
@@ -282,7 +281,7 @@ trait DitListTrait
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return $this->estAdmin() || in_array(Role::ROLE_ATELIER, $roleIds) || in_array(Role::ROLE_MULTI_SUCURSALES, $roleIds);
@@ -291,7 +290,7 @@ trait DitListTrait
     private function autorisationRoleEnergie($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(5, $roleIds);
@@ -307,7 +306,7 @@ trait DitListTrait
                 $data[$i]->setQuantiteReserver(0);
                 $data[$i]->setQuantiteLivree(0);
 
-                $quantites = $this->ditModel->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
+                $quantites = $this->getDitModel()->recupQuantiteQuatreStatutOr($data[$i]->getNumeroOR());
                 if (!empty($quantites)) {
                     foreach ($quantites as $value) {
                         $data[$i]->setQuantiteDemander((int)$value['quantitedemander']);
@@ -344,7 +343,7 @@ trait DitListTrait
 
     private function estNumorEqNumDit($numDit)
     {
-        $nbNumor = $this->ditModel->recupNbNumor($numDit);
+        $nbNumor = $this->getDitModel()->recupNbNumor($numDit);
         $estRelier = false;
         if (!empty($nbNumor) && $nbNumor[0]['nbor'] !== "0") {
             $estRelier = true;
@@ -547,7 +546,7 @@ trait DitListTrait
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => $message]);
         $this->redirectToRoute("dit_index");
     }
 

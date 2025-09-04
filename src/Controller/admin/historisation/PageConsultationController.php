@@ -1,13 +1,14 @@
 <?php
 
+
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
-use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
-use App\Entity\admin\historisation\pageConsultation\UserLogger;
-use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\admin\historisation\pageConsultation\UserLogger;
+use App\Entity\admin\historisation\pageConsultation\PageConsultationSearch;
+use App\Form\admin\historisation\pageConsultation\PageConsultationSearchType;
 
 class PageConsultationController extends Controller
 {
@@ -24,7 +25,7 @@ class PageConsultationController extends Controller
         $this->initialisationFormRecherche($pageConsultationSearch);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(PageConsultationSearchType::class, $pageConsultationSearch, [
+        $form = $this->getFormFactory()->createBuilder(PageConsultationSearchType::class, $pageConsultationSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -38,16 +39,16 @@ class PageConsultationController extends Controller
         // transformer l'objet pageConsultationSearch en tableau
         $criteria = $pageConsultationSearch->toArray();
         //recupères les données du criteria dans une session nommé page_consultation_search_criteria
-        $this->sessionService->set('page_consultation_search_criteria', $criteria);
+        $this->getSessionService()->set('page_consultation_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 20;
 
-        $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : self::$em->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
+        $paginationData = $this->isObjectEmpty($pageConsultationSearch) ? [] : $this->getEntityManager()->getRepository(UserLogger::class)->findPaginatedAndFiltered($page, $limit, $pageConsultationSearch);
 
-        self::$twig->display('admin/historisation/consultation-page/index.html.twig', [
+        return $this->render('admin/historisation/consultation-page/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -78,7 +79,7 @@ class PageConsultationController extends Controller
     private function initialisationFormRecherche(PageConsultationSearch $pageConsultationSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('page_consultation_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('page_consultation_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {
@@ -97,9 +98,7 @@ class PageConsultationController extends Controller
      */
     public function dashboard()
     {
-        self::$twig->display(
-            'admin/historisation/consultation-page/dashboard.html.twig'
-        );
+        return $this->render('admin/historisation/consultation-page/dashboard.html.twig');
     }
 
     /**
@@ -107,8 +106,6 @@ class PageConsultationController extends Controller
      */
     public function detail()
     {
-        self::$twig->display(
-            'admin/historisation/consultation-page/detail.html.twig'
-        );
+        return $this->render('admin/historisation/consultation-page/detail.html.twig');
     }
 }

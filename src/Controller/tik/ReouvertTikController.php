@@ -5,11 +5,10 @@ namespace App\Controller\tik;
 use App\Controller\Controller;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
-use App\Entity\tik\DemandeSupportInformatique;
-use App\Service\historiqueOperation\HistoriqueOperationTIKService;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Service\tik\HandleRequestService;
-
+use App\Entity\tik\DemandeSupportInformatique;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 /**
  * @Route("/it")
  */
@@ -33,12 +32,12 @@ class ReouvertTikController extends Controller
         /** 
          * @var User $connectedUser l'utilisateur connecté
          */
-        $connectedUser = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+        $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
         /** 
          * @var DemandeSupportInformatique $supportInfo entité correspondant à l'id 
          */
-        $supportInfo = self::$em->getRepository(DemandeSupportInformatique::class)->find($id);
+        $supportInfo = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class)->find($id);
 
         // Vérifier si l'utilisateur peut modifier le ticket
         if (!$this->canReouvrir($supportInfo)) {
@@ -48,11 +47,11 @@ class ReouvertTikController extends Controller
         $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
 
         $handleRequestService
-            ->setStatut(self::$em->getRepository(StatutDemande::class)->find(63))  // statut réouvert
+            ->setStatut($this->getEntityManager()->getRepository(StatutDemande::class)->find(63))  // statut réouvert
             ->reouvrirTicket()
         ;
 
-        $this->sessionService->set('notification', [
+        $this->getSessionService()->set('notification', [
             'type'    => 'success',
             'message' => 'Le ticket ' . $supportInfo->getNumeroTicket() . ' a été réouvert avec succès',
         ]);
@@ -65,12 +64,12 @@ class ReouvertTikController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $idUtilisateur  = $this->sessionService->get('user_id');
+        $idUtilisateur  = $this->getSessionService()->get('user_id');
 
         /** 
          * @var User $utilisateur l'utilisateur connecté
          */
-        $utilisateur    = $idUtilisateur !== '-' ? self::$em->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur    = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
 
         if (is_null($utilisateur)) {
             $this->SessionDestroy();

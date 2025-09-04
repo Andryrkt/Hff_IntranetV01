@@ -22,7 +22,6 @@ use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
-
 /**
  * @Route("/magasin/inventaire")
  */
@@ -60,7 +59,7 @@ class InventaireController extends Controller
         $this->verifierSessionUtilisateur();
         $this->autorisationAcces($this->getUser(), Application::ID_INV);
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireSearchType::class,
             $this->inventaireSearch,
             [
@@ -79,7 +78,7 @@ class InventaireController extends Controller
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('inventaire_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_search_criteria', $criteriaTAb);
 
         $data  = [];
         if ($request->query->get('action') !== 'oui') {
@@ -87,7 +86,7 @@ class InventaireController extends Controller
             $data = $this->recupDataList($listInvent, true);
             // dump($data);
         }
-        self::$twig->display('inventaire/inventaire.html.twig', [
+        return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -99,7 +98,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             InventaireDetailSearchType::class,
             $this->inventaireDetailSearch,
             [
@@ -116,12 +115,12 @@ class InventaireController extends Controller
         //transformer l'objet InventaireDetailSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé inventaire_detail_search_criteria
-        $this->sessionService->set('inventaire_detail_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('inventaire_detail_search_criteria', $criteriaTAb);
 
         $countSequence = $this->inventaireModel->countSequenceInvent($numinv);
         $dataDetail = $this->dataDetail($countSequence, $numinv);
         $sumData = $this->dataSumInventaireDetail($numinv);
-        self::$twig->display('inventaire/inventaireDetail.html.twig', [
+        return $this->render('inventaire/inventaireDetail.html.twig', [
             'form' => $form->createView(),
             'data' => $dataDetail,
             'sumData' => $sumData
@@ -135,7 +134,7 @@ class InventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteriaTAb = $this->sessionService->get('inventaire_search_criteria');
+        $criteriaTAb = $this->getSessionService()->get('inventaire_search_criteria');
         $this->inventaireSearch->arrayToObjet($criteriaTAb);
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
         $data = $this->recupDataList($listInvent);
@@ -342,7 +341,7 @@ class InventaireController extends Controller
 
     public function dataDetail($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -408,7 +407,7 @@ class InventaireController extends Controller
     }
     public function dataDetailExcel($countSequence, $numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -454,7 +453,7 @@ class InventaireController extends Controller
     }
     public function dataSumInventaireDetail($numinv)
     {
-        $criteriaTab = $this->sessionService->get('inventaire_detail_search_criteria');
+        $criteriaTab = $this->getSessionService()->get('inventaire_detail_search_criteria');
         $numinvCriteria = ($criteriaTab['numinv'] === "" || $criteriaTab['numinv'] === null) ? $numinv : $criteriaTab['numinv'];
 
         if ($numinv !== $numinvCriteria) {
@@ -521,7 +520,7 @@ class InventaireController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         $this->bordereauSearch->setNumInv($numInv);
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
             [
@@ -536,9 +535,9 @@ class InventaireController extends Controller
         }
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();
-        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('bordereau_search_criteria', $criteriaTab);
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
-        self::$twig->display('bordereau/bordereau.html.twig', [
+        return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data,
             'numinvpdf' => $numInv,
@@ -552,7 +551,7 @@ class InventaireController extends Controller
     {
         // Vérification si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
-        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupDataBordereau($numInv, $criteriaTab);
         $this->generetePdfBordereau->genererPDF($data);
     }

@@ -8,7 +8,7 @@ use App\Service\GlobalVariablesService;
 
 class ListeDevisMagasinModel extends Model
 {
-    public function getDevis()
+    public function getDevis(array $criteria = [])
     {
         $statement = "SELECT
             -- '' as statut_dw
@@ -25,10 +25,17 @@ class ListeDevisMagasinModel extends Model
 
             FROM neg_ent
             WHERE nent_natop = 'DEV'
-            AND nent_posL in ('--','AC','DE')
             AND year(Nent_datecde) = '2025'
-            order by nent_datecde desc
         ";
+
+        if (!isset($criteria['statutIps']) && $criteria['statutIps'] == 'RE') {
+            $statement .= " AND nent_posl in ('--','AC','DE', 'RE')";
+        } else {
+            $statement .= " AND nent_posl in ('--','AC','DE')";
+        }
+
+        $statement .= " ORDER BY nent_datecde DESC";
+
 
         $result = $this->connect->executeQuery($statement);
 
@@ -89,5 +96,18 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return array_column($this->convertirEnUtf8($data), 'retour')[0];
+    }
+
+    public function getCodeLibelleClient()
+    {
+        $statement = "SELECT nent_numcli as code_client, nent_nomcli as nom_client
+                        from neg_ent
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return $this->convertirEnUtf8($data);
     }
 }

@@ -2,6 +2,8 @@
 
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.09.02.11.13">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/magasin/devis/listeDevisMagasin.css?v=2025.09.02.11.13">
 {% endblock %}
 
 {% block content %}
@@ -10,6 +12,7 @@
 		<div class="sticky-header-titre">
 			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
+				{% include "magasin/devis/shared/_formulaireDeRecherche.html.twig" with {'form': form} %}
 			</div>
 		</div>
 
@@ -39,9 +42,16 @@
 								<button class="btn btn-sm me-1 dropdown-toggle trois-points-vertical" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
 									<i class="fas fa-ellipsis-vertical"></i>
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton" style="">
+								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									<li>
+										{% if item.statutDw != 'Prix à confirmer' %}
+										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis: item.numeroDevis})}}">Soumission devis pour validation</a>
+										{% else %}
 										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix", {numeroDevis: item.numeroDevis})}}">Soumission devis pour verification prix</a>
+										{% endif %}
+										{% if item.statutDw starts with 'Validé' %}
+										<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client", {numeroDevis: item.numeroDevis})}}">Envoyer devis au client</a>
+										{% endif %}
 									</li>
 								</ul>
 							</div>
@@ -65,4 +75,5 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/magasin/devis/listeDevisMagasin.js?v=2025.09.02.10.05"></script>
 {% endblock %}

@@ -1,15 +1,19 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Liste temporaire casier
+{% endblock %}
+
 {% block stylesheets %}
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css?v=2025.08.29.16.20">
-<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ListDomRech.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 {% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
 
 
 {% block content %}
-	<div class="container">
+	<div class="container mt-6 mb-4">
 
 
 		<div class="row ">

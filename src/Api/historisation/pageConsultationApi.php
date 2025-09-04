@@ -18,7 +18,7 @@ class pageConsultationApi extends Controller
         /** 
          * @var UserLogger[] $historiques tableau d'entité
          */
-        $historiques = self::$em->getRepository(UserLogger::class)->findBy([], ['id' => 'DESC']);
+        $historiques = $this->getEntityManager()->getRepository(UserLogger::class)->findBy([], ['id' => 'DESC']);
 
         $results = [];
         foreach ($historiques as $historique) {

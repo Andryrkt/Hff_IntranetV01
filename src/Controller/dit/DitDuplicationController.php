@@ -16,6 +16,7 @@ use App\Service\genererPdf\GenererPdfDit;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -26,11 +27,13 @@ class DitDuplicationController extends Controller
     use FormatageTrait;
 
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**
@@ -47,11 +50,11 @@ class DitDuplicationController extends Controller
         $user = $this->getUser();
 
         //INITIALISATION DU FORMULAIRE
-        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
         $demandeInterventions = $this->initialisationForm($dit);
 
         //AFFICHE LE FORMULAIRE
-        $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeInterventions)->getForm();
+        $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeInterventions)->getForm();
         $this->traitementFormulaire($form, $request, $demandeInterventions, $user);
 
         $this->logUserVisit('dit_duplication', [
@@ -60,7 +63,7 @@ class DitDuplicationController extends Controller
         ]); // historisation du page visité par l'utilisateur
         $estAvoir = $this->estAvoir($dit); // TODO : encore à faire
         $estRefactorisation = $this->estRefacturation($dit); //
-        self::$twig->display('dit/duplication.html.twig', [
+        return $this->render('dit/duplication.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
             'estAvoir' => $estAvoir,
@@ -70,7 +73,7 @@ class DitDuplicationController extends Controller
 
     private function estAvoir(DemandeIntervention $dit): bool
     {
-        $position = $this->ditModel->getPosition($dit->getNumeroDemandeIntervention());
+        $position = $this->getDitModel()->getPosition($dit->getNumeroDemandeIntervention());
         if (!empty($position)) {
             $positionOR =  in_array($position[0], ['FC', 'CP']); //l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
             $statutDit = $dit->getIdStatutDemande()->getId() === DemandeIntervention::STATUT_CLOTUREE_VALIDER; // le dernier statut de la DIT inital est 'Validé'
@@ -83,7 +86,7 @@ class DitDuplicationController extends Controller
 
     private function estRefacturation(DemandeIntervention $dit): bool
     {
-        $position = $this->ditModel->getPosition($dit->getNumeroDemandeIntervention());
+        $position = $this->getDitModel()->getPosition($dit->getNumeroDemandeIntervention());
         if (!empty($position)) {
             $niAvoirNiRefac = $dit->getEstDitAvoir() === false && $dit->getEstDitRefacturation() === false;
             $positionOR =  in_array($position[0], ['FC', 'CP']); //l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
@@ -116,7 +119,7 @@ class DitDuplicationController extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
             }
 
-            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
+            $dits = $this->infoEntrerManuel($dit, $this->getEntityManager(), $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $this->modificationDernierIdApp($dits);
@@ -140,9 +143,9 @@ class DitDuplicationController extends Controller
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
 
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
-            self::$em->persist($insertDemandeInterventions);
-            self::$em->flush();
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, $this->getEntityManager());
+            $this->getEntityManager()->persist($insertDemandeInterventions);
+            $this->getEntityManager()->flush();
 
             //ENVOYER le PDF DANS DOXCUWARE
             $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
@@ -154,8 +157,8 @@ class DitDuplicationController extends Controller
     public function  initialisationForm(DemandeIntervention $dit): DemandeIntervention
     {
         $codeEmetteur = explode('-', $dit->getAgenceServiceEmetteur());
-        $agenceEmetteur = self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
-        $serviceEmetteur = self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
+        $agenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
+        $serviceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
         $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
         $ditModel = new DitModel();
         $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
@@ -176,8 +179,8 @@ class DitDuplicationController extends Controller
             ->setAgenceServiceEmetteur($dit->getAgenceServiceEmetteur())
             ->setAgenceEmetteur($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence())
             ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())
-            ->setAgence(self::$em->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeDebiteur[0]]))
-            ->setService(self::$em->getRepository(Service::class)->findOneBy(['codeService' => $codeDebiteur[1]]))
+            ->setAgence($this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeDebiteur[0]]))
+            ->setService($this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeDebiteur[1]]))
             ->setTypeDocument($dit->getTypeDocument())
             ->setCodeSociete($dit->getCodeSociete())
             ->setTypeReparation($dit->getTypeReparation())
@@ -211,10 +214,10 @@ class DitDuplicationController extends Controller
 
     private function modificationDernierIdApp($dits)
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
         $application->setDerniereId($dits->getNumeroDemandeIntervention());
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
+        $this->getEntityManager()->persist($application);
+        $this->getEntityManager()->flush();
     }
 }

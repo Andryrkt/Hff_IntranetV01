@@ -37,7 +37,7 @@ class PlanningController extends Controller
         parent::__construct();
         $this->planningModel = new PlanningModel();
         $this->planningSearch = new PlanningSearch();
-        $this->ditOrsSoumisAValidationRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $this->historiqueOperation = new HistoriqueOperationDITService;
     }
 
@@ -64,7 +64,7 @@ class PlanningController extends Controller
             ->setMonths(3)
         ;
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             PlanningSearchType::class,
             $this->planningSearch,
             [
@@ -89,11 +89,11 @@ class PlanningController extends Controller
         //transformer l'objet ditSearch en tableau
         $criteriaTAb = $criteria->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('planning_search_criteria', $criteriaTAb);
+        $this->getSessionService()->set('planning_search_criteria', $criteriaTAb);
 
 
         if ($request->query->get('action') !== 'oui') {
-            $lesOrvalides = $this->recupNumOrValider($criteria, self::$em);
+            $lesOrvalides = $this->recupNumOrValider($criteria, $this->getEntityManager());
             $tousLesOrSoumis = $this->allOrs();
             $touslesOrItvSoumis = $this->allOrsItv();
 
@@ -110,7 +110,7 @@ class PlanningController extends Controller
             $back = [];
         }
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back, self::$em);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back, $this->getEntityManager());
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
@@ -119,7 +119,7 @@ class PlanningController extends Controller
         // dd($forDisplay);
         $this->logUserVisit('planning_vue'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('planning/planning.html.twig', [
+        return $this->render('planning/planning.html.twig', [
             'form' => $form->createView(),
             'preparedData' => $forDisplay['preparedData'],
             'uniqueMonths' => $forDisplay['uniqueMonths'],
@@ -148,18 +148,18 @@ class PlanningController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('planning_search_criteria');
+        $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 
-        $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+        $lesOrvalides = $this->recupNumOrValider($planningSearch, $this->getEntityManager());
 
         $back = $this->planningModel->backOrderPlanning($lesOrvalides['orSansItv'], $criteria, $this->allOrs());
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
 
 
 
-        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back, self::$em);
+        $tabObjetPlanning = $this->creationTableauObjetPlanning($data, $back, $this->getEntityManager());
         // Fusionner les objets en fonction de l'idMat
         $fusionResult = $this->ajoutMoiDetail($tabObjetPlanning);
 
@@ -197,7 +197,7 @@ class PlanningController extends Controller
             $data[] = array_merge($row, $moisData);
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 
@@ -211,11 +211,11 @@ class PlanningController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('planning_search_criteria');
+        $criteria = $this->getSessionService()->get('planning_search_criteria');
 
         $planningSearch = $this->creationObjetCriteria($criteria);
 
-        $lesOrvalides = $this->recupNumOrValider($planningSearch, self::$em);
+        $lesOrvalides = $this->recupNumOrValider($planningSearch, $this->getEntityManager());
 
         $data = $this->planningModel->exportExcelPlanning($planningSearch, $lesOrvalides['orAvecItv']);
         //  dd($data);
@@ -246,6 +246,6 @@ class PlanningController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 }

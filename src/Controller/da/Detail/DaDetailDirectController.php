@@ -3,18 +3,16 @@
 namespace App\Controller\da\Detail;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
 use App\Controller\Traits\lienGenerique;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\detail\DaDetailDirectTrait;
-
 /**
  * @Route("/demande-appro")
  */
@@ -28,8 +26,8 @@ class DaDetailDirectController extends Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->setEntityManager(self::$em);
-		$this->initDaDetailDirectTrait(self::$generator);
+
+		$this->initDaDetailDirectTrait($this->getUrlGenerator());
 	}
 
 	/**
@@ -50,7 +48,7 @@ class DaDetailDirectController extends Controller
 		$demandeAppro = $this->filtreDal($demandeAppro, (int)$numeroVersionMax); // on filtre les lignes de la DA selon le numero de version max
 
 		$daObservation = new DaObservation;
-		$formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+		$formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
 			'achatDirect' => $demandeAppro->getAchatDirect()
 		])->getForm();
 
@@ -66,7 +64,7 @@ class DaDetailDirectController extends Controller
 			'facblPath' => $this->getFacBlPath($demandeAppro),
 		]);
 
-		self::$twig->display('da/detail.html.twig', [
+		return $this->render('da/detail.html.twig', [
 			'formObservation'			=> $formObservation->createView(),
 			'demandeAppro'      		=> $demandeAppro,
 			'demandeApproLines'   		=> $demandeApproLPrepared,
@@ -126,31 +124,31 @@ class DaDetailDirectController extends Controller
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
 			]);
 
-			$this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+			$this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
 			return $this->redirectToRoute("list_da");
 		}
 	}
 
 	private function modificationStatutDal(string $numDa, string $statut): void
 	{
-		$numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
-		$dals = self::$em->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+		$numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+		$dals = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
 		foreach ($dals as  $dal) {
 			$dal->setStatutDal($statut);
 			$dal->setEdit(3);
-			self::$em->persist($dal);
+			$this->getEntityManager()->persist($dal);
 		}
 
-		self::$em->flush();
+		$this->getEntityManager()->flush();
 	}
 
 	private function modificationStatutDa(string $numDa, string $statut): void
 	{
-		$da = self::$em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
+		$da = $this->getEntityManager()->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $numDa]);
 		$da->setStatutDal($statut);
 
-		self::$em->persist($da);
-		self::$em->flush();
+		$this->getEntityManager()->persist($da);
+		$this->getEntityManager()->flush();
 	}
 }

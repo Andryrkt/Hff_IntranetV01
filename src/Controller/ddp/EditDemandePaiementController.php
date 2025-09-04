@@ -6,11 +6,10 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\ddp\DdpTrait;
-use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
@@ -20,13 +19,10 @@ use App\Entity\cde\CdefnrSoumisAValidation;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
-use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -51,15 +47,15 @@ class EditDemandePaiementController extends Controller
     {
         parent::__construct();
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
+        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService();
         $this->generatePdfDdp = new GeneratePdfDdp();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
         $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
-        $this->typeDemandeRepository = self::$em->getRepository(TypeDemande::class);
-        $this->ddpRepository = self::$em->getRepository(DemandePaiement::class);
+        $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);
+        $this->ddpRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
     }
 
     /**
@@ -73,11 +69,11 @@ class EditDemandePaiementController extends Controller
         $demandePaiement->setMontantAPayer($demandePaiement->getMontantAPayers());
         $demandePaiement = $demandePaiement->dupliquer();
         $id = $demandePaiement->getTypeDemandeId()->getId();
-        $form = self::$validator->createBuilder(DemandePaiementType::class, $demandePaiement, ['id_type' => $id])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, $demandePaiement, ['id_type' => $id])->getForm();
         $this->traitementFormulaire($form, $request, $numDdp, $demandePaiement, $id);
         $numeroFournisseur = $demandePaiement->getNumeroFournisseur();
         $listeGcot = $this->listGcot($numeroFournisseur, $id);
-        self::$twig->display('ddp/EditdemandePaiement.html.twig', [
+        return $this->render('ddp/EditdemandePaiement.html.twig', [
             'id_type' => $id,
             'form' => $form->createView(),
             'listeGcot' => $listeGcot,
@@ -158,8 +154,8 @@ class EditDemandePaiementController extends Controller
      */
     private function EnregistrementBdDdp(DemandePaiement $data): void
     {
-        self::$em->persist($data);
-        self::$em->flush();
+        $this->getEntityManager()->persist($data);
+        $this->getEntityManager()->flush();
     }
 
     private function EnregistrementBdDdpl($data, $numeroversion): void
@@ -168,23 +164,23 @@ class EditDemandePaiementController extends Controller
 
         if (count($demandePaiementLigne) > 1) {
             foreach ($demandePaiementLigne as $value) {
-                self::$em->persist($value);
+                $this->getEntityManager()->persist($value);
             }
         } else {
-            self::$em->persist($demandePaiementLigne[0]);
+            $this->getEntityManager()->persist($demandePaiementLigne[0]);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function enregisterDdpF(DemandePaiement $data, $numeroversion): void
     {
         $donners = $this->recuperationDonnerDdpF($data, (int) $numeroversion);
         foreach ($donners as $value) {
-            self::$em->persist($value);
+            $this->getEntityManager()->persist($value);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function recuperationDonnerDdpF(DemandePaiement $data, int $numeroversion): array
@@ -315,8 +311,8 @@ class EditDemandePaiementController extends Controller
             ->setDate(new \DateTime())
         ;
 
-        self::$em->persist($historiqueStatutDdp);
-        self::$em->flush();
+        $this->getEntityManager()->persist($historiqueStatutDdp);
+        $this->getEntityManager()->flush();
     }
 
     /**

@@ -8,11 +8,10 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Translation\Provider\Dsn;
 use App\Model\planningAtelier\planningAtelierModel;
 use App\Entity\planningAtelier\planningAtelierSearch;
 use App\Form\planningAtelier\planningAtelierSearchType;
-use Symfony\Component\Translation\Provider\Dsn;
-
 /**
  * @Route("/planningAte")
  */
@@ -35,7 +34,7 @@ class planningAtelierControler extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             PlanningAtelierSearchType::class,
             $this->planningAtelierSearch,
             ['method' => 'GET']
@@ -62,10 +61,10 @@ class planningAtelierControler extends Controller
             }
             $output = $this->recupdata($result, $dates, $output);
 
-            $this->sessionService->set('data_export_planningAtelier_excel', $output);
-            $this->sessionService->set('dates_export_planningAtelier_excel', $dates);
+            $this->getSessionService()->set('data_export_planningAtelier_excel', $output);
+            $this->getSessionService()->set('dates_export_planningAtelier_excel', $dates);
         }
-        self::$twig->display('planningAtelier/planningAtelier.html.twig', [
+        return $this->render('planningAtelier/planningAtelier.html.twig', [
             'form' => $form->createView(),
             'dates' => $dates,
             'filteredDates' => $filteredDates,
@@ -125,8 +124,8 @@ class planningAtelierControler extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $data = $this->sessionService->get('data_export_planningAtelier_excel', []);
-        $dates = $this->sessionService->get('dates_export_planningAtelier_excel', []);
+        $data = $this->getSessionService()->get('data_export_planningAtelier_excel', []);
+        $dates = $this->getSessionService()->get('dates_export_planningAtelier_excel', []);
 
 
         $data = $this->transformerDataPourExcel($data, $dates);

@@ -4,7 +4,7 @@ namespace App\Form\common;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Repository\admin\AgenceRepository;
+use App\Utils\EntityManagerHelper;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
@@ -15,13 +15,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AgenceServiceType extends AbstractType
 {
-    private $agenceRepository;
-
-    public function __construct(AgenceRepository $agenceRepository)
-    {
-        $this->agenceRepository = $agenceRepository;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -32,23 +25,21 @@ class AgenceServiceType extends AbstractType
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
                 'placeholder' => $options['agence_placeholder'],
-                'required' => $options['agence_required'],
-                'attr' => ['class' => 'agence-selector']
+                'required' => $options['agence_required']
             ]);
 
         // Pré-set data
         $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($options) {
             $data = $event->getData();
             $agence = $data ? $this->getAgenceFromData($data) : null;
-            
+
             $this->addServiceField($event->getForm(), $agence, $options);
         });
 
         // Pré-submit
         $builder->addEventListener(FormEvents::PRE_SUBMIT, function (FormEvent $event) use ($options) {
             $data = $event->getData();
-            $agence = $this->getAgenceFromFormData($data);
-            
+            $agence = $this->getAgenceFromFormData($data, $event->getForm());
             $this->addServiceField($event->getForm(), $agence, $options);
         });
     }
@@ -66,7 +57,7 @@ class AgenceServiceType extends AbstractType
             'placeholder' => $options['service_placeholder'],
             'choices' => $services,
             'required' => $options['service_required'],
-            'attr' => ['class' => 'service-selector']
+
         ]);
     }
 
@@ -82,10 +73,18 @@ class AgenceServiceType extends AbstractType
         return null;
     }
 
-    private function getAgenceFromFormData(array $data): ?Agence
+    private function getAgenceFromFormData(array $data, FormInterface $form): ?Agence
     {
         if (isset($data['agence']) && $data['agence']) {
-            return $this->agenceRepository->find($data['agence']);
+            // Récupérer l'EntityManager via les options du formulaire
+            $em = $form->getConfig()->getOption('em');
+            if ($em) {
+                return $em->getRepository(Agence::class)->find($data['agence']);
+            }
+
+            // Fallback: utiliser EntityManagerHelper
+            $repository = EntityManagerHelper::getRepository(Agence::class);
+            return $repository ? $repository->find($data['agence']) : null;
         }
 
         return null;
@@ -100,6 +99,7 @@ class AgenceServiceType extends AbstractType
             'service_label' => "Service",
             'service_placeholder' => '-- Choisir un service--',
             'service_required' => false,
+            'em' => null,
         ]);
     }
 }

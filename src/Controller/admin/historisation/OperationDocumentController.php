@@ -3,13 +3,14 @@
 namespace App\Controller\admin\historisation;
 
 use App\Controller\Controller;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
-use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 use App\Entity\admin\historisation\documentOperation\TypeOperation;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocument;
+use App\Entity\admin\historisation\documentOperation\HistoriqueOperationDocumentSearch;
 use App\Form\admin\historisation\documentOperation\HistoriqueOperationDocumentSearchType;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 
 class OperationDocumentController extends Controller
 {
@@ -26,7 +27,7 @@ class OperationDocumentController extends Controller
         $this->initialisationFormRecherche($historiqueOperationDocumentSearch);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(HistoriqueOperationDocumentSearchType::class, $historiqueOperationDocumentSearch, [
+        $form = $this->getFormFactory()->createBuilder(HistoriqueOperationDocumentSearchType::class, $historiqueOperationDocumentSearch, [
             'method' => 'GET',
         ])->getForm();
 
@@ -40,16 +41,16 @@ class OperationDocumentController extends Controller
         // transformer l'objet historiqueOperationDocumentSearch en tableau
         $criteria = $historiqueOperationDocumentSearch->toArray();
         //recupères les données du criteria dans une session nommé historique_operation_document_search_criteria
-        $this->sessionService->set('historique_operation_document_search_criteria', $criteria);
+        $this->getSessionService()->set('historique_operation_document_search_criteria', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
         $limit = 50;
 
-        $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : self::$em->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
+        $paginationData = $this->isObjectEmpty($historiqueOperationDocumentSearch) ? [] : $this->getEntityManager()->getRepository(HistoriqueOperationDocument::class)->findPaginatedAndFiltered($page, $limit, $historiqueOperationDocumentSearch);
 
-        self::$twig->display('admin/historisation/operation-document/index.html.twig', [
+        return $this->render('admin/historisation/operation-document/index.html.twig', [
             'form'        => $form->createView(),
             'data'        => $paginationData['data'] ?? null,
             'currentPage' => $paginationData['currentPage'] ?? null,
@@ -64,9 +65,7 @@ class OperationDocumentController extends Controller
      */
     public function dashboard()
     {
-        self::$twig->display(
-            'admin/historisation/operation-document/dashboard.html.twig'
-        );
+        return $this->render('admin/historisation/operation-document/dashboard.html.twig');
     }
 
     /**
@@ -74,9 +73,7 @@ class OperationDocumentController extends Controller
      */
     public function detail()
     {
-        self::$twig->display(
-            'admin/historisation/operation-document/detail.html.twig'
-        );
+        return $this->render('admin/historisation/operation-document/detail.html.twig');
     }
 
     /** 
@@ -102,12 +99,12 @@ class OperationDocumentController extends Controller
     private function initialisationFormRecherche(HistoriqueOperationDocumentSearch $historiqueOperationDocumentSearch)
     {
         // Initialisation des critères depuis la session
-        $criteria = $this->sessionService->get('historique_operation_document_search_criteria', []) ?? [];
+        $criteria = $this->getSessionService()->get('historique_operation_document_search_criteria', []) ?? [];
 
         // Si des critères existent, les utiliser pour définir les entités associées
         if (!empty($criteria)) {
-            $typeOperation = isset($criteria['typeOperation']) && $criteria['typeOperation'] !== null ? self::$em->getRepository(TypeOperation::class)->find($criteria['typeOperation']) : null;
-            $typeDocument = isset($criteria['typeDocument']) && $criteria['typeDocument'] !== null ? self::$em->getRepository(TypeDocument::class)->find($criteria['typeDocument']) : null;
+            $typeOperation = isset($criteria['typeOperation']) && $criteria['typeOperation'] !== null ? $this->getEntityManager()->getRepository(TypeOperation::class)->find($criteria['typeOperation']) : null;
+            $typeDocument = isset($criteria['typeDocument']) && $criteria['typeDocument'] !== null ? $this->getEntityManager()->getRepository(TypeDocument::class)->find($criteria['typeDocument']) : null;
 
             $historiqueOperationDocumentSearch
                 ->setNumeroDocument($criteria['numeroDocument'])

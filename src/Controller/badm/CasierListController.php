@@ -3,14 +3,13 @@
 namespace App\Controller\badm;
 
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierSearchType;
 use App\Controller\Traits\Transformation;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/materiel/casier")
  */
@@ -32,7 +31,7 @@ class CasierListController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_CAS);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(CasierSearchType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
 
@@ -47,7 +46,7 @@ class CasierListController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $paginationData = self::$em->getRepository(CasierValider::class)->findPaginatedAndFiltered($page, $limit, $criteria);
+        $paginationData = $this->getEntityManager()->getRepository(CasierValider::class)->findPaginatedAndFiltered($page, $limit, $criteria);
 
         // dd($paginationData['data']);
 
@@ -57,7 +56,7 @@ class CasierListController extends Controller
 
         $this->logUserVisit('liste_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/casier/listCasier.html.twig',
             [
                 'casier' => $paginationData['data'],

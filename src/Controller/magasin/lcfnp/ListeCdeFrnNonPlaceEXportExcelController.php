@@ -2,13 +2,13 @@
 
 namespace App\Controller\magasin\lcfnp;
 
+use DateTime;
+use DateTimeZone;
 use App\Controller\Controller;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\lcfnp\ListeCdeFrnNonplacerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use DateTime;
-use DateTimeZone;
 
 /**
  * @Route("/magasin")
@@ -22,7 +22,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     {
         parent::__construct();
         $this->listeCdeFrnNonPlacerModel = new ListeCdeFrnNonplacerModel();
-        $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -37,7 +37,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
         $today = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
         $vheure = $today->format("H:i:s");
         $vinstant = str_replace(":", "", $vheure);
-        $criteria = $this->sessionService->get('lcfnp_liste_cde_frs_non_placer');
+        $criteria = $this->getSessionService()->get('lcfnp_liste_cde_frs_non_placer');
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
         $this->listeCdeFrnNonPlacerModel->viewHffCtrmarqVinstant($criteria, $vinstant);
         $data = $this->listeCdeFrnNonPlacerModel->requetteBase($criteria, $vinstant, $numOrValides);
@@ -46,7 +46,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
 
         $entities = $this->transformationEnTableauAvecEntiter($data);
         //creation du fichier excel
-        $this->excelService->createSpreadsheet($entities);
+        $this->getExcelService()->createSpreadsheet($entities);
     }
 
     private function transformationEnTableauAvecEntiter(array $data): array

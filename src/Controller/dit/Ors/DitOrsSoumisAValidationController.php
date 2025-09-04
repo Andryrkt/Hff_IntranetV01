@@ -6,6 +6,7 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use App\Entity\da\DaValider;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -27,10 +28,11 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfOrSoumisAValidation;
+use App\Model\dit\DitModel;
 use App\Controller\Traits\dit\DitOrSoumisAValidationTrait;
-use App\Entity\da\DaAfficher;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationORService;
+use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -51,6 +53,8 @@ class DitOrsSoumisAValidationController extends Controller
     private DemandeApproLRRepository $demandeApproLRRepository;
     private DemandeApproRepository $demandeApproRepository;
     private DaAfficherRepository $daAfficherRepository;
+    private $ditModel;
+    private $fusionPdf;
 
 
     public function __construct()
@@ -60,12 +64,14 @@ class DitOrsSoumisAValidationController extends Controller
         $this->historiqueOperation      = new HistoriqueOperationORService();
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
-        $this->orRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
-        $this->demandeApproLRepository = self::$em->getRepository(DemandeApproL::class);
-        $this->demandeApproLRRepository = self::$em->getRepository(DemandeApproLR::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
+        $this->orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
+        $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->ditModel = new DitModel();
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**
@@ -95,7 +101,7 @@ class DitOrsSoumisAValidationController extends Controller
         ;
 
 
-        $form = self::$validator->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DitOrsSoumisAValidationType::class, $ditInsertionOrSoumis)->getForm();
 
         $form->handleRequest($request);
 
@@ -108,7 +114,7 @@ class DitOrsSoumisAValidationController extends Controller
             /** FIN CONDITION DE BLOCAGE */
             if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
 
-                $numeroVersionMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
+                $numeroVersionMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
 
                 $ditInsertionOrSoumis
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
@@ -168,7 +174,7 @@ class DitOrsSoumisAValidationController extends Controller
         ]); // historisation du page visité par l'utilisateur
 
         $cdtArticleDa = $this->conditionBlocageArticleDa($numOr);
-        self::$twig->display('dit/DitInsertionOr.html.twig', [
+        return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
         ]);
@@ -201,9 +207,9 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setOrResoumettre(false)
                     ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
                 ;
-                self::$em->persist($daValider);
+                $this->getEntityManager()->persist($daValider);
             }
-            self::$em->flush();
+            $this->getEntityManager()->flush();
         }
     }
 
@@ -238,7 +244,7 @@ class DitOrsSoumisAValidationController extends Controller
 
         $numOrNomFIchier = array_key_exists(1, explode('_', $originalName)) ? explode('_', $originalName)[1] : '';
 
-        $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
         $idMateriel = $this->ditOrsoumisAValidationModel->recupNumeroMatricule($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
@@ -365,23 +371,23 @@ class DitOrsSoumisAValidationController extends Controller
 
     private function creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, string $suffix)
     {
-        $OrSoumisAvant = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
+        $OrSoumisAvant = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvant($ditInsertionOrSoumis->getNumeroOR());
         // dump($OrSoumisAvant);
-        $OrSoumisAvantMax = self::$em->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
+        $OrSoumisAvantMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumiAvantMax($ditInsertionOrSoumis->getNumeroOR());
         // dump($OrSoumisAvantMax);
         $montantPdf = $this->montantpdf($orSoumisValidataion, $OrSoumisAvant, $OrSoumisAvantMax);
         // dd($montantPdf);
         $quelqueaffichage = $this->quelqueAffichage($ditInsertionOrSoumis->getNumeroOR());
 
-        $this->genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur(self::$em)['mailUtilisateur'], $suffix);
+        $this->genererPdfDit->GenererPdfOrSoumisAValidation($ditInsertionOrSoumis, $montantPdf, $quelqueaffichage, $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'], $suffix);
     }
 
     private function modificationStatutOr($numDit)
     {
-        $demandeIntervention = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $demandeIntervention = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $demandeIntervention->setStatutOr('Soumis à validation');
-        self::$em->persist($demandeIntervention);
-        self::$em->flush();
+        $this->getEntityManager()->persist($demandeIntervention);
+        $this->getEntityManager()->flush();
     }
 
     private function envoieDonnerDansBd($orSoumisValidataion)
@@ -390,23 +396,23 @@ class DitOrsSoumisAValidationController extends Controller
         if (count($orSoumisValidataion) > 1) {
             foreach ($orSoumisValidataion as $entity) {
                 // Persist l'entité et l'historique
-                self::$em->persist($entity); // Persister chaque entité individuellement
+                $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($orSoumisValidataion) === 1) {
-            self::$em->persist($orSoumisValidataion[0]);
+            $this->getEntityManager()->persist($orSoumisValidataion[0]);
         }
 
 
         // Flushe toutes les entités et l'historique
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis)
     {
-        $dit = self::$em->getrepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroOR($ditInsertionOrSoumis->getNumeroOR());
         // $dit->setStatutOr('Soumis à validation');
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function quelqueAffichage($numOr)

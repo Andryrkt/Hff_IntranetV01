@@ -1,17 +1,14 @@
 <?php
 
+
 namespace App\Controller\admin;
 
 
-use App\Entity\Role;
-use App\Form\RoleType;
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\Societte;
 use App\Form\admin\SocietteType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 class SocietteController extends Controller
 {
     /**
@@ -24,10 +21,10 @@ class SocietteController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-    $data = self::$em->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
+    $data = $this->getEntityManager()->getRepository(Societte::class)->findBy([], ['id'=>'DESC']);
 
 
-    self::$twig->display('admin/societte/list.html.twig', 
+    return $this->render('admin/societte/list.html.twig', 
     [
         'data' => $data
     ]);
@@ -41,7 +38,7 @@ class SocietteController extends Controller
             //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-            $form = self::$validator->createBuilder(SocietteType::class)->getForm();
+            $form = $this->getFormFactory()->createBuilder(SocietteType::class)->getForm();
     
             $form->handleRequest($request);
     
@@ -50,13 +47,13 @@ class SocietteController extends Controller
                 $societte= $form->getData();
                 
 
-                self::$em->persist($societte);
-                self::$em->flush();
+                $this->getEntityManager()->persist($societte);
+                $this->getEntityManager()->flush();
 
                 $this->redirectToRoute("societte_index");
             }
     
-            self::$twig->display('admin/societte/new.html.twig', 
+            return $this->render('admin/societte/new.html.twig', 
             [
                 'form' => $form->createView()
             ]);
@@ -73,21 +70,21 @@ class SocietteController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(Societte::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(Societte::class)->find($id);
         
-        $form = self::$validator->createBuilder(SocietteType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(SocietteType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("societte_index");
             
         }
 
-        self::$twig->display('admin/societte/edit.html.twig', 
+        return $this->render('admin/societte/edit.html.twig', 
         [
             'form' => $form->createView(),
         ]);
@@ -104,23 +101,23 @@ class SocietteController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
-        $societte = self::$em->getRepository(Societte::class)->find($id);
+        $societte = $this->getEntityManager()->getRepository(Societte::class)->find($id);
 
         if ($societte) {
             $typeReparations = $societte->getTypeReparations();
             foreach ($typeReparations as $typeReparation) {
                 $societte->removeTypeReparation($typeReparation);
-                self::$em->persist($typeReparation); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($typeReparation); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $societte->getTypeReparations()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
+            $this->getEntityManager()->flush();
         
-                self::$em->remove($societte);
-                self::$em->flush();
+                $this->getEntityManager()->remove($societte);
+                $this->getEntityManager()->flush();
         }
         
         $this->redirectToRoute("societte_index");

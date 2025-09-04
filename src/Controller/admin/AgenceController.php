@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controller\admin;
 
 
@@ -7,6 +8,7 @@ use App\Entity\admin\Agence;
 use App\Controller\Controller;
 use App\Form\admin\AgenceType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AgenceController extends Controller
@@ -21,9 +23,9 @@ class AgenceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(Agence::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display(
+        return $this->render(
             'admin/agence/list.html.twig',
             [
                 'data' => $data
@@ -39,7 +41,7 @@ class AgenceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(AgenceType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -53,13 +55,13 @@ class AgenceController extends Controller
                 $role->addService($permission);
             }
 
-            self::$em->persist($role);
-            self::$em->flush();
+            $this->getEntityManager()->persist($role);
+            $this->getEntityManager()->flush();
 
             $this->redirectToRoute("agence_index");
         }
 
-        self::$twig->display('admin/agence/new.html.twig', [
+        return $this->render('admin/agence/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -77,15 +79,15 @@ class AgenceController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $agence = self::$em->getRepository(Agence::class)->find($id);
+        $agence = $this->getEntityManager()->getRepository(Agence::class)->find($id);
 
-        $form = self::$validator->createBuilder(AgenceType::class, $agence)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceType::class, $agence)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             return $this->redirectToRoute("agence_index");
         }
 
@@ -95,7 +97,7 @@ class AgenceController extends Controller
             throw new \Exception('FormView is null');
         }
 
-        self::$twig->display('admin/agence/edit.html.twig', [
+        return $this->render('admin/agence/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }

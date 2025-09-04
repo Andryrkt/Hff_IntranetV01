@@ -3,13 +3,11 @@
 namespace App\Controller\admin;
 
 
-use App\Entity\Permission;
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Role;
 use App\Form\admin\utilisateur\RoleType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 class RoleController extends Controller
 {
     /**
@@ -22,9 +20,9 @@ class RoleController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(Role::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display(
+        return $this->render(
             'admin/role/list.html.twig',
             [
                 'data' => $data
@@ -40,7 +38,7 @@ class RoleController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(RoleType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(RoleType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -54,14 +52,13 @@ class RoleController extends Controller
                 $role->addPermission($permission);
             }
 
-            self::$em->persist($role);
-            self::$em->flush();
+            $this->getEntityManager()->persist($role);
+            $this->getEntityManager()->flush();
 
             $this->redirectToRoute("role_index");
         }
 
-        self::$twig->display(
-            'admin/role/new.html.twig',
+        return $this->render('admin/role/new.html.twig', 
             [
                 'form' => $form->createView()
             ]
@@ -80,20 +77,20 @@ class RoleController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(Role::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(Role::class)->find($id);
 
-        $form = self::$validator->createBuilder(RoleType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(RoleType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("role_index");
         }
 
-        self::$twig->display('admin/role/edit.html.twig', [
+        return $this->render('admin/role/edit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -108,23 +105,23 @@ class RoleController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $role = self::$em->getRepository(Role::class)->find($id);
+        $role = $this->getEntityManager()->getRepository(Role::class)->find($id);
 
         if ($role) {
             $permissions = $role->getPermissions();
             foreach ($permissions as $permission) {
                 $role->removePermission($permission);
-                self::$em->persist($permission); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($permission); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $role->getPermissions()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
-            self::$em->remove($role);
-            self::$em->flush();
+            $this->getEntityManager()->remove($role);
+            $this->getEntityManager()->flush();
         }
 
         $this->redirectToRoute("role_index");

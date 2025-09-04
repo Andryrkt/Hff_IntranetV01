@@ -4,10 +4,9 @@ namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
+use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 /**
  * @Route("/demande-appro")
  */
@@ -19,7 +18,7 @@ class DaValidationAvecDitController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+
         $this->initDaValidationAvecDitTrait();
     }
 
@@ -52,7 +51,7 @@ class DaValidationAvecDitController extends Controller
         ]);
 
         /** NOTIFICATION */
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("list_da");
     }
 }

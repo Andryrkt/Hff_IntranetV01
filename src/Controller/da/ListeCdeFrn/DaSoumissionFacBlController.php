@@ -18,7 +18,6 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
-
 /**
  * @Route("/demande-appro")
  */
@@ -44,9 +43,9 @@ class DaSoumissionFacBlController extends Controller
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
         $this->historiqueOperation      = new HistoriqueOperationDaBcService();
-        $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -59,13 +58,13 @@ class DaSoumissionFacBlController extends Controller
 
         $this->daSoumissionFacBl->setNumeroCde($numCde);
 
-        $form = self::$validator->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
+        $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
             'method' => 'POST',
         ])->getForm();
 
         $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
-        self::$twig->display('da/soumissionFacBl.html.twig', [
+        return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
             'numCde' => $numCde,
         ]);
@@ -102,8 +101,8 @@ class DaSoumissionFacBlController extends Controller
             $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            self::$em->persist($soumissionFacBl);
-            self::$em->flush();
+            $this->getEntityManager()->persist($soumissionFacBl);
+            $this->getEntityManager()->flush();
 
             /** COPIER DANS DW */
             $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);

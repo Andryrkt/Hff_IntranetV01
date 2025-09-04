@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controller\docs\fonctionnel\badm;
 
 use App\Controller\Controller;
@@ -30,7 +31,7 @@ class BadmDoc extends Controller
         $this->logUserVisit('badm_index'); // historisation du page visité par l'utilisateur
 
         // Rendre le template avec le contenu HTML
-        self::$twig->display(
+        return $this->render(
             'doc/fonctionnel/badm/badm.html.twig',
             [
                 'content' => $htmlContent

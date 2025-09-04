@@ -20,8 +20,8 @@ class ExportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
-        $this->agenceRepository = self::$em->getRepository(Agence::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
     }
 
     /** 
@@ -32,7 +32,7 @@ class ExportExcelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('criteria_for_excel');
+        $criteria = $this->getSessionService()->get('criteria_for_excel');
 
         // recupération des données de la DA
         $dasFiltered = $this->getDataExcel($criteria);
@@ -68,7 +68,7 @@ class ExportExcelController extends Controller
         $data = $this->convertirObjetEnTableau($dasFiltered, $data);
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
 

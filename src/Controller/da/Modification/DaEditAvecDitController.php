@@ -13,7 +13,6 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\modification\DaEditAvecDitTrait;
-
 /**
  * @Route("/demande-appro")
  */
@@ -26,7 +25,7 @@ class DaEditAvecDitController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+
         $this->initDaEditAvecDitTrait();
     }
 
@@ -51,13 +50,13 @@ class DaEditAvecDitController extends Controller
 
         $ancienDals = $this->getAncienDAL($demandeAppro);
 
-        $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
 
         $this->traitementForm($form, $request, $ancienDals);
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $demandeAppro->getNumeroDemandeAppro()], ['dateCreation' => 'DESC']);
 
-        self::$twig->display('da/edit-avec-dit.html.twig', [
+        return $this->render('da/edit-avec-dit.html.twig', [
             'form'         => $form->createView(),
             'observations' => $observations,
             'peutModifier' => $this->PeutModifier($demandeAppro),
@@ -72,26 +71,26 @@ class DaEditAvecDitController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $demandeApproLs = self::$em->getRepository(DemandeApproL::class)->findBy([
+        $demandeApproLs = $this->getEntityManager()->getRepository(DemandeApproL::class)->findBy([
             'numeroDemandeAppro' => $numDa,
             'numeroLigne'        => $ligne
         ]);
 
         if ($demandeApproLs) {
-            $demandeApproLRs = self::$em->getRepository(DemandeApproLR::class)->findBy([
+            $demandeApproLRs = $this->getEntityManager()->getRepository(DemandeApproLR::class)->findBy([
                 'numeroDemandeAppro' => $numDa,
                 'numeroLigne'        => $ligne
             ]);
 
             foreach ($demandeApproLs as $demandeApproL) {
-                self::$em->remove($demandeApproL);
+                $this->getEntityManager()->remove($demandeApproL);
             }
 
             foreach ($demandeApproLRs as $demandeApproLR) {
-                self::$em->remove($demandeApproLR);
+                $this->getEntityManager()->remove($demandeApproLR);
             }
 
-            self::$em->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
+            $this->getEntityManager()->flush(); // enregistrer le modifications avant l'appel à la méthode "ajouterDansTableAffichageParNumDa"
             $this->ajouterDansTableAffichageParNumDa($numDa); // ajout dans la table DaAfficher si le statut a changé
 
             $notifType = "success";
@@ -100,7 +99,7 @@ class DaEditAvecDitController extends Controller
             $notifType = "danger";
             $notifMessage = "Echec de la suppression de la ligne: la ligne de DA n'existe pas.";
         }
-        $this->sessionService->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
+        $this->getSessionService()->set('notification', ['type' => $notifType, 'message' => $notifMessage]);
         $this->redirectToRoute("list_da");
     }
 
@@ -128,7 +127,7 @@ class DaEditAvecDitController extends Controller
             ]);
 
             //notification
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre modification a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

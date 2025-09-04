@@ -1,26 +1,20 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Agences
+{% endblock %}
 
 {% block content %}
-
-
-	<div class="container">
+	<div class="container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
-
-				<h2 class="text-center fs-1 fw-bold bg-black py-2" style="color: #FBBB01">
-					Listes des Agences
-				</h2>
-
 				<div class="d-flex flex-row ">
 					<div class="p-2">
 						<a href="{{ path("agence_new")}}" class="btn btn-success fw-bold">
 							Add
 						</a>
-
 					</div>
 				</div>
-
 				<table class="table">
 					<thead class="table-dark">
 						<tr>
@@ -28,12 +22,10 @@
 							<th>Code</th>
 							<th>libelle</th>
 							<th>Services</th>
-
 						</tr>
 					</thead>
 					<tbody>
 						{% for item in data %}
-
 							<tr>
 								<td>
 									<div class="dropdown">
@@ -56,15 +48,11 @@
 									<ul>
 										{% for p in item.services %}
 											<li>
-
 												{{ p.codeService ~ ' ' ~ p.libelleService}}
-
 											</li>
 										{% endfor %}
 									</ul>
 								</td>
-
-
 							</tr>
 						{% endfor %}
 					</tbody>

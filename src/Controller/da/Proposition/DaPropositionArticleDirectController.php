@@ -18,7 +18,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
-
 /**
  * @Route("/demande-appro")
  */
@@ -34,8 +33,8 @@ class DaPropositionArticleDirectController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
-        $this->initDaPropositionDirectTrait();
+
+        $this->initDaPropositionDirectTrait($this->getUrlGenerator());
     }
 
     /**
@@ -54,19 +53,25 @@ class DaPropositionArticleDirectController extends Controller
 
         $daObservation = new DaObservation();
         $DapLRCollection = new DemandeApproLRCollection();
-        $form = self::$validator->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
-        $formObservation = self::$validator->createBuilder(DaObservationType::class, $daObservation, [
+        $form = $this->getFormFactory()->createBuilder(DemandeApproLRCollectionType::class, $DapLRCollection)->getForm();
+        $formObservation = $this->getFormFactory()->createBuilder(DaObservationType::class, $daObservation, [
             'achatDirect' => $da->getAchatDirect()
         ])->getForm();
-        $formValidation = self::$validator->createBuilder(DaPropositionValidationType::class, [], ['action' => self::$generator->generate('da_validate_direct', ['numDa' => $numDa])])->getForm();
+        $formValidation = $this->getFormFactory()->createBuilder(
+            DaPropositionValidationType::class,
+            [],
+            [
+                'action' => $this->getUrlGenerator()->generate('da_validate_direct', ['numDa' => $numDa])
+            ]
+        )->getForm();
 
-        // Traitement du formulaire en géneral ===========================//
+        // Traitement du formulaire en général ===========================//
         $this->traitementFormulaire($form, $formObservation, $dals, $request, $numDa, $da); //
         // ===============================================================//
 
         $observations = $this->daObservationRepository->findBy(['numDa' => $numDa]);
 
-        self::$twig->display("da/proposition.html.twig", [
+        return $this->render("da/proposition.html.twig", [
             'da'                      => $da,
             'id'                      => $id,
             'form'                    => $form->createView(),
@@ -146,7 +151,7 @@ class DaPropositionArticleDirectController extends Controller
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         return $this->redirectToRoute("list_da");
     }
 
@@ -182,7 +187,7 @@ class DaPropositionArticleDirectController extends Controller
             ];
         }
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -217,7 +222,7 @@ class DaPropositionArticleDirectController extends Controller
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -247,7 +252,7 @@ class DaPropositionArticleDirectController extends Controller
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -286,7 +291,7 @@ class DaPropositionArticleDirectController extends Controller
 
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($nomEtChemin['fileName']);
-        self::$em->flush();
+        $this->getEntityManager()->flush();
 
         return $nomEtChemin;
     }
@@ -318,7 +323,7 @@ class DaPropositionArticleDirectController extends Controller
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
-        $this->sessionService->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");
     }
 
@@ -406,25 +411,25 @@ class DaPropositionArticleDirectController extends Controller
             if (!empty($dalrs)) {
                 foreach ($dalrs as $dalr) {
                     $dalr->setDemandeApproL($dal);
-                    self::$em->persist($dalr);
+                    $this->getEntityManager()->persist($dalr);
                 }
             }
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDal(string $numDa, string $statut): void
     {
-        $numeroVersionMax = self::$em->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DemandeApproL::class)->getNumeroVersionMax($numDa);
         $dals = $this->demandeApproLRepository->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
 
         foreach ($dals as  $dal) {
             $dal->setStatutDal($statut);
             $dal->setEdit(self::EDIT);
-            self::$em->persist($dal);
+            $this->getEntityManager()->persist($dal);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function modificationStatutDa(string $numDa, string $statut): void
@@ -432,8 +437,8 @@ class DaPropositionArticleDirectController extends Controller
         $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
         $da->setStatutDal($statut);
 
-        self::$em->persist($da);
-        self::$em->flush();
+        $this->getEntityManager()->persist($da);
+        $this->getEntityManager()->flush();
     }
 
     private function modificationTableDaL(array $refs,  $data): void
@@ -446,10 +451,10 @@ class DaPropositionArticleDirectController extends Controller
                 ->setEstValidee($dalrs[$i][0]->getEstValidee())
                 ->setEstModifier($dalrs[$i][0]->getChoix())
             ;
-            self::$em->persist($dals[$i][0]);
+            $this->getEntityManager()->persist($dals[$i][0]);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
 
@@ -527,9 +532,9 @@ class DaPropositionArticleDirectController extends Controller
     private function resetBd(array $dalrsAll): void
     {
         foreach ($dalrsAll as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function recupEntiteAModifier(array $refs, $data): array
@@ -555,9 +560,9 @@ class DaPropositionArticleDirectController extends Controller
     private function modificationBd(array $dalrs): void
     {
         foreach ($dalrs as $dalr) {
-            self::$em->persist($dalr);
+            $this->getEntityManager()->persist($dalr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function notification(string $type, string $message): array
@@ -573,9 +578,9 @@ class DaPropositionArticleDirectController extends Controller
         foreach ($dalrList as $demandeApproLR) {
             $DAL = $this->filtreDal($dals, $demandeApproLR);
             $demandeApproLR = $this->ajoutDonnerDaLR($DAL, $demandeApproLR, $statut);
-            self::$em->persist($demandeApproLR);
+            $this->getEntityManager()->persist($demandeApproLR);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function filtreDal($dals, $demandeApproLR): ?object

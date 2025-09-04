@@ -15,7 +15,7 @@ class DaTelechargeBcValiderApi extends Controller
     {
         parent::__construct();
 
-        $this->dwBcApproRepository = self::$em->getRepository(DwBcAppro::class);
+        $this->dwBcApproRepository = $this->getEntityManager()->getRepository(DwBcAppro::class);
     }
 
     /**
@@ -39,7 +39,7 @@ class DaTelechargeBcValiderApi extends Controller
             readfile($filePath);
             exit;
         } else {
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Le BC n\'est pas encore disponible.']);
+            $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Le BC n\'est pas encore disponible.']);
         }
     }
 }

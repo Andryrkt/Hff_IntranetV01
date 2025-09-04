@@ -24,8 +24,8 @@ class DitValidationController extends Controller
 
 
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
-        $userConnecter = self::$em->getRepository(User::class)->find($userId);
+        $userId = $this->getSessionService()->get('user_id');
+        $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
         $roleNames = [];
         foreach ($userConnecter->getRoles() as $role) {
             $roleNames[] = $role->getRoleName();
@@ -34,9 +34,9 @@ class DitValidationController extends Controller
         //FIN AUTORISATION
 
 
-        $dit = self::$em->getRepository(DemandeIntervention::class)->find($id);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
 
-        $data = $this->ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+        $data = $this->getDitModel()->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
 
         $dit->setNumParc($data[0]['num_parc']);
         $dit->setNumSerie($data[0]['num_serie']);
@@ -63,7 +63,7 @@ class DitValidationController extends Controller
             $dit->setInternetExterne('EXTERNE');
         }
 
-        $form = self::$validator->createBuilder(DitValidationType::class, $dit)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DitValidationType::class, $dit)->getForm();
 
         // $form->handleRequest($request);
 
@@ -73,15 +73,15 @@ class DitValidationController extends Controller
         //     $email = new EmailService();
         //     $dit = $form->getData();
 
-        //     $userDemandeur = self::$em->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
+        //     $userDemandeur = $this->getEntityManager()->getRepository(User::class)->findOneBy(['nom_utilisateur' => $dit->getUtilisateurDemandeur()]);
         //     dump($userDemandeur);
         //         $userDemandeur = $this->arrayToObjet($userDemandeur);
         //         dump($userDemandeur);
         //         $emailSuperieurs = $this->recupMailSuperieur($userDemandeur);
         //         dump($emailSuperieurs);
-        //         $id = $this->sessionService->get('user_id');
+        //         $id = $this->getSessionService()->get('user_id');
         //         dump($id);
-        //         $userConnecter = self::$em->getRepository(User::class)->find($id);
+        //         $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($id);
         //         dump($userDemandeur);
         //     if ($request->request->has('refuser')) {
 
@@ -94,13 +94,13 @@ class DitValidationController extends Controller
         //     } elseif ($request->request->has('valider')) {
 
 
-        //         $statutDemande = self::$em->getRepository(StatutDemande::class)->find(51);
+        //         $statutDemande = $this->getEntityManager()->getRepository(StatutDemande::class)->find(51);
         //         $dit
         //         ->setIdStatutDemande($statutDemande)
         //         ->setDateValidation(new \DateTime($this->getDatesystem()))
         //         ->setHeureValidation($this->getTime())
         //         ;
-        //         self::$em->flush();
+        //         $this->getEntityManager()->flush();
 
         //         dd($dit);
 
@@ -123,14 +123,14 @@ class DitValidationController extends Controller
 
         // dd($dit);
         //RECUPERATION DE LISTE COMMANDE 
-        $commandes = $this->ditModel->RecupereCommandeOr($dit->getNumeroOR());
+        $commandes = $this->getDitModel()->RecupereCommandeOr($dit->getNumeroOR());
 
         $this->logUserVisit('dit_validationDit', [
             'id'     => $id,
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur       
 
-        self::$twig->display('dit/validation.html.twig', [
+        return  $this->render('dit/validation.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
             'autoriser' => $autoriser,
@@ -225,9 +225,9 @@ class DitValidationController extends Controller
     private function confirmationEmail($email, array $content)
     {
         if ($email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables'])) {
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Une email a été envoyé au demandeur ']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Une email a été envoyé au demandeur ']);
         } else {
-            $this->sessionService->set('notification', ['type' => 'danger', 'message' => "l'email n'a pas été envoyé au demandeur"]);
+            $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => "l'email n'a pas été envoyé au demandeur"]);
         }
     }
 }

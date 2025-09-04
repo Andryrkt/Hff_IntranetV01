@@ -1,37 +1,52 @@
 {% set role_ids = App.user.roleIds %}
 
-{{ form_start(form, {'method': 'GET'}) }}
-<div class="row">
-	<div class="col-12 col-md-2">
-		{{ form_row(form.statut) }}
-		{{ form_row(form.typeMouvement) }}
+<div class="accordion" id="formAccordion">
+	<div class="accordion-item">
+		<h2 class="accordion-header">
+			<button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+				Formulaire de recherche
+			</button>
+		</h2>
+		<div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#formAccordion">
+			<div class="accordion-body">
+				{{ form_start(form, {'method': 'GET'}) }}
+				<div class="row">
+					<div class="col-12 col-md-2">
+						{{ form_row(form.statut) }}
+						{{ form_row(form.typeMouvement) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.dateDebut) }}
+						{{ form_row(form.dateFin) }}
+					</div>
+					<div class="col-12 col-md-2">
+						{% if 1 in role_ids or 4 in role_ids %}
+							{{form_row(form.agenceEmetteur)}}
+							{{form_row(form.serviceEmetteur)}}
+						{% else %}
+							{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
+							{{ form_row(form.serviceEmetteur)}}
+						{% endif %}
+					</div>
+					<div class="col-12 col-md-2">
+						{{form_row(form.agenceDebiteur)}}
+						{{form_row(form.serviceDebiteur)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.numParc)}}
+						{{ form_row(form.numSerie)}}
+					</div>
+					<div class="col-12 col-md-2">
+						{{ form_row(form.idMateriel)}}
+					</div>
+					<div class="d-flex justify-content-end col-12 col-md-12">
+						<button class="btn btn-sm btn-warning fw-bold" type="submit">
+							<i class="fab fa-searchengin"></i>
+							Recherche</button>
+					</div>
+					{{ form_end(form) }}
+				</div>
+			</div>
+		</div>
 	</div>
-	<div class="col-12 col-md-2">
-		{{ form_row(form.dateDebut) }}
-		{{ form_row(form.dateFin) }}
-	</div>
-	<div class="col-12 col-md-2">
-		{% if 1 in role_ids or 4 in role_ids %}
-			{{form_row(form.agenceEmetteur)}}
-			{{form_row(form.serviceEmetteur)}}
-		{% else %}
-			{{ form_row(form.agenceEmetteur, {'attr': {'disabled': 'disabled'}}) }}
-			{{ form_row(form.serviceEmetteur)}}
-		{% endif %}
-	</div>
-	<div class="col-12 col-md-2">
-		{{form_row(form.agenceDebiteur)}}
-		{{form_row(form.serviceDebiteur)}}
-	</div>
-
-	<div class="col-12 col-md-2">
-		{{ form_row(form.idMateriel)}}
-		{{ form_row(form.numParc)}}
-		{{ form_row(form.numSerie)}}
-	</div>
-	<div class="d-flex justify-content-end col-12 col-md-10">
-		<button class="btn btn-sm btn-warning fw-bold" type="submit">
-			<i class="fab fa-searchengin"></i>
-			Recherche</button>
-	</div>
-	{{ form_end(form) }}
+</div>

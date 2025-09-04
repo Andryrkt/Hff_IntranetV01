@@ -17,7 +17,7 @@ class ModalPlanningApi extends Controller
         $this->planningModel = new ModalPlanningModel();
     }
 
-    
+
     /**
      * @Route("/detail-modal/{numOr}", name="liste_detailModal")
      *
@@ -27,10 +27,10 @@ class ModalPlanningApi extends Controller
     {
         // Récupération de la liste de détails
         $details = $this->fusionData($numOr);
-        if(strpos($numOr, '-') !== false) {
+        if (strpos($numOr, '-') !== false) {
             $groupedDetails = $details; //recupe les informations avec intervention preci
         } elseif (strpos($numOr, '-') === false) {
-            $groupedDetails = $this->regroupeParIntervention($details);// recupe tous les interventions en les regroupants dans des tableaus par intervenant
+            $groupedDetails = $this->regroupeParIntervention($details); // recupe tous les interventions en les regroupants dans des tableaus par intervenant
         } else {
             $groupedDetails = [];
         }
@@ -39,7 +39,7 @@ class ModalPlanningApi extends Controller
 
         echo json_encode($groupedDetails);
     }
-   
+
     /**
      * @Route("/api/technicien-intervenant/{numOr}/{numItv}", name="")
      */
@@ -47,8 +47,7 @@ class ModalPlanningApi extends Controller
     {
         $matriculeNom = $this->planningModel->recupTechnicientIntervenant($numOr, $numItv);
 
-        if(empty($matriculeNom))
-        {
+        if (empty($matriculeNom)) {
             $matriculeNom = $this->planningModel->recupTechnicien2($numOr, $numItv);
         }
 
@@ -60,11 +59,11 @@ class ModalPlanningApi extends Controller
 
     private function fusionData(string $numOr): array
     {
-        $criteria = $this->sessionService->get('planning_search_criteria', []);
+        $criteria = $this->getSessionService()->get('planning_search_criteria', []);
 
         $details = $this->planningModel->recuperationDetailPieceInformix($numOr, $criteria);
 
-        $ditRepositoryConditionner = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
+        $ditRepositoryConditionner = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => explode('-', $numOr)[0]]);
         $numDit = $ditRepositoryConditionner->getNumeroDemandeIntervention();
         $migration = $ditRepositoryConditionner->getMigration();
 
@@ -88,7 +87,7 @@ class ModalPlanningApi extends Controller
             // Ajouter les données récupérées au détail actuel
             $details[$i]['Eta_ivato'] = !empty($etaMag[0]['Eta_ivato']) ? $etaMag[0]['Eta_ivato'] : "";
             $details[$i]['Eta_magasin'] = !empty($etaMag[0]['Eta_magasin']) ? $etaMag[0]['Eta_magasin'] : "";
-            
+
             $recupParielCurrent = $recupPariel[$i] ?? null;
             $details[$i]['qteSlode'] = $recupParielCurrent['0']['solde'] ?? 0;
             $details[$i]['qte'] = $recupParielCurrent['0']['qte'] ?? 0;
@@ -102,7 +101,7 @@ class ModalPlanningApi extends Controller
         return $details;
     }
 
-    private function regroupeParIntervention( array $details): array 
+    private function regroupeParIntervention(array $details): array
     {
         $groupedDetails = [];
 

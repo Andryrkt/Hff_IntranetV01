@@ -40,7 +40,7 @@ trait DaListeDitTrait
     private function initialisationRechercheDit(): DitSearch
     {
 
-        $criteria = $this->sessionService->get('list_dit_da_search_criteria', []);
+        $criteria = $this->getSessionService()->get('list_dit_da_search_criteria', []);
         if ($criteria !== null) {
             $agenceIpsEmetteur = null;
             $serviceIpsEmetteur = null;
@@ -105,7 +105,7 @@ trait DaListeDitTrait
     private function ajoutCriteredansSession(array $criteriaTab)
     {
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('list_dit_da_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('list_dit_da_search_criteria', $criteriaTab);
     }
 
     private function recupDataFormulaireRecherhce($form, Request $request): DitSearch
@@ -230,7 +230,7 @@ trait DaListeDitTrait
                 if (!empty($data[$i]->getIdMateriel())) {
 
                     // Associez chaque entité à ses valeurs de num_serie et num_parc
-                    $numSerieParc = $this->ditModel->recupNumSerieParc($data[$i]->getIdMateriel());
+                    $numSerieParc = $this->getDitModel()->recupNumSerieParc($data[$i]->getIdMateriel());
                     if (!empty($numSerieParc)) {
                         $numSerie = $numSerieParc[0]['num_serie'];
                         $numParc = $numSerieParc[0]['num_parc'];

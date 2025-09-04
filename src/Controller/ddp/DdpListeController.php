@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\ddp\DemandePaiementLigneRepository;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -26,7 +25,7 @@ class DdpListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->demandePaiementRepository = self::$em->getRepository(DemandePaiement::class);
+        $this->demandePaiementRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->ddpSearch = new DdpSearch();
     }
 
@@ -43,7 +42,7 @@ class DdpListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(DdpSearchType::class, $this->ddpSearch, [
+        $form = $this->getFormFactory()->createBuilder(DdpSearchType::class, $this->ddpSearch, [
             'method' => 'GET',
         ])->getForm();
         $form->handleRequest($request);
@@ -55,12 +54,12 @@ class DdpListeController extends Controller
         // $data = $this->demandePaiementRepository->findBy([], ['dateCreation' => 'DESC']);
         $data = $this->demandePaiementRepository->findDemandePaiement($criteria);
         /** suppression de ssession page_loadede  */
-        if ($this->sessionService->has('page_loaded')) {
-            $this->sessionService->remove('page_loaded');
+        if ($this->getSessionService()->has('page_loaded')) {
+            $this->getSessionService()->remove('page_loaded');
         }
 
 
-        self::$twig->display('ddp/demandePaiementList.html.twig', [
+        return $this->render('ddp/demandePaiementList.html.twig', [
             'data' => $data,
             'form' => $form->createView(),
         ]);

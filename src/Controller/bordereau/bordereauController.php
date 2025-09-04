@@ -11,7 +11,6 @@ use App\Form\bordereau\BordereauSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\genererPdf\GeneretePdfBordereau;
-
 /**
  * @Route("/bordereau")
  */
@@ -39,7 +38,7 @@ class bordereauController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             BordereauSearchType::class,
             $this->bordereauSearch,
             [
@@ -57,12 +56,12 @@ class bordereauController extends Controller
 
         //transformer l'objet zn tableau
         $criteriaTab = $criteria->toArray();
-        $this->sessionService->set('bordereau_search_criteria', $criteriaTab);
+        $this->getSessionService()->set('bordereau_search_criteria', $criteriaTab);
         $data = [];
         if ($request->query->get('action') !== 'oui') {
             $data = $this->recupData($criteria->getNuminv());
         }
-        self::$twig->display('bordereau/bordereau.html.twig', [
+        return $this->render('bordereau/bordereau.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -75,7 +74,7 @@ class bordereauController extends Controller
     {
         // Vérification si l'utilisateur est connecté
         $this->verifierSessionUtilisateur();
-        $criteriaTab =  $this->sessionService->get('bordereau_search_criteria');
+        $criteriaTab =  $this->getSessionService()->get('bordereau_search_criteria');
         $data = $this->recupData($criteriaTab['numInv']);
         // dd($data);
         $this->generetePdfBordereau->genererPDF($data);

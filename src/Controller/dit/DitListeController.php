@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controller\dit;
 
 
@@ -11,7 +12,7 @@ use App\Form\dit\DocDansDwType;
 use App\Model\dit\DitListModel;
 use App\Entity\admin\Application;
 use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
+use App\Service\Users\UserDataService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\dit\DitListTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -20,7 +21,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
-use App\Service\Users\UserDataService;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -32,12 +32,14 @@ class DitListeController extends Controller
 
     private $historiqueOperation;
     private UserDataService $userDataService;
+    private $excelService;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
-        $this->userDataService = new UserDataService(self::$em);
+        $this->userDataService = new UserDataService($this->getEntityManager());
+        $this->excelService = new \App\Service\ExcelService();
     }
 
     /**
@@ -56,18 +58,18 @@ class DitListeController extends Controller
 
         /** CREATION D'AUTORISATION */
         $this->autorisationAcces($this->getUser(), Application::ID_DIT);
-        $autoriser = $this->autorisationRole(self::$em);
-        $autorisationRoleEnergie = $this->autorisationRoleEnergie(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
+        $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
         //FIN AUTORISATION
 
         $ditListeModel = new DitListModel();
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
-        $this->initialisationRechercheDit($ditSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisationRechercheDit($ditSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
         //création et initialisation du formulaire de la recherche
-        $form = self::$validator->createBuilder(DitSearchType::class, $ditSearch, [
+        $form = $this->getFormFactory()->createBuilder(DitSearchType::class, $ditSearch, [
             'method' => 'GET',
             //'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId(),
             'autorisationRoleEnergie' => $autorisationRoleEnergie
@@ -79,7 +81,7 @@ class DitListeController extends Controller
             $numParc = $form->get('numParc')->getData() === null ? '' : $form->get('numParc')->getData();
             $numSerie = $form->get('numSerie')->getData() === null ? '' : $form->get('numSerie')->getData();
             if (!empty($numParc) || !empty($numSerie)) {
-                $idMateriel = $this->ditModel->recuperationIdMateriel($numParc, strtoupper($numSerie));
+                $idMateriel = $this->getDitModel()->recuperationIdMateriel($numParc, strtoupper($numSerie));
                 if (!empty($idMateriel)) {
                     $this->ajoutDonnerRecherche($form, $ditSearch);
                     $ditSearch->setIdMateriel($idMateriel[0]['num_matricule']);
@@ -95,18 +97,18 @@ class DitListeController extends Controller
         //transformer l'objet ditSearch en tableau
         $criteria = $ditSearch->toArray();
         //recupères les données du criteria dans une session nommé dit_serch_criteria
-        $this->sessionService->set('dit_search_criteria', $criteria);
+        $this->getSessionService()->set('dit_search_criteria', $criteria);
 
 
         $agenceServiceEmetteur = $this->agenceServiceEmetteur($agenceServiceIps, $autoriser);
         $option = $this->Option($autoriser, $autorisationRoleEnergie, $agenceServiceEmetteur, $agenceIds, $serviceIds);
-        $this->sessionService->set('dit_search_option', $option);
+        $this->getSessionService()->set('dit_search_option', $option);
 
         //recupération des donnée
-        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, self::$em);
+        $paginationData = $this->data($request, $ditListeModel, $ditSearch, $option, $this->getEntityManager());
 
         /**  Docs à intégrer dans DW * */
-        $formDocDansDW = self::$validator->createBuilder(DocDansDwType::class, null, [
+        $formDocDansDW = $this->getFormFactory()->createBuilder(DocDansDwType::class, null, [
             'method' => 'GET',
         ])->getForm();
 
@@ -140,7 +142,7 @@ class DitListeController extends Controller
         $this->logUserVisit(...$logType);
 
 
-        self::$twig->display('dit/list.html.twig', [
+        return $this->render('dit/list.html.twig', [
             'data'          => $paginationData['data'],
             'currentPage'   => $paginationData['currentPage'],
             'totalPages'    => $paginationData['lastPage'],
@@ -165,10 +167,10 @@ class DitListeController extends Controller
                 // Mise à jour de l'élément avec le numéro de devis
                 $item->setNumeroDevisRattache($numeroDevis);
 
-                self::$em->persist($item);
+                $this->getEntityManager()->persist($item);
             }
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
 
         return $paginationData;
     }
@@ -182,19 +184,19 @@ class DitListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('dit_search_criteria', []);
+        $criteria = $this->getSessionService()->get('dit_search_criteria', []);
         //recupère les critères dans la session 
-        $options = $this->sessionService->get('dit_search_option', []);
+        $options = $this->getSessionService()->get('dit_search_option', []);
 
         //crée une objet à partir du tableau critère reçu par la session
         $ditSearch = $this->transformationEnObjet($criteria);
 
-        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, self::$em);
+        $entities = $this->DonnerAAjouterExcel($ditSearch, $options, $this->getEntityManager());
 
         // Convertir les entités en tableau de données
         $data = $this->transformationEnTableauAvecEntet($entities);
         //creation du fichier excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 
@@ -206,7 +208,7 @@ class DitListeController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
 
         $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
 
@@ -243,14 +245,14 @@ class DitListeController extends Controller
 
     private function modificationTableDit($dit)
     {
-        $statutCloturerAnnuler = self::$em->getRepository(StatutDemande::class)->find(52);
+        $statutCloturerAnnuler = $this->getEntityManager()->getRepository(StatutDemande::class)->find(52);
         $dit
             ->setIdStatutDemande($statutCloturerAnnuler)
             ->setAAnnuler(true)
-            ->setDateAnnulation(new DateTime())
+            ->setDateAnnulation(new \DateTime())
         ;
-        self::$em->persist($dit);
-        self::$em->flush();
+        $this->getEntityManager()->persist($dit);
+        $this->getEntityManager()->flush();
     }
 
     private function ajouterDansCsv($filePath, $data, $headers = null)
@@ -325,7 +327,7 @@ class DitListeController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dw/dwIntervAteAvecDit.html.twig', [
+        return $this->render('dw/dwIntervAteAvecDit.html.twig', [
             'numDit' => $numDit,
             'data'   => $data,
         ]);

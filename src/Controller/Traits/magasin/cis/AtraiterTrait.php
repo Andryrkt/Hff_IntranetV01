@@ -5,8 +5,6 @@ namespace App\Controller\Traits\magasin\cis;
 use App\Entity\admin\utilisateur\User;
 use App\Service\TableauEnStringService;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Controller\Controller;
-
 trait AtraiterTrait
 {
     private function agenceUser($autoriser): ?string
@@ -25,7 +23,7 @@ trait AtraiterTrait
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds) || in_array(6, $roleIds);

@@ -4,20 +4,19 @@ namespace App\Controller\ddp;
 
 use Exception;
 use App\Controller\Controller;
+use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Form\ddp\DdpDossierRegulType;
 use App\Model\ddp\DdpDossierRegulModel;
+use App\Service\genererPdf\GeneratePdfDdr;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\FileUploaderService;
-use App\Entity\admin\Application;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\admin\ddp\DocDemandePaiementRepository;
-use App\Service\genererPdf\GeneratePdfDdr;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -35,8 +34,8 @@ class DdpDossierRegularisationController extends Controller
     {
         parent::__construct();
         $this->DdpDossierRegulModel = new DdpDossierRegulModel;
-        $this->demandePaiementRepository  = self::$em->getRepository(DemandePaiement::class);
-        $this->docRepository = self::$em->getRepository(DocDemandePaiement::class);
+        $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
+        $this->docRepository = $this->getEntityManager()->getRepository(DocDemandePaiement::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService();
         $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
@@ -50,7 +49,7 @@ class DdpDossierRegularisationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(DdpDossierRegulType::class, null)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DdpDossierRegulType::class, null)->getForm();
         $form->handleRequest($request);
         $Ddp = $this->demandePaiementRepository->findOneBy(['numeroDdp' => $numDdp, 'numeroVersion' => $numVersion]);
         // dd($Ddp);
@@ -90,10 +89,10 @@ class DdpDossierRegularisationController extends Controller
             $this->historiqueOperation->sendNotificationSoumission('Les documents de régularisation a été stockée avec succès', $numDdr, 'ddp_liste', true);
         }
 
-        if (!$this->sessionService->has('page_loaded')) {
+        if (!$this->getSessionService()->has('page_loaded')) {
 
             /** creation du session */
-            $this->sessionService->set('page_loaded', true);
+            $this->getSessionService()->set('page_loaded', true);
 
             /** COPIER LES FICHIERS */
             $this->copierFichierDistant($numDdp);
@@ -108,7 +107,7 @@ class DdpDossierRegularisationController extends Controller
 
 
 
-        self::$twig->display('ddp/DdpDossierRegul.html.twig', [
+        return $this->render('ddp/DdpDossierRegul.html.twig', [
             'form' => $form->createView(),
             'groupes' => $groupes
         ]);
@@ -127,7 +126,7 @@ class DdpDossierRegularisationController extends Controller
         foreach ($docDdps as  $docDdp) {
             $docDdp->setNumDdr($numDdr);
         }
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -138,11 +137,11 @@ class DdpDossierRegularisationController extends Controller
      */
     private function modificationDernierIdApp(string $numDdr): void
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDR']);
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDR']);
         $application->setDerniereId($numDdr);
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
+        $this->getEntityManager()->persist($application);
+        $this->getEntityManager()->flush();
     }
     /**
      * modification de statut_dossier_regul dans la table demande_paiement
@@ -152,11 +151,11 @@ class DdpDossierRegularisationController extends Controller
      */
     private function modificationStatutDossierRegul($numDdp)
     {
-        $demande_paiement = self::$em->getRepository(DemandePaiement::class)->findOneBy(['numeroDdp' => $numDdp]);
+        $demande_paiement = $this->getEntityManager()->getRepository(DemandePaiement::class)->findOneBy(['numeroDdp' => $numDdp]);
         $demande_paiement->setStatutDossierRegul('DOSSIER DE REGULARISTATION');
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($demande_paiement);
-        self::$em->flush();
+        $this->getEntityManager()->persist($demande_paiement);
+        $this->getEntityManager()->flush();
     }
     /**
      * Decrementation de Numero_Applications (DOMAnnéeMoisNuméro)
@@ -178,7 +177,7 @@ class DdpDossierRegularisationController extends Controller
 
 
         if ($nomDemande === 'DDR') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDR'])->getDerniereId();
+            $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDR'])->getDerniereId();
         } else {
             $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
         }
@@ -228,8 +227,8 @@ class DdpDossierRegularisationController extends Controller
             ->setNomDossier(null)
             ->setNumDdr($numDdr)
         ;
-        self::$em->persist($docDdp);
-        self::$em->flush();
+        $this->getEntityManager()->persist($docDdp);
+        $this->getEntityManager()->flush();
     }
     private function moveFichierUploder(UploadedFile $file, string $numDdp, FileUploaderService $fileUploaderService): string
     {
@@ -340,10 +339,10 @@ class DdpDossierRegularisationController extends Controller
         $docDddps = $this->recupDonnerDocDdp($numDdp, $numVersion);
 
         foreach ($docDddps as $docDddp) {
-            self::$em->persist($docDddp);
+            $this->getEntityManager()->persist($docDddp);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /** 

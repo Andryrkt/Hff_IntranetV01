@@ -3,7 +3,9 @@
 namespace App\Controller\dit\Devis;
 
 use DateTime;
+use App\Traits\CalculeTrait;
 use App\Controller\Controller;
+use App\Repository\dit\DitRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Service\autres\MontantPdfService;
@@ -15,11 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
-use App\Repository\dit\DitRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
-use App\Traits\CalculeTrait;
-
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -50,10 +49,10 @@ class DitDevisSoumisAValidationController extends Controller
         $this->montantPdfService = new MontantPdfService();
         $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
         $this->historiqueOperation = new HistoriqueOperationDEVService;
-        $this->devisRepository = self::$em->getRepository(DitDevisSoumisAValidation::class);
+        $this->devisRepository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
         $this->chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/dev/';
         $this->fileUploader = new FileUploaderService($this->chemin);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
@@ -77,20 +76,20 @@ class DitDevisSoumisAValidationController extends Controller
         // Vérification si une version du devis est déjà validée
         if ($this->verificationTypeDevis($numDevis, $type, $numDit)) {
             if ($request->query->get('continueDevis') == 1) {
-                $this->sessionService->set('devis_version_valide', 'KO');
+                $this->getSessionService()->set('devis_version_valide', 'KO');
             }
         }
 
         //initialisation du formulaire
         $ditDevisSoumisAValidation = $this->initialistaion($this->ditDevisSoumisAValidation, $numDit, $numDevis);
-        $form = self::$validator->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DitDevisSoumisAValidationType::class, $ditDevisSoumisAValidation)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $this->traiterSoumissionDevis($form, $numDevis, $numDit, $type, $devisSoumisValidataion, $request);
         }
 
-        self::$twig->display('dit/DitDevisSoumisAValidation.html.twig', [
+        return $this->render('dit/DitDevisSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'numDevis' => $numDevis,
             'numDit' => $numDit,
@@ -146,8 +145,8 @@ class DitDevisSoumisAValidationController extends Controller
             } elseif ((int)$devisValide !== 0) {
                 $message = " Une version du devis est déjà validé ";
                 $this->historiqueOperation->sendNotificationSoumissionSansRedirection($message, $numDevis, 'dit_index');
-                $this->sessionService->set('devis_version_valide', 'OK');
-                $this->sessionService->set('message', $message);
+                $this->getSessionService()->set('devis_version_valide', 'OK');
+                $this->getSessionService()->set('message', $message);
                 return true;
             } elseif ($condition['conditionStatutDevisVp']) {
                 $message = "Erreur lors de la soumission, Impossible de soumettre le devis  . . . un devis est déjà en cours de vérification";
@@ -259,7 +258,7 @@ class DitDevisSoumisAValidationController extends Controller
      */
     public function ConditionDeBlockage(string $numDevis, string $numDit, DitDevisSoumisAValidationRepository $devisRepository, $originalName): array
     {
-        $TrouverDansDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $TrouverDansDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
 
         if ($TrouverDansDit === null) {
             $message = "Erreur avant la soumission, Impossible de soumettre le devis . . . l'information de la statut du n° DIT $numDit n'est pas récupérer";
@@ -413,7 +412,7 @@ class DitDevisSoumisAValidationController extends Controller
 
         $variationPrixRefPiece = $this->variationPrixRefPiece($numDevis);
 
-        $mailUtilisateur = $this->nomUtilisateur(self::$em)['mailUtilisateur'];
+        $mailUtilisateur = $this->nomUtilisateur($this->getEntityManager())['mailUtilisateur'];
 
         // dd($montantPdf, $quelqueaffichage);
         if ($this->estCeVente($numDevis)) { // vente
@@ -426,10 +425,10 @@ class DitDevisSoumisAValidationController extends Controller
     private function donnerDevisSoumisAvant(string $numDevis): array
     {
         return [
-            'devisSoumisAvantForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
-            'devisSoumisAvantMaxForfait' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
-            'devisSoumisAvantVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis),
-            'devisSoumisAvantMaxVte' => self::$em->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis),
+            'devisSoumisAvantForfait' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantForfait($numDevis),
+            'devisSoumisAvantMaxForfait' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMaxForfait($numDevis),
+            'devisSoumisAvantVte' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvant($numDevis),
+            'devisSoumisAvantMaxVte' => $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findDevisSoumiAvantMax($numDevis),
         ];
     }
 
@@ -469,7 +468,7 @@ class DitDevisSoumisAValidationController extends Controller
 
     private function nomUtilisateur($em): array
     {
-        $userId = $this->sessionService->get('user_id', []);
+        $userId = $this->getSessionService()->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),
@@ -495,16 +494,16 @@ class DitDevisSoumisAValidationController extends Controller
         if (count($devisSoumisValidataion) > 1) {
             foreach ($devisSoumisValidataion as $entity) {
                 $entity->setStatut($statut);
-                self::$em->persist($entity); // Persister chaque entité individuellement
+                $this->getEntityManager()->persist($entity); // Persister chaque entité individuellement
             }
         } elseif (count($devisSoumisValidataion) === 1) {
             $devisSoumisValidataion[0]->setStatut($statut);
-            self::$em->persist($devisSoumisValidataion[0]);
+            $this->getEntityManager()->persist($devisSoumisValidataion[0]);
         }
 
 
         // Flushe toutes les entités et l'historique
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
 
@@ -522,7 +521,7 @@ class DitDevisSoumisAValidationController extends Controller
     private function devisSoumisValidataion(array $devisSoumisAValidationInformix, ?int $numeroVersionMax, string $numDevis, string $numDit, bool $estCeVenteOuForfait, string $type): array
     {
         $devisSoumisValidataion = []; // Tableau pour stocker les objets
-        $infoDit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $infoDit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         if ($estCeVenteOuForfait) {
             $venteOuForfait = 'DEVIS VENTE';
         } else {
@@ -613,10 +612,10 @@ class DitDevisSoumisAValidationController extends Controller
     {
         $statut = $this->statutSelonType($type);
 
-        $dit = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
+        $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $numDit]);
         $dit->setNumeroDevisRattache($numDevis);
         $dit->setStatutDevis($statut);
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function nomFichierUploder(string $numDevis, string $numeroVersion, string $suffix)

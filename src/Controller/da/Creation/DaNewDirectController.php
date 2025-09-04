@@ -12,7 +12,6 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-
 /**
  * @Route("/demande-appro")
  */
@@ -24,7 +23,6 @@ class DaNewDirectController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
         $this->initDaNewDirectTrait();
     }
 
@@ -40,10 +38,10 @@ class DaNewDirectController extends Controller
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
-        $form = self::$validator->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandeApproDirectFormType::class, $demandeAppro)->getForm();
         $this->traitementFormDirect($form, $request, $demandeAppro);
 
-        self::$twig->display('da/new-da-direct.html.twig', [
+        return $this->render('da/new-da-direct.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -67,7 +65,7 @@ class DaNewDirectController extends Controller
              **/
             foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
                 if (null === $DAL->getNumeroFournisseur()) {
-                    $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
+                    $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
                     $this->redirectToRoute("list_da");
                 }
 
@@ -76,14 +74,14 @@ class DaNewDirectController extends Controller
                     ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
                     ->setJoursDispo($this->getJoursRestants($DAL));
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
-                self::$em->persist($DAL);
+                $this->getEntityManager()->persist($DAL);
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            self::$em->persist($demandeAppro);
+            $this->getEntityManager()->persist($demandeAppro);
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $applicationService = new ApplicationService(self::$em);
+            $applicationService = new ApplicationService($this->getEntityManager());
             $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
@@ -91,7 +89,7 @@ class DaNewDirectController extends Controller
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
@@ -102,7 +100,7 @@ class DaNewDirectController extends Controller
             /** création de pdf et envoi dans docuware */
             $this->creationPdfSansDitAvaliderDW($demandeAppro);
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

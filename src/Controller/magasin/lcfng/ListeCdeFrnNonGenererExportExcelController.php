@@ -21,7 +21,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
         parent::__construct();
 
         $this->listeCdeFrnNonGenererModel = new ListeCdeFrnNonGenererModel();
-        $this->ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 
     /**
@@ -34,7 +34,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('lcfng_liste_cde_frs_non_generer');
+        $criteria = $this->getSessionService()->get('lcfng_liste_cde_frs_non_generer');
 
         // récupération des OR valide dans Ors_soumis_a_validation
         $numOrValides = $this->orEnString($this->ditOrsSoumisRepository->findNumOrValide());
@@ -45,7 +45,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
         $entities = $this->transformationEnTableauAvecEntiter($data);
 
         //creation du fichier excel
-        $this->excelService->createSpreadsheet($entities);
+        $this->getExcelService()->createSpreadsheet($entities);
     }
 
     private function transformationEnTableauAvecEntiter(array $data): array

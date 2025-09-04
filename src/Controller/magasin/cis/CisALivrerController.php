@@ -12,6 +12,7 @@ use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\magasin\cis\ALivrerTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/cis")
@@ -20,6 +21,14 @@ class CisALivrerController extends Controller
 {
     use ALivrerTrait;
     use AutorisationTrait;
+
+    private $ditModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->ditModel = new DitModel();
+    }
 
     /**
      * @Route("/cis-liste-a-livrer", name="cis_liste_a_livrer")
@@ -36,12 +45,12 @@ class CisALivrerController extends Controller
         $cisATraiterModel = new CisALivrerModel();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
 
         $agenceUser = $this->agenceUser($autoriser);
 
-        $form = self::$validator->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(ALivrerSearchtype::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -59,11 +68,11 @@ class CisALivrerController extends Controller
         $data = $this->recupData($cisATraiterModel, $criteria);
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('cis_a_Livrer_search_criteria', $criteria);
+        $this->getSessionService()->set('cis_a_Livrer_search_criteria', $criteria);
 
         $this->logUserVisit('cis_liste_a_livrer'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('magasin/cis/listALivrer.html.twig', [
+        return $this->render('magasin/cis/listALivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -80,7 +89,7 @@ class CisALivrerController extends Controller
         $cisATraiterModel = new CisALivrerModel();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('cis_a_Livrer_search_criteria', []);
+        $criteria = $this->getSessionService()->get('cis_a_Livrer_search_criteria', []);
 
         $entities = $this->recupData($cisATraiterModel, $criteria);
 
@@ -110,19 +119,19 @@ class CisALivrerController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     private function recupData($cisATraiterModel, $criteria)
     {
-        $ditOrsSoumisRepository = self::$em->getRepository(DitOrsSoumisAValidation::class);
+        $ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
         $numORItvValides = $this->orEnString($ditOrsSoumisRepository->findNumOrItvValide());
         $data = $cisATraiterModel->listOrALivrer($criteria, $numORItvValides);
 
         for ($i = 0; $i < count($data); $i++) {
 
             $numeroOr = $data[$i]['num_or'];
-            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
             $idMateriel = $ditRepository->getIdMateriel();
             $marqueCasier = $this->ditModel->recupMarqueCasierMateriel($idMateriel);
             $data[$i]['idMateriel'] = $idMateriel;

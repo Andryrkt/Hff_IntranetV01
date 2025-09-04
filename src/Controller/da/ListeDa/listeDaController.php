@@ -23,8 +23,9 @@ class listeDaController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
-        $this->initDaListeTrait(self::$generator);
+
+        $this->initDaListeTrait();
+        $this->initStatutBcTrait();
     }
 
     /**
@@ -40,14 +41,15 @@ class listeDaController extends Controller
         /** FIN AUtorisation accès */
 
         //formulaire de recherche
-        $form = self::$validator->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
+
         $form->handleRequest($request);
 
         $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        $this->sessionService->set('criteria_for_excel', $criteria);
+        $this->getSessionService()->set('criteria_for_excel', $criteria);
 
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
@@ -58,7 +60,7 @@ class listeDaController extends Controller
         $paginationData = $this->getPaginationData($criteria, $page, $limit);
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
-        self::$twig->display('da/list-da.html.twig', [
+        return $this->render('da/list-da.html.twig', [
             'data'        => $dataPrepared,
             'form'        => $form->createView(),
             'criteria'    => $criteria,

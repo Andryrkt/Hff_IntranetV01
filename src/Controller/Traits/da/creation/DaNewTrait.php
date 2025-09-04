@@ -18,7 +18,7 @@ trait DaNewTrait
      * dans la table `DaAfficher`, une ligne par DAL (Demande d'Achat Ligne).
      *
      * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
-     *     self::$em->flush();
+     *     $this->getEntityManager()->flush();
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param DemandeAppro $demandeAppro  Objet de la demande d'achat à traiter

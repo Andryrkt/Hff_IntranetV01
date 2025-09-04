@@ -7,14 +7,13 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomForm1Type;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -36,18 +35,18 @@ class DomFirstController extends Controller
 
         $dom = new Dom();
 
-        $userId = $this->sessionService->get('user_id', []);
-        $user = self::$em->getRepository(User::class)->find($userId);
+        $userId = $this->getSessionService()->get('user_id', []);
+        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
         $agenceAutoriserId = $user->getAgenceAutoriserIds();
         $codeAgences = [];
         foreach ($agenceAutoriserId as $value) {
-            $codeAgences[] = self::$em->getRepository(Agence::class)->find($value)->getCodeAgence();
+            $codeAgences[] = $this->getEntityManager()->getRepository(Agence::class)->find($value)->getCodeAgence();
         }
 
         $serviceAutoriserId = $user->getServiceAutoriserIds();
         $codeService = [];
         foreach ($serviceAutoriserId as $value) {
-            $codeService[] = self::$em->getRepository(Service::class)->find($value)->getCodeService();
+            $codeService[] = $this->getEntityManager()->getRepository(Service::class)->find($value)->getCodeService();
         }
 
         //INITIALISATION 
@@ -55,14 +54,14 @@ class DomFirstController extends Controller
         $dom
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
-            ->setSousTypeDocument(self::$em->getRepository(SousTypeDocument::class)->find(2))
+            ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
             ->setCodeAgenceAutoriser($codeAgences)
             ->setCodeServiceAutoriser($codeService)
         ;
 
 
-        $form = self::$validator->createBuilder(DomForm1Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
 
         $form->handleRequest($request);
 
@@ -74,7 +73,7 @@ class DomFirstController extends Controller
             $formData = $form->getData()->toArray();
 
 
-            $this->sessionService->set('form1Data', $formData);
+            $this->getSessionService()->set('form1Data', $formData);
 
             // Redirection vers le second formulaire
             return $this->redirectToRoute('dom_second_form');
@@ -82,7 +81,7 @@ class DomFirstController extends Controller
 
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('doms/firstForm.html.twig', [
+        return $this->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -90,7 +89,7 @@ class DomFirstController extends Controller
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $userConnecter = $em->getRepository(User::class)->find($userId);
         $roleIds = $userConnecter->getRoleIds();
         return in_array(1, $roleIds) || in_array(4, $roleIds);
@@ -98,7 +97,7 @@ class DomFirstController extends Controller
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dom_first_form");
     }
 }

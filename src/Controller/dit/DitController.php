@@ -3,18 +3,19 @@
 namespace App\Controller\dit;
 
 
-use App\Controller\Controller;
+
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\Application;
 use App\Controller\Traits\DitTrait;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\utilisateur\User;
 use App\Form\dit\demandeInterventionType;
 use App\Service\genererPdf\GenererPdfDit;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Controller;
+use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -27,18 +28,20 @@ class DitController extends Controller
 
 
     private $historiqueOperation;
+    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->fusionPdf = new FusionPdf();
     }
 
     /**
      * @Route("/new", name="dit_new")
      *
      * @param Request $request
-     * @return void
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function new(Request $request)
     {
@@ -52,15 +55,15 @@ class DitController extends Controller
         $demandeIntervention = new DemandeIntervention();
 
         //INITIALISATION DU FORMULAIRE
-        $this->initialisationForm($demandeIntervention, self::$em);
+        $this->initialisationForm($demandeIntervention, $this->getEntityManager());
 
         //AFFICHAGE ET TRAITEMENT DU FORMULAIRE
-        $form = self::$validator->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
+        $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeIntervention)->getForm();
         $this->traitementFormulaire($form, $request, $demandeIntervention, $this->getUser());
 
         $this->logUserVisit('dit_new'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dit/new.html.twig', [
+        return $this->render('dit/new.html.twig', [
             'form' => $form->createView()
         ]);
     }
@@ -87,7 +90,7 @@ class DitController extends Controller
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
             }
 
-            $dits = $this->infoEntrerManuel($dit, self::$em, $user);
+            $dits = $this->infoEntrerManuel($dit, $this->getEntityManager(), $user);
 
             //RECUPERATION de la dernière NumeroDemandeIntervention 
             $this->modificationDernierIdApp($dits);
@@ -111,9 +114,9 @@ class DitController extends Controller
             $this->envoiePieceJoint($form, $dits, $this->fusionPdf);
 
             //ENVOIE DES DONNEES DE FORMULAIRE DANS LA BASE DE DONNEE
-            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, self::$em);
-            self::$em->persist($insertDemandeInterventions);
-            self::$em->flush();
+            $insertDemandeInterventions = $this->insertDemandeIntervention($dits, $demandeIntervention, $this->getEntityManager());
+            $this->getEntityManager()->persist($insertDemandeInterventions);
+            $this->getEntityManager()->flush();
 
             //ENVOYER le PDF DANS DOXCUWARE
             $genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(), str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
@@ -124,10 +127,10 @@ class DitController extends Controller
 
     private function modificationDernierIdApp($dits)
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DIT']);
         $application->setDerniereId($dits->getNumeroDemandeIntervention());
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
+        $this->getEntityManager()->persist($application);
+        $this->getEntityManager()->flush();
     }
 }

@@ -3,12 +3,11 @@
 namespace App\Controller\tik;
 
 use App\Controller\Controller;
-use App\Entity\tik\TikPlanningSearch;
 use App\Form\tik\CalendarType;
+use App\Entity\tik\TikPlanningSearch;
 use App\Form\tik\TikPlanningSearchType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/it")
  */
@@ -24,7 +23,7 @@ class CalendarPlanningController extends Controller
 
         $tikPlanningSearch = new TikPlanningSearch;
 
-        $form = self::$validator->createBuilder(CalendarType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CalendarType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -32,7 +31,7 @@ class CalendarPlanningController extends Controller
             dd($form->getData());
         }
 
-        $formSearch = self::$validator->createBuilder(TikPlanningSearchType::class, $tikPlanningSearch, [
+        $formSearch = $this->getFormFactory()->createBuilder(TikPlanningSearchType::class, $tikPlanningSearch, [
             'method' => 'POST',
         ])->getForm();
 
@@ -41,11 +40,11 @@ class CalendarPlanningController extends Controller
         if ($formSearch->isSubmitted() && $formSearch->isValid()) {
             $tikPlanningSearch = $formSearch->getData();
         }
-        $this->sessionService->set('tik_planning_search', $tikPlanningSearch->toArray());
+        $this->getSessionService()->set('tik_planning_search', $tikPlanningSearch->toArray());
 
         $this->logUserVisit('tik_calendar_planning'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('tik/planning/calendar.html.twig', [
+        return $this->render('tik/planning/calendar.html.twig', [
             'form' => $form->createView(),
             'formSearch' => $formSearch->createView(),
         ]);

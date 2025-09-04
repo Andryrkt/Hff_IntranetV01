@@ -14,7 +14,7 @@ class DataDitApi extends Controller
      */
     public function dataDit()
     {
-        $paginationData = self::$em->getRepository(DemandeIntervention::class)->findAll();
+        $paginationData = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findAll();
 
         // dd($paginationData);
 
