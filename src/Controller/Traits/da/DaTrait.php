@@ -40,7 +40,7 @@ trait DaTrait
         if ($this->daTraitInitialise) return;
 
         $em = $this->getEntityManager();
-        $this->emailDaService = new EmailDaService;
+        $this->emailDaService = new EmailDaService($this->twig);
         $this->daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
@@ -226,5 +226,42 @@ trait DaTrait
         }
 
         return $verrouille;
+    }
+
+    /**
+     * Détecte les lignes supprimées entre deux ensembles de lignes de DA (DaAfficher).
+     *
+     * Une ligne est considérée comme supprimée si son numéro de ligne existe dans
+     * l'ancien jeu de données (`$oldDAs`) mais pas dans le nouveau (`$newDAs`).
+     *
+     * @param iterable<DaAfficher> $oldDAs Les anciennes lignes de la DA (stockées en base)
+     * @param iterable<DaAfficher> $newDAs Les nouvelles lignes de la DA (venant de l'utilisateur ou d'un formulaire)
+     *
+     * @return string[] Tableau des numéros de ligne à marquer comme supprimés
+     */
+    function getDeletedLineNumbers(iterable $oldDAs, iterable $newDAs): array
+    {
+        $oldLineNumbers = [];
+        $newLineNumbers = [];
+
+        // Indexer les anciens numéros de ligne
+        foreach ($oldDAs as $old) {
+            $oldLineNumbers[$old->getNumeroLigne()] = true;
+        }
+
+        // Indexer les nouveaux numéros de ligne
+        foreach ($newDAs as $new) {
+            $newLineNumbers[$new->getNumeroLigne()] = true;
+        }
+
+        // Détecter les numéros présents dans l'ancien mais absents dans le nouveau
+        $deletedLineNumbers = [];
+        foreach ($oldLineNumbers as $numeroLigne => $_) {
+            if (!isset($newLineNumbers[$numeroLigne])) {
+                $deletedLineNumbers[] = $numeroLigne;
+            }
+        }
+
+        return $deletedLineNumbers;
     }
 }

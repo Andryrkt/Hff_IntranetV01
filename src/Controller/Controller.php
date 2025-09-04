@@ -590,10 +590,10 @@ class Controller
     /**
      * Récupérer le nom de l'utilisateur
      */
-    protected function getUserName(): ?string
+    protected function getUserName(): string
     {
         $user = $this->getUser();
-        return $user ? $user->getNomUtilisateur() : null;
+        return $user ? $user->getNomUtilisateur() : 'unknown';
     }
 
     /**

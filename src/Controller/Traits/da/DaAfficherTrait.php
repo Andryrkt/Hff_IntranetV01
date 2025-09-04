@@ -29,20 +29,31 @@ trait DaAfficherTrait
 
         /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
         $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+
+        $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
+        $numeroVersionMaxDaAfficher = 0;
+
+        if (!empty($oldDaAffichers) && isset($oldDaAffichers[0])) {
+            $numeroVersionMaxDaAfficher = $oldDaAffichers[0]->getNumeroVersion();
+        }
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $donneesAfficher = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
-        foreach ($donneesAfficher as $donneeAfficher) {
+        $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
+
+        $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
+
+        foreach ($newDaAffichers as $newDaAfficher) {
             $daAfficher = new DaAfficher();
             if ($demandeAppro->getDit()) {
                 $daAfficher->setDit($demandeAppro->getDit());
             }
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->setNumeroVersion(VersionService::autoIncrement($numeroVersionMaxDaAfficher));
-            if ($donneeAfficher instanceof DemandeApproL) {
-                $daAfficher->enregistrerDal($donneeAfficher); // enregistrement pour DAL
-            } else if ($donneeAfficher instanceof DemandeApproLR) {
-                $daAfficher->enregistrerDalr($donneeAfficher); // enregistrement pour DALR
+            if ($newDaAfficher instanceof DemandeApproL) {
+                $daAfficher->enregistrerDal($newDaAfficher); // enregistrement pour DAL
+            } else if ($newDaAfficher instanceof DemandeApproLR) {
+                $daAfficher->enregistrerDalr($newDaAfficher); // enregistrement pour DALR
             }
 
             $em->persist($daAfficher);
