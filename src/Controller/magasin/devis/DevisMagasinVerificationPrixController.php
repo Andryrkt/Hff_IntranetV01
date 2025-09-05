@@ -25,6 +25,7 @@ class DevisMagasinVerificationPrixController extends Controller
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
+    private const MESSAGE = 'verification prix';
 
     use AutorisationTrait;
 
@@ -83,7 +84,8 @@ class DevisMagasinVerificationPrixController extends Controller
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'message' => self::MESSAGE
         ]);
     }
 

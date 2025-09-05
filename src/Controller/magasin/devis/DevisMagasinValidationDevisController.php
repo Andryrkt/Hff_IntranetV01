@@ -26,7 +26,7 @@ class DevisMagasinValidationDevisController extends Controller
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
     private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef agence';
     private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
-
+    private const MESSAGE = 'validation devis';
     use AutorisationTrait;
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
@@ -92,7 +92,8 @@ class DevisMagasinValidationDevisController extends Controller
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'message' => self::MESSAGE
         ]);
     }
 
