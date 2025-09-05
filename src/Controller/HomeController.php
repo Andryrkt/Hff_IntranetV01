@@ -42,7 +42,7 @@ class HomeController extends Controller
             }
         } else {
             // Si l'utilisateur n'est pas connecté, on utilise le menu par défaut
-            // ou on laisse le template gérer l'affichage
+            $this->redirectToRoute('security_signin');
         }
 
         return $this->render('main/accueil.html.twig', [
