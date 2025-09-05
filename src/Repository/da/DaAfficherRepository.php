@@ -10,15 +10,66 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DaAfficherRepository extends EntityRepository
 {
     /**
+     *  Récupère les dernières versions pour une demande d'approvisionnement (DA) donnée.
+     *
+     * @param string $numeroDemandeAppro
+     */
+    public function getLastDaAfficher(string $numeroDemandeAppro)
+    {
+        // Étape 1 : récupérer la version max pour ce numero_DA
+        $maxVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :num')
+            ->setParameter('num', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult(); // Renvoie null si aucune ligne
+
+        if ($maxVersion === null) {
+            return [];
+        } else {
+            // Étape 2 : récupérer tous les enregistrements correspondant
+            return $this->createQueryBuilder('d')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroVersion = :version')
+                ->setParameters([
+                    'num'     => $numeroDemandeAppro,
+                    'version' => $maxVersion,
+                ])
+                ->getQuery()
+                ->getResult();
+        }
+    }
+
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
+    {
+        if (empty($numeroLignes)) return; // rien à faire
+
+        $this->createQueryBuilder('d')
+            ->update()
+            ->set('d.deleted', ':deleted')
+            ->set('d.deletedBy', ':deletedBy')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroVersion = :version')
+            ->andWhere('d.numeroLigne IN (:lines)')
+            ->setParameters([
+                'num'       => $numeroDemandeAppro,
+                'version'   => $this->getNumeroVersionMax($numeroDemandeAppro),
+                'deleted'   => true,
+                'deletedBy' => $userName,
+                'lines'     => $numeroLignes,
+            ])
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
      *  Récupère le numéro de version maximum pour une demande d'approvisionnement (DA) donnée.
      *
      * @param string $numeroDemandeAppro
-     * @return void
      */
     public function getNumeroVersionMax(string $numeroDemandeAppro)
     {

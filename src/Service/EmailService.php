@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-use App\Controller\Controller;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
@@ -13,9 +12,9 @@ class EmailService
     private $twig;
     private $twigMailer;
 
-    public function __construct()
+    public function __construct($twig)
     {
-        $this->twig = Controller::getTwig();
+        $this->twig = $twig;
 
         $this->mailer = new PHPMailer(true);
 

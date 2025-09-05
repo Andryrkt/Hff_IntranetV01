@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Liste des Demandes d'Achats
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
@@ -49,7 +53,15 @@
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date fin souhaitée</th>
 					<th class="text-center">Date livraison prévue</th>
-					<th class="text-center">Nbr Jour(s) dispo</th>
+					<th class="text-center">
+						<div class="d-flex flex-row align-items-center">
+							<span>Nbr Jour(s) dispo</span>
+							<div class="d-flex flex-column sort-icons">
+								<i class="fas fa-sort-up text-white"></i>
+								<i class="fas fa-sort-down text-white"></i>
+							</div>
+						</div>
+					</th>
 					<th class="text-center">Suppression</th>
 				</tr>
 			</thead>
@@ -120,7 +132,7 @@
 						<td class="text-center {{ row.joursDispo < 0 ? 'text-danger' : '' }}">{{ row.joursDispo }}</td>
 						<td class="text-center">
 							{% if row.supprimable %}
-								<i class="fas fa-xmark delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
+								<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" data-bs-toggle="tooltip" title="Supprimer la ligne de DA" data-delete-path="{{ row.urlDelete }}"></i>
 							{% endif %}
 						</td>
 					</tr>

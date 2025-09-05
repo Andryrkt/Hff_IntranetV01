@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Détails d’une DA
+{% endblock %}
+
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20" rel="stylesheet"/>
@@ -16,32 +20,32 @@
 {% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail-avec-dit' %}
 
 {% block content %}
-<div class="container-spaced">
-	<nav>
-		<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
-			<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
-			<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
-			<button class="nav-link" id="nav-document-rattache-tab" data-bs-toggle="tab" data-bs-target="#nav-document-rattache" type="button" role="tab" aria-controls="nav-document-rattache" aria-selected="false">Documents rattachés</button>
-		</div>
-	</nav>
-	<div class="card border-top-left-radius-0">
-		<div class="card-body">
-			<div class="container-fluid">
-				<div class="tab-content" id="nav-tabContent">
-					<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
-						{{ include('da/shared/detail/' ~ detail_template ~ '.html.twig') }}
-					</div>
-					<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
-						{{ include('da/shared/observation/observation.html.twig') }}
-					</div>
-					<div class="tab-pane fade" id="nav-document-rattache" role="tabpanel" aria-labelledby="nav-document-rattache-tab">
-						{{ include('da/shared/detail/document-rattache.html.twig') }}
+	<div class="container-spaced">
+		<nav>
+			<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
+				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
+				<button class="nav-link" id="nav-observation-tab" data-bs-toggle="tab" data-bs-target="#nav-observation" type="button" role="tab" aria-controls="nav-observation" aria-selected="false">Observation</button>
+				<button class="nav-link" id="nav-document-rattache-tab" data-bs-toggle="tab" data-bs-target="#nav-document-rattache" type="button" role="tab" aria-controls="nav-document-rattache" aria-selected="false">Documents rattachés</button>
+			</div>
+		</nav>
+		<div class="card border-top-left-radius-0">
+			<div class="card-body">
+				<div class="container-fluid">
+					<div class="tab-content" id="nav-tabContent">
+						<div class="tab-pane fade active show" id="nav-detail" role="tabpanel" aria-labelledby="nav-detail-tab">
+							{{ include('da/shared/detail/' ~ detail_template ~ '.html.twig') }}
+						</div>
+						<div class="tab-pane fade" id="nav-observation" role="tabpanel" aria-labelledby="nav-observation-tab">
+							{{ include('da/shared/observation/observation.html.twig') }}
+						</div>
+						<div class="tab-pane fade" id="nav-document-rattache" role="tabpanel" aria-labelledby="nav-document-rattache-tab">
+							{{ include('da/shared/detail/document-rattache.html.twig') }}
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
 {% endblock %}
 
 {% block javascript %}

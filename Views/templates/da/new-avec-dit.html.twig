@@ -1,5 +1,9 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Création d’une DA
+{% endblock %}
+
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20" rel="stylesheet"/>
@@ -13,12 +17,17 @@
 {% endblock %}
 
 {% block content %}
-	<div class="container-fluid mt-6 px-5">
+	<div class="container-spaced">
 		<div class="card">
 			<div class="card-body">
 				{{ form_start(form, { 'attr': { 'id': 'myForm' } }) }}
 				{{ form_errors(form)}}
 				<div class="container-fluid">
+					<div class="row">
+						<h3 class="perso-titre">
+							Formulaire Demande d'achat
+						</h3>
+					</div>
 					<div class="row">
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre3('Information sur la demande') }}

@@ -67,6 +67,9 @@ ALTER TABLE da_afficher ADD service_debiteur_id int;
 ALTER TABLE da_afficher ADD demande_appro_id INT NOT NULL;
 ALTER TABLE da_afficher ADD dit_id INT DEFAULT NULL;
 
+ALTER TABLE da_afficher ADD deleted_by varchar(100);
+ALTER TABLE da_afficher ADD deleted BIT NOT NULL DEFAULT 0;
+
 ALTER TABLE da_afficher
     ADD CONSTRAINT FK_da_demande_appro FOREIGN KEY (demande_appro_id) REFERENCES demande_appro (id);
 

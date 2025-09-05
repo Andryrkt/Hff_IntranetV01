@@ -67,6 +67,18 @@ a.choix:hover {
   border: none;
 }
 
+.sort-icons i {
+  opacity: 0.75;
+  line-height: 0.5;
+  font-size: 1.125rem;
+  cursor: pointer;
+  transform: translateY(-2px);
+}
+
+.sort-icons i:hover {
+  opacity: 1;
+}
+
 @media (min-width: 576px) {
   .container.custom-width {
     max-width: 768px;

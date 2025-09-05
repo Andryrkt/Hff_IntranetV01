@@ -9,10 +9,12 @@ use App\Service\EmailService;
 class EmailDaService
 {
     use lienGenerique;
+    private $twig;
     private $emailTemplate;
 
-    public function __construct()
+    public function __construct($twig)
     {
+        $this->twig = $twig;
         $this->emailTemplate = "da/email/emailDa.html.twig";
     }
 
@@ -281,7 +283,7 @@ class EmailDaService
      */
     public function envoyerEmail(array $content): void
     {
-        $emailService = new EmailService();
+        $emailService = new EmailService($this->twig);
 
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
 

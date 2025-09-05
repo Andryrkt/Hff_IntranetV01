@@ -9,7 +9,6 @@ use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Service\da\EmailDaService;
 use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
@@ -133,7 +132,7 @@ class DaDetailAvecDitController extends Controller
 
 			/** ENVOIE D'EMAIL pour l'observation */
 			$service = $this->estUserDansServiceAtelier() ? 'atelier' : ($this->estUserDansServiceAppro() ? 'appro' : '');
-			(new EmailDaService($this->getEntityManager()))->envoyerMailObservationDaAvecDit($demandeAppro, [
+			$this->emailDaService->envoyerMailObservationDaAvecDit($demandeAppro, [
 				'service' 		=> $service,
 				'observation'   => $daObservation->getObservation(),
 				'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
