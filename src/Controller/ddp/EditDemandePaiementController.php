@@ -23,6 +23,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -52,8 +53,8 @@ class EditDemandePaiementController extends Controller
         $this->historiqueOperation = new HistoriqueOperationDDPService();
         $this->generatePdfDdp = new GeneratePdfDdp();
         $this->traitementDeFichier = new TraitementDeFichier();
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+        $this->serviceRepository = $this->getEntityManager()->getRepository(Service::class);
         $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);
         $this->ddpRepository = $this->getEntityManager()->getRepository(DemandePaiement::class);
     }
@@ -415,7 +416,7 @@ class EditDemandePaiementController extends Controller
 
         foreach ($form->all() as $fieldName => $field) {
             if (preg_match($fieldPattern, $fieldName, $matches)) {
-                /** @var UploadedFile|UploadedFile[]|null $file */
+                /** @var UploadedFile[]|null $file */
                 $file = $field->getData();
 
                 if ($file !== null) {
@@ -423,13 +424,18 @@ class EditDemandePaiementController extends Controller
                         // Cas où c'est un tableau de fichiers
                         foreach ($file as $singleFile) {
                             if ($singleFile !== null) {
-                                $nomDeFichier = $singleFile->getClientOriginalName();
-                                $this->traitementDeFichier->upload(
-                                    $singleFile,
-                                    $this->cheminDeBase . '/' . $numDdp . '_New_1',
-                                    $nomDeFichier
-                                );
-                                $nomDesFichiers[] = $nomDeFichier;
+                                // Correction : s'assurer que $singleFile est bien une instance de UploadedFile de Symfony
+                                if ($singleFile instanceof \Symfony\Component\HttpFoundation\File\UploadedFile) {
+                                    $nomDeFichier = $singleFile->getClientOriginalName();
+                                    $this->traitementDeFichier->upload(
+                                        $singleFile,
+                                        $this->cheminDeBase . '/' . $numDdp . '_New_1',
+                                        $nomDeFichier
+                                    );
+                                    $nomDesFichiers[] = $nomDeFichier;
+                                } else {
+                                    throw new \Exception("Le fichier téléchargé n'est pas valide.");
+                                }
                             }
                         }
                     } else {

@@ -21,13 +21,13 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -65,8 +65,8 @@ class DemandePaiementController extends Controller
         $this->docDemandePaiement = new DocDemandePaiement();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+        $this->serviceRepository = $this->getEntityManager()->getRepository(Service::class);
     }
 
     /**

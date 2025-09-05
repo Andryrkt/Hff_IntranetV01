@@ -47,7 +47,7 @@ class BadmsController extends Controller
         /** FIN AUtorisation acées */
 
         /** RECUPERATION ID USER CONNECTER */
-        $userId = $this->getSessionService()->get('user_id');
+        $user = $this->getUser();
         /** INITIALISATION*/
         $badm = new Badm();
         $agenceServiceIps = $this->agenceServiceIpsString();
@@ -94,8 +94,6 @@ class BadmsController extends Controller
                     //si le materiel n'est pas encore dans la base de donner on donne la valeur 0 pour l'idType ld emouvmentMateriel
                     $idTypeMouvementMateriel = $materiel === null ? 0 : $materiel->getTypeMouvement()->getId();
 
-                    //recuperati
-                    $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
 
                     $agenceMaterielId = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $data[0]["agence"]])->getId();
 

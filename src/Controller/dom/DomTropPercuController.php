@@ -44,8 +44,7 @@ class DomTropPercuController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         $dom = new Dom;
         /** 
