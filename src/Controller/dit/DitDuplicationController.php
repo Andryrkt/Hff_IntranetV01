@@ -52,7 +52,7 @@ class DitDuplicationController extends Controller
         //INITIALISATION DU FORMULAIRE
         $dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->find($id);
         $demandeInterventions = $this->initialisationForm($dit);
-    
+
         //AFFICHE LE FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(demandeInterventionType::class, $demandeInterventions)->getForm();
         $this->traitementFormulaire($form, $request, $demandeInterventions, $user);
@@ -103,7 +103,7 @@ class DitDuplicationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dit = $form->getData();
-
+            dd($dit);
             if (empty($dit->getIdMateriel())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
