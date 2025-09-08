@@ -21,9 +21,9 @@ class DaEnvoieCdeApi extends Controller
         $dateparDefaut = $this->ajouterJoursOuvrables(5); // Ajoute 5 jours à la date actuelle
 
         /** Formulaire pour confirmer l'envoie des commande au fournisseur */
-        $form = self::$validator->createBuilder(DaCdeEnvoyerType::class, ['dateDefault' => $dateparDefaut])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaCdeEnvoyerType::class, ['dateDefault' => $dateparDefaut])->getForm();
 
-        self::$twig->display('da/shared/cdeFrn/_formulaireCdeEnvoyer.html.twig', [
+        $this->getTwig()->display('da/shared/cdeFrn/_formulaireCdeEnvoyer.html.twig', [
             'form' => $form->createView()
         ]);
     }

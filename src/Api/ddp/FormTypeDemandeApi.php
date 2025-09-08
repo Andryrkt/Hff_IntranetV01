@@ -15,9 +15,9 @@ class FormTypeDemandeApi extends Controller
      */
     public function showForm()
     {
-        $form = self::$validator->createBuilder(FormTypeDemandeType::class, null)->getForm();
-        
-        self::$twig->display('ddp/formTypeDemande.html.twig', [
+        $form = $this->getFormFactory()->createBuilder(FormTypeDemandeType::class, null)->getForm();
+
+        $this->getTwig()->display('ddp/formTypeDemande.html.twig', [
             'form' => $form->createView()
         ]);
     }
