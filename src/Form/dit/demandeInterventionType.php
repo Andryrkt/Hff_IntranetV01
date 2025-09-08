@@ -4,7 +4,7 @@ namespace App\Form\dit;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -63,9 +63,9 @@ class demandeInterventionType extends AbstractType
     ];
 
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->agenceRepository = controller::getEntity()->getRepository(Agence::class);
+        $this->agenceRepository = $em->getRepository(Agence::class);
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

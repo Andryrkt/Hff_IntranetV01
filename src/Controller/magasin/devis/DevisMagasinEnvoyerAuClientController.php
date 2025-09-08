@@ -23,7 +23,8 @@ class DevisMagasinEnvoyerAuClientController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
+        global $container;
+        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
     }
 
     /**

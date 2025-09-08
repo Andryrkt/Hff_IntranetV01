@@ -38,8 +38,9 @@ class DevisMagasinValidationDevisController extends Controller
     public function __construct()
     {
         parent::__construct();
+        global $container;
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
+        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);

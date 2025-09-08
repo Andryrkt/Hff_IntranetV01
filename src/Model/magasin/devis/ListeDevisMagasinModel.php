@@ -90,7 +90,6 @@ class ListeDevisMagasinModel extends Model
                     and nlig_constp <> 'Nmc' 
                     and nlig_numcde = '$numeroDevis'
             ";
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

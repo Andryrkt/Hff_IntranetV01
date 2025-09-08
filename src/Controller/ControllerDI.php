@@ -56,7 +56,7 @@ class Controller
      */
     public function getEntityManager(): EntityManagerInterface
     {
-        return $this->getContainer()->get('doctrine.orm.entity_manager');
+        return $this->getContainer()->get('doctrine.orm.default_entity_manager');
     }
 
     /**

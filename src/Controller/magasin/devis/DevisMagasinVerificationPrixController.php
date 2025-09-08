@@ -38,8 +38,9 @@ class DevisMagasinVerificationPrixController extends Controller
     public function __construct()
     {
         parent::__construct();
+        global $container;
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
+        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
@@ -100,6 +101,7 @@ class DevisMagasinVerificationPrixController extends Controller
             }
 
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
+
             //recupération des informations utile dans IPS
             $devisIps = $this->listeDevisMagasinModel->getInfoDev($devisMagasin->getNumeroDevis());
 
@@ -121,7 +123,7 @@ class DevisMagasinVerificationPrixController extends Controller
                 $utilisateur = $this->getUser();
                 $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
                 /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, $email);
+                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $email)[0]);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
                 //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin

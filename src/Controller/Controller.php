@@ -79,7 +79,7 @@ class Controller
         if (!$container) {
             throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
         }
-        return $container->get('doctrine.orm.entity_manager');
+        return $container->get('doctrine.orm.default_entity_manager');
     }
 
     /**
@@ -650,7 +650,7 @@ class Controller
     public static function getEntity()
     {
         global $container;
-        return $container ? $container->get('doctrine.orm.entity_manager') : null;
+        return $container ? $container->get('doctrine.orm.default_entity_manager') : null;
     }
 
     /**
