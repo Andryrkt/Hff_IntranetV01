@@ -74,7 +74,7 @@ class DossierInterventionAtelierController extends Controller
 
     public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
     {
-        $dwDits = $dwModel->findAllDwDit($criteria);
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser());
 
         $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
 

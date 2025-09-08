@@ -25,9 +25,9 @@ class DossierInterventionAtelierModel extends Model
     private function conditionLikeTypeIntervention($colonne, $criteria)
     {
         if (!empty($criteria["typeIntervention"])) {
-            $condition = "WHERE {$colonne} LIKE '%" . $criteria["typeIntervention"] . "%'";
+            $condition = " AND {$colonne} LIKE '%" . $criteria["typeIntervention"] . "%'";
         } else {
-            $condition = "WHERE {$colonne} is not null";
+            $condition = " AND {$colonne} is not null";
         }
 
         return $condition;
@@ -52,7 +52,7 @@ class DossierInterventionAtelierModel extends Model
         return $condition;
     }
 
-    public function findAllDwDit($criteria = [])
+    public function findAllDwDit($criteria = [], $codeAgence = '40')
     {
 
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
@@ -84,6 +84,8 @@ class DossierInterventionAtelierModel extends Model
                 SELECT DISTINCT numero_dit
                 FROM DW_Devis
             ) dd ON dit.numero_dit = dd.numero_dit
+            JOIN demande_intervention di ON dit.numero_dit = di.numero_demande_dit
+            WHERE reparation_realise in (select agence_atelier_realise.code_atelier from agence_atelier_realise where code_agence = '$codeAgence')
             $typeIntervention
             $numeroDev
             $numeroDit

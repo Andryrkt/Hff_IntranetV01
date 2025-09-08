@@ -13,7 +13,7 @@
 {% block content %}
 	<div class="row">
 		<div class="col-12 col-md-6">
-			<div class="container">
+			<div class="container mt-6 mb-4">
 				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
 				<table class="table rounded table-plein-ecran">
 					<thead class="table-dark">
@@ -30,6 +30,11 @@
 						</tr>
 					</thead>
 					<tbody>
+						{% if dwDits is empty %}
+							<tr>
+								<td colspan="10">Aucun résultat trouvé pour cette recherche</td>
+							</tr>
+						{% else %}
 						{% for dwDit in dwDits %}
 							<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
 								<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
@@ -42,7 +47,8 @@
 								<td class="text-center">{{dwDit.nbDoc}}</td>
 								<td>{{dwDit.type_reparation_intervention}}</td>
 							</tr>
-						{% endfor %}
+							{% endfor %}
+						{% endif %}
 					</tbody>
 				</table>
 				<div class="dossier">DOSSIER:
@@ -84,7 +90,7 @@
 			</div>
 		</div>
 		<div class="col-12 col-md-6">
-			<div class="container">
+			<div class="container mt-6 mb-4">
 				<div id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
 					<div id="spinners" style="display: none;">Loading...</div>
 					<!-- Le fichier sélectionné sera affiché ici -->
