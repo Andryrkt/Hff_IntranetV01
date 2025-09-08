@@ -32,14 +32,14 @@
 				{{ form_errors(form)}}
 
 				<div class="row">
-					<dit class="d-none">
-						<div class="{{ estAvoir ? '' : d-none}} text-danger">
-							{{ form_row(form.estDitAvoir)}}
-						</div>
-						<div class="{{ estRefactorisation ? '' : d-none}} text-danger">
-							{{ form_row(form.estDitRefacturation, {'required':true})}}
-						</div>
-					</dit>
+					{# <dit class="d-none"> #} <!-- TODO : à faire -->
+						{# <div class="{{ estAvoir ? '' : d-none}} text-danger"> #}
+							{{ form_row(form.estDitAvoir, {'attr': {'class': 'champColor'}})}}
+						{# </div> #}
+						{# <div class="{{ estRefactorisation ? '' : d-none}} text-danger"> #}
+							{{ form_row(form.estDitRefacturation, {'required':true, 'attr': {'class': 'champColor'}})}}
+						{# </div> #}
+					{# </dit> #}
 					{{ form_row(form.objetDemande)}}
 					<div class="mb-3 position-relative">
 						{{ form_row(form.detailDemande) }}

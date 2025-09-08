@@ -70,15 +70,14 @@ class demandeInterventionType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add('estDitAvoir', CheckboxType::class, [
                 'required' => false, // obligatoire false
-                'label'    => "Cette demande est un avoir (annulation de la <numero_dit_initale>)",
+                'label'    => "Cette demande est un avoir (annulation de la" . $options['data']->getNumeroDemandeIntervention() . ")",
             ])
             ->add('estDitRefacturation', CheckboxType::class, [
                 'required' => false, //obligatoire false
-                'label'    => "Cette demande est une refacturation (reprise de la DIT <numero_dit_initale> avec nouvelle facturation>",
+                'label'    => "Cette demande est une refacturation (reprise de la DIT " . $options['data']->getNumeroDemandeIntervention() . " avec nouvelle facturation>",
             ])
             ->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
                 $form = $event->getForm();
