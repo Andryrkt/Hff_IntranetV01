@@ -100,6 +100,7 @@ class DevisMagasinValidationDevisController extends Controller
 
     private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVdService $validationService)
     {
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -120,6 +121,7 @@ class DevisMagasinValidationDevisController extends Controller
                 if (!$validationService->isSumOfLinesUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, self::STATUT_PRIX_REFUSE)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
+
                 // Validation de la somme des lignes qui est différent de la dernière version
                 if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
@@ -134,7 +136,7 @@ class DevisMagasinValidationDevisController extends Controller
                 $utilisateur = $this->getUser();
                 $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
                 /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, $email);
+                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $email)[0]);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
                 //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
