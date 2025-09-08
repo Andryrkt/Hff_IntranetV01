@@ -9,6 +9,7 @@ use App\Service\tik\HandleRequestService;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
+
 /**
  * @Route("/it")
  */
@@ -44,7 +45,7 @@ class ReouvertTikController extends Controller
             $this->redirectToRoute('profil_acceuil');
         }
 
-        $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
+        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
 
         $handleRequestService
             ->setStatut($this->getEntityManager()->getRepository(StatutDemande::class)->find(63))  // statut réouvert

@@ -18,6 +18,7 @@ use App\Service\genererPdf\GenererPdfCasier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationCASService;
+
 /**
  * @Route("/materiel/casier")
  */
