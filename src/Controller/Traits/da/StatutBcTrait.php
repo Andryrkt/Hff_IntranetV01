@@ -34,6 +34,10 @@ trait StatutBcTrait
         $statutBc = $DaAfficher->getStatutCde();
         $achatDirect = $DaAfficher->getAchatDirect();
 
+        if (!$achatDirect) {
+            $this->updateInfoOR($numDit, $DaAfficher);
+        }
+
         if ($numeroOr == null && !$achatDirect) {
             return $statutBc;
         }
@@ -58,9 +62,7 @@ trait StatutBcTrait
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
-        if (!$achatDirect) {
-            $this->updateInfoOR($numDit, $DaAfficher);
-        }
+
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
 
