@@ -301,6 +301,16 @@ class DaAfficher
     private $verouille = false;
     private bool $demandeDeverouillage = false;
 
+    /**
+     * @ORM\Column(type="boolean", name="deleted")
+     */
+    private $deleted = false;
+
+    /**
+     * @ORM\Column(type="string", name="deleted_by", nullable=true)
+     */
+    private ?string $deletedBy = null;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1455,6 +1465,46 @@ class DaAfficher
     public function setNumLigneTableau($numLigneTableau)
     {
         $this->numLigneTableau = $numLigneTableau;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deleted
+     */
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    /**
+     * Set the value of deleted
+     *
+     * @return  self
+     */
+    public function setDeleted($deleted)
+    {
+        $this->deleted = $deleted;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of deletedBy
+     */
+    public function getDeletedBy()
+    {
+        return $this->deletedBy;
+    }
+
+    /**
+     * Set the value of deletedBy
+     *
+     * @return  self
+     */
+    public function setDeletedBy($deletedBy)
+    {
+        $this->deletedBy = $deletedBy;
 
         return $this;
     }

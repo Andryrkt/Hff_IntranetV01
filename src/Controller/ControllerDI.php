@@ -14,7 +14,6 @@ use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
-use App\Model\da\DaModel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -57,7 +56,7 @@ class Controller
      */
     public function getEntityManager(): EntityManagerInterface
     {
-        return $this->getContainer()->get('doctrine.orm.entity_manager');
+        return $this->getContainer()->get('doctrine.orm.default_entity_manager');
     }
 
     /**

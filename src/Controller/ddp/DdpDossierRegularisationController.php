@@ -17,6 +17,7 @@ use App\Repository\ddp\DemandePaiementRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\admin\ddp\DocDemandePaiementRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
+
 /**
  * @Route("/compta/demande-de-paiement")
  */
@@ -37,7 +38,7 @@ class DdpDossierRegularisationController extends Controller
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->docRepository = $this->getEntityManager()->getRepository(DocDemandePaiement::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation = new HistoriqueOperationDDPService();
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
         $this->generatePdfDdr = new GeneratePdfDdr();
     }

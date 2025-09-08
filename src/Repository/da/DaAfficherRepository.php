@@ -10,15 +10,66 @@ use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Doctrine\DBAL\ArrayParameterType;
-use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class DaAfficherRepository extends EntityRepository
 {
     /**
+     *  Récupère les dernières versions pour une demande d'approvisionnement (DA) donnée.
+     *
+     * @param string $numeroDemandeAppro
+     */
+    public function getLastDaAfficher(string $numeroDemandeAppro)
+    {
+        // Étape 1 : récupérer la version max pour ce numero_DA
+        $maxVersion = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :num')
+            ->setParameter('num', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult(); // Renvoie null si aucune ligne
+
+        if ($maxVersion === null) {
+            return [];
+        } else {
+            // Étape 2 : récupérer tous les enregistrements correspondant
+            return $this->createQueryBuilder('d')
+                ->where('d.numeroDemandeAppro = :num')
+                ->andWhere('d.numeroVersion = :version')
+                ->setParameters([
+                    'num'     => $numeroDemandeAppro,
+                    'version' => $maxVersion,
+                ])
+                ->getQuery()
+                ->getResult();
+        }
+    }
+
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
+    {
+        if (empty($numeroLignes)) return; // rien à faire
+
+        $this->createQueryBuilder('d')
+            ->update()
+            ->set('d.deleted', ':deleted')
+            ->set('d.deletedBy', ':deletedBy')
+            ->where('d.numeroDemandeAppro = :num')
+            ->andWhere('d.numeroVersion = :version')
+            ->andWhere('d.numeroLigne IN (:lines)')
+            ->setParameters([
+                'num'       => $numeroDemandeAppro,
+                'version'   => $this->getNumeroVersionMax($numeroDemandeAppro),
+                'deleted'   => true,
+                'deletedBy' => $userName,
+                'lines'     => $numeroLignes,
+            ])
+            ->getQuery()
+            ->execute();
+    }
+
+    /**
      *  Récupère le numéro de version maximum pour une demande d'approvisionnement (DA) donnée.
      *
      * @param string $numeroDemandeAppro
-     * @return void
      */
     public function getNumeroVersionMax(string $numeroDemandeAppro)
     {
@@ -252,11 +303,12 @@ class DaAfficherRepository extends EntityRepository
     }
 
 
-    public function getDaOrValider(?array $criteria = []): array // liste_cde_frn
+    public function getDaOrValider(?array $criteria = []): array
     {
-        if ($criteria == null) $criteria = [];
+        // Toujours forcer en tableau
+        $criteria = $criteria ?? [];
 
-        // 1. Vérifier si le champ achatDirecte existe dans l'entité
+        // 1. Vérifier si le champ achatDirect existe dans l'entité
         $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
         $hasAchatDirecte = $classMetadata->hasField('achatDirect');
 
@@ -282,19 +334,29 @@ class DaAfficherRepository extends EntityRepository
             ->where('d.statutDal = :statutDa')
             ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
 
-        // Condition pour statutOR seulement si le champ existe et est false
+        // Liste des exceptions pour lesquelles statutOr n'est pas requis
+        $exceptions = [
+            'DAP25079981'
+        ];
+
+        // Condition générique sur statutOr avec exceptions
+        $orCondition = $qb->expr()->orX(
+            $qb->expr()->eq('d.statutOr', ':statutOR'),
+            $qb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+        );
+
+        // Appliquer la condition selon la présence de achatDirect
         if ($hasAchatDirecte) {
-            $qb->andWhere('
-            (d.achatDirect = true OR 
-            (d.achatDirect = false AND d.statutOr = :statutOR))
-        ')->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+            $qb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
         } else {
-            // Si le champ n'existe pas, on applique seulement le statutOR
-            $qb->andWhere('d.statutOr = :statutOR')
-                ->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+            $qb->andWhere($orCondition);
         }
 
-        // Condition pour les versions maximales
+        // Paramètres communs
+        $qb->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE)
+            ->setParameter('exceptions', $exceptions);
+
+        // 4. Condition pour les versions maximales
         $orX = $qb->expr()->orX();
         foreach ($latestVersions as $i => $version) {
             $orX->add(
@@ -308,11 +370,12 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        // 4. Appliquer les filtres dynamiques
+        // 5. Appliquer les filtres dynamiques
         $this->applyDynamicFilters($qb, $criteria, true);
         $this->applyStatutsFilters($qb, $criteria, true);
         $this->applyDateFilters($qb, $criteria, true);
 
+        // 6. Tri
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');

@@ -18,6 +18,7 @@ use App\Repository\da\DaSoumissionFacBlRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
+
 /**
  * @Route("/demande-appro")
  */
@@ -42,7 +43,7 @@ class DaSoumissionFacBlController extends Controller
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);

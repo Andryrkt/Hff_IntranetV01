@@ -4,7 +4,7 @@
 
 namespace App\Twig;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
@@ -22,15 +22,17 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
     private $tokenStorage;
     private $domModel;
     private $authorizationChecker;
+    private $em;
 
 
-    public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker)
+    public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker, EntityManagerInterface $em)
     {
 
         $this->session = $session;
         $this->requestStack = $requestStack;
         $this->tokenStorage = $tokenStorage;
         $this->authorizationChecker = $authorizationChecker;
+        $this->em = $em;
         $this->domModel = new DomModel;
     }
 
@@ -44,7 +46,7 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
         $this->session->remove('notification'); // Supprime la notification après l'affichage
 
         if ($this->session->get('user_id') !== null) {
-            $user = Controller::getEntity()->getRepository(User::class)->find($this->session->get('user_id'));
+            $user = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
         }
 
         return [

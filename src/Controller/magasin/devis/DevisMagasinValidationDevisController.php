@@ -26,7 +26,7 @@ class DevisMagasinValidationDevisController extends Controller
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
     private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef agence';
     private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
-
+    private const MESSAGE = 'validation devis';
     use AutorisationTrait;
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
@@ -38,8 +38,9 @@ class DevisMagasinValidationDevisController extends Controller
     public function __construct()
     {
         parent::__construct();
+        global $container;
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->historiqueOperationDeviMagasinService = new HistoriqueOperationDevisMagasinService();
+        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
@@ -92,12 +93,14 @@ class DevisMagasinValidationDevisController extends Controller
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'message' => self::MESSAGE
         ]);
     }
 
     private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVdService $validationService)
     {
+
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -118,6 +121,7 @@ class DevisMagasinValidationDevisController extends Controller
                 if (!$validationService->isSumOfLinesUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, self::STATUT_PRIX_REFUSE)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
+
                 // Validation de la somme des lignes qui est différent de la dernière version
                 if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
@@ -132,7 +136,7 @@ class DevisMagasinValidationDevisController extends Controller
                 $utilisateur = $this->getUser();
                 $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
                 /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, $email);
+                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $email)[0]);
                 $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
                 //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin

@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dit\DitDevisSoumisAValidationModel;
 use App\Entity\admin\utilisateur\ContactAgenceAte;
 use App\Service\historiqueOperation\HistoriqueOperationBCService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -40,7 +41,7 @@ class AcBcSoumisController extends Controller
         $this->bcSoumis = new BcSoumis();
         $this->bcRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationBCService;
+        $this->historiqueOperation = new HistoriqueOperationBCService($this->getEntityManager());
         $this->contactAgenceAteRepository = $this->getEntityManager()->getRepository(ContactAgenceAte::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();

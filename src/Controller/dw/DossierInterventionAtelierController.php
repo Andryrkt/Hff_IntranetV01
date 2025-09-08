@@ -10,6 +10,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -22,7 +23,7 @@ class DossierInterventionAtelierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
     }
 
     /**

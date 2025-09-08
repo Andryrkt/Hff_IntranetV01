@@ -8,7 +8,7 @@ use Doctrine\ORM\Tools\Pagination\Paginator as DoctrinePaginator;
 
 class UserLoggerRepository extends EntityRepository
 {
-    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, PageConsultationSearch $pageConsultationSearch = null)
+    public function findPaginatedAndFiltered(int $page = 1, int $limit = 10, ?PageConsultationSearch $pageConsultationSearch = null)
     {
         $queryBuilder = $this->createQueryBuilder('ul');
 

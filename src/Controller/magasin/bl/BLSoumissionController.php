@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationBLService;
+
 /**
  * @Route("/magasin/sortie-de-pieces-lubs")
  */
@@ -28,7 +29,7 @@ class BLSoumissionController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBLService();
+        $this->historiqueOperation = new HistoriqueOperationBLService($this->getEntityManager());
 
         // Sécuriser le chemin de base
         if (!isset($_ENV['BASE_PATH_FICHIER'])) {

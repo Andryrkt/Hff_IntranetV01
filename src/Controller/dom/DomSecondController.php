@@ -33,7 +33,7 @@ class DomSecondController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDOMService;
+        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
         $this->DomModel = new DomModel();
         $this->fusionPdf = new FusionPdf();
     }
@@ -50,8 +50,7 @@ class DomSecondController extends Controller
         /** FIN AUtorisation acées */
 
         //recuperation de l'utilisateur connecter
-        $userId = $this->getSessionService()->get('user_id');
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
 
         $dom = new Dom();
         /** INITIALISATION des données  */

@@ -18,6 +18,7 @@ use App\Service\genererPdf\GenererPdfCasier;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationCASService;
+
 /**
  * @Route("/materiel/casier")
  */
@@ -34,7 +35,7 @@ class CasierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationCASService;
+        $this->historiqueOperation = new HistoriqueOperationCASService($this->getEntityManager());
     }
 
     /**

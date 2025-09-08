@@ -46,7 +46,7 @@ class DaSoumissionBcController extends Controller
         $this->daSoumissionBc = new DaSoumissionBc();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->generatePdf = new GeneratePdf();
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);

@@ -7,7 +7,7 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 use App\Entity\admin\dom\Rmq;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\dom\Site;
 use App\Entity\admin\dom\Indemnite;
@@ -56,9 +56,9 @@ class DomForm2Type extends AbstractType
         'VIREMENT BANCAIRE' => 'VIREMENT BANCAIRE',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
 
 

@@ -38,7 +38,7 @@ class PlanningController extends Controller
         $this->planningModel = new PlanningModel();
         $this->planningSearch = new PlanningSearch();
         $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
     }
 
     /**

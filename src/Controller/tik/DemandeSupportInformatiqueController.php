@@ -18,6 +18,7 @@ use App\Form\tik\DemandeSupportInformatiqueType;
 use App\Repository\admin\utilisateur\UserRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
+
 /**
  * @Route("/it")
  */
@@ -31,7 +32,7 @@ class DemandeSupportInformatiqueController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->historiqueOperation = new HistoriqueOperationTIKService($this->getEntityManager());
         $this->tikRepository = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class);
     }
 
@@ -201,7 +202,7 @@ class DemandeSupportInformatiqueController extends Controller
      */
     private function envoyerMailAuxValidateurs(array $tab)
     {
-        $email       = new EmailService;
+        $email       = new EmailService($this->getTwig());
 
         $emailValidateurs = array_map(function ($validateur) {
             return $validateur->getMail();

@@ -145,10 +145,10 @@ $twig->addExtension(new TranslationExtension($translator));
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
-$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
+$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entitymanager));
 $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
-$menuService = new MenuService($entityManager);
+$menuService = new MenuService($entitymanager);
 $breadcrumbMenuService = new BreadcrumbMenuService($menuService);
 $twig->addExtension(new BreadcrumbExtension($breadcrumbMenuService));
 

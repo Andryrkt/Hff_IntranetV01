@@ -35,7 +35,7 @@ class BadmsForm2Controller extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
         $this->fusionPdf = new FusionPdf();
         $this->badm = new BadmModel();
     }
