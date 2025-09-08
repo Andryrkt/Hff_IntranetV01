@@ -5,7 +5,7 @@ namespace App\Form\admin\utilisateur;
 use App\Model\LdapModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\Societte;
 use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
@@ -31,10 +31,10 @@ class UserType extends AbstractType
     private $em;
     private $sessionService;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
         $this->ldap = new LdapModel();
-        $this->em = Controller::getEntity();
+        $this->em = $em;
         $this->sessionService = new SessionManagerService();
     }
 

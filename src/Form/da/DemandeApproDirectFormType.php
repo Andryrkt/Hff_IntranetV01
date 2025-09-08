@@ -2,7 +2,7 @@
 
 namespace App\Form\da;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dit\WorNiveauUrgence;
 use App\Entity\da\DemandeAppro;
 use Symfony\Component\Form\AbstractType;
@@ -20,9 +20,8 @@ class DemandeApproDirectFormType extends AbstractType
 {
     private WorNiveauUrgenceRepository $niveauUrgenceRepository;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $em = Controller::getEntity();
         $this->niveauUrgenceRepository = $em->getRepository(WorNiveauUrgence::class);
     }
 

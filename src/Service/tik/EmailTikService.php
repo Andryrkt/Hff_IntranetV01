@@ -3,7 +3,7 @@
 namespace App\Service\tik;
 
 use App\Service\EmailService;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\tik\DemandeSupportInformatique;
@@ -13,10 +13,12 @@ class EmailTikService
     use lienGenerique;
 
     private $em;
+    private $twig;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em, $twig)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
+        $this->twig = $twig;
     }
 
     /** 
@@ -119,7 +121,7 @@ class EmailTikService
      */
     public function envoyerEmail(array $content): void
     {
-        $emailService = new EmailService();
+        $emailService = new EmailService($this->twig);
 
         $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
 

@@ -4,7 +4,7 @@ namespace App\Form\da;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
@@ -50,9 +50,9 @@ class DaSearchType extends  AbstractType
 
     private $em;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
         $this->agenceRepository = $this->em->getRepository(Agence::class);
     }
 

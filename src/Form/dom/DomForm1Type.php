@@ -9,7 +9,7 @@ use App\Entity\dom\Dom;
 use App\Entity\admin\Agence;
 
 use App\Entity\admin\dom\Rmq;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
 use Doctrine\ORM\EntityRepository;
@@ -39,9 +39,9 @@ class DomForm1Type extends AbstractType
         'TEMPORAIRE' => 'TEMPORAIRE',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

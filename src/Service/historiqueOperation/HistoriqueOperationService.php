@@ -3,7 +3,7 @@
 namespace App\Service\historiqueOperation;
 
 use DateTime;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
@@ -38,12 +38,12 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 13 : AC - Accusé de réception
      *  - 16 : MUT - Demande de mutation
      */
-    public function __construct(int $typeDocumentId)
+    public function __construct(EntityManagerInterface $em, int $typeDocumentId)
     {
-        $this->em                      = Controller::getEntity();
-        $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
-        $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
+        $this->em                      = $em;
+        $this->userRepository          = $em->getRepository(User::class);
+        $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
+        $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
         $this->sessionService = new SessionManagerService();
         $this->typeDocumentId = $typeDocumentId;
     }
