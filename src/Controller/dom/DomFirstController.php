@@ -35,29 +35,18 @@ class DomFirstController extends Controller
         /** FIN AUtorisation acées */
 
         $dom = new Dom();
-
         $user = $this->getUser();
-        $agenceAutoriserId = $user->getAgenceAutoriserIds();
-        $codeAgences = [];
-        foreach ($agenceAutoriserId as $value) {
-            $codeAgences[] = $this->getEntityManager()->getRepository(Agence::class)->find($value)->getCodeAgence();
-        }
-
-        $serviceAutoriserId = $user->getServiceAutoriserIds();
-        $codeService = [];
-        foreach ($serviceAutoriserId as $value) {
-            $codeService[] = $this->getEntityManager()->getRepository(Service::class)->find($value)->getCodeService();
-        }
 
         //INITIALISATION 
         $agenceServiceIps = $this->agenceServiceIpsString();
+
         $dom
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
             ->setSalarier('PERMANENT')
-            ->setCodeAgenceAutoriser($codeAgences)
-            ->setCodeServiceAutoriser($codeService)
+            ->setCodeAgenceAutoriser($user->getAgenceAutoriserCode())
+            ->setCodeServiceAutoriser($user->getServiceAutoriserCode())
         ;
 
 
