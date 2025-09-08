@@ -371,48 +371,31 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
-    {
-        $subQb = $this->createQueryBuilder('d')
-            ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
-            ->groupBy('d.numeroDemandeAppro');
+    public function findPaginatedAndFilteredDA(
+        User $user,
+        array $criteria,
+        int $idAgenceUser,
+        bool $estAppro,
+        bool $estAtelier,
+        bool $estAdmin,
+        int $page,
+        int $limit,
+        ?string $sortField,
+        ?string $sortDirection
+    ): array {
+        // 1️⃣ Récupérer toutes les DA filtrées (toutes les lignes)
+        $qb = $this->createQueryBuilder('d')
+            ->select('d'); // récupérer toutes les colonnes
 
-        $this->applyDynamicFilters($subQb, $criteria);
-        $this->applyAgencyServiceFilters($subQb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($subQb, $criteria);
-        $this->applyFilterAppro($subQb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($subQb, $criteria);
+        $this->applyDynamicFilters($qb, $criteria);
+        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, $criteria);
+        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, $criteria);
 
-        // ⚡ Cloner avant de limiter les résultats
-        $countQb = clone $subQb;
-        $countQb->resetDQLPart('orderBy'); // pas besoin d'ORDER BY dans un COUNT
+        $allRows = $qb->getQuery()->getArrayResult();
 
-        // Nombre total de DA distincts
-        $totalItems = count($countQb->getQuery()->getResult());
-
-        // Pagination + order by
-        $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
-            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
-            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return [
-            'results'    => $subQb->getQuery()->getArrayResult(),
-            'totalItems' => $totalItems
-        ];
-    }
-
-    /**
-     * fonction Pour récupérer les données filtrées
-     */
-    public function findPaginatedAndFilteredDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit)
-    {
-        $paginatedDAs = $this->getPaginatedDas($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
-        $numeroDAsPage = array_column($paginatedDAs['results'], 'numeroDemandeAppro');
-        $versionsMax = array_column($paginatedDAs['results'], 'maxVersion', 'numeroDemandeAppro');
-
-        if (empty($numeroDAsPage)) {
+        if (empty($allRows)) {
             return [
                 'data'        => [],
                 'totalItems'  => 0,
@@ -421,11 +404,42 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
+        // 2️⃣ Construire DA distinctes avec la dernière version
+        $dasDistinctes = [];
+        foreach ($allRows as $row) {
+            $numDA = $row['numeroDemandeAppro'];
+            if (!isset($dasDistinctes[$numDA]) || $row['numeroVersion'] > $dasDistinctes[$numDA]['numeroVersion']) {
+                $dasDistinctes[$numDA] = $row;
+            }
+        }
+
+        // 3️⃣ Convertir en tableau indexé pour pagination
+        $allDasData = array_values($dasDistinctes);
+
+        // 4️⃣ Trier avant pagination
+        if ($sortField !== null && $sortDirection !== null) {
+            usort($allDasData, function ($a, $b) use ($sortField, $sortDirection) {
+                $valA = $a[$sortField] ?? null;
+                $valB = $b[$sortField] ?? null;
+                if ($valA == $valB) return 0;
+                return (strtoupper($sortDirection) === 'ASC') ? ($valA <=> $valB) : ($valB <=> $valA);
+            });
+        }
+
+        // 5️⃣ Pagination
+        $totalItems = count($allDasData);
+        $lastPage = ceil($totalItems / $limit);
+        $offset = ($page - 1) * $limit;
+        $paginatedDAs = array_slice($allDasData, $offset, $limit);
+
+        // 6️⃣ Récupérer les DA complètes pour la page
+        $numeroDAsPage = array_column($paginatedDAs, 'numeroDemandeAppro');
+        $versionsMax = array_column($paginatedDAs, 'numeroVersion', 'numeroDemandeAppro');
+
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
             ->setParameter('numeroDAs', $numeroDAsPage);
 
-        // Ajouter condition version max (évite duplications)
         $orX = $qb->expr()->orX();
         foreach ($versionsMax as $numeroDA => $versionMax) {
             $orX->add($qb->expr()->andX(
@@ -437,12 +451,18 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        $qb->orderBy('daf.dateDemande', 'DESC')
-            ->addOrderBy('daf.numeroFournisseur', 'DESC')
-            ->addOrderBy('daf.numeroCde', 'DESC');
-
-        $totalItems = $paginatedDAs['totalItems'];
-        $lastPage = ceil($totalItems / $limit);
+        // 7️⃣ Tri final pour cohérence
+        if ($sortField !== null && $sortDirection !== null) {
+            $direction = strtoupper($sortDirection) === 'ASC' ? 'ASC' : 'DESC';
+            $qb->orderBy('daf.' . $sortField, $direction)
+                ->addOrderBy('daf.dateDemande', $direction)
+                ->addOrderBy('daf.numeroFournisseur', $direction)
+                ->addOrderBy('daf.numeroCde', $direction);
+        } else {
+            $qb->orderBy('daf.dateDemande', 'DESC')
+                ->addOrderBy('daf.numeroFournisseur', 'DESC')
+                ->addOrderBy('daf.numeroCde', 'DESC');
+        }
 
         return [
             'data'        => $qb->getQuery()->getResult(),
