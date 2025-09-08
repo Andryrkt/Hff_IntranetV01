@@ -37,7 +37,7 @@ class DdpDossierRegularisationController extends Controller
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->docRepository = $this->getEntityManager()->getRepository(DocDemandePaiement::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation = new HistoriqueOperationDDPService();
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
         $this->generatePdfDdr = new GeneratePdfDdr();
     }

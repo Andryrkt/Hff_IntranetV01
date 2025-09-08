@@ -40,7 +40,7 @@ class AcBcSoumisController extends Controller
         $this->bcSoumis = new BcSoumis();
         $this->bcRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
         $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationBCService;
+        $this->historiqueOperation = new HistoriqueOperationBCService($this->getEntityManager());
         $this->contactAgenceAteRepository = $this->getEntityManager()->getRepository(ContactAgenceAte::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();

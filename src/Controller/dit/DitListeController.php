@@ -37,7 +37,7 @@ class DitListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
         $this->userDataService = new UserDataService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
     }

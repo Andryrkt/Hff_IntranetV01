@@ -29,7 +29,7 @@ class DitRiSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService;
+        $this->historiqueOperation = new HistoriqueOperationRIService($this->getEntityManager());
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
         $this->traitementDeFichier = new TraitementDeFichier();
     }

@@ -28,7 +28,7 @@ class BLSoumissionController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBLService();
+        $this->historiqueOperation = new HistoriqueOperationBLService($this->getEntityManager());
 
         // Sécuriser le chemin de base
         if (!isset($_ENV['BASE_PATH_FICHIER'])) {

@@ -2,10 +2,12 @@
 
 namespace App\Service\historiqueOperation;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 class HistoriqueOperationFACService extends HistoriqueOperationService
 {
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        parent::__construct(3);
+        parent::__construct($em, 3);
     }
 }

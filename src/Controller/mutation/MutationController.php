@@ -32,7 +32,7 @@ class MutationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationMUTService;
+        $this->historiqueOperation = new HistoriqueOperationMUTService($this->getEntityManager());
         $this->fusionPdf = new FusionPdf();
     }
 

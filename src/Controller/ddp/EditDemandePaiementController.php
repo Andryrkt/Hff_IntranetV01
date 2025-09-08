@@ -50,7 +50,7 @@ class EditDemandePaiementController extends Controller
         $this->demandePaiementModel = new DemandePaiementModel();
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->historiqueOperation = new HistoriqueOperationDDPService();
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->generatePdfDdp = new GeneratePdfDdp();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);

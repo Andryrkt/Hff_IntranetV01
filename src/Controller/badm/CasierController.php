@@ -34,7 +34,7 @@ class CasierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationCASService;
+        $this->historiqueOperation = new HistoriqueOperationCASService($this->getEntityManager());
     }
 
     /**

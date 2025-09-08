@@ -60,7 +60,7 @@ class DemandePaiementController extends Controller
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->demandePaiementLigne = new DemandePaiementLigne();
-        $this->historiqueOperation = new HistoriqueOperationDDPService();
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->generatePdfDdp = new GeneratePdfDdp();
         $this->docDemandePaiement = new DocDemandePaiement();
         $this->traitementDeFichier = new TraitementDeFichier();

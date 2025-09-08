@@ -33,7 +33,7 @@ class DomSecondController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDOMService;
+        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
         $this->DomModel = new DomModel();
         $this->fusionPdf = new FusionPdf();
     }

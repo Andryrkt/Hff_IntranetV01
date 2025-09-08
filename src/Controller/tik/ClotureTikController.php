@@ -19,7 +19,7 @@ class ClotureTikController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationTIKService;
+        $this->historiqueOperation = new HistoriqueOperationTIKService($this->getEntityManager());
     }
 
     /**

@@ -29,7 +29,7 @@ class CdefnrSoumisAValidationController extends Controller
     {
         parent::__construct();
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationCDEFNRService();
+        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($this->getEntityManager());
         $this->traitementDeFichier = new TraitementDeFichier();
     }
 

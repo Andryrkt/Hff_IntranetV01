@@ -22,7 +22,7 @@ class DossierInterventionAtelierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService;
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
     }
 
     /**

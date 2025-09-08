@@ -42,7 +42,7 @@ class DaSoumissionFacBlController extends Controller
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);

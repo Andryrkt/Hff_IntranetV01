@@ -28,7 +28,7 @@ class BadmsController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService;
+        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
         $this->badm = new BadmModel();
     }
 
