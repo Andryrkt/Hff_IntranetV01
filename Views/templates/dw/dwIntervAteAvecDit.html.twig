@@ -32,7 +32,7 @@
 						</thead>
 						<tbody>
 							{% for item in data %}
-								{% set extension = item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower %}
+								{% set extension = item.extension_fichier ? item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower : '.pdf' %}
 								{% set icon = '<i class="fas fa-file fs-4"></i>' %}
 								{% set icons = {
 									'.pdf': 'fa-file-pdf',
@@ -47,18 +47,15 @@
 									{% set icon = '<i class="fas ' ~ icons[extension] ~ ' fs-4"></i>' %}
 								{% endif %}
 
-								{% set numeroVersion = item.numero_version ? item.numero_version :'-'%}
-
 								<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}" data-chemin="{{item.chemin}}">
-									<td>{{icon|raw}}</td>
-									<td>{{item.nomDoc}}</td>
-									<td>{{item.numero_doc}}</td>
-									<td>{{item.date_creation | date('d/m/Y')}}</td>
-									<td>{{item.date_modification | date('d/m/Y')}}</td>
-									<td class="text-center">{{numeroVersion}}</td>
-									<td class="text-center">{{item.total_page}}</td>
-									<td>{{(item.taille_fichier / 1024)|number_format(2)|replace({'.' : ',', ',': '.'})}}
-										Ko</td>
+									<td>{{ icon|raw }}</td>
+									<td>{{ item.nomDoc }}</td>
+									<td>{{ item.numero_doc }}</td>
+									<td>{{ item.date_creation ? item.date_creation | date('d/m/Y') : '-' }}</td>
+									<td>{{ item.date_modification ? item.date_modification | date('d/m/Y') : '-' }}</td>
+									<td class="text-center">{{ item.numero_version ?? '-' }}</td>
+									<td class="text-center">{{ item.total_page ?? '-' }}</td>
+									<td>{{ item.taille_fichier ? (item.taille_fichier / 1024)|number_format(2)|replace({'.' : ',', ',': '.'}) ~ 'Ko' : '-' }}</td>
 								</tr>
 							{% endfor %}
 						</tbody>
