@@ -417,14 +417,42 @@ class DaAfficherRepository extends EntityRepository
         $allDasData = array_values($dasDistinctes);
 
         // 4️⃣ Trier avant pagination
-        if ($sortField !== null && $sortDirection !== null) {
-            usort($allDasData, function ($a, $b) use ($sortField, $sortDirection) {
-                $valA = $a[$sortField] ?? null;
-                $valB = $b[$sortField] ?? null;
-                if ($valA == $valB) return 0;
-                return (strtoupper($sortDirection) === 'ASC') ? ($valA <=> $valB) : ($valB <=> $valA);
-            });
+        // On calcule la direction de tri :
+        // - "ASC" → 1 (croissant)
+        // - "DESC" ou null → -1 (décroissant par défaut)
+        $direction = strtoupper($sortDirection ?? 'DESC') === 'ASC' ? 1 : -1;
+
+        // On initialise la liste des champs de tri.
+        // Si un champ personnalisé ($sortField) est fourni, on le met en premier.
+        $fields = [];
+        if ($sortField !== null) {
+            $fields[$sortField] = $direction;
         }
+
+        // On ajoute les tris par défaut : dateDemande, numeroFournisseur, numeroCde
+        // ⚠️ L'opérateur "+=" conserve les clés déjà présentes.
+        // Exemple : si $sortField = "dateDemande", alors la clé "dateDemande" ne sera pas écrasée ici.
+        $fields += [
+            'dateDemande'       => $direction,
+            'numeroFournisseur' => $direction,
+            'numeroCde'         => $direction,
+        ];
+
+        // On applique le tri multi-niveaux avec usort.
+        // Pour chaque couple de DA, on compare champ par champ dans l'ordre de $fields.
+        // Dès qu'une différence est trouvée, on retourne le résultat (1 ou -1).
+        // Si toutes les valeurs sont égales, on retourne 0 (pas de changement d'ordre).
+        usort($allDasData, function ($a, $b) use ($fields) {
+            foreach ($fields as $field => $dir) {
+                $valA = $a[$field] ?? null;
+                $valB = $b[$field] ?? null;
+
+                if ($valA != $valB) {
+                    return ($valA <=> $valB) * $dir;
+                }
+            }
+            return 0;
+        });
 
         // 5️⃣ Pagination
         $totalItems = count($allDasData);
@@ -450,19 +478,6 @@ class DaAfficherRepository extends EntityRepository
             $qb->setParameter('ver_' . $numeroDA, $versionMax);
         }
         $qb->andWhere($orX);
-
-        // 7️⃣ Tri final pour cohérence
-        if ($sortField !== null && $sortDirection !== null) {
-            $direction = strtoupper($sortDirection) === 'ASC' ? 'ASC' : 'DESC';
-            $qb->orderBy('daf.' . $sortField, $direction)
-                ->addOrderBy('daf.dateDemande', $direction)
-                ->addOrderBy('daf.numeroFournisseur', $direction)
-                ->addOrderBy('daf.numeroCde', $direction);
-        } else {
-            $qb->orderBy('daf.dateDemande', 'DESC')
-                ->addOrderBy('daf.numeroFournisseur', 'DESC')
-                ->addOrderBy('daf.numeroCde', 'DESC');
-        }
 
         return [
             'data'        => $qb->getQuery()->getResult(),
