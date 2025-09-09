@@ -95,7 +95,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
      * Vérifie si le statut du devis bloque la soumission
      * 
      * Cette méthode vérifie si le devis est dans un statut qui empêche sa soumission
-     * (ex: "A valider chef d'agence", "Soumis à validation")
+     * (ex: "A valider chef d’agence", "Soumis à validation")
      * 
      * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
      * @param string $numeroDevis Le numéro de devis à vérifier
@@ -106,12 +106,12 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'A valider chef d\'agence',
+            'A valider chef d’agence',
             'Soumis à validation'
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée car le devis est en cours de validation.";
+            $message = "Soumission bloquée, une validation est déjà en cours sur ce devis";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
@@ -162,8 +162,8 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
             'Validé'
         ];
 
-        if ($this->isStatusBlockingPartial($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée car le devis doit passer par validation de prix";
+        if ($this->isStatusBlockingPartialBeginWith($repository, $numeroDevis, $blockingStatuses)) {
+            $message = "Soumission bloquée car le devis doit passer par vérification de prix";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
@@ -177,25 +177,27 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
      * Cette méthode compare le nombre de lignes actuel avec le nombre de lignes précédent
      * pour détecter les modifications qui pourraient bloquer la soumission
      * 
-     * @param LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données de lignes
+     * @param DevisMagasinRepository $repository Le repository pour accéder aux données de lignes
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @param int $newSumOfLines Le nouveau nombre de lignes
      * @return bool true si le nombre de lignes a changé (bloquant), false sinon
      */
     public function isSumOfLineschanged(
-        LatestSumOfLinesRepositoryInterface $repository,
+        DevisMagasinRepository $repository,
         string $numeroDevis,
-        int $newSumOfLines
+        int $newSumOfLines,
+        float $newSumOfMontant
     ): bool {
         $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
+        $oldSumOfMontant = $repository->findLatestSumOfMontantByIdentifier($numeroDevis);
 
-        if ($oldSumOfLines === null) {
+        if ($oldSumOfLines === null || $oldSumOfMontant === null) {
             // No previous version to compare against, so it's not a blocking issue.
             return true;
         }
 
-        if (!$this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {
-            $message = "soumission bloquée le nombre de ligne a été modifié";
+        if (!$this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines) || $oldSumOfMontant !== $newSumOfMontant) {
+            $message = "soumission bloquée, Le devis soumis est différent de celui envoyé pour vérification de prix car une ou plusieurs lignes ont été ajoutées. Veuillez resoumettre à vérification de prix";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Is blocking
         }
@@ -204,32 +206,32 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
     }
 
     /**
-     * Vérifie si le nombre de lignes est inchangés et le statut du devis est validation de prix
+     * Vérifie si le montant est inchangés et le statut du devis est Prix refusé magasin
      * 
-     * Cette méthode compare le nombre de lignes avec les valeurs précédentes et le statut actuels est "prix à confirmer"
+     * Cette méthode compare le montant précédentes et le nouveau montant et aussi le statut actuels est "Prix refusé magasin"
      * pour s'assurer qu'aucune modification n'a été apportée au devis depuis la dernière validation
      * 
      * @param DevisMagasinRepository $repository Le repository pour accéder aux données du devis
      * @param string $numeroDevis Le numéro de devis à vérifier
-     * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @param float $newSumOfMontant Le nouveau montant
      * @param string $newStatut Le nouveau statut
-     * @return bool true si le nombre de lignes et le statut sont identiques, false sinon
+     * @return bool true si le montant et le statut sont identiques, false sinon
      */
-    public function isSumOfLinesUnchangedAndStatutVp(
+    public function isSumOfMontantUnchangedAndStatutVp(
         DevisMagasinRepository $repository,
         string $numeroDevis,
-        int $newSumOfLines,
+        float $newSumOfMontant,
         string $newStatut
     ): bool {
-        $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
+        $oldSumOfMontant = $repository->findLatestSumOfMontantByIdentifier($numeroDevis);
         $oldStatut = $repository->findLatestStatusByIdentifier($numeroDevis);
 
-        if ($oldSumOfLines === null) {
+        if ($oldSumOfMontant === null) {
             // No previous version to compare against, so it's not a blocking issue.
             return true;
         }
 
-        if (!($oldSumOfLines === $newSumOfLines && $oldStatut === $newStatut)) {
+        if ($oldSumOfMontant === $newSumOfMontant && $oldStatut === $newStatut) {
             $message = "PM a oublié de modifier les prix dans IPS";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false;

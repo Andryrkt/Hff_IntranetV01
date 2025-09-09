@@ -96,7 +96,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // Validation du fichier soumis via le service dédié
+            // Validation du fichier soumis 
             if (!$validationService->validateSubmittedFile($form)) {
                 return; // Arrête le traitement si la validation échoue
             }
@@ -111,7 +111,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
                 // Validation de la somme des lignes
                 $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-                if ($validationService->estSommeDeLigneChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                if ($validationService->estSommeDeLigneInChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 

@@ -129,6 +129,39 @@ abstract class ValidationServiceBase
         return false;
     }
 
+        /**
+     * Vérifie si le statut le plus récent d'une entité est bloquant avec recherche partielle
+     * 
+     * Cette méthode effectue une correspondance partielle (insensible à la casse) entre
+     * le statut actuel et les mots-clés bloquants fournis
+     *
+     * @param StatusRepositoryInterface $repository Le repository de l'entité à vérifier
+     * @param string $identifier L'identifiant de l'entité (ex: numéro de devis)
+     * @param array $blockingStatuses La liste des mots-clés considérés comme bloquants
+     * @return bool true si le statut contient un mot-clé bloquant, false sinon
+     */
+    protected function isStatusBlockingPartialBeginWith(
+        StatusRepositoryInterface $repository,
+        string $identifier,
+        array $blockingStatuses
+    ): bool {
+        $currentStatus = $repository->findLatestStatusByIdentifier($identifier);
+
+        if ($currentStatus === null) {
+            // Can't be blocking if no status is found.
+            return false;
+        }
+
+        // Vérifier si le statut actuel contient une partie des mots bloquants
+        foreach ($blockingStatuses as $blockingStatus) {
+            if (strpos($currentStatus, $blockingStatus) === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
     /**
      * Vérifie si le nombre de lignes d'une entité est inchangé
@@ -155,6 +188,7 @@ abstract class ValidationServiceBase
 
         return $oldSumOfLines === $newSumOfLines;
     }
+
 
     /**
      * Vérifie si un identifiant est manquant (null)
