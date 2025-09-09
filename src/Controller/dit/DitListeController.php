@@ -289,62 +289,6 @@ class DitListeController extends Controller
         fclose($handle);
     }
 
-    /**
-     * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
-     */
-    public function dwintervAteAvecDit($numDit)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        $dwModel = new DossierInterventionAtelierModel();
-
-        // Récupération initiale : Demande d'intervention
-        $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
-
-        // Ordre de réparation et documents liés
-        $dwOr = $this->fetchAndLabel($dwModel, 'findDwOr', $numDit, "Ordre de réparation");
-        $dwFac = $dwRi = $dwCde = $dwBca = $dwFacBl = [];
-
-        // Si un ordre de réparation est trouvé, récupérer les autres données liées
-        if (!empty($dwOr)) {
-            $numeroDocOr = $dwOr[0]['numero_doc'];
-            $dwFac   = $this->fetchAndLabel($dwModel, 'findDwFac',   $numeroDocOr, "Facture");
-            $dwRi    = $this->fetchAndLabel($dwModel, 'findDwRi',    $numeroDocOr, "Rapport d'intervention");
-            $dwCde   = $this->fetchAndLabel($dwModel, 'findDwCde',   $numeroDocOr, "Commande");
-            $dwBca   = $this->fetchAndLabel($dwModel, 'findDwBca',   $numeroDocOr, "Bon de commande APPRO");
-            $dwFacBl = $this->fetchAndLabel($dwModel, 'findDwFacBl', $numeroDocOr, "Facture / Bon de livraison");
-        }
-
-        // Documents liés à la demande d'intervention
-        $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
-        $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
-
-        // Fusionner toutes les données
-        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
-
-        $this->logUserVisit('dw_interv_ate_avec_dit', [
-            'numDit' => $numDit,
-        ]); // historisation du page visité par l'utilisateur
-
-        return $this->render('dw/dwIntervAteAvecDit.html.twig', [
-            'numDit' => $numDit,
-            'data'   => $data,
-        ]);
-    }
-
-    /**
-     * Méthode utilitaire pour récupérer et étiqueter des documents
-     */
-    private function fetchAndLabel($model, string $method, $param, string $label): array
-    {
-        $items = $model->$method($param) ?? [];
-        foreach ($items as &$item) {
-            $item['nomDoc'] = $label;
-        }
-        return $items;
-    }
-
     private function criteriaTab(array $criteria): array
     {
         $criteriaTab = $criteria;

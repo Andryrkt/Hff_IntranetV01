@@ -1,56 +1,51 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Dossier d'intervention Atelier
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css?v=2025.08.29.16.20">
 {% endblock %}
 
-{% block nav %}
-	{% include "/dw/shared/_entete.html.twig" %}
-
-{% endblock %}
-
 {% block content %}
 	<div class="row">
 		<div class="col-12 col-md-6">
-			<div class="container mt-6 mb-4">
-				{% include "/dw/shared/_formulaireRecherche.html.twig" %}
-				<table class="table rounded table-plein-ecran">
-					<thead class="table-dark">
-						<tr>
-							<th>Date DIT</th>
-							<th>N° DIT</th>
-							<th>ID mat</th>
-							<th>N° Parc</th>
-							<th>N/S</th>
-							<th>Désignation</th>
-							<th>OR</th>
-							<th>Nb de docs</th>
-							<th>type interv (interne/externe)</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% if dwDits is empty %}
+			<div class="container mt-6">
+				<div class="table-moitier">
+					{% include "/dw/shared/_formulaireRecherche.html.twig" %}
+					<table class="table rounded table-plein-ecran">
+						<thead class="table-dark">
 							<tr>
-								<td colspan="10">Aucun résultat trouvé pour cette recherche</td>
+								<th>Date DIT</th>
+								<th>N° DIT</th>
+								<th>ID mat</th>
+								<th>N° Parc</th>
+								<th>N/S</th>
+								<th>Désignation</th>
+								<th>OR</th>
+								<th>Nb de docs</th>
+								<th>type interv (interne/externe)</th>
 							</tr>
-						{% else %}
-						{% for dwDit in dwDits %}
-							<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
-								<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
-								<td>{{dwDit.numero_dit_intervention}}</td>
-								<td>{{dwDit.id_materiel_intervention}}</td>
-								<td>{{dwDit.numero_parc_intervention}}</td>
-								<td>{{dwDit.numero_serie_intervention}}</td>
-								<td>{{dwDit.designation_materiel_intervention}}</td>
-								<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
-								<td class="text-center">{{dwDit.nbDoc}}</td>
-								<td>{{dwDit.type_reparation_intervention}}</td>
-							</tr>
+						</thead>
+						<tbody>
+							{% for dwDit in dwDits %}
+								<tr class="clickable-row clickable" data-dit="{{ dwDit.numero_dit_intervention }}">
+									<td>{{dwDit.date_creation_intervention | date('d/m/Y')}}</td>
+									<td>{{dwDit.numero_dit_intervention}}</td>
+									<td>{{dwDit.id_materiel_intervention}}</td>
+									<td>{{dwDit.numero_parc_intervention}}</td>
+									<td>{{dwDit.numero_serie_intervention}}</td>
+									<td>{{dwDit.designation_materiel_intervention}}</td>
+									<td>{{dwDit.numero_or_reparation ?: "-"}}</td>
+									<td class="text-center">{{dwDit.nbDoc}}</td>
+									<td>{{dwDit.type_reparation_intervention}}</td>
+								</tr>
 							{% endfor %}
-						{% endif %}
-					</tbody>
-				</table>
+						</tbody>
+					</table>
+				</div>
 				<div class="dossier">DOSSIER:
 					<span id="numero-dit">DITXXXXX</span>
 				</div>
@@ -90,7 +85,7 @@
 			</div>
 		</div>
 		<div class="col-12 col-md-6">
-			<div class="container mt-6 mb-4">
+			<div class="container mt-6">
 				<div id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
 					<div id="spinners" style="display: none;">Loading...</div>
 					<!-- Le fichier sélectionné sera affiché ici -->
