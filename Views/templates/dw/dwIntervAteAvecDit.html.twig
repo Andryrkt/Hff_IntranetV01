@@ -1,13 +1,12 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Dossier d'intervention Atelier
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css?v=2025.08.29.16.20">
-{% endblock %}
-
-{% block nav %}
-	{% include "/dw/shared/_entete.html.twig" %}
-
 {% endblock %}
 
 {% block content %}
