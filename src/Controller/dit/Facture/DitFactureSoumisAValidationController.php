@@ -41,7 +41,7 @@ class DitFactureSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationFACService;
+        $this->historiqueOperation = new HistoriqueOperationFACService($this->getEntityManager());
         $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();

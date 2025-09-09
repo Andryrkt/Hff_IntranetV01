@@ -2,7 +2,7 @@
 
 namespace App\Service\tik;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\tik\EnvoiFichier;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\tik\TkiCommentaires;
@@ -22,6 +22,7 @@ class HandleRequestService
     private $em;
     private $form;
     private $sessionService;
+    private $twig;
     private User $connectedUser;
     private DemandeSupportInformatique $supportInfo;
     private StatutDemande $statut;
@@ -30,11 +31,12 @@ class HandleRequestService
      * CONSTRUCT
      **=====================================================================================*/
 
-    public function __construct(User $connectedUser, DemandeSupportInformatique $supportInfo)
+    public function __construct(EntityManagerInterface $em, $twig, User $connectedUser, DemandeSupportInformatique $supportInfo)
     {
-        $this->emailTikService = new EmailTikService;
+        $this->emailTikService = new EmailTikService($em, $twig);
         $this->tkiCommentaire = new TkiCommentaires;
-        $this->em = Controller::getEntity();
+        $this->em = $em;
+        $this->twig = $twig;
         $this->sessionService = new SessionManagerService;
         $this->connectedUser = $connectedUser;
         $this->supportInfo = $supportInfo;

@@ -4,7 +4,7 @@ namespace App\Form\ddp;
 
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\ddp\DemandePaiement;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
@@ -36,14 +36,14 @@ class DemandePaiementType extends AbstractType
     private $demandePaiementModel;
     private $em;
     private DemandePaiementRepository $demandePaiementRepository;
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
-        $this->cdeFnrRepository = $this->em->getRepository(CdefnrSoumisAValidation::class);
+        $this->em = $em;
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->serviceRepository = $em->getRepository(Service::class);
+        $this->cdeFnrRepository = $em->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->demandePaiementRepository = $this->em->getRepository(DemandePaiement::class);
+        $this->demandePaiementRepository = $em->getRepository(DemandePaiement::class);
     }
 
     private function numeroFac($numeroFournisseur, $typeId)

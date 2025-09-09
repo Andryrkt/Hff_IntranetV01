@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\dit\DitRiSoumisAValidationTrait;
 use App\Service\genererPdf\GenererPdfRiSoumisAValidataion;
 use App\Service\historiqueOperation\HistoriqueOperationRIService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -29,7 +30,7 @@ class DitRiSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService;
+        $this->historiqueOperation = new HistoriqueOperationRIService($this->getEntityManager());
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
         $this->traitementDeFichier = new TraitementDeFichier();
     }

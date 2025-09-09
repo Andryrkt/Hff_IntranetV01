@@ -2,10 +2,12 @@
 
 namespace App\Service\historiqueOperation;
 
+use Doctrine\ORM\EntityManagerInterface;
+
 class HistoriqueOperationCDEFNRService extends HistoriqueOperationService
 {
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        parent::__construct(13);
+        parent::__construct($em, 13);
     }
 }

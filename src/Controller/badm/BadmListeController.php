@@ -34,8 +34,7 @@ class BadmListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_BADM);
         /** FIN AUtorisation acées */
 
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $userConnecter = $this->getUser();
 
         $autoriser = $this->autorisationRole($this->getEntityManager());
 

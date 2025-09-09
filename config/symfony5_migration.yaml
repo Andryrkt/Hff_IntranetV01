@@ -194,7 +194,7 @@ services:
     # Services de navigation
     App\Service\navigation\MenuService:
         arguments:
-            $entityManager: '@doctrine.orm.entity_manager'
+            $entityManager: '@doctrine.orm.default_entity_manager'
     
     App\Service\navigation\BreadcrumbMenuService:
         arguments:

@@ -14,6 +14,7 @@ use App\Entity\admin\dom\SousTypeDocument;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -35,8 +36,7 @@ class DomFirstController extends Controller
 
         $dom = new Dom();
 
-        $userId = $this->getSessionService()->get('user_id', []);
-        $user = $this->getEntityManager()->getRepository(User::class)->find($userId);
+        $user = $this->getUser();
         $agenceAutoriserId = $user->getAgenceAutoriserIds();
         $codeAgences = [];
         foreach ($agenceAutoriserId as $value) {

@@ -37,6 +37,9 @@ if (file_exists(dirname(__DIR__) . '/.env')) {
     $dotenv->load();
 }
 
+// Charger les variables globales
+require_once __DIR__ . '/listeConstructeur.php';
+
 // Définir les variables d'environnement manquantes pour les tests CLI
 if (!isset($_ENV['BASE_PATH_COURT'])) {
     $_ENV['BASE_PATH_COURT'] = '/Hffintranet';
@@ -58,20 +61,18 @@ $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
 $container->setParameter('kernel.debug', true);
 
-// Charger la configuration des services
-$loader = new YamlFileLoader($container, new FileLocator(__DIR__));
-$loader->load('services.yaml');
-
-// Créer l'EntityManager manuellement (comme dans l'ancien bootstrap)
+// Créer l'EntityManager manuellement AVANT de charger la configuration
 $entityManager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
 // Créer le ManagerRegistry pour Doctrine
 $registry = new \core\SimpleManagerRegistry($entityManager);
 
-// Créer le service EntityManager dans le conteneur AVANT de charger la configuration
-$container->register('doctrine.orm.entity_manager', get_class($entityManager))
-    ->setSynthetic(true)
-    ->setPublic(true);
+// Enregistrer l'EntityManager comme service AVANT de charger la configuration
+$container->set('doctrine.orm.default_entity_manager', $entityManager);
+
+// Charger la configuration des services
+$loader = new YamlFileLoader($container, new FileLocator(__DIR__));
+$loader->load('services.yaml');
 
 // Créer les services de base manuellement
 $container->register('twig', 'Twig\Environment')
@@ -130,8 +131,7 @@ $container->register('App\Twig\DeleteWordExtension', \App\Twig\DeleteWordExtensi
 // Charger les paramètres
 $loader->load('parameters.yaml');
 
-// Assigner l'EntityManager au conteneur
-$container->set('doctrine.orm.entity_manager', $entityManager);
+// L'EntityManager est déjà assigné plus haut
 
 // Compiler le conteneur
 $container->compile();
@@ -144,15 +144,19 @@ $twig = new \Twig\Environment(new \Twig\Loader\FilesystemLoader([
 
 $container->set('twig', $twig);
 
-// Créer et assigner le FormFactory
+
+
+// Create the form factory with container integration
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->addExtension(new \Symfony\Component\Form\Extension\Core\CoreExtension())
     ->addExtension(new \Symfony\Component\Form\Extension\Validator\ValidatorExtension(\Symfony\Component\Validator\Validation::createValidator()))
     ->addExtension(new \Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension())
-    ->addExtension(new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($registry))
+    ->addExtension(new \Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension($container->get('doctrine')))
+    ->addExtension(new \Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension($container, [], []))
     ->getFormFactory();
 
 $container->set('form.factory', $formFactory);
+
 
 // Créer et assigner les autres services
 $session = new \Symfony\Component\HttpFoundation\Session\Session(new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage());
@@ -184,7 +188,7 @@ $authorizationChecker = $container->get('security.authorization_checker');
 
 
 // Créer et assigner les services Twig APRÈS la compilation
-$appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker);
+$appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);
 $container->set('App\Twig\AppExtension', $appExtension);
 
 $menuService = new \App\Service\navigation\MenuService($entityManager);

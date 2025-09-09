@@ -74,18 +74,31 @@ trait ConditionModelTrait
 
     private function conditionPiece(string $indexCriteria, array $criteria): ?string
     {
+        $piece = null;
         if (!empty($criteria[$indexCriteria])) {
             if ($criteria[$indexCriteria] === "PIECES MAGASIN") {
-                $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+                $value = GlobalVariablesService::get('pieces_magasin');
+                if(!empty($value)) {
+                    $piece = " AND slor_constp in (" . $value . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+                }
             } else if ($criteria[$indexCriteria] === "LUB") {
-                $piece = " AND slor_constp in (" . GlobalVariablesService::get('lub') . ")";
+                $value = GlobalVariablesService::get('lub');
+                if(!empty($value)) {
+                    $piece = " AND slor_constp in (" . $value . ")";
+                }
             } else if ($criteria[$indexCriteria] === "ACHATS LOCAUX") {
-                $piece = " AND slor_constp in (" . GlobalVariablesService::get('achat_locaux') . ") ";
+                $value = GlobalVariablesService::get('achat_locaux');
+                if(!empty($value)) {
+                    $piece = " AND slor_constp in (" . $value . ") ";
+                }
             } else if ($criteria[$indexCriteria] === "TOUTS PIECES") {
                 $piece = null;
             }
         } else {
-            $piece = " AND slor_constp in (" . GlobalVariablesService::get('pieces_magasin') . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+            $value = GlobalVariablesService::get('pieces_magasin');
+            if(!empty($value)) {
+                $piece = " AND slor_constp in (" . $value . ") AND (slor_refp not like '%-L' and slor_refp not like '%-CTRL')";
+            }
         }
 
         return $piece;

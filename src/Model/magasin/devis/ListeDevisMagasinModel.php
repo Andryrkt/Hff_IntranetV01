@@ -28,7 +28,7 @@ class ListeDevisMagasinModel extends Model
             AND year(Nent_datecde) = '2025'
         ";
 
-        if (!isset($criteria['statutIps']) && $criteria['statutIps'] == 'RE') {
+        if (array_key_exists('statutIps', $criteria) && $criteria['statutIps'] == 'RE') {
             $statement .= " AND nent_posl in ('--','AC','DE', 'RE')";
         } else {
             $statement .= " AND nent_posl in ('--','AC','DE')";
@@ -90,7 +90,6 @@ class ListeDevisMagasinModel extends Model
                     and nlig_constp <> 'Nmc' 
                     and nlig_numcde = '$numeroDevis'
             ";
-
         $result = $this->connect->executeQuery($statement);
 
         $data = $this->connect->fetchResults($result);

@@ -14,7 +14,6 @@ use App\Entity\admin\historisation\pageConsultation\PageHff;
 use App\Entity\admin\historisation\pageConsultation\UserLogger;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\da\DemandeAppro;
-use App\Model\da\DaModel;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Form\FormFactoryInterface;
@@ -80,7 +79,7 @@ class Controller
         if (!$container) {
             throw new \RuntimeException('Le conteneur de services n\'est pas disponible');
         }
-        return $container->get('doctrine.orm.entity_manager');
+        return $container->get('doctrine.orm.default_entity_manager');
     }
 
     /**
@@ -651,7 +650,7 @@ class Controller
     public static function getEntity()
     {
         global $container;
-        return $container ? $container->get('doctrine.orm.entity_manager') : null;
+        return $container ? $container->get('doctrine.orm.default_entity_manager') : null;
     }
 
     /**

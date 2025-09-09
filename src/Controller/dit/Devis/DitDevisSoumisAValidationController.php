@@ -19,6 +19,7 @@ use App\Service\fichier\GenererNonFichierService;
 use App\Repository\dit\DitDevisSoumisAValidationRepository;
 use App\Service\genererPdf\GenererPdfDevisSoumisAValidation;
 use App\Service\historiqueOperation\HistoriqueOperationDEVService;
+
 /**
  * @Route("/atelier/demande-intervention")
  */
@@ -48,7 +49,7 @@ class DitDevisSoumisAValidationController extends Controller
         $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
         $this->montantPdfService = new MontantPdfService();
         $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
-        $this->historiqueOperation = new HistoriqueOperationDEVService;
+        $this->historiqueOperation = new HistoriqueOperationDEVService($this->getEntityManager());
         $this->devisRepository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
         $this->chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/dev/';
         $this->fileUploader = new FileUploaderService($this->chemin);

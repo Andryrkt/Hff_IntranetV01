@@ -4,7 +4,7 @@ namespace App\Form\mutation;
 
 use App\Entity\admin\Agence;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
 use App\Entity\admin\dom\Catg;
 use App\Entity\admin\Personnel;
@@ -44,9 +44,9 @@ class MutationFormType extends AbstractType
         'NON' => 'NON',
     ];
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

@@ -21,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
+
 /**
  * @Route("/it")
  */
@@ -33,7 +34,7 @@ class DetailTikController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->emailTikService = new EmailTikService;
+        $this->emailTikService = new EmailTikService($this->getEntityManager(), $this->getTwig());
     }
 
     /**  
@@ -54,7 +55,7 @@ class DetailTikController extends Controller
          */
         $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
-        $handleRequestService = new HandleRequestService($connectedUser, $supportInfo);
+        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
 
         if (!$supportInfo) {
             return $this->render('404.html.twig');

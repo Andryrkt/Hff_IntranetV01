@@ -5,7 +5,7 @@ namespace App\Form\tik;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\tik\TikSearch;
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use App\Entity\admin\StatutDemande;
 use Symfony\Component\Form\FormEvent;
@@ -34,11 +34,11 @@ class TikSearchType extends AbstractType
     private $sousCategorieRepository;
     private $categoriesRepository;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->sousCategorieRepository = Controller::getEntity()->getRepository(TkiSousCategorie::class);
-        $this->categoriesRepository = Controller::getEntity()->getRepository(TkiCategorie::class);
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->sousCategorieRepository = $em->getRepository(TkiSousCategorie::class);
+        $this->categoriesRepository = $em->getRepository(TkiCategorie::class);
     }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

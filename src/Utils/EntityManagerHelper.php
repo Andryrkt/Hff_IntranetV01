@@ -11,7 +11,7 @@ class EntityManagerHelper
         global $kernel;
         if ($kernel && $kernel->getContainer()) {
             try {
-                return $kernel->getContainer()->get('doctrine.orm.entity_manager');
+                return $kernel->getContainer()->get('doctrine.orm.default_entity_manager');
             } catch (\Exception $e) {
                 // Essayer avec le nom de service alternatif
                 try {

@@ -2,7 +2,7 @@
 
 namespace App\Service\autres;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\Application;
 
 class AutoIncDecService
@@ -10,9 +10,9 @@ class AutoIncDecService
 
     private $em;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
+        $this->em = $em;
     }
 
     /**

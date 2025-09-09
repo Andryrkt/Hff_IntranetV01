@@ -229,7 +229,13 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
             return true;
         }
 
-        return $oldSumOfLines !== $newSumOfLines && $oldStatut !== $newStatut;
+        if (!($oldSumOfLines === $newSumOfLines && $oldStatut === $newStatut)) {
+            $message = "PM a oublié de modifier les prix dans IPS";
+            $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
+            return false;
+        }
+
+        return true;
     }
 
 

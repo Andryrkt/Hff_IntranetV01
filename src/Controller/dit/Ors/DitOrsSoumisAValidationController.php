@@ -61,7 +61,7 @@ class DitOrsSoumisAValidationController extends Controller
     {
         parent::__construct();
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
-        $this->historiqueOperation      = new HistoriqueOperationORService();
+        $this->historiqueOperation      = new HistoriqueOperationORService($this->getEntityManager());
         $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
         $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
