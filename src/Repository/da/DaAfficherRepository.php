@@ -460,27 +460,19 @@ class DaAfficherRepository extends EntityRepository
         $offset = ($page - 1) * $limit;
         $paginatedDAs = array_slice($allDasData, $offset, $limit);
 
-        // 6️⃣ Récupérer les DA complètes pour la page
-        $numeroDAsPage = array_column($paginatedDAs, 'numeroDemandeAppro');
-        $versionsMax = array_column($paginatedDAs, 'numeroVersion', 'numeroDemandeAppro');
-
-        $qb = $this->createQueryBuilder('daf')
-            ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
-            ->setParameter('numeroDAs', $numeroDAsPage);
-
-        $orX = $qb->expr()->orX();
-        foreach ($versionsMax as $numeroDA => $versionMax) {
-            $orX->add($qb->expr()->andX(
-                $qb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
-                $qb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
-            ));
-            $qb->setParameter('da_' . $numeroDA, $numeroDA);
-            $qb->setParameter('ver_' . $numeroDA, $versionMax);
+        $resultObjects = [];
+        foreach ($paginatedDAs as $data) {
+            $daAfficher = new DaAfficher();
+            $daAfficher->toObject($data);
+            $daAfficher
+                ->setDemandeAppro($data['numeroDemandeAppro'] ? $this->_em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $data['numeroDemandeAppro']]) : null)
+                ->setDit($data['numeroDemandeDit'] ? $this->_em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data['numeroDemandeDit']]) : null)
+            ;
+            $resultObjects[] = $daAfficher;
         }
-        $qb->andWhere($orX);
 
         return [
-            'data'        => $qb->getQuery()->getResult(),
+            'data'        => $resultObjects,
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,
