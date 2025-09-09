@@ -83,8 +83,10 @@ trait DitTrait
             $demandeIntervention->setServiceDebiteurId($dits->getService());
         }
 
-        //societte
-        // dd($demandeIntervention);
+        //avoir ou refacturation
+        $demandeIntervention->setEstDitAvoir($dits->getEstDitAvoir());
+        $demandeIntervention->setEstDitRefacturation($dits->getEstDitRefacturation());
+
         return $demandeIntervention;
     }
 

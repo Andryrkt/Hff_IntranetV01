@@ -1,69 +1,66 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Dossier d'intervention Atelier
+{% endblock %}
+
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/dw/dw.css?v=2025.08.29.16.20">
 {% endblock %}
 
-{% block nav %}
-	{% include "/dw/shared/_entete.html.twig" %}
-
-{% endblock %}
-
 {% block content %}
 	<div class="row">
 		<div class="col-12 col-md-6">
-			<div class="container">
+			<div class="container mt-6">
 				<div class="dossier">DOSSIER:
 					<span id="numero-dit">{{ numDit }}</span>
 				</div>
-				<table class="table rounded table-plein-ecran">
-					<thead class="table-dark">
-						<tr>
-							<th>Type</th>
-							<th>
-								Nom document</th>
-							<th>N° de document</th>
-							<th>Date de création</th>
-							<th>Date de MAJ</th>
-							<th>N° Version</th>
-							<th>Nb de pages</th>
-							<th>Taille</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for item in data %}
-							{% set extension = item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower %}
-							{% set icon = '<i class="fas fa-file fs-4"></i>' %}
-							{% set icons = {
-                                '.pdf': 'fa-file-pdf',
-                                '.doc': 'fa-file-word', '.docx': 'fa-file-word',
-                                '.xls': 'fa-file-excel', '.xlsx': 'fa-file-excel',
-                                '.jpg': 'fa-file-image', '.jpeg': 'fa-file-image', '.png': 'fa-file-image',
-                                '.zip': 'fa-file-archive', '.rar': 'fa-file-archive',
-                                '.txt': 'fa-file-alt'
-                            } %}
-
-							{% if icons[extension] is defined %}
-								{% set icon = '<i class="fas ' ~ icons[extension] ~ ' fs-4"></i>' %}
-							{% endif %}
-
-							{% set numeroVersion = item.numero_version ? item.numero_version :'-'%}
-
-							<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}" data-chemin="{{item.chemin}}">
-								<td>{{icon|raw}}</td>
-								<td>{{item.nomDoc}}</td>
-								<td>{{item.numero_doc}}</td>
-								<td>{{item.date_creation | date('d/m/Y')}}</td>
-								<td>{{item.date_modification | date('d/m/Y')}}</td>
-								<td class="text-center">{{numeroVersion}}</td>
-								<td class="text-center">{{item.total_page}}</td>
-								<td>{{(item.taille_fichier / 1024)|number_format(2)|replace({'.' : ',', ',': '.'})}}
-									Ko</td>
+				<div class="table-moitier">
+					<table class="table rounded table-plein-ecran">
+						<thead class="table-dark">
+							<tr>
+								<th>Type</th>
+								<th>Nom document</th>
+								<th>N° de document</th>
+								<th>Date de création</th>
+								<th>Date de MAJ</th>
+								<th>N° Version</th>
+								<th>Nb de pages</th>
+								<th>Taille</th>
 							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+						</thead>
+						<tbody>
+							{% for item in data %}
+								{% set extension = item.extension_fichier ? item.extension_fichier|replace({'\r': '', '\n': ''})|trim|lower : '.pdf' %}
+								{% set icon = '<i class="fas fa-file fs-4"></i>' %}
+								{% set icons = {
+									'.pdf': 'fa-file-pdf',
+									'.doc': 'fa-file-word', '.docx': 'fa-file-word',
+									'.xls': 'fa-file-excel', '.xlsx': 'fa-file-excel',
+									'.jpg': 'fa-file-image', '.jpeg': 'fa-file-image', '.png': 'fa-file-image',
+									'.zip': 'fa-file-archive', '.rar': 'fa-file-archive',
+									'.txt': 'fa-file-alt'
+								} %}
+
+								{% if icons[extension] is defined %}
+									{% set icon = '<i class="fas ' ~ icons[extension] ~ ' fs-4"></i>' %}
+								{% endif %}
+
+								<tr class="clickable-row clickable" data-doc="{{ item.numero_doc }}" data-nomdoc="{{item.nomDoc}}" data-version="{{ numeroVersion}}" data-chemin="{{item.chemin}}">
+									<td>{{ icon|raw }}</td>
+									<td>{{ item.nomDoc }}</td>
+									<td>{{ item.numero_doc }}</td>
+									<td>{{ item.date_creation ? item.date_creation | date('d/m/Y') : '-' }}</td>
+									<td>{{ item.date_modification ? item.date_modification | date('d/m/Y') : '-' }}</td>
+									<td class="text-center">{{ item.numero_version ?? '-' }}</td>
+									<td class="text-center">{{ item.total_page ?? '-' }}</td>
+									<td>{{ item.taille_fichier ? (item.taille_fichier / 1024)|number_format(2)|replace({'.' : ',', ',': '.'}) ~ 'Ko' : '-' }}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
 				<div class="notice">
 					<span class="notice-icon">
 						<i class="fas fa-info-circle"></i>
@@ -75,7 +72,7 @@
 			</div>
 		</div>
 		<div class="col-12 col-md-6">
-			<div class="container">
+			<div class="container mt-6">
 				<div id="file-viewer" style="border: 1px solid #ccc; padding: 10px;">
 					<div id="spinners" style="display: none;">Loading...</div>
 					<!-- Le fichier sélectionné sera affiché ici -->

@@ -95,18 +95,18 @@ trait DaListeTrait
         }
     }
 
-    public function getPaginationData(array $criteria, int $page, int $limit): array
+    public function getPaginationData(array $criteria, int $page, int $limit, ?string $sortField, ?string $sortDirection): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit, $sortField, $sortDirection);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 
         // mise à jours des donner dans la base de donner
-        $this->quelqueModifictionDansDatabase($daAffichers);
+        $this->quelqueModifictionDansDatabase($daAffichers, $sortField, $sortDirection);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
         $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
@@ -114,11 +114,13 @@ trait DaListeTrait
         return $paginationData;
     }
 
-    private function quelqueModifictionDansDatabase(array $datas)
+    private function quelqueModifictionDansDatabase(array $datas, ?string $sortField, ?string $sortDirection): void
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            $this->modificationDateRestant($data, $em);
+            if (!$sortField && !$sortDirection) {
+                $this->modificationDateRestant($data, $em);
+            }
             $this->modificationStatutBC($data, $em);
         }
         $em->flush();

@@ -85,6 +85,26 @@ document.addEventListener("DOMContentLoaded", function () {
       button.disabled = true; // empêche l'interaction
     }
   });
+
+  /**
+   * Icônes de tri
+   **/
+  const sortIcons = document.querySelectorAll(".sort-icon");
+  sortIcons.forEach((icon) => {
+    icon.addEventListener("click", (e) => {
+      e.preventDefault(); // Empêche le comportement par défaut du lien
+      displayOverlay(true);
+      let iconActif = icon.firstElementChild.classList.contains("text-warning");
+      let urlObjet = new URL(icon.href); // Crée un objet URL pour faciliter la gestion des paramètres
+
+      if (iconActif) {
+        urlObjet.searchParams.delete("sort");
+        urlObjet.searchParams.delete("direction");
+      }
+
+      window.location.href = urlObjet.toString(); // Redirige vers l'URL avec les nouveaux paramètres
+    });
+  });
 });
 
 window.addEventListener("load", () => {

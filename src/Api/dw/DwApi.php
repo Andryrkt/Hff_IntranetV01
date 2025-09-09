@@ -4,11 +4,21 @@ namespace App\Api\dw;
 
 
 use App\Controller\Controller;
-use App\Model\dw\DossierInterventionAtelierModel;
+use App\Entity\da\DemandeAppro;
+use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dw\DossierInterventionAtelierModel;
 
 class DwApi extends Controller
 {
+    private DemandeApproRepository $demandeApproRepository;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+    }
+
     /**
      * @Route("/dw-fetch/{numDit}", name="fetch_dw")
      * 
@@ -39,9 +49,10 @@ class DwApi extends Controller
         // Documents liés à la demande d'intervention
         $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
         $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
+        $daValide = !empty($dwDit) ? $this->getAllBaValide($numDit) : [];
 
         // Fusionner toutes les données
-        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl);
+        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $daValide, $dwBca, $dwFacBl);
 
         header("Content-type:application/json");
 
@@ -87,6 +98,24 @@ class DwApi extends Controller
         foreach ($items as &$item) {
             $item['nomDoc'] = $label;
         }
+        return $items;
+    }
+
+    private function getAllBaValide(string $numeroDit)
+    {
+        $items = [];
+
+        $allNumDaValide = $this->demandeApproRepository->findAllNumDaValide($numeroDit);
+
+        foreach ($allNumDaValide as $numDaValide) {
+            $items[] = [
+                'nomDoc'     => "Bon d’achat validé",
+                'numero_doc' => $numDaValide,
+                'chemin'     => "da/$numDaValide/$numDaValide.pdf",
+                'extension_fichier' => '.pdf',
+            ];
+        }
+
         return $items;
     }
 }

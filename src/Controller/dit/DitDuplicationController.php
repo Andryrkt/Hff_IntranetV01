@@ -61,8 +61,8 @@ class DitDuplicationController extends Controller
             'id'     => $id,
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
-        $estAvoir = $this->estAvoir($dit); // TODO : encore à faire
-        $estRefactorisation = $this->estRefacturation($dit); //
+        $estAvoir = $this->estAvoir($dit);
+        $estRefactorisation = $this->estRefacturation($dit);
         return $this->render('dit/duplication.html.twig', [
             'form' => $form->createView(),
             'dit' => $dit,
@@ -88,8 +88,8 @@ class DitDuplicationController extends Controller
     {
         $position = $this->getDitModel()->getPosition($dit->getNumeroDemandeIntervention());
         if (!empty($position)) {
-            $niAvoirNiRefac = $dit->getEstDitAvoir() === false && $dit->getEstDitRefacturation() === false;
-            $positionOR =  in_array($position[0], ['FC', 'CP']); //l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
+            $niAvoirNiRefac = $dit->getEstDitAvoir() === false && $dit->getEstDitRefacturation() === false; //b. la DIT initiale n'est ni une DIT d'avoir, ni une DIT de refacturation 
+            $positionOR =  in_array($position[0], ['FC', 'CP']); //c. l'OR rattaché à la DIT initale est facturé / comptabilisé (seor_pos in ('FC','CP')
             $numeroAvoir = $dit->getNumeroDemandeDitAvoit() <> null;
             return $positionOR && $niAvoirNiRefac && $numeroAvoir;
         }
@@ -103,7 +103,7 @@ class DitDuplicationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dit = $form->getData();
-
+            dd($dit);
             if (empty($dit->getIdMateriel())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');
@@ -176,6 +176,7 @@ class DitDuplicationController extends Controller
 
         $demandeInterventions = new DemandeIntervention();
         $demandeInterventions
+            ->setNumeroDemandeIntervention($dit->getNumeroDemandeIntervention())
             ->setAgenceServiceEmetteur($dit->getAgenceServiceEmetteur())
             ->setAgenceEmetteur($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence())
             ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())

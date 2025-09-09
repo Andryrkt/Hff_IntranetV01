@@ -295,6 +295,7 @@ class DitOrsSoumisAValidationController extends Controller
             // 'datePlanningInferieureDateDuJour' => $this->datePlanningInferieurDateDuJour($numOr),
             'numcliExiste'          => $nbrNumcli[0] != 'existe_bdd',
             // 'articleDas'            => !$this->compareTableaux($articleDas, $referenceDas) && !empty($referenceDas) && !empty($articleDas),
+            'premierSoumissionDatePlanningInferieurDateDuJour' => $this->premierSoumissionDatePlanningInferieurDateDuJour($numOr),
         ];
     }
 
@@ -361,6 +362,10 @@ class DitOrsSoumisAValidationController extends Controller
         // } 
         elseif ($conditionBloquage['numcliExiste']) {
             $message = "La soumission n'a pas pu être effectuée car le client rattaché à l'OR est introuvable";
+            $okey = false;
+            $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
+        } elseif ($conditionBloquage['premierSoumissionDatePlanningInferieurDateDuJour']) {
+            $message = " Impossible de soumettre l’OR, la date de planning est déjà dépassée";
             $okey = false;
             $this->historiqueOperation->sendNotificationSoumission($message, $ditInsertionOrSoumis->getNumeroOR(), 'dit_index');
         } else {

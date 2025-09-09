@@ -5,6 +5,7 @@ namespace App\Service\magasin\devis;
 use Symfony\Component\Form\FormInterface;
 use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
+use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
@@ -90,10 +91,10 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
     }
 
     /**
-     * Vérifie si le statut du devis bloque la soumission pour la validation de prix
+     * Bloqué si le devis est en cours de vérification de prix
      * 
-     * Cette méthode vérifie si le devis est dans un statut qui empêche sa soumission
-     * pour la validation de prix (ex: "prix à confirmer", "Soumis à validation")
+     * Cette méthode vérifie si le devis est dans un statut en cours de vérification de prix 
+     * (ex: "prix à confirmer", "Soumis à validation")
      * 
      * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
      * @param string $numeroDevis Le numéro de devis à vérifier
@@ -104,18 +105,19 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'prix à confirmer',
+            'Prix à confirmer',
             'Soumis à validation'
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée car le devis est en cours de verification de prix.";
+            $message = "Soumission bloquée, une vérification de prix est déjà en cours sur ce devis";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
 
         return true; // Validation passed
     }
+
     /**
      * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
      * 
@@ -131,9 +133,9 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'prix validé magasin',
-            'prix refusé magasin',
-            'A valider chef agence'
+            'Prix validé magasin',
+            'Prix refusé magasin',
+            'A valider chef d’agence'
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
@@ -152,13 +154,13 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * pour détecter les modifications qui nécessitent une validation de devis avant
      * la validation de prix
      * 
-     * @param \App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données de lignes
+     * @param LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données de lignes
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @param int $newSumOfLines Le nouveau nombre de lignes
      * @return bool true si le nombre de lignes est inchangé (bloquant), false sinon
      */
-    public function estSommeDeLigneChanger(
-        \App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface $repository,
+    public function estSommeDeLigneInChanger(
+        LatestSumOfLinesRepositoryInterface $repository,
         string $numeroDevis,
         int $newSumOfLines
     ): bool {

@@ -49,4 +49,20 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
 
         return $sum !== null ? (int)$sum : null;
     }
+
+    public function findLatestSumOfMontantByIdentifier(string $identifier): ?float
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('d.montantDevis')
+            ->where('d.numeroDevis = :identifier')
+            ->setParameter('identifier', $identifier)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+
+        $sum = $result[0]['montantDevis'] ?? null;
+
+        return $sum !== null ? (float)$sum : null;
+    }
 }

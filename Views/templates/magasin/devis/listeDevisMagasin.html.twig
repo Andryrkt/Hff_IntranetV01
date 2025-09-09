@@ -46,11 +46,8 @@
 						<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu"
 							aria-labelledby="dropdownMenuButton">
 							<li>
-								{% if item.statutDw != 'Prix à confirmer' and item.statutDw != ''%}
-								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
-								{% else %}
 								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
-								{% endif %}
+								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
 								{% if item.statutDw starts with 'Validé' %}
 								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",{numeroDevis: item.numeroDevis})}}">Envoyer devis au client</a>
 								{% endif %}

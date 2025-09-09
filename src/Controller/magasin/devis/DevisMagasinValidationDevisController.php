@@ -24,9 +24,9 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 class DevisMagasinValidationDevisController extends Controller
 {
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
-    private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef agence';
+    private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
     private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
-    private const MESSAGE = 'validation devis';
+    private const MESSAGE_DE_CONFIRMATION = 'validation';
     use AutorisationTrait;
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
@@ -94,7 +94,8 @@ class DevisMagasinValidationDevisController extends Controller
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
             'form' => $form->createView(),
-            'message' => self::MESSAGE
+            'message' => self::MESSAGE_DE_CONFIRMATION,
+            'numeroDevis' => $devisMagasin->getNumeroDevis()
         ]);
     }
 
@@ -117,13 +118,14 @@ class DevisMagasinValidationDevisController extends Controller
                 $firstDevisIps = reset($devisIps);
 
                 // Validation de la somme des lignes et statut prix refusé
-                $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-                if (!$validationService->isSumOfLinesUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, self::STATUT_PRIX_REFUSE)) {
+                $newSumOfMontant = (float)$firstDevisIps['montant_total'];
+                if (!$validationService->isSumOfMontantUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfMontant, self::STATUT_PRIX_REFUSE)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 
                 // Validation de la somme des lignes qui est différent de la dernière version
-                if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+                if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, $newSumOfMontant)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 

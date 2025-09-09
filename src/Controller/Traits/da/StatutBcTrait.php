@@ -28,9 +28,10 @@ trait StatutBcTrait
 
         $DaAfficher = $this->getDaAfficher($numDa, $numDit, $ref, $designation);
 
-        if ($DaAfficher == null) {
+        if ($DaAfficher == null || $DaAfficher->getStatutDal() !== DemandeAppro::STATUT_VALIDE) {
             return '';
         };
+
         $statutBc = $DaAfficher->getStatutCde();
         $achatDirect = $DaAfficher->getAchatDirect();
 
@@ -136,7 +137,7 @@ trait StatutBcTrait
     {
         if ($achatDirect) {
             if (empty($infoDaDirect)) {
-                return true;
+                return false;
             }
 
             // Si le numéro de commande est vide

@@ -56,6 +56,9 @@ use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+// Configuration des sessions
+require_once __DIR__ . '/session_config.php';
+
 
 define('DEFAULT_FORM_THEME', 'form_div_layout.html.twig');
 

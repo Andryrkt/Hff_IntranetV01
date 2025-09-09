@@ -25,7 +25,7 @@ class DevisMagasinVerificationPrixController extends Controller
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
-    private const MESSAGE = 'verification prix';
+    private const MESSAGE_DE_CONFIRMATION = 'verification prix';
 
     use AutorisationTrait;
 
@@ -86,7 +86,8 @@ class DevisMagasinVerificationPrixController extends Controller
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
             'form' => $form->createView(),
-            'message' => self::MESSAGE
+            'message' => self::MESSAGE_DE_CONFIRMATION,
+            'numeroDevis' => $devisMagasin->getNumeroDevis()
         ]);
     }
 
@@ -95,7 +96,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // Validation du fichier soumis via le service dédié
+            // Validation du fichier soumis 
             if (!$validationService->validateSubmittedFile($form)) {
                 return; // Arrête le traitement si la validation échoue
             }
@@ -110,7 +111,7 @@ class DevisMagasinVerificationPrixController extends Controller
 
                 // Validation de la somme des lignes
                 $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-                if ($validationService->estSommeDeLigneChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                if ($validationService->estSommeDeLigneInChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 
