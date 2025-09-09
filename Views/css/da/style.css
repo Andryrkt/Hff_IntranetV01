@@ -67,15 +67,21 @@ a.choix:hover {
   border: none;
 }
 
-.sort-icons i {
-  opacity: 0.75;
-  line-height: 0.5;
-  font-size: 1.125rem;
+.sort-icons a {
+  text-decoration: none;
+  color: inherit;
+  line-height: 0;
   cursor: pointer;
-  transform: translateY(-2px);
 }
 
-.sort-icons i:hover {
+.sort-icons i {
+  opacity: 0.75;
+  line-height: 0.25;
+  font-size: 1.125rem;
+}
+
+.sort-icons i:hover,
+.sort-icons i.text-warning {
   opacity: 1;
 }
 
