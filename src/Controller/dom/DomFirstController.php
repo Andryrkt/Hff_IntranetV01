@@ -34,13 +34,59 @@ class DomFirstController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
-        $dom = new Dom();
+        //récupération de l'utilisateur connecté
         $user = $this->getUser();
 
-        //INITIALISATION 
+        // Récupération de l'agence et du service de l'utilisateur connecté
         $agenceServiceIps = $this->agenceServiceIpsString();
 
-        $dom
+        $dom = new Dom();
+        //INITIALISATION 
+        $dom = $this->initialisationDom($dom, $agenceServiceIps, $user);
+
+        //CREATION DU FORMULAIRE
+        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
+        //TRAITEMENT DU FORMULAIRE
+        $this->traitemementForm($form, $request);
+
+        //HISTORISATION DE LA PAGE
+        $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
+        
+        
+        //RENDU DE LA VUE
+        return $this->render('doms/firstForm.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    private function traitemementForm($form, $request)
+    {
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            // $salarier = $form->get('salarie')->getData();
+            // $dom->setSalarier($salarier);
+
+            $formData = $form->getData()->toArray();
+
+            $this->getSessionService()->set('form1Data', $formData);
+
+            // Redirection vers le second formulaire
+            return $this->redirectToRoute('dom_second_form');
+        }
+    }
+
+    /**
+     * Initialise le DOM
+     * @param Dom $dom
+     * @param array $agenceServiceIps
+     * @param User $user
+     * @return Dom
+     */
+    private function initialisationDom(Dom $dom, array $agenceServiceIps, User $user): Dom
+    {
+        return $dom
             ->setAgenceEmetteur($agenceServiceIps['agenceIps'])
             ->setServiceEmetteur($agenceServiceIps['serviceIps'])
             ->setSousTypeDocument($this->getEntityManager()->getRepository(SousTypeDocument::class)->find(2))
@@ -48,33 +94,7 @@ class DomFirstController extends Controller
             ->setCodeAgenceAutoriser($user->getAgenceAutoriserCode())
             ->setCodeServiceAutoriser($user->getServiceAutoriserCode())
         ;
-
-
-        $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted()) {
-
-            $salarier = $form->get('salarie')->getData();
-
-            $dom->setSalarier($salarier);
-            $formData = $form->getData()->toArray();
-
-
-            $this->getSessionService()->set('form1Data', $formData);
-
-            // Redirection vers le second formulaire
-            return $this->redirectToRoute('dom_second_form');
-        }
-
-        $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
-
-        return $this->render('doms/firstForm.html.twig', [
-            'form' => $form->createView(),
-        ]);
     }
-
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */

@@ -27,7 +27,6 @@ trait DomsTrait
 
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
-
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);

@@ -49,7 +49,7 @@
 					{% set styleStatutDom = '' %}
 
 					{% if item.idStatutDemande.description | trim == 'OUVERT' %}
-						{% set classeStatutDom ='bg-warning bg-gradient text-cente' %}
+						{% set classeStatutDom ='bg-warning bg-gradient text-center' %}
 					{% elseif item.idStatutDemande.description | trim == 'PAYE'  %}
 						{% set classeStatutDom ='bg-success bg-gradient' %}
 					{% elseif  item.idStatutDemande.description | trim == 'ATTENTE PAIEMENT' %}
@@ -60,7 +60,7 @@
 					{% elseif item.idStatutDemande.description | trim == 'A VALIDER SERVICE EMETTEUR' %}
 						{% set classeStatutDom ='bg-primary' %}
 						{% set styleStatutDom = '--bs-bg-opacity: .5;' %}
-					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG'%}
+					{% elseif item.idStatutDemande.description | trim == 'VALIDE' or item.idStatutDemande.description | trim == 'VALIDE COMPTABILITE' or item.idStatutDemande.description | trim == 'VALIDATION RH' or item.idStatutDemande.description | trim == 'VALIDATION DG' %}
 						{% set classeStatutDom ='bg-success' %}
 					{% elseif item.idStatutDemande.description | trim == 'ANNULE CHEF DE SERVICE' or item.idStatutDemande.description | trim == 'ANNULE COMPTABILITE' or item.idStatutDemande.description | trim == 'ANNULE SECRETARIAT RH' or item.idStatutDemande.description | trim == 'ANNULE' %}
 						{% set classeStatutDom ='bg-danger' %}
@@ -88,10 +88,9 @@
 						{# Fin Actions #}
 
 						{# DEBUT Statut #}
-						<td class="{{classeStatutDom}}" style="{{styleStatutDom}}">{{ item.idStatutDemande.description}}</td>
-
+						<td class="{{ classeStatutDom }}" style="{{ styleStatutDom }}">{{ item.idStatutDemande.description }}</td>
 						{# FIN Statut #}
-						<td>{{ item.sousTypeDocument.codeSousType}}</td>
+						<td>{{ item.sousTypeDocument.codeSousType }}</td>
 						<td>
 							<a href="{{ path("Dom_detail", {id:item.id})}}" target="_blank">
 								{{ item.numeroOrdreMission }}

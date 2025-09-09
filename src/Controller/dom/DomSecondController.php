@@ -53,11 +53,11 @@ class DomSecondController extends Controller
         $user = $this->getUser();
 
         $dom = new Dom();
-        /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
         $form1Data = $this->getSessionService()->get('form1Data', []);
-        $sousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
+        $codeSousTypeDoc = $form1Data['sousTypeDocument']->getCodeSousType();
 
+        /** INITIALISATION des données  */
         $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
         $criteria = $this->criteria($form1Data, $this->getEntityManager());
 
@@ -75,12 +75,12 @@ class DomSecondController extends Controller
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
 
-            if ($form1Data['sousTypeDocument']->getCodeSousType() !== 'COMPLEMENT' && $form1Data['sousTypeDocument']->getCodeSousType() !== 'TROP PERCU') {
+            if ($codeSousTypeDoc !== 'COMPLEMENT' && $codeSousTypeDoc !== 'TROP PERCU') {
                 if ($verificationDateExistant) {
                     $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
                     $this->historiqueOperation->sendNotificationCreation($message, $dom->getNumeroOrdreMission(), 'dom_first_form');
                 } else {
-                    if ($form1Data['sousTypeDocument']->getCodeSousType()  === 'FRAIS EXCEPTIONNEL') {
+                    if ($codeSousTypeDoc  === 'FRAIS EXCEPTIONNEL') {
                         $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager(), $this->fusionPdf, $user);
                     } else {
                         if ((explode(':', $dom->getModePayement())[0] !== 'MOBILE MONEY' || (explode(':', $dom->getModePayement())[0] === 'MOBILE MONEY')) && (int)str_replace('.', '', $dom->getTotalGeneralPayer()) <= 500000) {
@@ -111,7 +111,7 @@ class DomSecondController extends Controller
             'form'          => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria'      => $criteria,
-            'sousTypeDoc'   => $sousTypeDoc
+            'codeSousTypeDoc'   => $codeSousTypeDoc
         ]);
     }
 }
