@@ -84,7 +84,7 @@ class DaListCdeFrnController extends Controller
             'method' => 'GET',
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
-
+        
         return $this->render('da/daListCdeFrn.html.twig', [
             'daAfficherValides' => $paginationData['data'],
             'formSoumission'    => $formSoumission->createView(),
