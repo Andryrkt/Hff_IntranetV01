@@ -442,7 +442,7 @@ trait DitOrSoumisAValidationTrait
                 $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
                 $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
                 $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
-                if ($dateDuJour->format('Y-m-d') < $datePlanning->format('Y-m-d')) {// date de soumission est inférieure à la date de planning
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) {// date planning est inférieure à la date du jour
                     return true;
                 }
             }
