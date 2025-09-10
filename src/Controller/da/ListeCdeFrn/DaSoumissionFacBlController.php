@@ -50,7 +50,7 @@ class DaSoumissionFacBlController extends Controller
     }
 
     /**
-     * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl")
+     * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl", defaults={"numOr"=0})
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {

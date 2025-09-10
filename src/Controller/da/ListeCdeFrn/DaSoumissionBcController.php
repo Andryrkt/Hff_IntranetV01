@@ -56,7 +56,7 @@ class DaSoumissionBcController extends Controller
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc", , defaults={"numOr"=0})
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
