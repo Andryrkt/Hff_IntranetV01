@@ -17,7 +17,6 @@ use Symfony\Component\Routing\Annotation\Route;
 class listeDaController extends Controller
 {
     use DaListeTrait;
-    use StatutBcTrait;
     use AutorisationTrait;
 
     public function __construct()

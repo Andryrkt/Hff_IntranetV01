@@ -19,6 +19,7 @@ use Twig\Markup;
 trait DaListeTrait
 {
     use DaTrait;
+    use StatutBcTrait;
 
     //=====================================================================================
     // Styles des DA, OR, BC dans le css

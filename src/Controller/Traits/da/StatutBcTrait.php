@@ -44,7 +44,7 @@ trait StatutBcTrait
         }
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
-        
+
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -54,18 +54,18 @@ trait StatutBcTrait
         if (in_array($statutDa, $statutDaIntanert)) {
             return '';
         }
-        
+
         $numcde = $this->numeroCde($infoDaDirect, $situationCde, $achatDirect);
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
-        
+
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
-        
-        
+
+
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
-        
+
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
             DaSoumissionBc::STATUT_A_VALIDER_DA,
@@ -73,11 +73,11 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_CLOTURE,
             DaSoumissionBc::STATUT_REFUSE
         ];
-        
+
         if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr(), $infoDaDirect, $achatDirect)) {
             return 'A générer';
         }
-        
+
         if (!$this->aSituationCde($situationCde, $infoDaDirect)) {
             return $statutBc;
         }
@@ -286,9 +286,10 @@ trait StatutBcTrait
             ->setDatePlannigOr($datePlanningOr)
         ;
 
-        if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
+        // ? Désactiver la mise à jour du statut OR dans DaAfficher
+        /* if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
             $DaAfficher->setStatutOr($statutOr);
-        }
+        } */
     }
 
     private function getDatePlannigOr(?string $numOr)
