@@ -19,17 +19,17 @@ class ProfilUserType extends AbstractType
     private $ldap;
     private SessionManagerService $sessionService;
 
-    public function __construct(SessionManagerService $sessionService)
+    public function __construct(SessionManagerService $sessionService, LdapModel $ldap)
     {
-        $this->ldap = new LdapModel();
+        $this->ldap = $ldap;
         $this->sessionService = $sessionService;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
+        // Récupérer les utilisateurs depuis LDAP
         $users = $this->ldap->infoUser($this->sessionService->get('user'), $this->sessionService->get('password'));
-
+        dd($users);
         $nom = [];
         foreach ($users as $key => $value) {
             $nom[] = $key;
@@ -41,9 +41,8 @@ class ProfilUserType extends AbstractType
                 ChoiceType::class,
                 [
                     'label' => "Nom d'utilisateur",
-                    'choices' => array_combine($nom, $nom),
+                    'choices' => !empty($nom) ? array_combine($nom, $nom) : [],
                     'placeholder' => "-- Choisir un nom d'utilisateur --"
-
                 ]
             )
             ->add(

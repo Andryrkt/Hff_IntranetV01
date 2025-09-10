@@ -314,7 +314,7 @@ trait DomsDupliTrait
         $em->flush();
 
         $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em);
-        $genererPdfDom = new GeneratePdfDom();
+        $genererPdfDom = new GeneratePdfDom(new \setasign\Fpdi\Tcpdf\Fpdi());
         $genererPdfDom->genererPDF($tabInternePdf);
 
         $this->envoiePieceJoint($form, $dom, $this->fusionPdf);

@@ -437,7 +437,7 @@ trait DomsTrait
 
         //GENERER un PDF
         $tabInternePdf = $this->donnerPourPdf($dom, $domForm, $em, $user, $tropPercu);
-        $genererPdfDom = new GeneratePdfDom();
+        $genererPdfDom = new GeneratePdfDom(new \setasign\Fpdi\Tcpdf\Fpdi());
         $genererPdfDom->genererPDF($tabInternePdf);
         //Fusion piece joint
         $this->envoiePieceJoint($form, $dom, $fusionPdf);

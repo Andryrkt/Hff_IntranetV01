@@ -17,9 +17,9 @@ class AgenceServiceAutoriserType extends AbstractType
     private $ldap;
     private SessionManagerService $sessionService;
 
-    public function __construct(SessionManagerService $sessionService)
+    public function __construct(SessionManagerService $sessionService, LdapModel $ldap)
     {
-        $this->ldap = new LdapModel();
+        $this->ldap = $ldap;
         $this->sessionService = $sessionService;
     }
 

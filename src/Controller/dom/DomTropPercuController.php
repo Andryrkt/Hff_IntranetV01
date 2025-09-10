@@ -6,8 +6,6 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Entity\dom\Domtp;
 use App\Controller\Controller;
-use App\Form\dom\DomForm2Type;
-use App\Entity\admin\utilisateur\User;
 use App\Form\dom\DomTropPercuFormType;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
@@ -31,9 +29,9 @@ class DomTropPercuController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager(), $this->getSessionService());
         $this->DomModel = new DomModel();
-        $this->fusionPdf = new FusionPdf();
+        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
     }
     /**
      * @Route("/trop-percu/{id}", name="dom_trop_percu_form")

@@ -4,8 +4,6 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
 use App\Form\dom\DomForm1Type;
 use App\Entity\admin\Application;
@@ -40,8 +38,8 @@ class DomFirstController extends Controller
         // Récupération de l'agence et du service de l'utilisateur connecté
         $agenceServiceIps = $this->agenceServiceIpsString();
 
-        $dom = new Dom();
         //INITIALISATION 
+        $dom = new Dom();
         $dom = $this->initialisationDom($dom, $agenceServiceIps, $user);
 
         //CREATION DU FORMULAIRE

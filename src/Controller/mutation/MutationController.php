@@ -32,8 +32,8 @@ class MutationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationMUTService($this->getEntityManager());
-        $this->fusionPdf = new FusionPdf();
+        $this->historiqueOperation = new HistoriqueOperationMUTService($this->getEntityManager(), $this->getSessionService());
+        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
     }
 
     /**
@@ -74,7 +74,7 @@ class MutationController extends Controller
                 $this->historiqueOperation->sendNotificationCreation("La demande de mutation a échoué car le matricule '$matricule' est déjà rattaché à une demande de mutation entre les plages de dates.", '-', 'mutation_liste', false);
             } else {
                 $mutation = $this->enregistrementValeurDansMutation($form, $this->getEntityManager(), $user);
-                $generatePdf = new GeneratePdfMutation;
+                $generatePdf = new GeneratePdfMutation(new \setasign\Fpdi\Tcpdf\Fpdi());
                 $generatePdf->genererPDF($this->donneePourPdf($form, $user));
                 $this->envoyerPieceJointes($form, $this->fusionPdf);
                 $generatePdf->copyInterneToDOCUWARE($mutation->getNumeroMutation(), $mutation->getAgenceEmetteur()->getCodeAgence() . $mutation->getServiceEmetteur()->getCodeService());

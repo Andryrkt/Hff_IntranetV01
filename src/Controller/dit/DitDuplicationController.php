@@ -32,8 +32,8 @@ class DitDuplicationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
-        $this->fusionPdf = new FusionPdf();
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
+        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
     }
 
     /**
@@ -136,7 +136,7 @@ class DitDuplicationController extends Controller
             }
 
             //genere le PDF
-            $genererPdfDit = new GenererPdfDit();
+            $genererPdfDit = new GenererPdfDit(new \setasign\Fpdi\Tcpdf\Fpdi());
             $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
 
             //envoie des pièce jointe dans une dossier et la fusionner

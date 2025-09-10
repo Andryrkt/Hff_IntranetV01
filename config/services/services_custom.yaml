@@ -42,6 +42,14 @@ services:
             $session: '@session'
         public: true
 
+    App\Model\LdapModel:
+        arguments:
+            $ldapHost: '%ldap.host%'
+            $ldapPort: '%ldap.port%'
+            $domain: '%ldap.domain%'
+            $ldapDn: '%ldap.dn%'
+        public: true
+
     # Services de navigation
     App\Service\navigation\MenuService:
         autowire: false
@@ -156,9 +164,7 @@ services:
     # Services avec paramètres primitifs - configuration explicite pour éviter l'autowiring
     App\Service\fichier\FileUploaderService:
         arguments:
-            $targetDirectory: '%kernel.project_dir%/public/uploads'
-            $fusionPdf: '@App\Service\FusionPdf'
-        public: false
+            $targetDirectory: '%upload_directory%'
 
     App\Service\docuware\CopyDocuwareService:
         arguments:
@@ -173,6 +179,11 @@ services:
     App\Service\da\FileUploaderForDAService:
         arguments:
             $basePath: '%kernel.project_dir%/public/uploads/da'
+        public: false
+
+    App\Service\da\EmailDaService:
+        arguments:
+            $emailService: '@App\Service\EmailService'
         public: false
 
     App\Service\genererPdf\GenererPdfDit:
@@ -241,14 +252,6 @@ services:
         autoconfigure: true
         public: false
 
-    # LdapModel - configuration pour éviter les erreurs d'instanciation
-    App\Model\LdapModel:
-        arguments:
-            $ldapHost: 'localhost'
-            $ldapPort: 389
-            $domain: 'example.com'
-            $ldapDn: 'dc=example,dc=com'
-        public: false
 
     # Service EmailTikService
     App\Service\tik\EmailTikService:
@@ -296,4 +299,16 @@ services:
             - [setConnect, ['@App\Model\DatabaseInformix']]
             - [setConnexion04, ['@App\Model\ConnexionDote4']]
             - [setConnexion04Gcot, ['@App\Model\ConnexionDote4Gcot']]
+
+    App\Controller\Authentification:
+        arguments:
+            $ldapModel: '@App\Model\LdapModel'
+            $authCsvFilePath: '%auth.csv_file_path%'
+            $emailDaService: '@App\Service\da\EmailDaService'
+            $daFileUploader: '@App\Service\da\FileUploaderForDAService'
+            $daAfficherRepository: '@App\Repository\da\DaAfficherRepository'
+            $demandeApproRepository: '@App\Repository\da\DemandeApproRepository'
+            $demandeApproLRepository: '@App\Repository\da\DemandeApproLRepository'
+            $demandeApproLRRepository: '@App\Repository\da\DemandeApproLRRepository'
+        public: true
 

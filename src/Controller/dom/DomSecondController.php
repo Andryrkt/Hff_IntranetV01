@@ -7,7 +7,6 @@ use App\Entity\dom\Dom;
 use App\Controller\Controller;
 use App\Form\dom\DomForm2Type;
 use App\Entity\admin\Application;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\dom\DomsTrait;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\AutorisationTrait;
@@ -33,9 +32,9 @@ class DomSecondController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager(), $this->getSessionService());
         $this->DomModel = new DomModel();
-        $this->fusionPdf = new FusionPdf();
+        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
     }
     /**
      * @Route("/dom-second-form", name="dom_second_form")

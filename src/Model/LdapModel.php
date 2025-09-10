@@ -9,6 +9,7 @@ class LdapModel
     private $ldapconn;
     private $Domain;
     private $ldap_dn;
+    private $ldapconnInitialized = false; // Nouveau drapeau pour la connexion paresseuse
 
     public function __construct(
         string $ldapHost,
@@ -20,25 +21,38 @@ class LdapModel
         $this->ldapPort = $ldapPort;
         $this->Domain = $domain;
         $this->ldap_dn = $ldapDn;
+    }
 
-        $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
-
-        if (!$this->ldapconn) {
-            die("Connexion au serveur LDAP échouée.");
+    private function initializeLdapConnection(): void
+    {
+        if ($this->ldapconnInitialized) {
+            return; // Connexion déjà tentée
         }
 
-        ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
-        ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
+        $this->ldapconnInitialized = true; // Marquer comme tentée
+
+        $this->ldapconn = @ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
+
+        if (!$this->ldapconn) {
+            error_log("Connexion au serveur LDAP échouée. Host: {$this->ldapHost}, Port: {$this->ldapPort}");
+            throw new \Exception("LDAP est requis mais non disponible. Vérifiez la configuration LDAP.");
+        }
+
+        if ($this->ldapconn) {
+            ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
+        }
     }
 
     public function showconnect()
     {
+        $this->initializeLdapConnection();
         return $this->ldapconn;
     }
 
     /**
      * @Andryrkt
-     * 
+     *
      * récupère le non d'utilisateur et le mot de passe et comparer avec ce qui dans ldap
      *
      * @param string $user
@@ -47,6 +61,13 @@ class LdapModel
      */
     public function userConnect(string $user, string $password): bool
     {
+        $this->initializeLdapConnection(); // S'assurer que la connexion est tentée
+
+        if (!$this->ldapconn) {
+            error_log("LDAP non disponible - authentification impossible");
+            return false;
+        }
+
         ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
         $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
         return $bind;
@@ -55,7 +76,19 @@ class LdapModel
 
     public function infoUser($user, $password): array
     {
-        ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+        $this->initializeLdapConnection(); // S'assurer que la connexion est tentée
+
+        if (!$this->ldapconn) {
+            error_log("LDAP non disponible - impossible de récupérer les informations utilisateur");
+            return [];
+        }
+
+        $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+
+        if (!$bind) {
+            error_log("Erreur de connexion LDAP : " . ldap_error($this->ldapconn));
+            return [];
+        }
         // Recherche dans l'annuaire LDAP
         $search_filter = "(objectClass=*)";
         $search_result = ldap_search($this->ldapconn, $this->ldap_dn, $search_filter);
@@ -75,8 +108,6 @@ class LdapModel
 
             for ($i = 0; $i < $entries["count"]; $i++) {
 
-                // if(isset($entries[$i]["samaccountname"][0]) && isset($entries[$i]["description"][0]) && isset($entries[$i]["mail"][0]) && $entries[$i]['useraccountcontrol'][0] = '512' && $entries[$i]['accountexpires'][0] !== '0'){
-                //if(isset($entries[$i]["userprincipalname"][0]) && $entries[$i]['useraccountcontrol'][0] == '512' && $entries[$i]['accountexpires'][0] !== '0'){
                 if (isset($entries[$i]["userprincipalname"][0])) {
 
                     $data[$entries[$i]["samaccountname"][0]] = [
@@ -101,25 +132,4 @@ class LdapModel
 
         return $data;
     }
-    // public function searchLdapUser()
-    // {
-    //     // Requête LDAP pour récupérer tous les utilisateurs
-    //     $search_base = "OU=HFF Users,DC=fraise,DC=hff,DC=mg"; // Remplacez par la base de recherche appropriée
-    //     $search_result = ldap_search($this->ldapconn, $search_base, "(objectClass=person)");
-    //     $info = ldap_get_entries($this->ldapconn, $search_result);
-
-    //     // Affichage des utilisateurs
-    //     foreach ($info as $user) {
-    //         if (isset($user['cn'][0])) {
-    //             echo "Nom complet: " . $user['cn'][0] . "<br>";
-    //         }
-    //         if (isset($user['uid'][0])) {
-    //             echo "Identifiant utilisateur: " . $user['uid'][0] . "<br>";
-    //         }
-    //         if (isset($user['mail'][0])) {
-    //             echo "Adresse e-mail: " . $user['mail'][0] . "<br>";
-    //         }
-    //         echo "<hr>";
-    //     }
-    // }
 }

@@ -57,3 +57,12 @@ parameters:
 
     # Configuration Upload
     upload_directory: '%kernel.project_dir%/public/uploads'
+
+    # Paramètres LDAP
+    ldap.host: '%env(LDAP_HOST)%'
+    ldap.port: '%env(LDAP_PORT)%'
+    ldap.domain: '%env(LDAP_DOMAIN)%'
+    ldap.dn: '%env(LDAP_DN)%'
+
+    # Chemin du fichier CSV d'authentification
+    auth.csv_file_path: '%kernel.project_dir%/src/Controller/authentification.csv'

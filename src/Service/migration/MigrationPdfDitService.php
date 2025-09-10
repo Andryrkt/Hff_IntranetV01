@@ -44,7 +44,7 @@ class MigrationPdfDitService
             foreach ($batch as $dit) {
 
                 // Créer l'objet de génération du PDF
-                $ditPdf = new GenererPdfDit();
+                $ditPdf = new GenererPdfDit(new \setasign\Fpdi\Tcpdf\Fpdi());
 
                 // Récupérer les données nécessaires
                 $historiqueMateriel = $this->historiqueInterventionMateriel($dit);
@@ -82,7 +82,7 @@ class MigrationPdfDitService
 
     private function fusionPdfmigrations($dit)
     {
-        $fusionPdf = new FusionPdf();
+        $fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
 
         $mainPdf = 'C:/wamp64/www/Upload/dit/' . $dit->getNumeroDemandeIntervention() . '_' . str_replace("-", "", $dit->getAgenceServiceEmetteur()) . '.pdf';
         $files = [$mainPdf];

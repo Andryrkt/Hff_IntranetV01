@@ -3,6 +3,7 @@
 namespace App\Service\historiqueOperation;
 
 use Doctrine\ORM\EntityManagerInterface;
+use App\Service\SessionManagerService;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
 
 class HistoriqueOperationDDPService extends HistoriqueOperationService
