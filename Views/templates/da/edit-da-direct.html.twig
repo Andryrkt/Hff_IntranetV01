@@ -171,12 +171,7 @@
 						{{ form_widget(form.DAL.vars.prototype)|raw }}
 					</div>
 
-					<div class="d-flex justify-content-end">
-						<button type="button" id="add-child" class="bouton-secondaire mt-2" {{ peutModifier ? 'disabled' : ''}}>
-							<i class="fas fa-plus"></i>
-							Ajouter une ligne
-						</button>
-					</div>
+					{# <div class="d-flex justify-content-end"><button type="button" id="add-child" class="bouton-secondaire mt-2" {{ peutModifier ? 'disabled' : ''}}><i class="fas fa-plus"></i>Ajouter une ligne</button></div> #}
 
 					<div class="row">
 						{{ form_row(form.observation, { 'attr': { 'disabled': peutModifier} })}}
