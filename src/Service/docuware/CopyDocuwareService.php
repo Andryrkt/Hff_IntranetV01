@@ -4,12 +4,27 @@ namespace App\Service\docuware;
 
 class CopyDocuwareService
 {
-    public function copyCsvToDw($fileName, $filePath)
-    {
-        // $cheminFichierDepart = 'C:/DOCUWARE/ORDRE_DE_MISSION/' . $fileName;
-        $cheminFichierDepart = 'ftp://ftp.docuware-online.de/VhhlMDUEYTbzBI_A8C6lpRt86g-wKO2lXFKfXfSP/data/' . $fileName;
-        $cheminDestination = $filePath;
+    private $docuwarePath;
 
-        copy($cheminDestination, $cheminFichierDepart);
+    public function __construct(string $docuwareFtpPath)
+    {
+        $this->docuwarePath = $docuwareFtpPath;
+    }
+
+    public function copyCsvToDw(string $fileName, string $sourcePath): void
+    {
+        $destinationPath = $this->docuwarePath . $fileName;
+
+        // Ajout d'une gestion d'erreur
+        if (!file_exists($sourcePath)) {
+            throw new \RuntimeException("Le fichier source '$sourcePath' n'existe pas.");
+        }
+
+        $result = @copy($sourcePath, $destinationPath);
+
+        if ($result === false) {
+            $error = error_get_last();
+            throw new \RuntimeException("Impossible de copier le fichier vers Docuware : " . ($error['message'] ?? 'erreur inconnue'));
+        }
     }
 }

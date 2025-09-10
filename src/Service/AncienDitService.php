@@ -12,20 +12,23 @@ use App\Entity\dit\DemandeIntervention;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Traits\FormatageTrait;
 use App\Service\genererPdf\GenererPdfDit;
+use App\Service\FusionPdf;
 
 class AncienDitService
 {
     use FormatageTrait;
 
     private $em;
-
     private $ditModel;
+    private $genererPdfDit;
+    private $fusionPdf;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, DitModel $ditModel, GenererPdfDit $genererPdfDit, FusionPdf $fusionPdf)
     {
         $this->em = $em;
-
-        $this->ditModel = new DitModel();
+        $this->ditModel = $ditModel;
+        $this->genererPdfDit = $genererPdfDit;
+        $this->fusionPdf = $fusionPdf;
     }
 
     public function recupDesAncienDonnee($numDit)
@@ -38,10 +41,8 @@ class AncienDitService
         //recupération et transformation des historique du materiel
         $historiqueMateriel = $this->historiqueInterventionMateriel($ancienDit);
 
-        //Initialisation du classe generate pdf
-        $genererPdfDit = new GenererPdfDit();
         //générer le pdf de dit
-        $genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
+        $this->genererPdfDit->genererPdfDit($pdfDemandeInterventions, $historiqueMateriel);
         $this->prepareFunsion($ancienDit);
         //envoyer le pdf dans docuware
         //$genererPdfDit->copyInterneToDOCUWARE($pdfDemandeInterventions->getNumeroDemandeIntervention(),str_replace("-", "", $pdfDemandeInterventions->getAgenceServiceEmetteur()));
@@ -207,8 +208,7 @@ class AncienDitService
 
             // Appeler la fonction pour fusionner les fichiers PDF
             if (!empty($pdfFiles)) {
-                $fusionPdf = new FusionPdf();
-                $fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
+                $this->fusionPdf->mergePdfs($pdfFiles, $mergedPdfFile);
             }
         }
     }

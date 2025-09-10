@@ -10,15 +10,17 @@ use App\Service\SessionManagerService;
 class MenuService
 {
     private $em;
+    private $sessionManager;
     private $estAdmin;
     private $nomUtilisateur;
     private $basePath;
     private $applicationIds = [];
 
-    public function __construct($entityManager)
+    public function __construct($entityManager, SessionManagerService $sessionManager, string $basePath)
     {
         $this->em = $entityManager;
-        $this->basePath = $_ENV['BASE_PATH_FICHIER_COURT']; // Chemin de base pour les liens de téléchargement --> /Upload
+        $this->sessionManager = $sessionManager;
+        $this->basePath = $basePath;
     }
 
     /**
@@ -85,11 +87,9 @@ class MenuService
      */
     private function setConnectedUserContext()
     {
-        $sessionManager = new SessionManagerService();
-
-        if ($sessionManager->has('user_id')) {
+        if ($this->sessionManager->has('user_id')) {
             /** @var User|null $connectedUser */
-            $connectedUser = $this->em->getRepository(User::class)->find($sessionManager->get('user_id'));
+            $connectedUser = $this->em->getRepository(User::class)->find($this->sessionManager->get('user_id'));
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();

@@ -16,12 +16,12 @@ class TransformerEnObjetService
     private BcSoumis $bcSoumis;
     private RecupDataAncienDitService $RecupDataAncienDitService;
 
-    public function __construct(EntityManagerInterface $entityManagerInterface)
+    public function __construct(RecupDataAncienDitService $recupDataAncienDitService)
     {
         $this->ditOrsSoumis = new DitOrsSoumisAValidation();
         $this->ditDevisSoumis = new DitDevisSoumisAValidation();
         $this->bcSoumis = new BcSoumis();
-        $this->RecupDataAncienDitService = new RecupDataAncienDitService($entityManagerInterface);
+        $this->RecupDataAncienDitService = $recupDataAncienDitService;
     }
 
     /**

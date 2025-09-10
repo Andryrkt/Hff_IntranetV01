@@ -51,3 +51,9 @@ parameters:
     mailer.bcc_recipients:
         - 'ranofimenjajam@gmail.com'
         - 'hasina.andrianadison@hff.mg'
+
+    # Configuration Docuware
+    docuware.ftp_path: 'ftp://ftp.docuware-online.de/VhhlMDUEYTbzBI_A8C6lpRt86g-wKO2lXFKfXfSP/data/'
+
+    # Configuration Upload
+    upload_directory: '%kernel.project_dir%/public/uploads'

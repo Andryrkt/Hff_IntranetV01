@@ -15,10 +15,10 @@ class FileUploaderService
     private string $targetDirectory;
     private FusionPdf $fusionPdf;
 
-    public function __construct(string $targetDirectory)
+    public function __construct(string $targetDirectory, FusionPdf $fusionPdf)
     {
         $this->targetDirectory = $targetDirectory;
-        $this->fusionPdf = new FusionPdf();
+        $this->fusionPdf = $fusionPdf;
     }
 
     public function upload(UploadedFile $file, string $prefix = ''): string

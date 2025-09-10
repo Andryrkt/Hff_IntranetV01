@@ -27,10 +27,11 @@ class TwigMailerService
     private $twigEnvironment;
     private $assetFolder;
 
-    public function __construct(PHPMailer $phpMailer, Environment $twigEnvironment)
+    public function __construct(PHPMailer $phpMailer, Environment $twigEnvironment, string $assetFolder)
     {
         $this->setPhpMailer($phpMailer);
         $this->setTwigEnvironment($twigEnvironment);
+        $this->setAssetFolder($assetFolder);
     }
 
     /**

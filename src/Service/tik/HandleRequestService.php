@@ -31,13 +31,19 @@ class HandleRequestService
      * CONSTRUCT
      **=====================================================================================*/
 
-    public function __construct(EntityManagerInterface $em, $twig, User $connectedUser, DemandeSupportInformatique $supportInfo)
-    {
-        $this->emailTikService = new EmailTikService($em, $twig);
+    public function __construct(
+        EntityManagerInterface $em,
+        $twig,
+        User $connectedUser,
+        DemandeSupportInformatique $supportInfo,
+        EmailTikService $emailTikService,
+        SessionManagerService $sessionService
+    ) {
+        $this->emailTikService = $emailTikService;
         $this->tkiCommentaire = new TkiCommentaires;
         $this->em = $em;
         $this->twig = $twig;
-        $this->sessionService = new SessionManagerService;
+        $this->sessionService = $sessionService;
         $this->connectedUser = $connectedUser;
         $this->supportInfo = $supportInfo;
     }

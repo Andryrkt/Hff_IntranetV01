@@ -11,10 +11,11 @@ Class RecupDataService
 {
     private $ancienDitExternModel;
 
-    public function __construct()
+    public function __construct(AncienDitExterneModel $ancienDitExternModel)
     {
-        $this->ancienDitExternModel = new AncienDitExterneModel();
+        $this->ancienDitExternModel = $ancienDitExternModel;
     }
+}
 
     /**
      * Methode qui recupère les données à transferer dans une base de donnée

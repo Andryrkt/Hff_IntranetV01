@@ -14,11 +14,13 @@ class EmailTikService
 
     private $em;
     private $twig;
+    private $emailService;
 
-    public function __construct(EntityManagerInterface $em, $twig)
+    public function __construct(EntityManagerInterface $em, $twig, EmailService $emailService)
     {
         $this->em = $em;
         $this->twig = $twig;
+        $this->emailService = $emailService;
     }
 
     /** 
@@ -121,12 +123,10 @@ class EmailTikService
      */
     public function envoyerEmail(array $content): void
     {
-        $emailService = new EmailService($this->twig);
-
-        $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
+        $this->emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
 
         $content['cc'] = $content['cc'] ?? [];
 
-        $emailService->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $this->emailService->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
     }
 }

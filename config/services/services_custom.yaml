@@ -1,4 +1,22 @@
 services:
+    TCPDF:
+        class: TCPDF
+        public: false
+
+    App\Service\genererPdf\HeaderFooterAcPdf:
+        class: App\Service\genererPdf\HeaderFooterAcPdf
+        public: false
+
+    PHPMailer\PHPMailer\PHPMailer:
+        class: PHPMailer\PHPMailer\PHPMailer
+        public: false # C'est une dépendance, pas besoin de le rendre public
+
+    App\Service\TwigMailerService:
+        arguments:
+            $phpMailer: '@PHPMailer\PHPMailer\PHPMailer' # Assumes PHPMailer is registered as a service
+            $twigEnvironment: '@Twig\Environment'
+            $assetFolder: '%kernel.project_dir%/public'
+
     App\Service\EmailService:
         arguments:
             $twig: '@Twig\Environment'
@@ -15,6 +33,8 @@ services:
         public: true
 
     App\Service\FusionPdf:
+        arguments:
+            $fpdi: '@setasign\Fpdi\Tcpdf\Fpdi'
         public: true
 
     App\Service\SessionManagerService:
@@ -25,6 +45,8 @@ services:
         autowire: false
         arguments:
             - '@doctrine.orm.default_entity_manager'
+            - '@App\Service\SessionManagerService'
+            - '%env(BASE_PATH_FICHIER_COURT)%'
         public: true
 
     App\Service\navigation\BreadcrumbMenuService:
@@ -49,5 +71,66 @@ services:
     App\Service\fichier\UploderFileService:
         arguments:
             $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
+        public: true
+
+    App\Service\da\FileUploaderForDAService:
+        arguments:
+            $basePath: '%env(BASE_PATH_FICHIER)%'
+
+    App\Service\docuware\CopyDocuwareService:
+        arguments:
+            $docuwareFtpPath: '%docuware.ftp_path%'
+
+    App\Service\fichier\FileUploaderService:
+        arguments:
+            $targetDirectory: '%upload_directory%'
+            $fusionPdf: '@App\Service\FusionPdf'
+
+    # Services avec injection de dépendance corrigée
+    App\Service\AncienDitService:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $ditModel: '@App\Model\dit\DitModel'
+            $genererPdfDit: '@App\Service\genererPdf\GenererPdfDit'
+            $fusionPdf: '@App\Service\FusionPdf'
+        public: true
+
+    App\Service\genererPdf\GenererPdfDit:
+        arguments:
+            $tcpdf: '@TCPDF'
+            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
+            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
+        public: true
+
+    # Service FPDI pour la fusion de PDF
+    setasign\Fpdi\Tcpdf\Fpdi:
+        class: setasign\Fpdi\Tcpdf\Fpdi
+        public: false
+
+    # Service HandleRequestService avec injection de dépendance corrigée
+    App\Service\tik\HandleRequestService:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $twig: '@Twig\Environment'
+            $connectedUser: '@App\Entity\admin\utilisateur\User'
+            $supportInfo: '@App\Entity\tik\DemandeSupportInformatique'
+            $emailTikService: '@App\Service\tik\EmailTikService'
+            $sessionService: '@App\Service\SessionManagerService'
+        public: true
+
+    # Service EmailTikService
+    App\Service\tik\EmailTikService:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $twig: '@Twig\Environment'
+            $emailService: '@App\Service\EmailService'
+        public: true
+
+    # Service HistoriqueOperationService avec injection de dépendance corrigée
+    App\Service\historiqueOperation\HistoriqueOperationService:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $sessionService: '@App\Service\SessionManagerService'
+            $typeDocumentId: 1 # Valeur par défaut, peut être surchargée
         public: true
 

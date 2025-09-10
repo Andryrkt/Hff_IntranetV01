@@ -41,6 +41,11 @@ class EmailService
         $this->mailer->setFrom($fromEmail, $fromName);
     }
 
+    public function getMailer(): PHPMailer
+    {
+        return $this->mailer;
+    }
+
     public function sendEmail(string $to, array $cc = [], string $subject, string $template, array $variables = [], array $attachments = [])
     {
         try {

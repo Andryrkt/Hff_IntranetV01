@@ -3,12 +3,13 @@
 namespace App\Service\application;
 
 use App\Entity\admin\Application;
+use Doctrine\ORM\EntityManagerInterface;
 
 class ApplicationService
 {
     private $em;
 
-    public function __construct($em)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
     }

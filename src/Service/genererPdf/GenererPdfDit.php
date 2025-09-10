@@ -11,6 +11,14 @@ class GenererPdfDit extends GeneratePdf
 {
     use FormatageTrait;
 
+    private $tcpdf;
+
+    public function __construct(TCPDF $tcpdf, string $baseCheminDuFichier = null, string $baseCheminDocuware = null)
+    {
+        parent::__construct($baseCheminDuFichier, $baseCheminDocuware);
+        $this->tcpdf = $tcpdf;
+    }
+
     /**
      * GENERER PDF DEMANDE D'INTERVENTION
      *
@@ -18,7 +26,7 @@ class GenererPdfDit extends GeneratePdf
      */
     public function genererPdfDit(DemandeIntervention $dit, array $historiqueMateriel)
     {
-        $pdf = new TCPDF();
+        $pdf = clone $this->tcpdf;
 
         $pdf->AddPage();
 

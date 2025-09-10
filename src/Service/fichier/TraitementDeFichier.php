@@ -11,9 +11,9 @@ class TraitementDeFichier
 
     private FusionPdf $fusionPdf;
 
-    public function __construct()
+    public function __construct(FusionPdf $fusionPdf)
     {
-        $this->fusionPdf = new FusionPdf();
+        $this->fusionPdf = $fusionPdf;
     }
 
     public function upload(UploadedFile $file, string $cheminDeBase, string $fileName): void

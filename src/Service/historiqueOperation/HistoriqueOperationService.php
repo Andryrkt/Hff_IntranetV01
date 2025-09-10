@@ -38,13 +38,13 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 13 : AC - Accusé de réception
      *  - 16 : MUT - Demande de mutation
      */
-    public function __construct(EntityManagerInterface $em, int $typeDocumentId)
+    public function __construct(EntityManagerInterface $em, SessionManagerService $sessionService, int $typeDocumentId)
     {
         $this->em                      = $em;
         $this->userRepository          = $em->getRepository(User::class);
         $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
         $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
-        $this->sessionService = new SessionManagerService();
+        $this->sessionService = $sessionService;
         $this->typeDocumentId = $typeDocumentId;
     }
 

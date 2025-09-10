@@ -4,22 +4,15 @@
 
 namespace App\Service;
 
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionManagerService
 {
     private $session;
 
-    public function __construct()
+    public function __construct(SessionInterface $session)
     {
-        // Vérifier si une session est déjà démarrée
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
-        $this->session = new Session(new NativeSessionStorage());
-        //$this->session->start();
+        $this->session = $session;
     }
 
     public function set($name, $value)
