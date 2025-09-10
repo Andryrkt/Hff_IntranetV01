@@ -141,7 +141,7 @@ trait StatutBcTrait
             }
 
             // Si le numéro de commande est vide
-            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
 
             return $numCdeVide;
         } else {
@@ -179,7 +179,7 @@ trait StatutBcTrait
     private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
-            return (int)$situationCde[0]['num_cde'] > 0
+            return (int)$infoDaDirect[0]['num_cde'] > 0
                 && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;

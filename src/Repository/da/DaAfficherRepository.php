@@ -208,19 +208,28 @@ class DaAfficherRepository extends EntityRepository
         $subQb = $this->_em->createQueryBuilder();
         $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
             ->from(DaAfficher::class, 'd')
-            ->where('d.statutDal = :statutValide')
             ->groupBy('d.numeroDemandeAppro');
 
-        // Filtres applicables
+
+        // Liste des exceptions pour lesquelles statutOr n'est pas requis
+        $exceptions = [
+            'DAP25079981'
+        ];
+        // Condition générique sur statutOr avec exceptions
+        $orCondition = $subQb->expr()->orX(
+            $subQb->expr()->eq('d.statutOr', ':statutOR'),
+            $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
+        );
+        // Appliquer la condition selon la présence de achatDirect
         if ($hasAchatDirecte) {
-            $subQb->andWhere('
-            (d.achatDirect = true OR 
-            (d.achatDirect = false AND d.statutOr = :statutOR))
-        ')->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+            $subQb->andWhere('d.achatDirect = true OR (d.achatDirect = false AND (' . $orCondition . '))');
         } else {
-            $subQb->andWhere('d.statutOr = :statutOR')
-                ->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE);
+            $subQb->andWhere($orCondition);
         }
+        // Paramètres communs
+        $subQb->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE)
+            ->setParameter('exceptions', $exceptions);
+
 
         $this->applyDynamicFilters($subQb, $criteria, true);
         $this->applyStatutsFilters($subQb, $criteria, true);
@@ -236,7 +245,6 @@ class DaAfficherRepository extends EntityRepository
         $countQb->select('COUNT(DISTINCT d.numeroDemandeAppro)');
 
         $totalItems = (int) $countQb->getQuery()
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
             ->getSingleScalarResult();
 
         $lastPage = (int) ceil($totalItems / $limit);
@@ -251,7 +259,6 @@ class DaAfficherRepository extends EntityRepository
             ->setMaxResults($limit);
 
         $latestVersions = $subQb->getQuery()
-            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
             ->getArrayResult();
 
         if (empty($latestVersions)) {

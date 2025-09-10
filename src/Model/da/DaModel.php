@@ -249,16 +249,16 @@ class DaModel extends Model
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
 
         $statement = " SELECT
-                fcde_cdeext as num_da,
+                TRIM(fcde_cdeext) as num_da,
                 fcde_numfou as num_fou,
                 (select fbse_nomfou from informix.frn_bse where fbse_numfou = fcde_numfou) as nom_fou,
                 fcde_numcde as num_cde,
                 fcdl_constp as constructeur,
-                fcdl_refp as ref,
-                fcdl_desi as desi,
+                TRIM(fcdl_refp) as ref,
+                TRIM(fcdl_desi) as desi,
                 fcde_posc as position_bc,
-                fcdl_qte as qte_dem,
-                fcdl_solde as qte_en_attente,
+                ROUND(fcdl_qte) as qte_dem,
+                ROUND(fcdl_solde) as qte_en_attente,
                 sum(fllf_qteliv) as qte_dispo
 
                 FROM informix.frn_cde
