@@ -134,3 +134,64 @@ services:
             $typeDocumentId: 1 # Valeur par défaut, peut être surchargée
         public: true
 
+    # Formulaires avec injection de dépendance corrigée
+    App\Form\tik\DetailTikType:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $sessionService: '@App\Service\SessionManagerService'
+        public: true
+
+    App\Form\admin\utilisateur\UserType:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $ldap: '@App\Model\LdapModel'
+            $sessionService: '@App\Service\SessionManagerService'
+        public: true
+
+    # Modèles avec injection de dépendance corrigée
+    App\Model\Model:
+        arguments:
+            $connexion: '@App\Model\Connexion'
+            $connect: '@App\Model\DatabaseInformix'
+            $connexion04: '@App\Model\ConnexionDote4'
+            $connexion04Gcot: '@App\Model\ConnexionDote4Gcot'
+        public: true
+
+    App\Model\Connexion:
+        arguments:
+            $dbDns: '%env(DB_DNS_SQLSERV)%'
+            $dbUsername: '%env(DB_USERNAME_SQLSERV)%'
+            $dbPassword: '%env(DB_PASSWORD_SQLSERV)%'
+            $basePathLog: '%env(BASE_PATH_LOG)%'
+        public: true
+
+    App\Model\DatabaseInformix:
+        arguments:
+            $dsn: '%env(DB_DNS_INFORMIX)%'
+            $user: '%env(DB_USERNAME_INFORMIX)%'
+            $password: '%env(DB_PASSWORD_INFORMIX)%'
+            $basePathLog: '%env(BASE_PATH_LOG)%'
+        public: true
+
+    App\Model\ConnexionDote4:
+        arguments:
+            $dbDns: '%env(DB_DNS_SQLSERV_4)%'
+            $dbUsername: '%env(DB_USERNAME_SQLSERV_4)%'
+            $dbPassword: '%env(DB_PASSWORD_SQLSERV_4)%'
+        public: true
+
+    App\Model\ConnexionDote4Gcot:
+        arguments:
+            $dbDns: '%env(DB_DNS_SQLSERV_4_GCOT)%'
+            $dbUsername: '%env(DB_USERNAME_SQLSERV_4)%'
+            $dbPassword: '%env(DB_PASSWORD_SQLSERV_4)%'
+        public: true
+
+    App\Model\LdapModel:
+        arguments:
+            $ldapHost: '%env(LDAP_HOST)%'
+            $ldapPort: '%env(LDAP_PORT)%'
+            $domain: '%env(LDAP_DOMAIN)%'
+            $ldapDn: '%env(LDAP_DN)%'
+        public: true
+

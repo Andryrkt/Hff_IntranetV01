@@ -34,9 +34,8 @@ class DetailTikType extends AbstractType
         'PM (13:30 - 17:30)' => 'PM'
     ];
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, SessionManagerService $sessionService)
     {
-        $sessionService = new SessionManagerService;
         $this->connectedUser = $em->getRepository(User::class)->find($sessionService->get('user_id'));
         $this->sousCategorieRepository = $em->getRepository(TkiSousCategorie::class);
         $this->categoriesRepository = $em->getRepository(TkiCategorie::class);

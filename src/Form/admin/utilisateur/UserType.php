@@ -31,11 +31,11 @@ class UserType extends AbstractType
     private $em;
     private $sessionService;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, LdapModel $ldap, SessionManagerService $sessionService)
     {
-        $this->ldap = new LdapModel();
+        $this->ldap = $ldap;
         $this->em = $em;
-        $this->sessionService = new SessionManagerService();
+        $this->sessionService = $sessionService;
     }
 
 

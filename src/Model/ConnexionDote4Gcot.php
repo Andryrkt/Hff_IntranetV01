@@ -8,11 +8,14 @@ class connexionDote4Gcot
     private $User;
     private $pswd;
     private $conn;
-    public function __construct()
-    {
-        $this->DB = $_ENV['DB_DNS_SQLSERV_4_GCOT'];
-        $this->User = $_ENV['DB_USERNAME_SQLSERV_4'];
-        $this->pswd = $_ENV['DB_PASSWORD_SQLSERV_4'];
+    public function __construct(
+        string $dbDns,
+        string $dbUsername,
+        string $dbPassword
+    ) {
+        $this->DB = $dbDns;
+        $this->User = $dbUsername;
+        $this->pswd = $dbPassword;
 
         $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
         if (!$this->conn) {
@@ -21,8 +24,9 @@ class connexionDote4Gcot
     }
 
 
-    public function getConnexion() {
-        return $this->conn; 
+    public function getConnexion()
+    {
+        return $this->conn;
     }
 
 

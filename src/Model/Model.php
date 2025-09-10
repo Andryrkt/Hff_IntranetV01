@@ -18,12 +18,16 @@ class Model
     protected $connexion04Gcot;
 
 
-    public function __construct()
-    {
-        $this->connexion = new Connexion();
-        $this->connect = new DatabaseInformix();
-        $this->connexion04 = new ConnexionDote4();
-        $this->connexion04Gcot = new connexionDote4Gcot();
+    public function __construct(
+        Connexion $connexion,
+        DatabaseInformix $connect,
+        ConnexionDote4 $connexion04,
+        ConnexionDote4Gcot $connexion04Gcot
+    ) {
+        $this->connexion = $connexion;
+        $this->connect = $connect;
+        $this->connexion04 = $connexion04;
+        $this->connexion04Gcot = $connexion04Gcot;
     }
 
 

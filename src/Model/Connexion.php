@@ -10,14 +10,19 @@ class Connexion
     private $User;
     private $pswd;
     private $conn;
+    private $basePathLog;
 
-    public function __construct()
-    {
+    public function __construct(
+        string $dbDns,
+        string $dbUsername,
+        string $dbPassword,
+        string $basePathLog
+    ) {
         try {
-            $this->DB = $_ENV['DB_DNS_SQLSERV'];
-            $this->User = $_ENV['DB_USERNAME_SQLSERV'];
-            $this->pswd = $_ENV['DB_PASSWORD_SQLSERV'];
-
+            $this->DB = $dbDns;
+            $this->User = $dbUsername;
+            $this->pswd = $dbPassword;
+            $this->basePathLog = $basePathLog;
 
             $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
             if (!$this->conn || !is_resource($this->conn)) {
@@ -107,7 +112,7 @@ class Connexion
 
     private function logError($message)
     {
-        error_log($message, 3, $_ENV['BASE_PATH_LOG'] . "/log/app_errors.log");
+        error_log($message, 3, $this->basePathLog . "/log/app_errors.log");
     }
 
     // Méthode pour rediriger vers la page d'erreur

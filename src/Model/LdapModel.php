@@ -10,12 +10,16 @@ class LdapModel
     private $Domain;
     private $ldap_dn;
 
-    public function __construct()
-    {
-        $this->ldapHost = $_ENV['LDAP_HOST'];
-        $this->ldapPort = $_ENV['LDAP_PORT'];
-        $this->Domain = $_ENV['LDAP_DOMAIN'];
-        $this->ldap_dn = $_ENV['LDAP_DN'];
+    public function __construct(
+        string $ldapHost,
+        string $ldapPort,
+        string $domain,
+        string $ldapDn
+    ) {
+        $this->ldapHost = $ldapHost;
+        $this->ldapPort = $ldapPort;
+        $this->Domain = $domain;
+        $this->ldap_dn = $ldapDn;
 
         $this->ldapconn = ldap_connect("ldap://{$this->ldapHost}:{$this->ldapPort}");
 
