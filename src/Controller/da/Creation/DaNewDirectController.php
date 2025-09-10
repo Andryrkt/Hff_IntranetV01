@@ -5,6 +5,7 @@ namespace App\Controller\da\Creation;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Form\da\DemandeApproDirectFormType;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,6 +13,7 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\creation\DaNewDirectTrait;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 /**
  * @Route("/demande-appro")
  */
@@ -34,7 +36,9 @@ class DaNewDirectController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
 
