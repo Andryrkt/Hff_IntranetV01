@@ -57,7 +57,7 @@
 					<th class="text-center">
 						<div class="d-flex flex-row align-items-center">
 							<span>Nbr Jour(s) dispo</span>
-							<div class="d-flex flex-column sort-icons ms-1">
+							<div class="d-none flex-column sort-icons ms-1">
 								<a href="{{ path('list_da', currentParams|merge({ page: 1, sort: 'joursDispo', direction: 'asc' })) }}" class="sort-icon">
 									<i class="fas fa-sort-up {{ currentSortClass.asc }}" data-bs-toggle="tooltip" title="Trier par Nbr Jour(s) dispo (croissant)"></i>
 								</a>

@@ -42,10 +42,9 @@ trait StatutBcTrait
         if ($numeroOr == null && !$achatDirect) {
             return $statutBc;
         }
-
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
         $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
-
+        
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
             DemandeAppro::STATUT_SOUMIS_APPRO,
@@ -55,18 +54,18 @@ trait StatutBcTrait
         if (in_array($statutDa, $statutDaIntanert)) {
             return '';
         }
-
+        
         $numcde = $this->numeroCde($infoDaDirect, $situationCde, $achatDirect);
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
-
+        
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
-
-
+        
+        
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
-
+        
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
             DaSoumissionBc::STATUT_A_VALIDER_DA,
@@ -74,11 +73,11 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_CLOTURE,
             DaSoumissionBc::STATUT_REFUSE
         ];
-
+        
         if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr(), $infoDaDirect, $achatDirect)) {
             return 'A générer';
         }
-
+        
         if (!$this->aSituationCde($situationCde, $infoDaDirect)) {
             return $statutBc;
         }
@@ -136,12 +135,13 @@ trait StatutBcTrait
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
+
             if (empty($infoDaDirect)) {
                 return false;
             }
 
             // Si le numéro de commande est vide
-            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
 
             return $numCdeVide;
         } else {
@@ -179,7 +179,7 @@ trait StatutBcTrait
     private function doitSoumettreBc(array $situationCde, bool $bcExiste, ?string $statutBc, array $statutBcDw, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
-            return (int)$situationCde[0]['num_cde'] > 0
+            return (int)$infoDaDirect[0]['num_cde'] > 0
                 && $infoDaDirect[0]['position_bc'] === DaSoumissionBc::POSITION_EDITER
                 && !in_array($statutBc, $statutBcDw)
                 && !$bcExiste;

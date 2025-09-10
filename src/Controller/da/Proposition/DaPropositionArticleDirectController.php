@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use App\Controller\Traits\da\proposition\DaPropositionDirectTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -45,7 +47,9 @@ class DaPropositionArticleDirectController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $this->checkPageAccess($this->estAdmin()); // todo: à changer plus tard
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();

@@ -383,31 +383,48 @@ class DaAfficherRepository extends EntityRepository
         return $qb->getQuery()->getResult();
     }
 
-    public function findPaginatedAndFilteredDA(
-        User $user,
-        array $criteria,
-        int $idAgenceUser,
-        bool $estAppro,
-        bool $estAtelier,
-        bool $estAdmin,
-        int $page,
-        int $limit,
-        ?string $sortField,
-        ?string $sortDirection
-    ): array {
-        // 1️⃣ Récupérer toutes les DA filtrées (toutes les lignes)
-        $qb = $this->createQueryBuilder('d')
-            ->select('d'); // récupérer toutes les colonnes
+    private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
+    {
+        $subQb = $this->createQueryBuilder('d')
+            ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
+            ->groupBy('d.numeroDemandeAppro');
 
-        $this->applyDynamicFilters($qb, $criteria);
-        $this->applyAgencyServiceFilters($qb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($qb, $criteria);
-        $this->applyFilterAppro($qb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, $criteria);
+        $this->applyDynamicFilters($subQb, $criteria);
+        $this->applyAgencyServiceFilters($subQb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($subQb, $criteria);
+        $this->applyFilterAppro($subQb, $estAppro, $estAdmin);
+        $this->applyStatutsFilters($subQb, $criteria);
 
-        $allRows = $qb->getQuery()->getArrayResult();
+        // ⚡ Cloner avant de limiter les résultats
+        $countQb = clone $subQb;
+        $countQb->resetDQLPart('orderBy'); // pas besoin d'ORDER BY dans un COUNT
 
-        if (empty($allRows)) {
+        // Nombre total de DA distincts
+        $totalItems = count($countQb->getQuery()->getResult());
+
+        // Pagination + order by
+        $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
+            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
+            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
+
+        return [
+            'results'    => $subQb->getQuery()->getArrayResult(),
+            'totalItems' => $totalItems
+        ];
+    }
+
+    /**
+     * fonction Pour récupérer les données filtrées
+     */
+    public function findPaginatedAndFilteredDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit)
+    {
+        $paginatedDAs = $this->getPaginatedDas($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
+        $numeroDAsPage = array_column($paginatedDAs['results'], 'numeroDemandeAppro');
+        $versionsMax = array_column($paginatedDAs['results'], 'maxVersion', 'numeroDemandeAppro');
+
+        if (empty($numeroDAsPage)) {
             return [
                 'data'        => [],
                 'totalItems'  => 0,
@@ -416,75 +433,31 @@ class DaAfficherRepository extends EntityRepository
             ];
         }
 
-        // 2️⃣ Construire DA distinctes avec la dernière version
-        $dasDistinctes = [];
-        foreach ($allRows as $row) {
-            $numDA = $row['numeroDemandeAppro'];
-            if (!isset($dasDistinctes[$numDA]) || $row['numeroVersion'] > $dasDistinctes[$numDA]['numeroVersion']) {
-                $dasDistinctes[$numDA] = $row;
-            }
+        $qb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
+            ->setParameter('numeroDAs', $numeroDAsPage);
+
+        // Ajouter condition version max (évite duplications)
+        $orX = $qb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            $orX->add($qb->expr()->andX(
+                $qb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                $qb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+            ));
+            $qb->setParameter('da_' . $numeroDA, $numeroDA);
+            $qb->setParameter('ver_' . $numeroDA, $versionMax);
         }
+        $qb->andWhere($orX);
 
-        // 3️⃣ Convertir en tableau indexé pour pagination
-        $allDasData = array_values($dasDistinctes);
+        $qb->orderBy('daf.dateDemande', 'DESC')
+            ->addOrderBy('daf.numeroFournisseur', 'DESC')
+            ->addOrderBy('daf.numeroCde', 'DESC');
 
-        // 4️⃣ Trier avant pagination
-        // On calcule la direction de tri :
-        // - "ASC" → 1 (croissant)
-        // - "DESC" ou null → -1 (décroissant par défaut)
-        $direction = strtoupper($sortDirection ?? 'DESC') === 'ASC' ? 1 : -1;
-
-        // On initialise la liste des champs de tri.
-        // Si un champ personnalisé ($sortField) est fourni, on le met en premier.
-        $fields = [];
-        if ($sortField !== null) {
-            $fields[$sortField] = $direction;
-        }
-
-        // On ajoute les tris par défaut : dateDemande, numeroFournisseur, numeroCde
-        // ⚠️ L'opérateur "+=" conserve les clés déjà présentes.
-        // Exemple : si $sortField = "dateDemande", alors la clé "dateDemande" ne sera pas écrasée ici.
-        $fields += [
-            'dateDemande'       => $direction,
-            'numeroFournisseur' => $direction,
-            'numeroCde'         => $direction,
-        ];
-
-        // On applique le tri multi-niveaux avec usort.
-        // Pour chaque couple de DA, on compare champ par champ dans l'ordre de $fields.
-        // Dès qu'une différence est trouvée, on retourne le résultat (1 ou -1).
-        // Si toutes les valeurs sont égales, on retourne 0 (pas de changement d'ordre).
-        usort($allDasData, function ($a, $b) use ($fields) {
-            foreach ($fields as $field => $dir) {
-                $valA = $a[$field] ?? null;
-                $valB = $b[$field] ?? null;
-
-                if ($valA != $valB) {
-                    return ($valA <=> $valB) * $dir;
-                }
-            }
-            return 0;
-        });
-
-        // 5️⃣ Pagination
-        $totalItems = count($allDasData);
+        $totalItems = $paginatedDAs['totalItems'];
         $lastPage = ceil($totalItems / $limit);
-        $offset = ($page - 1) * $limit;
-        $paginatedDAs = array_slice($allDasData, $offset, $limit);
-
-        $resultObjects = [];
-        foreach ($paginatedDAs as $data) {
-            $daAfficher = new DaAfficher();
-            $daAfficher->toObject($data);
-            $daAfficher
-                ->setDemandeAppro($data['numeroDemandeAppro'] ? $this->_em->getRepository(DemandeAppro::class)->findOneBy(['numeroDemandeAppro' => $data['numeroDemandeAppro']]) : null)
-                ->setDit($data['numeroDemandeDit'] ? $this->_em->getRepository(DemandeIntervention::class)->findOneBy(['numeroDemandeIntervention' => $data['numeroDemandeDit']]) : null)
-            ;
-            $resultObjects[] = $daAfficher;
-        }
 
         return [
-            'data'        => $resultObjects,
+            'data'        => $qb->getQuery()->getResult(),
             'totalItems'  => $totalItems,
             'currentPage' => $page,
             'lastPage'    => $lastPage,
