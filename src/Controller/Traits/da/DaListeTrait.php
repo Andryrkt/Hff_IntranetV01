@@ -54,22 +54,33 @@ trait DaListeTrait
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale fw-bold',
         ];
         $this->styleStatutOR = [
-            DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-danger text-white',
-            'Refusé chef atelier'                                      => 'bg-or-non-valide',
-            'Refusé client interne'                                    => 'bg-or-non-valide',
-            DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-warning text-secondary',
+            DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
+            DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CA                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
         ];
         $this->styleStatutBC = [
             DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer fw-bold',
             DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer fw-bold',
             DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation fw-bold',
+            DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur fw-bold',
+            DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission fw-bold',
+            DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da fw-bold',
             DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide fw-bold',
-            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-valide fw-bold',
+            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture fw-bold',
+            DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse fw-bold',
+            DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur fw-bold',
             'Non validé'                                    => 'bg-bc-non-valide fw-bold',
-            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre bg-success text-white',
-            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre bg-warning text-white',
-            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo bg-info text-white',
-            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre bg-primary text-white',
+            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre fw-bold',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre fw-bold',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo fw-bold',
+            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre fw-bold',
         ];
         //----------------------------------------------------------------------------------------------------
         $this->daModel = new DaModel();

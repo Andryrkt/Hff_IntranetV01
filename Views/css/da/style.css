@@ -405,13 +405,43 @@ a.choix:hover {
 }
 
 /* Pour les statuts de l'OR */
+.bg-or-valide {
+  background-color: #ff4d4d !important;
+  color: #fff !important;
+}
 .bg-or-non-valide {
   background-color: #00ffff !important;
+  color: #fff !important;
+}
+.bg-a-resoumettre-a-validation {
+  background-color: #ffc107 !important;
+  color: #6b3e00 !important;
+}
+.bg-or-valider-ca {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-or-valider-client {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-modif-demande-ca {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-modif-demande-client {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-or-soumis-validation {
+  background-color: #ddebf7 !important;
+  color: #1c3c6b !important;
 }
 
 /* Pour les statuts du BC */
 .bg-bc-a-generer {
   background-color: #ff66cc !important;
+  color: #660033 !important;
 }
 .bg-bc-a-editer {
   background-color: #7030a0 !important;
@@ -419,11 +449,51 @@ a.choix:hover {
 }
 .bg-bc-a-soumettre-a-validation {
   background-color: #ddebf7 !important;
+  color: #1c3c6b !important;
+}
+.bg-bc-a-envoyer-au-fournisseur {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-bc-soumission {
+  background-color: #c9daf8 !important;
+  color: #004080 !important;
+}
+.bg-bc-a-valider-da {
+  background-color: #ffcc00 !important;
+  color: #4d4d00 !important;
 }
 .bg-bc-valide {
   background-color: #ccff66 !important;
+  color: #2d6a00 !important;
 }
-.bg-bc-non-valide {
+.bg-bc-cloture {
+  background-color: #66cc33 !important;
+  color: #003d00 !important;
+}
+.bg-bc-refuse {
   background-color: #c00000 !important;
   color: #fff !important;
+}
+.bg-bc-envoye-au-fournisseur {
+  background-color: #4f81bd !important;
+  color: #fff !important;
+}
+
+/* Statuts supplémentaires */
+.tout-livre {
+  background-color: #28a745 !important;
+  color: #1c4d20 !important;
+}
+.partiellement-livre {
+  background-color: #ffc107 !important;
+  color: #6b3e00 !important;
+}
+.partiellement-dispo {
+  background-color: #17a2b8 !important;
+  color: #003e5f !important;
+}
+.complet-non-livre {
+  background-color: #007bff !important;
+  color: #ffffff !important;
 }
