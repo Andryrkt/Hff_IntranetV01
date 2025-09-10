@@ -23,9 +23,9 @@ class HandleRequestService
     private $form;
     private $sessionService;
     private $twig;
-    private User $connectedUser;
-    private DemandeSupportInformatique $supportInfo;
-    private StatutDemande $statut;
+    private $connectedUser;
+    private $supportInfo;
+    private $statut;
 
     /**=====================================================================================
      * CONSTRUCT
@@ -34,8 +34,6 @@ class HandleRequestService
     public function __construct(
         EntityManagerInterface $em,
         $twig,
-        User $connectedUser,
-        DemandeSupportInformatique $supportInfo,
         EmailTikService $emailTikService,
         SessionManagerService $sessionService
     ) {
@@ -44,8 +42,6 @@ class HandleRequestService
         $this->em = $em;
         $this->twig = $twig;
         $this->sessionService = $sessionService;
-        $this->connectedUser = $connectedUser;
-        $this->supportInfo = $supportInfo;
     }
 
     /**=====================================================================================
@@ -108,6 +104,30 @@ class HandleRequestService
     public function setTkiCommentaire($tkiCommentaire)
     {
         $this->tkiCommentaire = $tkiCommentaire;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of connectedUser
+     *
+     * @return  self
+     */
+    public function setConnectedUser(User $connectedUser)
+    {
+        $this->connectedUser = $connectedUser;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of supportInfo
+     *
+     * @return  self
+     */
+    public function setSupportInfo(DemandeSupportInformatique $supportInfo)
+    {
+        $this->supportInfo = $supportInfo;
 
         return $this;
     }

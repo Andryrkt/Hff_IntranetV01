@@ -24,8 +24,8 @@ use App\Service\historiqueOperation\HistoriqueOperationDDPService;
 class DdpDossierRegularisationController extends Controller
 {
     private DdpDossierRegulModel $DdpDossierRegulModel;
-    private DemandePaiementRepository $demandePaiementRepository;
-    private DocDemandePaiementRepository $docRepository;
+    protected DemandePaiementRepository $demandePaiementRepository;
+    protected DocDemandePaiementRepository $docRepository;
     private string $cheminDeBase;
     private HistoriqueOperationDDPService $historiqueOperation;
     private string $baseCheminDocuware;

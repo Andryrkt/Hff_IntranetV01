@@ -17,9 +17,9 @@ trait DaPropositionAvecDitTrait
 
     //==================================================================================================
     private DaModel $daModel;
-    private DaObservationRepository $daObservationRepository;
-    private DitRepository $ditRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    protected DaObservationRepository $daObservationRepository;
+    protected DitRepository $ditRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private $fournisseurs;
 
     /**

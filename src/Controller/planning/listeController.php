@@ -31,7 +31,7 @@ class ListeController extends Controller
 
     private PlanningSearch $planningSearch;
     private PlanningModel $planningModel;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private $historiqueOperation;
 
     public function __construct()

@@ -34,10 +34,10 @@ class DitDevisSoumisAValidationController extends Controller
     private MontantPdfService $montantPdfService;
     private GenererPdfDevisSoumisAValidation $generePdfDevis;
     private HistoriqueOperationDEVService $historiqueOperation;
-    private DitDevisSoumisAValidationRepository $devisRepository;
+    protected DitDevisSoumisAValidationRepository $devisRepository;
     private string $chemin;
     private FileUploaderService $fileUploader;
-    private DitRepository $ditRepository;
+    protected DitRepository $ditRepository;
 
     public function __construct()
     {

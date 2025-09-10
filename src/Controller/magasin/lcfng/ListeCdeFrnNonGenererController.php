@@ -16,7 +16,7 @@ class ListeCdeFrnNonGenererController extends Controller
 {
 
     private ListeCdeFrnNonGenererModel $listeCdeFrnNonGenererModel;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
 
     public function __construct()
     {

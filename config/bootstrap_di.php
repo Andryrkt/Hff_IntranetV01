@@ -61,6 +61,10 @@ $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
 $container->setParameter('kernel.debug', true);
 
+// Désactiver l'autowiring strict
+$container->setParameter('container.autowiring.strict_mode', false);
+$container->setParameter('container.dumper.inline_factories', false);
+
 // Créer l'EntityManager manuellement AVANT de charger la configuration
 $entityManager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
 
@@ -74,10 +78,17 @@ $container->set('doctrine.orm.default_entity_manager', $entityManager);
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('services.yaml');
 
+// Désactiver complètement l'autowiring pour éviter les conflits
+$container->setParameter('container.autowiring.strict_mode', false);
+$container->setParameter('container.dumper.inline_factories', false);
+
 // Créer les services de base manuellement
 $container->register('twig', 'Twig\Environment')
     ->setSynthetic(true)
     ->setPublic(true);
+
+// Ajouter l'alias pour Twig\Environment
+$container->setAlias('Twig\Environment', 'twig');
 
 $container->register('form.factory', 'Symfony\Component\Form\FormFactory')
     ->setSynthetic(true)
@@ -132,6 +143,9 @@ $container->register('App\Twig\DeleteWordExtension', \App\Twig\DeleteWordExtensi
 $loader->load('parameters.yaml');
 
 // L'EntityManager est déjà assigné plus haut
+
+// Désactiver l'autowiring avant la compilation
+$container->setParameter('container.autowiring.strict_mode', false);
 
 // Compiler le conteneur
 $container->compile();
@@ -188,10 +202,11 @@ $authorizationChecker = $container->get('security.authorization_checker');
 
 
 // Créer et assigner les services Twig APRÈS la compilation
-$appExtension = new \App\Twig\AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entityManager);
+$appExtension = new \App\Twig\AppExtension($container);
 $container->set('App\Twig\AppExtension', $appExtension);
 
-$menuService = new \App\Service\navigation\MenuService($entityManager);
+$sessionManager = new \App\Service\SessionManagerService($session);
+$menuService = new \App\Service\navigation\MenuService($entityManager, $sessionManager, $_ENV['BASE_PATH_COURT']);
 $container->set('App\Service\navigation\MenuService', $menuService);
 
 $breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);

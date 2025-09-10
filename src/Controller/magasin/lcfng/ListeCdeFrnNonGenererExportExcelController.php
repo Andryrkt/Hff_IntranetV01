@@ -14,7 +14,7 @@ use App\Repository\dit\DitOrsSoumisAValidationRepository;
 class ListeCdeFrnNonGenererExportExcelController extends Controller
 {
     private ListeCdeFrnNonGenererModel $listeCdeFrnNonGenererModel;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
 
     public function __construct()
     {

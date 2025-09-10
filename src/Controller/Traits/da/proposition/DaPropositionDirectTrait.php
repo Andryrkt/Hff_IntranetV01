@@ -11,7 +11,7 @@ trait DaPropositionDirectTrait
     use DaPropositionTrait;
 
     //==================================================================================================
-    private DaObservationRepository $daObservationRepository;
+    protected DaObservationRepository $daObservationRepository;
     /**
      * Initialise les valeurs par défaut du trait
      */

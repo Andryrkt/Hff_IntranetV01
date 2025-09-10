@@ -5,12 +5,13 @@ namespace App\Service\Users;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Entity\admin\utilisateur\User;
+use Doctrine\ORM\EntityManagerInterface;
 
 class UserDataService
 {
     private $em;
 
-    public function __construct($em)
+    public function __construct(EntityManagerInterface $em)
     {
         $this->em = $em;
     }

@@ -20,11 +20,11 @@ trait DaDetailAvecDitTrait
     use DaDetailTrait;
 
     //==================================================================================================
-    private DitRepository $ditRepository;
-    private DwBcApproRepository $dwBcApproRepository;
-    private DaObservationRepository $daObservationRepository;
-    private DwFactureBonLivraisonRepository $dwFacBlRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    protected DitRepository $ditRepository;
+    protected DwBcApproRepository $dwBcApproRepository;
+    protected DaObservationRepository $daObservationRepository;
+    protected DwFactureBonLivraisonRepository $dwFacBlRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DossierInterventionAtelierModel $dossierInterventionAtelierModel;
 
     /**

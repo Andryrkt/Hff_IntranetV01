@@ -17,8 +17,8 @@ trait DaEditDirectTrait
     use DaEditTrait;
 
     //==================================================================================================
-    private DaObservationRepository $daObservationRepository;
-    private DaSoumisAValidationRepository $daSoumisAValidationRepository;
+    protected DaObservationRepository $daObservationRepository;
+    protected DaSoumisAValidationRepository $daSoumisAValidationRepository;
     /**
      * Initialise les valeurs par défaut du trait
      */

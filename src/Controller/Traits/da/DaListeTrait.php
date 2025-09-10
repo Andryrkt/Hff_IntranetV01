@@ -29,9 +29,9 @@ trait DaListeTrait
     // Repository et model
     private DaModel $daModel;
     private DossierInterventionAtelierModel $dwModel;
-    private AgenceRepository $agenceRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    protected AgenceRepository $agenceRepository;
+    protected DaSoumissionBcRepository $daSoumissionBcRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private UserDataService $userDataService;
 
     /**

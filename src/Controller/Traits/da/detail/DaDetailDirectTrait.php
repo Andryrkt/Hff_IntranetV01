@@ -15,9 +15,9 @@ trait DaDetailDirectTrait
     use DaDetailTrait;
 
     //==================================================================================================
-    private DwBcApproRepository $dwBcApproRepository;
-    private DaObservationRepository $daObservationRepository;
-    private DwFactureBonLivraisonRepository $dwFacBlRepository;
+    protected DwBcApproRepository $dwBcApproRepository;
+    protected DaObservationRepository $daObservationRepository;
+    protected DwFactureBonLivraisonRepository $dwFacBlRepository;
 
     /**
      * Initialise les valeurs par défaut du trait

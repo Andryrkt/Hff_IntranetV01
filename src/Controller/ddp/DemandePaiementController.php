@@ -38,10 +38,10 @@ class DemandePaiementController extends Controller
 
     const STATUT_CREATION = 'Soumis à validation';
 
-    private TypeDemandeRepository $typeDemandeRepository;
+    protected TypeDemandeRepository $typeDemandeRepository;
     private DemandePaiementModel $demandePaiementModel;
-    private CdefnrSoumisAValidationRepository $cdeFnrRepository;
-    private DemandePaiementRepository $demandePaiementRepository;
+    protected CdefnrSoumisAValidationRepository $cdeFnrRepository;
+    protected DemandePaiementRepository $demandePaiementRepository;
     private DemandePaiementLigne $demandePaiementLigne;
     private HistoriqueOperationDDPService $historiqueOperation;
     private GeneratePdfDdp $generatePdfDdp;

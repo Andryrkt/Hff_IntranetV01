@@ -8,14 +8,15 @@ use App\Entity\da\DaSoumissionBc;
 use App\Repository\da\DaAfficherRepository;
 use App\Repository\da\DaSoumissionBcRepository;
 use Symfony\Component\Routing\Annotation\Route;
+
 /**
  * @Route("/demande-appro")
  */
 class ChangementStatutBCController extends Controller
 {
 
-    private DaAfficherRepository $daAfficherRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    protected DaAfficherRepository $daAfficherRepository;
+    protected DaSoumissionBcRepository $daSoumissionBcRepository;
 
 
     public function __construct()

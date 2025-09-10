@@ -41,8 +41,8 @@ class EditDemandePaiementController extends Controller
     private TraitementDeFichier $traitementDeFichier;
     private $agenceRepository;
     private $serviceRepository;
-    private TypeDemandeRepository $typeDemandeRepository;
-    private DemandePaiementRepository $ddpRepository;
+    protected TypeDemandeRepository $typeDemandeRepository;
+    protected DemandePaiementRepository $ddpRepository;
 
     public function __construct()
     {

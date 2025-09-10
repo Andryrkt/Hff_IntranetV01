@@ -10,7 +10,7 @@ class JsonFileService
     /**
      * Constructeur, prend en paramètre le chemin vers le fichier JSON.
      */
-    public function __construct($filePath)
+    public function __construct(string $filePath)
     {
         $this->filePath = $filePath;
         $this->load();
@@ -101,5 +101,4 @@ class JsonFileService
             });
         }
     }
-
 }

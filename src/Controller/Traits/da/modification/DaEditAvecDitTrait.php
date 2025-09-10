@@ -14,8 +14,8 @@ trait DaEditAvecDitTrait
     use DaEditTrait;
 
     //==================================================================================================
-    private DitRepository $ditRepository;
-    private DaObservationRepository $daObservationRepository;
+    protected DitRepository $ditRepository;
+    protected DaObservationRepository $daObservationRepository;
     /**
      * Initialise les valeurs par défaut du trait
      */

@@ -32,11 +32,11 @@ class DaSoumissionBcController extends Controller
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    protected DaSoumissionBcRepository $daSoumissionBcRepository;
     private GeneratePdf $generatePdf;
-    private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
-    private DaValiderRepository $daValiderRepository;
+    protected DemandeApproRepository $demandeApproRepository;
+    protected DitRepository $ditRepository;
+    protected DaValiderRepository $daValiderRepository;
     private DaSoumissionBcModel $daSoumissionBcModel;
 
     public function __construct()

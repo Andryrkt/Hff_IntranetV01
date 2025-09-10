@@ -38,6 +38,8 @@ services:
         public: true
 
     App\Service\SessionManagerService:
+        arguments:
+            $session: '@session'
         public: true
 
     # Services de navigation
@@ -68,23 +70,9 @@ services:
             $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
         public: true
 
-    App\Service\fichier\UploderFileService:
-        arguments:
-            $cheminDeBase: '%env(BASE_PATH_FICHIER)%/magasin/devis/'
-        public: true
 
-    App\Service\da\FileUploaderForDAService:
-        arguments:
-            $basePath: '%env(BASE_PATH_FICHIER)%'
 
-    App\Service\docuware\CopyDocuwareService:
-        arguments:
-            $docuwareFtpPath: '%docuware.ftp_path%'
 
-    App\Service\fichier\FileUploaderService:
-        arguments:
-            $targetDirectory: '%upload_directory%'
-            $fusionPdf: '@App\Service\FusionPdf'
 
     # Services avec injection de dépendance corrigée
     App\Service\AncienDitService:
@@ -95,16 +83,116 @@ services:
             $fusionPdf: '@App\Service\FusionPdf'
         public: true
 
+
+    # Service FPDI pour la fusion de PDF
+    setasign\Fpdi\Tcpdf\Fpdi:
+        class: setasign\Fpdi\Tcpdf\Fpdi
+        public: false
+
+    # Service JsonFileService - configuration explicite pour éviter l'autowiring
+    App\Service\fichier\JsonFileService:
+        arguments:
+            $filePath: '%kernel.project_dir%/var/cache/data.json'
+        public: false
+
+    # Service HeaderPdf - configuration explicite pour éviter l'autowiring
+    App\Service\genererPdf\HeaderPdf:
+        arguments:
+            $email: 'noreply@example.com'
+        public: false
+
+    # Service DevisMagasinValidationVdService - configuration explicite pour éviter l'autowiring
+    App\Service\magasin\devis\DevisMagasinValidationVdService:
+        arguments:
+            $expectedNumeroDevis: 'DEV'
+        public: false
+
+    # Service DevisMagasinValidationVpService - configuration explicite pour éviter l'autowiring
+    App\Service\magasin\devis\DevisMagasinValidationVpService:
+        arguments:
+            $expectedNumeroDevis: 'DEV'
+        public: false
+
+    # Service FileReaderModel - configuration explicite pour éviter l'autowiring
+    App\Model\FileReaderModel:
+        arguments:
+            $filePath: '%kernel.project_dir%/var/cache/'
+        public: false
+
+    # Service MigrationDevisModel - configuration explicite pour éviter l'autowiring
+    App\Model\migration\MigrationDevisModel:
+        arguments:
+            $tableName: 'devis'
+        public: false
+
+    # Repository AgenceRepository - configuration explicite pour éviter l'autowiring
+    App\Repository\admin\AgenceRepository:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $class: 'App\Entity\admin\Agence'
+        public: false
+
+    # Repository ApplicationRepository - configuration explicite pour éviter l'autowiring
+    App\Repository\admin\ApplicationRepository:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $class: 'App\Entity\admin\Application'
+        public: false
+
+    # Repository PersonnelRepository - configuration explicite pour éviter l'autowiring
+    App\Repository\admin\PersonnelRepository:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $class: 'App\Entity\admin\Personnel'
+        public: false
+
+    # Repository ServiceRepository - configuration explicite pour éviter l'autowiring
+    App\Repository\admin\ServiceRepository:
+        arguments:
+            $em: '@doctrine.orm.default_entity_manager'
+            $class: 'App\Entity\admin\Service'
+        public: false
+
+    # Services avec paramètres primitifs - configuration explicite pour éviter l'autowiring
+    App\Service\fichier\FileUploaderService:
+        arguments:
+            $targetDirectory: '%kernel.project_dir%/public/uploads'
+            $fusionPdf: '@App\Service\FusionPdf'
+        public: false
+
+    App\Service\docuware\CopyDocuwareService:
+        arguments:
+            $docuwareFtpPath: '%kernel.project_dir%/docuware'
+        public: false
+
+    App\Service\fichier\UploderFileService:
+        arguments:
+            $cheminDeBase: '%kernel.project_dir%/public/uploads'
+        public: false
+
+    App\Service\da\FileUploaderForDAService:
+        arguments:
+            $basePath: '%kernel.project_dir%/public/uploads/da'
+        public: false
+
     App\Service\genererPdf\GenererPdfDit:
         arguments:
             $tcpdf: '@TCPDF'
             $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
             $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
-        public: true
+        public: false
 
-    # Service FPDI pour la fusion de PDF
-    setasign\Fpdi\Tcpdf\Fpdi:
-        class: setasign\Fpdi\Tcpdf\Fpdi
+    App\Factory\BreadcrumbFactory:
+        arguments:
+            $baseUrl: '/'
+            $breadcrumbMenuService: '@App\Service\navigation\BreadcrumbMenuService'
+        public: false
+
+
+    # Configuration générique pour tous les repositories - désactiver l'autowiring
+    App\Repository\:
+        resource: '../src/Repository/*'
+        autowire: false
         public: false
 
     # Service HandleRequestService avec injection de dépendance corrigée
@@ -112,11 +200,55 @@ services:
         arguments:
             $em: '@doctrine.orm.default_entity_manager'
             $twig: '@Twig\Environment'
-            $connectedUser: '@App\Entity\admin\utilisateur\User'
-            $supportInfo: '@App\Entity\tik\DemandeSupportInformatique'
             $emailTikService: '@App\Service\tik\EmailTikService'
             $sessionService: '@App\Service\SessionManagerService'
         public: true
+
+    # Modèles de base - configuration pour éviter les erreurs d'instanciation
+    App\Model\Connexion:
+        arguments:
+            $dbDns: 'localhost'
+            $dbUsername: 'root'
+            $dbPassword: ''
+            $basePathLog: '/var/log'
+        public: false
+
+    App\Model\DatabaseInformix:
+        arguments:
+            $dsn: 'localhost'
+            $user: 'root'
+            $password: ''
+            $basePathLog: '/var/log'
+        public: false
+
+    App\Model\ConnexionDote4:
+        arguments:
+            $dbDns: 'localhost'
+            $dbUsername: 'root'
+            $dbPassword: ''
+        public: false
+
+    App\Model\ConnexionDote4Gcot:
+        arguments:
+            $dbDns: 'localhost'
+            $dbUsername: 'root'
+            $dbPassword: ''
+        public: false
+
+    # DomModel - configuration avec autowiring
+    App\Model\dom\DomModel:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    # LdapModel - configuration pour éviter les erreurs d'instanciation
+    App\Model\LdapModel:
+        arguments:
+            $ldapHost: 'localhost'
+            $ldapPort: 389
+            $domain: 'example.com'
+            $ldapDn: 'dc=example,dc=com'
+        public: false
 
     # Service EmailTikService
     App\Service\tik\EmailTikService:
@@ -125,6 +257,12 @@ services:
             $twig: '@Twig\Environment'
             $emailService: '@App\Service\EmailService'
         public: true
+
+    # AppExtension Twig avec injection du conteneur
+    App\Twig\AppExtension:
+        arguments:
+            $container: '@service_container'
+        public: false
 
     # Service HistoriqueOperationService avec injection de dépendance corrigée
     App\Service\historiqueOperation\HistoriqueOperationService:
@@ -148,50 +286,14 @@ services:
             $sessionService: '@App\Service\SessionManagerService'
         public: true
 
-    # Modèles avec injection de dépendance corrigée
+    # Modèles avec autowiring Symfony
     App\Model\Model:
-        arguments:
-            $connexion: '@App\Model\Connexion'
-            $connect: '@App\Model\DatabaseInformix'
-            $connexion04: '@App\Model\ConnexionDote4'
-            $connexion04Gcot: '@App\Model\ConnexionDote4Gcot'
+        autowire: true
+        autoconfigure: true
         public: true
-
-    App\Model\Connexion:
-        arguments:
-            $dbDns: '%env(DB_DNS_SQLSERV)%'
-            $dbUsername: '%env(DB_USERNAME_SQLSERV)%'
-            $dbPassword: '%env(DB_PASSWORD_SQLSERV)%'
-            $basePathLog: '%env(BASE_PATH_LOG)%'
-        public: true
-
-    App\Model\DatabaseInformix:
-        arguments:
-            $dsn: '%env(DB_DNS_INFORMIX)%'
-            $user: '%env(DB_USERNAME_INFORMIX)%'
-            $password: '%env(DB_PASSWORD_INFORMIX)%'
-            $basePathLog: '%env(BASE_PATH_LOG)%'
-        public: true
-
-    App\Model\ConnexionDote4:
-        arguments:
-            $dbDns: '%env(DB_DNS_SQLSERV_4)%'
-            $dbUsername: '%env(DB_USERNAME_SQLSERV_4)%'
-            $dbPassword: '%env(DB_PASSWORD_SQLSERV_4)%'
-        public: true
-
-    App\Model\ConnexionDote4Gcot:
-        arguments:
-            $dbDns: '%env(DB_DNS_SQLSERV_4_GCOT)%'
-            $dbUsername: '%env(DB_USERNAME_SQLSERV_4)%'
-            $dbPassword: '%env(DB_PASSWORD_SQLSERV_4)%'
-        public: true
-
-    App\Model\LdapModel:
-        arguments:
-            $ldapHost: '%env(LDAP_HOST)%'
-            $ldapPort: '%env(LDAP_PORT)%'
-            $domain: '%env(LDAP_DOMAIN)%'
-            $ldapDn: '%env(LDAP_DN)%'
-        public: true
+        calls:
+            - [setConnexion, ['@App\Model\Connexion']]
+            - [setConnect, ['@App\Model\DatabaseInformix']]
+            - [setConnexion04, ['@App\Model\ConnexionDote4']]
+            - [setConnexion04Gcot, ['@App\Model\ConnexionDote4Gcot']]
 

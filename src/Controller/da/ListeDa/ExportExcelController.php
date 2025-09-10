@@ -14,8 +14,8 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExportExcelController extends Controller
 {
-    private DaAfficherRepository $daAfficherRepository;
-    private AgenceRepository $agenceRepository;
+    protected DaAfficherRepository $daAfficherRepository;
+    protected AgenceRepository $agenceRepository;
 
     public function __construct()
     {

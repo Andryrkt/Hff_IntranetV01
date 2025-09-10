@@ -12,7 +12,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 class DevisMagasinExportExcelController extends Controller
 {
     private ListeDevisMagasinModel $listeDevisMagasinModel;
-    private DevisMagasinRepository $devisMagasinRepository;
+    protected DevisMagasinRepository $devisMagasinRepository;
     public function __construct()
     {
         parent::__construct();

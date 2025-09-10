@@ -21,7 +21,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
 {
     use AutorisationTrait;
 
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
     private listeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
     public function __construct()
     {

@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class ExportExcelCdefrnController extends Controller
 {
-    private DaAfficherRepository $daAfficherRepository;
+    protected DaAfficherRepository $daAfficherRepository;
 
     public function __construct()
     {

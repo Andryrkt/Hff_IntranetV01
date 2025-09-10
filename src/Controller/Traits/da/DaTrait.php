@@ -21,12 +21,38 @@ trait DaTrait
 {
     use lienGenerique;
 
-    protected DaAfficherRepository $daAfficherRepository;
-    protected DemandeApproRepository $demandeApproRepository;
-    protected DemandeApproLRepository $demandeApproLRepository;
-    protected DemandeApproLRRepository $demandeApproLRRepository;
-    protected EmailDaService $emailDaService;
-    protected FileUploaderForDAService $daFileUploader;
+    /**
+     * Récupère les services et repositories nécessaires
+     */
+    protected function getEmailDaService(): EmailDaService
+    {
+        return $this->getService('App\Service\da\EmailDaService');
+    }
+
+    protected function getDaFileUploader(): FileUploaderForDAService
+    {
+        return $this->getService('App\Service\da\FileUploaderForDAService');
+    }
+
+    protected function getDaAfficherRepository(): DaAfficherRepository
+    {
+        return $this->getService('App\Repository\da\DaAfficherRepository');
+    }
+
+    protected function getDemandeApproRepository(): DemandeApproRepository
+    {
+        return $this->getService('App\Repository\da\DemandeApproRepository');
+    }
+
+    protected function getDemandeApproLRepository(): DemandeApproLRepository
+    {
+        return $this->getService('App\Repository\da\DemandeApproLRepository');
+    }
+
+    protected function getDemandeApproLRRepository(): DemandeApproLRRepository
+    {
+        return $this->getService('App\Repository\da\DemandeApproLRRepository');
+    }
 
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée
@@ -64,13 +90,13 @@ trait DaTrait
      */
     private function getLignesRectifieesDA(string $numeroDA, int $version): array
     {
-        $lignesDAL = $this->demandeApproLRepository->findBy([
+        $lignesDAL = $this->getDemandeApproLRepository()->findBy([
             'numeroDemandeAppro' => $numeroDA,
             'numeroVersion' => $version,
             'deleted' => false,
         ]);
 
-        $dalrs = $this->demandeApproLRRepository->findBy([
+        $dalrs = $this->getDemandeApproLRRepository()->findBy([
             'numeroDemandeAppro' => $numeroDA,
         ]);
 

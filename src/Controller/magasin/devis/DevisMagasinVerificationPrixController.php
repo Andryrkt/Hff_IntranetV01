@@ -33,7 +33,7 @@ class DevisMagasinVerificationPrixController extends Controller
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
     private GeneratePdfDevisMagasin $generatePdfDevisMagasin;
-    private DevisMagasinRepository $devisMagasinRepository;
+    protected DevisMagasinRepository $devisMagasinRepository;
 
     public function __construct()
     {

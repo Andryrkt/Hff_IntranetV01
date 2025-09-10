@@ -30,10 +30,10 @@ class DaSoumissionFacBlController extends Controller
     private TraitementDeFichier $traitementDeFichier;
     private string $cheminDeBase;
     private HistoriqueOperationService $historiqueOperation;
-    private DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
+    protected DaSoumissionFacBlRepository $daSoumissionFacBlRepository;
     private GeneratePdf $generatePdf;
-    private DemandeApproRepository $demandeApproRepository;
-    private DitRepository $ditRepository;
+    protected DemandeApproRepository $demandeApproRepository;
+    protected DitRepository $ditRepository;
 
     public function __construct()
     {

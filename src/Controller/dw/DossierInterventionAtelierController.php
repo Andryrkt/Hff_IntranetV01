@@ -21,7 +21,7 @@ class DossierInterventionAtelierController extends Controller
     use AutorisationTrait;
 
     private $historiqueOperation;
-    private DemandeApproRepository $demandeApproRepository;
+    protected DemandeApproRepository $demandeApproRepository;
 
     public function __construct()
     {

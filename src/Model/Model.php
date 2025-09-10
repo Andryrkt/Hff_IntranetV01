@@ -17,19 +17,42 @@ class Model
     protected $connexion04;
     protected $connexion04Gcot;
 
-
-    public function __construct(
-        Connexion $connexion,
-        DatabaseInformix $connect,
-        ConnexionDote4 $connexion04,
-        ConnexionDote4Gcot $connexion04Gcot
-    ) {
-        $this->connexion = $connexion;
-        $this->connect = $connect;
-        $this->connexion04 = $connexion04;
-        $this->connexion04Gcot = $connexion04Gcot;
+    public function __construct()
+    {
+        // Constructeur vide - l'autowiring Symfony gérera l'injection des dépendances
     }
 
+    /**
+     * Injection de la connexion principale
+     */
+    public function setConnexion(Connexion $connexion): void
+    {
+        $this->connexion = $connexion;
+    }
+
+    /**
+     * Injection de la connexion Informix
+     */
+    public function setConnect(DatabaseInformix $connect): void
+    {
+        $this->connect = $connect;
+    }
+
+    /**
+     * Injection de la connexion Dote4
+     */
+    public function setConnexion04(ConnexionDote4 $connexion04): void
+    {
+        $this->connexion04 = $connexion04;
+    }
+
+    /**
+     * Injection de la connexion Dote4Gcot
+     */
+    public function setConnexion04Gcot(ConnexionDote4Gcot $connexion04Gcot): void
+    {
+        $this->connexion04Gcot = $connexion04Gcot;
+    }
 
     /**
      * recuperation Mail de l'utilisateur connecter

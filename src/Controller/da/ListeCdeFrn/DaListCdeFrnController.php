@@ -32,11 +32,11 @@ class DaListCdeFrnController extends Controller
     use StatutBcTrait;
     use AutorisationTrait;
 
-    private DaAfficherRepository $daAfficherRepository;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    protected DaAfficherRepository $daAfficherRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
     private DaModel $daModel;
-    private DemandeApproRepository $demandeApproRepository;
-    private DaSoumissionBcRepository $daSoumissionBcRepository;
+    protected DemandeApproRepository $demandeApproRepository;
+    protected DaSoumissionBcRepository $daSoumissionBcRepository;
 
 
     public function __construct()
@@ -84,7 +84,7 @@ class DaListCdeFrnController extends Controller
             'method' => 'GET',
         ])->getForm();
         $this->traitementFormulaireSoumission($request, $formSoumission);
-        
+
         return $this->render('da/daListCdeFrn.html.twig', [
             'daAfficherValides' => $paginationData['data'],
             'formSoumission'    => $formSoumission->createView(),

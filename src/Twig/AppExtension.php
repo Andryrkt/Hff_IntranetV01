@@ -1,52 +1,38 @@
 <?php
 
-// src/Twig/AppExtension.php
-
 namespace App\Twig;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Twig\Extension\GlobalsInterface;
 use Twig\Extension\AbstractExtension;
 use App\Entity\admin\utilisateur\User;
-use App\Model\dom\DomModel;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Twig\TwigFunction;
+use Psr\Container\ContainerInterface;
 
 class AppExtension extends AbstractExtension implements GlobalsInterface
 {
-    private $session;
-    private $requestStack;
-    private $tokenStorage;
-    private $domModel;
-    private $authorizationChecker;
-    private $em;
+    private $container;
 
-
-    public function __construct(SessionInterface $session, RequestStack $requestStack, TokenStorageInterface $tokenStorage, AuthorizationCheckerInterface $authorizationChecker, EntityManagerInterface $em)
+    public function __construct(ContainerInterface $container)
     {
-
-        $this->session = $session;
-        $this->requestStack = $requestStack;
-        $this->tokenStorage = $tokenStorage;
-        $this->authorizationChecker = $authorizationChecker;
-        $this->em = $em;
-        $this->domModel = new DomModel;
+        $this->container = $container;
     }
 
     public function getGlobals(): array
     {
+        // Récupération des services via le conteneur injecté
+        $session = $this->container->get('session');
+        $requestStack = $this->container->get('request_stack');
+        $tokenStorage = $this->container->get('security.token_storage');
+        $em = $this->container->get('doctrine.orm.default_entity_manager');
+
         $user = null;
-        $token = $this->tokenStorage->getToken();
+        $token = $tokenStorage->getToken();
 
+        $notification = $session->get('notification');
+        $session->remove('notification'); // Supprime la notification après l'affichage
 
-        $notification = $this->session->get('notification');
-        $this->session->remove('notification'); // Supprime la notification après l'affichage
-
-        if ($this->session->get('user_id') !== null) {
-            $user = $this->em->getRepository(User::class)->find($this->session->get('user_id'));
+        if ($session->get('user_id') !== null) {
+            $user = $em->getRepository(User::class)->find($session->get('user_id'));
         }
 
         return [
@@ -55,8 +41,8 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
                 'base_path' => $_ENV['BASE_PATH_COURT'],
                 'base_path_long' => $_ENV['BASE_PATH_FICHIER'],
                 'base_path_fichier' => $_ENV['BASE_PATH_FICHIER_COURT'],
-                'session' => $this->session,
-                'request' => $this->requestStack->getCurrentRequest(),
+                'session' => $session,
+                'request' => $requestStack->getCurrentRequest(),
                 'notification' => $notification,
             ],
         ];
@@ -71,6 +57,9 @@ class AppExtension extends AbstractExtension implements GlobalsInterface
 
     public function tropPercu(string $numeroDom)
     {
-        return $this->domModel->verifierSiTropPercu($numeroDom);
+        // Récupération du service DomModel via le conteneur injecté
+        $domModel = $this->container->get('App\Model\dom\DomModel');
+
+        return $domModel->verifierSiTropPercu($numeroDom);
     }
 }

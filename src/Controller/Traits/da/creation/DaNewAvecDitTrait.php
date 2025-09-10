@@ -14,7 +14,7 @@ trait DaNewAvecDitTrait
 
     //=====================================================================================
     private DaModel $daModel;
-    private DitRepository $ditRepository;
+    protected DitRepository $ditRepository;
     private $fournisseurs;
 
     /**

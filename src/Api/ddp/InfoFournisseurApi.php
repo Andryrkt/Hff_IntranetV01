@@ -22,8 +22,8 @@ class InfoFournisseurApi extends Controller
     use DdpTrait;
 
     private $demandePaiementModel;
-    private $cdeFnrRepository;
-    private $demandePaiementRepository;
+    protected $cdeFnrRepository;
+    protected $demandePaiementRepository;
 
     public function __construct()
     {

@@ -47,12 +47,12 @@ class DitOrsSoumisAValidationController extends Controller
     private HistoriqueOperationService $historiqueOperation;
     private DitOrSoumisAValidationModel $ditOrsoumisAValidationModel;
     private GenererPdfOrSoumisAValidation $genererPdfDit;
-    private DitRepository $ditRepository;
-    private DitOrsSoumisAValidationRepository $orRepository;
-    private DemandeApproLRepository $demandeApproLRepository;
-    private DemandeApproLRRepository $demandeApproLRRepository;
-    private DemandeApproRepository $demandeApproRepository;
-    private DaAfficherRepository $daAfficherRepository;
+    protected DitRepository $ditRepository;
+    protected DitOrsSoumisAValidationRepository $orRepository;
+    protected DemandeApproLRepository $demandeApproLRepository;
+    protected DemandeApproLRRepository $demandeApproLRRepository;
+    protected DemandeApproRepository $demandeApproRepository;
+    protected DaAfficherRepository $daAfficherRepository;
     private $ditModel;
     private $fusionPdf;
 

@@ -22,7 +22,7 @@ use App\Service\historiqueOperation\HistoriqueOperationCDEFNRService;
  */
 class CdefnrSoumisAValidationController extends Controller
 {
-    private CdefnrSoumisAValidationRepository $cdeFnrRepository;
+    protected CdefnrSoumisAValidationRepository $cdeFnrRepository;
     private HistoriqueOperationCDEFNRService $historiqueOperation;
     private TraitementDeFichier $traitementDeFichier;
 

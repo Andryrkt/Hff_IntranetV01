@@ -11,7 +11,7 @@ trait DaValidationAvecDitTrait
     use DaValidationTrait;
 
     //====================================================================================================
-    private DitRepository $ditRepository;
+    protected DitRepository $ditRepository;
 
     /**
      * Initialise les valeurs par défaut du trait

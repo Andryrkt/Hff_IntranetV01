@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ModalStatutApi extends Controller
 {
-    private HistoriqueStatutDdpRepository $historiqueStatutDdpRepository;
+    protected HistoriqueStatutDdpRepository $historiqueStatutDdpRepository;
 
     public function __construct()
     {

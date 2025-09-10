@@ -30,14 +30,14 @@ class DaListeDitController extends Controller
     use DaListeDitTrait;
 
     private DitSearch $ditSearch;
-    private DitRepository $ditRepository;
-    private DemandeApproRepository $demandeApproRepository;
-    private WorTypeDocumentRepository $worTypeDocumentRepository;
-    private WorNiveauUrgenceRepository $worNiveauUrgenceRepository;
-    private StatutDemandeRepository $statutDemandeRepository;
-    private ServiceRepository $serviceRepository;
-    private AgenceRepository $agenceRepository;
-    private CategorieAteAppRepository $categorieAteAppRepository;
+    protected DitRepository $ditRepository;
+    protected DemandeApproRepository $demandeApproRepository;
+    protected WorTypeDocumentRepository $worTypeDocumentRepository;
+    protected WorNiveauUrgenceRepository $worNiveauUrgenceRepository;
+    protected StatutDemandeRepository $statutDemandeRepository;
+    protected ServiceRepository $serviceRepository;
+    protected AgenceRepository $agenceRepository;
+    protected CategorieAteAppRepository $categorieAteAppRepository;
 
     public function __construct()
     {

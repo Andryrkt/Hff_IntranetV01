@@ -20,7 +20,7 @@ class DdpListeController extends Controller
 {
     use AutorisationTrait;
 
-    private DemandePaiementRepository $demandePaiementRepository;
+    protected DemandePaiementRepository $demandePaiementRepository;
     private DdpSearch $ddpSearch;
     public function __construct()
     {

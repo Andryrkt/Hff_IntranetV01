@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DaTelechargeBcValiderApi extends Controller
 {
-    private DwBcApproRepository $dwBcApproRepository;
+    protected DwBcApproRepository $dwBcApproRepository;
 
     public function __construct()
     {

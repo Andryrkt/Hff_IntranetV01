@@ -17,7 +17,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
 {
 
     private ListeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
-    private DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
+    protected DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
     public function __construct()
     {
         parent::__construct();

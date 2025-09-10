@@ -22,8 +22,8 @@ class ListeDevisMagasinController extends Controller
     use AutorisationTrait;
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
-    private DevisMagasinRepository $devisMagasinRepository;
-    private AgenceRepository $agenceRepository;
+    protected DevisMagasinRepository $devisMagasinRepository;
+    protected AgenceRepository $agenceRepository;
 
     public function __construct()
     {
