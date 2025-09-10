@@ -114,7 +114,7 @@ class listeDaController extends Controller
         $estAdmin = $this->estAdmin();
         $verouiller = false; // initialisation de la variable de verrouillage à false (déverouillée par défaut)
 
-        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_A_VALIDE_DW];
+        $statutDaVerouillerAppro = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_A_VALIDE_DW];
         $statutDaVerouillerAtelier = [DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_A_VALIDE_DW];
 
         if (!$estAdmin && $estAppro && in_array($statutDa, $statutDaVerouillerAppro) && $statutBc !== DaSoumissionBc::STATUT_REFUSE) {
