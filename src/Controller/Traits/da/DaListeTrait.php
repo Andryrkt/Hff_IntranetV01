@@ -196,6 +196,8 @@ trait DaListeTrait
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
 
+        $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
+
         foreach ($data as $item) {
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -204,7 +206,7 @@ trait DaListeTrait
 
             // Pré-calculer les booléens
             $ajouterDA = false && !$item->getAchatDirect() && ($this->estUserDansServiceAtelier() || $this->estAdmin()); // pas achat direct && (atelier ou admin)  
-            $supprimable = ($this->estUserDansServiceAppro() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO) || ($this->estUserDansServiceAtelier() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_ATE);
+            $supprimable = ($this->estUserDansServiceAppro() || $this->estUserDansServiceAtelier() || $this->estAdmin()) && in_array($item->getStatutDal(), $statutDASupprimable);
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
