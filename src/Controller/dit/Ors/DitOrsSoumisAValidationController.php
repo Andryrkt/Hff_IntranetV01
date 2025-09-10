@@ -123,9 +123,9 @@ class DitOrsSoumisAValidationController extends Controller
                 ;
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
-                //dump($orSoumisValidationModel);
+
                 $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
-                // dd($orSoumisValidataion);
+
 
                 /** Modification de la colonne statut_or dans la table demande_intervention */
                 $this->modificationStatutOr($numDit);

@@ -1,0 +1,119 @@
+services:
+    # Services de sécurité
+    security.token_storage:
+        class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage
+        public: true
+
+    security.authorization_checker:
+        class: Symfony\Component\Security\Core\Authorization\AuthorizationChecker
+        arguments:
+            - '@security.token_storage'
+            - '@security.access.decision_manager'
+        public: true
+
+    security.access.decision_manager:
+        class: Symfony\Component\Security\Core\Authorization\AccessDecisionManager
+        arguments:
+            - ['@security.access.affirmative_strategy']
+
+    security.access.affirmative_strategy:
+        class: Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy
+
+    # Services de session et requête
+    session:
+        class: Symfony\Component\HttpFoundation\Session\Session
+        arguments:
+            - '@session.storage.native'
+        public: true
+
+    session.storage.native:
+        class: Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage
+
+    request_stack:
+        class: Symfony\Component\HttpFoundation\RequestStack
+        public: true
+
+    # Services de formulaire
+    form.factory:
+        class: Symfony\Component\Form\FormFactory
+        factory: ['Symfony\Component\Form\Forms', 'createFormFactory']
+        arguments:
+            - ['@form.extension.core', '@form.extension.validator', '@form.extension.http_foundation', '@form.extension.csrf', '@form.extension.doctrine']
+
+    form.extension.core:
+        class: Symfony\Component\Form\Extension\Core\CoreExtension
+
+    form.extension.validator:
+        class: Symfony\Component\Form\Extension\Validator\ValidatorExtension
+        arguments:
+            - '@validator'
+
+    form.extension.http_foundation:
+        class: Symfony\Component\Form\Extension\HttpFoundation\HttpFoundationExtension
+
+    form.extension.csrf:
+        class: Symfony\Component\Form\Extension\Csrf\CsrfExtension
+        arguments:
+            - '@security.csrf.token_manager'
+
+    form.extension.doctrine:
+        class: Symfony\Bridge\Doctrine\Form\DoctrineOrmExtension
+        arguments:
+            - '@doctrine'
+
+    # Services de validation
+    validator:
+        class: Symfony\Component\Validator\Validator\ValidatorInterface
+        factory: ['Symfony\Component\Validator\Validation', 'createValidator']
+
+    # Services de sécurité CSRF
+    security.csrf.token_manager:
+        class: Symfony\Component\Security\Csrf\CsrfTokenManager
+        public: true
+
+    # Services de traduction
+    translator:
+        class: Symfony\Component\Translation\Translator
+        arguments:
+            - 'fr_FR'
+        calls:
+            - method: addLoader
+              arguments:
+                  - 'xlf'
+                  - '@translation.loader.xliff'
+        tags: ['translation.loader']
+
+    translation.loader.xliff:
+        class: Symfony\Component\Translation\Loader\XliffFileLoader
+
+    # Services de routage
+    router:
+        class: Symfony\Component\Routing\Router
+        arguments:
+            - '@routing.loader.annotation'
+            - '../../src/Controller/'
+            - '%kernel.cache_dir%/routing'
+            - '%kernel.debug%'
+        tags: ['routing.loader']
+
+    routing.loader.annotation:
+        class: Symfony\Component\Routing\Loader\AnnotationDirectoryLoader
+        arguments:
+            - '@file_locator'
+            - '@annotation_reader'
+
+    file_locator:
+        class: Symfony\Component\Config\FileLocator
+
+    annotation_reader:
+        class: Doctrine\Common\Annotations\AnnotationReader
+
+    # Services de base de données
+    doctrine:
+        class: core\SimpleManagerRegistry
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
+
+    # Alias pour l'interface EntityManagerInterface
+    Doctrine\ORM\EntityManagerInterface: '@doctrine.orm.default_entity_manager'

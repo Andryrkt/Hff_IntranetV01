@@ -1,0 +1,24 @@
+services:
+    # Configuration par défaut pour tous les services
+    _defaults:
+        autowire: false
+        autoconfigure: false
+        public: false
+
+    # Services de base
+    App\Service\:
+        resource: '../../src/Service/*'
+        exclude:
+            - '../../src/Service/dit/or/'
+        tags: ['app.service']
+        public: true
+
+    App\Model\:
+        resource: '../../src/Model/*'
+        tags: ['app.model']
+        public: true
+
+    App\Repository\:
+        resource: '../../src/Repository/*'
+        tags: ['app.repository']
+        public: true
