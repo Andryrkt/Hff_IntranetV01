@@ -1,4 +1,8 @@
 services:
+    doctrine.orm.default_entity_manager:
+        synthetic: true
+        public: true
+
     # Services de sécurité
     security.token_storage:
         class: Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage

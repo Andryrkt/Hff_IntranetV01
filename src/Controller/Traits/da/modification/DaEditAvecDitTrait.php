@@ -22,7 +22,7 @@ trait DaEditAvecDitTrait
     public function initDaEditAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }

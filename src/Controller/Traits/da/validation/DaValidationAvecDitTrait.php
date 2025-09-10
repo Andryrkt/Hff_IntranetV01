@@ -19,7 +19,7 @@ trait DaValidationAvecDitTrait
     public function initDaValidationAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================

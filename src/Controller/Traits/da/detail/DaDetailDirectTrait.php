@@ -25,7 +25,7 @@ trait DaDetailDirectTrait
     public function initDaDetailDirectTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);

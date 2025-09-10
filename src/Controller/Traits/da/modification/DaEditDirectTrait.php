@@ -25,7 +25,7 @@ trait DaEditDirectTrait
     public function initDaEditDirectTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->daSoumisAValidationRepository = $em->getRepository(DaSoumisAValidation::class);
     }

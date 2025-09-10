@@ -17,7 +17,7 @@ trait DaNewDirectTrait
      */
     public function initDaNewDirectTrait(): void
     {
-        $this->initDaTrait();
+        
     }
     //=====================================================================================
 

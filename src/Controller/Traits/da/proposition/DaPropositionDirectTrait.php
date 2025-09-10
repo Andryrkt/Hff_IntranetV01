@@ -18,7 +18,7 @@ trait DaPropositionDirectTrait
     public function initDaPropositionDirectTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
     }
     //==================================================================================================

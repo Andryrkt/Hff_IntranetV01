@@ -23,7 +23,7 @@ trait DaNewAvecDitTrait
     public function initDaNewAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daModel = new DaModel();
         $this->setAllFournisseurs();

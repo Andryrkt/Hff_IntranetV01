@@ -1,8 +1,8 @@
 services:
     # Configuration par défaut pour tous les services
     _defaults:
-        autowire: false
-        autoconfigure: false
+        autowire: true
+        autoconfigure: true
         public: false
 
     # Services de base

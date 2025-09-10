@@ -28,7 +28,7 @@ trait DaPropositionAvecDitTrait
     public function initDaPropositionAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
         $this->daModel = new DaModel();
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);

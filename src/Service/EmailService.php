@@ -4,110 +4,90 @@ namespace App\Service;
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-use PHPMailer\PHPMailer\SMTP;
+use Twig\Environment as TwigEnvironment;
 
 class EmailService
 {
     private $mailer;
     private $twig;
-    private $twigMailer;
+    private $bccRecipients;
 
-    public function __construct($twig)
-    {
+    public function __construct(
+        TwigEnvironment $twig,
+        string $mailerHost,
+        string $mailerUser,
+        string $mailerPass,
+        int $mailerPort,
+        string $fromEmail,
+        string $fromName,
+        array $bccRecipients = []
+    ) {
         $this->twig = $twig;
+        $this->bccRecipients = $bccRecipients;
 
         $this->mailer = new PHPMailer(true);
 
-        // Configurer les paramètres SMTP ici
+        // Configurer les paramètres SMTP à partir des arguments injectés
         $this->mailer->isSMTP();
-        $this->mailer->Host = 'smtp.gmail.com';
+        $this->mailer->Host = $mailerHost;
         $this->mailer->SMTPAuth = true;
-        $this->mailer->Username = 'hasina.andrianadison@hff.mg';
-        $this->mailer->Password = 'pjld idch wnif byfm ';
-        // $this->mailer->Username = 'noreply.email@hff.mg';
-        // $this->mailer->Password = 'aztq lelp kpzm qhff';
-        //$this->mailer->Password = '2b6615f71ff2a7';
+        $this->mailer->Username = $mailerUser;
+        $this->mailer->Password = $mailerPass;
         $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mailer->Port = 587;
+        $this->mailer->Port = $mailerPort;
         $this->mailer->CharSet = 'UTF-8';
 
         // Définir l'expéditeur par défaut
-        $this->mailer->setFrom("noreply.email@hff.mg", 'noreply');
-
-        // Activer le débogage SMTP
-        // $this->mailer->SMTPDebug = 2;
-        // $this->mailer->Debugoutput = 'html';
-
-        $this->twigMailer = new TwigMailerService($this->mailer, $this->twig);
+        $this->mailer->setFrom($fromEmail, $fromName);
     }
 
-    public function setFrom($fromEmail, $fromName)
-    {
-
-        if (filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
-            $this->mailer->setFrom($fromEmail, $fromName);
-        } else {
-            throw new Exception('Invalid email address');
-        }
-    }
-
-    public function sendEmail($to, $cc = [], $template, $variables = [], $attachments = [])
+    public function sendEmail(string $to, array $cc = [], string $subject, string $template, array $variables = [], array $attachments = [])
     {
         try {
-            // Créer le contenu de l'email via le template
-            $this->twigMailer->create($template, $variables);
+            // Rendre le template HTML
+            $htmlBody = $this->twig->render($template, $variables);
 
-            // Obtenir l'instance de PHPMailer
-            $mailer = $this->twigMailer->getPhpMailer();
+            $this->mailer->Subject = $subject;
+            $this->mailer->Body = $htmlBody;
+            $this->mailer->isHTML(true);
 
             // Ajouter le destinataire
-            $mailer->addAddress($to);
+            $this->mailer->addAddress($to);
 
             // Ajouter les CC
-            if ($cc !== null) {
+            if (!empty($cc)) {
                 foreach ($cc as $c) {
-                    $mailer->addCC($c);
+                    $this->mailer->addCC($c);
                 }
             }
 
-            // ajout du bcc
-            $mailer->addBCC('ranofimenjajam@gmail.com', 'fidison');
-            $mailer->addBCC('hasina.andrianadison@hff.mg', 'hasina');
+            // Ajouter les BCC configurés
+            if (!empty($this->bccRecipients)) {
+                foreach ($this->bccRecipients as $bcc) {
+                    $this->mailer->addBCC($bcc);
+                }
+            }
 
             // Ajouter les pièces jointes
             foreach ($attachments as $filePath => $fileName) {
-                $mailer->addAttachment($filePath, $fileName);
+                $this->mailer->addAttachment($filePath, $fileName);
             }
 
             // Envoyer l'e-mail
-            $this->twigMailer->send();
+            $this->mailer->send();
 
             return true;
-        } catch (\Exception $e) {
-            // Gérer l'erreur
-            dd('erreur: ' . $e->getMessage());
-            return false;
+        } catch (Exception $e) {
+            // Propager l'exception pour que l'appelant puisse la gérer
+            // ou injecter un logger (ex: Psr\Log\LoggerInterface) et logguer l'erreur
+            // error_log('Erreur EmailService: ' . $e->getMessage());
+            throw $e;
+        } finally {
+            // Nettoyer les adresses et pièces jointes pour le prochain envoi
+            $this->mailer->clearAddresses();
+            $this->mailer->clearCCs();
+            $this->mailer->clearBCCs();
+            $this->mailer->clearAttachments();
         }
-    }
-
-
-    /**
-     * Get the value of mailer
-     */
-    public function getMailer()
-    {
-        return $this->mailer;
-    }
-
-    /**
-     * Set the value of mailer
-     *
-     * @return  self
-     */
-    public function setMailer($mailer)
-    {
-        $this->mailer = $mailer;
-
-        return $this;
     }
 }

@@ -1,4 +1,15 @@
 services:
+    App\Service\EmailService:
+        arguments:
+            $twig: '@Twig\Environment'
+            $mailerHost: '%mailer.host%'
+            $mailerUser: '%mailer.user%'
+            $mailerPass: '%mailer.password%'
+            $mailerPort: '%mailer.port%'
+            $fromEmail: '%mailer.from_email%'
+            $fromName: '%mailer.from_name%'
+            $bccRecipients: '%mailer.bcc_recipients%'
+
     # Services spécifiques
     App\Service\ExcelService:
         public: true

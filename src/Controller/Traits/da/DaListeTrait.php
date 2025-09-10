@@ -40,7 +40,7 @@ trait DaListeTrait
     public function initDaListeTrait()
     {
         $em = $this->getEntityManager();
-        $this->initDaTrait();
+        
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [

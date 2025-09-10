@@ -40,3 +40,14 @@ parameters:
     # Configuration de la pagination
     pagination.items_per_page: 20
     pagination.max_pages: 10
+
+    # Configuration du Mailer
+    mailer.host: '%env(MAILER_HOST)%'
+    mailer.port: '%env(MAILER_PORT)%'
+    mailer.user: '%env(MAILER_USER)%'
+    mailer.password: '%env(MAILER_PASSWORD)%'
+    mailer.from_email: 'noreply.email@hff.mg'
+    mailer.from_name: 'noreply'
+    mailer.bcc_recipients:
+        - 'ranofimenjajam@gmail.com'
+        - 'hasina.andrianadison@hff.mg'

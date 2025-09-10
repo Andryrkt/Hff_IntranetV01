@@ -9,284 +9,190 @@ use App\Service\EmailService;
 class EmailDaService
 {
     use lienGenerique;
-    private $twig;
-    private $emailTemplate;
 
-    public function __construct($twig)
+    private const EMAIL_TEMPLATE = 'da/email/emailDa.html.twig';
+
+    private $emailService;
+
+    public function __construct(EmailService $emailService)
     {
-        $this->twig = $twig;
-        $this->emailTemplate = "da/email/emailDa.html.twig";
+        $this->emailService = $emailService;
     }
 
-    /** 
-     * Fonction pour obtenir l'url du détail de la DA
-     * @param string $id id de la DA
-     * @param bool $avecDit paramètre booléen pour indiquer si c'est avec DIT ou non
-     */
-    private function getUrlDetail(string $id, bool $avecDit = true)
+    private function getUrlDetail(string $id, bool $avecDit = true): string
     {
         $template = $avecDit ? "demande-appro/detail-avec-dit" : "demande-appro/detail-direct";
-        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT']) . "/$template/$id");
+        return $this->urlGenerique(str_replace('/', '', $_ENV['BASE_PATH_COURT'] ?? '') . "/$template/$id");
     }
 
-    /** 
-     * Méthode pour envoyer une email pour la création d'une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailcreationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailcreationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "newDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande d'approvisionnement créé",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "newDa",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Nouvelle demande d'approvisionnement créé";
+        $this->envoyerEmail(DemandeAppro::MAIL_APPRO, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de propositions pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "propositionDa",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro";
+        $this->envoyerEmail($demandeAppro->getUser()->getMail(), $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de propositions pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailPropositionDaDirect(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailPropositionDaDirect(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "propositionDa",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId(), false),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro";
+        $this->envoyerEmail($demandeAppro->getUser()->getMail(), $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de modifications pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailModificationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailModificationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "modificationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'approvisionnement",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "modificationDa",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'approvisionnement";
+        $this->envoyerEmail(DemandeAppro::MAIL_APPRO, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de modifications pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailModificationDaDirect(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailModificationDaDirect(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "modificationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'achat",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "modificationDa",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId(), false),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Modification demande d'achat";
+        $this->envoyerEmail(DemandeAppro::MAIL_APPRO, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis pour une DA avec DIT
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailObservationDaAvecDit(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "commente",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "commente",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $to = $tab['service'] == 'atelier' ? DemandeAppro::MAIL_APPRO : $demandeAppro->getUser()->getMail();
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']);
+        $this->envoyerEmail($to, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email sur l'observation émis pour une DA directe
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailObservationDaDirect(DemandeAppro $demandeAppro, array $tab)
+    public function envoyerMailObservationDaDirect(DemandeAppro $demandeAppro, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $tab['service'] == 'appro' ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "commente",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "commente",
+            'demandeAppro' => $demandeAppro,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId(), false),
+        ];
+        $to = $tab['service'] == 'appro' ? $demandeAppro->getUser()->getMail() : DemandeAppro::MAIL_APPRO;
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Observation ajoutée par le service " . strtoupper($tab['service']);
+        $this->envoyerEmail($to, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation d'une DA avec DIT à l'Atelier
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailValidationDaAvecDitAuxAtelier(DemandeAppro $demandeAppro, array $resultatExport, array $tab)
+    public function envoyerMailValidationDaAvecDitAuxAtelier(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "validationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'resultatExport' => $resultatExport,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-            'attachments' => [
-                $resultatExport['filePath'] => $resultatExport['fileName'],
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "validationDa",
+            'demandeAppro' => $demandeAppro,
+            'resultatExport' => $resultatExport,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']);
+        $attachments = [$resultatExport['filePath'] => $resultatExport['fileName']];
+        $this->envoyerEmail($demandeAppro->getUser()->getMail(), $subject, $variables, [], $attachments);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation d'une DA directe au service emetteur
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailValidationDaDirectAuxService(DemandeAppro $demandeAppro, array $resultatExport, array $tab)
+    public function envoyerMailValidationDaDirectAuxService(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => $demandeAppro->getUser()->getMail(),
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "validationDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par le service " . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'resultatExport' => $resultatExport,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-            'attachments' => [
-                $resultatExport['filePath'] => $resultatExport['fileName'],
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "validationDa",
+            'demandeAppro' => $demandeAppro,
+            'resultatExport' => $resultatExport,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId(), false),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par le service " . strtoupper($tab['service']);
+        $attachments = [$resultatExport['filePath'] => $resultatExport['fileName']];
+        $this->envoyerEmail($demandeAppro->getUser()->getMail(), $subject, $variables, [], $attachments);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation d'une DA avec DIT à l'Appro
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailValidationDaAvecDitAuxAppro(DemandeAppro $demandeAppro, array $resultatExport, array $tab)
+    public function envoyerMailValidationDaAvecDitAuxAppro(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "validationAteDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'resultatExport' => $resultatExport,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "validationAteDa",
+            'demandeAppro' => $demandeAppro,
+            'resultatExport' => $resultatExport,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId()),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par l'" . strtoupper($tab['service']);
+        $this->envoyerEmail(DemandeAppro::MAIL_APPRO, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation d'une DA directe à l'Appro
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
-    public function envoyerMailValidationDaDirectAuxAppro(DemandeAppro $demandeAppro, array $resultatExport, array $tab)
+    public function envoyerMailValidationDaDirectAuxAppro(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerEmail([
-            'to'        => DemandeAppro::MAIL_APPRO,
-            'variables' => [
-                'tab'            => $tab,
-                'statut'         => "validationAteDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par le service " . strtoupper($tab['service']),
-                'demandeAppro'   => $demandeAppro,
-                'resultatExport' => $resultatExport,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
-            ],
-        ]);
+        $variables = [
+            'tab' => $tab,
+            'statut' => "validationAteDa",
+            'demandeAppro' => $demandeAppro,
+            'resultatExport' => $resultatExport,
+            'action_url' => $this->getUrlDetail($demandeAppro->getId(), false),
+        ];
+        $subject = "{$demandeAppro->getNumeroDemandeAppro()} - Proposition(s) validée(s) par le service " . strtoupper($tab['service']);
+        $this->envoyerEmail(DemandeAppro::MAIL_APPRO, $subject, $variables);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation à l'Atelier et l'Appro
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
     public function envoyerMailValidationDaAvecDit(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
-        $this->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
+        $this->envoyerMailValidationDaAvecDitAuxAtelier($demandeAppro, $resultatExport, $tab);
+        $this->envoyerMailValidationDaAvecDitAuxAppro($demandeAppro, $resultatExport, $tab);
     }
 
-    /** 
-     * Méthode pour envoyer une email de validation au service demandeur et l'Appro
-     * 
-     * @param DemandeAppro $demandeAppro objet de la demande appro
-     * @param array $resultatExport résultat d'export
-     * @param array $tab tableau de données à utiliser dans le corps du mail
-     */
     public function envoyerMailValidationDaDirect(DemandeAppro $demandeAppro, array $resultatExport, array $tab): void
     {
-        $this->envoyerMailValidationDaDirectAuxService($demandeAppro, $resultatExport, $tab); // envoi de mail à l'atelier
-        $this->envoyerMailValidationDaDirectAuxAppro($demandeAppro, $resultatExport, $tab); // envoi de mail à l'appro
+        $this->envoyerMailValidationDaDirectAuxService($demandeAppro, $resultatExport, $tab);
+        $this->envoyerMailValidationDaDirectAuxAppro($demandeAppro, $resultatExport, $tab);
     }
 
-    /** 
-     * Méthode pour envoyer un email
-     */
-    public function envoyerEmail(array $content): void
+    private function envoyerEmail(string $to, string $subject, array $variables, array $cc = [], array $attachments = []): void
     {
-        $emailService = new EmailService($this->twig);
-
-        $emailService->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.da');
-
-        $emailService->sendEmail($content['to'], $content['cc'] ?? [], $this->emailTemplate, $content['variables'] ?? [], $content['attachments'] ?? []);
+        try {
+            $this->emailService->sendEmail(
+                $to,
+                $cc,
+                $subject,
+                self::EMAIL_TEMPLATE,
+                $variables,
+                $attachments
+            );
+        } catch (\Exception $e) {
+            // Gérer l'erreur, par exemple en loggant
+            error_log("Erreur d'envoi d'email pour la DA: " . $e->getMessage());
+            // Optionnellement, relancer l'exception si l'appelant doit être notifié
+            // throw $e;
+        }
     }
 }
