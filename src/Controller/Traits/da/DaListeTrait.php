@@ -60,16 +60,16 @@ trait DaListeTrait
             DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-warning text-secondary',
         ];
         $this->styleStatutBC = [
-            'A générer'                => 'bg-bc-a-generer fw-bold',
-            'A éditer'                 => 'bg-bc-a-editer fw-bold',
-            'A soumettre à validation' => 'bg-bc-a-soumettre-a-validation fw-bold',
-            'Validé'                   => 'bg-bc-valide fw-bold',
-            'Cloturé'                  => 'bg-bc-valide fw-bold',
-            'Non validé'               => 'bg-bc-non-valide fw-bold',
-            'Tous livrés'              => 'tout-livre bg-success text-white',
-            'Partiellement livré'      => 'partiellement-livre bg-warning text-white',
-            'Partiellement dispo'      => 'partiellement-dispo bg-info text-white',
-            'Complet non livré'        => 'complet-non-livre bg-primary text-white',
+            DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer fw-bold',
+            DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer fw-bold',
+            DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation fw-bold',
+            DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide fw-bold',
+            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-valide fw-bold',
+            'Non validé'                                    => 'bg-bc-non-valide fw-bold',
+            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre bg-success text-white',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre bg-warning text-white',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo bg-info text-white',
+            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre bg-primary text-white',
         ];
         //----------------------------------------------------------------------------------------------------
         $this->daModel = new DaModel();
