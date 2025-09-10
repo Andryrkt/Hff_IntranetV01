@@ -34,7 +34,7 @@ class DetailTikController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->emailTikService = new EmailTikService($this->getEntityManager(), $this->getTwig());
+        $this->emailTikService = new EmailTikService($this->getEntityManager(), $this->getTwig(), $this->getService('App\Service\EmailService'));
     }
 
     /**  
@@ -55,7 +55,8 @@ class DetailTikController extends Controller
          */
         $connectedUser = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
 
-        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
+        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $this->getService('App\Service\tik\EmailTikService'), $this->getSessionService());
+        $handleRequestService->setConnectedUser($connectedUser)->setSupportInfo($supportInfo);
 
         if (!$supportInfo) {
             return $this->render('404.html.twig');

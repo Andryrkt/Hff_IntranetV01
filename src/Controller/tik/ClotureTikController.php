@@ -45,9 +45,11 @@ class ClotureTikController extends Controller
             $this->redirectToRoute('profil_acceuil');
         }
 
-        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $connectedUser, $supportInfo);
+        $handleRequestService = new HandleRequestService($this->getEntityManager(), $this->getTwig(), $this->getService('App\Service\tik\EmailTikService'), $this->getSessionService());
 
         $handleRequestService
+            ->setConnectedUser($connectedUser)
+            ->setSupportInfo($supportInfo)
             ->setStatut($this->getEntityManager()->getRepository(StatutDemande::class)->find(64))  // statut cloturé
             ->cloturerTicket()
         ;
