@@ -52,11 +52,13 @@ class DevisMagasinEnvoyerAuClientController extends Controller
             $numeroVersionMax = $this->getEntityManager()->getRepository(DevisMagasin::class)->getNumeroVersionMax($numeroDevis);
             $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
             $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
+            $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
+            $devisMagasin->setDatePointage(new \DateTime());
             $this->getEntityManager()->persist($devisMagasin);
             $this->getEntityManager()->flush();
 
             //HISTORISATION DE L'OPERATION
-            $message = "le devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyé au client avec succès .";
+            $message = "Pointage enregistré avec succès .";
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
         }
 

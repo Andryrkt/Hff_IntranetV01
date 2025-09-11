@@ -56,7 +56,7 @@ class DaSoumissionBcController extends Controller
     }
 
     /**
-     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc")
+     * @Route("/soumission-bc/{numCde}/{numDa}/{numOr}", name="da_soumission_bc", defaults={"numOr"=0})
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
@@ -105,7 +105,7 @@ class DaSoumissionBcController extends Controller
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
                 /** AJOUT DES INFO NECESSAIRE */
-                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax);
+                $soumissionBc = $this->ajoutInfoNecesaireSoumissionBc($numCde, $numDa, $soumissionBc, $nomPdfFusionner, $numeroVersionMax, $numOr);
 
                 /** ENREGISTREMENT DANS LA BASE DE DONNEE */
                 $this->getEntityManager()->persist($soumissionBc);
@@ -140,10 +140,10 @@ class DaSoumissionBcController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax): DaSoumissionBc
+    private function ajoutInfoNecesaireSoumissionBc(string $numCde, string $numDa, DaSoumissionBc $soumissionBc, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionBc
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        $numOr = $this->ditRepository->getNumOr($numDit);
+        // $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionBc->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
