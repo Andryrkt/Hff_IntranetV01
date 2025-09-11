@@ -194,6 +194,13 @@ class DaAfficherRepository extends EntityRepository
         return array_column($result, 'refDesi');
     }
 
+    /**
+     * Récupère le dernier version de DA pour la liste cde frn
+     * @param array $criteria
+     * @param int $page
+     * @param int $limit
+     * @return array
+     */
     public function findValidatedPaginatedDas(?array $criteria = [], int $page, int $limit): array
     {
         $criteria = $criteria ?? [];
@@ -276,8 +283,7 @@ class DaAfficherRepository extends EntityRepository
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
-            ->where('d.statutDal = :statutDa')
-            ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
+        ;
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();
@@ -297,7 +303,17 @@ class DaAfficherRepository extends EntityRepository
         $qb->orderBy('d.dateDemande', 'DESC')
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
+        // DEBUT debug
+        // $query = $qb->getQuery();
+        // $sql = $query->getSQL();
+        // $params = $query->getParameters();
 
+        // dump("SQL : " . $sql . "\n");
+        // foreach ($params as $param) {
+        //     dump($param->getName());
+        //     dump($param->getValue());
+        // }
+        // FIN debug
         // ----------------------
         // 5. Retour
         // ----------------------
@@ -308,7 +324,6 @@ class DaAfficherRepository extends EntityRepository
             'lastPage'    => $lastPage,
         ];
     }
-
 
     public function getDaOrValider(?array $criteria = []): array
     {
@@ -724,6 +739,34 @@ class DaAfficherRepository extends EntityRepository
                 'numOr' => $numeroOr,
                 'statutValide' => DemandeAppro::STATUT_VALIDE,
                 'numVersion' => $numeroVersionMax
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * recupère le derière statut du DA afficher
+     * @param string $numeroDemandeAppro
+     * @return string
+     */
+    public function getLastStatutDaAfficher(string $numeroDemandeAppro): string
+    {
+        //recupérer dabor le numéro de version max
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->setParameter('numeroDemandeAppro', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        //recupérer le derière statut du DA afficher
+        return $this->createQueryBuilder('d')
+            ->select('d.statutDal')
+            ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->andWhere('d.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numeroDemandeAppro' => $numeroDemandeAppro,
+                'numeroVersionMax' => $numeroVersionMax
             ])
             ->getQuery()
             ->getSingleScalarResult();

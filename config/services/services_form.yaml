@@ -96,3 +96,8 @@ services:
         arguments:
             - '@doctrine.orm.default_entity_manager'
         public: true
+
+    App\Form\magasin\devis\DevisMagasinSearchType:
+        arguments:
+            - '@doctrine.orm.default_entity_manager'
+        public: true
