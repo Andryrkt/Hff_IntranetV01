@@ -22,16 +22,16 @@
 				<th>
 					<i class="fas fa-ellipsis-vertical"></i>
 				</th>
-				<th class="text-center">Statut DW</th>
+				<th class="text-center">Statut devis</th>
 				<th class="text-center">Numéro devis</th>
 				<th class="text-center">Date de création</th>
 				<th class="text-center">Succursale + service émetteur</th>
 				<th>Code client + libellé client</th>
 				<th>Référence client</th>
 				<th class="text-end">Montant</th>
-				<th class="text-center">Opérateur</th>
 				<th class="text-center">Date d'envoi devis au client</th>
-				<th class="text-center">Statut IPS</th>
+				<th class="text-center">Position IPS</th>
+				<th class="text-center">Opérateur</th>
 			</tr>
 		</thead>
 		<tbody id="tableBody">
@@ -49,7 +49,7 @@
 								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix", {numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
 								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis", {numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
 								{% if item.statutDw starts with 'Validé' %}
-								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",{numeroDevis: item.numeroDevis})}}">Envoyer devis au client</a>
+								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",{numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
 								{% endif %}
 							</li>
 						</ul>
@@ -62,9 +62,9 @@
 				<td>{{item.codeClientLibelleClient}}</td>
 				<td>{{item.referenceCLient}}</td>
 				<td class="text-end">{{item.montant|number_format(2, ',', '.')}}</td>
-				<td class="text-center">{{item.operateur}}</td>
 				<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
 				<td class="text-center">{{item.statutIps}}</td>
+				<td class="text-center">{{item.operateur}}</td>
 			</tr>
 			{% endfor %}
 		</tbody>

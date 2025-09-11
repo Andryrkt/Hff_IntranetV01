@@ -23,3 +23,6 @@ ALTER TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD somme_numero_lignes INT NOT NULL DEFAULT 0;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD date_pointage DATETIME2(0) NULL

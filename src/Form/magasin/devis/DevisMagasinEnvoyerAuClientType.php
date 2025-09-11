@@ -23,7 +23,7 @@ class DevisMagasinEnvoyerAuClientType extends AbstractType
             ]
         ])
             ->add('dateEnvoiDevisAuClient', DateType::class, [
-                'label' => 'Date envoi devis au client',
+                'label' => 'Date envoi devis au client *',
                 'widget' => 'single_text',
                 'required' => true,
             ])

@@ -15,6 +15,8 @@ class DevisMagasin
 {
     use DateTrait;
 
+    private const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -115,6 +117,13 @@ class DevisMagasin
     private int $sommeNumeroLignes;
 
     private $pieceJoint01;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_pointage", nullable=true)
+     *
+     * @var [type]
+     */
+    private $datePointage = null;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -462,6 +471,26 @@ class DevisMagasin
     public function setSommeNumeroLignes($sommeNumeroLignes)
     {
         $this->sommeNumeroLignes = $sommeNumeroLignes;
+
+        return $this;
+    }
+
+        /**
+     * Get the value of dateEnvoiDevisAuClient
+     */
+    public function getDatePointage()
+    {
+        return $this->datePointage;
+    }
+
+    /**
+     * Set the value of dateEnvoiDevisAuClient
+     *
+     * @return  self
+     */
+    public function setDatePointage($datePointage)
+    {
+        $this->datePointage = $datePointage;
 
         return $this;
     }
