@@ -394,6 +394,7 @@ class DaAfficherRepository extends EntityRepository
     {
         $subQb = $this->createQueryBuilder('d')
             ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
+            ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
         $this->applyDynamicFilters($subQb, $criteria);
@@ -442,6 +443,7 @@ class DaAfficherRepository extends EntityRepository
 
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
+            ->where('daf.deleted = 0')
             ->setParameter('numeroDAs', $numeroDAsPage);
 
         // Ajouter condition version max (évite duplications)
