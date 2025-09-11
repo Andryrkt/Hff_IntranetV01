@@ -741,4 +741,32 @@ class DaAfficherRepository extends EntityRepository
             ->getQuery()
             ->getSingleScalarResult();
     }
+
+    /**
+     * recupère le derière statut du DA afficher
+     * @param string $numeroDemandeAppro
+     * @return string
+     */
+    public function getLastStatutDaAfficher(string $numeroDemandeAppro): string
+    {
+        //recupérer dabor le numéro de version max
+        $numeroVersionMax = $this->createQueryBuilder('d')
+            ->select('MAX(d.numeroVersion)')
+            ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->setParameter('numeroDemandeAppro', $numeroDemandeAppro)
+            ->getQuery()
+            ->getSingleScalarResult();
+
+        //recupérer le derière statut du DA afficher
+        return $this->createQueryBuilder('d')
+            ->select('d.statutDal')
+            ->where('d.numeroDemandeAppro = :numeroDemandeAppro')
+            ->andWhere('d.numeroVersion = :numeroVersionMax')
+            ->setParameters([
+                'numeroDemandeAppro' => $numeroDemandeAppro,
+                'numeroVersionMax' => $numeroVersionMax
+            ])
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
 }
