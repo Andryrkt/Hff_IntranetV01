@@ -1,0 +1,16 @@
+framework:
+    # Configuration du framework Symfony
+    secret: '%env(APP_SECRET)%'
+    
+    # Configuration des contrôleurs
+    controller:
+        # Activer l'injection de dépendances pour les contrôleurs
+        enabled: true
+        
+    # Configuration des services
+    services:
+        # Activer l'auto-wiring
+        _defaults:
+            autowire: true
+            autoconfigure: true
+            public: false

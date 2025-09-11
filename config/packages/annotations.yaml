@@ -1,0 +1,6 @@
+framework:
+    annotations:
+        enabled: true
+        cache: 'array'
+        debug: '%kernel.debug%'
+        file_cache_dir: '%kernel.cache_dir%/annotations'

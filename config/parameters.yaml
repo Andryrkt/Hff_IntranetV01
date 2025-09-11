@@ -53,10 +53,10 @@ parameters:
         - 'hasina.andrianadison@hff.mg'
 
     # Configuration Docuware
-    docuware.ftp_path: 'ftp://ftp.docuware-online.de/VhhlMDUEYTbzBI_A8C6lpRt86g-wKO2lXFKfXfSP/data/'
+    docuware.ftp_path: '%env(BASE_PATH_DOCUWARE)%'
 
     # Configuration Upload
-    upload_directory: '%kernel.project_dir%/public/uploads'
+    upload_directory: '%env(BASE_PATH_FICHIER)%'
 
     # Paramètres LDAP
     ldap.host: '%env(LDAP_HOST)%'
@@ -66,3 +66,28 @@ parameters:
 
     # Chemin du fichier CSV d'authentification
     auth.csv_file_path: '%kernel.project_dir%/src/Controller/authentification.csv'
+
+    # Paramètres de connexion ODBC
+    odbc.main.dsn: '%env(DB_DNS_SQLSERV)%'
+    odbc.main.user: '%env(DB_USERNAME_SQLSERV)%'
+    odbc.main.password: '%env(DB_PASSWORD_SQLSERV)%'
+
+    odbc.dote4.dsn: '%env(DB_DNS_SQLSERV_4)%'
+    odbc.dote4.user: '%env(DB_USERNAME_SQLSERV_4)%'
+    odbc.dote4.password: '%env(DB_PASSWORD_SQLSERV_4)%'
+
+    odbc.dote4gc.dsn: '%env(DB_DNS_SQLSERV_4_GCOT)%'
+    odbc.dote4gc.user: '%env(DB_USERNAME_SQLSERV_4)%'
+    odbc.dote4gc.password: '%env(DB_PASSWORD_SQLSERV_4)%'
+
+    odbc.informix.dsn: '%env(DB_DNS_INFORMIX)%'
+    odbc.informix.user: '%env(DB_USERNAME_INFORMIX)%'
+    odbc.informix.password: '%env(DB_PASSWORD_INFORMIX)%'
+
+    # Chemin pour les logs d'erreur
+    app.error_log_path: '%env(BASE_PATH_LOG)%'
+
+    # Chemins de base supplémentaires
+    app.base_path_long: '%env(BASE_PATH_LONG)%'
+    app.base_path_court: '%env(BASE_PATH_COURT)%'
+    app.base_path_fichier_court: '%env(BASE_PATH_FICHIER_COURT)%'

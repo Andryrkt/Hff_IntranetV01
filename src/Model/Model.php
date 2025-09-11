@@ -17,9 +17,23 @@ class Model
     protected $connexion04;
     protected $connexion04Gcot;
 
-    public function __construct()
-    {
-        // Constructeur vide - l'autowiring Symfony gérera l'injection des dépendances
+    /**
+     * Constructeur avec injection de dépendances
+     * @param Connexion $connexion Connexion principale
+     * @param DatabaseInformix $connect Connexion Informix
+     * @param ConnexionDote4 $connexion04 Connexion Dote4
+     * @param ConnexionDote4Gcot $connexion04Gcot Connexion Dote4Gcot
+     */
+    public function __construct(
+        Connexion $connexion,
+        DatabaseInformix $connect,
+        ConnexionDote4 $connexion04,
+        ConnexionDote4Gcot $connexion04Gcot
+    ) {
+        $this->connexion = $connexion;
+        $this->connect = $connect;
+        $this->connexion04 = $connexion04;
+        $this->connexion04Gcot = $connexion04Gcot;
     }
 
     /**

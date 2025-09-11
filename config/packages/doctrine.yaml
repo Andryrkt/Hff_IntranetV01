@@ -1,0 +1,9 @@
+doctrine:
+    annotations:
+        cache: 'array'
+        debug: '%kernel.debug%'
+        file_cache_dir: '%kernel.cache_dir%/annotations'
+        paths:
+            - '%kernel.project_dir%/src'
+        ignore_annotations:
+            - 'required'

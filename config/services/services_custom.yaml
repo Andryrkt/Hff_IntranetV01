@@ -1,4 +1,18 @@
 services:
+    # Service Twig Environment
+    Twig\Environment:
+        class: Twig\Environment
+        arguments:
+            - '@twig.loader'
+            - []
+        public: true
+
+    twig.loader:
+        class: Twig\Loader\FilesystemLoader
+        arguments:
+            - '%kernel.project_dir%/Views/templates'
+        public: true
+
     TCPDF:
         class: TCPDF
         public: false
@@ -48,7 +62,46 @@ services:
             $ldapPort: '%ldap.port%'
             $domain: '%ldap.domain%'
             $ldapDn: '%ldap.dn%'
+            $logger: '@App\Service\AppLogger'
         public: true
+
+    # Services de connexion aux bases de données
+    App\Model\Connexion:
+        arguments:
+            $dbDns: '%odbc.main.dsn%'
+            $dbUsername: '%odbc.main.user%'
+            $dbPassword: '%odbc.main.password%'
+            $logger: '@App\Service\AppLogger'
+        public: false
+
+    App\Service\AppLogger:
+        arguments:
+            $logFilePath: '%app.error_log_path%/app_errors.log'
+        public: false
+
+    App\Model\ConnexionDote4:
+        arguments:
+            $dbDns: '%odbc.dote4.dsn%'
+            $dbUsername: '%odbc.dote4.user%'
+            $dbPassword: '%odbc.dote4.password%'
+            $logger: '@App\Service\AppLogger'
+        public: false
+
+    App\Model\ConnexionDote4Gcot:
+        arguments:
+            $dbDns: '%odbc.dote4gc.dsn%'
+            $dbUsername: '%odbc.dote4gc.user%'
+            $dbPassword: '%odbc.dote4gc.password%'
+            $logger: '@App\Service\AppLogger'
+        public: false
+
+    App\Model\DatabaseInformix:
+        arguments:
+            $dsn: '%odbc.informix.dsn%'
+            $user: '%odbc.informix.user%'
+            $password: '%odbc.informix.password%'
+            $logger: '@App\Service\AppLogger'
+        public: false
 
     # Services de navigation
     App\Service\navigation\MenuService:
@@ -168,7 +221,7 @@ services:
 
     App\Service\docuware\CopyDocuwareService:
         arguments:
-            $docuwareFtpPath: '%kernel.project_dir%/docuware'
+            $docuwareFtpPath: '%docuware.ftp_path%'
         public: false
 
     App\Service\fichier\UploderFileService:
@@ -215,36 +268,7 @@ services:
             $sessionService: '@App\Service\SessionManagerService'
         public: true
 
-    # Modèles de base - configuration pour éviter les erreurs d'instanciation
-    App\Model\Connexion:
-        arguments:
-            $dbDns: 'localhost'
-            $dbUsername: 'root'
-            $dbPassword: ''
-            $basePathLog: '/var/log'
-        public: false
-
-    App\Model\DatabaseInformix:
-        arguments:
-            $dsn: 'localhost'
-            $user: 'root'
-            $password: ''
-            $basePathLog: '/var/log'
-        public: false
-
-    App\Model\ConnexionDote4:
-        arguments:
-            $dbDns: 'localhost'
-            $dbUsername: 'root'
-            $dbPassword: ''
-        public: false
-
-    App\Model\ConnexionDote4Gcot:
-        arguments:
-            $dbDns: 'localhost'
-            $dbUsername: 'root'
-            $dbPassword: ''
-        public: false
+    
 
     # DomModel - configuration avec autowiring
     App\Model\dom\DomModel:
@@ -291,14 +315,35 @@ services:
 
     # Modèles avec autowiring Symfony
     App\Model\Model:
-        autowire: true
-        autoconfigure: true
+        arguments:
+            $connexion: '@App\Model\Connexion'
+            $connect: '@App\Model\DatabaseInformix'
+            $connexion04: '@App\Model\ConnexionDote4'
+            $connexion04Gcot: '@App\Model\ConnexionDote4Gcot'
         public: true
-        calls:
-            - [setConnexion, ['@App\Model\Connexion']]
-            - [setConnect, ['@App\Model\DatabaseInformix']]
-            - [setConnexion04, ['@App\Model\ConnexionDote4']]
-            - [setConnexion04Gcot, ['@App\Model\ConnexionDote4Gcot']]
+
+    # Configuration générique pour tous les modèles qui héritent de Model
+    App\Model\:
+        resource: '../src/Model/*'
+        arguments:
+            $connexion: '@App\Model\Connexion'
+            $connect: '@App\Model\DatabaseInformix'
+            $connexion04: '@App\Model\ConnexionDote4'
+            $connexion04Gcot: '@App\Model\ConnexionDote4Gcot'
+        public: true
+        exclude:
+            - '../src/Model/Model.php'
+            - '../src/Model/Connexion.php'
+            - '../src/Model/DatabaseInformix.php'
+            - '../src/Model/ConnexionDote4.php'
+            - '../src/Model/ConnexionDote4Gcot.php'
+            - '../src/Model/LdapModel.php'
+            - '../src/Model/FileReaderModel.php'
+            - '../src/Model/dit/RequestSoumisValidation.php'
+            - '../src/Model/migration/MigrationDevisModel.php'
+
+    # Le contrôleur ListeDevisMagasinController n'a plus besoin de configuration spécifique
+    # car il utilise le service container pour récupérer ses dépendances
 
     App\Controller\Authentification:
         arguments:

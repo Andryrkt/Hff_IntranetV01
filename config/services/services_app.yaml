@@ -15,16 +15,6 @@ services:
 
     App\Model\:
         resource: '../../src/Model/*'
-        exclude:
-            - '../../src/Model/Model.php'
-            - '../../src/Model/dom/DomModel.php'
-            - '../../src/Model/Connexion.php'
-            - '../../src/Model/DatabaseInformix.php'
-            - '../../src/Model/ConnexionDote4.php'
-            - '../../src/Model/ConnexionDote4Gcot.php'
-            - '../../src/Model/LdapModel.php'
-            - '../../src/Model/FileReaderModel.php'
-            - '../../src/Model/migration/MigrationDevisModel.php'
         tags: ['app.model']
         public: true
 

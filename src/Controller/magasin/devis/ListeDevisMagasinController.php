@@ -2,7 +2,6 @@
 
 namespace App\Controller\magasin\devis;
 
-use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
@@ -13,6 +12,10 @@ use App\Factory\magasin\devis\ListeDevisMagasinFactory;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\admin\AgenceRepository;
 use Symfony\Component\HttpFoundation\Request;
+use Doctrine\ORM\EntityManagerInterface;
+use App\Controller\Controller;
+use App\Service\ServiceContainer;
+use App\Bootstrap\ServiceContainerBootstrap;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -21,16 +24,81 @@ class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
 
-    private ListeDevisMagasinModel $listeDevisMagasinModel;
-    protected DevisMagasinRepository $devisMagasinRepository;
-    protected AgenceRepository $agenceRepository;
+    private ?ListeDevisMagasinModel $listeDevisMagasinModel = null;
+    protected ?DevisMagasinRepository $devisMagasinRepository = null;
+    protected ?AgenceRepository $agenceRepository = null;
+    protected ?EntityManagerInterface $entityManager = null;
 
     public function __construct()
     {
         parent::__construct();
-        $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
-        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
-        $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
+    }
+
+    /**
+     * Récupère le modèle ListeDevisMagasinModel
+     */
+    private function getListeDevisMagasinModel(): ListeDevisMagasinModel
+    {
+        if ($this->listeDevisMagasinModel === null) {
+            try {
+                // Initialiser le service container si nécessaire
+                if (!ServiceContainer::has('App\Model\magasin\devis\ListeDevisMagasinModel')) {
+                    ServiceContainerBootstrap::initialize();
+                }
+                $this->listeDevisMagasinModel = ServiceContainer::get('App\Model\magasin\devis\ListeDevisMagasinModel');
+            } catch (\Exception $e) {
+                // Fallback : créer une instance directement
+                $this->listeDevisMagasinModel = new ListeDevisMagasinModel(
+                    $this->getConnexion(),
+                    $this->getConnect(),
+                    $this->getConnexion04(),
+                    $this->getConnexion04Gcot()
+                );
+            }
+        }
+        return $this->listeDevisMagasinModel;
+    }
+
+    /**
+     * Récupère l'EntityManager
+     */
+    private function getEntityManagerService(): EntityManagerInterface
+    {
+        if ($this->entityManager === null) {
+            try {
+                // Initialiser le service container si nécessaire
+                if (!ServiceContainer::has('doctrine.orm.default_entity_manager')) {
+                    ServiceContainerBootstrap::initialize();
+                }
+                $this->entityManager = ServiceContainer::get('doctrine.orm.default_entity_manager');
+            } catch (\Exception $e) {
+                // Fallback : utiliser l'EntityManager de la classe parente
+                $this->entityManager = $this->getEntityManager();
+            }
+        }
+        return $this->entityManager;
+    }
+
+    /**
+     * Récupère le repository DevisMagasinRepository
+     */
+    private function getDevisMagasinRepository(): DevisMagasinRepository
+    {
+        if ($this->devisMagasinRepository === null) {
+            $this->devisMagasinRepository = $this->getEntityManagerService()->getRepository(DevisMagasin::class);
+        }
+        return $this->devisMagasinRepository;
+    }
+
+    /**
+     * Récupère le repository AgenceRepository
+     */
+    private function getAgenceRepository(): AgenceRepository
+    {
+        if ($this->agenceRepository === null) {
+            $this->agenceRepository = $this->getEntityManagerService()->getRepository(\App\Entity\admin\Agence::class);
+        }
+        return $this->agenceRepository;
     }
 
     /**
@@ -46,7 +114,7 @@ class ListeDevisMagasinController extends Controller
 
         //formulaire de recherhce
         $form = $this->getFormFactory()->createBuilder(DevisMagasinSearchType::class, null, [
-            'em' => $this->getEntityManager()
+            'em' => $this->getEntityManagerService()
         ])->getForm();
 
         $form->handleRequest($request);
@@ -71,13 +139,13 @@ class ListeDevisMagasinController extends Controller
     public function recuperationDonner(array $criteria = []): array
     {
         // recupération de la liste des devis magasin dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getDevis($criteria);
+        $devisIps = $this->getListeDevisMagasinModel()->getDevis($criteria);
 
         $listeDevisFactory = [];
         foreach ($devisIps as  $devisIp) {
             //recupération des information de devis soumission à validation neg
-            $numeroVersionMax = $this->devisMagasinRepository->getNumeroVersionMax($devisIp['numero_devis']);
-            $devisSoumi = $this->devisMagasinRepository->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
+            $numeroVersionMax = $this->getDevisMagasinRepository()->getNumeroVersionMax($devisIp['numero_devis']);
+            $devisSoumi = $this->getDevisMagasinRepository()->findOneBy(['numeroDevis' => $devisIp['numero_devis'], 'numeroVersion' => $numeroVersionMax]);
             //ajout des informations manquantes
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
