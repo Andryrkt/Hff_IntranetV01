@@ -65,4 +65,15 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
 
         return $sum !== null ? (float)$sum : null;
     }
+
+    // récupération des statuts DW
+    public function getStatutsDw(): array
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutDw')
+            ->getQuery()
+            ->getScalarResult();
+
+        return array_column($result, 'statutDw');
+    }
 }
