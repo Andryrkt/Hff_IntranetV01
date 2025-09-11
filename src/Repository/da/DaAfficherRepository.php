@@ -443,7 +443,7 @@ class DaAfficherRepository extends EntityRepository
 
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
-            ->where('daf.deleted = 0')
+            ->andWhere('daf.deleted = 0')
             ->setParameter('numeroDAs', $numeroDAsPage);
 
         // Ajouter condition version max (évite duplications)
