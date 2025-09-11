@@ -68,10 +68,7 @@ class DevisMagasinVerificationPrixController extends Controller
         if (!$validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
             return; // Arrête le traitement si le statut est bloquant
         }
-        // Validation du statut du devis pour la validation de devis (doit passer par validation devis)
-        if (!$validationService->checkBlockingStatusOnSubmissionForVd($this->devisMagasinRepository, $numeroDevis)) {
-            return; // Arrête le traitement si le statut est bloquant
-        }
+        
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
@@ -111,6 +108,12 @@ class DevisMagasinVerificationPrixController extends Controller
 
                 // Validation de la somme des lignes
                 $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+
+                // Validation du statut du devis pour la validation de devis (doit passer par validation devis)
+                if (!$validationService->checkBlockingStatusOnSubmissionForVd($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
+                    return; // Arrête le traitement si le statut est bloquant
+                }
+
                 if ($validationService->estSommeDeLigneInChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
