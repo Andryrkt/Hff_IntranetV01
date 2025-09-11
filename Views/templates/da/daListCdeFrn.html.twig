@@ -8,32 +8,9 @@
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20">
-	{% endblock %}
+{% endblock %}
 
 {% block content %}
-	{% set styleStatutBC = {
-		'A générer': 'bg-bc-a-generer fw-bold',
-		'A éditer': 'bg-bc-a-editer fw-bold',
-		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
-		'Validé': 'bg-bc-valide fw-bold',
-		'Cloturé': 'bg-bc-valide fw-bold',
-		'Non validé': 'bg-bc-non-valide fw-bold',
-        'Tous livrés': 'tout-livre bg-success text-white',
-        'Partiellement livré' : 'partiellement-livre bg-warning text-white',
-        'Partiellement dispo' : 'partiellement-dispo bg-info text-white',
-        'Complet non livré' : 'complet-non-livre bg-primary text-white'
-	} %}
-
-	{% set styleStatutDA = {
-		'Bon d’achats validé'           : 'bg-bon-achat-valide fw-bold',
-		'TERMINER'                       : 'bg-primary text-white fw-bold',
-		'Proposition achats'             : 'bg-proposition-achat fw-bold',
-		'Soumis à validation'            : 'bg-soumis-validation fw-bold',
-		'Demande d’achats'              : 'bg-demande-achat fw-bold',
-		'En cours de création'           : 'bg-en-cours-creation fw-bold',
-		'Création demande initiale'      : 'bg-creation-demande-initiale fw-bold',
-	} %}
-
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
 			<div class="container">
@@ -100,8 +77,8 @@
 							</td>
 						{% endif %}
 
-						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
-						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
+						<td class="text-center {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
+						<td class="text-center {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
 						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.artRefp }}</td>
 						<td class="text-left">{{ item.artDesi }}</td>
