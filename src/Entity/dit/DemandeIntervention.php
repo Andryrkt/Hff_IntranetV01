@@ -562,7 +562,7 @@ class DemandeIntervention
     }
 
 
-    public function getNumeroDemandeIntervention(): string
+        public function getNumeroDemandeIntervention(): ?string
     {
         return $this->numeroDemandeIntervention;
     }
