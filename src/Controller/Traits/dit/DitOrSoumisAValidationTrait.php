@@ -434,7 +434,7 @@ trait DitOrSoumisAValidationTrait
     private function premierSoumissionDatePlanningInferieurDateDuJour($numOr): bool
     {
         $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
-        $nbrPieceMagasin = $this->orRepository->recupNbPieceMagasin($numOr); //nombre de piece magasin
+        $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr); //nombre de piece magasin
 
         if ((int)$nbrOrSoumis <= 0 && (int)$nbrPieceMagasin <= 0) { // si pas encore soumis et pas de piece magasin
             $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);

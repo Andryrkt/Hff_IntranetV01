@@ -8,6 +8,7 @@ use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
@@ -19,12 +20,13 @@ class DevisMagasinEnvoyerAuClientController extends Controller
     use AutorisationTrait;
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
-
+    private DevisMagasinRepository $devisMagasinRepository;
     public function __construct()
     {
         parent::__construct();
         global $container;
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
+        $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
     }
 
     /**
@@ -37,6 +39,13 @@ class DevisMagasinEnvoyerAuClientController extends Controller
 
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
+
+        $statut = $this->devisMagasinRepository->findLatestStatusByIdentifier($numeroDevis);
+        if ($statut === DevisMagasin::STATUT_ENVOYER_CLIENT) {
+            $message = "Le devis n'est pas déjà pointé";
+            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
+            return;
+        }
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(DevisMagasinEnvoyerAuClientType::class, null, [

@@ -5,11 +5,12 @@ namespace App\Repository\da;
 use App\Entity\da\DaAfficher;
 use Doctrine\ORM\QueryBuilder;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\DBAL\ArrayParameterType;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\dit\DemandeIntervention;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use Doctrine\DBAL\ArrayParameterType;
 
 class DaAfficherRepository extends EntityRepository
 {
@@ -238,6 +239,9 @@ class DaAfficherRepository extends EntityRepository
             ->setParameter('exceptions', $exceptions);
 
 
+
+
+
         $this->applyDynamicFilters($subQb, $criteria, true);
         $this->applyStatutsFilters($subQb, $criteria, true);
         $this->applyDateFilters($subQb, $criteria, true);
@@ -283,6 +287,8 @@ class DaAfficherRepository extends EntityRepository
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
+            ->Where('d.statutCde != :statutPasDansOr') // enlever les ligne qui a le statut PAS DANS OR
+            ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
 
         // Condition sur les versions maximales (à partir de la sous-requête)
@@ -458,7 +464,7 @@ class DaAfficherRepository extends EntityRepository
 
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
-            ->where('daf.deleted = 0')
+            ->andWhere('daf.deleted = 0')
             ->setParameter('numeroDAs', $numeroDAsPage);
 
         // Ajouter condition version max (évite duplications)
@@ -682,16 +688,16 @@ class DaAfficherRepository extends EntityRepository
             $qb
                 ->andWhere(
                     $qb->expr()->orX(
-                        'da.agenceDebiteur IN (:agenceAutoriserIds)',
-                        'da.agenceEmetteur = :codeAgence'
+                        'd.agenceDebiteur IN (:agenceAutoriserIds)',
+                        'd.agenceEmetteur = :codeAgence'
                     )
                 )
                 ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
-                        'da.serviceDebiteur IN (:serviceAutoriserIds)',
-                        'da.serviceEmetteur IN (:serviceAutoriserIds)'
+                        'd.serviceDebiteur IN (:serviceAutoriserIds)',
+                        'd.serviceEmetteur IN (:serviceAutoriserIds)'
                     )
                 )
                 ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
