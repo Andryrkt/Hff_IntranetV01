@@ -21,6 +21,15 @@ class CongeController extends Controller
     use CongeListeTrait;
     use FormatageTrait;
 
+
+    /**
+     * @Route("/nouveau-conge", name="new_conge")
+     */
+    public function nouveauConge()
+    {
+        return $this->render('ddc/conge_new.html.twig');
+    }
+
     /**
      * Affiche la liste des demandes de congé
      * @Route("/conge-liste", name="conge_liste")
