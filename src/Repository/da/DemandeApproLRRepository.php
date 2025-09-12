@@ -21,4 +21,17 @@ class DemandeApproLRRepository extends EntityRepository
             ->getOneOrNullResult()
         ;
     }
+
+    /**
+     * @return array<int, array{numeroDemandeAppro: string, fileNames: string}>
+     */
+    public function findAttachmentsByNumeroDit(string $numDit): array
+    {
+        return $this->createQueryBuilder('dalr')
+            ->select('dalr.numeroDemandeAppro, dalr.fileNames')
+            ->where('dalr.numeroDemandeDit = :numDit')
+            ->setParameter('numDit', $numDit)
+            ->getQuery()
+            ->getArrayResult();
+    }
 }
