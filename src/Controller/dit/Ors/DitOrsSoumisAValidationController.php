@@ -214,7 +214,6 @@ class DitOrsSoumisAValidationController extends Controller
                 //modification des informations necessaire
                 $daValider
                     ->setNumeroOr($numOr)
-                    ->setStatutOr('Soumis à validation')
                     ->setOrResoumettre(false)
                     ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
                 ;
