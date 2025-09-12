@@ -193,7 +193,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Consultation',
-                'link'        => '#',
+                'link'        => 'conge_liste',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
@@ -428,7 +428,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Consultation',
-                'link'        => '#',
+                'link'        => 'bon_caisse_liste',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
