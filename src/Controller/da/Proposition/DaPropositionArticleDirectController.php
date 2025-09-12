@@ -217,7 +217,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
+        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [

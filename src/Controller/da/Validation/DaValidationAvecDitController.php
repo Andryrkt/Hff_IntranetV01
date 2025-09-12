@@ -7,6 +7,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -41,7 +42,7 @@ class DaValidationAvecDitController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
+        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
 
         /** ENVOIE D'EMAIL */
         $this->emailDaService->envoyerMailValidationDaAvecDit($da, $resultatExport, [
