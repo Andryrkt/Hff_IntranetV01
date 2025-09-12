@@ -71,7 +71,7 @@ class DitFactureSoumisAValidationModel extends Model
         $statement = " SELECT
                     slor_numfac AS numeroFac, 
                     slor_numor AS numeroOr, 
-                    slor_nogrp / 100 AS numeroItv,
+                    ROUND(slor_nogrp / 100) AS numeroItv,
                     SUM(slor_pxnreel * slor_qterea) AS montantFactureItv,
                     slor_succdeb AS agenceDebiteur,
                     slor_servdeb AS serviceDebiteur,

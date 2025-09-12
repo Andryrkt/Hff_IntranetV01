@@ -23,6 +23,10 @@ trait StatutBcTrait
         $statutBc = $DaAfficher->getStatutCde();
         $achatDirect = $DaAfficher->getAchatDirect();
 
+        if (!$achatDirect) {
+            $this->updateInfoOR($numDit, $DaAfficher);
+        }
+
         if ($numeroOr == null && !$achatDirect) {
             return $statutBc;
         }
@@ -45,11 +49,9 @@ trait StatutBcTrait
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
+        // dump($qte);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
-        if (! $achatDirect) {
-            $this->updateInfoOR($numDit, $DaAfficher);
-        }
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
 
@@ -127,7 +129,7 @@ trait StatutBcTrait
             }
 
             // Si le numéro de commande est vide
-            $numCdeVide = empty($situationCde[0]['num_cde'] ?? null);
+            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
 
             return $numCdeVide;
         } else {
@@ -240,11 +242,14 @@ trait StatutBcTrait
                 $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
             }
+
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
                 ->setQteDispo($qteDispo)
             ;
+
+            // dump($DaAfficher);
         }
     }
 
@@ -272,9 +277,9 @@ trait StatutBcTrait
             ->setDatePlannigOr($datePlanningOr)
         ;
 
-        if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
+        /* if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
             $DaAfficher->setStatutOr($statutOr);
-        }
+        } */
     }
 
     private function getDatePlannigOr(?string $numOr)
