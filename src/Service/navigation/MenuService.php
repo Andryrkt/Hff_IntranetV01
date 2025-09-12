@@ -242,7 +242,7 @@ class MenuService
                 'Congés',
                 'umbrella-beach',
                 [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], '_blank'),
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
                     $this->createSubItem('Consultation', 'search', 'conge_liste')
                 ]
             );
