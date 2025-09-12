@@ -15,7 +15,7 @@ class DevisMagasin
 {
     use DateTrait;
 
-    private const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
+    public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
 
     /**
      * @ORM\Id
@@ -455,7 +455,7 @@ class DevisMagasin
      * Get the value of sommeNumeroLignes
      *
      * @return  integer
-     */ 
+     */
     public function getSommeNumeroLignes()
     {
         return $this->sommeNumeroLignes;
@@ -467,7 +467,7 @@ class DevisMagasin
      * @param  integer  $sommeNumeroLignes
      *
      * @return  self
-     */ 
+     */
     public function setSommeNumeroLignes($sommeNumeroLignes)
     {
         $this->sommeNumeroLignes = $sommeNumeroLignes;
@@ -475,7 +475,7 @@ class DevisMagasin
         return $this;
     }
 
-        /**
+    /**
      * Get the value of dateEnvoiDevisAuClient
      */
     public function getDatePointage()
