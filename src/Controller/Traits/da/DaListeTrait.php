@@ -45,13 +45,13 @@ trait DaListeTrait
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
-            DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide fw-bold',
-            DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white fw-bold',
-            DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat fw-bold',
-            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation fw-bold',
-            DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat fw-bold',
-            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation fw-bold',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale fw-bold',
+            DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
+            DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
+            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation',
+            DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
+            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
         ];
         $this->styleStatutOR = [
             DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
@@ -66,21 +66,21 @@ trait DaListeTrait
             DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
         ];
         $this->styleStatutBC = [
-            DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer fw-bold',
-            DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer fw-bold',
-            DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation fw-bold',
-            DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur fw-bold',
-            DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission fw-bold',
-            DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da fw-bold',
-            DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide fw-bold',
-            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture fw-bold',
-            DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse fw-bold',
-            DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur fw-bold',
-            'Non validé'                                    => 'bg-bc-non-valide fw-bold',
-            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre fw-bold',
-            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre fw-bold',
-            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo fw-bold',
-            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre fw-bold',
+            DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
+            DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer',
+            DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation',
+            DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur',
+            DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission',
+            DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da',
+            DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide',
+            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
+            DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
+            DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
+            'Non validé'                                    => 'bg-bc-non-valide',
+            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
+            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
         ];
         //----------------------------------------------------------------------------------------------------
         $this->daModel = new DaModel();
