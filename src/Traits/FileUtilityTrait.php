@@ -41,4 +41,19 @@ trait FileUtilityTrait
         $ext = pathinfo($fileName, PATHINFO_EXTENSION);
         return $ext ? '.' . $ext : null;
     }
+
+    /**
+     * Retourne le nom d'un fichier sans son extension.
+     *
+     * @param string|null $fileName Nom du fichier ou chemin
+     * @return string|null
+     */
+    protected function getFileNameWithoutExtension(?string $fileName): ?string
+    {
+        if (!$fileName) {
+            return null;
+        }
+
+        return pathinfo($fileName, PATHINFO_FILENAME);
+    }
 }

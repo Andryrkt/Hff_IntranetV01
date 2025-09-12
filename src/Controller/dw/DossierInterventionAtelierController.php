@@ -220,7 +220,7 @@ class DossierInterventionAtelierController extends Controller
         foreach ($allRows as $row) {
             $files = $row['fileNames'];
             foreach ($files as $fileName) {
-                $key = "{$row['numeroDemandeAppro']}_$fileName";
+                $key = "{$row['numeroDemandeAppro']}_{$this->getFileNameWithoutExtension($fileName)}";
                 if (!isset($allFileNames[$key])) {
                     $allFileNames[$key] = true;
 
