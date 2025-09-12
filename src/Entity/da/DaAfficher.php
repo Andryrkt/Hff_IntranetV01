@@ -262,6 +262,11 @@ class DaAfficher
     private $dateDemande;
 
     /**
+     * @ORM\Column(type="datetime", name="date_derniere_bav", nullable=true)
+     */
+    private $dateValidation;
+
+    /**
      * @ORM\Column(type="boolean", name="est_dalr")
      */
     private bool $estDalr = false;
@@ -1505,6 +1510,26 @@ class DaAfficher
     public function setDeletedBy($deletedBy)
     {
         $this->deletedBy = $deletedBy;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateValidation
+     */
+    public function getDateValidation()
+    {
+        return $this->dateValidation;
+    }
+
+    /**
+     * Set the value of dateValidation
+     *
+     * @return  self
+     */
+    public function setDateValidation($dateValidation)
+    {
+        $this->dateValidation = $dateValidation;
 
         return $this;
     }

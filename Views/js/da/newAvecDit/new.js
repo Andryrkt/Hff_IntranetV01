@@ -15,14 +15,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const actionsConfig = {
       enregistrerBrouillon: {
         title: "Confirmer l’enregistrement",
-        html: `Souhaitez-vous enregistrer cette demande d’approvisionnement en brouillon ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
+        html: `Souhaitez-vous enregistrer <strong class="text-primary">provisoirement</strong> cette demande ?<br><small class="text-primary"><strong><u>NB</u>: </strong>Elle ne sera pas transmise au service APPRO.</small>`,
         icon: "question",
         confirmButtonText: "Oui, Enregistrer",
-        canceledText: "L’enregistrement en brouillon a été annulé.",
+        canceledText: "L’enregistrement provisoire a été annulé.",
       },
       soumissionAppro: {
         title: "Confirmer la soumission",
-        html: `Êtes-vous sûr de vouloir soumettre cette demande d’approvisionnement ?<br><small class="text-danger"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
+        html: `Êtes-vous sûr de vouloir <strong style="color: #f8bb86;">soumettre</strong> cette demande ?<br><small style="color: #f8bb86;"><strong><u>NB</u>: </strong>Elle sera transmise au service APPRO pour traitement.</small>`,
         icon: "warning",
         confirmButtonText: "Oui, Soumettre",
         canceledText: "La soumission de la demande a été annulée.",
@@ -108,7 +108,9 @@ window.addEventListener("load", () => {
 });
 
 function getMaxIndexFromIds() {
-  const elements = document.querySelectorAll("div[id^='demande_appro_form_DAL_'].DAL-container");
+  const elements = document.querySelectorAll(
+    "div[id^='demande_appro_form_DAL_'].DAL-container"
+  );
   return Array.from(elements).reduce((max, el) => {
     const match = el.id.match(/^demande_appro_form_DAL_(\d+)$/);
     if (match) {
@@ -120,12 +122,14 @@ function getMaxIndexFromIds() {
 }
 
 function getMaxLineFromValues() {
-  const elements = document.querySelectorAll("[id^='demande_appro_form_DAL_'][id$='_numeroLigne']");
+  const elements = document.querySelectorAll(
+    "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+  );
   return Array.from(elements).reduce((max, el) => {
     const value = parseInt(el.value, 10);
     if (isNaN(value)) {
       console.warn("Valeur non numérique trouvée pour numeroLigne:", el.value);
-      return max;  // ignore les valeurs invalides
+      return max; // ignore les valeurs invalides
     }
     return value > max ? value : max;
   }, 0);
