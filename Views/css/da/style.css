@@ -67,6 +67,24 @@ a.choix:hover {
   border: none;
 }
 
+.sort-icons a {
+  text-decoration: none;
+  color: inherit;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.sort-icons i {
+  opacity: 0.75;
+  line-height: 0.25;
+  font-size: 1.125rem;
+}
+
+.sort-icons i:hover,
+.sort-icons i.text-warning {
+  opacity: 1;
+}
+
 @media (min-width: 576px) {
   .container.custom-width {
     max-width: 768px;
@@ -363,18 +381,120 @@ a.choix:hover {
 /* Pour les statuts de la DA */
 .bg-demande-achat {
   background-color: #ffff00 !important;
+  color: #7d7d00 !important;
 }
 .bg-proposition-achat {
-  background-color: #d9d9d9 !important;
+  background-color: #9fc5e8 !important;
+  color: #073763 !important;
 }
 .bg-bon-achat-valide {
   background-color: #a9d08e !important;
+  color: #274e13 !important;
 }
-.bg-creation-demande-initiale {
+.bg-modif-autorisee {
   background-color: #fbbb01 !important;
+  color: #5a3000 !important;
+}
+.bg-soumis-validation {
+  background-color: #ffd966 !important; /* orange clair soutenu */
+  color: #7f6000 !important;
+}
+.bg-en-cours-creation {
+  background-color: #e2e3e5 !important; /* gris clair */
+  color: #41464b !important;
 }
 
 /* Pour les statuts de l'OR */
+.bg-or-valide {
+  background-color: #ff4d4d !important;
+  color: #fff !important;
+}
 .bg-or-non-valide {
-  background-color: #00ffff !important;
+  background-color: #66e0ff !important;
+  color: #004466 !important;
+}
+.bg-a-resoumettre-a-validation {
+  background-color: #ffc107 !important;
+  color: #6b3e00 !important;
+}
+.bg-or-valider-ca {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-or-valider-client {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-modif-demande-ca {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-modif-demande-client {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-or-soumis-validation {
+  background-color: #ddebf7 !important;
+  color: #1c3c6b !important;
+}
+
+/* Pour les statuts du BC */
+.bg-bc-a-generer {
+  background-color: #ff66cc !important;
+  color: #660033 !important;
+}
+.bg-bc-a-editer {
+  background-color: #7030a0 !important;
+  color: #fff !important;
+}
+.bg-bc-a-soumettre-a-validation {
+  background-color: #ddebf7 !important;
+  color: #1c3c6b !important;
+}
+.bg-bc-a-envoyer-au-fournisseur {
+  background-color: #f1c232 !important;
+  color: #8e5a00 !important;
+}
+.bg-bc-soumission {
+  background-color: #c9daf8 !important;
+  color: #004080 !important;
+}
+.bg-bc-a-valider-da {
+  background-color: #ffcc00 !important;
+  color: #4d4d00 !important;
+}
+.bg-bc-valide {
+  background-color: #ccff66 !important;
+  color: #2d6a00 !important;
+}
+.bg-bc-cloture {
+  background-color: #66cc33 !important;
+  color: #003d00 !important;
+}
+.bg-bc-refuse,
+.bg-bc-pas-dans-or {
+  background-color: #c00000 !important;
+  color: #fff !important;
+}
+.bg-bc-envoye-au-fournisseur {
+  background-color: #4f81bd !important;
+  color: #fff !important;
+}
+
+/* Statuts supplémentaires */
+.tout-livre {
+  background-color: #28a745 !important;
+  color: #1c4d20 !important;
+}
+.partiellement-livre {
+  background-color: #ffc107 !important;
+  color: #6b3e00 !important;
+}
+.partiellement-dispo {
+  background-color: #17a2b8 !important;
+  color: #003e5f !important;
+}
+.complet-non-livre {
+  background-color: #007bff !important;
+  color: #ffffff !important;
 }

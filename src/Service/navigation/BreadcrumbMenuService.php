@@ -34,10 +34,11 @@ class BreadcrumbMenuService
             'conges'               => $this->getCongesSubMenu(),
             'temporaires'          => $this->getTemporairesSubMenu(),
             // Magasin - Sous-menus spécifiques
-            'or'                   => $this->getOrSubMenu(),
-            'cis'                  => $this->getCisSubMenu(),
+            'or'                    => $this->getOrSubMenu(),
+            'cis'                   => $this->getCisSubMenu(),
             'sortie-de-pieces-lubs' => $this->getSortiePieceLubSubMenu(),
-            'inventaire' => $this->getInventaireSubMenu(),
+            'inventaire'            => $this->getInventaireSubMenu(),
+            'dematerialisation'     => $this->getDematerialisationSubMenu(),
             // Matériel - Sous-menus spécifiques
             'mouvement-materiel'   => $this->getMouvementMaterielSubMenu(),
             'casier'               => $this->getCasierSubMenu(),
@@ -192,7 +193,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Consultation',
-                'link'        => '#',
+                'link'        => 'conge_liste',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
@@ -294,6 +295,32 @@ class BreadcrumbMenuService
         ];
     }
 
+    public function getDematerialisationSubMenu(): array
+    {
+        return [
+            [
+                'id'          => null,
+                'title'       => 'Devis',
+                'link'        => 'devis_magasin_liste',
+                'icon'        => 'fas fa-file-invoice',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Commandes clients',
+                'link'        => '#',
+                'icon'        => 'fas fa-shopping-basket',
+                'routeParams' => []
+            ],
+            [
+                'id'          => null,
+                'title'       => 'Planning magasin',
+                'link'        => '#',
+                'icon'        => 'fas fa-calendar-alt',
+                'routeParams' => []
+            ]
+        ];
+    }
     // ========== Matériel - Sous-menus spécifiques ==========
 
     private function getMouvementMaterielSubMenu(): array
@@ -401,7 +428,7 @@ class BreadcrumbMenuService
             [
                 'id'          => null,
                 'title'       => 'Consultation',
-                'link'        => '#',
+                'link'        => 'bon_caisse_liste',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []
             ]
@@ -414,14 +441,14 @@ class BreadcrumbMenuService
         return [
             [
                 'id'          => null,
-                'title'       => 'Nouvelle demande DA',
+                'title'       => 'Nouvelle demande d’achat',
                 'link'        => 'da_first_form',
                 'icon'        => 'fas fa-plus-circle',
                 'routeParams' => []
             ],
             [
                 'id'          => null,
-                'title'       => 'Liste des demandes DA',
+                'title'       => 'Liste des demandes d’achats',
                 'link'        => 'list_da',
                 'icon'        => 'fas fa-search',
                 'routeParams' => []

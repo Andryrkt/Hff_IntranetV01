@@ -4,22 +4,13 @@ namespace App\Controller\dom;
 
 
 use App\Entity\dom\Dom;
-use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Entity\admin\dom\Catg;
-use App\Entity\admin\dom\Site;
 use App\Form\dom\DomForm2Type;
-use App\Entity\admin\Personnel;
-use App\Entity\admin\Application;
-use App\Entity\admin\StatutDemande;
-use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
-use App\Entity\admin\dom\SousTypeDocument;
-use App\Service\genererPdf\GeneratePdfDom;
 use App\Controller\Traits\dom\DomsDupliTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dom\DomModel;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -28,6 +19,15 @@ class DomsDupliController extends Controller
 {
     use FormatageTrait;
     use DomsDupliTrait;
+
+    private $DomModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->DomModel = new DomModel();
+        $this->initDomsDupliTrait();
+    }
 
 
     /**
@@ -41,23 +41,23 @@ class DomsDupliController extends Controller
         $dom = new Dom();
         /** INITIALISATION des données  */
         //recupération des données qui vient du formulaire 1
-        // $form1Data = $this->sessionService->get('form1Data', []);
-        // $this->initialisationSecondForm($form1Data, self::$em, $dom);
+        // $form1Data = $this->getSessionService()->get('form1Data', []);
+        // $this->initialisationSecondForm($form1Data, $this->getEntityManager(), $dom);
 
-        $dom = self::$em->getRepository(Dom::class)->find($id);
-        dd($dom);
-        $criteria = $this->criteria($form1Data, self::$em);
+        $dom = $this->getEntityManager()->getRepository(Dom::class)->find($id);
+        // dd($dom);
+        $criteria = $this->criteria($form1Data, $this->getEntityManager());
 
         $is_temporaire = $form1Data['salarier'];
 
-        $form = self::$validator->createBuilder(DomForm2Type::class, $dom)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DomForm2Type::class, $dom)->getForm();
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
             $domForm = $form->getData();
 
-            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, self::$em);
+            $this->enregistrementValeurdansDom($dom, $domForm, $form, $form1Data, $this->getEntityManager());
 
 
             $verificationDateExistant = $this->verifierSiDateExistant($dom->getMatricule(),  $dom->getDateDebut(), $dom->getDateFin());
@@ -69,7 +69,7 @@ class DomsDupliController extends Controller
                             $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . " a déja une mission enregistrée sur ces dates, vérifier SVP!";
                             $this->notification($message);
                         } else {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                         }
                     }
 
@@ -79,7 +79,7 @@ class DomsDupliController extends Controller
                         $this->notification($message);
                     } else {
                         if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                         } else {
                             $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
@@ -89,7 +89,7 @@ class DomsDupliController extends Controller
                 } else {
                     if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
 
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                     } else {
                         $message = "Assurez vous que le Montant Total est inférieur à 500.000";
 
@@ -105,7 +105,7 @@ class DomsDupliController extends Controller
                             $message = $dom->getMatricule() . ' ' . $dom->getNom() . ' ' . $dom->getPrenom() . "  a déja une mission enregistrée sur ces dates, vérifier SVP!";
                             $this->notification($message);
                         } else {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                         }
                     }
 
@@ -114,7 +114,7 @@ class DomsDupliController extends Controller
                         $this->notification($message);
                     } else {
                         if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                            $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                         } else {
                             $message = "Assurez vous que le Montant Total est inférieur à 500.000";
                             $this->notification($message);
@@ -123,7 +123,7 @@ class DomsDupliController extends Controller
                 } else {
 
                     if ($dom->getModePayement() !== 'MOBILE MONEY' || ($dom->getModePayement() === 'MOBILE MONEY' && $dom->getTotalGeneralPayer() <= 500000)) {
-                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, self::$em);
+                        $this->recupAppEnvoiDbEtPdf($dom, $domForm, $form, $this->getEntityManager());
                     } else {
                         $message = "Assurer que le Montant Total est supérieur ou égale à 500.000";
 
@@ -136,7 +136,7 @@ class DomsDupliController extends Controller
             return $this->redirectToRoute('domList_ShowListDomRecherche');
         }
 
-        self::$twig->display('doms/dupli.html.twig', [
+        return $this->render('doms/dupli.html.twig', [
             'form' => $form->createView(),
             'is_temporaire' => $is_temporaire,
             'criteria' => $criteria
@@ -146,7 +146,7 @@ class DomsDupliController extends Controller
 
     private function notification($message)
     {
-        $this->sessionService->set('notification', ['type' => 'danger', 'message' => $message]);
+        $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("dom_first_form");
     }
 }

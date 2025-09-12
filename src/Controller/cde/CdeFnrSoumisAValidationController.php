@@ -29,8 +29,8 @@ class CdefnrSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationCDEFNRService();
+        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($this->getEntityManager());
         $this->traitementDeFichier = new TraitementDeFichier();
     }
 
@@ -42,11 +42,11 @@ class CdefnrSoumisAValidationController extends Controller
     {
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CdeFnrSoumisAValidationType::class)->getForm();
 
         $this->traitementFormulaire($request, $form);
 
-        self::$twig->display('cde/cdeFnr.html.twig', [
+        return $this->render('cde/cdeFnr.html.twig', [
             'form' => $form->createView(),
         ]);
     }
@@ -177,8 +177,8 @@ class CdefnrSoumisAValidationController extends Controller
 
     private function ajoutDonnerDansDb($cdeFournisseur)
     {
-        self::$em->persist($cdeFournisseur);
-        self::$em->flush();
+        $this->getEntityManager()->persist($cdeFournisseur);
+        $this->getEntityManager()->flush();
     }
 
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)

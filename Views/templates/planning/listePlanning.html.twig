@@ -1,61 +1,26 @@
 {% extends "baseTemplate.html.twig" %}
-{% block stylesheets%}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css">
+
+{% block title %}
+	Planning détaillé
 {% endblock %}
+
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/planning/planning.css?v=2025.08.29.16.20">
+{% endblock %}
+
 {% block overlay %}
-    <div id="loading-overlay" style="position: fixed;
-                        top: 0;
-                        left: 0;
-                        width: 100%;
-                        height: 100%;
-                        background-color: rgba(0, 0, 0, 0.7);
-                        display: flex;
-                        flex-direction: column;
-                        row-gap: 20px;
-                        align-items: center;
-                        justify-content: center;
-                        z-index: 9999;">
-        <div class="spinner-overlay"></div>
-        <div class="text-overlay text-white">Veuillez patienter s'il vous plaît!</div>
-    </div>
+	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
+
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
-			<h3 class="perso-titre">
-				Planning détaillé
-			</h3>
 			{% include "/planning/_formulaire.html.twig" %}
-			<div class="my-3 d-flex flex-row" style ="justify-content: space-between;">
-				<div class ="d-flex">
-					<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
-						<small>TOUT AFFICHER |</small>
-					</div>
-					<div role="button" tabindex="0" id="tout-livre">
-						<i class="fa-solid fa-circle text-success"></i>
-						<small class="text-success">Tout livré |</small>
-					</div>
-					<div role="button" tabindex="0" id="partiellement-livre">
-						<i class="fa-solid fa-circle text-warning"></i>
-						<small class="text-warning">Partiellement livré |</small>
-					</div>
-					<div role="button" tabindex="0" id="partiellement-dispo">
-						<i class="fa-solid fa-circle text-info"></i>
-						<small class="text-info">Partiellement dispo |</small>
-					</div>
-					<div role="button" tabindex="0" id="complet-non-livre">
-						<i class="fa-solid fa-circle text-primary"></i>
-						<small class="text-primary">Complet non livré | 
-						</small>
-					</div>
-					<div role="button" tabindex="0" id="back-order">
-						<small class=" border-end border-start border-danger border-3">
-							Back Order /Error
-						</small>
-					</div>
-				</div>
-				<div class ="d-flex">
+			
+			<div class="d-flex justify-content-between">
+				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : true } %}
+				<div class ="my-2 d-flex flex-row">
 					<div  tabindex="0" id="dispo stock">
 						<i class="fa-solid fa-circle " style="color: #c8ad7f"></i>
 						<small style="color: #c8ad7f">Dispo stock |</small>
@@ -72,77 +37,55 @@
 						<i class="fa-solid fa-circle " style="color: #EE82EE"></i>
 						<small style="color: #EE82EE">Réception Partielle</small>
 					</div>
-
 				</div>
 			</div>
-
-
 			{% include "/planning/_pagination.html.twig" %}
 		</div>
 	</div>
-	<table class="table rounded table-plein-ecran ">
-		<thead class="table-dark position-sticky">
-
-			<tr>
-
-				<th rowspan="2" style="text-align:center;border: 2px solid white; width: 194px;" class="align-middle">Agence-service</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="12">Matériel</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="9">ORDRE DE REPARATION
-				</th>
-				<th style="text-align:center;border: 2px solid white;" colspan="7">CESSION INTER STOCK</th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Ivato
-				</th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">ETA Magasin
-				</th>
-				<th rowspan="2" style="text-align:center;border: 2px solid white;" class="align-middle">Message
-				</th>
-
+	<table class="table table-sticky">
+		<thead class="table-dark">
+			<tr class="align-middle text-center">
+				<th class="border border-1 border-white" rowspan="2" style="width: 194px;">Agence - Service Travaux</th>
+				<th class="border border-1 border-white" colspan="12">Matériel</th>
+				<th class="border border-1 border-white" colspan="9">ORDRE DE REPARATION</th>
+				<th class="border border-1 border-white" colspan="7">CESSION INTER STOCK</th>
+				<th class="border border-1 border-white" rowspan="2">ETA Ivato</th>
+				<th class="border border-1 border-white" rowspan="2">ETA Magasin</th>
+				<th class="border border-1 border-white" rowspan="2">Message</th>
 			</tr>
-			<tr>
-
-				<th>Marque</th>
-				<th>Modèle</th>
-				<th>ID</th>
-				<th>N° Série</th>
-				<th>N° Parc</th>
-				<th>Casier</th>
-				<th>Intitulé travaux</th>
-				<th>N° OR-Itv</th>
-				<th>Date planning</th>
-				<th>CST</th>
-				<th>Ref</th>
-				<th>Dési</th>
-				<th>Qté cde</th>
-				<th>Qté all</th>
-				<th>Qté reliq</th>
-				<th>Qté liv</th>
-				<th>Statut</th>
-				<th>Date statut</th>
-				{#  (num CIS) #}
-				<th>Ctr Marque</th>
-				<th>Cde frn</th>
-				<th>Statut ctrmrq</th>
-				{#  (recp/cmd=>CIS OR)#}
-				<th>numCIS</th>
-				<th>Qté Cde</th>
-				<th>Qté all</th>
-				<th>Qté rel</th>
-				<th>Qté liv</th>
-				<th>Statut</th>
-				<th>Date statut</th>
-				{# <th>ETA Ivato </th>
-								<th>ETA Magasin </th>
-								<th>Message </th> #}
+			<tr class="align-middle text-center">
+				<th class="border-bottom">Marque</th>
+				<th class="border-bottom">Modèle</th>
+				<th class="border-bottom">ID</th>
+				<th class="border-bottom">N° Série</th>
+				<th class="border-bottom">N° Parc</th>
+				<th class="border-bottom">Casier</th>
+				<th class="border-bottom">Intitulé travaux</th>
+				<th class="border-bottom">N° OR-Itv</th>
+				<th class="border-bottom">Date planning</th>
+				<th class="border-bottom">CST</th>
+				<th class="border-bottom">Ref</th>
+				<th class="border-end border-bottom">Dési</th>
+				<th class="border-bottom">Qté cde</th>
+				<th class="border-bottom">Qté all</th>
+				<th class="border-bottom">Qté reliq</th>
+				<th class="border-bottom">Qté liv</th>
+				<th class="border-bottom">Statut</th>
+				<th class="border-bottom">Date statut</th>
+				<th class="border-bottom">Ctr Marque</th>
+				<th class="border-bottom">Cde frn</th>
+				<th class="border-end border-bottom">Statut ctrmrq</th>
+				<th class="border-bottom">numCIS</th>
+				<th class="border-bottom">Qté Cde</th>
+				<th class="border-bottom">Qté all</th>
+				<th class="border-bottom">Qté rel</th>
+				<th class="border-bottom">Qté liv</th>
+				<th class="border-bottom">Statut</th>
+				<th class="border-bottom">Date statut</th>
 			</tr>
 		</thead>
 		<tbody id="tableBody">
 			{% for item in data %}
-				{% if item.ord is same as "ORD" %}
-					{# cmd frs envoyé #}
-					{% set classe = 'background-color:#9ACD32  ; color: white;'%}
-				{% else %}
-					{% set classe = ''%}
-				{% endif %}
 				{% if item.statutOR is same as "DISPO STOCK" %}
 					{# dispo stock #}
 					{% set styl = "background-color: #c8ad7f; color: white;"%}
@@ -154,6 +97,8 @@
 				{% else %}
 					{% set styl = ''%}
 				{% endif %}
+				{# cmd frs envoyé #}
+				{% set classe = item.ord is same as "ORD" ? 'background-color:#9ACD32  ; color: white;' : '' %}
 
 				{# Statut part#}
 				{% if item.status_b is same as "PARTIELLEMENT LIVRE"%}
@@ -170,102 +115,38 @@
 					{% set statut = ""%}
 				{% endif %}
 				<tr>
-					<td>
-						{{item.agenceServiceTravaux}}
-					</td>
-					<td>
-						{{item.Marque}}
-					</td>
-					<td>
-						{{item.Modele}}
-					</td>
-					<td>
-						{{item.Id}}
-					</td>
-					<td>
-						{{item.N_Serie}}
-					</td>
-					<td>
-						{{item.parc}}
-					</td>
-					<td>
-						{{item.casier}}
-					</td>
-					<td>
-						{{item.commentaire}}
-					</td>
-					<td class="{{statut}}">
-						<span class="numOr-itv">{{item.numor_itv}}</span>
-					</td>
-					<td>
-						{{item.dateplanning |date('d/m/Y') }}
-					</td>
-					<td>
-						{{item.cst}}
-					</td>
-					<td>
-						{{item.ref}}
-					</td>
-					<td>
-						{{item.desi}}
-					</td>
-					<td>
-						{{item.qteres_or }}
-					</td>
-					<td>
-						{{item.qteall_or }}
-					</td>
-					<td>
-						{{item.qtereliquat }}
-					</td>
-					<td>
-						{{item.qteliv_or }}
-					</td>
-					<td style="{{styl}}">
-						{{item.statutOR}}
-					</td>
-					<td>
-						{{item.datestatutOR}}
-					</td>
-					<td>
-						{{item.ctr_marque}}
-					</td>
-					<td>
-						{{item.numerocmd}}
-					</td>
-					<td style="{{classe}}">
-						{{item.statut_ctrmq}}
-					</td>
-					<td>
-					{{item.numcis}}
-					</td>
-					<td>
-						{{item.qteORlig_cis }}
-					</td>
-					<td>
-						{{item.qtealllig_cis }}
-					</td>
-					<td>
-						{{item.qterlqlig_cis }}
-					</td>
-					<td>
-						{{item.qtelivlig_cis }}
-					</td>
-					<td>
-						{{item.statutCis}}
-					</td>
-					<td>
-						{{item.datestatutCis }}
-					</td>
-					<td>
-						{{item.Eta_ivato }}
-					</td>
-					<td>
-						{{item.Eta_magasin }}
-					</td>
-					<td>
-						{{item.message}}
-					</td>
+					<td>{{ item.agenceServiceTravaux }}</td>
+					<td>{{ item.Marque }}</td>
+					<td>{{ item.Modele }}</td>
+					<td>{{ item.Id }}</td>
+					<td>{{ item.N_Serie }}</td>
+					<td>{{ item.parc }}</td>
+					<td>{{ item.casier }}</td>
+					<td>{{ item.commentaire }}</td>
+					<td class="{{statut}}"><span class="numOr-itv">{{ item.numor_itv }}</span></td>
+					<td>{{ item.dateplanning |date('d/m/Y')  }}</td>
+					<td>{{ item.cst }}</td>
+					<td>{{ item.ref }}</td>
+					<td>{{ item.desi }}</td>
+					<td>{{ item.qteres_or  }}</td>
+					<td>{{ item.qteall_or  }}</td>
+					<td>{{ item.qtereliquat  }}</td>
+					<td>{{ item.qteliv_or  }}</td>
+					<td style="{{styl}}">{{item.statutOR}}</td>
+					<td>{{ item.datestatutOR }}</td>
+					<td>{{ item.ctr_marque }}</td>
+					<td>{{ item.numerocmd }}</td>
+					<td style="{{classe}}">{{item.statut_ctrmq}}</td>
+					<td>{{ item.numcis }}</td>
+					<td>{{ item.qteORlig_cis  }}</td>
+					<td>{{ item.qtealllig_cis  }}</td>
+					<td>{{ item.qterlqlig_cis  }}</td>
+					<td>{{ item.qtelivlig_cis  }}</td>
+					<td>{{ item.statutCis }}</td>
+					<td>{{ item.datestatutCis  }}</td>
+					<td>{{ item.Eta_ivato  }}</td>
+					<td>{{ item.Eta_magasin  }}</td>
+					<td>{{ item.message }}</td>
 				</tr>
 			{% endfor %}
 		</tbody>
@@ -274,8 +155,7 @@
 	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
 {% endblock %}
 {% block javascript %}
-	<script script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningListe.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/planning/planningPositionSticky.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/agServPlanning.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/planning/planningListe.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

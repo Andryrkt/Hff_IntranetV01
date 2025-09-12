@@ -1,4 +1,4 @@
-<div class="my-3 d-flex flex-row">
+<div class="my-2 d-flex flex-row">
 	<div role="button" tabindex="0" class="fw-bold" id="tout-afficher">
 		<small>TOUT AFFICHER |</small>
 	</div>
@@ -18,4 +18,11 @@
 		<i class="fa-solid fa-circle text-primary"></i>
 		<small class="text-primary">Complet non livré |</small>
 	</div>
+	{% if avecBackOrder %}
+		<div role="button" tabindex="0" id="back-order">
+			<small class=" border-end border-start border-danger border-3">
+				Back Order/Error
+			</small>
+		</div>
+	{% endif %}
 </div>

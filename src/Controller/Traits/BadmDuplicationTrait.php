@@ -22,7 +22,7 @@ trait BadmDuplicationTrait
 
     private function notification($message)
     {
-        $this->sessionService->set('notification',['type' => 'danger', 'message' => $message]);
+        $this->getSessionService()->set('notification',['type' => 'danger', 'message' => $message]);
         $this->redirectToRoute("badms_newForm1");
     }
 
@@ -258,7 +258,7 @@ trait BadmDuplicationTrait
         ->setNumBadm($this->autoINcriment('BDM'))
         ->setAgenceServiceEmetteur(substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3))
         ->setAgenceServiceDestinataire($badm->getAgence()->getCodeAgence() . $badm->getService()->getCodeService())
-        ->setNomUtilisateur($em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getNomUtilisateur())
+        ->setNomUtilisateur($em->getRepository(User::class)->find($this->getSessionService()->get('user_id'))->getNomUtilisateur())
         ->setServiceEmetteur($serviceEmetteur->getCodeService(). ' ' . $serviceEmetteur->getLibelleService())
         ->setCasierEmetteur($casierEmetteur)
         ;
@@ -306,7 +306,7 @@ trait BadmDuplicationTrait
             'Motif_Mise_Rebut' => $badm->getMotifMiseRebut(),
             'Heures_Machine' => $data[0]['heure'],
             'Kilometrage' => $data[0]['km'],
-            'Email_Emetteur' => $em->getRepository(User::class)->find($this->sessionService->get('user_id'))->getMail(),
+            'Email_Emetteur' => $em->getRepository(User::class)->find($this->getSessionService()->get('user_id'))->getMail(),
             'Agence_Service_Emetteur_Non_separer' => substr($badm->getAgenceEmetteur(),0,2) . substr($badm->getServiceEmetteur(),0,3),
             'image' => $image,
             'extension' => $extension,

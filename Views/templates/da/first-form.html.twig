@@ -1,20 +1,24 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Type de la DA
+{% endblock %}
+
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class="container">
+	<div class="container mt-6">
 		<div class="card">
 			<div class="card-body">
 				<div class="m-5">
 					<div class="text-center">
 						<p class="fs-6">Veuillez cliquer sur le type de demande que vous souhaitez créer:</p>
-						{% if estAte %}
+						{% if estAte or estAdmin %}
 							<a class="choix" href="{{ path('da_list_dit') }}">
 								Demande d’achat avec DIT
 							</a>

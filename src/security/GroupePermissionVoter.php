@@ -2,7 +2,7 @@
 
 namespace App\Security;
 
-use App\Controller\Controller;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\utilisateur\Permission;
 use App\Repository\admin\utilisateur\PermissionRepository;
@@ -12,10 +12,10 @@ class GroupePermissionVoter implements PermissionVoterInterface
     private $em;
     private PermissionRepository $permissionRepository;
 
-    public function __construct()
+    public function __construct(EntityManagerInterface $em)
     {
-        $this->em = Controller::getEntity();
-        $this->permissionRepository = $this->em->getRepository(Permission::class);
+        $this->em = $em;
+        $this->permissionRepository = $em->getRepository(Permission::class);
     }
 
     public function canVote(string $permission, $subject = null): bool

@@ -73,6 +73,19 @@ input.autocomplete:focus {
 }
 
 
+/**======================================
+* Apparence du champ
+*=======================================*/
+/* Améliore l'apparence générale des champs */
+input.champColor {
+    border-color: #ff0000; /* Bordure bleue */
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Lueur bleue */
+    outline: none;
+}
+
+.form-check-label {
+    color: #ff0000; /* Texte rouge */
+}
 
 
 

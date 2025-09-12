@@ -6,28 +6,27 @@ use Exception;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
-use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\admin\Application;
 use App\Entity\ddp\DemandePaiement;
 use App\Entity\admin\ddp\TypeDemande;
 use App\Form\ddp\DemandePaiementType;
+use App\Controller\Traits\ddp\DdpTrait;
 use App\Entity\ddp\HistoriqueStatutDdp;
 use App\Model\ddp\DemandePaiementModel;
 use App\Service\TableauEnStringService;
 use App\Entity\ddp\DemandePaiementLigne;
 use App\Service\genererPdf\GeneratePdfDdp;
 use App\Entity\cde\CdefnrSoumisAValidation;
+use App\Controller\Traits\AutorisationTrait;
 use App\Entity\admin\ddp\DocDemandePaiement;
 use App\Service\fichier\TraitementDeFichier;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Test\FormInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\ddp\DemandePaiementRepository;
 use App\Repository\admin\ddp\TypeDemandeRepository;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\cde\CdefnrSoumisAValidationRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDDPService;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -56,18 +55,18 @@ class DemandePaiementController extends Controller
     {
         parent::__construct();
 
-        $this->typeDemandeRepository = self::$em->getRepository(TypeDemande::class);
+        $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);
         $this->demandePaiementModel = new DemandePaiementModel();
-        $this->cdeFnrRepository = self::$em->getRepository(CdefnrSoumisAValidation::class);
-        $this->demandePaiementRepository  = self::$em->getRepository(DemandePaiement::class);
+        $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
+        $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
         $this->demandePaiementLigne = new DemandePaiementLigne();
-        $this->historiqueOperation = new HistoriqueOperationDDPService();
+        $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
         $this->generatePdfDdp = new GeneratePdfDdp();
         $this->docDemandePaiement = new DocDemandePaiement();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
-        $this->agenceRepository = Controller::getEntity()->getRepository(Agence::class);
-        $this->serviceRepository = Controller::getEntity()->getRepository(Service::class);
+        $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
+        $this->serviceRepository = $this->getEntityManager()->getRepository(Service::class);
     }
 
     /**
@@ -82,11 +81,11 @@ class DemandePaiementController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DDP);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DemandePaiementType::class, null, ['id_type' => $id])->getForm();
 
         $this->traitementForm($request, $form, $id);
 
-        self::$twig->display('ddp/demandePaiementNew.html.twig', [
+        return $this->render('ddp/demandePaiementNew.html.twig', [
             'id_type' => $id,
             'form' => $form->createView()
         ]);
@@ -174,8 +173,8 @@ class DemandePaiementController extends Controller
             ->setDate(new \DateTime())
         ;
 
-        self::$em->persist($historiqueStatutDdp);
-        self::$em->flush();
+        $this->getEntityManager()->persist($historiqueStatutDdp);
+        $this->getEntityManager()->flush();
     }
 
 
@@ -198,7 +197,7 @@ class DemandePaiementController extends Controller
         //$Max_Num = $this->casier->RecupereNumCAS()['numCas'];
 
         if ($nomDemande === 'DDP') {
-            $Max_Num = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP'])->getDerniereId();
+            $Max_Num = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP'])->getDerniereId();
         } else {
             $Max_Num = $nomDemande . $AnneMoisOfcours . '9999';
         }
@@ -399,10 +398,10 @@ class DemandePaiementController extends Controller
     {
         $donners = $this->recuperationDonnerDdpF($data);
         foreach ($donners as $value) {
-            self::$em->persist($value);
+            $this->getEntityManager()->persist($value);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     private function ajoutDesFichiers(DemandePaiement $data, array $fichierTelechargerName): array
@@ -527,13 +526,13 @@ class DemandePaiementController extends Controller
 
         if (count($demandePaiementLigne) > 1) {
             foreach ($demandePaiementLigne as $value) {
-                self::$em->persist($value);
+                $this->getEntityManager()->persist($value);
             }
         } else {
-            self::$em->persist($demandePaiementLigne[0]);
+            $this->getEntityManager()->persist($demandePaiementLigne[0]);
         }
 
-        self::$em->flush();
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -571,8 +570,8 @@ class DemandePaiementController extends Controller
      */
     private function EnregistrementBdDdp(DemandePaiement $data): void
     {
-        self::$em->persist($data);
-        self::$em->flush();
+        $this->getEntityManager()->persist($data);
+        $this->getEntityManager()->flush();
     }
 
     /**
@@ -583,11 +582,11 @@ class DemandePaiementController extends Controller
      */
     private function modificationDernierIdApp(string $numDdp): void
     {
-        $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
+        $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'DDP']);
         $application->setDerniereId($numDdp);
         // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-        self::$em->persist($application);
-        self::$em->flush();
+        $this->getEntityManager()->persist($application);
+        $this->getEntityManager()->flush();
     }
 
     /**

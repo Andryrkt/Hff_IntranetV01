@@ -2,10 +2,9 @@
 
 namespace App\Controller\dom;
 
-use App\Controller\Controller;
 use App\Entity\dom\Dom;
+use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/rh/ordre-de-mission")
  */
@@ -20,7 +19,7 @@ class DomsDetailController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $dom = self::$em->getRepository(Dom::class)->findOneBy(['id' => $id]);
+        $dom = $this->getEntityManager()->getRepository(Dom::class)->findOneBy(['id' => $id]);
         $dom->setIdemnityDepl((int)str_replace('.', '', $dom->getIdemnityDepl()));
         $matricule = $dom->getMatricule();
         if (strlen($matricule) === 4 && ctype_digit($matricule)) {
@@ -33,7 +32,7 @@ class DomsDetailController extends Controller
             'id' => $id,
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'doms/detail.html.twig',
             [
                 'dom' => $dom,

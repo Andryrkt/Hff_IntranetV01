@@ -1,13 +1,17 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	DIT - Soumission Facture
+{% endblock %}
+
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/ditInsertionOr.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 
 {% block content %}
-	<div class="container">
+	<div class=" container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
 
@@ -88,5 +92,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/dit/ditFactureSoumisAValidation.js"></script>
+	<script src="{{ App.base_path }}/Views/js/dit/ditFactureSoumisAValidation.js?v=2025.08.29.16.20"></script>
 {% endblock %}

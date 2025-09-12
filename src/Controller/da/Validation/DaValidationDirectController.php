@@ -4,9 +4,9 @@ namespace App\Controller\da\Validation;
 
 use App\Controller\Controller;
 use App\Controller\Traits\da\DaAfficherTrait;
-use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\da\validation\DaValidationDirectTrait;
 
 /**
  * @Route("/demande-appro")
@@ -19,7 +19,7 @@ class DaValidationDirectController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
+
         $this->initDaValidationDirectTrait();
     }
 
@@ -42,7 +42,7 @@ class DaValidationDirectController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro()); // enregistrer dans la table Da Afficher
+        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
 
         /** ENVOIE D'EMAIL */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
@@ -52,7 +52,7 @@ class DaValidationDirectController extends Controller
         ]);
 
         /** NOTIFICATION */
-        $this->sessionService->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
+        $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'La demande a été validée avec succès.']);
         $this->redirectToRoute("list_da");
     }
 }

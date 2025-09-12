@@ -204,7 +204,7 @@ class MenuService
                     'receipt',
                     [
                         $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                        $this->createSubItem('Consultation', 'search', '#')
+                        $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
                     ]
                 )
             ]
@@ -243,7 +243,7 @@ class MenuService
                 'umbrella-beach',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', '#')
+                    $this->createSubItem('Consultation', 'search', 'conge_liste')
                 ]
             );
         }
@@ -316,7 +316,7 @@ class MenuService
                 'toolbox',
                 $subSubitems
             );
-            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
+            if ($nomUtilisateur != 'stg.iaro') {
                 $subitems[] = $this->createSimpleItem('Glossaire OR', 'book', "{$this->basePath}/dit/glossaire_or/Glossaire_OR.pdf", [], '_blank');
             }
         }
@@ -382,16 +382,27 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
-            $subitems[] = $this->createSimpleItem('Commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        /** =====================dematerialisation========================= */
+        if ($this->getEstAdmin()) {
+            $subitems[] = $this->createSubMenuItem(
+                'DEMATERIALISATION',
+                'cloud-arrow-up',
+                [
+                    $this->createSubItem('Devis', 'file-invoice', 'devis_magasin_liste'),
+                    $this->createSubItem('Commandes clients', 'shopping-basket', '#'),
+                    $this->createSubItem('Planning magasin', 'calendar-alt', '#'),
+                ]
+            );
         }
+        /** =====================soumission commande fournisseur========================= */
+        if ($this->getEstAdmin() || in_array(Application::ID_CFR, $this->getApplicationIds())) { // CFR
+            $subitems[] = $this->createSimpleItem('Soumission commandes fournisseur', 'list-alt', 'cde_fournisseur');
+        }
+        /** =====================liste des commandes fournisseur non generer========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_LCF, $this->getApplicationIds())) { // LCF
             $subitems[] = $this->createSimpleItem('Liste des cmds non placées', 'exclamation-circle', 'liste_Cde_Frn_Non_Placer');
         }
-        if ($this->getEstAdmin()) {
-            $subitems[] = $this->createSimpleItem('Commandes clients', 'shopping-basket');
-            $subitems[] = $this->createSimpleItem('Planning magasin', 'calendar-alt');
-        }
+
         return $this->createMenuItem(
             'magasinModal',
             'Magasin',

@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
-
 /**
  * @Route("/magasin/inventaire")
  */
@@ -76,7 +75,7 @@ class DetailInventaireController extends Controller
             ->setDateDebut($this->dateDebut)
             ->setDateFin($this->datefin)
         ;
-        $form = self::$validator->createBuilder(
+        $form = $this->getFormFactory()->createBuilder(
             detailInventaireSearchType::class,
             $this->DetailInventaireSearch,
             [
@@ -86,7 +85,7 @@ class DetailInventaireController extends Controller
         $form->handleRequest($request);
         $criteria = $this->DetailInventaireSearch;
 
-        $this->sessionService->set('detail_invetaire_search_criteria', $criteria);
+        $this->getSessionService()->set('detail_invetaire_search_criteria', $criteria);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
         }
@@ -96,7 +95,7 @@ class DetailInventaireController extends Controller
             $listInvent = $this->InventaireModel->ligneInventaire($criteria);
             $data = $this->recupData($listInvent);
         }
-        self::$twig->display('inventaire/detailInventaire.html.twig', [
+        return $this->render('inventaire/detailInventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
         ]);
@@ -108,7 +107,7 @@ class DetailInventaireController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $criteria = $this->sessionService->get('detail_invetaire_search_criteria');
+        $criteria = $this->getSessionService()->get('detail_invetaire_search_criteria');
         $listInvent = $this->InventaireModel->ligneInventaire($criteria);
         $data = $this->recupData($listInvent);
         $header = [

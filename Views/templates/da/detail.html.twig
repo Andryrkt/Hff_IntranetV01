@@ -1,10 +1,14 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
+{% block title %}
+	Détails d’une DA
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -13,11 +17,10 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% set container_class = demandeAppro.achatDirect ? 'container': 'container-fluid' %}
 {% set detail_template = demandeAppro.achatDirect ? 'detail-direct' : 'detail-avec-dit' %}
 
 {% block content %}
-	<div class="{{ container_class }}">
+	<div class="container-spaced">
 		<nav>
 			<div class="onglet-head nav nav-tabs" id="nav-tab" role="tablist">
 				<button class="nav-link active" id="nav-detail-tab" data-bs-toggle="tab" data-bs-target="#nav-detail" type="button" role="tab" aria-controls="nav-detail" aria-selected="true">Détail</button>
@@ -46,7 +49,7 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/detail.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/detail/document-rattache.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

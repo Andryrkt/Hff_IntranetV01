@@ -10,20 +10,18 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
-use App\Entity\da\DaHistoriqueDemandeModifDA;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Repository\da\DaSoumissionBcRepository;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
-use App\Repository\da\DaHistoriqueDemandeModifDARepository;
+use App\Service\Users\UserDataService;
 use Twig\Markup;
 
 trait DaListeTrait
 {
     use DaTrait;
+    use StatutBcTrait;
 
     //=====================================================================================
-    private $urlGenerator;
-
     // Styles des DA, OR, BC dans le css
     private $styleStatutDA = [];
     private $styleStatutOR = [];
@@ -34,51 +32,63 @@ trait DaListeTrait
     private DossierInterventionAtelierModel $dwModel;
     private AgenceRepository $agenceRepository;
     private DaSoumissionBcRepository $daSoumissionBcRepository;
-    private DaHistoriqueDemandeModifDARepository $historiqueModifDARepository;
     private DitOrsSoumisAValidationRepository $ditOrsSoumisAValidationRepository;
+    private UserDataService $userDataService;
 
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaListeTrait($generator)
+    public function initDaListeTrait()
     {
         $em = $this->getEntityManager();
         $this->initDaTrait();
-        $this->urlGenerator = $generator;
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
-            DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide fw-bold',
-            DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white fw-bold',
-            DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat fw-bold',
-            DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat fw-bold',
-            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-warning text-secondary',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale fw-bold',
+            DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
+            DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
+            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation',
+            DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
+            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
         ];
         $this->styleStatutOR = [
-            DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-danger text-white',
-            'Refusé chef atelier'                                      => 'bg-or-non-valide',
-            'Refusé client interne'                                    => 'bg-or-non-valide',
-            DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-warning text-secondary',
+            DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
+            DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
+            DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CA                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
+            DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
         ];
         $this->styleStatutBC = [
-            'A générer'                => 'bg-bc-a-generer fw-bold',
-            'A éditer'                 => 'bg-bc-a-editer fw-bold',
-            'A soumettre à validation' => 'bg-bc-a-soumettre-a-validation fw-bold',
-            'Validé'                   => 'bg-bc-valide fw-bold',
-            'Cloturé'                  => 'bg-bc-valide fw-bold',
-            'Non validé'               => 'bg-bc-non-valide fw-bold',
-            'Tous livrés'              => 'tout-livre bg-success text-white',
-            'Partiellement livré'      => 'partiellement-livre bg-warning text-white',
-            'Partiellement dispo'      => 'partiellement-dispo bg-info text-white',
-            'Complet non livré'        => 'complet-non-livre bg-primary text-white',
+            DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
+            DaSoumissionBc::STATUT_A_EDITER                 => 'bg-bc-a-editer',
+            DaSoumissionBc::STATUT_A_SOUMETTRE_A_VALIDATION => 'bg-bc-a-soumettre-a-validation',
+            DaSoumissionBc::STATUT_A_ENVOYER_AU_FOURNISSEUR => 'bg-bc-a-envoyer-au-fournisseur',
+            DaSoumissionBc::STATUT_SOUMISSION               => 'bg-bc-soumission',
+            DaSoumissionBc::STATUT_A_VALIDER_DA             => 'bg-bc-a-valider-da',
+            DaSoumissionBc::STATUT_VALIDE                   => 'bg-bc-valide',
+            DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
+            DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
+            DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
+            DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
+            'Non validé'                                    => 'bg-bc-non-valide',
+            DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
+            DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
+            DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
         ];
         //----------------------------------------------------------------------------------------------------
         $this->daModel = new DaModel();
         $this->dwModel = new DossierInterventionAtelierModel();
+        $this->userDataService = new UserDataService($em);
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->historiqueModifDARepository = $em->getRepository(DaHistoriqueDemandeModifDA::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
         //----------------------------------------------------------------------------------------------------
     }
@@ -98,18 +108,96 @@ trait DaListeTrait
         }
     }
 
+    public function getPaginationData(array $criteria, int $page, int $limit, ?string $sortField, ?string $sortDirection): array
+    {
+        //recuperation de l'id de l'agence de l'utilisateur connecter
+        $userConnecter = $this->getUser();
+        $codeAgence = $userConnecter->getCodeAgenceUser();
+        $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
+        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit, $sortField, $sortDirection);
+        /** @var array $daAffichers Filtrage des DA en fonction des critères */
+        $daAffichers = $paginationData['data'];
+
+        // mise à jours des donner dans la base de donner
+        $this->quelqueModifictionDansDatabase($daAffichers, $sortField, $sortDirection);
+
+        // Vérification du verrouillage des DA et Retourne les DA filtrées
+        $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+
+        return $paginationData;
+    }
+
+    private function quelqueModifictionDansDatabase(array $datas, ?string $sortField, ?string $sortDirection): void
+    {
+        $em = $this->getEntityManager();
+        foreach ($datas as $data) {
+            if (!$sortField && !$sortDirection) {
+                $this->modificationDateRestant($data, $em);
+            }
+            $this->modificationStatutBC($data, $em);
+        }
+        $em->flush();
+    }
+
+    /** 
+     * Permet de calculer le nombre de jours restants pour chaque DAL
+     */
+    private function modificationDateRestant(DaAfficher $data, $em): void
+    {
+        $this->ajoutNbrJourRestant($data);
+        $em->persist($data);
+    }
+
+    /**
+     * Cette methode permet de modifier le statut du BC
+     *
+     * @return void
+     */
+    private function modificationStatutBC(DaAfficher $data, $em)
+    {
+        $statutBC = $this->statutBc($data->getArtRefp(), $data->getNumeroDemandeDit(), $data->getNumeroDemandeAppro(), $data->getArtDesi(), $data->getNumeroOr());
+        $data->setStatutCde($statutBC);
+        $em->persist($data);
+    }
+
+    /**
+     * Applique le verrouillage ou déverrouillage des DA en fonction du profil utilisateur
+     * 
+     * @param iterable<DaAfficher> $daAffichers
+     * @param bool $estAdmin
+     * @param bool $estAppro
+     * @param bool $estAtelier
+     * 
+     * @return iterable<DaAfficher>
+     */
+    private function appliquerVerrouillageSelonProfil(iterable $daAffichers, bool $estAdmin, bool $estAppro, bool $estAtelier): iterable
+    {
+        foreach ($daAffichers as $daAfficher) {
+            $verrouille = $this->estDaVerrouillee(
+                $daAfficher->getStatutDal(),
+                $estAdmin,
+                $estAppro,
+                $estAtelier,
+                $daAfficher->getAchatDirect() && $daAfficher->getServiceEmetteur() == $this->userDataService->getServiceId($this->getUser())
+            );
+            $daAfficher->setVerouille($verrouille);
+        }
+        return $daAffichers;
+    }
+
     /** 
      * Fonction pour préparer les données à afficher dans Twig 
      *  @param DaAfficher[] $data données avant préparation
-     *  @param array $numDaNonDeverrouillees
      **/
-    private function prepareDataForDisplay(array $data, array $numDaNonDeverrouillees): array
+    private function prepareDataForDisplay(array $data): array
     {
         $datasPrepared = [];
 
         $safeIconSuccess = new Markup('<i class="fas fa-check text-success"></i>', 'UTF-8');
         $safeIconXmark   = new Markup('<i class="fas fa-xmark text-danger"></i>', 'UTF-8');
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
+
+        $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
         foreach ($data as $item) {
             // Pré-calculer les styles
@@ -119,31 +207,16 @@ trait DaListeTrait
 
             // Pré-calculer les booléens
             $ajouterDA = false && !$item->getAchatDirect() && ($this->estUserDansServiceAtelier() || $this->estAdmin()); // pas achat direct && (atelier ou admin)  
-            $aDeverouiller = $this->estUserDansServiceAppro() && in_array($item->getNumeroDemandeAppro(), $numDaNonDeverrouillees);
-            $demandeDeverouiller = $this->estUserDansServiceAtelier() && $item->getDemandeDeverouillage();
-            $supprimable = ($this->estUserDansServiceAppro() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO) || ($this->estUserDansServiceAtelier() && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_ATE);
+            $supprimable = ($this->estUserDansServiceAppro() || $this->estUserDansServiceAtelier() || $this->estAdmin()) && in_array($item->getStatutDal(), $statutDASupprimable);
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
-            // Pré-calculer les URLs
-            $urlDetail = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            $urlProposition = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
-                ['id' => $item->getDemandeAppro()->getId()]
-            );
-            $urlDelete = $this->urlGenerator->generate(
-                $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
-                ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
-            );
-
             $achatDirect = $item->getAchatDirect();
+            $urls = $this->buildItemUrls($item);
 
-            // formatter l'item (DaAfficher) à afficher
-            $formattedItem = [
+            // Tout regrouper
+            $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
                 'numeroDemandeAppro'  => $item->getNumeroDemandeAppro(),
                 'demandeAppro'        => $item->getDemandeAppro(),
@@ -171,34 +244,57 @@ trait DaListeTrait
                 'dateFinSouhaite'     => $item->getDateFinSouhaite() ? $item->getDateFinSouhaite()->format('d/m/Y') : '',
                 'dateLivraisonPrevue' => $item->getDateLivraisonPrevue() ? $item->getDateLivraisonPrevue()->format('d/m/Y') : '',
                 'joursDispo'          => $item->getJoursDispo(),
-            ];
-
-            // Tout regrouper
-            $datasPrepared[] = [
-                'item'                => $formattedItem,
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
-                'aDeverouiller'       => $aDeverouiller,
-                'urlDetail'           => $urlDetail,
-                'urlProposition'      => $urlProposition,
-                'urlDelete'           => $urlDelete,
+                'urlDetail'           => $urls['detail'],
+                'urlDesignation'      => $urls['designation'],
+                'urlDelete'           => $urls['delete'],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'telechargerOR'       => $telechargerOR,
                 'pathOrMax'           => $pathOrMax,
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
-                'demandeDeverouiller' => $demandeDeverouiller,
             ];
         }
 
-        // résultat avec tri des données
-        /* usort(
-            $datasPrepared,
-            function ($a, $b) {
-                return $a['item']['joursDispo'] <=> $b['item']['joursDispo']; // tri croissant
-            }
-        ); */
         return $datasPrepared;
+    }
+
+    /**
+     * Construit l'ensemble des URLs associées à un item de demande d'approvisionnement.
+     *
+     * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
+     *
+     * @return array{detail:string,designation:string,delete:string}
+     */
+    private function buildItemUrls(DaAfficher $item): array
+    {
+        $urls = [];
+
+        // URL détail
+        $urls['detail'] = $this->getUrlGenerator()->generate(
+            $item->getAchatDirect() ? 'da_detail_direct' : 'da_detail_avec_dit',
+            ['id' => $item->getDemandeAppro()->getId()]
+        );
+
+        // URL désignation (peut basculer sur "new" si statut en cours de création)
+        $urls['designation'] = $item->getStatutDal() === DemandeAppro::STATUT_EN_COURS_CREATION
+            ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
+                'daId'  => $item->getDemandeAppro()->getId(),
+                'ditId' => $item->getDit()->getId(),
+            ])
+            : $this->getUrlGenerator()->generate(
+                $item->getAchatDirect() ? 'da_proposition_direct' : 'da_proposition_ref_avec_dit',
+                ['id' => $item->getDemandeAppro()->getId()]
+            );
+
+        // URL suppression de ligne
+        $urls['delete'] = $this->getUrlGenerator()->generate(
+            $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
+            ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
+        );
+
+        return $urls;
     }
 }

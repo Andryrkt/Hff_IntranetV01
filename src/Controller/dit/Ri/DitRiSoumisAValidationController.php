@@ -30,7 +30,7 @@ class DitRiSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService;
+        $this->historiqueOperation = new HistoriqueOperationRIService($this->getEntityManager());
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
         $this->traitementDeFichier = new TraitementDeFichier();
     }
@@ -61,7 +61,7 @@ class DitRiSoumisAValidationController extends Controller
         $itvDejaSoumis = $ditRiSoumisAValidationModel->findItvDejaSoumis($numOr);
         $itvAfficher = $ditRiSoumisAValidationModel->recupInterventionOr($numOr, $itvDejaSoumis);
 
-        $form = self::$validator->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
+        $form = $this->getFormFactory()->createBuilder(DitRiSoumisAValidationType::class, $ditRiSoumiAValidation, [
             'itvAfficher' => $itvAfficher
         ])->getForm();
 
@@ -72,7 +72,7 @@ class DitRiSoumisAValidationController extends Controller
             'numDit' => $numDit,
         ]); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('dit/DitRiSoumisAValidation.html.twig', [
+        return $this->render('dit/DitRiSoumisAValidation.html.twig', [
             'form' => $form->createView(),
             'itvAfficher' => $itvAfficher
         ]);
@@ -154,7 +154,7 @@ class DitRiSoumisAValidationController extends Controller
                         ->setNumeroItv((int)$value)
                     ;
                     // Persist les entités liées
-                    self::$em->persist($riSoumisAValidation);
+                    $this->getEntityManager()->persist($riSoumisAValidation);
 
                     // Génération du PDF
                     $genererPdfRi->copyToDwRiSoumis($value, $riSoumisAValidation->getNumeroOR());
@@ -162,7 +162,7 @@ class DitRiSoumisAValidationController extends Controller
 
                 /** ENVOIE des DONNEE dans BASE DE DONNEE */
                 // Flushe toutes les entités et l'historique
-                self::$em->flush();
+                $this->getEntityManager()->flush();
 
                 $this->historiqueOperation->sendNotificationSoumission('Le rapport d\'intervention a été soumis avec succès', 'RI_' . $dataForm->getNumeroOR(), 'dit_index', true);
             }

@@ -8,7 +8,7 @@ class SecurityApi extends Controller
 {
     public function checkSession()
     {
-        $user = $this->sessionService->get('user_id', []);
+        $user = $this->getSessionService()->get('user_id', []);
 
         if (!$user) {
             $statut = ['status' => 'active'];

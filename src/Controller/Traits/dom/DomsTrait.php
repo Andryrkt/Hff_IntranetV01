@@ -27,7 +27,6 @@ trait DomsTrait
 
     public function initialisationSecondForm($form1Data, $em, $dom)
     {
-
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
@@ -491,7 +490,7 @@ trait DomsTrait
     private function initialisationFormTropPercu($em, Dom $dom, Dom $oldDom)
     {
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find(11);
-        $userId = $this->sessionService->get('user_id');
+        $userId = $this->getSessionService()->get('user_id');
         $user = $em->getRepository(User::class)->find($userId);
         $statutOuvert = $em->getRepository(StatutDemande::class)->find(1);
         $dom

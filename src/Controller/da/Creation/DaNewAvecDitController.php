@@ -9,128 +9,142 @@ use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DemandeApproFormType;
 use App\Entity\dit\DemandeIntervention;
-use App\Controller\Traits\ApplicationTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
-
 /**
  * @Route("/demande-appro")
  */
 class DaNewAvecDitController extends Controller
 {
-    use ApplicationTrait;
     use DaNewAvecDitTrait;
     use AutorisationTrait;
+    const STATUT_DAL = [
+        'enregistrerBrouillon' => DemandeAppro::STATUT_EN_COURS_CREATION,
+        'soumissionAppro'      => DemandeAppro::STATUT_SOUMIS_APPRO,
+    ];
 
     public function __construct()
     {
         parent::__construct();
-        $this->setEntityManager(self::$em);
         $this->initDaNewAvecDitTrait();
     }
 
     /**
-     * @Route("/first-form", name="da_first_form")
+     * @Route("/da-first-form", name="da_first_form")
      */
     public function firstForm()
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        self::$twig->display('da/first-form.html.twig', [
+        return $this->render('da/first-form.html.twig', [
             'estAte' => $this->estUserDansServiceAtelier(),
             'estAdmin' => $this->estAdmin()
         ]);
     }
 
     /**
-     * @Route("/new-avec-dit/{id}", name="da_new_avec_dit")
+     * @Route("/new-avec-dit/{daId<\d+>}/{ditId}", name="da_new_avec_dit")
      */
-    public function new($id, Request $request)
+    public function new(int $daId, int $ditId, Request $request)
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        /** Autorisation accées */
+        /** Autorisation accès */
         $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_ATELIER);
-        /** FIN AUtorisation acées */
+        /** FIN AUtorisation accès */
 
         /** 
-         * @var DemandeIntervention $dit DIT correspondant à l'id $id
+         * @var DemandeIntervention $dit DIT correspondant à l'id $ditId
          */
-        $dit = $this->ditRepository->find($id);
+        $dit = $this->ditRepository->find($ditId);
 
-        $demandeAppro = $this->initialisationDemandeApproAvecDit($dit);
+        $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
+        $demandeAppro->setDit($dit);
 
-        $form = self::$validator->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
-        $this->traitementForm($form, $request, $demandeAppro);
+        $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
+        $this->traitementForm($form, $request, $demandeAppro, $dit);
 
-        self::$twig->display('da/new-avec-dit.html.twig', [
+        return $this->render('da/new-avec-dit.html.twig', [
             'form' => $form->createView(),
         ]);
     }
 
-    private function traitementForm($form, Request $request, DemandeAppro $demandeAppro): void
+    private function traitementForm($form, Request $request, DemandeAppro $demandeAppro, DemandeIntervention $dit): void
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var DemandeAppro $demandeAppro */
             $demandeAppro = $form->getData();
-            /** @var DemandeIntervention $dit */
-            $dit = $demandeAppro->getDit();
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $numDit = $demandeAppro->getNumeroDemandeDit();
-
             $formDAL = $form->get('DAL');
-            /** ajout de ligne de demande appro dans la table Demande_Appro_L */
-            foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
+
+            // Récupérer le nom du bouton cliqué
+            $clickedButtonName = $this->getButtonName($request);
+            $demandeAppro->setStatutDal(self::STATUT_DAL[$clickedButtonName]);
+
+            foreach ($formDAL as $subFormDAL) {
                 /** 
-                 * @var DemandeApproL $DAL
+                 * @var DemandeApproL $demandeApproL
+                 * On récupère les données du formulaire DAL
                  */
-                $DAL
-                    ->setNumeroDemandeAppro($numDa)
-                    ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                    ->setPrixUnitaire($this->daModel->getPrixUnitaire($DAL->getArtRefp())[0])
-                    ->setNumeroDit($numDit)
-                    ->setJoursDispo($this->getJoursRestants($DAL))
-                ;
-                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
-                if (null === $DAL->getNumeroFournisseur()) {
-                    $this->sessionService->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
-                    $this->redirectToRoute("list_da");
+                $demandeApproL = $subFormDAL->getData();
+                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+
+                if ($demandeApproL->getDeleted() == 1) {
+                    $this->getEntityManager()->remove($demandeApproL);
+                } else {
+                    /** 
+                     * @var DemandeApproL $demandeApproL
+                     */
+                    $demandeApproL
+                        ->setNumeroDemandeAppro($numDa)
+                        ->setStatutDal(self::STATUT_DAL[$clickedButtonName])
+                        ->setPrixUnitaire($this->daModel->getPrixUnitaire($demandeApproL->getArtRefp())[0])
+                        ->setNumeroDit($demandeAppro->getNumeroDemandeDit())
+                        ->setJoursDispo($this->getJoursRestants($demandeApproL))
+                    ;
+
+                    if ($demandeApproL->getNumeroFournisseur() == 0) {
+                        $demandeApproL->setNumeroFournisseur($this->fournisseurs[$demandeApproL->getNomFournisseur()] ?? 0); // définir le numéro du fournisseur
+                    }
+                    $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
+                    $this->getEntityManager()->persist($demandeApproL);
                 }
-                self::$em->persist($DAL);
             }
 
             /** Modifie la colonne dernière_id dans la table applications */
-            $this->mettreAJourDerniereIdApplication('DAP', $numDa);
+            $applicationService = new ApplicationService($this->getEntityManager());
+            $applicationService->mettreAJourDerniereIdApplication('DAP', $numDa);
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
-            self::$em->persist($demandeAppro);
+            $this->getEntityManager()->persist($demandeAppro);
+            $this->getEntityManager()->flush();
 
             /** ajout de l'observation dans la table da_observation si ceci n'est pas null */
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
-            self::$em->flush();
-
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro, $dit);
 
-            $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [
-                'service'       => 'atelier',
-                'observation'   => $demandeAppro->getObservation() ?? '-',
-                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
-            ]);
+            if ($clickedButtonName === "soumissionAppro") {
+                $this->emailDaService->envoyerMailcreationDaAvecDit($demandeAppro, [
+                    'service'       => 'atelier',
+                    'observation'   => $demandeAppro->getObservation() ?? '-',
+                    'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+                ]);
+            }
 
-            $this->sessionService->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
+            $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
         }
     }

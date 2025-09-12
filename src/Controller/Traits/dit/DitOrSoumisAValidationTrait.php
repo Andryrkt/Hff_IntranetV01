@@ -431,6 +431,27 @@ trait DitOrSoumisAValidationTrait
             return false;
         }
     }
+    private function premierSoumissionDatePlanningInferieurDateDuJour($numOr): bool
+    {
+        $nbrOrSoumis = $this->orRepository->getNbrOrSoumis($numOr); //première soumission
+        $nbrPieceMagasin = $this->ditOrsoumisAValidationModel->recupNbPieceMagasin($numOr); //nombre de piece magasin
+
+        if ((int)$nbrOrSoumis <= 0 && (int)$nbrPieceMagasin <= 0) { // si pas encore soumis et pas de piece magasin
+            $numItvs = $this->ditOrsoumisAValidationModel->getNumItv($numOr);
+            $dateDuJour = new DateTime('now');
+            foreach ($numItvs as $numItv) {
+                $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);
+                $datePlannig2 = $this->magasinListOrLivrerModel->recupDatePlanningOR2($numOr, $numItv);
+                $datePlanning = empty($datePlannig1) ? new DateTime($datePlannig2[0]['dateplanning2']) : new DateTime($datePlannig1[0]['dateplanning1']);
+                if ($datePlanning->format('Y-m-d') < $dateDuJour->format('Y-m-d')) { // date planning est inférieure à la date du jour
+                    return true;
+                }
+            }
+            return false;
+        } else {
+            return false;
+        }
+    }
 
     private function premierSoumissionDatePlanningInferieurDateDuJour($numOr): bool
     {
@@ -464,7 +485,7 @@ trait DitOrSoumisAValidationTrait
 
     private function nomUtilisateur($em)
     {
-        $userId = $this->sessionService->get('user_id', []);
+        $userId = $this->getSessionService()->get('user_id', []);
         $user = $em->getRepository(User::class)->find($userId);
         return [
             'nomUtilisateur' => $user->getNomUtilisateur(),

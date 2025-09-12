@@ -3,6 +3,7 @@
 
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\Driver\AnnotationDriver;
 
@@ -46,6 +47,12 @@ $dbParams = [
 ];
 
 // EntityManager
-$entityManager = EntityManager::create($dbParams, $config);
-
-return $entityManager;
+try {
+    $entityManager = EntityManager::create($dbParams, $config);
+    return $entityManager;
+} catch (\Exception $e) {
+    // Fallback pour les versions récentes de Doctrine
+    $connection = \Doctrine\DBAL\DriverManager::getConnection($dbParams);
+    $entityManager = new EntityManager($connection, $config);
+    return $entityManager;
+}

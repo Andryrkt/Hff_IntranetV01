@@ -18,9 +18,9 @@ class AgenceServiceAutoriserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(AgenceServiceAutoriser::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display('admin/AgenceServiceAutoriser/list.html.twig', [
+        return $this->render('admin/AgenceServiceAutoriser/list.html.twig', [
             'data' => $data
         ]);
     }
@@ -33,19 +33,19 @@ class AgenceServiceAutoriserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceServiceAutoriserType::class)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $AgenceServiceAutoriser = $form->getData();
-            self::$em->persist($AgenceServiceAutoriser);
+            $this->getEntityManager()->persist($AgenceServiceAutoriser);
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("autoriser_index");
         }
 
-        self::$twig->display('admin/AgenceServiceAutoriser/new.html.twig', [
+        return $this->render('admin/AgenceServiceAutoriser/new.html.twig', [
 
             'form' => $form->createView()
         ]);
@@ -61,20 +61,20 @@ class AgenceServiceAutoriserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(AgenceServiceAutoriser::class)->find($id);
 
-        $form = self::$validator->createBuilder(AgenceServiceAutoriserType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceServiceAutoriserType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("autoriser_index");
         }
 
-        self::$twig->display(
+        return $this->render(
             'admin/AgenceServiceAutoriser/edit.html.twig',
             [
                 'form' => $form->createView(),
@@ -92,10 +92,10 @@ class AgenceServiceAutoriserController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(AgenceServiceAutoriser::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(AgenceServiceAutoriser::class)->find($id);
 
-        self::$em->remove($user);
-        self::$em->flush();
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
 
         $this->redirectToRoute("autoriser_index");
     }

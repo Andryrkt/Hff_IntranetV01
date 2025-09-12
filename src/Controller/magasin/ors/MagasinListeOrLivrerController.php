@@ -19,6 +19,7 @@ use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Form\magasin\MagasinListeOrALivrerSearchType;
 use App\Controller\Traits\magasin\ors\MagasinOrALIvrerTrait;
 use App\Controller\Traits\magasin\ors\MagasinTrait as OrsMagasinTrait;
+use App\Model\dit\DitModel;
 
 /**
  * @Route("/magasin/or")
@@ -28,6 +29,9 @@ class MagasinListeOrLivrerController extends Controller
     use Transformation;
     use OrsMagasinTrait;
     use MagasinOrALIvrerTrait;
+
+    private $ditModel;
+
     use AutorisationTrait;
 
     private $magasinListOrLivrerModel;
@@ -35,6 +39,7 @@ class MagasinListeOrLivrerController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->ditModel = new DitModel();
         $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
     }
 
@@ -56,7 +61,7 @@ class MagasinListeOrLivrerController extends Controller
         $serviceAgence = $this->getUser()->getServiceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
         //FIN AUTORISATION
 
         if ($autoriser) {
@@ -65,7 +70,7 @@ class MagasinListeOrLivrerController extends Controller
             $agenceUser = TableauEnStringService::TableauEnString(',', $codeAgence);
         }
 
-        $form = self::$validator->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
+        $form = $this->getFormFactory()->createBuilder(MagasinListeOrALivrerSearchType::class, ['agenceUser' => $agenceUser, 'autoriser' => $autoriser], [
             'method' => 'GET'
         ])->getForm();
 
@@ -80,13 +85,13 @@ class MagasinListeOrLivrerController extends Controller
         }
 
         //enregistrer les critère de recherche dans la session
-        $this->sessionService->set('magasin_liste_or_livrer_search_criteria', $criteria);
+        $this->getSessionService()->set('magasin_liste_or_livrer_search_criteria', $criteria);
 
         $data = $this->recupData($criteria);
 
         $this->logUserVisit('magasinListe_or_Livrer'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display('magasin/ors/listOrLivrer.html.twig', [
+        return $this->render('magasin/ors/listOrLivrer.html.twig', [
             'data' => $data,
             'form' => $form->createView()
         ]);
@@ -105,7 +110,7 @@ class MagasinListeOrLivrerController extends Controller
         $this->verifierSessionUtilisateur();
 
         //recupères les critère dans la session 
-        $criteria = $this->sessionService->get('magasin_liste_or_livrer_search_criteria', []);
+        $criteria = $this->getSessionService()->get('magasin_liste_or_livrer_search_criteria', []);
 
         $entities = $this->recupData($criteria);
 
@@ -139,12 +144,12 @@ class MagasinListeOrLivrerController extends Controller
             ];
         }
 
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
     private function recupData($criteria)
     {
-        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, self::$em);
+        $lesOrSelonCondition = $this->recupNumOrSelonCondition($criteria, $this->getEntityManager());
 
         $data = $this->magasinListOrLivrerModel->recupereListeMaterielValider($criteria, $lesOrSelonCondition);
 
@@ -164,8 +169,8 @@ class MagasinListeOrLivrerController extends Controller
                 $data[$i]['datePlanning'] = '';
             }
 
-            //$dit = self::$em->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
-            $ditRepository = self::$em->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
+            //$dit = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findNumDit($numeroOr);
+            $ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class)->findOneBy(['numeroOR' => $numeroOr]);
 
             if (!empty($ditRepository)) {
                 $data[$i]['numDit'] = $ditRepository->getNumeroDemandeIntervention();

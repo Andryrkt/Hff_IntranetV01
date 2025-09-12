@@ -9,12 +9,12 @@ use App\Entity\da\DaSoumissionFacBl;
 use App\Repository\dit\DitRepository;
 use App\Form\da\DaSoumissionFacBlType;
 use App\Entity\dit\DemandeIntervention;
+use App\Service\genererPdf\GeneratePdf;
 use App\Service\fichier\TraitementDeFichier;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\da\DaSoumissionFacBlRepository;
-use App\Service\genererPdf\GeneratePdf;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\historiqueOperation\HistoriqueOperationService;
 use App\Service\historiqueOperation\HistoriqueOperationDaBcService;
@@ -43,14 +43,14 @@ class DaSoumissionFacBlController extends Controller
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
         $this->traitementDeFichier = new TraitementDeFichier();
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService();
-        $this->daSoumissionFacBlRepository = self::$em->getRepository(DaSoumissionFacBl::class);
-        $this->demandeApproRepository = self::$em->getRepository(DemandeAppro::class);
-        $this->ditRepository = self::$em->getRepository(DemandeIntervention::class);
+        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
+        $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 
     /**
-     * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl")
+     * @Route("/soumission-facbl/{numCde}/{numDa}/{numOr}", name="da_soumission_facbl", defaults={"numOr"=0})
      */
     public function index(string $numCde, string $numDa, string $numOr, Request $request)
     {
@@ -59,13 +59,13 @@ class DaSoumissionFacBlController extends Controller
 
         $this->daSoumissionFacBl->setNumeroCde($numCde);
 
-        $form = self::$validator->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
+        $form = $this->getFormFactory()->createBuilder(DaSoumissionFacBlType::class, $this->daSoumissionFacBl, [
             'method' => 'POST',
         ])->getForm();
 
         $this->traitementFormulaire($request, $numCde, $form, $numDa, $numOr);
 
-        self::$twig->display('da/soumissionFacBl.html.twig', [
+        return $this->render('da/soumissionFacBl.html.twig', [
             'form' => $form->createView(),
             'numCde' => $numCde,
         ]);
@@ -99,11 +99,11 @@ class DaSoumissionFacBlController extends Controller
             $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
             /** AJOUT DES INFO NECESSAIRE */
-            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax);
+            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $numOr);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            self::$em->persist($soumissionFacBl);
-            self::$em->flush();
+            $this->getEntityManager()->persist($soumissionFacBl);
+            $this->getEntityManager()->flush();
 
             /** COPIER DANS DW */
             $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
@@ -114,10 +114,10 @@ class DaSoumissionFacBlController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax): DaSoumissionFacBl
+    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        $numOr = $this->ditRepository->getNumOr($numDit);
+        // $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)

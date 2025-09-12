@@ -1,27 +1,26 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css" rel="stylesheet"/>
-{% endblock%}
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/badm/formCompleBadm.css?v=2025.08.29.16.20" rel="stylesheet"/>
+{% endblock %}
+
+{% block title %}
+	Création BADM - 2
+{% endblock %}
 
 {% import "macroForm.html.twig" as formMacro %}
 
-
 {% block content %}
 
-
-<div class="container my-5">
-
+<div class="container mt-6 mb-4">
 	<div class="row">
 		<div class="col-12 col-md-11">
 			<h3 class="perso-titre">Nouveau Bordereau d’Acquisition et de Mouvement Matériel</h3>
 		</div>
-
 		<div class=" col-12 col-md-1">
 			<a href="{{ path("badms_newForm1")}}" class="tablinks p-2 btn btn-outline-warning " style="text-decoration: none;color:black">Retour</a>
 		</div>
 	</div>
-
 
 	{{ form_start(form)}}
 	{{ form_errors(form)}}
@@ -129,5 +128,5 @@
 
 
     {% block javascript %}
-    <script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js"></script>
+    <script type="module" src="{{ App.base_path }}/Views/js/badm/secondForm.js?v=2025.08.29.16.20"></script>
 	{% endblock %}

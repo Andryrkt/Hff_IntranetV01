@@ -12,7 +12,6 @@ use App\Controller\Traits\Transformation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/materiel/casier")
  */
@@ -33,7 +32,7 @@ class CasierListTemporaireController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_CAS);
         /** FIN AUtorisation acées */
 
-        $form = self::$validator->createBuilder(CasierSearchType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CasierSearchType::class, null, [
             'method' => 'GET'
         ])->getForm();
 
@@ -48,7 +47,7 @@ class CasierListTemporaireController extends Controller
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
 
-        $paginationData = self::$em->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
+        $paginationData = $this->getEntityManager()->getRepository(Casier::class)->findPaginatedAndFilteredTemporaire($page, $limit, $criteria);
 
 
         if (empty($paginationData['data'])) {
@@ -57,7 +56,7 @@ class CasierListTemporaireController extends Controller
 
         $this->logUserVisit('listeTemporaire_affichageListeCasier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/casier/listTemporaireCasier.html.twig',
             [
                 'casier' => $paginationData['data'],
@@ -84,11 +83,11 @@ class CasierListTemporaireController extends Controller
         $casierValide = new CasierValider();
         //$CasierSeul = $this->caiserListTemporaire->recuperSeulCasier($id);
 
-        $CasierSeul = self::$em->getRepository(Casier::class)->find($id);
-        $CasierSeul->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(56));
+        $CasierSeul = $this->getEntityManager()->getRepository(Casier::class)->find($id);
+        $CasierSeul->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(56));
 
-        self::$em->persist($CasierSeul);
-        self::$em->flush();
+        $this->getEntityManager()->persist($CasierSeul);
+        $this->getEntityManager()->flush();
 
         $casierValide
             ->setCasier($CasierSeul->getCasier())
@@ -99,8 +98,8 @@ class CasierListTemporaireController extends Controller
             ->setIdStatutDemande($CasierSeul->getIdStatutDemande())
         ;
 
-        self::$em->persist($casierValide);
-        self::$em->flush();
+        $this->getEntityManager()->persist($casierValide);
+        $this->getEntityManager()->flush();
 
 
         $this->redirectToRoute("liste_affichageListeCasier");

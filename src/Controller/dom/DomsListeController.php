@@ -5,15 +5,16 @@ namespace App\Controller\dom;
 use App\Entity\dom\Dom;
 use App\Entity\dom\DomSearch;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Form\dom\DomSearchType;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\dom\DomListeTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\dom\DomListModel;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -25,6 +26,14 @@ class DomsListeController extends Controller
     use DomListeTrait;
     use FormatageTrait;
     use AutorisationTrait;
+
+    private $domList;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->domList = new DomListModel();
+    }
 
     /**
      * affichage de l'architecture de la liste du DOM
@@ -39,15 +48,15 @@ class DomsListeController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DOM);
         /** FIN AUtorisation acées */
 
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $domSearch = new DomSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
+        $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
             'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
@@ -67,16 +76,16 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean'  => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
         ];
 
-        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFiltered($page, $limit, $domSearch, $option);
 
         $this->statutTropPercuDomList($paginationData['data']);
 
         //enregistre le critère dans la session
-        $this->sessionService->set('dom_search_criteria', $criteria);
-        $this->sessionService->set('dom_search_option', $option);
+        $this->getSessionService()->set('dom_search_criteria', $criteria);
+        $this->getSessionService()->set('dom_search_option', $option);
 
         $criteriaTab = $criteria;
 
@@ -96,7 +105,7 @@ class DomsListeController extends Controller
         // Appeler la méthode logUserVisit avec les arguments définis
         $this->logUserVisit(...$logType);
 
-        self::$twig->display(
+        return $this->render(
             'doms/list.html.twig',
             [
                 'form'        => $form->createView(),
@@ -120,8 +129,8 @@ class DomsListeController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Récupère les critères dans la session
-        $criteria = $this->sessionService->get('dom_search_criteria', []);
-        $option = $this->sessionService->get('dom_search_option', []);
+        $criteria = $this->getSessionService()->get('dom_search_criteria', []);
+        $option = $this->getSessionService()->get('dom_search_option', []);
 
         $domSearch = new DomSearch();
         $domSearch->setSousTypeDocument($criteria['sousTypeDocument'])
@@ -138,7 +147,7 @@ class DomsListeController extends Controller
             ->setNumDom($criteria['numDom'])
         ;
         // Récupère les entités filtrées
-        $entities = self::$em->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
+        $entities = $this->getEntityManager()->getRepository(Dom::class)->findAndFilteredExcel($domSearch, $option);
 
         // Convertir les entités en tableau de données
         $data = [];
@@ -178,7 +187,7 @@ class DomsListeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
     }
 
 
@@ -191,15 +200,15 @@ class DomsListeController extends Controller
      */
     public function listAnnuler(Request $request)
     {
-        $autoriser = $this->autorisationRole(self::$em);
+        $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $domSearch = new DomSearch();
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la nag=vigation pagiantion */
-        $this->initialisation($domSearch, self::$em, $agenceServiceIps, $autoriser);
+        $this->initialisation($domSearch, $this->getEntityManager(), $agenceServiceIps, $autoriser);
 
-        $form = self::$validator->createBuilder(DomSearchType::class, $domSearch, [
+        $form = $this->getFormFactory()->createBuilder(DomSearchType::class, $domSearch, [
             'method' => 'GET',
             'idAgenceEmetteur' => $agenceServiceIps['agenceIps']->getId()
         ])->getForm();
@@ -219,18 +228,18 @@ class DomsListeController extends Controller
 
         $option = [
             'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser(self::$em)
+            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
         ];
-        $paginationData = self::$em->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
+        $paginationData = $this->getEntityManager()->getRepository(Dom::class)->findPaginatedAndFilteredAnnuler($page, $limit, $domSearch, $option);
 
 
         //enregistre le critère dans la session
-        $this->sessionService->set('dom_search_criteria', $criteria);
-        $this->sessionService->set('dom_search_option', $option);
+        $this->getSessionService()->set('dom_search_criteria', $criteria);
+        $this->getSessionService()->set('dom_search_option', $option);
 
         $this->logUserVisit('dom_list_annuler'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'doms/list.html.twig',
             [
                 'form' => $form->createView(),

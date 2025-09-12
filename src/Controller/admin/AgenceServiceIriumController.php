@@ -7,8 +7,6 @@ use App\Entity\admin\AgenceServiceIrium;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\admin\utilisateur\AgenceServiceIriumType;
-
-
 /**
  * @Route("/admin/agServIrium")
  */
@@ -24,9 +22,9 @@ class AgenceServiceIriumController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
+        $data = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy([], ['id' => 'DESC']);
 
-        self::$twig->display(
+        return $this->render(
             'admin/AgenceServiceIrium/list.html.twig',
             [
                 'data' => $data
@@ -44,19 +42,19 @@ class AgenceServiceIriumController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(AgenceServiceIriumType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceServiceIriumType::class)->getForm();
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $AgenceServiceAutoriser = $form->getData();
-            self::$em->persist($AgenceServiceAutoriser);
+            $this->getEntityManager()->persist($AgenceServiceAutoriser);
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        self::$twig->display(
+        return $this->render(
             'admin/AgenceServiceIrium/new.html.twig',
             [
                 'form' => $form->createView()
@@ -75,20 +73,20 @@ class AgenceServiceIriumController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->find($id);
 
-        $form = self::$validator->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
+        $form = $this->getFormFactory()->createBuilder(AgenceServiceIriumType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
 
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("AgServIrium_index");
         }
 
-        self::$twig->display(
+        return $this->render(
             'admin/AgenceServiceIrium/edit.html.twig',
             [
                 'form' => $form->createView(),
@@ -106,10 +104,10 @@ class AgenceServiceIriumController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $user = self::$em->getRepository(AgenceServiceIrium::class)->find($id);
+        $user = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->find($id);
 
-        self::$em->remove($user);
-        self::$em->flush();
+        $this->getEntityManager()->remove($user);
+        $this->getEntityManager()->flush();
 
         $this->redirectToRoute("AgServIrium_index");
     }

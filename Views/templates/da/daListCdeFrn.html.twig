@@ -1,38 +1,27 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %}
+	Liste des Commandes Fournisseurs
+{% endblock %}
+
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20">
 {% endblock %}
 
 {% block content %}
-	{% set styleStatutBC = {
-		'A générer': 'bg-bc-a-generer fw-bold',
-		'A éditer': 'bg-bc-a-editer fw-bold',
-		'A soumettre à validation': 'bg-bc-a-soumettre-a-validation fw-bold',
-		'Validé': 'bg-bc-valide fw-bold',
-		'Cloturé': 'bg-bc-valide fw-bold',
-		'Non validé': 'bg-bc-non-valide fw-bold',
-        'Tous livrés': 'tout-livre bg-success text-white',
-        'Partiellement livré' : 'partiellement-livre bg-warning text-white',
-        'Partiellement dispo' : 'partiellement-dispo bg-info text-white',
-        'Complet non livré' : 'complet-non-livre bg-primary text-white'
-	} %}
-
 	<div class="container-fluid">
 		<div class="sticky-header-titre">
-			<div class="mb-3 container">
-				<h3 class="perso-titre">
-					Liste des commandes fournisseurs
-				</h3>
+			<div class="container">
 				{% include "/partials/_notification.html.twig" %}
 				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-
+				{% include "/da/shared/cdeFrn/_pagination.html.twig" %}
 			</div>
 		</div>
 
-		<table class="table table-plein-ecran">
-			<thead class="table-dark">
+		<table class="table table-sticky">
+			<thead class="table-dark align-middle">
 				<tr>
 					<th class="text-center">N° DA</th>
 					<th class="text-center">Achat direct</th>
@@ -43,6 +32,7 @@
 					<th class="text-center">N° Fournisseur</th>
 					<th class="text-center">Fournisseur</th>
 					<th class="text-center">N° Commande</th>
+					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut BC</th>
 					<th class="text-center">Date fin souhaité</th>
 					<th class="text-center">Réference</th>
@@ -87,6 +77,7 @@
 							</td>
 						{% endif %}
 
+						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
 						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.artRefp }}</td>
@@ -111,5 +102,6 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

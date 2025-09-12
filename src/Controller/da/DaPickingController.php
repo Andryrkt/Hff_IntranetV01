@@ -1,9 +1,10 @@
 <?php
 
+
 namespace App\Controller\da;
 
-use App\Controller\Controller;
 use App\Entity\da\DaPicking;
+use App\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DaPickingController extends Controller
@@ -27,8 +28,8 @@ class DaPickingController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $form = self::$validator->createBuilder(DaPicking::class, null)->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaPicking::class, null)->getForm();
 
-        self::$twig->display('da/picking.html.twig', []);
+        return $this->render('da/picking.html.twig', []);
     }
 }

@@ -1,12 +1,16 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/proposition.css" rel="stylesheet"/>
+{% block title %}
+	Proposition / Validation d’une DA
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/proposition.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -19,7 +23,7 @@
 {% set prop_val_template = da.achatDirect ? 'proposition-validation-direct' : 'proposition-validation-avec-dit' %}
 
 {% block content %}
-	<div class="container {{ container_class }}">
+	<div class="container-spaced">
 		<nav>
 			<div class="onglet-head nav nav-tabs" role="tablist">
 				<button class="nav-link active" id="nav-proposition-tab" data-bs-toggle="tab" data-bs-target="#nav-proposition" type="button" role="tab" aria-controls="nav-proposition" aria-selected="true">Validation et Proposition</button>
@@ -44,6 +48,6 @@
 {% set dossier_JS = da.achatDirect ? 'propositionDirect' : 'propositionAvecDit' %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/{{ dossier_JS }}/proposition.js" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/{{ dossier_JS }}/proposition.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

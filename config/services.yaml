@@ -1,0 +1,10 @@
+imports:
+    - { resource: 'services/services_app.yaml' }
+    - { resource: 'services/services_form.yaml' }
+    - { resource: 'services/services_twig.yaml' }
+    - { resource: 'services/services_framework.yaml' }
+    - { resource: 'services/services_custom.yaml' }
+
+services:
+    # Ce fichier est maintenant principalement utilisé pour importer d'autres fichiers de configuration de services.
+    # Les définitions de services ont été déplacées dans le répertoire services/.

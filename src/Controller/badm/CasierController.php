@@ -4,10 +4,8 @@ namespace App\Controller\badm;
 
 use App\Entity\cas\Casier;
 use App\Controller\Controller;
-use App\Controller\Traits\AutorisationTrait;
 use App\Model\badm\CasierModel;
 use App\Entity\admin\Application;
-use App\Entity\cas\CasierValider;
 use App\Form\cas\CasierForm1Type;
 use App\Form\cas\CasierForm2Type;
 use App\Entity\admin\StatutDemande;
@@ -15,10 +13,11 @@ use App\Entity\admin\utilisateur\User;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\Transformation;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use App\Service\genererPdf\GenererPdfCasier;
-use App\Service\historiqueOperation\HistoriqueOperationCASService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\historiqueOperation\HistoriqueOperationCASService;
 
 /**
  * @Route("/materiel/casier")
@@ -36,11 +35,11 @@ class CasierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationCASService;
+        $this->historiqueOperation = new HistoriqueOperationCASService($this->getEntityManager());
     }
 
     /**
-     * @Route("/new", name="casier_nouveau")
+     * @Route("/cas-form1", name="casier_nouveau")
      */
     public function NouveauCasier(Request $request)
     {
@@ -58,7 +57,7 @@ class CasierController extends Controller
         $casier->setAgenceEmetteur($agenceService['agenceIps']);
         $casier->setServiceEmetteur($agenceService['serviceIps']);
 
-        $form = self::$validator->createBuilder(CasierForm1Type::class, $casier)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CasierForm1Type::class, $casier)->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -76,7 +75,7 @@ class CasierController extends Controller
                     'numParc' => $casier->getNumParc(),
                     'numSerie' => $casier->getNumSerie()
                 ];
-                $this->sessionService->set('casierform1Data', $formData);
+                $this->getSessionService()->set('casierform1Data', $formData);
 
                 $this->redirectToRoute("casiser_formulaireCasier");
             }
@@ -84,7 +83,7 @@ class CasierController extends Controller
 
         $this->logUserVisit('casier_nouveau'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/casier/nouveauCasier.html.twig',
             [
                 'form' => $form->createView()
@@ -93,7 +92,7 @@ class CasierController extends Controller
     }
 
     /**
-     * @Route("/createCasier", name="casiser_formulaireCasier", methods={"GET","POST"})
+     * @Route("/cas-form2", name="casiser_formulaireCasier", methods={"GET","POST"})
      */
     public function FormulaireCasier(Request $request)
     {
@@ -105,7 +104,7 @@ class CasierController extends Controller
         /** FIN AUtorisation acées */
 
         $casier = new Casier();
-        $form1Data = $this->sessionService->get('casierform1Data', []);
+        $form1Data = $this->getSessionService()->get('casierform1Data', []);
 
         //Recupérations de tous les matériel
         $casierModel = new CasierModel();
@@ -127,7 +126,7 @@ class CasierController extends Controller
         ;
 
 
-        $form = self::$validator->createBuilder(CasierForm2Type::class, $casier)->getForm();
+        $form = $this->getFormFactory()->createBuilder(CasierForm2Type::class, $casier)->getForm();
 
 
         $form->handleRequest($request);
@@ -136,18 +135,18 @@ class CasierController extends Controller
 
             $casier->setNumeroCas($this->autoINcriment('CAS'));
             //RECUPERATION de la dernière NumeroDemandeIntervention 
-            $application = self::$em->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
+            $application = $this->getEntityManager()->getRepository(Application::class)->findOneBy(['codeApp' => 'CAS']);
             $application->setDerniereId($casier->getNumeroCas());
             // Persister l'entité Application (modifie la colonne derniere_id dans le table applications)
-            self::$em->persist($application);
-            self::$em->flush();
+            $this->getEntityManager()->persist($application);
+            $this->getEntityManager()->flush();
 
 
             $NumCAS = $casier->getNumeroCas();
-            $user = self::$em->getRepository(User::class)->find($this->sessionService->get('user_id'));
+            $user = $this->getEntityManager()->getRepository(User::class)->find($this->getSessionService()->get('user_id'));
             $casier->setAgenceRattacher($form->getData()->getAgence());
             $casier->setCasier($casier->getClient() . ' - ' . $casier->getChantier());
-            $casier->setIdStatutDemande(self::$em->getRepository(StatutDemande::class)->find(55));
+            $casier->setIdStatutDemande($this->getEntityManager()->getRepository(StatutDemande::class)->find(55));
             $casier->setNomSessionUtilisateur($user);
             $agenceEmetteur = $data[0]['agence'];
             $serviceEmetteur = $data[0]['code_service'];
@@ -161,15 +160,15 @@ class CasierController extends Controller
             $genererPdfCasier->genererPdfCasier($generPdfCasier);
             $genererPdfCasier->copyInterneToDOCUWARE($NumCAS, $agenceEmetteur . $serviceEmetteur);
 
-            self::$em->persist($casier);
-            self::$em->flush();
+            $this->getEntityManager()->persist($casier);
+            $this->getEntityManager()->flush();
 
             $this->historiqueOperation->sendNotificationCreation('Votre demande a été enregistré', $NumCAS, 'listeTemporaire_affichageListeCasier', true);
         }
 
         $this->logUserVisit('casiser_formulaireCasier'); // historisation du page visité par l'utilisateur
 
-        self::$twig->display(
+        return $this->render(
             'badm/casier/formulaireCasier.html.twig',
             [
                 'form' => $form->createView()

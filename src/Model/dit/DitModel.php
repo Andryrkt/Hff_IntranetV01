@@ -68,71 +68,10 @@ class DitModel extends Model
 
     $result = $this->connect->executeQuery($statement);
 
-
     $data = $this->connect->fetchResults($result);
 
     return $this->convertirEnUtf8($data);
   }
-
-  // public function infoMaterielExterne($matricule = '0',  $numParc = '0', $numSerie = '0')
-  // {
-
-  //   if ($matricule === '' || $matricule === '0' || $matricule === null) {
-  //     $conditionNummat = "";
-  //   } else {
-  //     $conditionNummat = "and mmat_nummat = '" . $matricule . "'";
-  //   }
-
-
-  //   if ($numParc === '' || $numParc === '0' || $numParc === null) {
-  //     $conditionNumParc = "";
-  //   } else {
-  //     $conditionNumParc = "and mmat_recalph = '" . $numParc . "'";
-  //   }
-
-  //   if ($numSerie === '' || $numSerie === '0' || $numSerie === null) {
-  //     $conditionNumSerie = "";
-  //   } else {
-  //     $conditionNumSerie = "and mmat_numserie = '" . $numSerie . "'";
-  //   }
-
-  //   $statement = " SELECT FIRST 1
-  //       mmat_marqmat as constructeur,
-  //       trim(mmat_desi) as designation,
-  //       trim(mmat_typmat) as modele,
-  //       trim(mmat_numparc) as casier_emetteur,
-  //       mmat_nummat as num_matricule,
-  //       trim(mmat_numserie) as num_serie,
-  //       trim(mmat_recalph) as num_parc,
-
-  //       (select mhir_compteur from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as heure,
-  //       (select mhir_cumcomp from mat_hir a where a.mhir_nummat = mmat_nummat and a.mhir_daterel = (select max(b.mhir_daterel) from mat_hir b where b.mhir_nummat = a.mhir_nummat)) as km,
-
-  //       0 as Prix_achat,
-  //       0 as Amortissement,
-
-  //       0 as ChiffreAffaires,
-  //       0 as ChargeLocative,
-  //       0 as ChargeEntretien
-
-  //     FROM MAT_MAT, mat_bil
-  //     WHERE MMAT_ETSTOCK in ('ST','AT', '--')
-  //     and mbil_dateclot = '12/31/1899'
-  //     " . $conditionNummat . "
-  //     " . $conditionNumParc . "
-  //     " . $conditionNumSerie . "
-  //     ";
-
-
-
-
-  //   $result = $this->connect->executeQuery($statement);
-
-
-  //   $data = $this->connect->fetchResults($result);
-
-  //   return $this->convertirEnUtf8($data);
-  // }
 
 
   public function historiqueMateriel($idMateriel)
@@ -596,5 +535,15 @@ class DitModel extends Model
     $data = $this->connect->fetchResults($result);
 
     return $this->convertirEnUtf8($data);
+  }
+
+  public function getPosition(string $numDit)
+  {
+    $statement = "SELECT seor_pos as position from informix.sav_eor  where seor_refdem = '$numDit'";
+
+    $result = $this->connect->executeQuery($statement);
+    $data = $this->connect->fetchResults($result);
+
+    return array_column($this->convertirEnUtf8($data), 'position');
   }
 }

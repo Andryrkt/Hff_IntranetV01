@@ -16,29 +16,48 @@ trait DaAfficherTrait
      * Ajoute les données d'une Demande d'Achat dans la table `DaAfficher`, 
      * par le numéro de la Demande d'Achat.
      *
+     * ⚠️ IMPORTANT : Avant d'appeler cette fonction, il est impératif d'exécuter :
+     *     $this->getEntityManager()->flush();
+     * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
+     *
      * @param string $numDa  le numéro de la Demande d'Achat à traiter
+     * @param bool $validationDA  indique si l'ajout est effectué dans le cadre d'une validation de la DA
      * @return void
      */
-    public function ajouterDansTableAffichageParNumDa(string $numDa): void
+    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false): void
     {
         $em = $this->getEntityManager();
 
         /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
         $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
-        $numeroVersionMaxDaAfficher = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+
+        $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
+        $numeroVersionMaxDaAfficher = 0;
+
+        if (!empty($oldDaAffichers) && isset($oldDaAffichers[0])) {
+            $numeroVersionMaxDaAfficher = $oldDaAffichers[0]->getNumeroVersion();
+        }
+
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
-        $donneesAfficher = $this->getLignesRectifieesDA($numDa, $numeroVersionMax);
-        foreach ($donneesAfficher as $donneeAfficher) {
+        $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
+
+        $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
+
+        foreach ($newDaAffichers as $newDaAfficher) {
             $daAfficher = new DaAfficher();
             if ($demandeAppro->getDit()) {
                 $daAfficher->setDit($demandeAppro->getDit());
             }
             $daAfficher->enregistrerDa($demandeAppro);
             $daAfficher->setNumeroVersion(VersionService::autoIncrement($numeroVersionMaxDaAfficher));
-            if ($donneeAfficher instanceof DemandeApproL) {
-                $daAfficher->enregistrerDal($donneeAfficher); // enregistrement pour DAL
-            } else if ($donneeAfficher instanceof DemandeApproLR) {
-                $daAfficher->enregistrerDalr($donneeAfficher); // enregistrement pour DALR
+            if ($newDaAfficher instanceof DemandeApproL) {
+                $daAfficher->enregistrerDal($newDaAfficher); // enregistrement pour DAL
+            } else if ($newDaAfficher instanceof DemandeApproLR) {
+                $daAfficher->enregistrerDalr($newDaAfficher); // enregistrement pour DALR
+            }
+            if ($validationDA) {
+                $daAfficher->setDateValidation(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')));
             }
 
             $em->persist($daAfficher);

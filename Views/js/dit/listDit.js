@@ -1,42 +1,42 @@
-import { TableauComponent } from '../Component/TableauComponent.js';
-import { baseUrl } from '../utils/config.js';
+import { TableauComponent } from "../Component/TableauComponent.js";
+import { baseUrl } from "../utils/config.js";
 import {
   configAgenceService,
   configDocSoumisDwModal,
   configCloturDit,
-} from './config/listDitConfig.js';
+} from "./config/listDitConfig.js";
 import {
   handleAgenceChange,
   docSoumisModalHidden,
   docSoumisModalShow,
-} from './fonctionUtils/fonctionListDit.js';
+} from "./fonctionUtils/fonctionListDit.js";
 import {
   toUppercase,
   allowOnlyNumbers,
   limitInputLength,
-} from '../utils/inputUtils.js';
+} from "../utils/inputUtils.js";
 import {
   toggleSpinner,
   affichageOverlay,
   affichageSpinner,
-} from '../utils/ui/uiSpinnerUtils.js';
-import { FetchManager } from '../api/FetchManager.js';
+} from "../utils/ui/uiSpinnerUtils.js";
+import { FetchManager } from "../api/FetchManager.js";
 
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener("DOMContentLoaded", (event) => {
   /**===========================================================================
    * Configuration des agences et services
    *===========================================================================*/
 
   // Attachement des événements pour les agences
-  configAgenceService.emetteur.agenceInput.addEventListener('change', () =>
-    handleAgenceChange('emetteur')
+  configAgenceService.emetteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("emetteur")
   );
 
-  configAgenceService.debiteur.agenceInput.addEventListener('change', () =>
-    handleAgenceChange('debiteur')
+  configAgenceService.debiteur.agenceInput.addEventListener("change", () =>
+    handleAgenceChange("debiteur")
   );
 
   /**=======================================
@@ -44,21 +44,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
    * ======================================*/
 
   configDocSoumisDwModal.docDansDwModal.addEventListener(
-    'show.bs.modal',
+    "show.bs.modal",
     docSoumisModalShow
   );
 
   // Gestionnaire pour la fermeture du modal
   configDocSoumisDwModal.docDansDwModal.addEventListener(
-    'hidden.bs.modal',
+    "hidden.bs.modal",
     docSoumisModalHidden
   );
 
   /**====================================================
    * MISE EN MAJUSCULE
    *=================================================*/
-  const numDitSearchInput = document.querySelector('#dit_search_numDit');
-  numDitSearchInput.addEventListener('input', () => {
+  const numDitSearchInput = document.querySelector("#dit_search_numDit");
+  numDitSearchInput.addEventListener("input", () => {
     toUppercase(numDitSearchInput);
     limitInputLength(numDitSearchInput, 11);
   });
@@ -66,13 +66,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   /**===========================================
    * SEULMENT DES CHIFFRES
    *============================================*/
-  const numOrSearchInput = document.querySelector('#dit_search_numOr');
-  const numDevisSearchInput = document.querySelector('#dit_search_numDevis');
-  numOrSearchInput.addEventListener('input', () => {
+  const numOrSearchInput = document.querySelector("#dit_search_numOr");
+  const numDevisSearchInput = document.querySelector("#dit_search_numDevis");
+  numOrSearchInput.addEventListener("input", () => {
     allowOnlyNumbers(numOrSearchInput);
     limitInputLength(numOrSearchInput, 8);
   });
-  numDevisSearchInput.addEventListener('input', () => {
+  numDevisSearchInput.addEventListener("input", () => {
     allowOnlyNumbers(numDevisSearchInput);
     limitInputLength(numDevisSearchInput, 8);
   });
@@ -84,9 +84,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
    *==================================================*/
 
   configCloturDit.clotureDit.forEach((el) => {
-    el.addEventListener('click', (e) => {
+    el.addEventListener("click", (e) => {
       e.preventDefault();
-      let id = el.getAttribute('data-id');
+      let id = el.getAttribute("data-id");
 
       Swal.fire(configCloturDit.text).then((result) => {
         if (result.isConfirmed) {
@@ -106,13 +106,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
   /**======================
    * LIST COMMANDE MODAL
    * ======================*/
-  const listeCommandeModal = document.getElementById('listeCommande');
-  const loading = document.getElementById('loading');
-  const dataContent = document.getElementById('dataContent');
+  const listeCommandeModal = document.getElementById("listeCommande");
+  const loading = document.getElementById("loading");
+  const dataContent = document.getElementById("dataContent");
 
-  listeCommandeModal.addEventListener('show.bs.modal', function (event) {
+  listeCommandeModal.addEventListener("show.bs.modal", function (event) {
     const button = event.relatedTarget; // Button that triggered the modal
-    const id = button.getAttribute('data-id'); // Extract info from data-* attributes
+    const id = button.getAttribute("data-id"); // Extract info from data-* attributes
 
     // Afficher le spinner et masquer le contenu des données
     toggleSpinner(loading, dataContent, true);
@@ -121,18 +121,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     fetchManager
       .get(`command-modal/${id}`)
       .then((data) => {
-        const tableBody = document.getElementById('commandesTableBody');
-        tableBody.innerHTML = ''; // Clear previous data
+        const tableBody = document.getElementById("commandesTableBody");
+        tableBody.innerHTML = ""; // Clear previous data
 
         if (data.length > 0) {
           data.forEach((command) => {
             let typeCommand;
-            if (command.slor_typcf == 'ST' || command.slor_typcf == 'LOC') {
-              typeCommand = 'Local';
-            } else if (command.slor_typcf == 'CIS') {
-              typeCommand = 'Agence';
+            if (command.slor_typcf == "ST" || command.slor_typcf == "LOC") {
+              typeCommand = "Local";
+            } else if (command.slor_typcf == "CIS") {
+              typeCommand = "Agence";
             } else {
-              typeCommand = 'Import';
+              typeCommand = "Import";
             }
 
             // Formater la date
@@ -140,9 +140,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
             const formattedDate = `${date
               .getDate()
               .toString()
-              .padStart(2, '0')}/${(date.getMonth() + 1)
+              .padStart(2, "0")}/${(date.getMonth() + 1)
               .toString()
-              .padStart(2, '0')}/${date.getFullYear()}`;
+              .padStart(2, "0")}/${date.getFullYear()}`;
 
             // Affichage
             let row = `<tr>
@@ -161,17 +161,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
       })
       .catch((error) => {
-        const tableBody = document.getElementById('commandesTableBody');
+        const tableBody = document.getElementById("commandesTableBody");
         tableBody.innerHTML =
           '<tr><td colspan="5">Could not retrieve data.</td></tr>';
-        console.error('There was a problem with the fetch operation:', error);
+        console.error("There was a problem with the fetch operation:", error);
       })
       .finally(() => toggleSpinner(loading, dataContent, false));
   });
 
   // Gestionnaire pour la fermeture du modal
-  listeCommandeModal.addEventListener('hidden.bs.modal', function () {
-    const tableBody = document.getElementById('commandesTableBody');
-    tableBody.innerHTML = ''; // Vider le tableau
+  listeCommandeModal.addEventListener("hidden.bs.modal", function () {
+    const tableBody = document.getElementById("commandesTableBody");
+    tableBody.innerHTML = ""; // Vider le tableau
   });
 });

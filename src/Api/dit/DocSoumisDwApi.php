@@ -35,14 +35,14 @@ class DocSoumisDwApi extends Controller
 
     private function recupConstrainte(string $numDit): array
     {
-        $constraitDevis = self::$em->getRepository(DemandeIntervention::class)->recupConstraitSoumission($numDit);
+        $constraitDevis = $this->getEntityManager()->getRepository(DemandeIntervention::class)->recupConstraitSoumission($numDit);
 
-        $statutDevis = self::$em->getRepository(DitDevisSoumisAValidation::class)->findStatutDevis($numDit);
+        $statutDevis = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class)->findStatutDevis($numDit);
 
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
 
 
-        if(empty($constraitDevis)){
+        if (empty($constraitDevis)) {
             $client = "";
             $statutDit = "";
         } else {
@@ -50,7 +50,7 @@ class DocSoumisDwApi extends Controller
             $statutDit = $constraitDevis[0]['statut'];
         }
 
-        if(empty($numOrBaseDonner)) {
+        if (empty($numOrBaseDonner)) {
             $numeroOR = '';
         } else {
             $numeroOR = $numOrBaseDonner[0]['numor'];
@@ -63,5 +63,4 @@ class DocSoumisDwApi extends Controller
             "numeroOR" => $numeroOR
         ];
     }
-
 }

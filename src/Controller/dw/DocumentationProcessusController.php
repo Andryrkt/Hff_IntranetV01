@@ -4,11 +4,10 @@ namespace App\Controller\dw;
 
 use App\Controller\Controller;
 use App\Entity\dw\DocInternesearch;
-use App\Entity\dw\DwProcessusProcedure;
 use App\Form\dw\DocInterneSearchType;
+use App\Entity\dw\DwProcessusProcedure;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-
 /**
  * @Route("/documentation")
  */
@@ -24,7 +23,7 @@ class DocumentationProcessusController extends Controller
 
         $docInterneSearch = new DocInternesearch;
 
-        $form = self::$validator->createBuilder(DocInterneSearchType::class, $docInterneSearch, [
+        $form = $this->getFormFactory()->createBuilder(DocInterneSearchType::class, $docInterneSearch, [
             'method' => 'GET'
         ])->getForm();
 
@@ -39,9 +38,9 @@ class DocumentationProcessusController extends Controller
         $page = $request->query->getInt('page', 1);
         $limit = 10;
 
-        $paginationData = self::$em->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
+        $paginationData = $this->getEntityManager()->getRepository(DwProcessusProcedure::class)->findPaginatedAndFiltered($page, $limit, $docInterneSearch);
 
-        self::$twig->display('dw/documentationInterne.html.twig', [
+        return $this->render('dw/documentationInterne.html.twig', [
             'form' => $form->createView(),
             'data' => $paginationData['data'],
             'currentPage' => $paginationData['currentPage'],

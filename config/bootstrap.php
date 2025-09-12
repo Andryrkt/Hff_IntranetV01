@@ -56,6 +56,9 @@ use Symfony\Component\Security\Core\Authorization\Strategy\AffirmativeStrategy;
 
 require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
 
+// Configuration des sessions
+require_once __DIR__ . '/session_config.php';
+
 
 define('DEFAULT_FORM_THEME', 'form_div_layout.html.twig');
 
@@ -145,10 +148,10 @@ $twig->addExtension(new TranslationExtension($translator));
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new RoutingExtension($generator));
 $twig->addExtension(new FormExtension());
-$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker));
+$twig->addExtension(new AppExtension($session, $requestStack, $tokenStorage, $authorizationChecker, $entitymanager));
 $twig->addExtension(new DeleteWordExtension());
 $twig->addExtension(new CarbonExtension());
-$menuService = new MenuService($entityManager);
+$menuService = new MenuService($entitymanager);
 $breadcrumbMenuService = new BreadcrumbMenuService($menuService);
 $twig->addExtension(new BreadcrumbExtension($breadcrumbMenuService));
 
@@ -182,14 +185,8 @@ $formFactory = Forms::createFormFactoryBuilder()
 
 Paginator::useBootstrap();
 
-//envoyer twig au controller
-Controller::setTwig($twig);
-
-Controller::setValidator($formFactory);
-
-Controller::setGenerator($generator);
-
-Controller::setEntity($entityManager);
+// Le contrôleur principal utilise maintenant l'injection de dépendances
+// Plus besoin de configuration statique
 
 //Controller::setPaginator($paginator);
 

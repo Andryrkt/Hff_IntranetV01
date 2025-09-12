@@ -27,23 +27,23 @@ class CdeFrnListType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Tous' => 'tous',
+        'Tous'     => 'tous',
         'Avec DIT' => 'avec_dit',
-        'Direct' => 'direct',
+        'Direct'   => 'direct',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
             ->add('numDa', TextType::class, [
-                'label' => 'n° DA',
+                'label'    => 'n° DA',
                 'required' => false
             ])
             ->add('typeAchat', ChoiceType::class, [
-                'label' => 'Type de la demande d\'achat',
-                'placeholder' => '-- Choisir le choix --',
-                'choices' => self::TYPE_ACHAT,
-                'required' => false
+                'label'       => 'Type de la demande d\'achat',
+                'placeholder' => '-- Choisir le type --',
+                'choices'     => self::TYPE_ACHAT,
+                'required'    => false
             ])
             ->add('numDit', TextType::class, [
                 'label' => 'n° DIT',
@@ -78,7 +78,7 @@ class CdeFrnListType extends  AbstractType
                 'label_html' => true,
                 'class' => WorNiveauUrgence::class,
                 'choice_label' => 'description',
-                'placeholder' => '-- Choisir un niveau--',
+                'placeholder' => '-- Choisir le niveau d\'urgence--',
                 'required' => false,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('n')
@@ -94,7 +94,7 @@ class CdeFrnListType extends  AbstractType
                 [
                     'label' => "Statut BC",
                     'choices' => self::STATUT_BC,
-                    'placeholder' => '-- Choisir --',
+                    'placeholder' => '-- Choisir la statut --',
                     'required' => false,
                 ]
             )

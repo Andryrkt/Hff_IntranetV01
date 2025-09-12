@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controller\admin;
 
 
@@ -19,14 +20,16 @@ class ApplicationController extends Controller
     public function index()
     {    //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
-        $data = self::$em->getRepository(Application::class)->findBy([], ['id'=>'DESC']);
-    
+
+        $data = $this->getEntityManager()->getRepository(Application::class)->findAll();
+
         //  dd($data[0]->getDerniereId());
-        self::$twig->display('admin/application/list.html.twig', 
-        [
-            'data' => $data
-        ]);
+        return $this->render(
+            'admin/application/list.html.twig',
+            [
+                'data' => $data
+            ]
+        );
     }
 
     /**
@@ -34,23 +37,23 @@ class ApplicationController extends Controller
      */
     public function new(Request $request)
     {
-        $form = self::$validator->createBuilder(ApplicationType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(ApplicationType::class)->getForm();
 
         $form->handleRequest($request);
 
-        if($form->isSubmitted() && $form->isValid())
-        {
-            $application= $form->getData();
-            
-            self::$em->persist($application);
-            self::$em->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $application = $form->getData();
+            $this->getEntityManager()->persist($application);
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("application_index");
         }
 
-        self::$twig->display('admin/application/new.html.twig', 
-        [
-            'form' => $form->createView()
-        ]);
+        return $this->render(
+            'admin/application/new.html.twig',
+            [
+                'form' => $form->createView()
+            ]
+        );
     }
 
     /**
@@ -60,54 +63,52 @@ class ApplicationController extends Controller
      */
     public function edit(Request $request, $id)
     {
-        $user = self::$em->getRepository(Application::class)->find($id);
-        
-        $form = self::$validator->createBuilder(ApplicationType::class, $user)->getForm();
+        $user = $this->getEntityManager()->getRepository(Application::class)->find($id);
+
+        $form = $this->getFormFactory()->createBuilder(ApplicationType::class, $user)->getForm();
 
         $form->handleRequest($request);
 
         // Vérifier si le formulaire est soumis et valide
         if ($form->isSubmitted() && $form->isValid()) {
-
-            self::$em->flush();
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("application_index");
-            
         }
 
-        self::$twig->display('admin/application/edit.html.twig', 
-        [
-            'form' => $form->createView(),
-        ]);
-
+        return $this->render(
+            'admin/application/edit.html.twig',
+            [
+                'form' => $form->createView(),
+            ]
+        );
     }
 
-     /**
-    * @Route("/admin/application/delete/{id}", name="application_delete")
-    *
-    * @return void
-    */
+    /**
+     * @Route("/admin/application/delete/{id}", name="application_delete")
+     *
+     * @return void
+     */
     public function delete($id)
     {
-        $application = self::$em->getRepository(Application::class)->find($id);
+        $application = $this->getEntityManager()->getRepository(Application::class)->find($id);
 
         if ($application) {
             $roles = $application->getUsers();
             foreach ($roles as $role) {
                 $application->removeUser($role);
-                self::$em->persist($role); // Persist the permission to register the removal
+                $this->getEntityManager()->persist($role); // Persist the permission to register the removal
             }
 
             // Clear the collection to ensure Doctrine updates the join table
             $application->getUsers()->clear();
 
             // Flush the entity manager to ensure the removal of the join table entries
-            self::$em->flush();
-        
-                self::$em->remove($application);
-                self::$em->flush();
+            $this->getEntityManager()->flush();
+
+            $this->getEntityManager()->remove($application);
+            $this->getEntityManager()->flush();
         }
-        
-        
+
         $this->redirectToRoute("application_index");
     }
 }

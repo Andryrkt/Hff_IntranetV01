@@ -1,0 +1,28 @@
+# Configuration des services PDF
+# Fichier : config/services/services_pdf.yaml
+
+services:
+    # Configuration de la classe parente PDF
+    App\Service\genererPdf\GeneratePdf:
+        arguments:
+            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
+            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
+        public: true
+
+    # Services PDF spécialisés - héritent automatiquement des paramètres
+    App\Service\genererPdf\GeneratePdfDevisMagasin:
+        parent: App\Service\genererPdf\GeneratePdf
+        public: true
+
+    # Ajoutez d'autres services PDF ici quand vous en aurez besoin
+    # App\Service\genererPdf\GeneratePdfDevisDit:
+    #     parent: App\Service\genererPdf\GeneratePdf
+    #     public: true
+
+    # App\Service\genererPdf\GeneratePdfFacture:
+    #     parent: App\Service\genererPdf\GeneratePdf
+    #     public: true
+
+    # App\Service\genererPdf\GeneratePdfOrdreMission:
+    #     parent: App\Service\genererPdf\GeneratePdf
+    #     public: true

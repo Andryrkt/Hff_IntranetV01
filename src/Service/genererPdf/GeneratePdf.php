@@ -9,10 +9,13 @@ class GeneratePdf
     private $baseCheminDuFichier;
     private $baseCheminDocuware;
 
-    public function __construct()
-    {
-        $this->baseCheminDuFichier = $_ENV['BASE_PATH_FICHIER'] . '/';
-        $this->baseCheminDocuware = $_ENV['BASE_PATH_DOCUWARE'] . '/';
+    public function __construct(
+        string $baseCheminDuFichier = null,
+        string $baseCheminDocuware = null
+    ) {
+        // Injection de dépendances avec fallback sur les variables d'environnement
+        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
+        $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
     }
 
     private function copyFile(string $sourcePath, string $destinationPath): void
@@ -97,7 +100,7 @@ class GeneratePdf
         }
     }
 
-    // devis
+    // devis DIT
     public function copyToDWDevisSoumis($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
@@ -165,6 +168,23 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'da/' . $numDa . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+
+    // devis Magasin
+    public function copyToDWDevisMagasin($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    // bl FUT
+    public function copyToDWBlFut($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BON DE SORTIE FTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

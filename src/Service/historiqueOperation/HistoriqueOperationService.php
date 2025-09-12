@@ -2,7 +2,8 @@
 
 namespace App\Service\historiqueOperation;
 
-use App\Controller\Controller;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\admin\utilisateur\User;
 use App\Service\SessionManagerService;
 use App\Entity\admin\historisation\documentOperation\TypeDocument;
@@ -37,12 +38,12 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      *  - 13 : AC - Accusé de réception
      *  - 16 : MUT - Demande de mutation
      */
-    public function __construct(int $typeDocumentId)
+    public function __construct(EntityManagerInterface $em, int $typeDocumentId)
     {
-        $this->em                      = Controller::getEntity();
-        $this->userRepository          = $this->em->getRepository(User::class);
-        $this->typeOperationRepository = $this->em->getRepository(TypeOperation::class);
-        $this->typeDocumentRepository  = $this->em->getRepository(TypeDocument::class);
+        $this->em                      = $em;
+        $this->userRepository          = $em->getRepository(User::class);
+        $this->typeOperationRepository = $em->getRepository(TypeOperation::class);
+        $this->typeDocumentRepository  = $em->getRepository(TypeDocument::class);
         $this->sessionService = new SessionManagerService();
         $this->typeDocumentId = $typeDocumentId;
     }
@@ -88,7 +89,8 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
      * @param boolean $success
      * @return void
      */
-    protected function enregistrerDansSession(string $message,  bool $success = false) {
+    protected function enregistrerDansSession(string $message,  bool $success = false)
+    {
         $this->sessionService->set('notification', [
             'type'    => $success ? 'success' : 'danger',
             'message' => $message,
@@ -124,7 +126,15 @@ class HistoriqueOperationService implements HistoriqueOperationInterface
 
         $this->sendNotificationCore($message, $numeroDocument, $typeOperationId, $success);
 
-        header("Location: " . Controller::getGenerator()->generate($routeName));
+        global $container;
+        if ($container && $container->has('router')) {
+            $urlGenerator = $container->get('router');
+            $url = $urlGenerator->generate($routeName);
+        } else {
+            // Fallback si le conteneur n'est pas disponible
+            $url = '/' . $routeName;
+        }
+        header("Location: " . $url);
         exit();
     }
 

@@ -116,7 +116,7 @@ trait DaValidationTrait
         // 4. Génération du fichier Excel
         $fileName = $this->genererNomFichierExcel($numDa);
         $filePath = $this->genererCheminFichierExcel($numDa, $fileName);
-        $this->excelService->createSpreadsheetEnregistrer($donneesExcel, $filePath);
+        $this->getExcelService()->createSpreadsheetEnregistrer($donneesExcel, $filePath);
 
         return [
             'fileName' => $fileName,

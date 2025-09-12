@@ -46,7 +46,9 @@ document.addEventListener("DOMContentLoaded", function () {
           // Parcourt les données reçues et insère chaque document dans le tableau
           data.forEach((doc) => {
             // Conversion de la taille du fichier en kilo-octets (ko)
-            const tailleFichierKo = conversionEnKo(doc.taille_fichier);
+            const tailleFichierKo = doc.taille_fichier
+              ? conversionEnKo(doc.taille_fichier) + " Ko"
+              : "-";
 
             // Sélectionne l'icône en fonction de l'extension du fichier avec Font Awesome
             let icon = iconSelonTypeFile(doc.extension_fichier);
@@ -65,15 +67,19 @@ document.addEventListener("DOMContentLoaded", function () {
                       <td>${icon}</td>
                       <td>${doc.nomDoc}</td>
                       <td>${doc.numero_doc}</td>
-                      <td>${new Date(
+                      <td>${
                         doc.date_creation
-                      ).toLocaleDateString()}</td>
-                      <td>${new Date(
+                          ? new Date(doc.date_creation).toLocaleDateString()
+                          : "-"
+                      }</td>
+                      <td>${
                         doc.date_modification
-                      ).toLocaleDateString()}</td>
+                          ? new Date(doc.date_modification).toLocaleDateString()
+                          : "-"
+                      }</td>
                       <td class="text-center">${numVersion}</td>
-                      <td class="text-center">${doc.total_page}</td>
-                      <td>${tailleFichierKo} ko</td>
+                      <td class="text-center">${doc.total_page ?? "-"}</td>
+                      <td>${tailleFichierKo}</td>
                   `;
 
             // Ajoute la classe "clickable" à la ligne

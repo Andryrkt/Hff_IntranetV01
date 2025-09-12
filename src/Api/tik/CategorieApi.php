@@ -16,7 +16,7 @@ class CategorieApi extends Controller
      */
     public function sousCategorie($id)
     {
-        $categorie = self::$em->getRepository(TkiCategorie::class)->find($id);
+        $categorie = $this->getEntityManager()->getRepository(TkiCategorie::class)->find($id);
 
         $sousCategorie = [];
         foreach ($categorie->getSousCategories() as $value) {
@@ -38,7 +38,7 @@ class CategorieApi extends Controller
      */
     public function autresCategorie($id)
     {
-        $sousCategorie = self::$em->getRepository(TkiSousCategorie::class)->find($id);
+        $sousCategorie = $this->getEntityManager()->getRepository(TkiSousCategorie::class)->find($id);
 
         $autreCategorie = [];
         foreach ($sousCategorie->getAutresCategories() as $value) {

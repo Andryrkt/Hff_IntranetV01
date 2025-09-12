@@ -296,8 +296,7 @@ export function handleFile(files, fileListElement, maxSizeMB = 5) {
     embed.src = e.target.result;
     embed.type = "application/pdf";
     embed.width = "100%";
-    embed.height = "300px";
-    embed.className = "mt-2 border";
+    embed.style.height = "80vh";
     container.appendChild(embed);
   };
   reader.readAsDataURL(file);

@@ -1,14 +1,18 @@
 {% extends "baseTemplate.html.twig" %}
 
-{% block stylesheets%}
-	<link href="{{ App.base_path }}/Views/css/new.css" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css" rel="stylesheet"/>
+{% block title %}
+	Duplication DIT
+{% endblock %}
+
+{% block stylesheets %}
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.08.29.16.20" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-<div class=" container">
+<div class=" container mt-6 mb-4">
 	<div class="card">
 		<div class="card-body">
 			<div class="container">
@@ -28,6 +32,14 @@
 				{{ form_errors(form)}}
 
 				<div class="row">
+					<dit class="d-none">
+						<div class="{{ estAvoir ? '' : d-none}} text-danger">
+							{{ form_row(form.estDitAvoir, {'attr': {'class': 'champColor'}})}}
+						</div>
+						<div class="{{ estRefactorisation ? '' : d-none}} text-danger">
+							{{ form_row(form.estDitRefacturation, {'required':true, 'attr': {'class': 'champColor'}})}}
+						</div>
+					</dit>
 					{{ form_row(form.objetDemande)}}
 					<div class="mb-3 position-relative">
 						{{ form_row(form.detailDemande) }}
@@ -173,5 +185,5 @@
 {% endblock %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js" type="module"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/dit/dit.js?v=2025.08.29.16.20" type="module"></script>
 {% endblock %}

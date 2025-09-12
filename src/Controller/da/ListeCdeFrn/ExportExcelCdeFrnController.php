@@ -18,7 +18,7 @@ class ExportExcelCdefrnController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->daAfficherRepository = self::$em->getRepository(DaAfficher::class);
+        $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
     }
 
     /** 
@@ -29,7 +29,7 @@ class ExportExcelCdefrnController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $criteria = $this->sessionService->get('criteria_for_excel_Da_Cde_frn');
+        $criteria = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
 
         // recupération des données de la DA
         $dasFiltered = $this->donnerAfficher($criteria);
@@ -63,7 +63,7 @@ class ExportExcelCdefrnController extends Controller
         $data = $this->convertirObjetEnTableau($dasFiltered, $data);
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data, "donnees_" . date('YmdHis'));
+        $this->getExcelService()->createSpreadsheet($data, "donnees_" . date('YmdHis'));
     }
 
 

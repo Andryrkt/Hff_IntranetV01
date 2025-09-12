@@ -5,9 +5,18 @@ namespace App\Api\badm;
 use App\Controller\Controller;
 use App\Entity\cas\CasierValider;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Model\badm\BadmModel;
 
 class CasierApi extends Controller
 {
+    private $badm;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->badm = new BadmModel();
+    }
+
     /**
      * @Route("/casierDestinataire", name="badm_casierDestinataire")
      */
@@ -15,10 +24,10 @@ class CasierApi extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        
+
         $casierDestinataireInformix = $this->badm->recupeCasierDestinataireInformix();
-         //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
-        $casierDestinataire = self::$em->getRepository(CasierValider::class)->findAll();
+        //$casierDestinataireSqlServer = $this->badm->recupeCasierDestinataireSqlServer();
+        $casierDestinataire = $this->getEntityManager()->getRepository(CasierValider::class)->findAll();
 
         $casierDestinataireSqlServer = [];
         foreach ($casierDestinataire as $value) {

@@ -1,11 +1,13 @@
 <?php
 
+
 namespace App\Controller\admin;
 
 use App\Controller\Controller;
 use App\Entity\admin\utilisateur\Fonction;
 use App\Form\admin\utilisateur\FonctionType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class FonctionController extends Controller
@@ -20,10 +22,10 @@ class FonctionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $data = self::$em->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
+        $data = $this->getEntityManager()->getRepository(Fonction::class)->findBy([], ['id'=>'DESC']);
     
     
-        self::$twig->display('admin/fonction/list.html.twig', 
+        return $this->render('admin/fonction/list.html.twig', 
         [
             'data' => $data
         ]);
@@ -39,7 +41,7 @@ class FonctionController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
         
-        $form = self::$validator->createBuilder(FonctionType::class)->getForm();
+        $form = $this->getFormFactory()->createBuilder(FonctionType::class)->getForm();
 
         $form->handleRequest($request);
 
@@ -47,12 +49,12 @@ class FonctionController extends Controller
         {
             $fonction= $form->getData();
                 
-            self::$em->persist($fonction);
-            self::$em->flush();
+            $this->getEntityManager()->persist($fonction);
+            $this->getEntityManager()->flush();
             $this->redirectToRoute("fonction_index");
         }
 
-        self::$twig->display('admin/fonction/new.html.twig', 
+        return $this->render('admin/fonction/new.html.twig', 
         [
             'form' => $form->createView()
         ]);

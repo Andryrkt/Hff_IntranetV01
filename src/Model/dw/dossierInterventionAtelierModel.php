@@ -25,9 +25,9 @@ class DossierInterventionAtelierModel extends Model
     private function conditionLikeTypeIntervention($colonne, $criteria)
     {
         if (!empty($criteria["typeIntervention"])) {
-            $condition = "WHERE {$colonne} LIKE '%" . $criteria["typeIntervention"] . "%'";
+            $condition = " AND {$colonne} LIKE '%" . $criteria["typeIntervention"] . "%'";
         } else {
-            $condition = "WHERE {$colonne} is not null";
+            $condition = " AND {$colonne} is not null";
         }
 
         return $condition;
@@ -52,7 +52,7 @@ class DossierInterventionAtelierModel extends Model
         return $condition;
     }
 
-    public function findAllDwDit($criteria = [])
+    public function findAllDwDit($criteria = [], $codeAgence = '40', bool $estAdmin = false)
     {
 
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
@@ -65,6 +65,7 @@ class DossierInterventionAtelierModel extends Model
         $dateDebut = $this->conditionDateSigne('dit.date_creation', 'dateDebut', $criteria, '>=');
         $dateFin = $this->conditionDateSigne('dit.date_creation', 'dateFin', $criteria, '<=');
         $typeIntervention = $this->conditionLikeTypeIntervention('dit.type_reparation', $criteria);
+        $reparationRealise = $estAdmin ? "" : " AND reparation_realise in (select agence_atelier_realise.code_atelier from agence_atelier_realise where code_agence = '$codeAgence')";
 
         $sql = " SELECT 
             dit.date_creation AS date_creation_intervention,
@@ -84,6 +85,9 @@ class DossierInterventionAtelierModel extends Model
                 SELECT DISTINCT numero_dit
                 FROM DW_Devis
             ) dd ON dit.numero_dit = dd.numero_dit
+            JOIN demande_intervention di ON dit.numero_dit = di.numero_demande_dit
+            WHERE 1=1
+            $reparationRealise
             $typeIntervention
             $numeroDev
             $numeroDit
@@ -96,7 +100,6 @@ class DossierInterventionAtelierModel extends Model
             $numSerie
             ORDER BY dit.date_creation DESC
         ";
-
         $exec = $this->connexion->query($sql);
         $tab = [];
         while ($result = odbc_fetch_array($exec)) {

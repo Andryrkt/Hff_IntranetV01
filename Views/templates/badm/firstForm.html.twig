@@ -2,15 +2,15 @@
 
 {% import "macroForm.html.twig" as formMacro %}
 
+{% block title %}
+	Création BADM - 1
+{% endblock %}
+
 {% block content %}
-
-
-	<div class="container">
+	<div class="container mt-6 mb-4">
 		<div class="card">
 			<div class="card-body">
-				<div class="d-flex  flex-row-reverse px-2">
-					<h3 class="perso-titre">Demande mouvement matériel</h3>
-				</div>
+				<h3 class="perso-titre">Demande mouvement matériel</h3>
 				{% include "/partials/_notification.html.twig" %}
 
 				{{ form_start(form)}}
@@ -44,5 +44,5 @@
 {% endblock content %}
 
 {% block javascript %}
-	<script type="module" src="{{ App.base_path }}/Views/js/badm/firstForm.js"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/badm/firstForm.js?v=2025.08.29.16.20"></script>
 {% endblock %}
