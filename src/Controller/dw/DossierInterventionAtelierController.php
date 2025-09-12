@@ -6,28 +6,38 @@ use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\AutorisationTrait;
 use App\Entity\da\DemandeAppro;
+use App\Entity\da\DemandeApproL;
+use App\Entity\da\DemandeApproLR;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\dw\DossierInterventionAtelierModel;
 use App\Form\dw\DossierInterventionAtelierSearchType;
 use App\Repository\da\DemandeApproRepository;
+use App\Repository\da\DemandeApproLRepository;
+use App\Repository\da\DemandeApproLRRepository;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
+use App\Traits\FileUtilityTrait;
 
 /**
  * @Route("/atelier/demande-intervention")
  */
 class DossierInterventionAtelierController extends Controller
 {
+    use FileUtilityTrait;
     use AutorisationTrait;
 
     private $historiqueOperation;
     private DemandeApproRepository $demandeApproRepository;
+    private DemandeApproLRepository $demandeApproLRepository;
+    private DemandeApproLRRepository $demandeApproLRRepository;
 
     public function __construct()
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
+        $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
+        $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
     }
 
     /**
@@ -76,41 +86,6 @@ class DossierInterventionAtelierController extends Controller
         ]);
     }
 
-    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
-    {
-        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser());
-
-        $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
-
-        for ($i = 0; $i < count($dwDits); $i++) {
-            $numDit = $dwDits[$i]['numero_dit_intervention'];
-            // Récupérer les données de la demande d'intervention et de l'ordre de réparation
-            $dwDit = $dwModel->findDwDit($numDit) ?? [];
-            $dwOr  = $dwModel->findDwOr($numDit) ?? [];
-
-            // Si un ordre de réparation est trouvé, récupérer les autres données liées
-            if (!empty($dwOr)) {
-                $numeroDocOr = $dwOr[0]['numero_doc'];
-                $dwfac   = $dwModel->findDwFac($numeroDocOr) ?? [];
-                $dwRi    = $dwModel->findDwRi($numeroDocOr) ?? [];
-                $dwCde   = $dwModel->findDwCde($numeroDocOr) ?? [];
-                $dwBca   = $dwModel->findDwBca($numeroDocOr) ?? [];
-                $dwFacBl = $dwModel->findDwFacBl($numeroDocOr) ?? [];
-            }
-            $dwBc  = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
-            $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
-            $daValide = !empty($dwDit) ? $this->getAllBaValide($dwDit[0]['numero_doc']) : [];
-
-            // Fusionner toutes les données dans un tableau associatif
-            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $daValide, $dwDev, $dwBca, $dwFacBl);
-
-            // Ajouter le nombre de documents à l'élément actuel de $dwDits
-            $dwDits[$i]['nbDoc'] = count($data);
-        }
-
-        return $dwDits;
-    }
-
     /**
      * @Route("/dw-intervention-atelier-avec-dit/{numDit}", name="dw_interv_ate_avec_dit")
      */
@@ -118,6 +93,10 @@ class DossierInterventionAtelierController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
+
+        /** Autorisation accées */
+        $this->autorisationAcces($this->getUser(), Application::ID_DIT);
+        /** FIN AUtorisation acées */
 
         $dwModel = new DossierInterventionAtelierModel();
 
@@ -142,9 +121,10 @@ class DossierInterventionAtelierController extends Controller
         $dwBc  = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwBc',  $dwDit[0]['numero_doc'], "Bon de Commande Client") : [];
         $dwDev = !empty($dwDit) ? $this->fetchAndLabel($dwModel, 'findDwDev', $dwDit[0]['numero_doc'], "Devis") : [];
         $daValide = !empty($dwDit) ? $this->getAllBaValide($numDit) : [];
+        $daDevisPj = !empty($dwDit) ? $this->getAllDevisPjDA($numDit) : [];
 
         // Fusionner toutes les données
-        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $daValide, $dwBca, $dwFacBl);
+        $data = array_merge($dwDit, $dwOr, $dwFac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl, $daValide, $daDevisPj);
 
         $this->logUserVisit('dw_interv_ate_avec_dit', [
             'numDit' => $numDit,
@@ -154,6 +134,42 @@ class DossierInterventionAtelierController extends Controller
             'numDit' => $numDit,
             'data'   => $data,
         ]);
+    }
+
+    public function ajoutNbDoc(DossierInterventionAtelierModel $dwModel, $criteria)
+    {
+        $dwDits = $dwModel->findAllDwDit($criteria, $this->getUser()->getCodeAgenceUser(), $this->estAdmin());
+
+        $dwfac = $dwRi = $dwCde = $dwBc = $dwDev = $dwBca = $dwFacBl = [];
+
+        for ($i = 0; $i < count($dwDits); $i++) {
+            $numDit = $dwDits[$i]['numero_dit_intervention'];
+            // Récupérer les données de la demande d'intervention et de l'ordre de réparation
+            $dwDit = $dwModel->findDwDit($numDit) ?? [];
+            $dwOr  = $dwModel->findDwOr($numDit) ?? [];
+
+            // Si un ordre de réparation est trouvé, récupérer les autres données liées
+            if (!empty($dwOr)) {
+                $numeroDocOr = $dwOr[0]['numero_doc'];
+                $dwfac   = $dwModel->findDwFac($numeroDocOr) ?? [];
+                $dwRi    = $dwModel->findDwRi($numeroDocOr) ?? [];
+                $dwCde   = $dwModel->findDwCde($numeroDocOr) ?? [];
+                $dwBca   = $dwModel->findDwBca($numeroDocOr) ?? [];
+                $dwFacBl = $dwModel->findDwFacBl($numeroDocOr) ?? [];
+            }
+            $dwBc  = $dwModel->findDwBc($dwDit[0]['numero_doc']) ?? [];
+            $dwDev = $dwModel->findDwDev($dwDit[0]['numero_doc']) ?? [];
+            $daValide = !empty($dwDit) ? $this->getAllBaValide($dwDit[0]['numero_doc']) : [];
+            $daDevisPj = !empty($dwDit) ? $this->getAllDevisPjDA($dwDit[0]['numero_doc']) : [];
+
+            // Fusionner toutes les données dans un tableau associatif
+            $data = array_merge($dwDit, $dwOr, $dwfac, $dwRi, $dwCde, $dwBc, $dwDev, $dwBca, $dwFacBl, $daValide, $daDevisPj);
+
+            // Ajouter le nombre de documents à l'élément actuel de $dwDits
+            $dwDits[$i]['nbDoc'] = count($data);
+        }
+
+        return $dwDits;
     }
 
     /**
@@ -175,11 +191,48 @@ class DossierInterventionAtelierController extends Controller
         $allNumDaValide = $this->demandeApproRepository->findAllNumDaValide($numeroDit);
 
         foreach ($allNumDaValide as $numDaValide) {
+            $chemin = "da/$numDaValide/$numDaValide.pdf";
             $items[] = [
-                'nomDoc'     => "Bon d’achat validé",
-                'numero_doc' => $numDaValide,
-                'chemin'     => "da/$numDaValide/$numDaValide.pdf"
+                'nomDoc'         => "Bon d’achat validé",
+                'numero_doc'     => $numDaValide,
+                'taille_fichier' => $this->getFileSize($_ENV['BASE_PATH_FICHIER_COURT'] . "/$chemin"),
+                'chemin'         => $chemin,
             ];
+        }
+
+        return $items;
+    }
+
+    private function getAllDevisPjDA(string $numeroDit)
+    {
+        $items = [];
+
+        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDit($numeroDit);
+        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDit($numeroDit);
+
+        /** 
+         * Fusionner les résultats des deux tables
+         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
+         **/
+        $allRows = array_merge($pjDals, $pjDalrs);
+
+        $allFileNames = [];
+        foreach ($allRows as $row) {
+            $files = $row['fileNames'];
+            foreach ($files as $fileName) {
+                $key = "{$row['numeroDemandeAppro']}_$fileName";
+                if (!isset($allFileNames[$key])) {
+                    $allFileNames[$key] = true;
+
+                    $items[] = [
+                        'nomDoc'            => "Devis / Pièce jointe",
+                        'numero_doc'        => $key,
+                        'chemin'            => "da/{$row['numeroDemandeAppro']}/$fileName",
+                        'taille_fichier'    => $this->getFileSize($_ENV['BASE_PATH_FICHIER_COURT'] . "/da/{$row['numeroDemandeAppro']}/$fileName"),
+                        'extension_fichier' => $this->getFileExtension($fileName),
+                    ];
+                }
+            }
         }
 
         return $items;

@@ -74,7 +74,7 @@ class DemandeApproLRepository extends EntityRepository
     }
 
     /**
-     * @return array<int, array{numeroDemandeAppro: string, fileNames: string}>
+     * @return array<int, array{numeroDemandeAppro: string, fileNames: array}>
      */
     public function findAttachmentsByNumeroDit(string $numDit): array
     {
