@@ -119,13 +119,13 @@ class DaListCdeFrnController extends Controller
         $this->getEntityManager()->persist($data);
     }
 
-    private function donnerAfficher(?array $criteria): array
-    {
-        /** @var array récupération des lignes de daValider avec version max et or valider */
-        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
+    // private function donnerAfficher(?array $criteria): array
+    // {
+    //     /** @var array récupération des lignes de daValider avec version max et or valider */
+    //     $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
 
-        return $daAfficherValiders;
-    }
+    //     return $daAfficherValiders;
+    // }
 
     /** 
      * Fonction qui retourne les données avec pagination des lignes de DA validé et OR validés

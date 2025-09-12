@@ -2,23 +2,34 @@
 
 namespace App\Form\magasin\devis;
 
+use App\Form\common\DateRangeType;
+use App\Form\common\AgenceServiceType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
+use App\Entity\magasin\devis\DevisMagasin;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use App\Form\common\AgenceServiceType;
-use App\Form\common\DateRangeType;
 
 class DevisMagasinSearchType extends AbstractType
 {
-    private const STATUT_DW = [
-        'Prix à confirmer' => 'Prix à confirmer',
-        'Prix validé magasin' => 'Prix validé magasin',
-        'Prix refusé magasin' => 'Prix refusé magasin',
-        'Demande refusée par le PM' => 'Demande refusée par le PM',
-        'A valider chef d\'agence' => 'A valider chef d\'agence'
-    ];
+    private $statutsDw;
+    private $em;
+
+    public function __construct(EntityManagerInterface $em)
+    {
+        $this->em = $em;
+        $statutsDwRaw = $this->em->getRepository(DevisMagasin::class)->getStatutsDw();
+
+        // Transformer le tableau en format de choix pour le formulaire
+        $this->statutsDw = [];
+        foreach ($statutsDwRaw as $statut) {
+            if (!empty($statut)) {
+                $this->statutsDw[$statut] = $statut;
+            }
+        }
+    }
 
     private const STATUT_IPS = [
         '--' => '--',
@@ -45,7 +56,7 @@ class DevisMagasinSearchType extends AbstractType
             ->add('statutDw', ChoiceType::class, [
                 'label' => 'statut docuware',
                 'placeholder' => '-- Choisir le choix --',
-                'choices' => self::STATUT_DW,
+                'choices' => $this->statutsDw,
                 'required' => false
             ])
             ->add('statutIps', ChoiceType::class, [

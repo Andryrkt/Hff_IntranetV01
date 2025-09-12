@@ -161,7 +161,7 @@ trait BadmsForm2Trait
         //     $badm->getServiceEmetteurId()->getCodeService()
         // );
 
-        $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '\/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
+                $mainPdf = $_ENV['BASE_PATH_FICHIER'] . '/bdm/' . $badm->getNumBadm() . '_' . $badm->getAgenceEmetteurId()->getCodeAgence() . $badm->getServiceEmetteurId()->getCodeService() . '.pdf';
         // Vérifier que le fichier principal existe avant de l'ajouter
         if (!file_exists($mainPdf)) {
             throw new \RuntimeException('Le fichier PDF principal n\'existe pas.');

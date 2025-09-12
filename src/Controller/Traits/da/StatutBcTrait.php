@@ -121,6 +121,10 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
+        if (empty($situationCde)) {
+            return 'PAS DANS OR';
+        }
+
         if ($this->doitGenererBc($situationCde, $statutDa, $DaAfficher->getStatutOr(), $infoDaDirect, $achatDirect)) {
             return 'A générer';
         }
