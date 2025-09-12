@@ -76,6 +76,7 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_CLOTURE                  => 'bg-bc-cloture',
             DaSoumissionBc::STATUT_REFUSE                   => 'bg-bc-refuse',
             DaSoumissionBc::STATUT_BC_ENVOYE_AU_FOURNISSEUR => 'bg-bc-envoye-au-fournisseur',
+            DaSoumissionBc::STATUT_PAS_DANS_OR              => 'bg-bc-pas-dans-or',
             'Non validé'                                    => 'bg-bc-non-valide',
             DaSoumissionBc::STATUT_TOUS_LIVRES              => 'tout-livre',
             DaSoumissionBc::STATUT_PARTIELLEMENT_LIVRE      => 'partiellement-livre',
