@@ -71,7 +71,7 @@ class EmailService
             }
 
             // ajout du bcc
-            $mailer->addBCC('ranofimenjajam@gmail.com', 'fidison');
+            $mailer->addBCC('nomenjanahary.randrianantenaina@hff.mg', 'fidison');
             $mailer->addBCC('hasina.andrianadison@hff.mg', 'hasina');
 
             // Ajouter les pièces jointes
