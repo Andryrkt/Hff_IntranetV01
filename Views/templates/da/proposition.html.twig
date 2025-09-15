@@ -5,12 +5,12 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/da/proposition.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/detail.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/dit/news.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/da/proposition.css?v=2025.09.15.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
@@ -48,6 +48,6 @@
 {% set dossier_JS = da.achatDirect ? 'propositionDirect' : 'propositionAvecDit' %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/da/{{ dossier_JS }}/proposition.js?v=2025.08.29.16.20" type="module"></script>
-	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/{{ dossier_JS }}/proposition.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/observation/observation.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}
