@@ -340,27 +340,27 @@ class DaAfficherRepository extends EntityRepository
         $classMetadata = $this->_em->getClassMetadata(DaAfficher::class);
         $hasAchatDirecte = $classMetadata->hasField('achatDirect');
 
-    // 2. Récupérer les versions maximales validées
-    $subQb = $this->_em->createQueryBuilder();
-    $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
-        ->from(DaAfficher::class, 'd')
-        ->where('d.statutDal = :statutValide')
-        ->groupBy('d.numeroDemandeAppro');
+        // 2. Récupérer les versions maximales validées
+        $subQb = $this->_em->createQueryBuilder();
+        $subQb->select('d.numeroDemandeAppro', 'MAX(d.numeroVersion) as maxVersion')
+            ->from(DaAfficher::class, 'd')
+            ->where('d.statutDal = :statutValide')
+            ->groupBy('d.numeroDemandeAppro');
 
-    $latestVersions = $subQb->getQuery()
-        ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
-        ->getArrayResult();
+        $latestVersions = $subQb->getQuery()
+            ->setParameter('statutValide', DemandeAppro::STATUT_VALIDE)
+            ->getArrayResult();
 
-    if (empty($latestVersions)) {
-        return [];
-    }
+        if (empty($latestVersions)) {
+            return [];
+        }
 
-    // 3. Construire la requête principale
-    $qb = $this->_em->createQueryBuilder();
-    $qb->select('d')
-        ->from(DaAfficher::class, 'd')
-        ->where('d.statutDal = :statutDa')
-        ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
+        // 3. Construire la requête principale
+        $qb = $this->_em->createQueryBuilder();
+        $qb->select('d')
+            ->from(DaAfficher::class, 'd')
+            ->where('d.statutDal = :statutDa')
+            ->setParameter('statutDa', DemandeAppro::STATUT_VALIDE);
 
         // Liste des exceptions pour lesquelles statutOr n'est pas requis
         $exceptions = [
@@ -408,8 +408,8 @@ class DaAfficherRepository extends EntityRepository
             ->addOrderBy('d.numeroFournisseur', 'DESC')
             ->addOrderBy('d.numeroCde', 'DESC');
 
-    return $qb->getQuery()->getResult();
-}
+        return $qb->getQuery()->getResult();
+    }
 
     private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
     {
@@ -753,9 +753,8 @@ class DaAfficherRepository extends EntityRepository
     /**
      * recupère le derière statut du DA afficher
      * @param string $numeroDemandeAppro
-     * @return string
      */
-    public function getLastStatutDaAfficher(string $numeroDemandeAppro): string
+    public function getLastStatutDaAfficher(string $numeroDemandeAppro)
     {
         //recupérer dabor le numéro de version max
         $numeroVersionMax = $this->createQueryBuilder('d')
@@ -775,6 +774,6 @@ class DaAfficherRepository extends EntityRepository
                 'numeroVersionMax' => $numeroVersionMax
             ])
             ->getQuery()
-            ->getSingleScalarResult();
+            ->getSingleColumnResult();
     }
 }
