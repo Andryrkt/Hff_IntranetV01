@@ -157,7 +157,7 @@ class MenuService
                 'Contrat',
                 'file-contract',
                 [
-                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], "_blank"),
+                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], "_blank"),
                     $this->createSubItem('Consultation', 'search', '#')
                 ]
             );
