@@ -85,4 +85,17 @@ class DemandeApproLRepository extends EntityRepository
             ->getQuery()
             ->getArrayResult();
     }
+
+    /**
+     * @return array<int, array{numeroDemandeAppro: string, fileNames: array}>
+     */
+    public function findAttachmentsByNumeroDA(string $numDa): array
+    {
+        return $this->createQueryBuilder('dal')
+            ->select('dal.numeroDemandeAppro, dal.fileNames')
+            ->where('dal.numeroDemandeAppro = :numDa')
+            ->setParameter('numDa', $numDa)
+            ->getQuery()
+            ->getArrayResult();
+    }
 }
