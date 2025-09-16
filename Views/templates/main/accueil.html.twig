@@ -15,19 +15,33 @@
 	<span class="vignette-bande">
 		{% for i in 0..4 %}
 			<span>
-				22/08/2025 - V20250822.1.2.0 :
+				12/09/2025 - V20250912.2.0.0 :
 				<div class="news-ticker">
 					<ul>
-						<li>Déploiement du nouveau design intranet</li>
-						<li>Quelques correctifs dans l’interface DA</li>
-						<li>Mise à disposition du formulaire pour les congés (phase test)</li>
 						<li>
-							Amélioration apportée sur les droits d’accès au DIT
+							<b>Délai de mise à jour des statuts des documents depuis docuware vers intranet :</b>
+							ce délai a été réduit de 15 minutes à 2 minutes.
+						</li>
+						<li>
+							<b>Demande d’achat via OR :</b>
 							<ul>
-								<li>Équipes rattachées à 01 → ATE TANA, ATE STAR, ATE MAS</li>
-								<li>Équipe 30 → ATE ABV</li>
-								<li>Équipe 40 → ATE TMV, ATE LEV</li>
-								<li>Équipe 20 → ATE FT</li>
+								<li>Possibilité d’enregistrer une demande d’achat sans la soumettre directement au service APPRO.</li>
+								<li>Les suppressions de DA sont désormais historisées.</li>
+								<li>Lors de la modification d’une DA, seules les suppressions et les modifications des quantités sont autorisées.</li>
+								<li>Une pagination est désormais intégrée aux liste des demandes d’achat et commande fournisseur.</li>
+							</ul>
+						</li>
+						<li>
+							<b>Soumission OR :</b>
+							<ul>
+								<li>L’utilisateur est alerté lors de la soumission d’un OR s’il y a une demande d’achat en cours rattachée à cet OR.</li>
+								<li>La première soumission d’un OR est bloquée si : la date planning de l’OR est antérieur à la date de soumission. Ceci n’est valable que pour les OR qui contiennent des pièces gérées par le magasin.</li>
+							</ul>
+						</li>
+						<li>
+							<b>Dossier DIT :</b>
+							<ul>
+								<li>Les documents rattachés aux demandes d’appro sont consultables directement depuis l’interface.</li>
 							</ul>
 						</li>
 					</ul>
