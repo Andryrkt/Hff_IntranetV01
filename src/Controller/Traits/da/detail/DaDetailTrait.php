@@ -141,4 +141,38 @@ trait DaDetailTrait
 
         return "-";
     }
+
+    /** 
+     * Obtenir l'url des devis et pièces jointes
+     */
+    private function getDevisPjPath(DemandeAppro $demandeAppro)
+    {
+        $items = [];
+
+        $numDa = $demandeAppro->getNumeroDemandeAppro();
+
+        $pjDals = $this->demandeApproLRepository->findAttachmentsByNumeroDA($numDa);
+        $pjDalrs = $this->demandeApproLRRepository->findAttachmentsByNumeroDA($numDa);
+
+        /** 
+         * Fusionner les résultats des deux tables
+         * @var array<int, array{numeroDemandeAppro: string, fileNames: array}>
+         **/
+        $allRows = array_merge($pjDals, $pjDalrs);
+
+        if (!empty($allRows)) {
+            foreach ($allRows as $row) {
+                $files = $row['fileNames'];
+                foreach ($files as $fileName) {
+                    $items[] = [
+                        'nomPj' => $fileName,
+                        'path'  => "{$_ENV['BASE_PATH_FICHIER_COURT']}/da/$numDa/$fileName",
+                    ];
+                }
+            }
+            return $items;
+        }
+
+        return "-";
+    }
 }

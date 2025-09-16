@@ -75,6 +75,12 @@ trait DaDetailAvecDitTrait
                 'colorClass' => 'border-left-facbl',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
             ],
+            'DEVPJ' => [
+                'type'       => 'Devis / Pièce(s) jointe(s)',
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-facbl',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPath'], 'nomPj'),
+            ],
         ];
     }
 
