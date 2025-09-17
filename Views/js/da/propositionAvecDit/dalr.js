@@ -39,9 +39,8 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   );
   insertCellData(row, formaterNombre(total), "right", color);
   insertCellData(row, "1", "center", color); // conditionnement TO DO
-  let qteDispo = fields.qteDispo.value === "" ? "-" : fields.qteDispo.value;
-  insertCellData(row, qteDispo, "center", color);
-  insertCellData(row, fields.motif.value, "left", color);
+  insertCellData(row, normalizeData(fields.qteDispo.value), "center", color);
+  insertCellData(row, normalizeData(fields.motif.value), "left", color);
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 

@@ -50,7 +50,11 @@ function handleFieldValue(field) {
    * field.id.includes('qte_dispo'): pour savoir que c'est le champ qté dispo
    * Champ non requis
    */
-  if (field.value || field.id.includes("qte_dispo")) {
+  if (
+    field.value ||
+    field.id.includes("qte_dispo") ||
+    field.id.includes("motif")
+  ) {
     return false;
   } else {
     field.focus();
