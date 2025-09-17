@@ -18,6 +18,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\validation\DaValidationAvecDitTrait;
 use App\Controller\Traits\da\proposition\DaPropositionAvecDitTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -217,7 +218,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa); // enregistrement dans la table DaAfficher
+        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
@@ -247,7 +248,7 @@ class DaPropositionRefAvecDitController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        $this->ajouterDansTableAffichageParNumDa($numDa, true);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaAvecDit($da, $nomEtChemin, [
