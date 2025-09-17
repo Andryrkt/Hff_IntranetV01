@@ -66,6 +66,7 @@ class DaDetailDirectController extends Controller
 			'baPath'    => $this->getBaPath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
 			'facblPath' => $this->getFacBlPath($demandeAppro),
+			'devPjPath' => $this->getDevisPjPath($demandeAppro),
 		]);
 
 		return $this->render('da/detail.html.twig', [

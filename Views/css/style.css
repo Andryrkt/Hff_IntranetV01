@@ -5,13 +5,14 @@
 /* ========================================================================= */
 
 @media print {
-  html, body {
+  html,
+  body {
     height: auto !important;
     overflow: visible !important;
   }
 
   #fil-d-ariane {
-    position:sticky !important;
+    position: sticky !important;
   }
 }
 
@@ -21,7 +22,6 @@ html {
 }
 
 body {
-  overflow-x: hidden;
   background-color: #f8f9fa;
   font-family: "Noto Sans Nandinagari", sans-serif;
   font-size: 0.6875rem;
@@ -55,7 +55,7 @@ label {
 }
 
 .main-content {
-  min-height: 90%;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -424,4 +424,12 @@ button.swal2-styled {
   margin: 4rem 2rem;
   padding: 0 1.25rem; /* léger padding interne */
   box-sizing: border-box; /* évite les soucis avec padding */
+}
+
+.bg-orange-cat {
+  background-color: rgb(255, 191, 0);
+}
+
+.bg-bleu-hff {
+  background-color: rgb(8, 82, 131);
 }

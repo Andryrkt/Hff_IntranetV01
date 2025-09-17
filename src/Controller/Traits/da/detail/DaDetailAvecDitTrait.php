@@ -63,6 +63,12 @@ trait DaDetailAvecDitTrait
                 'colorClass' => 'border-left-or',
                 'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
             ],
+            'DEVPJ' => [
+                'type'       => 'Devis / Pièce(s) jointe(s)',
+                'icon'       => 'fa-solid fa-money-bill-wave',
+                'colorClass' => 'border-left-devpj',
+                'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPath'], 'nomPj'),
+            ],
             'BC'    => [
                 'type'       => 'Bon de commande',
                 'icon'       => 'fa-solid fa-file-circle-check',

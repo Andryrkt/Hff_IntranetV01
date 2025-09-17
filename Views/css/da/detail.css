@@ -228,6 +228,10 @@
   border-left: 3px solid #6f42c1;
 }
 
+.border-left-devpj {
+  border-left: 3px solid #d63384;
+}
+
 .list-file-item:hover {
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-3px);
