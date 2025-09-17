@@ -75,7 +75,7 @@ class DaNewDirectController extends Controller
 
                 $DAL->setNumeroDemandeAppro($numDa)
                     ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
+                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
                     ->setJoursDispo($this->getJoursRestants($DAL));
                 $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
                 $this->getEntityManager()->persist($DAL);
@@ -98,11 +98,11 @@ class DaNewDirectController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            // ajout des données dans la table DaSoumisAValidation
-            $this->ajouterDansDaSoumisAValidation($demandeAppro);
-
-            /** création de pdf et envoi dans docuware */
-            $this->creationPdfSansDitAvaliderDW($demandeAppro);
+            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
+                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
+                'observation'   => $demandeAppro->getObservation() ?? '-',
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");
