@@ -61,24 +61,25 @@ class DaNewDirectController extends Controller
             $demandeAppro = $form->getData();
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-
             $formDAL = $form->get('DAL');
-            /** 
-             * Ajout de ligne de demande appro dans la table Demande_Appro_L 
-             * @var DemandeApproL $DAL la demande appro l à enregistrer dans la BDD
-             **/
-            foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
-                if (null === $DAL->getNumeroFournisseur()) {
-                    $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
-                    $this->redirectToRoute("list_da");
-                }
 
-                $DAL->setNumeroDemandeAppro($numDa)
-                    ->setNumeroLigne($ligne + 1)
+            foreach ($formDAL as $subFormDAL) {
+                /** 
+                 * @var DemandeApproL $demandeApproL
+                 * On récupère les données du formulaire DAL
+                 */
+                $demandeApproL = $subFormDAL->getData();
+                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+
+                $demandeApproL
+                    ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
+                    ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
+                    ->setNumeroDemandeAppro($numDa)
                     ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
-                    ->setJoursDispo($this->getJoursRestants($DAL));
-                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
-                $this->getEntityManager()->persist($DAL);
+                    ->setJoursDispo($this->getJoursRestants($demandeApproL));
+
+                $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
+                $this->getEntityManager()->persist($demandeApproL);
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
