@@ -37,7 +37,7 @@ class DaNewDirectController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
