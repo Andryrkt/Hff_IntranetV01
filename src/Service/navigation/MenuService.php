@@ -285,7 +285,7 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
-        $nomUtilisateur = $this->getConnectedUser()->getNomUtilisateur();
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
             $subSubitems = [];
             if ($nomUtilisateur != 'roddy') {
@@ -373,7 +373,7 @@ class MenuService
     public function menuAtelier()
     {
         $subitems = [];
-        $nomUtilisateur = $this->getConnectedUser()->getNomUtilisateur();
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subSubitems = [];
             if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
