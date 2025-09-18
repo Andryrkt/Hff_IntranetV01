@@ -43,7 +43,7 @@ export function ajouterUneLigne() {
     ["w-15", "fileNamesContainer"],
     ["w-2", "estFicheTechnique"],
     ["d-none", "numeroFournisseur"],
-    ["d-none", "catalogue"],
+    ["d-none", "artConstp"],
     ["d-none", "deleted"],
     ["d-none", "numeroLigne"],
     ["d-none", "fileNames"],
