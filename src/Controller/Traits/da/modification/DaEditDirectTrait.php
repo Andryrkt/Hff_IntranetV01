@@ -42,13 +42,6 @@ trait DaEditDirectTrait
         return $demandeAppro;
     }
 
-    public function statutDaModifier(DemandeAppro $demandeAppro): string
-    {
-        $statutDwAModifier = $demandeAppro->getStatutDal() === DemandeAppro::STATUT_DW_A_MODIFIER;
-        return $statutDwAModifier ? DemandeAppro::STATUT_A_VALIDE_DW : DemandeAppro::STATUT_SOUMIS_APPRO;
-    }
-
-
     private function modificationDa(DemandeAppro $demandeAppro, $formDAL, string $statut): void
     {
         $em = $this->getEntityManager();
