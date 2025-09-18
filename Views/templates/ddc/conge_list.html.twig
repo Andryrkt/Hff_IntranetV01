@@ -24,6 +24,7 @@
                 <th>Date demande</th>
                 <th>Matricule</th>
                 <th>Nom et Prénoms</th>
+                <th>Agence Débiteur</th>
                 <th>Agence/Service</th>
                 <th>Email</th>
                 <th>Motif</th>
@@ -65,6 +66,7 @@
                 <td>{{ demande.dateDemande|date('d/m/Y') }}</td>
                 <td class="text-center">{{ demande.matricule }}</td>
                 <td>{{ demande.nomPrenoms }}</td>
+                <td>{{ demande.agenceDebiteur }}</td>
                 <td>{{ demande.agenceService }}</td>
                 <td>{{ demande.adresseMailDemandeur }}</td>
                 <td>{{ demande.motifConge }}</td>
@@ -74,7 +76,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="13" class="text-center">Aucune demande trouvée</td>
+                <td colspan="14" class="text-center">Aucune demande trouvée</td>
             </tr>
             {% endfor %}
         </tbody>
