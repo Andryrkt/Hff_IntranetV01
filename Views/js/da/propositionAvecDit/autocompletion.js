@@ -1,4 +1,3 @@
-import { FetchManager } from "../../api/FetchManager";
 import { AutoComplete } from "../../utils/AutoComplete";
 import { updateDropdown } from "../../utils/selectionHandler";
 
@@ -47,7 +46,7 @@ export function autocompleteTheField(
       const dataList =
         fieldName === "fournisseur"
           ? cache.fournisseurs || []
-          : cache.designations || [];
+          : cache.designationsZST || [];
 
       return Promise.resolve(dataList);
     }, // non filtré par famille et sous-famille

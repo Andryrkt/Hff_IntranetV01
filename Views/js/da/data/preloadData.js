@@ -1,4 +1,4 @@
-import { fetchAllData } from "./fetchData";
+import { getAllDesignations, getAllFournisseurs } from "./fetchData";
 
 export async function preloadAllData() {
   const cachedData = localStorage.getItem("autocompleteCache");
@@ -11,16 +11,18 @@ export async function preloadAllData() {
   }
 
   try {
-    const [fournisseurs, designations] = await Promise.all([
-      fetchAllData("fournisseur"),
-      fetchAllData("designation"),
+    const [fournisseurs, designationsZST, designationsZDI] = await Promise.all([
+      getAllFournisseurs(),
+      getAllDesignations(false),
+      getAllDesignations(true),
     ]);
 
     localStorage.setItem(
       "autocompleteCache",
       JSON.stringify({
         fournisseurs,
-        designations,
+        designationsZST,
+        designationsZDI,
       })
     );
 

@@ -91,7 +91,7 @@ class DaModel extends Model
         return $data[0]['libelle'] ?? ''; // Retourne '' si non trouvé
     }
 
-    public function getAllDesignation($codeFamille, $codeSousFamille)
+    public function getAllDesignationZST($codeFamille, $codeSousFamille)
     {
         $statement = "SELECT 
             trim(abse_fams1) as codefamille,
@@ -128,6 +128,20 @@ class DaModel extends Model
                 $statement .= " AND abse_fams2 = '$codeSousFamille'";
             }
         }
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getAllDesignationZDI()
+    {
+        $statement = "SELECT 
+                trim(a.abse_fams1) as codefamille,
+                trim(a.abse_fams2) as codesousfamille,
+                trim(a.abse_refp) as referencepiece, 
+                trim(a.abse_desi) as designation
+                    FROM art_bse a WHERE a.abse_constp = 'ZDI'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -358,7 +372,6 @@ class DaModel extends Model
                                 AND TRIM(slor.slor_refp) = '$ref'
                         and TRIM(slor.slor_desi) = '$designation'
                 ";
-                // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
