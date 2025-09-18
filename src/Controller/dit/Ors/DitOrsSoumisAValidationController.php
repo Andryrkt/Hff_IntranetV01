@@ -133,65 +133,68 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
 
             /** FIN CONDITION DE BLOCAGE */
-            if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
+            // if ($this->bloquageOrSoumsi($conditionBloquage, $originalName, $ditInsertionOrSoumis)) {
 
-                $numeroVersionMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
+            $numeroVersionMax = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findNumeroVersionMax($ditInsertionOrSoumis->getNumeroOR());
 
-                $ditInsertionOrSoumis
-                    ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
-                    ->setHeureSoumission($this->getTime())
-                    ->setDateSoumission(new \DateTime($this->getDatesystem()))
-                ;
+            $ditInsertionOrSoumis
+                ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
+                ->setHeureSoumission($this->getTime())
+                ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                ->setObservation($observation)
+            ;
 
-                $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
+            $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
 
-                $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
+            $orSoumisValidataion = $this->orSoumisValidataion($orSoumisValidationModel, $numeroVersionMax, $ditInsertionOrSoumis, $numDit);
 
 
-                /** Modification de la colonne statut_or dans la table demande_intervention */
-                $this->modificationStatutOr($numDit);
+            /** Modification de la colonne statut_or dans la table demande_intervention */
+            $this->modificationStatutOr($numDit);
 
-                /** ENVOIE des DONNEE dans BASE DE DONNEE */
-                $this->envoieDonnerDansBd($orSoumisValidataion);
+            /** ENVOIE des DONNEE dans BASE DE DONNEE */
+            $this->envoieDonnerDansBd($orSoumisValidataion);
 
-                /** CREATION , FUSION, ENVOIE DW du PDF */
-                $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
-                $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
+            /** CREATION , FUSION, ENVOIE DW du PDF */
+            $suffix = $this->ditOrsoumisAValidationModel->constructeurPieceMagasin($numOr)[0]['retour'];
+            $this->creationPdf($ditInsertionOrSoumis, $orSoumisValidataion, $suffix);
 
-                // creation du nom du pdf pricipal avec chemin
-                $mainPdf = sprintf(
-                    '%s/vor/oRValidation_%s-%s#%s.pdf',
-                    $_ENV['BASE_PATH_FICHIER'],
-                    $ditInsertionOrSoumis->getNumeroOR(),
-                    $ditInsertionOrSoumis->getNumeroVersion(),
-                    $suffix
-                );
+            // creation du nom du pdf pricipal avec chemin
+            $mainPdf = sprintf(
+                '%s/vor/oRValidation_%s-%s#%s.pdf',
+                $_ENV['BASE_PATH_FICHIER'],
+                $ditInsertionOrSoumis->getNumeroOR(),
+                $ditInsertionOrSoumis->getNumeroVersion(),
+                $suffix
+            );
 
-                //envoie des pièce jointe dans une dossier et la fusionner
-                $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix, $mainPdf);
+            //envoie des pièce jointe dans une dossier et la fusionner
+            $this->envoiePieceJoint($form, $ditInsertionOrSoumis, $this->fusionPdf, $suffix, $mainPdf);
 
-                //fusion de pdf Demande appro avec le pdf OR fusionner
-                // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
+            //fusion de pdf Demande appro avec le pdf OR fusionner
+            // $this->fusionPdfDaAvecORfusionner($numDit, $mainPdf);
 
-                // envoyer le pdf fusionner dans DW
-                $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
+            // envoyer le pdf fusionner dans DW
+            $this->genererPdfDit->copyToDw($ditInsertionOrSoumis->getNumeroVersion(), $ditInsertionOrSoumis->getNumeroOR(), $suffix);
 
-                /** modifier la colonne numero_or dans la table demande_intervention */
-                $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
+            /** modifier la colonne numero_or dans la table demande_intervention */
+            $this->modificationDuNumeroOrDansDit($numDit, $ditInsertionOrSoumis);
 
-                /** modification da_valider */
-                $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR());
+            /** modification da_valider */
+            $this->modificationDaAfficher($numDit, $ditInsertionOrSoumis->getNumeroOR());
 
-                $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
-            } else {
-                $message = "Echec lors de la soumission, . . .";
-                $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
-                exit;
-            }
+            $this->historiqueOperation->sendNotificationSoumission('Le document de controle a été généré et soumis pour validation', $ditInsertionOrSoumis->getNumeroOR(), 'dit_index', true);
         }
+        // else {
+        //     $message = "Echec lors de la soumission, . . .";
+        //     $this->historiqueOperation->sendNotificationSoumission($message, $numOr, 'dit_index');
+        //     exit;
+        // }
+        // }
 
         $this->logUserVisit('dit_insertion_or', [
             'numDit' => $numDit,
