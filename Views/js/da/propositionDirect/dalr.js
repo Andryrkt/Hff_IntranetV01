@@ -213,7 +213,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
   ajouterValeur(prototype, "prixUnitaire", fields.prixUnitaire.value);
   ajouterValeur(prototype, "total", total);
   ajouterValeur(prototype, "conditionnement", "1"); // conditionnement TO DO
-  ajouterValeur(prototype, "motif", fields.motif.value);
+  ajouterValeur(prototype, "motif", fields.motif.value || "-");
   ajouterValeur(prototype, "artFams1", "-");
   ajouterValeur(prototype, "artFams2", "-");
   ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau

@@ -13,7 +13,6 @@ export function autocompleteTheField(
   let fournisseur = getField(field.id, fieldName, "fournisseur");
   let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
   let designation = getField(field.id, fieldName, "designation");
-  let PU = getField(field.id, fieldName, "PU");
   let line = baseId.replace(`_${fieldName}_`, "");
 
   let codeFams1 = getValueCodeFams("codeFams1", line);
@@ -59,7 +58,6 @@ export function autocompleteTheField(
         numeroFournisseur,
         reference,
         designation,
-        PU,
         getField(field.id, fieldName, "codeFams1"),
         getField(field.id, fieldName, "codeFams2"),
         iscatalogue
@@ -74,10 +72,6 @@ function safeValue(val) {
   return val && val.trim() !== "" ? val : "-";
 }
 
-function getFieldByGeneratedId(baseId, suffix) {
-  return document.getElementById(baseId.replace("artDesi", suffix));
-}
-
 function onBlurEvents(found, designation, fieldName) {
   const numeroDa = document
     .querySelector(".tab-pane.fade.show.active.dalr")
@@ -90,10 +84,6 @@ function onBlurEvents(found, designation, fieldName) {
     let baseId = designation.id.replace(desi, "");
 
     let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let fournisseur = getFieldByGeneratedId(
-      designation.id,
-      `fournisseur_${numPage}`
-    );
     let referencePiece = document.querySelector(
       `#demande_appro_proposition_reference_${numPage}`
     );
@@ -101,13 +91,7 @@ function onBlurEvents(found, designation, fieldName) {
     if (fieldName == "designation") {
       // Texte rouge ou non, ajout de valeur dans catalogue
       allFields.forEach((field) => {
-        if (found) {
-          field.classList.remove("text-danger");
-        } else {
-          field.classList.add("text-danger");
-          if (field.id.includes(`PU_${numPage}`)) {
-            field.parentElement.classList.remove("d-none"); // afficher le div container du PU
-          }
+        if (!found) {
           if (field.id.includes(`numeroFournisseur_${numPage}`)) {
             field.value = 0;
           }
@@ -139,7 +123,7 @@ function displayValues(item, fieldName) {
   if (fieldName === "fournisseur") {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
-    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} - Prix: ${item.prix} <br>Désignation: ${item.designation}`;
+    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} <br>Désignation: ${item.designation}`;
   }
 }
 
@@ -170,7 +154,6 @@ function handleValuesOfFields(
   numeroFournisseur,
   reference,
   designation,
-  PU,
   famille,
   sousFamille,
   iscatalogue
@@ -178,16 +161,13 @@ function handleValuesOfFields(
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
-    console.log(PU.value);
   } else {
     reference.value = item.referencepiece;
     fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
     designation.value = item.designation;
-    PU.parentElement.classList.add("d-none"); // cacher le div container du PU
-    PU.value = item.prix;
-    famille.value = item.codefamille;
-    sousFamille.value = item.codesousfamille;
+    famille.value = item.codefamille ?? "-";
+    sousFamille.value = item.codesousfamille ?? "-";
     const numeroDa = document
       .querySelector(".tab-pane.fade.show.active.dalr")
       .id.split("_")

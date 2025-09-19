@@ -137,11 +137,18 @@ class DaModel extends Model
     public function getAllDesignationZDI()
     {
         $statement = "SELECT 
-                trim(a.abse_fams1) as codefamille,
-                trim(a.abse_fams2) as codesousfamille,
-                trim(a.abse_refp) as referencepiece, 
-                trim(a.abse_desi) as designation
-                    FROM art_bse a WHERE a.abse_constp = 'ZDI'";
+            trim(abse_fams1) as codefamille,
+            trim(abse_fams2) as codesousfamille,
+            trim(abse_refp) as referencepiece,
+            trim(abse_desi) as designation,
+            abse_numf as numerofournisseur,
+            (
+                SELECT trim(fbse_nomfou) 
+                    FROM Informix.frn_bse 
+                    WHERE fbse_numfou = a.abse_numf
+            ) AS fournisseur
+                FROM Informix.art_bse a
+                    WHERE abse_constp = 'ZDI'";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
