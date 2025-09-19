@@ -26,7 +26,6 @@ class DaSearchType extends  AbstractType
         DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
         DemandeAppro::STATUT_TERMINER             => DemandeAppro::STATUT_TERMINER,
         DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
-        DemandeAppro::STATUT_A_VALIDE_DW          => DemandeAppro::STATUT_A_VALIDE_DW,
         DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
         DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
     ];

@@ -15,6 +15,7 @@ use App\Service\application\ApplicationService;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Controller\Traits\da\creation\DaNewAvecDitTrait;
+
 /**
  * @Route("/demande-appro")
  */
@@ -42,8 +43,9 @@ class DaNewAvecDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         return $this->render('da/first-form.html.twig', [
-            'estAte' => $this->estUserDansServiceAtelier(),
-            'estAdmin' => $this->estAdmin()
+            'estAte'                 => $this->estUserDansServiceAtelier(),
+            'estCreateurDeDADirecte' => $this->estCreateurDeDADirecte(),
+            'estAdmin'               => $this->estAdmin()
         ]);
     }
 

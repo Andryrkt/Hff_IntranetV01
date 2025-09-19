@@ -47,7 +47,7 @@ class DaValidationDirectController extends Controller
         /** ENVOIE D'EMAIL */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
             'service'           => 'appro',
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 

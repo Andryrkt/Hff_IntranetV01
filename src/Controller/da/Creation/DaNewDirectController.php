@@ -37,7 +37,7 @@ class DaNewDirectController extends Controller
         $this->verifierSessionUtilisateur();
 
         /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        $this->checkPageAccess($this->estAdmin() || $this->estCreateurDeDADirecte());
         /** FIN AUtorisation accès */
 
         $demandeAppro = $this->initialisationDemandeApproDirect();
@@ -61,24 +61,25 @@ class DaNewDirectController extends Controller
             $demandeAppro = $form->getData();
 
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-
             $formDAL = $form->get('DAL');
-            /** 
-             * Ajout de ligne de demande appro dans la table Demande_Appro_L 
-             * @var DemandeApproL $DAL la demande appro l à enregistrer dans la BDD
-             **/
-            foreach ($demandeAppro->getDAL() as $ligne => $DAL) {
-                if (null === $DAL->getNumeroFournisseur()) {
-                    $this->getSessionService()->set('notification', ['type' => 'danger', 'message' => 'Erreur : Le nom du fournisseur doit correspondre à l’un des choix proposés.']);
-                    $this->redirectToRoute("list_da");
-                }
 
-                $DAL->setNumeroDemandeAppro($numDa)
-                    ->setNumeroLigne($ligne + 1)
-                    ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
-                    ->setJoursDispo($this->getJoursRestants($DAL));
-                $this->traitementFichiers($DAL, $formDAL[$ligne + 1]->get('fileNames')->getData()); // traitement des fichiers uploadés pour chaque ligne DAL
-                $this->getEntityManager()->persist($DAL);
+            foreach ($formDAL as $subFormDAL) {
+                /** 
+                 * @var DemandeApproL $demandeApproL
+                 * On récupère les données du formulaire DAL
+                 */
+                $demandeApproL = $subFormDAL->getData();
+                $files = $subFormDAL->get('fileNames')->getData(); // Récupération des fichiers
+
+                $demandeApproL
+                    ->setNumeroFournisseur($demandeApproL->getNumeroFournisseur() ?? '-')
+                    ->setNomFournisseur($demandeApproL->getNomFournisseur() ?? '-')
+                    ->setNumeroDemandeAppro($numDa)
+                    ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
+                    ->setJoursDispo($this->getJoursRestants($demandeApproL));
+
+                $this->traitementFichiers($demandeApproL, $files); // traitement des fichiers uploadés pour chaque ligne DAL
+                $this->getEntityManager()->persist($demandeApproL);
             }
 
             /** Ajout de demande appro dans la base de donnée (table: Demande_Appro) */
@@ -98,11 +99,11 @@ class DaNewDirectController extends Controller
             // ajout des données dans la table DaAfficher
             $this->ajouterDaDansTableAffichage($demandeAppro);
 
-            // ajout des données dans la table DaSoumisAValidation
-            $this->ajouterDansDaSoumisAValidation($demandeAppro);
-
-            /** création de pdf et envoi dans docuware */
-            $this->creationPdfSansDitAvaliderDW($demandeAppro);
+            $this->emailDaService->envoyerMailcreationDaDirect($demandeAppro, [
+                'service'       => $demandeAppro->getServiceEmetteur()->getLibelleService(),
+                'observation'   => $demandeAppro->getObservation() ?? '-',
+                'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
+            ]);
 
             $this->getSessionService()->set('notification', ['type' => 'success', 'message' => 'Votre demande a été enregistrée']);
             $this->redirectToRoute("list_da");

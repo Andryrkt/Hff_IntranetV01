@@ -4,14 +4,10 @@ import { FetchManager } from "./api/FetchManager";
 import { afficherToast } from "./utils/toastUtils";
 import { displayOverlay } from "./utils/spinnerUtils";
 import { preloadAllData } from "./da/data/preloadData";
+
 // Instanciation de FetchManager avec la base URL
 const fetchManager = new FetchManager();
 
-// const loader = document.querySelector(".loader");
-
-// window.addEventListener("load", () => {
-//   loader.classList.add("fondu-out");
-// });
 let timeout;
 
 // Variables pour le chronomètre
@@ -120,9 +116,23 @@ resetTimeout();
  * modal pour la déconnexion
  */
 document.addEventListener("DOMContentLoaded", function () {
-  (async () => {
-    await preloadAllData(); // préchargement des données dans fournisseur et désignation
-  })();
+  const hasDAPinput = document.getElementById("hasDAP"); // savoir si l'utilisateur a l'autorisation de l'application DAP
+
+  if (hasDAPinput) {
+    console.log("hasDAPinput existe");
+    console.log("hasDAPinput.dataset.hasDAP = " + hasDAPinput.dataset.hasDap);
+    localStorage.setItem("hasDAP", hasDAPinput.dataset.hasDap);
+  } else {
+    console.log("hasDAPinput n'existe pas");
+  }
+
+  if (localStorage.getItem("hasDAP") === "1") {
+    (async () => {
+      await preloadAllData(); // préchargement des données dans fournisseur et désignation
+    })();
+  } else {
+    console.log("Pas besoin de preloadData");
+  }
 
   // Les dropdowns
   document
