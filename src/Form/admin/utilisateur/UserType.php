@@ -44,12 +44,43 @@ class UserType extends AbstractType
     {
         $userId = $this->sessionService->get('user_id');
         $password = $this->sessionService->get('password');
-        $user = $this->em->getRepository(User::class)->find($userId)->getNomUtilisateur();
-        $users = $this->ldap->infoUser($user, $password);
 
         $nom = [];
-        foreach ($users as $key => $value) {
-            $nom[] = $key;
+
+        // Vérifier si les données de session sont disponibles
+        if ($userId && $password && $userId !== '-') {
+            try {
+                $userEntity = $this->em->getRepository(User::class)->find($userId);
+                if ($userEntity) {
+                    $user = $userEntity->getNomUtilisateur();
+                    $users = $this->ldap->infoUser($user, $password);
+
+                    foreach ($users as $key => $value) {
+                        $nom[] = $key;
+                    }
+                }
+            } catch (\Exception $e) {
+                // En cas d'erreur, on continue avec un tableau vide
+                error_log("Erreur lors de la récupération des utilisateurs LDAP: " . $e->getMessage());
+            }
+        }
+
+        // Si pas de données de session ou utilisateur non trouvé, essayer de récupérer tous les utilisateurs LDAP
+        if (empty($nom)) {
+            try {
+                // Essayer de récupérer tous les utilisateurs LDAP sans authentification spécifique
+                $users = $this->ldap->infoUser('', '');
+                foreach ($users as $key => $value) {
+                    $nom[] = $key;
+                }
+            } catch (\Exception $e) {
+                error_log("Erreur lors de la récupération générale des utilisateurs LDAP: " . $e->getMessage());
+            }
+        }
+
+        // Si aucun utilisateur n'a été trouvé, on peut ajouter un message d'information
+        if (empty($nom)) {
+            $nom = ['Aucun utilisateur LDAP disponible'];
         }
 
 
@@ -61,7 +92,10 @@ class UserType extends AbstractType
                     'label' => "Nom d'utilisateur *",
                     'choices' => array_combine($nom, $nom),
                     'placeholder' => '-- Choisir un nom d\'utilisateur --',
-
+                    'disabled' => empty($nom) || (count($nom) === 1 && $nom[0] === 'Aucun utilisateur LDAP disponible'),
+                    'help' => empty($nom) || (count($nom) === 1 && $nom[0] === 'Aucun utilisateur LDAP disponible')
+                        ? 'Aucun utilisateur LDAP disponible. Causes possibles : 1) Vous n\'êtes pas connecté, 2) Session expirée, 3) Problème de connexion LDAP. Veuillez vous connecter d\'abord via /login.'
+                        : null
                 ]
             )
             ->add(

@@ -173,7 +173,7 @@ class Controller
      */
     protected function getDitModel(): \App\Model\dit\DitModel
     {
-        return new \App\Model\dit\DitModel();
+        return $this->getService('App\\Model\\dit\\DitModel');
     }
 
 

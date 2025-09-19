@@ -37,7 +37,7 @@ class DitListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
         $this->userDataService = new UserDataService($this->getEntityManager());
         $this->excelService = new \App\Service\ExcelService();
     }
@@ -62,7 +62,7 @@ class DitListeController extends Controller
         $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
         //FIN AUTORISATION
 
-        $ditListeModel = new DitListModel();
+        $ditListeModel = $this->getService('App\\Model\\dit\\DitListModel');
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 

@@ -32,15 +32,18 @@ services:
             $assetFolder: '%kernel.project_dir%/public'
 
     App\Service\EmailService:
+        class: App\Service\EmailService
         arguments:
             $twig: '@Twig\Environment'
-            $mailerHost: '%mailer.host%'
-            $mailerUser: '%mailer.user%'
-            $mailerPass: '%mailer.password%'
-            $mailerPort: '%mailer.port%'
-            $fromEmail: '%mailer.from_email%'
-            $fromName: '%mailer.from_name%'
-            $bccRecipients: '%mailer.bcc_recipients%'
+            $mailerHost: 'smtp.gmail.com'
+            $mailerUser: 'noreply@hff.mg'
+            $mailerPass: 'your_password_here'
+            $mailerPort: 587
+            $fromEmail: 'noreply.email@hff.mg'
+            $fromName: 'noreply'
+            $bccRecipients: 
+                - 'ranofimenjajam@gmail.com'
+                - 'hasina.andrianadison@hff.mg'
 
     # Services spécifiques
     App\Service\ExcelService:
@@ -57,59 +60,66 @@ services:
         public: true
 
     App\Model\LdapModel:
+        class: App\Model\LdapModel
         arguments:
-            $ldapHost: '%ldap.host%'
-            $ldapPort: '%ldap.port%'
-            $domain: '%ldap.domain%'
-            $ldapDn: '%ldap.dn%'
+            $ldapHost: '192.168.0.28'
+            $ldapPort: 389
+            $domain: 'hff.mg'
+            $ldapDn: 'DC=hff,DC=mg'
             $logger: '@App\Service\AppLogger'
         public: true
 
     # Services de connexion aux bases de données
     App\Model\Connexion:
+        class: App\Model\Connexion
         arguments:
-            $dbDns: '%odbc.main.dsn%'
-            $dbUsername: '%odbc.main.user%'
-            $dbPassword: '%odbc.main.password%'
+            $dbDns: 'HFF_INTRANET_V01_TEST_TEST'
+            $dbUsername: 'sa'
+            $dbPassword: 'Hff@sql2024'
             $logger: '@App\Service\AppLogger'
-        public: false
+        public: true
 
     App\Service\AppLogger:
+        class: App\Service\AppLogger
         arguments:
-            $logFilePath: '%app.error_log_path%/app_errors.log'
-        public: false
+            $logFilePath: 'C:/wamp64/www/Hffintranet/var/app_errors.log'
+        public: true
 
     App\Model\ConnexionDote4:
+        class: App\Model\ConnexionDote4
         arguments:
-            $dbDns: '%odbc.dote4.dsn%'
-            $dbUsername: '%odbc.dote4.user%'
-            $dbPassword: '%odbc.dote4.password%'
+            $dbDns: 'HFF_INTRANET_V04_TEST'
+            $dbUsername: 'sa'
+            $dbPassword: 'catkpi'
             $logger: '@App\Service\AppLogger'
-        public: false
+        public: true
 
     App\Model\ConnexionDote4Gcot:
+        class: App\Model\ConnexionDote4Gcot
         arguments:
-            $dbDns: '%odbc.dote4gc.dsn%'
-            $dbUsername: '%odbc.dote4gc.user%'
-            $dbPassword: '%odbc.dote4gc.password%'
+            $dbDns: 'HFF_GCOT64'
+            $dbUsername: 'sa'
+            $dbPassword: 'catkpi'
             $logger: '@App\Service\AppLogger'
-        public: false
+        public: true
 
     App\Model\DatabaseInformix:
+        class: App\Model\DatabaseInformix
         arguments:
-            $dsn: '%odbc.informix.dsn%'
-            $user: '%odbc.informix.user%'
-            $password: '%odbc.informix.password%'
+            $dsn: 'IPS_HFFPROD_TEST'
+            $user: 'informix'
+            $password: 'k6UK19zaaAV10i'
             $logger: '@App\Service\AppLogger'
-        public: false
+        public: true
 
     # Services de navigation
     App\Service\navigation\MenuService:
+        class: App\Service\navigation\MenuService
         autowire: false
         arguments:
             - '@doctrine.orm.default_entity_manager'
             - '@App\Service\SessionManagerService'
-            - '%env(BASE_PATH_FICHIER_COURT)%'
+            - '/Hffintranet'
         public: true
 
     App\Service\navigation\BreadcrumbMenuService:
@@ -126,9 +136,10 @@ services:
     # ✅ NOUVELLES CONFIGURATIONS - Ajouter à la fin du fichier
     # Services problématiques qui nécessitent une configuration
     App\Service\genererPdf\GeneratePdfDevisMagasin:
+        class: App\Service\genererPdf\GeneratePdfDevisMagasin
         arguments:
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
-            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
+            $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
+            $baseCheminDocuware: 'C:/DOCUWARE/'
         public: true
 
 
@@ -216,8 +227,9 @@ services:
 
     # Services avec paramètres primitifs - configuration explicite pour éviter l'autowiring
     App\Service\fichier\FileUploaderService:
+        class: App\Service\fichier\FileUploaderService
         arguments:
-            $targetDirectory: '%upload_directory%'
+            $targetDirectory: 'C:/wamp64/www/Upload'
 
     App\Service\docuware\CopyDocuwareService:
         arguments:
@@ -230,20 +242,23 @@ services:
         public: false
 
     App\Service\da\FileUploaderForDAService:
+        class: App\Service\da\FileUploaderForDAService
         arguments:
-            $basePath: '%kernel.project_dir%/public/uploads/da'
-        public: false
+            $basePath: 'C:/wamp64/www/Hffintranet/public/uploads/da'
+        public: true
 
     App\Service\da\EmailDaService:
+        class: App\Service\da\EmailDaService
         arguments:
             $emailService: '@App\Service\EmailService'
-        public: false
+        public: true
 
     App\Service\genererPdf\GenererPdfDit:
+        class: App\Service\genererPdf\GenererPdfDit
         arguments:
             $tcpdf: '@TCPDF'
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%/'
-            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%/'
+            $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
+            $baseCheminDocuware: 'C:/DOCUWARE/'
         public: false
 
     App\Factory\BreadcrumbFactory:
@@ -346,14 +361,18 @@ services:
     # car il utilise le service container pour récupérer ses dépendances
 
     App\Controller\Authentification:
+        class: App\Controller\Authentification
         arguments:
             $ldapModel: '@App\Model\LdapModel'
-            $authCsvFilePath: '%auth.csv_file_path%'
+            $authCsvFilePath: 'C:/wamp64/www/Hffintranet/src/Controller/authentification.csv'
             $emailDaService: '@App\Service\da\EmailDaService'
             $daFileUploader: '@App\Service\da\FileUploaderForDAService'
-            $daAfficherRepository: '@App\Repository\da\DaAfficherRepository'
-            $demandeApproRepository: '@App\Repository\da\DemandeApproRepository'
-            $demandeApproLRepository: '@App\Repository\da\DemandeApproLRepository'
-            $demandeApproLRRepository: '@App\Repository\da\DemandeApproLRRepository'
+            $daAfficherRepository: null
+            $demandeApproRepository: null
+            $demandeApproLRepository: null
+            $demandeApproLRRepository: null
+        autowire: false
+        autoconfigure: false
+        tags: ['controller.service_arguments']
         public: true
 

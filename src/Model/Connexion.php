@@ -44,16 +44,35 @@ class Connexion
      */
     private function validateConnectionParameters(): void
     {
+        // Nettoyer et valider le DSN
+        $this->DB = trim($this->DB);
         if (empty($this->DB)) {
             throw new \InvalidArgumentException("Le DSN de la base de données ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le nom d'utilisateur
+        $this->User = trim($this->User);
         if (empty($this->User)) {
             throw new \InvalidArgumentException("Le nom d'utilisateur ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le mot de passe
+        $this->pswd = trim($this->pswd);
         if (empty($this->pswd)) {
             throw new \InvalidArgumentException("Le mot de passe ne peut pas être vide.");
+        }
+
+        // Vérifier que les paramètres ne contiennent pas de caractères problématiques
+        if (strlen($this->DB) > 255) {
+            throw new \InvalidArgumentException("Le DSN de la base de données est trop long (max 255 caractères).");
+        }
+
+        if (strlen($this->User) > 128) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur est trop long (max 128 caractères).");
+        }
+
+        if (strlen($this->pswd) > 128) {
+            throw new \InvalidArgumentException("Le mot de passe est trop long (max 128 caractères).");
         }
     }
 
@@ -66,17 +85,35 @@ class Connexion
         try {
             $this->logger->info("Tentative de connexion à la base de données ODBC", [
                 'dsn' => $this->DB,
-                'user' => $this->User
+                'user' => $this->User,
+                'dsn_length' => strlen($this->DB),
+                'user_length' => strlen($this->User),
+                'password_length' => strlen($this->pswd)
             ]);
 
-            $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
+            // Vérifier que les paramètres ne sont pas trop longs pour ODBC
+            if (strlen($this->DB) > 255) {
+                throw new \RuntimeException("Le DSN est trop long pour ODBC (max 255 caractères)");
+            }
+            if (strlen($this->User) > 128) {
+                throw new \RuntimeException("Le nom d'utilisateur est trop long pour ODBC (max 128 caractères)");
+            }
+            if (strlen($this->pswd) > 128) {
+                throw new \RuntimeException("Le mot de passe est trop long pour ODBC (max 128 caractères)");
+            }
+
+            // Tenter la connexion ODBC
+            $this->conn = @odbc_connect($this->DB, $this->User, $this->pswd);
 
             if (!$this->conn || !is_resource($this->conn)) {
                 $error = odbc_errormsg() ?: 'Connexion invalide ou échouée';
                 $this->logger->error("Échec de la connexion ODBC", [
                     'error' => $error,
                     'dsn' => $this->DB,
-                    'user' => $this->User
+                    'user' => $this->User,
+                    'dsn_length' => strlen($this->DB),
+                    'user_length' => strlen($this->User),
+                    'password_length' => strlen($this->pswd)
                 ]);
                 throw new \RuntimeException("Échec de la connexion ODBC: " . $error);
             }
@@ -87,7 +124,10 @@ class Connexion
             $this->logger->error("Erreur lors de la connexion", [
                 'message' => $e->getMessage(),
                 'dsn' => $this->DB,
-                'user' => $this->User
+                'user' => $this->User,
+                'dsn_length' => strlen($this->DB),
+                'user_length' => strlen($this->User),
+                'password_length' => strlen($this->pswd)
             ]);
             throw new \RuntimeException("Impossible de se connecter à la base de données ODBC: " . $e->getMessage(), 0, $e);
         }

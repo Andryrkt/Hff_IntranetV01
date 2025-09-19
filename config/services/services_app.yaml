@@ -22,3 +22,11 @@ services:
         resource: '../../src/Repository/*'
         tags: ['app.repository']
         public: true
+
+    # Configuration des contrôleurs
+    App\Controller\:
+        resource: '../../src/Controller/*'
+        exclude:
+            - '../../src/Controller/Authentification.php'
+        tags: ['controller.service_arguments']
+        public: true

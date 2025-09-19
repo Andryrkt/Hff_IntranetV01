@@ -61,6 +61,23 @@ $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
 $container->setParameter('kernel.debug', true);
 
+// Ajouter les paramètres ODBC
+$container->setParameter('odbc.main.dsn', $_ENV['DB_DNS_SQLSERV'] ?? 'HFF_INTRANET_V01_TEST_TEST');
+$container->setParameter('odbc.main.user', $_ENV['DB_USERNAME_SQLSERV'] ?? 'sa');
+$container->setParameter('odbc.main.password', $_ENV['DB_PASSWORD_SQLSERV'] ?? 'Hff@sql2024');
+
+$container->setParameter('odbc.dote4.dsn', $_ENV['DB_DNS_SQLSERV_4'] ?? 'HFF_INTRANET_V04_TEST');
+$container->setParameter('odbc.dote4.user', $_ENV['DB_USERNAME_SQLSERV_4'] ?? 'sa');
+$container->setParameter('odbc.dote4.password', $_ENV['DB_PASSWORD_SQLSERV_4'] ?? 'catkpi');
+
+$container->setParameter('odbc.dote4gc.dsn', $_ENV['DB_DNS_SQLSERV_4_GCOT'] ?? 'HFF_GCOT64');
+$container->setParameter('odbc.dote4gc.user', $_ENV['DB_USERNAME_SQLSERV_4'] ?? 'sa');
+$container->setParameter('odbc.dote4gc.password', $_ENV['DB_PASSWORD_SQLSERV_4'] ?? 'catkpi');
+
+$container->setParameter('odbc.informix.dsn', $_ENV['DB_DNS_INFORMIX'] ?? 'IPS_HFFPROD_TEST');
+$container->setParameter('odbc.informix.user', $_ENV['DB_USERNAME_INFORMIX'] ?? 'informix');
+$container->setParameter('odbc.informix.password', $_ENV['DB_PASSWORD_INFORMIX'] ?? 'informix');
+
 // Désactiver l'autowiring strict
 $container->setParameter('container.autowiring.strict_mode', false);
 $container->setParameter('container.dumper.inline_factories', false);
@@ -269,8 +286,8 @@ $container->set('router', $urlGenerator);
 // Configurer le matcher d'URL
 $matcher = new UrlMatcher($collection, $context);
 
-// Configurer les resolvers
-$controllerResolver = new ControllerResolver();
+// Configurer les resolvers avec le conteneur de services
+$controllerResolver = new \Symfony\Component\HttpKernel\Controller\ContainerControllerResolver($container);
 $argumentResolver = new ArgumentResolver();
 
 // Configurer Twig avec les extensions
