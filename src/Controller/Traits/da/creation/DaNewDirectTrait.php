@@ -49,18 +49,4 @@ trait DaNewDirectTrait
 
         return $demandeAppro;
     }
-
-    /** 
-     * Fonction pour créer le PDF sans Dit à valider DW
-     * 
-     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
-     */
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro)
-    {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
-        $dals = $demandeAppro->getDAL();
-
-        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals, $this->getUserMail());
-        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
-    }
 }

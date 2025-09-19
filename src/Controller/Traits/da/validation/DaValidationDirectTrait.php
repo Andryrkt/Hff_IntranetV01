@@ -11,6 +11,7 @@ use App\Service\genererPdf\GenererPdfDaDirect;
 trait DaValidationDirectTrait
 {
     use DaValidationTrait;
+    private GenererPdfDaDirect $genererPdfDaDirect;
 
     //==================================================================================================
     /**
@@ -19,6 +20,7 @@ trait DaValidationDirectTrait
     public function initDaValidationDirectTrait(): void
     {
         $this->initDaTrait();
+        $this->genererPdfDaDirect = new GenererPdfDaDirect();
     }
     //==================================================================================================
 
@@ -48,9 +50,8 @@ trait DaValidationDirectTrait
      */
     private function creationPDFDirect(string $numDa): void
     {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
         $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
-        $genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
+        $this->genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
     }
 
     /**
@@ -76,5 +77,15 @@ trait DaValidationDirectTrait
 
         $this->getEntityManager()->persist($daSoumisAValidation);
         $this->getEntityManager()->flush();
+    }
+
+    /** 
+     * Fonction pour mettre la DA à valider dans DW
+     * 
+     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
+     */
+    private function copyToDW(DemandeAppro $demandeAppro)
+    {
+        $this->genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }
