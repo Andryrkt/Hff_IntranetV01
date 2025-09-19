@@ -227,7 +227,7 @@ trait DaListeTrait
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
-                'statutOr'            => $achatDirect ? $safeIconBan : $item->getStatutOr(),
+                'statutOr'            => $item->getStatutOr(),
                 'statutCde'           => $item->getStatutCde(),
                 'datePlannigOr'       => $achatDirect ? $safeIconBan : ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : ''),
                 'nomFournisseur'      => $item->getNomFournisseur(),
