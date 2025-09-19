@@ -122,7 +122,7 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
-        if (empty($situationCde)) {
+        if (empty($situationCde) && !$achatDirect) {
             return 'PAS DANS OR';
         }
 
