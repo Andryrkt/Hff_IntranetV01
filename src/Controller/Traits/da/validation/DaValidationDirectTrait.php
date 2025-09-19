@@ -64,7 +64,7 @@ trait DaValidationDirectTrait
         $daSoumisAValidation = new DaSoumisAValidation();
 
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daSoumisAValidationRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DaSoumisAValidation::class)->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         $daSoumisAValidation

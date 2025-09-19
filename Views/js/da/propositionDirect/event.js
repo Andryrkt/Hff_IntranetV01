@@ -41,7 +41,9 @@ export function handleAllInputEvents() {
         if (maxLen) el.value = el.value.slice(0, maxLen);
       });
 
-      autocompleteTheField(el, type);
+      if (type !== "designation") {
+        autocompleteTheField(el, type);
+      }
     });
   });
 }
