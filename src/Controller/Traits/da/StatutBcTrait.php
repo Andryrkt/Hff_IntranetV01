@@ -107,6 +107,7 @@ trait StatutBcTrait
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
+        // dump($qte);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
 
@@ -305,11 +306,14 @@ trait StatutBcTrait
                 $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
             }
+
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
                 ->setQteDispo($qteDispo)
             ;
+
+            // dump($DaAfficher);
         }
     }
 

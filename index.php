@@ -36,8 +36,6 @@ try {
         // Sinon, essayer de rendre le résultat avec Twig
         if (is_string($result)) {
             $response->setContent($result);
-        } else {
-            $response->setContent("Contrôleur exécuté avec succès");
         }
     }
 } catch (ResourceNotFoundException $e) {

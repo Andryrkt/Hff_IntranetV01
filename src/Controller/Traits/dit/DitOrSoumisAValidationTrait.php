@@ -453,6 +453,7 @@ trait DitOrSoumisAValidationTrait
         }
     }
 
+
     private function datePlanning($numOr, $numItv)
     {
         $datePlannig1 = $this->magasinListOrLivrerModel->recupDatePlanningOR1($numOr, $numItv);

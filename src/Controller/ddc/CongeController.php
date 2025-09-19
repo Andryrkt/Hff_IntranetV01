@@ -25,21 +25,6 @@ class CongeController extends Controller
     use AutorisationTrait;
 
     /**
-     * @Route("/nouveau-conge", name="new_conge")
-     */
-    public function nouveauConge()
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accès */
-        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
-        /** FIN AUtorisation accès */
-
-        return $this->render('ddc/conge_new.html.twig');
-    }
-
-    /**
      * Affiche la liste des demandes de congé
      * @Route("/conge-liste", name="conge_liste")
      */

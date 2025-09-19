@@ -210,6 +210,15 @@ $container->set('App\Twig\DeleteWordExtension', $deleteWordExtension);
 $request = Request::createFromGlobals();
 $response = new Response();
 
+// Vérifier la casse du préfixe /Hffintranet/
+$pathInfo = $request->getPathInfo();
+if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet') !== 0) {
+    $correctUrl = preg_replace('#^/hffintranet#i', '/Hffintranet', $pathInfo);
+    $redirectResponse = new \Symfony\Component\HttpFoundation\RedirectResponse($correctUrl, 301);
+    $redirectResponse->send();
+    exit; // on arrête le script après la redirection
+}
+
 // Charger les routes
 $routeLoader = new AnnotationDirectoryLoader(
     new FileLocator(dirname(__DIR__) . '/src/Controller/'),
@@ -232,6 +241,11 @@ $context->fromRequest($request);
 $collection = new RouteCollection();
 $collection->addCollection($controllerCollection);
 $collection->addCollection($apiCollection);
+
+// ➡️ Ajoute ce bloc juste ici
+foreach ($collection as $route) {
+    $route->setOption('case_sensitive', false);
+}
 
 // Créer le UrlGenerator avec la vraie collection de routes
 $urlGenerator = new \Symfony\Component\Routing\Generator\UrlGenerator($collection, $context);

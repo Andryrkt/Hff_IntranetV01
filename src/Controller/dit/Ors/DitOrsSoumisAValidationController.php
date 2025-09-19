@@ -86,11 +86,25 @@ class DitOrsSoumisAValidationController extends Controller
 
         // verification si l'OR est lié à un DA
         $lierAUnDa = false;
-        $numDa = $this->demandeApproRepository->getNumDa($numDit);
-        if ($numDa) {
-            $statutDaAfficher = $this->daAfficherRepository->getLastStatutDaAfficher($numDa);
-            if (!empty($statutDaAfficher) && !in_array($statutDaAfficher, [DemandeAppro::STATUT_VALIDE, DemandeAppro::STATUT_TERMINER, DemandeAppro::STATUT_EN_COURS_CREATION])) {
-                $lierAUnDa = true;
+        $numDas = $this->demandeApproRepository->getNumDa($numDit);
+        if ($numDas) {
+            foreach ($numDas as $numDa) {
+                $statutDaAfficher = $this->daAfficherRepository->getLastStatutDaAfficher($numDa);
+
+                if (
+                    !empty($statutDaAfficher) &&
+                    !in_array(
+                        $statutDaAfficher[0],
+                        [
+                            DemandeAppro::STATUT_VALIDE,
+                            DemandeAppro::STATUT_TERMINER,
+                            DemandeAppro::STATUT_EN_COURS_CREATION
+                        ]
+                    )
+                ) {
+                    $lierAUnDa = true;
+                    break; // on arrête si on en trouve un qui correspond
+                }
             }
         }
 
@@ -214,7 +228,6 @@ class DitOrsSoumisAValidationController extends Controller
                 //modification des informations necessaire
                 $daValider
                     ->setNumeroOr($numOr)
-                    ->setStatutOr('Soumis à validation')
                     ->setOrResoumettre(false)
                     ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
                 ;

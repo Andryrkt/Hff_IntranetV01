@@ -4,14 +4,15 @@
 	Nouveau contrat
 {% endblock %}
 
-{% block stylesheets %}
-	{# <link href="{{ App.base_path }}/Views/css/404.css?v=2025.08.29.16.20" rel="stylesheet"> #}
-{% endblock %}
+{% block stylesheets %}{% endblock %}
 
 {% block content %}
-	<div class="container text-center mt-6 mb-4">
-		<iframe src="https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be" frameborder="0" style="height:100vh;" width="100%" id="iframe-conge"></iframe>
+	<div class="position-fixed container-fluid" style="height:20px;top:133px;" id="bandeau-new-contrat"></div>
+	<div class="container text-center mb-4" style="margin-top:-4.5rem;">
+		<iframe src="{{ url }}" frameborder="0" style="height:1160px;" width="100%"></iframe>
 	</div>
 {% endblock %}
 
-{% block javascript %}{% endblock %}
+{% block javascript %}
+	<script src="{{ App.base_path }}/Views/js/contrat/contrat.js?v=2025.09.15.08.00"></script>
+{% endblock %}

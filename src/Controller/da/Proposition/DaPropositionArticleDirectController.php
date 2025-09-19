@@ -247,7 +247,7 @@ class DaPropositionArticleDirectController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa);
+        $this->ajouterDansTableAffichageParNumDa($numDa, true);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [

@@ -25,7 +25,7 @@ class DemandeAppro
 
     public const ID_APPRO                   = 16;
     public const ID_ATELIER                 = 3;
-    public const MAIL_APPRO                 = 'hoby.ralahy@hff.mg';        // TODO: à changer en 'appro@hff.mg' si c'est en PROD
+    public const MAIL_APPRO                 = 'appro@hff.mg';        // TODO: à changer en 'appro@hff.mg' si c'est en PROD
     public const STATUT_A_VALIDE_DW         = 'Soumis à validation';       /*_________ DA direct ________*/ // ! non cliquable par quiconque
     public const STATUT_VALIDE              = 'Bon d’achats validé';       /*__ DA direct et DA via OR __*/ // cliquable par Admin et Appro
     public const STATUT_TERMINER            = 'TERMINER';                  /*__ DA direct et DA via OR __*/ // ! non cliquable par quiconque
