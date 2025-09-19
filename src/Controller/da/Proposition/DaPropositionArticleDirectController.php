@@ -219,6 +219,12 @@ class DaPropositionArticleDirectController extends Controller
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
 
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->copyToDW($da);
+
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
@@ -248,6 +254,12 @@ class DaPropositionArticleDirectController extends Controller
         $nomEtChemin = $this->validerProposition($numDa);
 
         $this->ajouterDansTableAffichageParNumDa($numDa, true);
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->copyToDW($da);
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
