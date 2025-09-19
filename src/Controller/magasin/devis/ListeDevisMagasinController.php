@@ -21,6 +21,8 @@ class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
 
+    private $styleStatutDw = [];
+
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private DevisMagasinRepository $devisMagasinRepository;
     private AgenceRepository $agenceRepository;
@@ -31,6 +33,13 @@ class ListeDevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
+
+        $this->styleStatutDw = [
+            DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
+            DevisMagasin::STATUT_PRIX_VALIDER_MAGASIN => 'bg-prix-valider-magasin',
+            DevisMagasin::STATUT_PRIX_REFUSE_MAGASIN => 'bg-prix-refuse-magasin',
+            DevisMagasin::STATUT_DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm',
+        ];
     }
 
     /**
@@ -64,7 +73,8 @@ class ListeDevisMagasinController extends Controller
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'styleStatutDw' => $this->styleStatutDw
         ]);
     }
 
