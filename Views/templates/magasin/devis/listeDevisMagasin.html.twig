@@ -32,6 +32,7 @@
 				<th class="text-center">Date envoi au client</th>
 				<th class="text-center">Position IPS</th>
 				<th class="text-center">Soumis par</th>
+				<th class="text-center">Créé par</th>
 			</tr>
 		</thead>
 		<tbody id="tableBody">
@@ -46,10 +47,13 @@
 						<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu"
 							aria-labelledby="dropdownMenuButton">
 							<li>
-								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix",{numeroDevis:item.numeroDevis})}}">Soumission devis pour verification prix</a>
-								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis",{numeroDevis:item.numeroDevis})}}">Soumission devis pour validation</a>
+								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_verification_prix",{numeroDevis:item.numeroDevis})}}">Soumission
+									devis pour verification prix</a>
+								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_soumission_validation_devis",{numeroDevis:item.numeroDevis})}}">Soumission
+									devis pour validation</a>
 								{% if item.statutDw starts with 'Validé' %}
-								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",{numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
+								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",{numeroDevis: item.numeroDevis})}}">Pointage envoye
+									devis au client</a>
 								{% endif %}
 							</li>
 						</ul>
@@ -65,6 +69,7 @@
 				<td class="text-center">{{item.dateDenvoiDevisAuClient}}</td>
 				<td class="text-center">{{item.statutIps}}</td>
 				<td class="text-center">{{item.operateur}}</td>
+				<td class="text-center">{{item.utilisateurCreateurDevis}}</td>
 			</tr>
 			{% endfor %}
 		</tbody>

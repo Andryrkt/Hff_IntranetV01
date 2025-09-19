@@ -92,6 +92,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
 
             // Appliquer les filtres si des critères sont fournis
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {

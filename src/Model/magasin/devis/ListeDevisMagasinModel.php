@@ -112,7 +112,7 @@ class ListeDevisMagasinModel extends Model
 
     public function getUtilisateurCreateurDevis(string $numeroDevis)
     {
-        $statement = "SELECT ausr_nom
+        $statement = "SELECT ausr_nom as utilisateur_createur_devis
             FROM informix.sav_eor se
             JOIN informix.agr_usr au ON au.ausr_num = se.seor_usr
             WHERE se.seor_numor = '$numeroDevis'";
@@ -121,6 +121,6 @@ class ListeDevisMagasinModel extends Model
 
         $data = $this->connect->fetchResults($result);
 
-        return $this->convertirEnUtf8($data);
+        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis');
     }
 }
