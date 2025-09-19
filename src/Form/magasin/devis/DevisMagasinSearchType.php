@@ -50,17 +50,17 @@ class DevisMagasinSearchType extends AbstractType
                 'required' => false
             ])
             ->add('Operateur', TextType::class, [
-                'label' => 'Operateur',
+                'label' => 'Soumis par',
                 'required' => false
             ])
             ->add('statutDw', ChoiceType::class, [
-                'label' => 'statut docuware',
+                'label' => 'Statut devis',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => $this->statutsDw,
                 'required' => false
             ])
             ->add('statutIps', ChoiceType::class, [
-                'label' => 'statut IPS',
+                'label' => 'Position IPS',
                 'placeholder' => '-- Choisir le choix --',
                 'choices' => self::STATUT_IPS,
                 'required' => false

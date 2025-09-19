@@ -89,3 +89,17 @@
       opacity: 1; /* La barre devient complètement opaque */
     }
   }
+
+  /**  COLORATION STATUT DEVIS MAGASIN */
+  .bg-prix-a-confirmer {
+    background-color: #ffc107!important;
+  }
+  .bg-prix-valider-magasin {
+    background-color: #28a745!important;
+  }
+  .bg-prix-refuse-magasin {
+    background-color: #dc3545!important;
+  }
+  .bg-demande-refuse-par-pm {
+    background-color: #6c757d!important;
+  }
