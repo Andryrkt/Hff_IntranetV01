@@ -24,9 +24,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     });
 
-  document
+  /* document
     .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne);
+    .addEventListener("click", ajouterUneLigne); */
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();

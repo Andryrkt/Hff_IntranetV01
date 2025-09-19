@@ -22,9 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
       );
     });
 
-  document
+  /* document
     .getElementById("add-child")
-    .addEventListener("click", ajouterUneLigne);
+    .addEventListener("click", ajouterUneLigne); */
 
   document.getElementById("myForm").addEventListener("submit", function (e) {
     e.preventDefault();
@@ -95,7 +95,9 @@ window.addEventListener("load", () => {
 });
 
 function getMaxIndexFromIds() {
-  const elements = document.querySelectorAll("div[id^='demande_appro_form_DAL_'].DAL-container");
+  const elements = document.querySelectorAll(
+    "div[id^='demande_appro_form_DAL_'].DAL-container"
+  );
   return Array.from(elements).reduce((max, el) => {
     const match = el.id.match(/^demande_appro_form_DAL_(\d+)$/);
     if (match) {
@@ -107,12 +109,14 @@ function getMaxIndexFromIds() {
 }
 
 function getMaxLineFromValues() {
-  const elements = document.querySelectorAll("[id^='demande_appro_form_DAL_'][id$='_numeroLigne']");
+  const elements = document.querySelectorAll(
+    "[id^='demande_appro_form_DAL_'][id$='_numeroLigne']"
+  );
   return Array.from(elements).reduce((max, el) => {
     const value = parseInt(el.value, 10);
     if (isNaN(value)) {
       console.warn("Valeur non numérique trouvée pour numeroLigne:", el.value);
-      return max;  // ignore les valeurs invalides
+      return max; // ignore les valeurs invalides
     }
     return value > max ? value : max;
   }, 0);

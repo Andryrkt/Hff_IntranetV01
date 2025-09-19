@@ -84,6 +84,30 @@ class DitOrsSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
+        // verification si l'OR est lié à un DA
+        $lierAUnDa = false;
+        $numDas = $this->demandeApproRepository->getNumDa($numDit);
+        if ($numDas) {
+            foreach ($numDas as $numDa) {
+                $statutDaAfficher = $this->daAfficherRepository->getLastStatutDaAfficher($numDa);
+
+                if (
+                    !empty($statutDaAfficher) &&
+                    !in_array(
+                        $statutDaAfficher[0],
+                        [
+                            DemandeAppro::STATUT_VALIDE,
+                            DemandeAppro::STATUT_TERMINER,
+                            DemandeAppro::STATUT_EN_COURS_CREATION
+                        ]
+                    )
+                ) {
+                    $lierAUnDa = true;
+                    break; // on arrête si on en trouve un qui correspond
+                }
+            }
+        }
+
         $numOrBaseDonner = $this->ditOrsoumisAValidationModel->recupNumeroOr($numDit);
 
         if (empty($numOrBaseDonner)) {
@@ -109,6 +133,7 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
 
             /** FIN CONDITION DE BLOCAGE */
@@ -120,6 +145,7 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setHeureSoumission($this->getTime())
                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                    ->setObservation($observation)
                 ;
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());
@@ -177,6 +203,7 @@ class DitOrsSoumisAValidationController extends Controller
         return $this->render('dit/DitInsertionOr.html.twig', [
             'form' => $form->createView(),
             'cdtArticleDa' => $cdtArticleDa,
+            'lierAUnDa' => $lierAUnDa,
         ]);
     }
 
@@ -203,7 +230,6 @@ class DitOrsSoumisAValidationController extends Controller
                 //modification des informations necessaire
                 $daValider
                     ->setNumeroOr($numOr)
-                    ->setStatutOr('Soumis à validation')
                     ->setOrResoumettre(false)
                     ->setNumeroLigneIps($numeroLigne[0]['numero_ligne'])
                 ;

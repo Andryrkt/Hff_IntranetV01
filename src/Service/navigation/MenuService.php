@@ -157,7 +157,7 @@ class MenuService
                 'Contrat',
                 'file-contract',
                 [
-                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/enregistrement-contrats?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], "_blank"),
+                    $this->createSubItem('Nouveau contrat', 'plus-circle', 'new_contrat', [], "_blank"),
                     $this->createSubItem('Consultation', 'search', '#')
                 ]
             );
@@ -204,7 +204,7 @@ class MenuService
                     'receipt',
                     [
                         $this->createSubItem('Nouvelle demande', 'plus-circle', '#'),
-                        $this->createSubItem('Consultation', 'search', '#')
+                        $this->createSubItem('Consultation', 'search', 'bon_caisse_liste')
                     ]
                 )
             ]
@@ -214,14 +214,17 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
+        $nomUtilisateur = $this->getNomUtilisateur();
         if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
+            $subSubitems = [];
+            if ($nomUtilisateur != 'roddy') {
+                $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'doms_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Ordre de mission',
                 'file-signature',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'dom_first_form'),
-                    $this->createSubItem('Consultation', 'search', 'doms_liste')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin() || in_array(Application::ID_MUT, $this->getApplicationIds())) { // MUT
@@ -239,8 +242,8 @@ class MenuService
                 'Congés',
                 'umbrella-beach',
                 [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'https://hffc.docuware.cloud/docuware/formsweb/demande-de-conges-new?orgID=5adf2517-2f77-4e19-8b42-9c3da43af7be', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', '#')
+                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
+                    $this->createSubItem('Consultation', 'search', 'conge_liste')
                 ]
             );
         }
@@ -302,7 +305,7 @@ class MenuService
         $nomUtilisateur = $this->getNomUtilisateur();
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subSubitems = [];
-            if ($nomUtilisateur != 'stg.iaro') {
+            if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
                 $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'dit_new');
                 $subSubitems[] = $this->createSubItem('Consultation', 'search', 'dit_index');
             }

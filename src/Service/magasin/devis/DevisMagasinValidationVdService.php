@@ -232,7 +232,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         }
 
         if ($oldSumOfMontant === $newSumOfMontant && $oldStatut === $newStatut) {
-            $message = "PM a oublié de modifier les prix dans IPS";
+            $message = "Le magasin a oublié de modifier le prix dans IPS. Veuillez informer le Parts Manager";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false;
         }

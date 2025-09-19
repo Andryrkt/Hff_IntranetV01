@@ -5,6 +5,7 @@ namespace App\Service\magasin\devis;
 use Symfony\Component\Form\FormInterface;
 use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
+use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
@@ -129,8 +130,9 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
     public function checkBlockingStatusOnSubmissionForVd(
-        StatusRepositoryInterface $repository,
-        string $numeroDevis
+        LatestSumOfLinesRepositoryInterface $repository,
+        string $numeroDevis,
+        int $newSumOfLines
     ): bool {
         $blockingStatuses = [
             'Prix validé magasin',
@@ -138,7 +140,14 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
             'A valider chef d’agence'
         ];
 
-        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
+        $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
+
+        if ($oldSumOfLines === null) {
+            // No previous version to compare against, so it's not a blocking issue.
+            return false;
+        }
+
+        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {
             $message = "Le prix a été déjà vérifié ... Veuillez soumettre le devis à validation";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
@@ -160,7 +169,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * @return bool true si le nombre de lignes est inchangé (bloquant), false sinon
      */
     public function estSommeDeLigneInChanger(
-        LatestSumOfLinesRepositoryInterface $repository,
+        DevisMagasinRepository $repository,
         string $numeroDevis,
         int $newSumOfLines
     ): bool {

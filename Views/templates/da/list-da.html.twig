@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.08.29.16.20">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.08.29.16.20">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.08.29.16.20">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00">
 {% endblock %}
 
 {% block overlay %}
@@ -112,9 +112,9 @@
 						<td>{{ row.numeroOr }}</td>
 						<td>{{ row.demandeur }}</td>
 						<td>{{ row.dateDemande }}</td>
-						<td class="{{ row.styleStatutDA }} fw-bold">{{ row.statutDal }}</td>
-						<td class="text-start {{ row.styleStatutOR }} fw-bold text-center">{{ row.statutOr }}</td>
-						<td class="text-start {{ row.styleStatutBC }} fw-bold">{{ row.statutCde }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutDA }}">{{ row.statutDal }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutOR }}">{{ row.statutOr }}</td>
+						<td class="text-center fw-bold {{ row.styleStatutBC }}">{{ row.statutCde }}</td>
 						<td class="text-center">{{ row.datePlannigOr }}</td>
 						<td class="text-start">{{ row.nomFournisseur }}</td>
 						<td class="text-start">{{ row.artRefp }}</td>
@@ -150,6 +150,6 @@
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.08.29.16.20"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+	<script type="module" src="{{ App.base_path }}/Views/js/da/listeDa/list.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

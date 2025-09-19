@@ -52,7 +52,7 @@ class DossierInterventionAtelierModel extends Model
         return $condition;
     }
 
-    public function findAllDwDit($criteria = [], $codeAgence = '40')
+    public function findAllDwDit($criteria = [], $codeAgence = '40', bool $estAdmin = false, string $userName = '')
     {
 
         $numeroDit = $this->conditionLike('dit.numero_dit', 'numDit', $criteria);
@@ -65,6 +65,7 @@ class DossierInterventionAtelierModel extends Model
         $dateDebut = $this->conditionDateSigne('dit.date_creation', 'dateDebut', $criteria, '>=');
         $dateFin = $this->conditionDateSigne('dit.date_creation', 'dateFin', $criteria, '<=');
         $typeIntervention = $this->conditionLikeTypeIntervention('dit.type_reparation', $criteria);
+        $reparationRealise = $estAdmin || $userName === "stg.iaro" || $userName === "roddy" ? "" : " AND reparation_realise in (select agence_atelier_realise.code_atelier from agence_atelier_realise where code_agence = '$codeAgence')";
 
         $sql = " SELECT 
             dit.date_creation AS date_creation_intervention,
@@ -85,7 +86,8 @@ class DossierInterventionAtelierModel extends Model
                 FROM DW_Devis
             ) dd ON dit.numero_dit = dd.numero_dit
             JOIN demande_intervention di ON dit.numero_dit = di.numero_demande_dit
-            WHERE reparation_realise in (select agence_atelier_realise.code_atelier from agence_atelier_realise where code_agence = '$codeAgence')
+            WHERE 1=1
+            $reparationRealise
             $typeIntervention
             $numeroDev
             $numeroDit
@@ -98,7 +100,6 @@ class DossierInterventionAtelierModel extends Model
             $numSerie
             ORDER BY dit.date_creation DESC
         ";
-
         $exec = $this->connexion->query($sql);
         $tab = [];
         while ($result = odbc_fetch_array($exec)) {

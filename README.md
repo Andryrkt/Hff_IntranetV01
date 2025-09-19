@@ -39,11 +39,11 @@ Ref nikitika JS na CSS de ampiakarina ny version ny CSS sy JS
 
 ```html
 <link
-  href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20"
+  href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00"
   rel="stylesheet"
 />
 <script
-  src="{{ App.base_path }}/Views/js/scripts.js?v=2025.08.29.16.20"
+  src="{{ App.base_path }}/Views/js/scripts.js?v=2025.09.15.08.00"
   type="module"
 ></script>
 ```

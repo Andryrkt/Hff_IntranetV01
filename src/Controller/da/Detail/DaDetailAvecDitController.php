@@ -68,6 +68,7 @@ class DaDetailAvecDitController extends Controller
 			'orPath'    => $this->getOrPath($demandeAppro),
 			'bcPath'    => $this->getBcPath($demandeAppro),
 			'facblPath' => $this->getFacBlPath($demandeAppro),
+			'devPjPath' => $this->getDevisPjPath($demandeAppro),
 		]);
 
 		$demandeApproLPrepared = $this->prepareDataForDisplayDetail($demandeAppro->getDAL());

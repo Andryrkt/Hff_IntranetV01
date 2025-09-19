@@ -86,7 +86,7 @@ function getFieldByGeneratedId(baseId, suffix) {
 
 function onBlurEvents(found, designation, fieldName) {
   const numeroDa = document
-    .querySelector(".tab-pane.fade.show.active")
+    .querySelector(".tab-pane.fade.show.active.dalr")
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
@@ -209,7 +209,7 @@ function handleValuesOfFields(
     famille.value = item.codefamille;
     sousFamille.value = item.codesousfamille;
     const numeroDa = document
-      .querySelector(".tab-pane.fade.show.active")
+      .querySelector(".tab-pane.fade.show.active.dalr")
       .id.split("_")
       .pop();
     const numPage = localStorage.getItem(`currentTab_${numeroDa}`);

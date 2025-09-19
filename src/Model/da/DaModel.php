@@ -358,6 +358,7 @@ class DaModel extends Model
                                 AND TRIM(slor.slor_refp) = '$ref'
                         and TRIM(slor.slor_desi) = '$designation'
                 ";
+                // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 

@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (event.target.closest("a")) return; // ignore le clic sur l'icône de téléchargement
 
       const downloadLink = this.querySelector("a");
+      const fileName = this.querySelector("small").innerText;
       const docType = downloadLink.dataset.docType;
       const filePath = downloadLink.href;
       const height = window.innerHeight;
@@ -15,30 +16,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
       toggleSelectedItem(fileItem, fileItems);
 
-      if (filePath.endsWith("-")) {
-        textHtml = `Aucun <strong class="text-danger">"${docType}"</strong> n'est actuellement rattaché à cette demande d'achat.`;
-        Swal.fire({
-          icon: "error",
-          title: "Fichier inexistant",
-          html: textHtml,
-          confirmButtonText: "OK",
+      // Vérification côté JS avant affichage
+      fetch(filePath, { method: "HEAD" })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Fichier introuvable");
+          }
+
+          // Cas fichier vide marqué par "-"
+          if (filePath.endsWith("-")) {
+            textHtml = `Aucun <strong class="text-danger">"${docType}"</strong> n'est actuellement rattaché à cette demande d'achat.`;
+            Swal.fire({
+              icon: "error",
+              title: "Fichier inexistant",
+              html: textHtml,
+              confirmButtonText: "OK",
+            });
+            viewer.innerHTML = textHtml;
+          }
+          // Cas PDF
+          else if (filePath.endsWith(".pdf")) {
+            viewer.innerHTML = `<embed src="${filePath}" type="application/pdf" width="100%" height="${height}px"/>`;
+          }
+          // Cas image // /i: insensible à la case
+          else if (filePath.match(/\.(jpeg|jpg|png|gif)$/i)) {
+            viewer.innerHTML = `<img src="${filePath}" class="img-fluid" alt="Image du document" />`;
+          }
+          // Cas format non supporté
+          else {
+            textHtml = `Le format du fichier du <strong class="text-danger">"${docType}"</strong> n'est pas pris en charge pour l'affichage.`;
+            Swal.fire({
+              icon: "error",
+              title: "Fichier non supporté",
+              html: textHtml,
+              confirmButtonText: "OK",
+            });
+            viewer.innerHTML = textHtml;
+          }
+        })
+        .catch(() => {
+          textHtml = `Le fichier <strong class="text-danger">"${fileName}"</strong> du type <strong class="text-danger">"${docType}"</strong> est introuvable sur le serveur.`;
+          Swal.fire({
+            icon: "error",
+            title: "Erreur de chargement",
+            html: textHtml,
+            confirmButtonText: "OK",
+          });
+          viewer.innerHTML = textHtml;
         });
-        viewer.innerHTML = textHtml;
-      } else if (filePath.endsWith(".pdf")) {
-        viewer.innerHTML = `<embed src="${filePath}" type="application/pdf" width="100%" height="${height}px"/>`;
-      } else if (filePath.match(/\.(jpeg|jpg|png|gif)$/i)) {
-        // /i: insensible à la case
-        viewer.innerHTML = `<img src="${filePath}" class="img-fluid" alt="Image du document" />`;
-      } else {
-        textHtml = `Le format du fichier du <strong class="text-danger">"${docType}"</strong> n'est pas pris en charge pour l'affichage.`;
-        Swal.fire({
-          icon: "error",
-          title: "Fichier non supporté",
-          html: textHtml,
-          confirmButtonText: "OK",
-        });
-        viewer.innerHTML = textHtml;
-      }
     });
 
     // Clic sur le bouton de téléchargement

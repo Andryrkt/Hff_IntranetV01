@@ -21,9 +21,10 @@ trait DaAfficherTrait
      * Sans cela, les données risquent de ne pas être cohérentes ou correctement persistées.
      *
      * @param string $numDa  le numéro de la Demande d'Achat à traiter
+     * @param bool $validationDA  indique si l'ajout est effectué dans le cadre d'une validation de la DA
      * @return void
      */
-    public function ajouterDansTableAffichageParNumDa(string $numDa): void
+    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false): void
     {
         $em = $this->getEntityManager();
 
@@ -54,6 +55,9 @@ trait DaAfficherTrait
                 $daAfficher->enregistrerDal($newDaAfficher); // enregistrement pour DAL
             } else if ($newDaAfficher instanceof DemandeApproLR) {
                 $daAfficher->enregistrerDalr($newDaAfficher); // enregistrement pour DALR
+            }
+            if ($validationDA) {
+                $daAfficher->setDateValidation(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')));
             }
 
             $em->persist($daAfficher);

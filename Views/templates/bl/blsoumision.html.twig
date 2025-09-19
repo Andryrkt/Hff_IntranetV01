@@ -1,13 +1,18 @@
 {% extends "baseTemplate.html.twig" %}
+
+{% block title %}
+	Soumission Bon de Livraison
+{% endblock %}
+
 {% block stylesheets %}
-	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.08.29.16.20" rel="stylesheet"/>
-	<link href="{{ App.base_path }}/Views/css/bl/blsoumission.css?v=2025.08.29.16.20" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
+	<link href="{{ App.base_path }}/Views/css/bl/blsoumission.css?v=2025.09.15.08.00" rel="stylesheet"/>
 {% endblock %}
 
 {% import "macroForm.html.twig" as macroForm %}
 
 {% block content %}
-	<div class=" container-fluid">
+	<div class="mt-6 mb-4 container-fluid">
 		<div class="row">
 			<div class="col-12 col-md-6">
 				<div class="card">
@@ -16,7 +21,7 @@
 							<div class="row">
 								<div class="col-12 col-md-11">
 									<h3 class="perso-titre">
-										SOUMISSION BL
+										SOUMISSION BON DE LIVRAISON
 									</h3>
 								</div>
 								<div class=" col-12 col-md-1">
@@ -48,32 +53,19 @@
 				</div>
 			</div>
 			<div class="col-12 col-md-6">
-				<div
-					id="file-viewer" class="mt-3">
-					<!-- Onglets -->
-					<ul class="nav nav-tabs" id="pdfTabs" role="tablist">
-						<li class="nav-item" role="presentation">
-							<button class="nav-link active" id="tab1-tab" data-bs-toggle="tab" data-bs-target="#tab1" type="button" role="tab">
-								Bon de livraison
-							</button>
-						</li>
-					</ul>
-
-					<!-- Contenu des onglets -->
-					<div
-						class="tab-content border border-top-0 p-3" id="pdfTabContent">
-						<!-- Tab 1 -->
-						<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
-							<div id="file-list-1" class="mt-3"></div>
+				<div id="file-viewer">
+					<div class="card">
+						<div class="card-header perso-titre text-uppercase">Aperçu du Bon de Livraison</div>
+						<div class="card-body">
+							<div id="file-list-1"></div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-
-
 	</div>
 {% endblock %}
+
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/bl/blsoumission.js?v=2025.08.29.16.20" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/bl/blsoumission.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}

@@ -119,3 +119,7 @@ da.agence_debiteur_id = d.agence_debiteur_id,
 da.service_debiteur_id = d.service_debiteur_id,
 FROM da_afficher da
 JOIN Demande_Appro d ON da.numero_demande_appro = d.numero_demande_appro ;
+
+ALTER TABLE da_afficher ADD numero_version_or_maj_statut INT NULL;
+ALTER TABLE da_afficher ADD date_derniere_bav DATETIME2(0) null;
+ALTER TABLE da_afficher ADD date_maj_statut_or DATETIME2(0) null;

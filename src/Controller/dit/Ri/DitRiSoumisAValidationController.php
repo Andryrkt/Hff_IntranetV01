@@ -88,7 +88,7 @@ class DitRiSoumisAValidationController extends Controller
             // Récupérer les valeurs des cases cochées
             $itvCoches = $this->itvCocher($itvAfficher, $form);
 
-            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis);
+            $conditionDeBlocage = $this->conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit);
 
             if ($this->blocage($conditionDeBlocage)) {
 
@@ -194,7 +194,7 @@ class DitRiSoumisAValidationController extends Controller
         return $itvCoches;
     }
 
-    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis): array
+    private function conditionDeBlocageSoumission($ditRiSoumisAValidationModel, $ditRiSoumiAValidation, $numOr, $itvCoches, $itvDejaSoumis, $numDit): array
     {
         //tous les numéros d'intervention pour cette OR
         $toutNumeroItv = $ditRiSoumisAValidationModel->recupNumeroItv($numOr);

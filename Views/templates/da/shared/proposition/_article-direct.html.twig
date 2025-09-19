@@ -11,7 +11,7 @@
 {% set referencePiece = article.artRefp ?? '-' %}
 {% set ficheTechnique = '<input type="checkbox" class="form-check-input" disabled' ~ (article.estFicheTechnique ? ' checked' : '') ~ '>' %}
 
-<div class="tab-pane fade" id="tab_{{ currentPage }}_{{ article.numeroDemandeAppro }}" role="tabpanel">
+<div class="tab-pane fade dalr" id="tab_{{ currentPage }}_{{ article.numeroDemandeAppro }}" role="tabpanel">
 	{{ macroForm.sousTitre3('Information sur l’article demandée par le service', { "class": "mt-3" }) }}
 	<div class="row">
 		<div class="col-12 col-md-6">

@@ -99,7 +99,7 @@ class DaSoumissionFacBlController extends Controller
             $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
             /** AJOUT DES INFO NECESSAIRE */
-            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax);
+            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $numOr);
 
             /** ENREGISTREMENT DANS LA BASE DE DONNEE */
             $this->getEntityManager()->persist($soumissionFacBl);
@@ -114,10 +114,10 @@ class DaSoumissionFacBlController extends Controller
         }
     }
 
-    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax): DaSoumissionFacBl
+    private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
     {
         $numDit = $this->demandeApproRepository->getNumDitDa($numDa);
-        $numOr = $this->ditRepository->getNumOr($numDit);
+        // $numOr = $this->ditRepository->getNumOr($numDit);
         $soumissionFacBl->setNumeroCde($numCde)
             ->setUtilisateur($this->getUserName())
             ->setPieceJoint1($nomPdfFusionner)
