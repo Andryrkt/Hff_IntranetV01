@@ -217,7 +217,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrement dans la table DaAfficher
 
         // ajout des données dans la table DaSoumisAValidation
         $this->ajouterDansDaSoumisAValidation($da);
@@ -253,7 +253,7 @@ class DaPropositionArticleDirectController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true);
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE);
 
         // ajout des données dans la table DaSoumisAValidation
         $this->ajouterDansDaSoumisAValidation($da);
