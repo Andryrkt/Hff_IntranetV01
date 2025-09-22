@@ -36,7 +36,8 @@ class DaPropositionArticleDirectController extends Controller
     {
         parent::__construct();
 
-        $this->initDaPropositionDirectTrait($this->getUrlGenerator());
+        $this->initDaPropositionDirectTrait();
+        $this->initDaValidationDirectTrait();
     }
 
     /**
