@@ -14,7 +14,7 @@ class agenceServiceInformixApi extends Controller
      * */
     public function agenceInformix($agence)
     {
-        $magasinModel = new MagasinListeOrATraiterModel();
+        $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
         $service = $magasinModel->service($agence);
 
         header("Content-type:application/json");

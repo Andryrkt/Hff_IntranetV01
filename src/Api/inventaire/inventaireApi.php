@@ -15,7 +15,7 @@ class inventaireApi extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->inventaireModel = new InventaireModel;
+        $this->inventaireModel = $this->getService(InventaireModel::class);
     }
     /**
      * @Route("/Upload/fichier/{id}", name = "upload_fichier_inventaire")
@@ -65,14 +65,14 @@ class inventaireApi extends Controller
         $tab = [];
         foreach ($listeInventaireDispo as $keys => $listes) {
             foreach ($listes as $key => $liste) {
-                $tab[]=[
+                $tab[] = [
                     'id' => $keys,
                     'value' => $liste,
-                    'label' =>trim($key)
+                    'label' => trim($key)
                 ];
             }
         }
-        
+
 
 
 

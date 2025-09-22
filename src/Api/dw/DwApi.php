@@ -16,7 +16,10 @@ use App\Model\dw\DossierInterventionAtelierModel;
 
 class DwApi extends Controller
 {
+    use FileUtilityTrait;
     protected DemandeApproRepository $demandeApproRepository;
+    protected DemandeApproLRepository $demandeApproLRepository;
+    protected DemandeApproLRRepository $demandeApproLRRepository;
 
     public function __construct()
     {
@@ -34,7 +37,7 @@ class DwApi extends Controller
      */
     public function dwfetch($numDit)
     {
-        $dwModel = $this->getService('App\Model\dw\DossierInterventionAtelierModel');
+        $dwModel = $this->getService(DossierInterventionAtelierModel::class);
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");
@@ -72,7 +75,7 @@ class DwApi extends Controller
      */
     public function dwCheminFichier($numDoc, $nomDoc, $numVersion)
     {
-        $dwModel = $this->getService('App\Model\dw\DossierInterventionAtelierModel');
+        $dwModel = $this->getService(DossierInterventionAtelierModel::class);
 
         switch ($nomDoc) {
             case 'Demande d\'intervention':

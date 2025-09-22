@@ -2,8 +2,7 @@
 
 namespace App\Form\magasin\lcfnp;
 
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+
 use App\Model\magasin\MagasinListeOrATraiterModel;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,9 +20,9 @@ class ListeCdeFrnNonPlaceSearchType extends \Symfony\Component\Form\AbstractType
         'MAGASIN' => 'NEG',
         'REAPPRO' => 'REAPPRO'
     ];
-    public function __construct()
+    public function __construct(MagasinListeOrATraiterModel $magasinModel)
     {
-        $this->magasinModel = new MagasinListeOrATraiterModel();
+        $this->magasinModel = $magasinModel;
     }
     private function agence()
     {

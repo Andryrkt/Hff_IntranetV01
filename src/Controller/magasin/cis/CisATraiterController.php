@@ -27,7 +27,7 @@ class CisATraiterController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->ditModel = new DitModel();
+        $this->ditModel = $this->getService(DitModel::class);
     }
 
     /**
@@ -41,7 +41,7 @@ class CisATraiterController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        $cisATraiterModel = new CisATraiterModel();
+        $cisATraiterModel = $this->getService(CisATraiterModel::class);
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -83,7 +83,7 @@ class CisATraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $cisATraiterModel = new CisATraiterModel();
+        $cisATraiterModel = $this->getService(CisATraiterModel::class);
 
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('cis_a_traiter_search_criteria', []);

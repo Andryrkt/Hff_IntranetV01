@@ -68,9 +68,9 @@ class ListePlanningSearchType extends AbstractType
     //     'REB'	REBOBINAGE
     // ]
 
-    public function __construct()
+    public function __construct(PlanningModel $planningModel)
     {
-        $this->planningModel = new PlanningModel();
+        $this->planningModel = $planningModel;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

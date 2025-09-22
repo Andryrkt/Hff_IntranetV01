@@ -34,7 +34,7 @@ class MagasinListeOrTraiterController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->ditModel = new DitModel();
+        $this->ditModel = $this->getService(DitModel::class);
     }
 
     /**
@@ -50,7 +50,7 @@ class MagasinListeOrTraiterController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        $magasinModel = new MagasinListeOrATraiterModel;
+        $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
         $codeAgence = $this->getUser()->getAgenceAutoriserCode();
 
         /** CREATION D'AUTORISATION */
@@ -99,7 +99,7 @@ class MagasinListeOrTraiterController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $magasinModel = new MagasinListeOrATraiterModel;
+        $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('magasin_liste_or_traiter_search_criteria', []);
 

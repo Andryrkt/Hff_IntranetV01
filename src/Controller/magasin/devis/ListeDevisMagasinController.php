@@ -14,8 +14,6 @@ use App\Repository\admin\AgenceRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Controller\Controller;
-use App\Service\ServiceContainer;
-use App\Bootstrap\ServiceContainerBootstrap;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -24,13 +22,29 @@ class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
 
-    private ListeDevisMagasinModel $listeDevisMagasinModel;
-    private DevisMagasinRepository $devisMagasinRepository;
-    private AgenceRepository $agenceRepository;
+    private ?ListeDevisMagasinModel $listeDevisMagasinModel = null;
+    private ?DevisMagasinRepository $devisMagasinRepository = null;
+    private ?AgenceRepository $agenceRepository = null;
+    private ?EntityManagerInterface $entityManager = null;
+    private array $styleStatutDw = [];
 
     public function __construct()
     {
         parent::__construct();
+        $this->initStyleStatutDw();
+    }
+
+    /**
+     * Initialise les styles pour les statuts DW
+     */
+    private function initStyleStatutDw(): void
+    {
+        $this->styleStatutDw = [
+            DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
+            DevisMagasin::STATUT_PRIX_VALIDER_MAGASIN => 'bg-prix-valider-magasin',
+            DevisMagasin::STATUT_PRIX_REFUSE_MAGASIN => 'bg-prix-refuse-magasin',
+            DevisMagasin::STATUT_DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm'
+        ];
     }
 
     /**
@@ -39,21 +53,7 @@ class ListeDevisMagasinController extends Controller
     private function getListeDevisMagasinModel(): ListeDevisMagasinModel
     {
         if ($this->listeDevisMagasinModel === null) {
-            try {
-                // Initialiser le service container si nécessaire
-                if (!ServiceContainer::has('App\Model\magasin\devis\ListeDevisMagasinModel')) {
-                    ServiceContainerBootstrap::initialize();
-                }
-                $this->listeDevisMagasinModel = ServiceContainer::get('App\Model\magasin\devis\ListeDevisMagasinModel');
-            } catch (\Exception $e) {
-                // Fallback : créer une instance directement
-                $this->listeDevisMagasinModel = new ListeDevisMagasinModel(
-                    $this->getConnexion(),
-                    $this->getConnect(),
-                    $this->getConnexion04(),
-                    $this->getConnexion04Gcot()
-                );
-            }
+            $this->listeDevisMagasinModel = $this->getService(ListeDevisMagasinModel::class);
         }
         return $this->listeDevisMagasinModel;
     }
@@ -64,16 +64,7 @@ class ListeDevisMagasinController extends Controller
     private function getEntityManagerService(): EntityManagerInterface
     {
         if ($this->entityManager === null) {
-            try {
-                // Initialiser le service container si nécessaire
-                if (!ServiceContainer::has('doctrine.orm.default_entity_manager')) {
-                    ServiceContainerBootstrap::initialize();
-                }
-                $this->entityManager = ServiceContainer::get('doctrine.orm.default_entity_manager');
-            } catch (\Exception $e) {
-                // Fallback : utiliser l'EntityManager de la classe parente
-                $this->entityManager = $this->getEntityManager();
-            }
+            $this->entityManager = $this->getEntityManager();
         }
         return $this->entityManager;
     }

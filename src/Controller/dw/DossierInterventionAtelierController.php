@@ -28,11 +28,13 @@ class DossierInterventionAtelierController extends Controller
 
     private $historiqueOperation;
     protected DemandeApproRepository $demandeApproRepository;
+    protected DemandeApproLRepository $demandeApproLRepository;
+    protected DemandeApproLRRepository $demandeApproLRRepository;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->demandeApproLRepository = $this->getEntityManager()->getRepository(DemandeApproL::class);
         $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
@@ -54,7 +56,7 @@ class DossierInterventionAtelierController extends Controller
 
         $form = $this->getFormFactory()->createBuilder(DossierInterventionAtelierSearchType::class, null, ['method' => 'GET'])->getForm();
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = $this->getService(DossierInterventionAtelierModel::class);
 
         $dwDits = []; // Initialisation du tableau pour les demandes d'intervention
         $criteria = [
@@ -96,7 +98,7 @@ class DossierInterventionAtelierController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DIT);
         /** FIN AUtorisation acées */
 
-        $dwModel = new DossierInterventionAtelierModel();
+        $dwModel = $this->getService(DossierInterventionAtelierModel::class);
 
         // Récupération initiale : Demande d'intervention
         $dwDit = $this->fetchAndLabel($dwModel, 'findDwDit', $numDit, "Demande d'intervention");

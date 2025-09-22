@@ -35,10 +35,10 @@ class PlanningController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->planningModel = new PlanningModel();
+        $this->planningModel = $this->getService(PlanningModel::class);
         $this->planningSearch = new PlanningSearch();
         $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
     }
 
     /**

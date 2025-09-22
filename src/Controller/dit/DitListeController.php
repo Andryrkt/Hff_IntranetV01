@@ -6,6 +6,7 @@ namespace App\Controller\dit;
 
 use DateTime;
 use App\Entity\dit\DitSearch;
+use App\Service\ExcelService;
 use App\Controller\Controller;
 use App\Form\dit\DitSearchType;
 use App\Form\dit\DocDansDwType;
@@ -19,7 +20,6 @@ use App\Controller\Traits\AutorisationTrait;
 use App\Service\docuware\CopyDocuwareService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\dw\DossierInterventionAtelierModel;
 use App\Service\historiqueOperation\HistoriqueOperationDITService;
 
 /**
@@ -39,7 +39,7 @@ class DitListeController extends Controller
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
         $this->userDataService = new UserDataService($this->getEntityManager());
-        $this->excelService = new \App\Service\ExcelService();
+        $this->excelService = $this->getService(ExcelService::class);
     }
 
     /**
@@ -62,7 +62,7 @@ class DitListeController extends Controller
         $autorisationRoleEnergie = $this->autorisationRoleEnergie($this->getEntityManager());
         //FIN AUTORISATION
 
-        $ditListeModel = $this->getService('App\\Model\\dit\\DitListModel');
+        $ditListeModel = $this->getService(DitListModel::class);
         $ditSearch = new DitSearch();
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
@@ -235,7 +235,7 @@ class DitListeController extends Controller
 
         $this->ajouterDansCsv($filePathUplode, $data, $headers);
 
-        $copyDocuwareService = new CopyDocuwareService();
+        $copyDocuwareService = new CopyDocuwareService($this->getService(CopyDocuwareService::class));
         $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
 
         $message = "La DIT a été clôturé avec succès.";

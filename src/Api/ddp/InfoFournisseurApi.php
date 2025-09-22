@@ -27,7 +27,7 @@ class InfoFournisseurApi extends Controller
 
     public function __construct()
     {
-        $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementModel = $this->getService(DemandePaiementModel::class);
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->demandePaiementRepository  = $this->getEntityManager()->getRepository(DemandePaiement::class);
     }

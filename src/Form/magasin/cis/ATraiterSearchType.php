@@ -28,9 +28,9 @@ class ATraiterSearchType extends AbstractType
 
     private $magasinModel;
 
-    public function __construct()
+    public function __construct(MagasinListeOrATraiterModel $magasinModel)
     {
-        $this->magasinModel = new MagasinListeOrATraiterModel();
+        $this->magasinModel = $magasinModel;
     }
 
     private function recupConstructeur()

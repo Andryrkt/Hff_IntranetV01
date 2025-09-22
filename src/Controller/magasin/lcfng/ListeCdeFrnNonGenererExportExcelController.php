@@ -20,7 +20,7 @@ class ListeCdeFrnNonGenererExportExcelController extends Controller
     {
         parent::__construct();
 
-        $this->listeCdeFrnNonGenererModel = new ListeCdeFrnNonGenererModel();
+        $this->listeCdeFrnNonGenererModel = $this->getService(ListeCdeFrnNonGenererModel::class);
         $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 

@@ -43,8 +43,7 @@ class TraitementAncienDitService
     public function traitementDevis(ProgressBar $progressBar)
     {
         $ancienDevisData = $this->recupDataService->recupDansExcel();
-        $ancienDevisTabs = $this->recupAncienDit->dataDevis($ancienDevisData);
-        $ancienDevisTabObj = $this->transformEnObjet->transformDevisEnObjet($ancienDevisTabs, $progressBar);
+        $ancienDevisTabObj = $this->transformEnObjet->transformDevisEnObjet($ancienDevisData, $progressBar);
         $this->insertionDonnee->insertionTableDit($ancienDevisTabObj);
     }
 }

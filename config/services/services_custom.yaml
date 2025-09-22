@@ -191,11 +191,6 @@ services:
             $filePath: '%kernel.project_dir%/var/cache/'
         public: false
 
-    # Service MigrationDevisModel - configuration explicite pour éviter l'autowiring
-    App\Model\migration\MigrationDevisModel:
-        arguments:
-            $tableName: 'devis'
-        public: false
 
     # Repository AgenceRepository - configuration explicite pour éviter l'autowiring
     App\Repository\admin\AgenceRepository:
@@ -224,6 +219,24 @@ services:
             $em: '@doctrine.orm.default_entity_manager'
             $class: 'App\Entity\admin\Service'
         public: false
+
+    # Form PlanningSearchType - configuration explicite pour l'injection de dépendances
+    App\Form\planning\PlanningSearchType:
+        arguments:
+            $planningModel: '@App\Model\planning\PlanningModel'
+        public: true
+
+    # Form MagasinListeOrATraiterSearchType - configuration explicite pour l'injection de dépendances
+    App\Form\magasin\MagasinListeOrATraiterSearchType:
+        arguments:
+            $magasinModel: '@App\Model\magasin\MagasinListeOrATraiterModel'
+        public: true
+
+    # Form MagasinListeOrALivrerSearchType - configuration explicite pour l'injection de dépendances
+    App\Form\magasin\MagasinListeOrALivrerSearchType:
+        arguments:
+            $magasinModel: '@App\Model\magasin\MagasinListeOrLivrerModel'
+        public: true
 
     # Services avec paramètres primitifs - configuration explicite pour éviter l'autowiring
     App\Service\fichier\FileUploaderService:
@@ -355,7 +368,6 @@ services:
             - '../src/Model/LdapModel.php'
             - '../src/Model/FileReaderModel.php'
             - '../src/Model/dit/RequestSoumisValidation.php'
-            - '../src/Model/migration/MigrationDevisModel.php'
 
     # Le contrôleur ListeDevisMagasinController n'a plus besoin de configuration spécifique
     # car il utilise le service container pour récupérer ses dépendances

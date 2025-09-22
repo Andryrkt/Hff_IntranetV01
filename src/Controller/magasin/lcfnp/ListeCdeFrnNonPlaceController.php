@@ -27,7 +27,7 @@ class ListeCdeFrnNonPlaceController extends  Controller
     {
         parent::__construct();
 
-        $this->listeCdeFrnNonPlacerModel = new listeCdeFrnNonPlacerModel();
+        $this->listeCdeFrnNonPlacerModel = $this->getService(listeCdeFrnNonPlacerModel::class);
         $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
     /**

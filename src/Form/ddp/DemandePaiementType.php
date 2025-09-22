@@ -10,6 +10,10 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use App\Controller\Traits\ddp\DdpTrait;
 use App\Model\ddp\DemandePaiementModel;
+use App\Model\Connexion;
+use App\Model\DatabaseInformix;
+use App\Model\ConnexionDote4;
+use App\Model\ConnexionDote4Gcot;
 use App\Service\TableauEnStringService;
 use Symfony\Component\Form\AbstractType;
 use App\Repository\admin\AgenceRepository;
@@ -36,13 +40,23 @@ class DemandePaiementType extends AbstractType
     private $demandePaiementModel;
     private $em;
     private DemandePaiementRepository $demandePaiementRepository;
-    public function __construct(EntityManagerInterface $em)
-    {
+    public function __construct(
+        EntityManagerInterface $em,
+        Connexion $connexion,
+        DatabaseInformix $connect,
+        ConnexionDote4 $connexion04,
+        ConnexionDote4Gcot $connexion04Gcot
+    ) {
         $this->em = $em;
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->serviceRepository = $em->getRepository(Service::class);
         $this->cdeFnrRepository = $em->getRepository(CdefnrSoumisAValidation::class);
-        $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementModel = new DemandePaiementModel(
+            $connexion,
+            $connect,
+            $connexion04,
+            $connexion04Gcot
+        );
         $this->demandePaiementRepository = $em->getRepository(DemandePaiement::class);
     }
 

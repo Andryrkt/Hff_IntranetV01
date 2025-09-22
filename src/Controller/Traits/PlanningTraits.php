@@ -19,7 +19,7 @@ trait PlanningTraits
 
     private function recupNumOrValider($criteria, $em)
     {
-        $PlanningModel  = new PlanningModel();
+        $PlanningModel  = $this->getService(PlanningModel::class);
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
         $numOrItvValide = $this->recupNumORItvValide($numeroOrs, $em);
         //$numOrItvValide = $this->recupNumOrValidersansVmax($em);
@@ -34,7 +34,7 @@ trait PlanningTraits
 
     private function recupNumOrBackValider($criteria)
     {
-        $PlanningModel  = new PlanningModel();
+        $PlanningModel  = $this->getService(PlanningModel::class);
         $numeroOrs = $PlanningModel->recuperationNumOrValider($criteria);
         return $numeroOrs;
     }

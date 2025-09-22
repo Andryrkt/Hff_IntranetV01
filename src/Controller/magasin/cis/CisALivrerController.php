@@ -27,7 +27,7 @@ class CisALivrerController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->ditModel = new DitModel();
+        $this->ditModel = $this->getService(DitModel::class);
     }
 
     /**
@@ -42,7 +42,7 @@ class CisALivrerController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_MAG);
         /** FIN AUtorisation acées */
 
-        $cisATraiterModel = new CisALivrerModel();
+        $cisATraiterModel = $this->getService(CisALivrerModel::class);
 
         /** CREATION D'AUTORISATION */
         $autoriser = $this->autorisationRole($this->getEntityManager());
@@ -86,7 +86,7 @@ class CisALivrerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $cisATraiterModel = new CisALivrerModel();
+        $cisATraiterModel = $this->getService(CisALivrerModel::class);
 
         //recupères les critère dans la session 
         $criteria = $this->getSessionService()->get('cis_a_Livrer_search_criteria', []);

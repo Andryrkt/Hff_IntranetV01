@@ -14,7 +14,7 @@ class CdeFnrSoumisAValidationApi extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->cdeFnrModel = new CdefnrSoumisAValidationModel();
+        $this->cdeFnrModel = $this->getService(CdefnrSoumisAValidationModel::class);
     }
 
     /**
@@ -69,5 +69,4 @@ class CdeFnrSoumisAValidationApi extends Controller
         $cde04 = $this->cdeFnrModel->findsCde04();
         return TableauEnStringService::TableauEnString(',', $cde04);
     }
-
 }

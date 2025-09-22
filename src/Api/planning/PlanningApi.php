@@ -15,7 +15,7 @@ class PlanningApi extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->planningModel = new PlanningModel();
+        $this->planningModel = $this->getService(PlanningModel::class);
     }
 
     /**

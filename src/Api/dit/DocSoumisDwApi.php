@@ -16,7 +16,7 @@ class DocSoumisDwApi extends Controller
     {
         parent::__construct();
 
-        $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+        $this->ditOrsoumisAValidationModel = $this->getService(DitOrSoumisAValidationModel::class);
     }
     /**
      * @Route("/constraint-soumission/{numDit}", name="constraint_soumission")

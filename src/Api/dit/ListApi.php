@@ -64,7 +64,7 @@ class ListApi extends Controller
      * */
     public function facturation($numOr)
     {
-        $ditListeModel = new DitListModel();
+        $ditListeModel = $this->getService(DitListModel::class);
         $facture = $this->getEntityManager()->getRepository(DitFactureSoumisAValidation::class)->findNumItvFacStatut($numOr);
         $itvNumFac = $ditListeModel->recupItvNumFac($numOr);
 
@@ -106,7 +106,7 @@ class ListApi extends Controller
             return;
         }
 
-        $ditListeModel = new DitListModel();
+        $ditListeModel = $this->getService(DitListModel::class);
         $ri = $ditListeModel->recupItvComment($numOr);
         $riSoumis = $this->getEntityManager()->getRepository(DitRiSoumisAValidation::class)->findNumItv($numOr);
 

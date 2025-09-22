@@ -24,8 +24,7 @@ class DevisMagasinEnvoyerAuClientController extends Controller
     public function __construct()
     {
         parent::__construct();
-        global $container;
-        $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
+        $this->historiqueOperationDeviMagasinService = $this->getService(HistoriqueOperationDevisMagasinService::class);
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
     }
 

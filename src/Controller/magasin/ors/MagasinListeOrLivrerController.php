@@ -39,8 +39,8 @@ class MagasinListeOrLivrerController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->ditModel = new DitModel();
-        $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
+        $this->ditModel = $this->getService(DitModel::class);
+        $this->magasinListOrLivrerModel = $this->getService(MagasinListeOrLivrerModel::class);
     }
 
     /**

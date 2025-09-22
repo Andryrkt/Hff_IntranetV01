@@ -21,7 +21,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->listeCdeFrnNonPlacerModel = new ListeCdeFrnNonplacerModel();
+        $this->listeCdeFrnNonPlacerModel = $this->getService(ListeCdeFrnNonplacerModel::class);
         $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 

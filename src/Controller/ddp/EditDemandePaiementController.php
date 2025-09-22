@@ -47,12 +47,12 @@ class EditDemandePaiementController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->demandePaiementModel = new DemandePaiementModel();
+        $this->demandePaiementModel = $this->getService(DemandePaiementModel::class);
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/ddp';
         $this->historiqueOperation = new HistoriqueOperationDDPService($this->getEntityManager());
-        $this->generatePdfDdp = new GeneratePdfDdp();
-        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->generatePdfDdp = $this->getService(GeneratePdfDdp::class);
+        $this->traitementDeFichier = $this->getService(TraitementDeFichier::class);
         $this->agenceRepository = $this->getEntityManager()->getRepository(Agence::class);
         $this->serviceRepository = $this->getEntityManager()->getRepository(Service::class);
         $this->typeDemandeRepository = $this->getEntityManager()->getRepository(TypeDemande::class);

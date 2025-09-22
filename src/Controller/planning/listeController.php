@@ -38,9 +38,9 @@ class ListeController extends Controller
     {
         parent::__construct();
         $this->planningSearch = new PlanningSearch();
-        $this->planningModel = new PlanningModel();
+        $this->planningModel = $this->getService(PlanningModel::class);
         $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDITService($this->getEntityManager(), $this->getSessionService());
     }
     /**
      * @Route("/planning-detaille",name = "liste_planning")

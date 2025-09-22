@@ -20,7 +20,7 @@ class AutocompletionApi extends Controller
     {
 
         if (!empty($designation)) {
-            $magasinModel = new MagasinListeOrATraiterModel;
+            $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
             $designations = $magasinModel->recupereAutocompletionDesignation($designation);
         } else {
             $designations = [];
@@ -39,7 +39,7 @@ class AutocompletionApi extends Controller
     public function autocompletionRefPiece($refPiece)
     {
         if (!empty($refPiece)) {
-            $magasinModel = new MagasinListeOrATraiterModel;
+            $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
             $refPieces = $magasinModel->recuperAutocompletionRefPiece($refPiece);
         } else {
             $refPieces = [];
@@ -56,7 +56,7 @@ class AutocompletionApi extends Controller
      */
     public function autocompletionFrs()
     {
-        $frsNonPlace = new ListeCdeFrnNonPlacerModel();
+        $frsNonPlace = $this->getService(ListeCdeFrnNonPlacerModel::class);
         $data = $frsNonPlace->fournisseurIrum();
 
         header("Content-type:application/json; charset=utf-8");
@@ -71,7 +71,7 @@ class AutocompletionApi extends Controller
     public function autocompletionCodeClient()
     {
         try {
-            $listeDevisMagasinModel = new ListeDevisMagasinModel();
+            $listeDevisMagasinModel = $this->getService(ListeDevisMagasinModel::class);
             $data = $listeDevisMagasinModel->getCodeLibelleClient();
 
             // Vérifier que les données sont valides

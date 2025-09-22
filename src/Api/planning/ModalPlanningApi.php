@@ -14,7 +14,7 @@ class ModalPlanningApi extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->planningModel = new ModalPlanningModel();
+        $this->planningModel = $this->getService(ModalPlanningModel::class);
     }
 
 

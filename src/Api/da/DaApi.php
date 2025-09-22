@@ -22,7 +22,7 @@ class DaApi extends Controller
     public function fetchSousFamille($code)
     {
         try {
-            $daModel = new DaModel;
+            $daModel = $this->getService(DaModel::class);
             $data = $daModel->getTheSousFamille($code);
 
             $result = [];
@@ -58,7 +58,7 @@ class DaApi extends Controller
     public function autocompleteAllDesignationZST($famille, $sousfamille)
     {
         try {
-            $daModel = new DaModel;
+            $daModel = $this->getService(DaModel::class);
             $data = $daModel->getAllDesignationZST($famille, $sousfamille);
 
             // Vérifier que les données sont valides
@@ -91,7 +91,7 @@ class DaApi extends Controller
     public function autocompleteAllDesignationZDI()
     {
         try {
-            $daModel = new DaModel;
+            $daModel = $this->getService(DaModel::class);
             $data = $daModel->getAllDesignationZDI();
 
             // Vérifier que les données sont valides
@@ -124,7 +124,7 @@ class DaApi extends Controller
     public function autocompleteAllFournisseur()
     {
         try {
-            $daModel = new DaModel;
+            $daModel = $this->getService(DaModel::class);
             $data = $daModel->getAllFournisseur();
 
             // Vérifier que les données sont valides

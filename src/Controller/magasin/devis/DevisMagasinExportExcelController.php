@@ -16,7 +16,7 @@ class DevisMagasinExportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
+        $this->listeDevisMagasinModel = $this->getService(ListeDevisMagasinModel::class);
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
     }
 

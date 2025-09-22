@@ -8,9 +8,9 @@ class MigrationDataDitService
 {
     private MigrationDataModel $migrationDataModel;
 
-    public function __construct()
+    public function __construct(MigrationDataModel $migrationDataModel)
     {
-        $this->migrationDataModel = new MigrationDataModel();
+        $this->migrationDataModel = $migrationDataModel;
     }
 
     public function migrationDataDit($output)
@@ -26,5 +26,4 @@ class MigrationDataDitService
         }
         return "Insertion terminée avec succès.";
     }
-
 }

@@ -14,11 +14,13 @@ class MigrationDataCommand extends Command
     protected static $defaultName = 'app:migration-data';
 
     private $em;
+    private MigrationDataDitService $migrationDataDitService;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManagerInterface $em, MigrationDataDitService $migrationDataDitService)
     {
         parent::__construct();
         $this->em = $em;
+        $this->migrationDataDitService = $migrationDataDitService;
     }
 
     protected function configure()
@@ -30,8 +32,7 @@ class MigrationDataCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $migrationPdfDitService = new MigrationDataDitService($this->em);
-        $migrationPdfDitService->migrationDataDit($output);
+        $this->migrationDataDitService->migrationDataDit($output);
         return Command::SUCCESS;
     }
 }

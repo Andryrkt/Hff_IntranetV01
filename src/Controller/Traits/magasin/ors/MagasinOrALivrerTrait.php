@@ -10,7 +10,7 @@ trait MagasinOrALIvrerTrait
 {
     private function recupNumOrSelonCondition(array $criteria, $em): array
     {
-        $magasinModel = new MagasinListeOrATraiterModel();
+        $magasinModel = $this->getService(MagasinListeOrATraiterModel::class);
         $numeroOrs = $magasinModel->recupNumOr($criteria);
     
         $numOrValideItvString = $this->orEnString($this->recupNumORItvValide($numeroOrs, $em)['numeroOr_itv']);

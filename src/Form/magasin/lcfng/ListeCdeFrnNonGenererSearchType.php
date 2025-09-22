@@ -30,9 +30,9 @@ class ListeCdeFrnNonGenererSearchType extends \Symfony\Component\Form\AbstractTy
 
     private $magasinModel;
 
-    public function __construct()
+    public function __construct(MagasinListeOrATraiterModel $magasinModel)
     {
-        $this->magasinModel = new MagasinListeOrATraiterModel();
+        $this->magasinModel = $magasinModel;
     }
 
     private function recupConstructeur()

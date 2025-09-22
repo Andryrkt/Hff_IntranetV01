@@ -37,9 +37,9 @@ class MagasinListeOrALivrerSearchType extends AbstractType
 
     private $magasinModel;
 
-    public function __construct()
+    public function __construct(MagasinListeOrLivrerModel $magasinModel)
     {
-        $this->magasinModel = new MagasinListeOrLivrerModel();
+        $this->magasinModel = $magasinModel;
     }
 
     private function recupConstructeur()
