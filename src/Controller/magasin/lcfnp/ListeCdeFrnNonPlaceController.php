@@ -10,7 +10,7 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\lcfnp\listeCdeFrnNonPlacerModel;
+use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
 use App\Form\magasin\lcfnp\ListeCdeFrnNonPlaceSearchType;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
@@ -22,12 +22,12 @@ class ListeCdeFrnNonPlaceController extends  Controller
     use AutorisationTrait;
 
     protected DitOrsSoumisAValidationRepository $ditOrsSoumisRepository;
-    private listeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
+    private ListeCdeFrnNonPlacerModel $listeCdeFrnNonPlacerModel;
     public function __construct()
     {
         parent::__construct();
 
-        $this->listeCdeFrnNonPlacerModel = $this->getService(listeCdeFrnNonPlacerModel::class);
+        $this->listeCdeFrnNonPlacerModel = $this->getService(ListeCdeFrnNonPlacerModel::class);
         $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
     /**

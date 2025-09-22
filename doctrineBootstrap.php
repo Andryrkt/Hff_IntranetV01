@@ -22,6 +22,13 @@ if (!file_exists($proxyDir)) {
     }
 }
 
+// Vérifier si les proxies existent, sinon les régénérer
+$proxyFiles = glob($proxyDir . '/__CG__*.php');
+if (empty($proxyFiles)) {
+    // Les proxies seront régénérés automatiquement par Doctrine
+    // lors de la première utilisation de l'EntityManager
+}
+
 // Configuration Doctrine
 $config = Setup::createAnnotationMetadataConfiguration(
     $paths,
@@ -49,10 +56,8 @@ $dbParams = [
 // EntityManager
 try {
     $entityManager = EntityManager::create($dbParams, $config);
-    return $entityManager;
 } catch (\Exception $e) {
     // Fallback pour les versions récentes de Doctrine
     $connection = \Doctrine\DBAL\DriverManager::getConnection($dbParams);
     $entityManager = new EntityManager($connection, $config);
-    return $entityManager;
 }

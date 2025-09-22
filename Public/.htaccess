@@ -1,0 +1,13 @@
+# Vérification automatique des proxies Doctrine
+RewriteEngine On
+
+# Vérifier si les proxies existent avant de traiter les requêtes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/../var/cache/proxies/__CG__*.php !-f
+RewriteRule ^(.*)$ ../maintenance/check_proxies.php [L]
+
+# Redirection normale vers index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]

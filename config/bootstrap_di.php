@@ -83,7 +83,12 @@ $container->setParameter('container.autowiring.strict_mode', false);
 $container->setParameter('container.dumper.inline_factories', false);
 
 // Créer l'EntityManager manuellement AVANT de charger la configuration
-$entityManager = require_once dirname(__DIR__) . "/doctrineBootstrap.php";
+include dirname(__DIR__) . "/doctrineBootstrap.php";
+
+// Vérifier que l'EntityManager a été créé correctement
+if (!$entityManager instanceof \Doctrine\ORM\EntityManagerInterface) {
+    throw new \RuntimeException("Failed to create EntityManager. Check database connection and configuration.");
+}
 
 // Créer le ManagerRegistry pour Doctrine
 $registry = new \core\SimpleManagerRegistry($entityManager);

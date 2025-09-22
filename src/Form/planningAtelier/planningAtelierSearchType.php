@@ -21,10 +21,10 @@ class planningAtelierSearchType extends AbstractType
     use Transformation;
     private $planningModel;
     private $planningAtelierModel;
-    public function __construct()
+    public function __construct(PlanningModel $planningModel, planningAtelierModel $planningAtelierModel)
     {
-        $this->planningModel = new PlanningModel();
-        $this->planningAtelierModel = new planningAtelierModel();
+        $this->planningModel = $planningModel;
+        $this->planningAtelierModel = $planningAtelierModel;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

@@ -22,7 +22,7 @@ class planningAtelierControler extends Controller
     {
         parent::__construct();
         $this->planningAtelierSearch = new planningAtelierSearch();
-        $this->planningAtelierModel = new planningAtelierModel();
+        $this->planningAtelierModel = $this->getService(planningAtelierModel::class);
     }
     /**
      * @route("/planningAtelier", name = "planningAtelier_vue")

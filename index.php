@@ -3,6 +3,27 @@
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
+// Vérifier et régénérer les proxies Doctrine si nécessaire
+$proxyDir = __DIR__ . '/var/cache/proxies';
+if (!is_dir($proxyDir) || empty(glob($proxyDir . '/__CG__*.php'))) {
+    // Charger l'EntityManager pour régénérer les proxies
+    include __DIR__ . "/doctrineBootstrap.php";
+
+    // Vérifier que l'EntityManager a été créé
+    if (!isset($entityManager) || !$entityManager instanceof \Doctrine\ORM\EntityManagerInterface) {
+        throw new \RuntimeException("Failed to create EntityManager for proxy generation");
+    }
+
+    // Créer le dossier proxies s'il n'existe pas
+    if (!is_dir($proxyDir)) {
+        mkdir($proxyDir, 0755, true);
+    }
+
+    // Régénérer les proxies
+    $proxyFactory = $entityManager->getProxyFactory();
+    $proxyFactory->generateProxyClasses($entityManager->getMetadataFactory()->getAllMetadata());
+}
+
 // Charger le bootstrap DI
 $services = require __DIR__ . '/config/bootstrap_di.php';
 

@@ -7,7 +7,7 @@ use DateTimeZone;
 use App\Controller\Controller;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Model\magasin\lcfnp\ListeCdeFrnNonplacerModel;
+use App\Model\magasin\lcfnp\ListeCdeFrnNonPlacerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
 
 /**
@@ -21,7 +21,7 @@ class ListeCdeFrnNonPlaceEXportExcelController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->listeCdeFrnNonPlacerModel = $this->getService(ListeCdeFrnNonplacerModel::class);
+        $this->listeCdeFrnNonPlacerModel = $this->getService(ListeCdeFrnNonPlacerModel::class);
         $this->ditOrsSoumisRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
     }
 

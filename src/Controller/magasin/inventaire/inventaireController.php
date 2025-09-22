@@ -40,12 +40,12 @@ class InventaireController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->inventaireModel = new InventaireModel();
+        $this->inventaireModel = $this->getService(InventaireModel::class);
         $this->inventaireSearch = new InventaireSearch();
         $this->inventaireDetailSearch = new InventaireDetailSearch();
-        $this->generetePdfInventaire = new GeneretePdfInventaire();
+        $this->generetePdfInventaire = $this->getService(GeneretePdfInventaire::class);
         $this->bordereauSearch = new BordereauSearch;
-        $this->generetePdfBordereau = new GeneretePdfBordereau;
+        $this->generetePdfBordereau = $this->getService(GeneretePdfBordereau::class);
     }
 
     /**

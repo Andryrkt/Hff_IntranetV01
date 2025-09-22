@@ -21,9 +21,9 @@ class InventaireSearchType extends AbstractType
         'PRINCIPAL' => 'PRINCIPAL',
         'SECONDAIRE' => 'SECONDAIRE',
     ];
-    public function __construct()
+    public function __construct(InventaireModel $inventaireModel)
     {
-        $this->InventaireModel = new InventaireModel;
+        $this->InventaireModel = $inventaireModel;
         $this->datefin = new \DateTime();
         $this->dateDebut = clone $this->datefin;
         $this->dateDebut->modify('first day of this month');

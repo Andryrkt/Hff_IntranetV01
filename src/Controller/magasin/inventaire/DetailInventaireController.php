@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\inventaire\DetailInventaireSearch;
 use App\Form\inventaire\detailInventaireSearchType;
+
 /**
  * @Route("/magasin/inventaire")
  */
@@ -32,7 +33,7 @@ class DetailInventaireController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->InventaireModel = new InventaireModel;
+        $this->InventaireModel = $this->getService(InventaireModel::class);
         $this->DetailInventaireSearch = new DetailInventaireSearch;
         $this->datefin = new \DateTime();
         $this->dateDebut = clone $this->datefin;
