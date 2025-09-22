@@ -119,10 +119,10 @@ class DomForm1Type extends AbstractType
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => count($categories) === 0 ? 'Aucune catégorie disponible' : 'Sélectionnez une catégorie',
+                        'required' => false,
+                        'empty_data' => null,
                     ]
                 );
             })
@@ -152,7 +152,6 @@ class DomForm1Type extends AbstractType
                     $categories[] = $this->em->getRepository(Catg::class)->find($value['id']);
                 }
 
-
                 $form->add(
                     'categorie',
                     EntityType::class,
@@ -160,10 +159,10 @@ class DomForm1Type extends AbstractType
                         'label' => 'Catégorie',
                         'class' => Catg::class,
                         'choice_label' => 'description',
-                        'query_builder' => function (CatgRepository $catg) {
-                            return $catg->createQueryBuilder('c')->orderBy('c.description', 'ASC');
-                        },
                         'choices' => $categories,
+                        'placeholder' => count($categories) === 0 ? 'Aucune catégorie disponible' : 'Sélectionnez une catégorie',
+                        'required' => false,
+                        'empty_data' => null,
                     ]
                 );
             })

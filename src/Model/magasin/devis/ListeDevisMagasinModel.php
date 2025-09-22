@@ -25,6 +25,8 @@ class ListeDevisMagasinModel extends Model
 
             FROM neg_ent
             WHERE nent_natop = 'DEV'
+            AND nent_soc = 'HF'
+            AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
             AND year(Nent_datecde) = '2025'
         ";
 
