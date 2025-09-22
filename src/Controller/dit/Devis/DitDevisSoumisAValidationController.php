@@ -354,10 +354,9 @@ class DitDevisSoumisAValidationController extends Controller
         $recupNbrItvDev = $this->ditDevisSoumisAValidationModel->recupNbrItvDev($numDevis);
 
         if (
-            !is_array($recupConstRefPremDev) || empty($recupConstRefPremDev) ||
-            !is_array($recupNbrItvDev) || empty($recupNbrItvDev)
+            !is_array($recupConstRefPremDev) || empty($recupConstRefPremDev)
         ) {
-            return true; // Devis vente
+            return false; // Devis forfait
         }
 
         if ($recupConstRefPremDev[0]['contructeur'] === 'ZDI-FORFAIT' && (int)$recupNbrItvDev[0]['itv'] > 0) {
