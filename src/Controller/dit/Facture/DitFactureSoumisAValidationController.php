@@ -5,6 +5,9 @@ namespace App\Controller\dit\Facture;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use Exception;
+use App\Service\FusionPdf;
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -19,8 +22,6 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
-use App\Model\dit\DitModel;
-use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
@@ -166,14 +167,15 @@ class DitFactureSoumisAValidationController extends Controller
             $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
             $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
 
-            if ($interneExterne === 'INTERNE') {
-                $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                $this->fusionPdf->mergePdfs($ficherAfusioner, $pathPageDeGarde);
-                $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-            } else {
-                $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
-            }
+                    if ($interneExterne === 'INTERNE') {
+                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
+                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                    } else {
+                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+                    }
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             // Persist les entités liées
@@ -192,6 +194,51 @@ class DitFactureSoumisAValidationController extends Controller
             'form' => $form->createView(),
         ]);
     }
+
+    private function ConvertirLesPdf(array $tousLesFichersAvecChemin): array
+    {
+        $tousLesFichiers = [];
+        foreach ($tousLesFichersAvecChemin as $filePath) {
+            $tousLesFichiers[] = $this->convertPdfWithGhostscript($filePath);
+        }
+
+        return $tousLesFichiers;
+    }
+
+
+    private function convertPdfWithGhostscript($filePath)
+    {
+        $gsPath = 'C:\Program Files\gs\gs10.05.0\bin\gswin64c.exe'; // Modifier selon l'OS
+        $tempFile = $filePath . "_temp.pdf";
+
+        // Vérifier si le fichier existe et est accessible
+        if (!file_exists($filePath)) {
+            throw new Exception("Fichier introuvable : $filePath");
+        }
+
+        if (!is_readable($filePath)) {
+            throw new Exception("Le fichier PDF ne peut pas être lu : $filePath");
+        }
+
+        // Commande Ghostscript
+        $command = "\"$gsPath\" -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -o \"$tempFile\" \"$filePath\"";
+        // echo "Commande exécutée : $command<br>";
+
+        exec($command, $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            echo "Sortie Ghostscript : " . implode("\n", $output);
+            throw new Exception("Erreur lors de la conversion du PDF avec Ghostscript");
+        }
+
+        // Remplacement du fichier
+        if (!rename($tempFile, $filePath)) {
+            throw new Exception("Impossible de remplacer l'ancien fichier PDF.");
+        }
+
+        return $filePath;
+    }
+
 
     public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne)
     {
