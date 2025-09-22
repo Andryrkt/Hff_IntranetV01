@@ -62,10 +62,10 @@ services:
     App\Model\LdapModel:
         class: App\Model\LdapModel
         arguments:
-            $ldapHost: '192.168.0.28'
+            $ldapHost: '192.168.0.1'
             $ldapPort: 389
-            $domain: 'hff.mg'
-            $ldapDn: 'DC=hff,DC=mg'
+            $domain: '@@fraise.hff.mg'
+            $ldapDn: 'OU=HFF Users,DC=fraise,DC=hff,DC=mg'
             $logger: '@App\Service\AppLogger'
         public: true
 

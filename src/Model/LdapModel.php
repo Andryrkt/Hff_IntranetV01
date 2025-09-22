@@ -8,7 +8,7 @@ class LdapModel
 {
     private $ldapHost;
     private $ldapPort;
-    private $ldapconn;
+    private $ldapconn = null;
     private $Domain;
     private $ldap_dn;
     private $ldapconnInitialized = false;
@@ -69,11 +69,15 @@ class LdapModel
      */
     private function initializeLdapConnection(): void
     {
-        if ($this->ldapconnInitialized) {
-            return; // Connexion déjà tentée
+        // Si déjà connecté et la connexion est valide, ne pas réinitialiser
+        if ($this->isConnected && $this->ldapconn) {
+            return;
         }
 
-        $this->ldapconnInitialized = true; // Marquer comme tentée
+        // Fermer l'ancienne connexion si elle existe
+        if ($this->ldapconn) {
+            @ldap_unbind($this->ldapconn);
+        }
 
         try {
             $this->logger->info("Tentative de connexion au serveur LDAP", [
@@ -94,12 +98,15 @@ class LdapModel
             // Configuration des options LDAP
             ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
             ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
-            ldap_set_option($this->ldapconn, LDAP_OPT_NETWORK_TIMEOUT, 5);
-            ldap_set_option($this->ldapconn, LDAP_OPT_TIMELIMIT, 5);
+            ldap_set_option($this->ldapconn, LDAP_OPT_NETWORK_TIMEOUT, 10);
+            ldap_set_option($this->ldapconn, LDAP_OPT_TIMELIMIT, 10);
 
             $this->isConnected = true;
+            $this->ldapconnInitialized = true;
             $this->logger->info("Connexion LDAP établie avec succès");
         } catch (\Exception $e) {
+            $this->isConnected = false;
+            $this->ldapconnInitialized = false;
             $this->logger->error("Erreur lors de l'initialisation LDAP", [
                 'message' => $e->getMessage(),
                 'host' => $this->ldapHost,
@@ -115,7 +122,7 @@ class LdapModel
      */
     public function isConnected(): bool
     {
-        return $this->isConnected && is_resource($this->ldapconn);
+        return $this->isConnected && $this->ldapconn !== null;
     }
 
     /**
@@ -124,16 +131,13 @@ class LdapModel
      */
     public function ping(): bool
     {
-        if (!$this->isConnected()) {
-            return false;
-        }
-
         try {
             $this->initializeLdapConnection();
-            return $this->ldapconn !== false;
+            return $this->ldapconn !== false && $this->ldapconn !== null;
         } catch (\Exception $e) {
             $this->logger->warning("Échec du ping LDAP", ['error' => $e->getMessage()]);
             $this->isConnected = false;
+            $this->ldapconnInitialized = false;
             return false;
         }
     }
@@ -159,7 +163,6 @@ class LdapModel
     {
         try {
             $this->initializeLdapConnection();
-
             if (!$this->ldapconn) {
                 $this->logger->error("LDAP non disponible - authentification impossible");
                 return false;
@@ -173,24 +176,41 @@ class LdapModel
 
             $this->logger->debug("Tentative d'authentification LDAP", ['user' => $user]);
 
+            // Configuration des options LDAP pour l'authentification
             ldap_set_option($this->ldapconn, LDAP_OPT_PROTOCOL_VERSION, 3);
+            ldap_set_option($this->ldapconn, LDAP_OPT_REFERRALS, 0);
+            ldap_set_option($this->ldapconn, LDAP_OPT_NETWORK_TIMEOUT, 10);
+            ldap_set_option($this->ldapconn, LDAP_OPT_TIMELIMIT, 10);
+
+            // Tentative de bind avec gestion d'erreur améliorée
             $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
 
             if ($bind) {
                 $this->logger->info("Authentification LDAP réussie", ['user' => $user]);
+                return true;
             } else {
+                $ldapError = ldap_error($this->ldapconn);
                 $this->logger->warning("Échec de l'authentification LDAP", [
                     'user' => $user,
-                    'error' => ldap_error($this->ldapconn)
+                    'error' => $ldapError
                 ]);
-            }
 
-            return $bind;
+                // Si l'erreur indique un problème de connexion, marquer comme déconnecté
+                if (strpos($ldapError, "Can't contact LDAP server") !== false) {
+                    $this->isConnected = false;
+                    $this->ldapconnInitialized = false;
+                }
+
+                return false;
+            }
         } catch (\Exception $e) {
             $this->logger->error("Exception lors de l'authentification LDAP", [
                 'user' => $user,
                 'message' => $e->getMessage()
             ]);
+            // En cas d'exception, marquer comme déconnecté
+            $this->isConnected = false;
+            $this->ldapconnInitialized = false;
             return false;
         }
     }
@@ -352,14 +372,21 @@ class LdapModel
     {
         try {
             if ($this->ldapconn && $this->isConnected) {
-                ldap_unbind($this->ldapconn);
+                @ldap_unbind($this->ldapconn);
                 $this->isConnected = false;
+                $this->ldapconnInitialized = false;
+                $this->ldapconn = null;
                 $this->logger->info("Connexion LDAP fermée");
             } else {
                 $this->logger->warning("Tentative de fermer une connexion LDAP non établie");
             }
         } catch (\Exception $e) {
             $this->logger->error("Erreur lors de la fermeture de la connexion LDAP", ['message' => $e->getMessage()]);
+        } finally {
+            // S'assurer que les états sont réinitialisés même en cas d'erreur
+            $this->isConnected = false;
+            $this->ldapconnInitialized = false;
+            $this->ldapconn = null;
         }
     }
 
