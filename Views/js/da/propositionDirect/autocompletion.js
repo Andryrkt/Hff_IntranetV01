@@ -44,27 +44,27 @@ export function autocompleteTheField(field, fieldName) {
   });
 }
 
-function safeValue(val) {
-  return val && val.trim() !== "" ? val : "-";
-}
-
 function onBlurEvents(found, designation, fieldName) {
   const numeroDa = document
     .querySelector(".tab-pane.fade.show.active.dalr")
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  if (designation.value.trim() !== "") {
-    const desi = `designation_${numPage}`;
+  const desi = `designation_${numPage}`;
+  let baseId = designation.id.replace(desi, "");
+  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+  let referencePiece = document.querySelector(
+    `#demande_appro_proposition_reference_${numPage}`
+  );
 
-    let baseId = designation.id.replace(desi, "");
-
-    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let referencePiece = document.querySelector(
-      `#demande_appro_proposition_reference_${numPage}`
+  if (fieldName == "reference") {
+    let foundInput = document.querySelector(
+      `[id*="${baseId}"][id*="found_${numPage}"]`
     );
-
-    if (fieldName == "designation") {
+    foundInput.value = found ? "1" : "0";
+    console.log(foundInput.value);
+  } else if (fieldName == "designation") {
+    if (designation.value.trim() !== "") {
       // Texte rouge ou non, ajout de valeur dans catalogue
       allFields.forEach((field) => {
         if (!found) {
