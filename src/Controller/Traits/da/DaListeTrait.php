@@ -43,7 +43,17 @@ trait DaListeTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
 
-        //----------------------------------------------------------------------------------------------------
+        $this->daModel = new DaModel();
+        $this->dwModel = new DossierInterventionAtelierModel();
+        $this->userDataService = new UserDataService($em);
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
+    }
+    //=====================================================================================
+
+    private function initStyleStatuts()
+    {
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
@@ -87,16 +97,7 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
             DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
         ];
-        //----------------------------------------------------------------------------------------------------
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
-        $this->userDataService = new UserDataService($em);
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        //----------------------------------------------------------------------------------------------------
     }
-    //=====================================================================================
 
     /**
      * Met à jour le champ `joursDispo` pour chaque DAL sauf si elle est déjà validée.
@@ -202,6 +203,8 @@ trait DaListeTrait
         $safeIconBan     = new Markup('<i class="fas fa-ban text-muted"></i>', 'UTF-8');
 
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
+
+        $this->initStyleStatuts(); // Initialiser le style pour les statuts
 
         foreach ($data as $item) {
             // Pré-calculer les styles
