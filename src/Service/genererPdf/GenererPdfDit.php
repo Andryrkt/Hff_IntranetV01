@@ -13,9 +13,9 @@ class GenererPdfDit extends GeneratePdf
 
     private $tcpdf;
 
-    public function __construct(TCPDF $tcpdf, string $baseCheminDuFichier = null, string $baseCheminDocuware = null)
+    public function __construct(TCPDF $tcpdf, string $baseCheminDuFichier = null)
     {
-        parent::__construct($baseCheminDuFichier, $baseCheminDocuware);
+        parent::__construct($baseCheminDuFichier);
         $this->tcpdf = $tcpdf;
     }
 

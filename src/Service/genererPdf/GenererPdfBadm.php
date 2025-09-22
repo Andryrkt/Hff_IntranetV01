@@ -13,10 +13,9 @@ class GenererPdfBadm extends GeneratePdf
 
     public function __construct(
         TCPDF $pdf,
-        string $baseCheminDuFichier = null,
-        string $baseCheminDocuware = null
+        string $baseCheminDuFichier = null
     ) {
-        parent::__construct($baseCheminDuFichier, $baseCheminDocuware);
+        parent::__construct($baseCheminDuFichier);
         $this->pdf = $pdf;
     }
 
@@ -28,7 +27,7 @@ class GenererPdfBadm extends GeneratePdf
         $pdf = $this->pdf;
         // ... (le reste de la méthode genererPdfBadm reste identique)
 
-        $Dossier = ($_ENV['BASE_PATH_FICHIER'] ?? '').'/bdm/';
+        $Dossier = ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/bdm/';
         $pdf->Output($Dossier . $tab['Num_BDM'] . '_' . $tab['Agence_Service_Emetteur_Non_separer'] . '.pdf', 'F');
     }
 
@@ -42,17 +41,17 @@ class GenererPdfBadm extends GeneratePdf
     public function AjoutImage($pdf, $tab)
     {
         $pdf->AddPage();
-            $imagePath = $tab['image'];
-            if ($tab['extension'] === 'JPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'JEPG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
-            } elseif ($tab['extension'] === 'PNG') {
-                $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
-            }
+        $imagePath = $tab['image'];
+        if ($tab['extension'] === 'JPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'JEPG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'JEPG', '', '', true, 75, '', false, false, 0, false, false, false);
+        } elseif ($tab['extension'] === 'PNG') {
+            $pdf->Image($imagePath, 15, 25, 180, 150, 'PNG', '', '', true, 75, '', false, false, 0, false, false, false);
+        }
     }
 
-    
+
     /**
      * Recuperation et affichage des or dans une tableau
      *

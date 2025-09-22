@@ -140,7 +140,6 @@ services:
         class: App\Service\genererPdf\GeneratePdfDevisMagasin
         arguments:
             $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
-            $baseCheminDocuware: 'C:/DOCUWARE/'
         public: true
 
 
@@ -264,8 +263,6 @@ services:
             $targetDirectory: 'C:/wamp64/www/Upload'
 
     App\Service\docuware\CopyDocuwareService:
-        arguments:
-            $docuwareFtpPath: 'C:/DOCUWARE'
         public: true
 
     App\Service\fichier\UploderFileService:
@@ -290,7 +287,6 @@ services:
         arguments:
             $tcpdf: '@TCPDF'
             $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
-            $baseCheminDocuware: 'C:/DOCUWARE/'
         public: false
 
     App\Factory\BreadcrumbFactory:
@@ -428,13 +424,11 @@ services:
     App\Service\genererPdf\GeneretePdfInventaire:
         arguments:
             $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
-            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%'
         public: true
 
     App\Service\genererPdf\GeneretePdfBordereau:
         arguments:
             $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
-            $baseCheminDocuware: '%env(BASE_PATH_DOCUWARE)%'
         public: true
 
     # Formulaires avec injection de dépendances

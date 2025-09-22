@@ -6,9 +6,9 @@ class CopyDocuwareService
 {
     private $docuwarePath;
 
-    public function __construct(string $docuwareFtpPath)
+    public function __construct()
     {
-        // Utiliser directement la variable d'environnement pour éviter les problèmes de résolution
+        // Utiliser directement la variable d'environnement
         $envPath = $_ENV['BASE_PATH_DOCUWARE'] ?? 'C:/DOCUWARE';
         $this->docuwarePath = rtrim($envPath, '/') . '/';
     }

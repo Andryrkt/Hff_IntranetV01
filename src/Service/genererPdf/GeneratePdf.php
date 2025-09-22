@@ -10,12 +10,11 @@ class GeneratePdf
     private $baseCheminDocuware;
 
     public function __construct(
-        string $baseCheminDuFichier = null,
-        string $baseCheminDocuware = null
+        string $baseCheminDuFichier = null
     ) {
         // Injection de dépendances avec fallback sur les variables d'environnement
         $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
-        $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
+        $this->baseCheminDocuware = ($_ENV['BASE_PATH_DOCUWARE'] ?? 'C:/DOCUWARE') . '/';
     }
 
     private function copyFile(string $sourcePath, string $destinationPath): void

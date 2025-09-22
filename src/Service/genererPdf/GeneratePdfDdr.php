@@ -14,10 +14,9 @@ class GeneratePdfDdr extends GeneratePdf
 
     public function __construct(
         TCPDF $pdf,
-        string $baseCheminDuFichier = null,
-        string $baseCheminDocuware = null
+        string $baseCheminDuFichier = null
     ) {
-        parent::__construct($baseCheminDuFichier, $baseCheminDocuware);
+        parent::__construct($baseCheminDuFichier);
         $this->pdf = $pdf;
     }
 
