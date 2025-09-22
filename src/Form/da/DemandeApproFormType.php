@@ -13,16 +13,24 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use App\Model\dit\DitModel;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DemandeApproFormType extends AbstractType
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         /** 
          * @var DemandeIntervention le dit associé au DA
          */
         $dit = $options['data']->getDit();
-        $ditModel = new DitModel;
+        $ditModel = $this->container->get(DitModel::class);
         $dataModel = $ditModel->recupNumSerieParcPourDa($dit->getIdMateriel());
 
         $builder

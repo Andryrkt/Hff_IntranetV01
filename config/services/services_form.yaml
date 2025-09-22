@@ -27,6 +27,16 @@ services:
             - '@doctrine.orm.default_entity_manager'
         public: true
 
+    App\Form\da\DemandeApproFormType:
+        arguments:
+            - '@service_container'
+        public: true
+
+    App\Form\da\DemandeApproLFormType:
+        arguments:
+            - '@service_container'
+        public: true
+
     App\Form\badm\BadmSearchType:
         arguments:
             - '@doctrine.orm.default_entity_manager'

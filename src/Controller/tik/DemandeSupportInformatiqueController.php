@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\tik\DemandeSupportInformatique;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\tik\DemandeSupportInformatiqueType;
-use App\Repository\admin\utilisateur\UserRepository;
+use App\Repository\tik\DemandeSupportInformatiqueRepository;
 use App\Entity\admin\tik\TkiStatutTicketInformatique;
 use App\Service\historiqueOperation\HistoriqueOperationTIKService;
 
@@ -29,11 +29,11 @@ class DemandeSupportInformatiqueController extends Controller
     private $historiqueOperation;
     private $tikRepository;
 
-    public function __construct()
+    public function __construct(HistoriqueOperationTIKService $historiqueOperationTIKService)
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationTIKService($this->getEntityManager());
-        $this->tikRepository = $this->getEntityManager()->getRepository(DemandeSupportInformatique::class);
+        $this->historiqueOperation = $this->getService(HistoriqueOperationTIKService::class);
+        $this->tikRepository = $this->getService(DemandeSupportInformatiqueRepository::class);
     }
 
     /**
@@ -165,7 +165,7 @@ class DemandeSupportInformatiqueController extends Controller
         // Récupérez les fichiers uploadés depuis le formulaire
         $files = $form->get('fileNames')->getData();
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/tik/fichiers';
-        $fileUploader = new FileUploaderService($chemin);
+        $fileUploader = $this->getService(FileUploaderService::class);
         if ($files) {
             foreach ($files as $file) {
                 // Définissez le préfixe pour chaque fichier, par exemple "DS_" pour "Demande de Support"
@@ -202,7 +202,7 @@ class DemandeSupportInformatiqueController extends Controller
      */
     private function envoyerMailAuxValidateurs(array $tab)
     {
-        $email       = new EmailService($this->getTwig());
+        $email       = $this->getService(EmailService::class);
 
         $emailValidateurs = array_map(function ($validateur) {
             return $validateur->getMail();
@@ -220,7 +220,7 @@ class DemandeSupportInformatiqueController extends Controller
             ]
         ];
         $email->getMailer()->setFrom('noreply.email@hff.mg', 'noreply.ticketing');
-        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']);
+        $email->sendEmail($content['to'], $content['cc'], $content['template'], $content['variables']['subject'], $content['variables']['tab'], $content['variables']['action_url']);
     }
 
     /** 

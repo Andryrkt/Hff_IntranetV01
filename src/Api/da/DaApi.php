@@ -58,7 +58,7 @@ class DaApi extends Controller
     public function autocompleteAllDesignationDefault()
     {
         try {
-            $daModel = new DaModel;
+            $daModel = $this->getService(DaModel::class);
             // Utiliser des valeurs par défaut ou récupérer toutes les désignations
             $data = $daModel->getAllDesignationZST('-', '-');
 

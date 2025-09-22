@@ -15,12 +15,20 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\All;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class DemandeApproLFormType extends AbstractType
 {
+    private $container;
+
+    public function __construct(ContainerInterface $container)
+    {
+        $this->container = $container;
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $daModel = new DaModel;
+        $daModel = $this->container->get(DaModel::class);
 
         $builder
             ->add('codeFams1', ChoiceType::class, [
