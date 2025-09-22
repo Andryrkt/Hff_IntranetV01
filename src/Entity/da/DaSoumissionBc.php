@@ -41,49 +41,52 @@ class DaSoumissionBc
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private ?int $id;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_appro")
+     * @ORM\Column(type="string", length=11, name="numero_demande_appro", nullable=true)
      */
     private ?string $numeroDemandeAppro;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_demande_dit")
+     * @ORM\Column(type="string", length=11, name="numero_demande_dit", nullable=true)
      */
     private ?string $numeroDemandeDit;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_or")
+     * @ORM\Column(type="string", length=11, name="numero_or", nullable=true)
      */
     private ?string $numeroOR;
 
     /**
-     * @ORM\Column(type="string", length=11, name="numero_cde")
+     * @ORM\Column(type="string", length=11, name="numero_cde", nullable=true)
      */
     private ?string $numeroCde;
 
     /**
-     * @ORM\Column(type="string", length=100, name="statut")
+     * @ORM\Column(type="string", length=100, name="statut", nullable=true)
      */
     private ?string $statut;
 
     /**
-     * @ORM\Column(type="string", length=255, name="piece_joint1")
+     * @ORM\Column(type="string", length=255, name="piece_joint1", nullable=true)
      */
-    private $pieceJoint1;
-
-    private $pieceJoint2;
+    private ?string $pieceJoint1;
 
     /**
-     * @ORM\Column(type="string", length=255, name="utilisateur")
+     * @ORM\Column(type="string", length=255, name="piece_joint2", nullable=true)
      */
-    private $utilisateur;
+    private ?string $pieceJoint2;
 
     /**
-     * @ORM\Column(type="integer", name="numero_version")
+     * @ORM\Column(type="string", length=255, name="utilisateur", nullable=true)
      */
-    private $numeroVersion;
+    private ?string $utilisateur;
+
+    /**
+     * @ORM\Column(type="integer", name="numero_version", nullable=true)
+     */
+    private ?int $numeroVersion;
 
     /**===========================================================================
      * GETTER & SETTER

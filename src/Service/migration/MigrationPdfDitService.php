@@ -18,10 +18,10 @@ class MigrationPdfDitService
     private DitRepository $ditRepository;
     private DitModel $ditModel;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(EntityManagerInterface $entityManager, DitModel $ditModel)
     {
         $this->ditRepository =  $entityManager->getRepository(DemandeIntervention::class);
-        $this->ditModel = new DitModel();
+        $this->ditModel = $ditModel;
     }
 
     public function migrationPdfDit($output)

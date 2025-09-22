@@ -29,7 +29,7 @@ class BLSoumissionController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBLService($this->getEntityManager());
+        $this->historiqueOperation = $this->getService(HistoriqueOperationBLService::class);
 
         // Sécuriser le chemin de base
         if (!isset($_ENV['BASE_PATH_FICHIER'])) {
@@ -43,8 +43,8 @@ class BLSoumissionController extends Controller
             mkdir($this->cheminDeBase, 0755, true);
         }
 
-        $this->traitementDeFichier = new TraitementDeFichier();
-        $this->generatePdfBlFut = new GeneratePdfBlFut();
+        $this->traitementDeFichier = $this->getService(TraitementDeFichier::class);
+        $this->generatePdfBlFut = $this->getService(GeneratePdfBlFut::class);
     }
 
     /**

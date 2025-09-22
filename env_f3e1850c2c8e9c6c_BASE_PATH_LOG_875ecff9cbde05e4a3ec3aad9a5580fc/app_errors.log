@@ -1,9 +1,0 @@
-[2025-09-19 04:32:17] [INFO] Tentative de connexion à la base de données ODBC {"dsn":"env_f3e1850c2c8e9c6c_DB_DNS_SQLSERV_f47cd5adef3e873b16819518db09726b","user":"env_f3e1850c2c8e9c6c_DB_USERNAME_SQLSERV_83a43aed0e86477e285d971019e67e83"}
-[2025-09-19 04:32:17] [ERROR] Échec de la connexion ODBC 
-[2025-09-19 04:32:17] [ERROR] Erreur lors de la connexion 
-[2025-09-19 04:34:19] [INFO] Tentative de connexion à la base de données ODBC {"dsn":"env_f3e1850c2c8e9c6c_DB_DNS_SQLSERV_f47cd5adef3e873b16819518db09726b","user":"env_f3e1850c2c8e9c6c_DB_USERNAME_SQLSERV_83a43aed0e86477e285d971019e67e83","dsn_length":68,"user_length":73,"password_length":73}
-[2025-09-19 04:34:19] [ERROR] Échec de la connexion ODBC 
-[2025-09-19 04:34:19] [ERROR] Erreur lors de la connexion 
-[2025-09-19 04:36:15] [INFO] Tentative de connexion à la base de données ODBC {"dsn":"env_f3e1850c2c8e9c6c_DB_DNS_SQLSERV_f47cd5adef3e873b16819518db09726b","user":"env_f3e1850c2c8e9c6c_DB_USERNAME_SQLSERV_83a43aed0e86477e285d971019e67e83","dsn_length":68,"user_length":73,"password_length":73}
-[2025-09-19 04:36:15] [ERROR] Échec de la connexion ODBC 
-[2025-09-19 04:36:15] [ERROR] Erreur lors de la connexion 

@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use App\Service\migration\MigrationDevisService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,8 +19,7 @@ class MigrationDevisCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $migrationDevis = new MigrationDevisService();
-        $migrationDevis->migrationDevis($input, $output);
+        $output->writeln('Cette commande a été désactivée car le service MigrationDevisService n\'existe plus.');
         return Command::SUCCESS;
     }
 }

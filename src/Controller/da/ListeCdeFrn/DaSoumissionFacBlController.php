@@ -39,11 +39,11 @@ class DaSoumissionFacBlController extends Controller
     {
         parent::__construct();
 
-        $this->generatePdf = new GeneratePdf();
+        $this->generatePdf = $this->getService(GeneratePdf::class);
         $this->daSoumissionFacBl = new DaSoumissionFacBl();
-        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->traitementDeFichier = $this->getService(TraitementDeFichier::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->historiqueOperation = $this->getService(HistoriqueOperationDaBcService::class);
         $this->daSoumissionFacBlRepository = $this->getEntityManager()->getRepository(DaSoumissionFacBl::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);

@@ -131,6 +131,7 @@ services:
     App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService:
         arguments:
             - '@doctrine.orm.default_entity_manager'
+            - '@App\Service\SessionManagerService'
         public: true
 
     # ✅ NOUVELLES CONFIGURATIONS - Ajouter à la fin du fichier
@@ -234,6 +235,24 @@ services:
 
     # Form MagasinListeOrALivrerSearchType - configuration explicite pour l'injection de dépendances
     App\Form\magasin\MagasinListeOrALivrerSearchType:
+        arguments:
+            $magasinModel: '@App\Model\magasin\MagasinListeOrLivrerModel'
+        public: true
+
+    # Form ATraiterSearchType - configuration explicite pour l'injection de dépendances
+    App\Form\magasin\cis\ATraiterSearchType:
+        arguments:
+            $magasinModel: '@App\Model\magasin\MagasinListeOrATraiterModel'
+        public: true
+
+    # Form ALivrerSearchType - configuration explicite pour l'injection de dépendances
+    App\Form\magasin\cis\ALivrerSearchType:
+        arguments:
+            $magasinModel: '@App\Model\magasin\MagasinListeOrLivrerModel'
+        public: true
+
+    # Form ALivrerSearchtype - configuration explicite pour l'injection de dépendances (avec casse différente)
+    App\Form\magasin\cis\ALivrerSearchtype:
         arguments:
             $magasinModel: '@App\Model\magasin\MagasinListeOrLivrerModel'
         public: true

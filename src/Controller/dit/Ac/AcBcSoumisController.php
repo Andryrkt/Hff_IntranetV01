@@ -40,11 +40,11 @@ class AcBcSoumisController extends Controller
         $this->acSoumis = new AcSoumis();
         $this->bcSoumis = new BcSoumis();
         $this->bcRepository = $this->getEntityManager()->getRepository(BcSoumis::class);
-        $this->genererPdfAc = new GenererPdfAcSoumis();
-        $this->historiqueOperation = new HistoriqueOperationBCService($this->getEntityManager());
+        $this->genererPdfAc = $this->getService(GenererPdfAcSoumis::class);
+        $this->historiqueOperation = $this->getService(HistoriqueOperationBCService::class);
         $this->contactAgenceAteRepository = $this->getEntityManager()->getRepository(ContactAgenceAte::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel();
+        $this->ditDevisSoumisAValidationModel = $this->getService(DitDevisSoumisAValidationModel::class);
     }
 
     /**
@@ -106,7 +106,7 @@ class AcBcSoumisController extends Controller
 
             //fusionne le pdf
             $chemin = $_ENV['BASE_PATH_FICHIER']  . '/dit/ac_bc/';
-            $fileUploader = new FileUploaderService($chemin);
+            $fileUploader = $this->getService(FileUploaderService::class);
             $file = $form->get('pieceJoint01')->getData();
 
             $uploadedFilePath = $fileUploader->uploadFileSansName($file, $nomFichier);
@@ -217,7 +217,7 @@ class AcBcSoumisController extends Controller
     private function enregistrementEtFusionFichier(FormInterface $form, string $numClientBcDevis, string $numeroVersion)
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/ac_bc/';
-        $fileUploader = new FileUploaderService($chemin);
+        $fileUploader = $this->getService(FileUploaderService::class);
         $prefix = 'bc';
         $options = [
             'prefix'        => $prefix,

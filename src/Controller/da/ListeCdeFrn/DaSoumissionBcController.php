@@ -44,15 +44,15 @@ class DaSoumissionBcController extends Controller
         parent::__construct();
 
         $this->daSoumissionBc = new DaSoumissionBc();
-        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->traitementDeFichier = $this->getService(TraitementDeFichier::class);
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/da/';
-        $this->historiqueOperation      = new HistoriqueOperationDaBcService($this->getEntityManager());
+        $this->historiqueOperation = $this->getService(HistoriqueOperationDaBcService::class);
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
-        $this->generatePdf = new GeneratePdf();
+        $this->generatePdf = $this->getService(GeneratePdf::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->daValiderRepository = $this->getEntityManager()->getRepository(DaValider::class);
-        $this->daSoumissionBcModel = new DaSoumissionBcModel();
+        $this->daSoumissionBcModel = $this->getService(DaSoumissionBcModel::class);
     }
 
     /**
@@ -158,14 +158,19 @@ class DaSoumissionBcController extends Controller
 
     private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): array
     {
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $nomdeFichier = $soumissionBc->getPieceJoint1() ?? '';
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
         //recuperation du numDa dans Informix
         $numDaInformix = $this->daSoumissionBcModel->getNumDa($numCde);
 
+        $nomDeFichierParts = explode('_', $nomdeFichier);
+        $nomDeFichierValid = count($nomDeFichierParts) >= 2 &&
+            $nomDeFichierParts[0] !== 'BON DE COMMANDE' ||
+            $nomDeFichierParts[1] !== $numCde;
+
         return [
-            'nomDeFichier' => explode('_', $nomdeFichier)[0] <> 'BON DE COMMANDE' || explode('_', $nomdeFichier)[1] <> $numCde,
+            'nomDeFichier' => $nomDeFichierValid,
             'statut' => $statut === DaSoumissionBc::STATUT_SOUMISSION || $statut === DaSoumissionBc::STATUT_A_VALIDER_DA,
             'numDaEgale' => $numDaInformix[0] !== $numDa,
         ];
@@ -174,7 +179,7 @@ class DaSoumissionBcController extends Controller
     private function verifierConditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): bool
     {
         $conditions = $this->conditionDeBlocage($soumissionBc, $numCde, $numDa);
-        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $nomdeFichier = $soumissionBc->getPieceJoint1() ?? '';
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
