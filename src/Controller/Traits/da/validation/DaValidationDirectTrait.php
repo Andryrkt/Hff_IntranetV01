@@ -12,10 +12,7 @@ trait DaValidationDirectTrait
     /**
      * Initialise les valeurs par défaut du trait
      */
-    public function initDaValidationDirectTrait(): void
-    {
-        
-    }
+    public function initDaValidationDirectTrait(): void {}
     //==================================================================================================
 
     /** 
@@ -45,7 +42,7 @@ trait DaValidationDirectTrait
     private function creationPDFDirect(string $numDa): void
     {
         $genererPdfDaDirect = new GenererPdfDaDirect;
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
+        $da = $this->getDemandeApproRepository()->findAvecDernieresDALetLRParNumero($numDa);
         $genererPdfDaDirect->genererPdfBonAchatValide($da, $this->getUserMail());
     }
 }

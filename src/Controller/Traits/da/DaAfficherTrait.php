@@ -29,20 +29,20 @@ trait DaAfficherTrait
         $em = $this->getEntityManager();
 
         /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
-        $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $demandeAppro = $this->getDemandeApproRepository()->findOneBy(['numeroDemandeAppro' => $numDa]);
 
-        $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
+        $oldDaAffichers = $this->getDaAfficherRepository()->getLastDaAfficher($numDa);
         $numeroVersionMaxDaAfficher = 0;
 
         if (!empty($oldDaAffichers) && isset($oldDaAffichers[0])) {
             $numeroVersionMaxDaAfficher = $oldDaAffichers[0]->getNumeroVersion();
         }
 
-        $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->getDemandeApproLRepository()->getNumeroVersionMax($numDa);
         $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
+        $this->getDaAfficherRepository()->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
 
         foreach ($newDaAffichers as $newDaAfficher) {
             $daAfficher = new DaAfficher();

@@ -31,9 +31,9 @@ class DitRiSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationRIService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationRIService($this->getEntityManager(), $this->getSessionService());
         $this->cheminDeBase = $_ENV['BASE_PATH_FICHIER'] . '/vri/';
-        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->traitementDeFichier = new TraitementDeFichier($this->getService('App\Service\FusionPdf'));
     }
 
     /**
@@ -46,7 +46,7 @@ class DitRiSoumisAValidationController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $ditRiSoumisAValidationModel = new DitRiSoumisAValidationModel();
+        $ditRiSoumisAValidationModel = $this->getService('App\Model\dit\DitRiSoumisAValidationModel');
         $numOrBaseDonner = $ditRiSoumisAValidationModel->recupNumeroOr($numDit);
         if (empty($numOrBaseDonner)) {
             $message = "Le DIT n'a pas encore de numéro OR";
@@ -174,36 +174,36 @@ class DitRiSoumisAValidationController extends Controller
     }
 
     private function validerFichier(UploadedFile $file): bool
-{
-    // Validation de la taille (5MB max)
-    if ($file->getSize() > 5 * 1024 * 1024) {
-        $this->historiqueOperation->sendNotificationSoumission(
-            'Le fichier est trop volumineux (max 5MB)',
-            $file->getClientOriginalName(),
-            'dit_index'
-        );
-        return false;
+    {
+        // Validation de la taille (5MB max)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Le fichier est trop volumineux (max 5MB)',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        // Validation du type MIME
+        $typesAutorises = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!in_array($file->getMimeType(), $typesAutorises)) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Type de fichier non autorisé',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        return true;
     }
 
-    // Validation du type MIME
-    $typesAutorises = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (!in_array($file->getMimeType(), $typesAutorises)) {
-        $this->historiqueOperation->sendNotificationSoumission(
-            'Type de fichier non autorisé',
-            $file->getClientOriginalName(),
-            'dit_index'
-        );
-        return false;
+    private function genererNomFichier(string $numeroOR, int $itv, UploadedFile $file): string
+    {
+        $extension = $file->getClientOriginalExtension();
+        return sprintf('RI_%s-%d.%s', $numeroOR, $itv, $extension);
     }
-
-    return true;
-}
-
-private function genererNomFichier(string $numeroOR, int $itv, UploadedFile $file): string
-{
-    $extension = $file->getClientOriginalExtension();
-    return sprintf('RI_%s-%d.%s', $numeroOR, $itv, $extension);
-}
     private function insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit)
     {
         $ditRiSoumiAValidation

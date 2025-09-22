@@ -36,22 +36,22 @@ trait DaTrait
 
     protected function getDaAfficherRepository(): DaAfficherRepository
     {
-        return $this->getService('App\Repository\da\DaAfficherRepository');
+        return $this->getEntityManager()->getRepository(DaAfficher::class);
     }
 
     protected function getDemandeApproRepository(): DemandeApproRepository
     {
-        return $this->getService('App\Repository\da\DemandeApproRepository');
+        return $this->getEntityManager()->getRepository(DemandeAppro::class);
     }
 
     protected function getDemandeApproLRepository(): DemandeApproLRepository
     {
-        return $this->getService('App\Repository\da\DemandeApproLRepository');
+        return $this->getEntityManager()->getRepository(DemandeApproL::class);
     }
 
     protected function getDemandeApproLRRepository(): DemandeApproLRRepository
     {
-        return $this->getService('App\Repository\da\DemandeApproLRRepository');
+        return $this->getEntityManager()->getRepository(DemandeApproLR::class);
     }
 
     /**

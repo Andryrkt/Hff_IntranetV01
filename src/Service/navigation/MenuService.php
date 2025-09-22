@@ -13,9 +13,13 @@ class MenuService
     private $em;
     private $sessionManager;
     private $estAdmin;
+    private $estAtelier;
+    private $estAppro;
+    private $estCreateurDeDADirecte;
     private $nomUtilisateur;
     private $basePath;
     private $applicationIds = [];
+    private $connectedUser;
 
     public function __construct($entityManager, SessionManagerService $sessionManager, string $basePath)
     {

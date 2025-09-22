@@ -33,13 +33,13 @@ trait DaDetailAvecDitTrait
     public function initDaDetailAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        
+
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
         $this->dwFacBlRepository = $em->getRepository(DwFacBl::class);
         $this->dwBcApproRepository = $em->getRepository(DwBcAppro::class);
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
         $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        $this->dossierInterventionAtelierModel = new DossierInterventionAtelierModel;
+        $this->dossierInterventionAtelierModel = $this->getService(DossierInterventionAtelierModel::class);
     }
     //==================================================================================================
 

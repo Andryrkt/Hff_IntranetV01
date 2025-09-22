@@ -168,7 +168,7 @@ trait DaListeDitTrait
         //nombre de ligne par page
         $limit = 20;
 
-        $numDits = $this->demandeApproRepository->getAllNumDit(); // Filtre pour tous les DIT de la DA
+        $numDits = $this->getDemandeApproRepository()->getAllNumDit(); // Filtre pour tous les DIT de la DA
         // $numDits = [];
 
         //recupération des données filtrée

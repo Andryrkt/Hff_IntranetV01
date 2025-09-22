@@ -44,7 +44,7 @@ class DaListCdeFrnController extends Controller
         parent::__construct();
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
         $this->ditOrsSoumisAValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
-        $this->daModel = new DaModel();
+        $this->daModel = $this->getService(DaModel::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daSoumissionBcRepository = $this->getEntityManager()->getRepository(DaSoumissionBc::class);
         $this->initStatutBcTrait();

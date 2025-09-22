@@ -41,7 +41,7 @@ trait DaListeTrait
     public function initDaListeTrait()
     {
         $em = $this->getEntityManager();
-        
+
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
@@ -84,8 +84,8 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
         ];
         //----------------------------------------------------------------------------------------------------
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
+        $this->daModel = $this->getService(DaModel::class);
+        $this->dwModel = $this->getService(DossierInterventionAtelierModel::class);
         $this->userDataService = new UserDataService($em);
         $this->agenceRepository = $em->getRepository(Agence::class);
         $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
@@ -114,7 +114,7 @@ trait DaListeTrait
         $userConnecter = $this->getUser();
         $codeAgence = $userConnecter->getCodeAgenceUser();
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
-        $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit, $sortField, $sortDirection);
+        $paginationData = $this->getDaAfficherRepository()->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit, $sortField, $sortDirection);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
 

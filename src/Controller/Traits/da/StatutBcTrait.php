@@ -25,7 +25,7 @@ trait StatutBcTrait
      */
     public function initStatutBcTrait()
     {
-        $this->daModel = new DaModel();
+        $this->daModel = $this->getService(DaModel::class);
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
@@ -97,7 +97,7 @@ trait StatutBcTrait
             DemandeAppro::STATUT_SOUMIS_APPRO,
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE
         ];
-        $statutDa = $this->demandeApproRepository->getStatutDa($numDa);
+        $statutDa = $this->getDemandeApproRepository()->getStatutDa($numDa);
         if (in_array($statutDa, $statutDaIntanert)) {
             return '';
         }
@@ -350,7 +350,7 @@ trait StatutBcTrait
     private function getDatePlannigOr(?string $numOr)
     {
         if (!is_null($numOr)) {
-            $magasinListeOrLivrerModel = new MagasinListeOrLivrerModel();
+            $magasinListeOrLivrerModel = $this->getService(MagasinListeOrLivrerModel::class);
             $data = $magasinListeOrLivrerModel->getDatePlanningPourDa($numOr);
 
             if (!empty($data) && !empty($data[0]['dateplanning'])) {
@@ -363,7 +363,7 @@ trait StatutBcTrait
 
     private function getDaAfficher(string $numDa, string $numDit,  string $ref, string $designation): ?DaAfficher
     {
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($numDa);
+        $numeroVersionMax = $this->getDaAfficherRepository()->getNumeroVersionMax($numDa);
         $conditionDeRecuperation = [
             'numeroDemandeAppro' => $numDa,
             'numeroDemandeDit' => $numDit,
@@ -371,6 +371,6 @@ trait StatutBcTrait
             'artDesi' => $designation,
             'numeroVersion' => $numeroVersionMax
         ];
-        return $this->daAfficherRepository->findOneBy($conditionDeRecuperation);
+        return $this->getDaAfficherRepository()->findOneBy($conditionDeRecuperation);
     }
 }

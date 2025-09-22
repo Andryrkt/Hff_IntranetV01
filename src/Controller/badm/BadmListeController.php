@@ -206,7 +206,7 @@ class BadmListeController extends Controller
 
 
         for ($i = 0; $i < count($paginationData['data']); $i++) {
-            $badmRechercheModel = new BadmRechercheModel();
+            $badmRechercheModel = $this->getService(BadmRechercheModel::class);
             $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
 
             $paginationData['data'][$i]->setDesignation($badms[0]['designation']);
@@ -257,7 +257,7 @@ class BadmListeController extends Controller
     private function ajoutNumSerieNumParc($paginationData)
     {
         for ($i = 0; $i < count($paginationData['data']); $i++) {
-            $badmRechercheModel = new BadmRechercheModel();
+            $badmRechercheModel = $this->getService(BadmRechercheModel::class);
             $badms = $badmRechercheModel->findDesiSerieParc($paginationData['data'][$i]->getIdMateriel());
             if (!empty($badms)) {
                 $paginationData['data'][$i]->setDesignation($badms[0]['designation']);

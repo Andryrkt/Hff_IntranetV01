@@ -19,7 +19,7 @@ trait DaValidationAvecDitTrait
     public function initDaValidationAvecDitTrait(): void
     {
         $em = $this->getEntityManager();
-        
+
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
     }
     //====================================================================================================
@@ -51,7 +51,7 @@ trait DaValidationAvecDitTrait
     private function creationPDFAvecDit(string $numDa): void
     {
         $genererPdfDaAvecDit = new GenererPdfDaAvecDit;
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLRParNumero($numDa);
+        $da = $this->getDemandeApproRepository()->findAvecDernieresDALetLRParNumero($numDa);
         $dit = $this->ditRepository->findOneBy(['numeroDemandeIntervention' => $da->getNumeroDemandeDit()]);
         $genererPdfDaAvecDit->genererPdf($dit, $da, $this->getUserMail());
     }

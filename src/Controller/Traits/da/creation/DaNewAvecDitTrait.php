@@ -25,7 +25,7 @@ trait DaNewAvecDitTrait
         $em = $this->getEntityManager();
         
         $this->ditRepository = $em->getRepository(DemandeIntervention::class);
-        $this->daModel = new DaModel();
+        $this->daModel = $this->getService(DaModel::class);
         $this->setAllFournisseurs();
     }
     //=====================================================================================

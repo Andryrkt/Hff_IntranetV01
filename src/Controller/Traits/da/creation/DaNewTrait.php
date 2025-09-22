@@ -27,7 +27,7 @@ trait DaNewTrait
     public function ajouterDaDansTableAffichage(DemandeAppro $demandeAppro, ?DemandeIntervention $dit = null): void
     {
         // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
+        $numeroVersionMax = $this->getDaAfficherRepository()->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
         $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
         // Parcours chaque ligne DAL de la demande d'achat

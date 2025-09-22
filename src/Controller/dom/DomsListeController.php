@@ -32,7 +32,7 @@ class DomsListeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->domList = new DomListModel();
+        $this->domList = $this->getService(DomListModel::class);
     }
 
     /**

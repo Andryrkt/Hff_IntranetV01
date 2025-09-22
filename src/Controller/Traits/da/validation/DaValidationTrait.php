@@ -28,7 +28,7 @@ trait DaValidationTrait
         $nomutilisateur = $user->getNomUtilisateur();
 
         /** @var DemandeAppro|null $da */
-        $da = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
+        $da = $this->getDemandeApproRepository()->findOneBy(['numeroDemandeAppro' => $numDa]);
 
         if (!$da) return null;
 
