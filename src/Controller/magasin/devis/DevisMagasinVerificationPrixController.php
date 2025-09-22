@@ -114,10 +114,10 @@ class DevisMagasinVerificationPrixController extends Controller
                     return; // Arrête le traitement si le statut est bloquant
                 }
 
+
                 if ($validationService->estSommeDeLigneInChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
-
                 // recupération de numero version max
                 $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 

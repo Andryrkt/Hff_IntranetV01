@@ -103,7 +103,7 @@ class DitDuplicationController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $dit = $form->getData();
-            dd($dit);
+            // dd($dit);
             if (empty($dit->getIdMateriel())) {
                 $message = 'Échec lors de la création de la DIT... Impossible de récupérer les informations du matériel.';
                 $this->historiqueOperation->sendNotificationCreation($message, '-', 'dit_index');

@@ -110,23 +110,14 @@ class DaEditDirectController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $demandeAppro = $form->getData();
             $numDa = $demandeAppro->getNumeroDemandeAppro();
-            $statutDaModifier = $this->statutDaModifier($demandeAppro);
 
-            $this->modificationDa($demandeAppro, $form->get('DAL'), $statutDaModifier);
+            $this->modificationDa($demandeAppro, $form->get('DAL'), DemandeAppro::STATUT_SOUMIS_APPRO);
             if ($demandeAppro->getObservation() !== null) {
                 $this->insertionObservation($demandeAppro->getObservation(), $demandeAppro);
             }
 
             // ajout des données dans la table DaAfficher
             $this->ajouterDansTableAffichageParNumDa($numDa);
-
-            if ($statutDaModifier === DemandeAppro::STATUT_A_VALIDE_DW) {
-                // ajout des données dans la table DaSoumisAValidation
-                $this->ajouterDansDaSoumisAValidation($demandeAppro);
-
-                /** création de pdf et envoi dans docuware */
-                $this->creationPdfSansDitAvaliderDW($demandeAppro);
-            }
 
             /** ENVOIE MAIL */
             $this->emailDaService->envoyerMailModificationDaDirect($demandeAppro, [

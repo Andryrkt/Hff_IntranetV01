@@ -2,6 +2,7 @@
 
 namespace App\Service\navigation;
 
+use App\Entity\da\DemandeAppro;
 use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\Role;
 use App\Entity\admin\utilisateur\User;
@@ -10,8 +11,11 @@ use App\Service\SessionManagerService;
 class MenuService
 {
     private $em;
-    private $estAdmin;
-    private $nomUtilisateur;
+    private $connectedUser;
+    private bool $estAdmin = false;
+    private bool $estAtelier = false;
+    private bool $estAppro = false;
+    private bool $estCreateurDeDADirecte = false;
     private $basePath;
     private $applicationIds = [];
 
@@ -42,6 +46,46 @@ class MenuService
     }
 
     /**
+     * Get the value of estAtelier
+     */
+    public function getEstAtelier()
+    {
+        return $this->estAtelier;
+    }
+
+    /**
+     * Set the value of estAtelier
+     *
+     * @return  self
+     */
+    public function setEstAtelier($estAtelier)
+    {
+        $this->estAtelier = $estAtelier;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estAppro
+     */
+    public function getEstAppro()
+    {
+        return $this->estAppro;
+    }
+
+    /**
+     * Set the value of estAppro
+     *
+     * @return  self
+     */
+    public function setEstAppro($estAppro)
+    {
+        $this->estAppro = $estAppro;
+
+        return $this;
+    }
+
+    /**
      * Get the value of applicationIds
      */
     public function getApplicationIds()
@@ -62,19 +106,42 @@ class MenuService
     }
 
     /**
-     * Get the value of nomUtilisateur
+     * Get the value of connectedUser
      */
-    public function getNomUtilisateur()
+    public function getConnectedUser()
     {
-        return $this->nomUtilisateur;
+        return $this->connectedUser;
     }
 
     /**
-     * Set the value of nomUtilisateur
+     * Set the value of connectedUser
+     *
+     * @return  self
      */
-    public function setNomUtilisateur($nomUtilisateur): self
+    public function setConnectedUser($connectedUser)
     {
-        $this->nomUtilisateur = $nomUtilisateur;
+        $this->connectedUser = $connectedUser;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estCreateurDeDADirecte
+     */
+    public function getEstCreateurDeDADirecte()
+    {
+        return $this->estCreateurDeDADirecte;
+    }
+
+    /**
+     * Set the value of estCreateurDeDADirecte
+     *
+     * @return  self
+     */
+    public function setEstCreateurDeDADirecte($estCreateurDeDADirecte)
+    {
+        $this->estCreateurDeDADirecte = $estCreateurDeDADirecte;
+
         return $this;
     }
 
@@ -93,9 +160,13 @@ class MenuService
 
             if ($connectedUser) {
                 $roleIds = $connectedUser->getRoleIds();
+                $serviceIds = $connectedUser->getServiceAutoriserIds();
 
-                $this->setNomUtilisateur($connectedUser->getNomUtilisateur());
+                $this->setConnectedUser($connectedUser);
                 $this->setEstAdmin(in_array(Role::ROLE_ADMINISTRATEUR, $roleIds, true)); // estAdmin
+                $this->setEstAppro(in_array(DemandeAppro::ID_APPRO, $serviceIds)); // est appro
+                $this->setEstAtelier(in_array(DemandeAppro::ID_ATELIER, $serviceIds)); // est atelier
+                $this->setEstCreateurDeDADirecte(in_array(Role::ROLE_DA_DIRECTE, $roleIds, true)); // est créateur de DA directe
                 $this->setApplicationIds($connectedUser->getApplicationsIds()); // Les applications autorisées de l'utilisateur connecté
             }
         }
@@ -214,7 +285,7 @@ class MenuService
     public function menuRH()
     {
         $subitems = [];
-        $nomUtilisateur = $this->getNomUtilisateur();
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DOM, $this->getApplicationIds())) { // DOM
             $subSubitems = [];
             if ($nomUtilisateur != 'roddy') {
@@ -302,7 +373,7 @@ class MenuService
     public function menuAtelier()
     {
         $subitems = [];
-        $nomUtilisateur = $this->getNomUtilisateur();
+        $nomUtilisateur = $this->getConnectedUser() ? $this->getConnectedUser()->getNomUtilisateur() : '';
         if ($this->getEstAdmin() || in_array(Application::ID_DIT, $this->getApplicationIds())) { // DIT
             $subSubitems = [];
             if ($nomUtilisateur != 'stg.iaro' && $nomUtilisateur != 'roddy') {
@@ -413,18 +484,21 @@ class MenuService
 
     public function menuAppro()
     {
+        $subitems = [];
+        if ($this->getEstAdmin() || $this->getEstAtelier() || $this->getEstCreateurDeDADirecte()) { // admin OU atelier OU créateur de DA directe
+            $subitems[] = $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form');
+        }
+        $subitems[] = $this->createSimpleItem('Consultation des DA', 'search', 'list_da');
+        if ($this->getEstAdmin() || $this->getEstAppro()) {
+            $subitems[] = $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn');
+        }
         return $this->createMenuItem(
             'approModal',
             'Appro',
             'shopping-cart',
-            [
-                $this->createSimpleItem('Nouvelle DA', 'file-alt', 'da_first_form'),
-                $this->createSimpleItem('Consultation des DA', 'search', 'list_da'),
-                $this->createSimpleItem('Liste des commandes fournisseurs', 'list-ul', 'da_list_cde_frn'),
-            ]
+            $subitems
         );
     }
-
 
     public function menuIT()
     {

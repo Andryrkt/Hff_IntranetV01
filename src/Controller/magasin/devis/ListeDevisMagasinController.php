@@ -33,7 +33,7 @@ class ListeDevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
-
+        
         $this->styleStatutDw = [
             DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
             DevisMagasin::STATUT_PRIX_VALIDER_MAGASIN => 'bg-prix-valider-magasin',

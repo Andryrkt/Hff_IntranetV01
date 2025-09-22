@@ -144,7 +144,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
 
         if ($oldSumOfLines === null) {
             // No previous version to compare against, so it's not a blocking issue.
-            return false;
+            return true;
         }
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {

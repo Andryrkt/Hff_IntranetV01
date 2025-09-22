@@ -27,6 +27,7 @@ class HomeController extends Controller
     public function showPageAcceuil()
     {
         $menu = [];
+        $appsByCode = [];
         $user = null;
 
         // Vérifier si l'utilisateur est connecté
@@ -45,8 +46,13 @@ class HomeController extends Controller
             $this->redirectToRoute('security_signin');
         }
 
+        foreach ($user->getApplications() as $application) {
+            $appsByCode[$application->getCodeApp()] = true;
+        }
+
         return $this->render('main/accueil.html.twig', [
-            'menuItems' => $menu,
+            'menuItems'  => $menu,
+            'appsByCode' => $appsByCode,
             'App' => [
                 'base_path' => '/Hffintranet',
                 'base_path_fichier' => '/Hffintranet',

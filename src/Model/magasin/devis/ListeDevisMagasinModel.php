@@ -14,7 +14,7 @@ class ListeDevisMagasinModel extends Model
             -- '' as statut_dw
             nent_numcde as numero_devis
             ,nent_datecde as date_creation
-            ,nent_succ || nent_servcrt as emmeteur
+            ,nent_succ || ' - ' || nent_servcrt as emmeteur
             ,nent_numcli || ' - ' || nent_nomcli as client
             ,TRIM(nent_refcde) as reference_client
             ,nent_cdeht as montant

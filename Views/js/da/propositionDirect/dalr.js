@@ -2,6 +2,7 @@ import { formaterNombre } from "../../utils/formatNumberUtils.js";
 import { boutonRadio } from "./boutonRadio.js";
 import { generateCustomFilename } from "../../utils/dateUtils.js";
 import { replaceNameToNewIndex } from "../newAvecDit/dal.js";
+import { normalizeData } from "../../utils/dataUtils.js";
 
 // Dictionnaire pour stocker les fichiers sélectionnés par champ input
 const selectedFilesMap = {};
@@ -39,9 +40,8 @@ export function ajouterUneLigne(line, fields, iscatalogue) {
   );
   insertCellData(row, formaterNombre(total), "right", color);
   insertCellData(row, "1", "center", color); // conditionnement TO DO
-  let qteDispo = fields.qteDispo.value === "" ? "-" : fields.qteDispo.value;
-  insertCellData(row, qteDispo, "center", color);
-  insertCellData(row, fields.motif.value, "left", color);
+  insertCellData(row, normalizeData(fields.qteDispo.value), "center", color);
+  insertCellData(row, normalizeData(fields.motif.value), "left", color);
 
   let nbrColonnes = tableBody.previousElementSibling.rows[0].cells.length;
 
@@ -213,7 +213,7 @@ function ajouterLigneDansForm(line, fields, total, rowIndex) {
   ajouterValeur(prototype, "prixUnitaire", fields.prixUnitaire.value);
   ajouterValeur(prototype, "total", total);
   ajouterValeur(prototype, "conditionnement", "1"); // conditionnement TO DO
-  ajouterValeur(prototype, "motif", fields.motif.value);
+  ajouterValeur(prototype, "motif", fields.motif.value || "-");
   ajouterValeur(prototype, "artFams1", "-");
   ajouterValeur(prototype, "artFams2", "-");
   ajouterValeur(prototype, "numLigneTableau", rowIndex); // numero de ligne du tableau
