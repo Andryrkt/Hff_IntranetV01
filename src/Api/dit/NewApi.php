@@ -2,7 +2,6 @@
 
 namespace App\Api\dit;
 
-use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,18 +19,18 @@ class NewApi extends Controller
      */
     public function fetchMateriel()
     {
-        $ditModel = new DitModel();
-        // Récupérer les données depuis le modèle
-        $data = $ditModel->findAll();
+        try {
+            // Récupérer les données depuis le modèle
+            $data = $this->getDitModel()->findAll();
 
-        // Vérifiez si les données existent
-        if (!$data) {
-            return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+            // Vérifiez si les données existent
+            if (!$data) {
+                return new JsonResponse(['error' => 'No material found'], Response::HTTP_NOT_FOUND);
+            }
+
+            return new JsonResponse($data);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => 'Server error: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-        header("Content-type:application/json");
-
-        $jsonData = json_encode($data);
-
-        $this->testJson($jsonData);
     }
 }

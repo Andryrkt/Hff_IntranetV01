@@ -30,8 +30,8 @@ class CdefnrSoumisAValidationController extends Controller
     {
         parent::__construct();
         $this->cdeFnrRepository = $this->getEntityManager()->getRepository(CdefnrSoumisAValidation::class);
-        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($this->getEntityManager());
-        $this->traitementDeFichier = new TraitementDeFichier();
+        $this->historiqueOperation = new HistoriqueOperationCDEFNRService($this->getEntityManager(), $this->getSessionService());
+        $this->traitementDeFichier = new TraitementDeFichier($this->getService('App\Service\FusionPdf'));
     }
 
 
@@ -184,7 +184,7 @@ class CdefnrSoumisAValidationController extends Controller
     private function enregistrementFichier(FormInterface $form, string $numFnrCde, string $numeroVersion)
     {
         $chemin = $_ENV['BASE_PATH_FICHIER'] . '/cde_fournisseur/';
-        $fileUploader = new FileUploaderService($chemin);
+        $fileUploader = new FileUploaderService($chemin, $this->getService('App\Service\FusionPdf'));
         $options = [
             'prefix' => 'cdefrn',
             'numeroDoc' => $numFnrCde,

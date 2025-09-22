@@ -2,19 +2,20 @@
 
 namespace App\Api\badm;
 
-use App\Controller\Controller;
+use App\Controller\Controller as BaseController;
 use App\Entity\cas\CasierValider;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\badm\BadmModel;
 
-class CasierApi extends Controller
+class CasierApi extends BaseController
 {
     private $badm;
 
     public function __construct()
     {
+        // Appel du constructeur parent
         parent::__construct();
-        $this->badm = new BadmModel();
+        $this->badm = $this->getService('App\Model\badm\BadmModel');
     }
 
     /**

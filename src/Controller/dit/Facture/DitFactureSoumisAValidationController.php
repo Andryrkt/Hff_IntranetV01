@@ -6,8 +6,6 @@ ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
 use Exception;
-use App\Service\FusionPdf;
-use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -36,20 +34,16 @@ class DitFactureSoumisAValidationController extends Controller
     private $ditFactureSoumiAValidation;
     private $fileUploaderService;
     private $ditRepository;
-    private $ditModel;
-    private $fusionPdf;
 
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationFACService($this->getEntityManager());
-        $this->ditFactureSoumiAValidationModel = new DitFactureSoumisAValidationModel();
+        $this->historiqueOperation = new HistoriqueOperationFACService($this->getEntityManager(), $this->getSessionService());
+        $this->ditFactureSoumiAValidationModel = $this->getService('App\Model\dit\DitFactureSoumisAValidationModel');
         $this->genererPdfFacture = new GenererPdfFactureAValidation();
         $this->ditFactureSoumiAValidation = new DitFactureSoumisAValidation();
-        $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'] . '/vfac/');
+        $this->fileUploaderService = new FileUploaderService($_ENV['BASE_PATH_FICHIER'] . '/vfac/', $this->getService('App\Service\FusionPdf'));
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
-        $this->ditModel = new DitModel();
-        $this->fusionPdf = new FusionPdf();
     }
 
     /**
@@ -167,15 +161,15 @@ class DitFactureSoumisAValidationController extends Controller
             $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
             $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
 
-                    if ($interneExterne === 'INTERNE') {
-                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
-                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
-                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                    } else {
-                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
-                    }
+            if ($interneExterne === 'INTERNE') {
+                $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
+                $this->getService('App\Service\FusionPdf')->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+            } else {
+                $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+            }
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             // Persist les entités liées
@@ -243,7 +237,7 @@ class DitFactureSoumisAValidationController extends Controller
     public function enregistrerPdf($dataForm, string $numDit, $factureSoumisAValidation, string $interneExterne)
     {
         $orSoumisFact = $this->ditFactureSoumiAValidationModel->recupOrSoumisValidation($this->ditFactureSoumiAValidation->getNumeroOR(), $dataForm->getNumeroFact());
-        $numDevis = $this->ditModel->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
+        $numDevis = $this->getDitModel()->recupererNumdevis($this->ditFactureSoumiAValidation->getNumeroOR());
         $statut = $this->affectationStatutFac($this->getEntityManager(), $numDit, $dataForm, $this->ditFactureSoumiAValidationModel, $this->ditFactureSoumiAValidation, $interneExterne);
         $montantPdf = $this->montantpdf($factureSoumisAValidation, $statut, $orSoumisFact);
         $estFactureConformAOr = $this->estFactureConformAOr($factureSoumisAValidation);
@@ -259,7 +253,7 @@ class DitFactureSoumisAValidationController extends Controller
         $montantItvOr = $this->calculerMontantItvOr($orSoumisValidationRepository, $factureSoumisAValidation);
         $montantFacture = $this->calculerMontantFacture($factureSoumisAValidation);
         $estFactureConformAOr = abs($montantFacture - $montantItvOr) <= 0.01;
-        if(!$estFactureConformAOr) {
+        if (!$estFactureConformAOr) {
             $montantFactureOr = 'NON';
         } else {
             $montantFactureOr = 'OUI';
@@ -294,8 +288,8 @@ class DitFactureSoumisAValidationController extends Controller
         foreach ($this->filtrerOrSelonLesIntervetnionFac($orSoumisValidationRepository, $factureSoumisAValidation) as $value) {
             $montantItvOr += $value->getMontantItv();
         }
-    
-    return $montantItvOr;
+
+        return $montantItvOr;
     }
 
     public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission, $interneExterne): array

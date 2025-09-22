@@ -46,13 +46,13 @@ class DitDevisSoumisAValidationController extends Controller
 
         // Initialisation des propriétés
         $this->ditDevisSoumisAValidation = new DitDevisSoumisAValidation();
-        $this->ditDevisSoumisAValidationModel = new DitDevisSoumisAValidationModel(); // model
+        $this->ditDevisSoumisAValidationModel = $this->getService('App\Model\dit\DitDevisSoumisAValidationModel'); // model
         $this->montantPdfService = new MontantPdfService();
         $this->generePdfDevis = new GenererPdfDevisSoumisAValidation();
-        $this->historiqueOperation = new HistoriqueOperationDEVService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationDEVService($this->getEntityManager(), $this->getSessionService());
         $this->devisRepository = $this->getEntityManager()->getRepository(DitDevisSoumisAValidation::class);
         $this->chemin = $_ENV['BASE_PATH_FICHIER'] . '/dit/dev/';
-        $this->fileUploader = new FileUploaderService($this->chemin);
+        $this->fileUploader = new FileUploaderService($this->chemin, $this->getService('App\Service\FusionPdf'));
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
     }
 

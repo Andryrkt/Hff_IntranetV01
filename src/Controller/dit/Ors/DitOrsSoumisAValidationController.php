@@ -60,9 +60,9 @@ class DitOrsSoumisAValidationController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->magasinListOrLivrerModel = new MagasinListeOrLivrerModel();
-        $this->historiqueOperation      = new HistoriqueOperationORService($this->getEntityManager());
-        $this->ditOrsoumisAValidationModel = new DitOrSoumisAValidationModel();
+        $this->magasinListOrLivrerModel = $this->getService('App\Model\magasin\MagasinListeOrLivrerModel');
+        $this->historiqueOperation      = new HistoriqueOperationORService($this->getEntityManager(), $this->getSessionService());
+        $this->ditOrsoumisAValidationModel = $this->getService('App\Model\dit\DitOrSoumisAValidationModel');
         $this->genererPdfDit = new GenererPdfOrSoumisAValidation();
         $this->ditRepository = $this->getEntityManager()->getRepository(DemandeIntervention::class);
         $this->orRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class);
@@ -70,8 +70,8 @@ class DitOrsSoumisAValidationController extends Controller
         $this->demandeApproLRRepository = $this->getEntityManager()->getRepository(DemandeApproLR::class);
         $this->demandeApproRepository = $this->getEntityManager()->getRepository(DemandeAppro::class);
         $this->daAfficherRepository = $this->getEntityManager()->getRepository(DaAfficher::class);
-        $this->ditModel = new DitModel();
-        $this->fusionPdf = new FusionPdf();
+        $this->ditModel = $this->getService('App\Model\dit\DitModel');
+        $this->fusionPdf = $this->getService('App\Service\FusionPdf');
     }
 
     /**
@@ -256,7 +256,7 @@ class DitOrsSoumisAValidationController extends Controller
             //conversion des fichiers
             $this->ConvertirLesPdf($pdfFiles);
             //fusion des fichiers
-            $this->fusionPdf->mergePdfs($pdfFiles, $mainPdf);
+            $this->getService('App\Service\FusionPdf')->mergePdfs($pdfFiles, $mainPdf);
         }
     }
 

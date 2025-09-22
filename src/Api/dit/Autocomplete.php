@@ -15,7 +15,7 @@ class Autocomplete extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->ditAutocompleteModel = new DitAutocompleteModel();
+        $this->ditAutocompleteModel = $this->getService('App\\Model\\dit\\DitAutocompleteModel');
     }
 
     /**

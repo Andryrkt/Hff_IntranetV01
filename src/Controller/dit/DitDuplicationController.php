@@ -2,7 +2,6 @@
 
 namespace App\Controller\dit;
 
-use App\Model\dit\DitModel;
 use App\Entity\admin\Agence;
 use App\Entity\admin\Service;
 use App\Controller\Controller;
@@ -160,8 +159,7 @@ class DitDuplicationController extends Controller
         $agenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
         $serviceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
         $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
-        $ditModel = new DitModel();
-        $data = $ditModel->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
+        $data = $this->getDitModel()->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
         $dit
             ->setNumParc($data[0]['num_parc'])
             ->setNumSerie($data[0]['num_serie'])

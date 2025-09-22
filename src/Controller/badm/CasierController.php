@@ -35,7 +35,7 @@ class CasierController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationCASService($this->getEntityManager());
+        $this->historiqueOperation = new HistoriqueOperationCASService($this->getEntityManager(), $this->getSessionService());
     }
 
     /**
@@ -61,7 +61,7 @@ class CasierController extends Controller
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $casierModel = new CasierModel();
+            $casierModel = $this->getService('App\Model\badm\CasierModel');
             $data = $casierModel->findAll($casier->getIdMateriel(),  $casier->getNumParc(), $casier->getNumSerie());
             if ($casier->getIdMateriel() === null &&  $casier->getNumParc() === null && $casier->getNumSerie() === null) {
                 $message = " Renseigner l\'un des champs (Id Matériel, numéro Série et numéro Parc)";
@@ -107,7 +107,7 @@ class CasierController extends Controller
         $form1Data = $this->getSessionService()->get('casierform1Data', []);
 
         //Recupérations de tous les matériel
-        $casierModel = new CasierModel();
+        $casierModel = $this->getService('App\Model\badm\CasierModel');
         $data = $casierModel->findAll($form1Data["idMateriel"],  $form1Data["numParc"], $form1Data["numSerie"]);
 
 
