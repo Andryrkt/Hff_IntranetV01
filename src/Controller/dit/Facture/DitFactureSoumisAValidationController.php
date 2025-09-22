@@ -5,6 +5,9 @@ namespace App\Controller\dit\Facture;
 ini_set('upload_max_filesize', '5M');
 ini_set('post_max_size', '5M');
 
+use Exception;
+use App\Service\FusionPdf;
+use App\Model\dit\DitModel;
 use App\Controller\Controller;
 use App\Entity\dit\DemandeIntervention;
 use Symfony\Component\Form\FormInterface;
@@ -19,8 +22,6 @@ use App\Model\dit\DitFactureSoumisAValidationModel;
 use App\Service\genererPdf\GenererPdfFactureAValidation;
 use App\Controller\Traits\dit\DitFactureSoumisAValidationtrait;
 use App\Service\historiqueOperation\HistoriqueOperationFACService;
-use App\Model\dit\DitModel;
-use App\Service\FusionPdf;
 
 /**
  * @Route("/atelier/demande-intervention")
