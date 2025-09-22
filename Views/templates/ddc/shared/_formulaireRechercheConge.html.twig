@@ -1,8 +1,8 @@
 <div class="accordion" id="accordionConge">
     <div class="accordion-item">
         <h2 class="accordion-header">
-            <button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#collapseConge" aria-expanded="true" aria-controls="collapseConge">
+            <button class="accordion-button enteteAccordion" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseConge" aria-expanded="true" aria-controls="collapseConge">
                 <i class="fas fa-search me-2"></i> Recherche de congés
             </button>
         </h2>
@@ -17,13 +17,16 @@
                         {{ form_row(form.numeroDemande, {'attr': {'class': 'form-control-sm'}}) }}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                        {{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})
+                        }}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.dateDemandeFin, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                        {{ form_row(form.dateDemandeFin, {'attr': {'class': 'form-control-sm datepicker', 'type':
+                        'date'}}) }}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.dateDebut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
+                        {{ form_row(form.dateDebut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})
+                        }}
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form.dateFin, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}
@@ -51,75 +54,91 @@
 
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Importer FetchManager (en utilisant un module inline)
-    const baseUrl = '{{ App.base_path }}';
-    
-    // Classe FetchManager simplifiée (intégrée directement)
-    class FetchManager {
-        constructor() {
-            this.baseUrl = baseUrl;
-        }
-        
-        async get(endpoint, responseType = "json") {
-            try {
-                const response = await fetch(`${this.baseUrl}/${endpoint}`);
-                console.log(response);
-                if (!response.ok) {
-                    throw new Error(`Erreur HTTP: ${response.status}`);
+    document.addEventListener('DOMContentLoaded', function () {
+        // Importer FetchManager (en utilisant un module inline)
+        const baseUrl = '{{ App.base_path }}';
+
+        // Classe FetchManager simplifiée (intégrée directement)
+        class FetchManager {
+            constructor() {
+                this.baseUrl = baseUrl;
+            }
+
+            async get(endpoint, responseType = "json") {
+                try {
+                    const response = await fetch(`${this.baseUrl}/${endpoint}`);
+                    console.log(response);
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+
+                    if (responseType === "json") {
+                        const text = await response.text();
+                        if (!text) throw new Error('Réponse vide');
+                        return JSON.parse(text);
+                    } else {
+                        return await response.text();
+                    }
+                } catch (error) {
+                    console.error(`Échec de récupération des données depuis ${this.baseUrl}/${endpoint}:`, error);
+                    throw error;
                 }
-                
-                if (responseType === "json") {
-                    const text = await response.text();
-                    if (!text) throw new Error('Réponse vide');
-                    return JSON.parse(text);
-                } else {
-                    return await response.text();
-                }
-            } catch (error) {
-                console.error(`Échec de récupération des données depuis ${this.baseUrl}/${endpoint}:`, error);
-                throw error;
             }
         }
+
+        // Instanciation de FetchManager
+        const fetchManager = new FetchManager();
+
+        // Gestion de la dépendance Agence -> Service
+        const agenceSelect = document.querySelector('[name="demande_conge[agence]"]');
+        const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
+
+        // Ajouter un champ caché pour le service
+        const form = document.querySelector('form');
+        const hiddenServiceInput = document.createElement('input');
+        hiddenServiceInput.type = 'hidden';
+        hiddenServiceInput.name = 'service_hidden';
+        hiddenServiceInput.id = 'service_hidden';
+        form.appendChild(hiddenServiceInput);
+
+        // Restaurer la valeur du service si elle existe dans les critères
+        const criteria = {{ criteria| json_encode | raw
+    }};
+    let previouslySelectedService = null;
+    if (criteria && criteria.selected_service) {
+        previouslySelectedService = criteria.selected_service;
+        hiddenServiceInput.value = criteria.selected_service;
     }
-    
-    // Instanciation de FetchManager
-    const fetchManager = new FetchManager();
-    
-    // Gestion de la dépendance Agence -> Service
-    const agenceSelect = document.querySelector('[name="demande_conge[agence]"]');
-    const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
-    
-    // Ajouter un champ caché pour le service
-    const form = document.querySelector('form');
-    const hiddenServiceInput = document.createElement('input');
-    hiddenServiceInput.type = 'hidden';
-    hiddenServiceInput.name = 'service_hidden';
-    hiddenServiceInput.id = 'service_hidden';
-    form.appendChild(hiddenServiceInput);
-    
+
     if (agenceSelect && serviceSelect) {
         // Fonction pour charger les services en fonction de l'agence sélectionnée
-        function loadServices(agenceCode) {
+        function loadServices(agenceCode, selectedService = null) {
             if (!agenceCode) {
                 // Si aucune agence n'est sélectionnée, vider le select de service
                 serviceSelect.innerHTML = '<option value="">Tous les services</option>';
                 return;
             }
-            
+
             // Utiliser FetchManager pour récupérer les services
             fetchManager.get(`api/services-by-agence/${agenceCode}`)
                 .then(data => {
                     // Vider le select de service
                     serviceSelect.innerHTML = '<option value="">Tous les services</option>';
-                    
+
                     // Ajouter les options de service
                     data.forEach(service => {
                         const option = document.createElement('option');
                         option.value = service.code;
-                        option.textContent = service.nom;
+                        option.textContent = service.code + ' ' + service.nom;
                         serviceSelect.appendChild(option);
                     });
+
+                    // Si un service était sélectionné, le rétablir
+                    if (selectedService) {
+                        serviceSelect.value = selectedService;
+                        // Mettre à jour le champ caché également
+                        hiddenServiceInput.value = selectedService;
+                    }
                 })
                 .catch(error => {
                     console.error('Erreur lors de la récupération des services:', error);
@@ -127,36 +146,35 @@ document.addEventListener('DOMContentLoaded', function() {
                     serviceSelect.innerHTML = '<option value="">Erreur de chargement des services</option>';
                 });
         }
-        
+
         // Charger les services au chargement de la page si une agence est déjà sélectionnée
-        if (agenceSelect.value) {
-            loadServices(agenceSelect.value);
+        if (agenceSelect.value && previouslySelectedService) {
+            loadServices(agenceSelect.value, previouslySelectedService);
         }
-        
+
         // Ajouter un écouteur d'événement pour le changement d'agence
-        agenceSelect.addEventListener('change', function() {
+        agenceSelect.addEventListener('change', function () {
+            // Réinitialiser le service sélectionné quand l'agence change
+            previouslySelectedService = null;
+            hiddenServiceInput.value = '';
             loadServices(this.value);
         });
+
+        // Ajouter un écouteur d'événement pour le changement de service
+        serviceSelect.addEventListener('change', function () {
+            // Mettre à jour le champ caché quand le service change
+            hiddenServiceInput.value = this.value;
+        });
     }
-    
-    // Remplacer la fonction de soumission du formulaire par :
+
     // Ajouter l'écouteur d'événement de soumission du formulaire
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
+    form.addEventListener('submit', function (e) {
         // Récupérer la valeur du champ service
         const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
         const serviceValue = serviceSelect ? serviceSelect.value : '';
         console.log('Valeur du service avant soumission:', serviceValue);
-        
         // Mettre à jour le champ caché
         document.getElementById('service_hidden').value = serviceValue;
-        
-        // Soumettre le formulaire
-        this.submit();
     });
 });
 </script>
-
-
-
