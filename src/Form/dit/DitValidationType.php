@@ -10,11 +10,12 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 class DitValidationType extends AbstractType
 {
-    
+
     const SERVICE_INTERVENANT = [
         'ATELIER' => 'ATE',
         'MOBILE ASSETS' => 'MAS',
@@ -25,16 +26,18 @@ class DitValidationType extends AbstractType
     ];
 
     private $ditModel;
+    private $container;
 
-    public function __construct()
+    public function __construct(ContainerInterface $container)
     {
-        $this->ditModel = new DitModel();
+        $this->container = $container;
+        $this->ditModel = $this->container->get(DitModel::class);
     }
 
     private function section()
     {
         $section = $this->ditModel->recuperationSectionValidation();
-        $sections =[];
+        $sections = [];
         foreach ($section as $value) {
             $sections[] = $value['atab_code'] . ' ' . $value['atab_lib'];
         }
@@ -44,7 +47,7 @@ class DitValidationType extends AbstractType
     private function codeSection()
     {
         $section = $this->ditModel->recuperationSectionValidation();
-        $sections =[];
+        $sections = [];
         foreach ($section as $value) {
             $sections[] = $value['atab_code'];
         }
@@ -54,31 +57,37 @@ class DitValidationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-        ->add('idServiceIntervenant', 
-        ChoiceType::class, 
-        [
-            'label' => 'Service',
-            'choices' => self::SERVICE_INTERVENANT,
-            'placeholder' => '-- Choisir une service --',
-            'required' => true,
-        ])
-        ->add('codeSection',
-        ChoiceType::class,
-        [
-            'label' => 'Section',
-            'choices' => array_combine($this->section(), $this->codeSection()),
-            'placeholder' => '-- Choisir une section --',
-            'required' => true,
-        ])
-        ->add('observationDirectionTechnique',
-        TextareaType::class,
-        [
-            'label' => 'Observation D.T',
-            'required' => true,
-            'attr' => [
-                'rows' => 5,  
-              ],
-        ])
+            ->add(
+                'idServiceIntervenant',
+                ChoiceType::class,
+                [
+                    'label' => 'Service',
+                    'choices' => self::SERVICE_INTERVENANT,
+                    'placeholder' => '-- Choisir une service --',
+                    'required' => true,
+                ]
+            )
+            ->add(
+                'codeSection',
+                ChoiceType::class,
+                [
+                    'label' => 'Section',
+                    'choices' => array_combine($this->section(), $this->codeSection()),
+                    'placeholder' => '-- Choisir une section --',
+                    'required' => true,
+                ]
+            )
+            ->add(
+                'observationDirectionTechnique',
+                TextareaType::class,
+                [
+                    'label' => 'Observation D.T',
+                    'required' => true,
+                    'attr' => [
+                        'rows' => 5,
+                    ],
+                ]
+            )
         ;
     }
 

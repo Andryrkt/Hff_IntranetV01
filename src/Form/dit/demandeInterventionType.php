@@ -209,7 +209,10 @@ class demandeInterventionType extends AbstractType
                     'required' => false,
                     'attr' => [
                         'class' => 'interneExterne',
-                        'data-informations' => json_encode(['agenceId' => $options['data']->getAgence()->getId(), 'serviceId' => $options['data']->getService()->getId()])
+                        'data-informations' => json_encode([
+                            'agenceId' => $options['data']->getAgence() ? $options['data']->getAgence()->getId() : null,
+                            'serviceId' => $options['data']->getService() ? $options['data']->getService()->getId() : null
+                        ])
                     ]
                 ]
             )

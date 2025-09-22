@@ -37,6 +37,11 @@ services:
             - '@service_container'
         public: true
 
+    App\Form\dit\DitValidationType:
+        arguments:
+            - '@service_container'
+        public: true
+
     App\Form\badm\BadmSearchType:
         arguments:
             - '@doctrine.orm.default_entity_manager'

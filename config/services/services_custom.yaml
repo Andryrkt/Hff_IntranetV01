@@ -266,7 +266,7 @@ services:
     App\Service\docuware\CopyDocuwareService:
         arguments:
             $docuwareFtpPath: '%docuware.ftp_path%'
-        public: false
+        public: true
 
     App\Service\fichier\UploderFileService:
         arguments:

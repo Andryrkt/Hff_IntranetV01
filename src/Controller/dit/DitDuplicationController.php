@@ -159,6 +159,10 @@ class DitDuplicationController extends Controller
         $agenceEmetteur = $this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeEmetteur[0]]);
         $serviceEmetteur = $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeEmetteur[1]]);
         $codeDebiteur = explode('-', $dit->getAgenceServiceDebiteur());
+        // Vérifier que le tableau contient au moins 2 éléments
+        if (count($codeDebiteur) < 2) {
+            $codeDebiteur[1] = null; // Valeur par défaut si le service n'est pas défini
+        }
         $data = $this->getDitModel()->findAll($dit->getIdMateriel(), $dit->getNumParc(), $dit->getNumSerie());
         $dit
             ->setNumParc($data[0]['num_parc'])
@@ -179,7 +183,7 @@ class DitDuplicationController extends Controller
             ->setAgenceEmetteur($agenceEmetteur->getCodeAgence() . ' ' . $agenceEmetteur->getLibelleAgence())
             ->setServiceEmetteur($serviceEmetteur->getCodeService() . ' ' . $serviceEmetteur->getLibelleService())
             ->setAgence($this->getEntityManager()->getRepository(Agence::class)->findOneBy(['codeAgence' => $codeDebiteur[0]]))
-            ->setService($this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeDebiteur[1]]))
+            ->setService($codeDebiteur[1] ? $this->getEntityManager()->getRepository(Service::class)->findOneBy(['codeService' => $codeDebiteur[1]]) : null)
             ->setTypeDocument($dit->getTypeDocument())
             ->setCodeSociete($dit->getCodeSociete())
             ->setTypeReparation($dit->getTypeReparation())
