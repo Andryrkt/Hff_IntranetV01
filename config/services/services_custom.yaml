@@ -265,7 +265,7 @@ services:
 
     App\Service\docuware\CopyDocuwareService:
         arguments:
-            $docuwareFtpPath: '%docuware.ftp_path%'
+            $docuwareFtpPath: 'C:/DOCUWARE'
         public: true
 
     App\Service\fichier\UploderFileService:
@@ -304,7 +304,7 @@ services:
     App\Repository\:
         resource: '../src/Repository/*'
         autowire: false
-        public: false
+        public: true
 
     # Service HandleRequestService avec injection de dépendance corrigée
     App\Service\tik\HandleRequestService:

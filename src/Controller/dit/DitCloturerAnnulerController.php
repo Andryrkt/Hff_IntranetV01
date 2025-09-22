@@ -7,12 +7,19 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\docuware\CopyDocuwareService;
 use App\Repository\admin\StatutDemandeRepository;
 use App\Repository\dit\DitRepository;
+use App\Entity\admin\StatutDemande;
 
+/**
+ * @Route("/atelier/demande-intervention")
+ */
 class DitCloturerAnnulerController extends Controller
 {
-    public function __construct()
+    protected CopyDocuwareService $copyDocuwareService;
+
+    public function __construct(CopyDocuwareService $copyDocuwareService)
     {
         parent::__construct();
+        $this->copyDocuwareService = $copyDocuwareService;
     }
 
     /**
@@ -23,8 +30,7 @@ class DitCloturerAnnulerController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $ditRepository = $this->getService(DitRepository::class);
-
+        $ditRepository = $this->getEntityManager()->getRepository(\App\Entity\dit\DemandeIntervention::class);
         $dit = $ditRepository->find($id); // recupération de l'information du DIT à annuler
 
         $this->modificationTableDit($dit);
@@ -50,8 +56,7 @@ class DitCloturerAnnulerController extends Controller
 
         $this->ajouterDansCsv($filePathUplode, $data, $headers);
 
-        $copyDocuwareService = $this->getService(CopyDocuwareService::class);
-        $copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
+        $this->copyDocuwareService->copyCsvToDw($fileNameDw, $filePathUplode);
 
         $message = "La DIT a été clôturé avec succès.";
         $this->notification($message);
@@ -60,7 +65,7 @@ class DitCloturerAnnulerController extends Controller
 
     private function modificationTableDit($dit)
     {
-        $statutCloturerAnnuler = $this->getService(StatutDemandeRepository::class)->find(52);
+        $statutCloturerAnnuler = $this->getEntityManager()->getRepository(StatutDemande::class)->find(52);
         $dit
             ->setIdStatutDemande($statutCloturerAnnuler)
             ->setAAnnuler(true)
