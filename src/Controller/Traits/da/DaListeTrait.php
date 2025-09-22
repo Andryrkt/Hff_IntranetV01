@@ -222,7 +222,7 @@ trait DaListeTrait
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
             if (!$achatDirect && !empty($statutOR)) {
-                $statutOR = "OR $statutOR";
+                $statutOR = "OR - $statutOR";
             }
 
 
