@@ -84,6 +84,13 @@ function onBlurEvents(found, designation, fieldName) {
       // Si non trouvé alors valeur de reférence pièce = ''
       referencePiece.value = found ? referencePiece.value : "ST";
     }
+  } else if (fieldName == "fournisseur") {
+    if (!found) {
+      let numFrnInput = document.querySelector(
+        `[id*="${baseId}"][id*="numeroFournisseur_${numPage}"]`
+      );
+      numFrnInput.value = "-";
+    }
   }
 }
 
