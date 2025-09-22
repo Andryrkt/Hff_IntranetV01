@@ -38,7 +38,7 @@ export function createFieldAndAppendTo(
   } else if (fieldName === "numeroLigne") {
     field.value = localStorage.getItem("daDirectLineCounter");
   } else if (fieldName === "fileNames") {
-    field.accept = ".pdf, image/*"; // Accepter les fichiers PDF et images
+    field.accept = ".pdf"; // Accepter les fichiers PDF seulement
     field.addEventListener("change", (event) => onFileNamesInputChange(event));
   }
 
