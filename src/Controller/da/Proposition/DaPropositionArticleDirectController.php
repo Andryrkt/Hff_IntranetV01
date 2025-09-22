@@ -223,7 +223,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->copyToDW($da);
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
@@ -259,7 +259,7 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->copyToDW($da);
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [

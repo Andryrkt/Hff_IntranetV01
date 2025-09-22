@@ -49,7 +49,7 @@ class DaValidationDirectController extends Controller
         $this->ajouterDansDaSoumisAValidation($da);
 
         /** envoi dans docuware */
-        $this->copyToDW($da);
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOIE D'EMAIL */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [
