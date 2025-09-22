@@ -238,10 +238,6 @@ class DaAfficherRepository extends EntityRepository
         $subQb->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE)
             ->setParameter('exceptions', $exceptions);
 
-
-
-
-
         $this->applyDynamicFilters($subQb, $criteria, true);
         $this->applyStatutsFilters($subQb, $criteria, true);
         $this->applyDateFilters($subQb, $criteria, true);
@@ -290,6 +286,12 @@ class DaAfficherRepository extends EntityRepository
             ->Where('d.statutCde != :statutPasDansOr') // enlever les ligne qui a le statut PAS DANS OR
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
+
+        if ($hasAchatDirecte) {
+            $qb->andWhere('d.statutDal = :statutDal')
+                ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        }
+
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();

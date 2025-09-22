@@ -24,10 +24,9 @@ class ListeDevisMagasinController extends Controller
 {
     use AutorisationTrait;
 
-    private ?ListeDevisMagasinModel $listeDevisMagasinModel = null;
-    protected ?DevisMagasinRepository $devisMagasinRepository = null;
-    protected ?AgenceRepository $agenceRepository = null;
-    protected ?EntityManagerInterface $entityManager = null;
+    private ListeDevisMagasinModel $listeDevisMagasinModel;
+    private DevisMagasinRepository $devisMagasinRepository;
+    private AgenceRepository $agenceRepository;
 
     public function __construct()
     {
@@ -132,7 +131,8 @@ class ListeDevisMagasinController extends Controller
         // affichage de la liste des devis magasin
         return $this->render('magasin/devis/listeDevisMagasin.html.twig', [
             'listeDevis' => $listeDevisFactory,
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'styleStatutDw' => $this->styleStatutDw
         ]);
     }
 

@@ -41,9 +41,7 @@ export function handleAllInputEvents() {
         if (maxLen) el.value = el.value.slice(0, maxLen);
       });
 
-      if (type === "fournisseur") {
-        autocompleteTheField(el, type);
-      }
+      autocompleteTheField(el, type);
     });
   });
 }

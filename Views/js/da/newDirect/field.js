@@ -121,7 +121,7 @@ export function createFieldAutocompleteAndAppendTo(
 
   // Sélection de l'élément cible
   let field = prototype.querySelector(`[id*="${fieldName}"]`);
-  field.required = true; // champ requis
+  field.required = fieldName !== "nomFournisseur"; // champ requis
   field.removeAttribute("readonly");
 
   // Génération des nouveaux IDs pour le spinner et le conteneur

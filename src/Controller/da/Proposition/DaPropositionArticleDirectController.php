@@ -85,7 +85,7 @@ class DaPropositionArticleDirectController extends Controller
             'numDa'                   => $numDa,
             'connectedUser'           => $this->getUser(),
             'statutAutoriserModifAte' => $da->getStatutDal() === DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            'estAte'                  => $this->estUserDansServiceAtelier(),
+            'estCreateurDaDirecte'    => $this->estCreateurDeDADirecte(),
             'estAppro'                => $this->estUserDansServiceAppro(),
             'nePeutPasModifier'       => $this->nePeutPasModifier($da)
         ]);
@@ -222,7 +222,7 @@ class DaPropositionArticleDirectController extends Controller
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
@@ -252,7 +252,7 @@ class DaPropositionArticleDirectController extends Controller
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
             'service'           => $this->estUserDansServiceAppro() ? 'appro' : $da->getServiceEmetteur()->getLibelleService(),
-            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZST.',
+            'phraseValidation'  => 'Vous trouverez en pièce jointe le fichier contenant les références ZDI.',
             'userConnecter'     => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 

@@ -32,7 +32,7 @@ trait StatutBcTrait
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
             DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
-            DemandeAppro::STATUT_A_VALIDE_DW         => 'bg-soumis-validation',
+            DemandeAppro::STATUT_DW_A_VALIDE         => 'bg-soumis-validation',
             DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
             DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
@@ -122,7 +122,7 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
-        if (empty($situationCde)) {
+        if (empty($situationCde) && !$achatDirect) {
             return 'PAS DANS OR';
         }
 

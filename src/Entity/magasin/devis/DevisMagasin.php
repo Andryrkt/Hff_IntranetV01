@@ -16,6 +16,11 @@ class DevisMagasin
     use DateTrait;
 
     public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
+    public const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
+    public const STATUT_PRIX_VALIDER_MAGASIN = 'Prix validé magasin';
+    public const STATUT_PRIX_REFUSE_MAGASIN = 'Prix refusé magasin';
+    public const STATUT_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
 
     /**
      * @ORM\Id

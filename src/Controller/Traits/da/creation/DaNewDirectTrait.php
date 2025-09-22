@@ -42,7 +42,7 @@ trait DaNewDirectTrait
             ->setServiceEmetteur($service)
             ->setAgenceServiceDebiteur($agence->getCodeAgence() . '-' . $service->getCodeService())
             ->setAgenceServiceEmetteur($agence->getCodeAgence() . '-' . $service->getCodeService())
-            ->setStatutDal(DemandeAppro::STATUT_A_VALIDE_DW)
+            ->setStatutDal(DemandeAppro::STATUT_SOUMIS_APPRO)
             ->setUser($this->getUser())
             ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())

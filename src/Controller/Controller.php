@@ -612,6 +612,17 @@ class Controller
     }
 
     /**
+     * Vérifier si l'utilisateur est un créateur de DA directe
+     */
+    protected function estCreateurDeDADirecte(): bool
+    {
+        $user = $this->getUser();
+        if (!$user) return false;
+        $roleIds = $user->getRoleIds();
+        return in_array(Role::ROLE_DA_DIRECTE, $roleIds);
+    }
+
+    /**
      * Vérifier si l'utilisateur est admin
      */
     protected function estAdmin(): bool

@@ -17,10 +17,11 @@ use App\Repository\admin\utilisateur\RoleRepository;
  */
 class Role
 {
-    public const ROLE_ADMINISTRATEUR = 1;
+    public const ROLE_ADMINISTRATEUR       = 1;
     public const ROLE_SUPER_ADMINISTRATEUR = 7;
-    public const ROLE_ATELIER = 4;
-    public const ROLE_MULTI_SUCURSALES = 6;
+    public const ROLE_ATELIER              = 4;
+    public const ROLE_MULTI_SUCURSALES     = 6;
+    public const ROLE_DA_DIRECTE           = 10;
 
     /**
      * @ORM\Id

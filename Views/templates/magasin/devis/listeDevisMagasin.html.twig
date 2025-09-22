@@ -25,13 +25,13 @@
 					<th class="text-center">Statut devis</th>
 					<th class="text-center">Numéro devis</th>
 					<th class="text-center">Date de création</th>
-					<th class="text-center">Succursale + service émetteur</th>
-					<th>Code client + libellé client</th>
-					<th>Référence client</th>
+					<th class="text-center">Emetteur</th>
+					<th>Client</th>
+					<th>Libellé</th>
 					<th class="text-end">Montant</th>
-					<th class="text-center">Date d'envoi devis au client</th>
+					<th class="text-center">Date envoi au client</th>
 					<th class="text-center">Position IPS</th>
-					<th class="text-center">Opérateur</th>
+					<th class="text-center">Soumis par</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody">
@@ -53,7 +53,7 @@
 								</ul>
 							</div>
 						</td>
-						<td class="text-center">{{item.statutDw}}</td>
+						<td class="text-center {{styleStatutDw[item.statutDw] ?? ''}}">{{item.statutDw}}</td>
 						<td class="text-center">{{item.numeroDevis}}</td>
 						<td class="text-center">{{item.dateCreation}}</td>
 						<td class="text-center">{{item.succursaleServiceEmetteur}}</td>
