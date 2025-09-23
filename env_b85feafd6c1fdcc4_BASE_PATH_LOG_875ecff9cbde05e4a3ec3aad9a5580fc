@@ -1,0 +1,57 @@
+[2025-09-23 11:46:27] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:46:27] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:46:27] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 11:46:27] [WARNING] Échec de l'authentification LDAP {"user":"lanto","error":"Invalid credentials"}
+[2025-09-23 11:53:28] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:53:28] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:53:28] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 11:53:28] [WARNING] Échec de l'authentification LDAP {"user":"lanto","error":"Invalid credentials"}
+[2025-09-23 11:54:27] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:54:27] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:55:04] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:55:04] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:55:52] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:55:52] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:55:52] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 11:58:33] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:58:33] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:58:33] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 11:58:33] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 11:58:34] [INFO] Authentification LDAP réussie {"user":"lanto"}
+[2025-09-23 11:59:33] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 11:59:33] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 11:59:33] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 11:59:33] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 11:59:34] [INFO] Authentification LDAP réussie {"user":"lanto"}
+[2025-09-23 12:01:20] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:01:20] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:01:20] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 12:01:20] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 12:01:20] [INFO] Authentification LDAP réussie {"user":"lanto"}
+[2025-09-23 12:01:49] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:01:49] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:01:49] [DEBUG] Tentative d'authentification LDAP {"user":"admin"}
+[2025-09-23 12:01:49] [INFO] Tentative d'authentification LDAP {"user":"admin","domain":"@fraise.hff.mg","ldap_user":"admin@fraise.hff.mg"}
+[2025-09-23 12:01:49] [ERROR] Échec de l'authentification LDAP {"user":"admin","ldap_user":"admin@fraise.hff.mg","error":"Invalid credentials"}
+[2025-09-23 12:01:49] [WARNING] Échec de l'authentification LDAP {"user":"admin","error":"Invalid credentials"}
+[2025-09-23 12:02:24] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:02:24] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:02:24] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 12:02:24] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 12:02:24] [INFO] Authentification LDAP réussie {"user":"lanto"}
+[2025-09-23 12:04:06] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:04:06] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:04:06] [DEBUG] Tentative d'authentification LDAP {"user":"admin"}
+[2025-09-23 12:04:06] [INFO] Tentative d'authentification LDAP {"user":"admin","domain":"@fraise.hff.mg","ldap_user":"admin@fraise.hff.mg"}
+[2025-09-23 12:04:06] [ERROR] Échec de l'authentification LDAP {"user":"admin","ldap_user":"admin@fraise.hff.mg","error":"Invalid credentials"}
+[2025-09-23 12:04:06] [WARNING] Échec de l'authentification LDAP {"user":"admin","error":"Invalid credentials"}
+[2025-09-23 12:04:49] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:04:49] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:04:50] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 12:04:50] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 12:04:50] [INFO] Authentification LDAP réussie {"user":"lanto"}
+[2025-09-23 12:06:10] [INFO] Tentative de connexion au serveur LDAP {"host":"192.168.0.1","port":"389"}
+[2025-09-23 12:06:10] [INFO] Connexion LDAP établie avec succès 
+[2025-09-23 12:06:10] [DEBUG] Tentative d'authentification LDAP {"user":"lanto"}
+[2025-09-23 12:06:10] [INFO] Tentative d'authentification LDAP {"user":"lanto","domain":"@fraise.hff.mg","ldap_user":"lanto@fraise.hff.mg"}
+[2025-09-23 12:06:10] [INFO] Authentification LDAP réussie {"user":"lanto"}

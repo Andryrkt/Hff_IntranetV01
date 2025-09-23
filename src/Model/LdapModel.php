@@ -163,6 +163,7 @@ class LdapModel
     {
         try {
             $this->initializeLdapConnection();
+
             if (!$this->ldapconn) {
                 $this->logger->error("LDAP non disponible - authentification impossible");
                 return false;
@@ -183,8 +184,23 @@ class LdapModel
             ldap_set_option($this->ldapconn, LDAP_OPT_TIMELIMIT, 10);
 
             // Tentative de bind avec gestion d'erreur améliorée
-            $bind = @ldap_bind($this->ldapconn, $user . $this->Domain, $password);
+            $ldapUser = $user . $this->Domain;
+            $this->logger->info("Tentative d'authentification LDAP", [
+                'user' => $user,
+                'domain' => $this->Domain,
+                'ldap_user' => $ldapUser
+            ]);
 
+            $bind = @ldap_bind($this->ldapconn, $ldapUser, $password);
+
+            if (!$bind) {
+                $ldapError = ldap_error($this->ldapconn);
+                $this->logger->error("Échec de l'authentification LDAP", [
+                    'user' => $user,
+                    'ldap_user' => $ldapUser,
+                    'error' => $ldapError
+                ]);
+            }
             if ($bind) {
                 $this->logger->info("Authentification LDAP réussie", ['user' => $user]);
                 return true;

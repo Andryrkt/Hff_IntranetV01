@@ -414,20 +414,20 @@ services:
             $connexion04Gcot: '@App\Model\ConnexionDote4Gcot'
         public: true
 
-    App\Controller\Authentification:
-        class: App\Controller\Authentification
+    App\Factory\AuthentificationControllerFactory:
+        class: App\Factory\AuthentificationControllerFactory
         arguments:
             $ldapModel: '@App\Model\LdapModel'
-            $authCsvFilePath: '%env(BASE_PATH_LONG)%/src/Controller/authentification.csv'
             $emailDaService: '@App\Service\da\EmailDaService'
             $daFileUploader: '@App\Service\da\FileUploaderForDAService'
             $daAfficherRepository: null
             $demandeApproRepository: null
             $demandeApproLRepository: null
             $demandeApproLRRepository: null
-        autowire: false
-        autoconfigure: false
-        tags: ['controller.service_arguments']
+        public: true
+
+    App\Controller\Authentification:
+        factory: ['@App\Factory\AuthentificationControllerFactory', 'create']
         public: true
 
     # Services pour InventaireController
