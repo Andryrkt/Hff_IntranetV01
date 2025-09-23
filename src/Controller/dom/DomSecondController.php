@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Service\historiqueOperation\HistoriqueOperationDOMService;
 use App\Model\dom\DomModel;
 use App\Service\FusionPdf;
+use App\Service\security\SecurityService;
 
 /**
  * @Route("/rh/ordre-de-mission")
@@ -28,25 +29,23 @@ class DomSecondController extends Controller
     private $historiqueOperation;
     private $DomModel;
     private $fusionPdf;
+    private $securityService;
 
-    public function __construct()
+    public function __construct(DomModel $domModel, FusionPdf $fusionPdf, SecurityService $securityService)
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager(), $this->getSessionService());
-        $this->DomModel = new DomModel();
-        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
+        $this->DomModel = $domModel;
+        $this->fusionPdf = $fusionPdf;
+        $this->securityService = $securityService;
     }
     /**
      * @Route("/dom-second-form", name="dom_second_form")
      */
     public function secondForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
-        /** FIN AUtorisation acées */
+        // Vérification de la session utilisateur et des autorisations d'accès
+        $this->securityService->verifyUserAccess($this->getUser(), 'DOM');
 
         //recuperation de l'utilisateur connecter
         $user = $this->getUser();

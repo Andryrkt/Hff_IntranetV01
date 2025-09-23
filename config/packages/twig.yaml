@@ -1,0 +1,9 @@
+# config/packages/twig.yaml
+twig:
+    default_path: '%kernel.project_dir%/Views/templates'
+    form_themes: ['bootstrap_4_layout.html.twig']
+    # when the same variable is present in multiple templates, they are merged
+    # (the value from the most recent template wins)
+    #merge_globals: true
+    # if a variable name doesn't exist, twig throws an exception
+    #strict_variables: true

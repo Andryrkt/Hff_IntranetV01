@@ -10,6 +10,8 @@ use App\Entity\admin\Application;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\dom\SousTypeDocument;
 use App\Controller\Traits\AutorisationTrait;
+use App\Controller\Traits\SecurityTrait;
+use App\Service\security\SecurityService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -19,18 +21,23 @@ use Symfony\Component\Routing\Annotation\Route;
 class DomFirstController extends Controller
 {
     use AutorisationTrait;
+    use SecurityTrait;
+
+    private $securityService;
+
+    public function __construct(SecurityService $securityService)
+    {
+        parent::__construct();
+        $this->securityService = $securityService;
+    }
 
     /**
      * @Route("/dom-first-form", name="dom_first_form")
      */
     public function firstForm(Request $request)
     {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
-
-        /** Autorisation accées */
-        $this->autorisationAcces($this->getUser(), Application::ID_DOM);
-        /** FIN AUtorisation acées */
+        // Vérification de la session utilisateur et des autorisations d'accès
+        $this->requireAccess('DOM');
 
         //récupération de l'utilisateur connecté
         $user = $this->getUser();
@@ -49,8 +56,8 @@ class DomFirstController extends Controller
 
         //HISTORISATION DE LA PAGE
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
-        
-        
+
+
         //RENDU DE LA VUE
         return $this->render('doms/firstForm.html.twig', [
             'form' => $form->createView(),

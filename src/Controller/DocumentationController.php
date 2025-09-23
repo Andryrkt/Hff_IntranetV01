@@ -6,6 +6,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment;
 
+/**
+ * @Route("/documentation-technique")
+ */
 class DocumentationController
 {
     private $twig;
@@ -16,7 +19,7 @@ class DocumentationController
     }
 
     /**
-     * @Route("/documentation", name="documentation_index")
+     * @Route("/", name="documentation_index")
      */
     public function index(): Response
     {
@@ -29,7 +32,7 @@ class DocumentationController
     }
 
     /**
-     * @Route("/documentation/{category}", name="documentation_category")
+     * @Route("/{category}", name="documentation_category")
      */
     public function category(string $category): Response
     {
@@ -48,7 +51,7 @@ class DocumentationController
     }
 
     /**
-     * @Route("/documentation/{category}/{file}", name="documentation_file")
+     * @Route("/{category}/{file}", name="documentation_file")
      */
     public function file(string $category, string $file): Response
     {

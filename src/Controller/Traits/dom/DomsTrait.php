@@ -45,7 +45,18 @@ trait DomsTrait
         } else {
 
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
+
+            // Vérifier si le personnel existe
+            if (!$personnel) {
+                throw new \RuntimeException("Aucun personnel trouvé avec le matricule : " . $form1Data['matricule']);
+            }
+
             $agenceServiceIrium = $em->getRepository(AgenceServiceIrium::class)->findOneBy(['service_sage_paie' => $personnel->getCodeAgenceServiceSage()]);
+
+            // Vérifier si l'agence service Irium existe
+            if (!$agenceServiceIrium) {
+                throw new \RuntimeException("Aucune agence service Irium trouvée pour le code sage : " . $personnel->getCodeAgenceServiceSage());
+            }
 
             $dom->setNom($personnel->getNom());
             $dom->setPrenom($personnel->getPrenoms());
@@ -302,6 +313,12 @@ trait DomsTrait
             $dom->setCin($form1Data['cin']);
         } else {
             $personnel = $em->getRepository(Personnel::class)->findOneBy(['Matricule' => $form1Data['matricule']]);
+
+            // Vérifier si le personnel existe
+            if (!$personnel) {
+                throw new \RuntimeException("Aucun personnel trouvé avec le matricule : " . $form1Data['matricule']);
+            }
+
             $dom->setNom($personnel->getNom());
             $dom->setPrenom($personnel->getPrenoms());
         }

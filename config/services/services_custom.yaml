@@ -280,6 +280,18 @@ services:
             $cheminDeBase: '%kernel.project_dir%/public/uploads'
         public: false
 
+    # Service de sécurité pour la gestion des autorisations
+    App\Service\security\SecurityService:
+        arguments:
+            $sessionService: '@App\Service\SessionManagerService'
+            $authorizationChecker: '@security.authorization_checker'
+        public: true
+
+    # Voter pour les autorisations d'application
+    App\Security\Voter\ApplicationVoter:
+        tags: ['security.voter']
+        public: false
+
     App\Service\da\FileUploaderForDAService:
         class: App\Service\da\FileUploaderForDAService
         arguments:

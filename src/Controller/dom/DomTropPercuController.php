@@ -26,12 +26,12 @@ class DomTropPercuController extends Controller
     private $DomModel;
     private $fusionPdf;
 
-    public function __construct()
+    public function __construct(DomModel $domModel, FusionPdf $fusionPdf)
     {
         parent::__construct();
         $this->historiqueOperation = new HistoriqueOperationDOMService($this->getEntityManager(), $this->getSessionService());
-        $this->DomModel = new DomModel();
-        $this->fusionPdf = new FusionPdf(new \setasign\Fpdi\Tcpdf\Fpdi());
+        $this->DomModel = $domModel;
+        $this->fusionPdf = $fusionPdf;
     }
     /**
      * @Route("/trop-percu/{id}", name="dom_trop_percu_form")

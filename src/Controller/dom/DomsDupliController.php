@@ -22,10 +22,10 @@ class DomsDupliController extends Controller
 
     private $DomModel;
 
-    public function __construct()
+    public function __construct(DomModel $domModel)
     {
         parent::__construct();
-        $this->DomModel = new DomModel();
+        $this->DomModel = $domModel;
         $this->initDomsDupliTrait();
     }
 

@@ -3,10 +3,29 @@
 namespace App\Model\dom;
 
 use App\Model\Model;
+use App\Model\Connexion;
+use App\Model\DatabaseInformix;
+use App\Model\ConnexionDote4;
+use App\Model\ConnexionDote4Gcot;
 
 
 class DomModel extends Model
 {
+    /**
+     * Constructeur avec injection de dépendances
+     * @param Connexion $connexion Connexion principale
+     * @param DatabaseInformix $connect Connexion Informix
+     * @param ConnexionDote4 $connexion04 Connexion Dote4
+     * @param ConnexionDote4Gcot $connexion04Gcot Connexion Dote4Gcot
+     */
+    public function __construct(
+        Connexion $connexion,
+        DatabaseInformix $connect,
+        ConnexionDote4 $connexion04,
+        ConnexionDote4Gcot $connexion04Gcot
+    ) {
+        parent::__construct($connexion, $connect, $connexion04, $connexion04Gcot);
+    }
 
     //TSY MAHAZO FAFANA
     /**
