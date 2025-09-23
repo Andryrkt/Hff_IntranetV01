@@ -2,11 +2,16 @@
 
 // config/doctrine-migrations.php
 return [
-    'name' => 'My Project Migrations',
-    'migrations_namespace' => 'App\Migrations',
-    'table_name' => 'doctrine_migration_versions',
-    'column_length' => 14,
-    'executed_at_column_name' => 'executed_at',
+    'migrations_paths' => [
+        'App\Migrations' => __DIR__ . '/../migrations',
+    ],
+    'table_storage' => [
+        'table_name' => 'doctrine_migration_versions',
+        'version_column_name' => 'version',
+        'version_column_length' => 191,
+        'executed_at_column_name' => 'executed_at',
+        'execution_time_column_name' => 'execution_time',
+    ],
     'all_or_nothing' => true,
     'check_database_platform' => true,
 ];

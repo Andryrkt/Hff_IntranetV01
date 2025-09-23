@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Doctrine\Migrations\DependencyFactory;
+
+require_once __DIR__ . '/../config/migrations.php';
+
+$dependencyFactory = require __DIR__ . '/../config/migrations.php';
+
+$commands = [];
+
+return ConsoleRunner::run($commands, $dependencyFactory);

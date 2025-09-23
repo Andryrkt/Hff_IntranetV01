@@ -1,6 +1,61 @@
-# DOCUMENTATION HFF INTRANET
+# HFF INTRANET
 
-## configuration du php.ini pour la production
+Système de gestion intranet pour HFF (Hôpital Fianarantsoa).
+
+## 📁 Structure du projet
+
+```
+Hffintranet/
+├── 📁 bin/                    # Scripts exécutables
+│   ├── console               # Console Symfony
+│   └── migrations            # Script des migrations Doctrine
+├── 📁 config/                # Configuration
+│   ├── configuration/        # Configurations par environnement
+│   ├── packages/            # Configuration des packages
+│   └── services/            # Configuration des services
+├── 📁 guides/               # Documentation complète
+│   ├── configuration/       # Guides de configuration
+│   ├── fonctionnel/         # Documentation fonctionnelle
+│   ├── migrations/          # Guides des migrations
+│   └── technique/           # Documentation technique
+├── 📁 scripts/              # Scripts utilitaires et maintenance
+│   └── maintenance/         # Scripts de maintenance
+├── 📁 src/                  # Code source de l'application
+│   ├── Controller/          # Contrôleurs
+│   ├── Entity/             # Entités Doctrine
+│   ├── Service/            # Services métier
+│   └── ...
+├── 📁 test/                 # Tests (unitaires, intégration)
+├── 📁 migrations/           # Migrations de base de données
+└── 📁 Views/               # Templates et assets
+```
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+- PHP 7.4+
+- Composer
+- Base de données SQL Server
+
+### Installation
+```bash
+composer install
+```
+
+### Configuration
+1. Copiez `config/env.example` vers `.env`
+2. Configurez vos paramètres de base de données
+3. Exécutez les migrations : `php bin/migrations migrate`
+
+## 📚 Documentation
+
+Consultez le dossier `guides/` pour toute la documentation :
+- **Configuration** : `guides/configuration/`
+- **Fonctionnel** : `guides/fonctionnel/`
+- **Migrations** : `guides/migrations/`
+- **Technique** : `guides/technique/`
+
+## 🔧 Configuration du php.ini pour la production
 
 - display_errors = Off
 - display_startup_errors = Off

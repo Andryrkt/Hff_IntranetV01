@@ -1,0 +1,214 @@
+{% extends "baseTemplate.html.twig" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .documentation-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .documentation-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .documentation-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .documentation-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .guides-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .guide-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #e1e5e9;
+        }
+        
+        .guide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .guide-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .guide-icon {
+            font-size: 2.5rem;
+            margin-right: 15px;
+        }
+        
+        .guide-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+        
+        .guide-description {
+            color: #718096;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .guide-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+        
+        .guide-count {
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        .guide-count-number {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+        
+        .guide-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .guide-link:hover {
+            background: #5a67d8;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .quick-links {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .quick-links h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .quick-links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .quick-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #4a5568;
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .quick-link:hover {
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+        }
+        
+        .quick-link-icon {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="documentation-container">
+    <div class="documentation-header">
+        <h1>{{ title }}</h1>
+        <p>Explorez tous les guides et la documentation du système HFF Intranet</p>
+    </div>
+
+    <div class="guides-grid">
+        {% for category, data in guides %}
+        <div class="guide-card">
+            <div class="guide-card-header">
+                <div class="guide-icon">{{ data.icon }}</div>
+                <h2 class="guide-title">{{ data.name }}</h2>
+            </div>
+            
+            <p class="guide-description">{{ data.description }}</p>
+            
+            <div class="guide-stats">
+                <span class="guide-count">
+                    <span class="guide-count-number">{{ data.files|length }}</span> 
+                    document{{ data.files|length > 1 ? 's' : '' }}
+                </span>
+            </div>
+            
+            <a href="{{ path('documentation_category', {'category': category}) }}" class="guide-link">
+                Voir la documentation {{ data.name }}
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="quick-links">
+        <h3>🔗 Liens rapides</h3>
+        <div class="quick-links-grid">
+            <a href="{{ path('documentation_category', {'category': 'migrations'}) }}" class="quick-link">
+                <span class="quick-link-icon">🔄</span>
+                Guide des migrations Doctrine
+            </a>
+            <a href="{{ path('documentation_category', {'category': 'configuration'}) }}" class="quick-link">
+                <span class="quick-link-icon">⚙️</span>
+                Configuration LDAP
+            </a>
+            <a href="{{ path('documentation_category', {'category': 'technique'}) }}" class="quick-link">
+                <span class="quick-link-icon">🔧</span>
+                Architecture technique
+            </a>
+            <a href="{{ path('documentation_category', {'category': 'fonctionnel'}) }}" class="quick-link">
+                <span class="quick-link-icon">📋</span>
+                Processus métier
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

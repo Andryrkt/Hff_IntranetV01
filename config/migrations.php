@@ -8,12 +8,7 @@ use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
 
 require_once "doctrineBootstrap.php";
 
-$configuration = new PhpFile(__DIR__ . '/migrations-config.php'); 
+$configuration = new PhpFile(__DIR__ . '/doctrine-migrations.php');
 $dependencyFactory = DependencyFactory::fromEntityManager($configuration, new ExistingEntityManager($entityManager));
 
 return $dependencyFactory;
-
-
-
-
-
