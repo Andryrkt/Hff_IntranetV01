@@ -31,19 +31,15 @@ services:
             $twigEnvironment: '@Twig\Environment'
             $assetFolder: '%kernel.project_dir%/public'
 
-    App\Service\EmailService:
-        class: App\Service\EmailService
+    App\Factory\EmailServiceFactory:
+        class: App\Factory\EmailServiceFactory
         arguments:
             $twig: '@Twig\Environment'
-            $mailerHost: '%env(MAILER_HOST)%'
-            $mailerUser: '%env(MAILER_USER)%'
-            $mailerPass: '%env(MAILER_PASSWORD)%'
-            $mailerPort: '%env(MAILER_PORT)%'
-            $fromEmail: '%env(MAILER_FROM_EMAIL)%'
-            $fromName: '%env(MAILER_FROM_NAME)%'
-            $bccRecipients: 
-                - 'ranofimenjajam@gmail.com'
-                - 'hasina.andrianadison@hff.mg'
+        public: true
+
+    App\Service\EmailService:
+        factory: ['@App\Factory\EmailServiceFactory', 'create']
+        public: true
 
     # Services spécifiques
     App\Service\ExcelService:

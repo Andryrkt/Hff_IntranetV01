@@ -91,6 +91,10 @@ $container->setParameter('mailer.user', $_ENV['MAILER_USER'] ?? 'noreply@hff.mg'
 $container->setParameter('mailer.password', $_ENV['MAILER_PASSWORD'] ?? 'your_password_here');
 $container->setParameter('mailer.from_email', $_ENV['MAILER_FROM_EMAIL'] ?? 'noreply.email@hff.mg');
 $container->setParameter('mailer.from_name', $_ENV['MAILER_FROM_NAME'] ?? 'noreply');
+$container->setParameter('mailer.bcc_recipients', [
+    'ranofimenjajam@gmail.com',
+    'hasina.andrianadison@hff.mg'
+]);
 
 // Ajouter les paramètres de chemins
 $container->setParameter('upload_directory', $_ENV['BASE_PATH_FICHIER'] ?? 'C:/wamp64/www/Upload/');
