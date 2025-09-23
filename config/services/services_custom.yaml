@@ -59,14 +59,14 @@ services:
             $session: '@session'
         public: true
 
-    App\Model\LdapModel:
-        class: App\Model\LdapModel
+    App\Factory\LdapModelFactory:
+        class: App\Factory\LdapModelFactory
         arguments:
-            $ldapHost: '%env(LDAP_HOST)%'
-            $ldapPort: '%env(LDAP_PORT)%'
-            $domain: '%env(LDAP_DOMAIN)%'
-            $ldapDn: '%env(LDAP_DN)%'
             $logger: '@App\Service\AppLogger'
+        public: true
+
+    App\Model\LdapModel:
+        factory: ['@App\Factory\LdapModelFactory', 'create']
         public: true
 
     # Services de connexion aux bases de données

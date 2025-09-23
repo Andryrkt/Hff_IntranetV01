@@ -18,7 +18,7 @@ class LdapModel
     /**
      * Constructeur de la classe LdapModel
      * @param string $ldapHost Adresse du serveur LDAP
-     * @param string $ldapPort Port du serveur LDAP
+     * @param string|int $ldapPort Port du serveur LDAP
      * @param string $domain Domaine LDAP
      * @param string $ldapDn DN de base pour les recherches LDAP
      * @param PsrLoggerInterface $logger Logger pour les logs
@@ -26,13 +26,13 @@ class LdapModel
      */
     public function __construct(
         string $ldapHost,
-        string $ldapPort,
+        $ldapPort,
         string $domain,
         string $ldapDn,
         PsrLoggerInterface $logger
     ) {
         $this->ldapHost = $ldapHost;
-        $this->ldapPort = $ldapPort;
+        $this->ldapPort = (string)$ldapPort; // Convertir en chaîne pour la validation
         $this->Domain = $domain;
         $this->ldap_dn = $ldapDn;
         $this->logger = $logger;
