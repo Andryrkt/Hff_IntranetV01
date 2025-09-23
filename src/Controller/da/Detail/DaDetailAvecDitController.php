@@ -31,7 +31,7 @@ class DaDetailAvecDitController extends Controller
 	{
 		parent::__construct();
 
-		$this->initDaDetailAvecDitTrait($this->getUrlGenerator());
+		$this->initDaDetailAvecDitTrait();
 	}
 
 	/**

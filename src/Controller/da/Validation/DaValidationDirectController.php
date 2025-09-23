@@ -7,6 +7,7 @@ use App\Controller\Traits\da\DaAfficherTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Controller\Traits\da\validation\DaValidationDirectTrait;
+use App\Entity\da\DemandeAppro;
 
 /**
  * @Route("/demande-appro")
@@ -42,7 +43,13 @@ class DaValidationDirectController extends Controller
         /** Ajout nom fichier du bon d'achat (excel) */
         $da->setNomFichierBav($resultatExport['fileName']);
 
-        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true); // enregistrer dans la table Da Afficher
+        $this->ajouterDansTableAffichageParNumDa($da->getNumeroDemandeAppro(), true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrer dans la table Da Afficher
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOIE D'EMAIL */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $resultatExport, [

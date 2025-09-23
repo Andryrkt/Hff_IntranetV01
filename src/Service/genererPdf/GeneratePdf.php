@@ -151,7 +151,7 @@ class GeneratePdf
     public function copyToDWDaAValider($numDa)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . "ORDRE_DE_MISSION/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/A valider/$numDa.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa#_a_valider.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 

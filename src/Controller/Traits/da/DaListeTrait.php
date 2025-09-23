@@ -43,7 +43,17 @@ trait DaListeTrait
         $em = $this->getEntityManager();
         $this->initDaTrait();
 
-        //----------------------------------------------------------------------------------------------------
+        $this->daModel = new DaModel();
+        $this->dwModel = new DossierInterventionAtelierModel();
+        $this->userDataService = new UserDataService($em);
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
+    }
+    //=====================================================================================
+
+    private function initStyleStatuts()
+    {
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
@@ -64,6 +74,10 @@ trait DaListeTrait
             DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_A_VALIDE                           => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_VALIDEE                            => 'bg-or-valide',
+            DemandeAppro::STATUT_DW_A_MODIFIER                         => 'bg-modif-demande-client',
+            DemandeAppro::STATUT_DW_REFUSEE                            => 'bg-or-non-valide',
         ];
         $this->styleStatutBC = [
             DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
@@ -83,16 +97,7 @@ trait DaListeTrait
             DaSoumissionBc::STATUT_PARTIELLEMENT_DISPO      => 'partiellement-dispo',
             DaSoumissionBc::STATUT_COMPLET_NON_LIVRE        => 'complet-non-livre',
         ];
-        //----------------------------------------------------------------------------------------------------
-        $this->daModel = new DaModel();
-        $this->dwModel = new DossierInterventionAtelierModel();
-        $this->userDataService = new UserDataService($em);
-        $this->agenceRepository = $em->getRepository(Agence::class);
-        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
-        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
-        //----------------------------------------------------------------------------------------------------
     }
-    //=====================================================================================
 
     /**
      * Met à jour le champ `joursDispo` pour chaque DAL sauf si elle est déjà validée.
@@ -199,6 +204,8 @@ trait DaListeTrait
 
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
+        $this->initStyleStatuts(); // Initialiser le style pour les statuts
+
         foreach ($data as $item) {
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -215,6 +222,13 @@ trait DaListeTrait
             $achatDirect = $item->getAchatDirect();
             $urls = $this->buildItemUrls($item);
 
+            // Statut OR | Statut DocuWare
+            $statutOR = $item->getStatutOr();
+            if (!$achatDirect && !empty($statutOR)) {
+                $statutOR = "OR - $statutOR";
+            }
+
+
             // Tout regrouper
             $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
@@ -227,7 +241,7 @@ trait DaListeTrait
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
-                'statutOr'            => $item->getStatutOr(),
+                'statutOr'            => $statutOR,
                 'statutCde'           => $item->getStatutCde(),
                 'datePlannigOr'       => $achatDirect ? $safeIconBan : ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : ''),
                 'nomFournisseur'      => $item->getNomFournisseur(),
