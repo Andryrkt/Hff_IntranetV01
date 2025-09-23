@@ -74,6 +74,64 @@ class Connexion
         if (strlen($this->pswd) > 128) {
             throw new \InvalidArgumentException("Le mot de passe est trop long (max 128 caractères).");
         }
+
+        // Vérifier les caractères spéciaux qui peuvent causer des problèmes ODBC
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->DB)) {
+            throw new \InvalidArgumentException("Le DSN contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->User)) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->pswd)) {
+            throw new \InvalidArgumentException("Le mot de passe contient des caractères de contrôle non autorisés.");
+        }
+
+        // Vérifier les caractères spéciaux qui causent des problèmes ODBC spécifiques
+        // Caractères accentués et spéciaux dans le DSN
+        if (preg_match('/[éèêëàâäôöùûüçÉÈÊËÀÂÄÔÖÙÛÜÇ]/', $this->DB)) {
+            throw new \InvalidArgumentException("Le DSN contient des caractères accentués qui peuvent causer des problèmes ODBC.");
+        }
+
+        // Vérifier les espaces en fin de chaîne
+        if (preg_match('/\s+$/', $this->DB)) {
+            throw new \InvalidArgumentException("Le DSN ne doit pas se terminer par des espaces.");
+        }
+
+        if (preg_match('/\s+$/', $this->User)) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur ne doit pas se terminer par des espaces.");
+        }
+
+        if (preg_match('/\s+$/', $this->pswd)) {
+            throw new \InvalidArgumentException("Le mot de passe ne doit pas se terminer par des espaces.");
+        }
+
+        // Vérifier les espaces en début de chaîne
+        if (preg_match('/^\s+/', $this->DB)) {
+            throw new \InvalidArgumentException("Le DSN ne doit pas commencer par des espaces.");
+        }
+
+        if (preg_match('/^\s+/', $this->User)) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur ne doit pas commencer par des espaces.");
+        }
+
+        if (preg_match('/^\s+/', $this->pswd)) {
+            throw new \InvalidArgumentException("Le mot de passe ne doit pas commencer par des espaces.");
+        }
+
+        // Vérifier les limites plus strictes pour ODBC (plus conservatrices)
+        if (strlen($this->DB) > 200) {
+            throw new \InvalidArgumentException("Le DSN est trop long pour ODBC (max 200 caractères recommandé).");
+        }
+
+        if (strlen($this->User) > 100) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur est trop long pour ODBC (max 100 caractères recommandé).");
+        }
+
+        if (strlen($this->pswd) > 100) {
+            throw new \InvalidArgumentException("Le mot de passe est trop long pour ODBC (max 100 caractères recommandé).");
+        }
     }
 
     /**
@@ -102,20 +160,34 @@ class Connexion
                 throw new \RuntimeException("Le mot de passe est trop long pour ODBC (max 128 caractères)");
             }
 
-            // Tenter la connexion ODBC
-            $this->conn = @odbc_connect($this->DB, $this->User, $this->pswd);
+            // Nettoyer les paramètres pour éviter les problèmes de mémoire tampon
+            $cleanDsn = $this->sanitizeForOdbc($this->DB);
+            $cleanUser = $this->sanitizeForOdbc($this->User);
+            $cleanPassword = $this->sanitizeForOdbc($this->pswd);
+
+            // Tenter la connexion ODBC avec gestion d'erreur améliorée
+            $this->conn = @odbc_connect($cleanDsn, $cleanUser, $cleanPassword);
 
             if (!$this->conn || !is_resource($this->conn)) {
                 $error = odbc_errormsg() ?: 'Connexion invalide ou échouée';
+
+                // Analyser l'erreur pour fournir des informations plus détaillées
+                $errorDetails = $this->analyzeOdbcError($error);
+
                 $this->logger->error("Échec de la connexion ODBC", [
                     'error' => $error,
+                    'error_details' => $errorDetails,
                     'dsn' => $this->DB,
                     'user' => $this->User,
                     'dsn_length' => strlen($this->DB),
                     'user_length' => strlen($this->User),
-                    'password_length' => strlen($this->pswd)
+                    'password_length' => strlen($this->pswd),
+                    'clean_dsn_length' => strlen($cleanDsn),
+                    'clean_user_length' => strlen($cleanUser),
+                    'clean_password_length' => strlen($cleanPassword)
                 ]);
-                throw new \RuntimeException("Échec de la connexion ODBC: " . $error);
+
+                throw new \RuntimeException("Échec de la connexion ODBC: " . $error . ($errorDetails ? " - " . $errorDetails : ""));
             }
 
             $this->isConnected = true;
@@ -131,6 +203,59 @@ class Connexion
             ]);
             throw new \RuntimeException("Impossible de se connecter à la base de données ODBC: " . $e->getMessage(), 0, $e);
         }
+    }
+
+    /**
+     * Nettoie une chaîne pour l'utilisation avec ODBC
+     * @param string $input
+     * @return string
+     */
+    private function sanitizeForOdbc(string $input): string
+    {
+        // Supprimer les caractères de contrôle et les espaces en début/fin
+        $cleaned = trim($input);
+
+        // Supprimer les caractères de contrôle (0x00-0x1F et 0x7F)
+        $cleaned = preg_replace('/[\x00-\x1F\x7F]/', '', $cleaned);
+
+        // S'assurer que la chaîne n'est pas vide après nettoyage
+        if (empty($cleaned)) {
+            throw new \InvalidArgumentException("Le paramètre ne peut pas être vide après nettoyage");
+        }
+
+        return $cleaned;
+    }
+
+    /**
+     * Analyse une erreur ODBC pour fournir des détails supplémentaires
+     * @param string $error
+     * @return string
+     */
+    private function analyzeOdbcError(string $error): string
+    {
+        $error = strtolower($error);
+
+        if (strpos($error, 'longueur') !== false || strpos($error, 'length') !== false) {
+            return "Problème de longueur de chaîne détecté. Vérifiez que les paramètres ne dépassent pas les limites ODBC.";
+        }
+
+        if (strpos($error, 'mémoire tampon') !== false || strpos($error, 'buffer') !== false) {
+            return "Problème de mémoire tampon détecté. Vérifiez la configuration ODBC et les paramètres de connexion.";
+        }
+
+        if (strpos($error, 'dsn') !== false) {
+            return "Problème avec le DSN. Vérifiez que la source de données est correctement configurée.";
+        }
+
+        if (strpos($error, 'password') !== false || strpos($error, 'mot de passe') !== false) {
+            return "Problème d'authentification. Vérifiez le nom d'utilisateur et le mot de passe.";
+        }
+
+        if (strpos($error, 'driver') !== false || strpos($error, 'pilote') !== false) {
+            return "Problème de pilote ODBC. Vérifiez que le pilote approprié est installé.";
+        }
+
+        return "Erreur ODBC générique. Consultez la documentation du pilote pour plus d'informations.";
     }
 
     /**

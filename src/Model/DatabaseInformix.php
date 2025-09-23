@@ -36,16 +36,48 @@ class DatabaseInformix
      */
     private function validateConnectionParameters(): void
     {
+        // Nettoyer et valider le DSN
+        $this->dsn = trim($this->dsn);
         if (empty($this->dsn)) {
             throw new \InvalidArgumentException("Le DSN de connexion ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le nom d'utilisateur
+        $this->user = trim($this->user);
         if (empty($this->user)) {
             throw new \InvalidArgumentException("Le nom d'utilisateur ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le mot de passe
+        $this->password = trim($this->password);
         if (empty($this->password)) {
             throw new \InvalidArgumentException("Le mot de passe ne peut pas être vide.");
+        }
+
+        // Vérifier que les paramètres ne contiennent pas de caractères problématiques
+        if (strlen($this->dsn) > 255) {
+            throw new \InvalidArgumentException("Le DSN de connexion est trop long (max 255 caractères).");
+        }
+
+        if (strlen($this->user) > 128) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur est trop long (max 128 caractères).");
+        }
+
+        if (strlen($this->password) > 128) {
+            throw new \InvalidArgumentException("Le mot de passe est trop long (max 128 caractères).");
+        }
+
+        // Vérifier les caractères spéciaux qui peuvent causer des problèmes ODBC
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->dsn)) {
+            throw new \InvalidArgumentException("Le DSN contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->user)) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->password)) {
+            throw new \InvalidArgumentException("Le mot de passe contient des caractères de contrôle non autorisés.");
         }
     }
 
@@ -58,31 +90,103 @@ class DatabaseInformix
         try {
             $this->logger->info("Tentative de connexion à la base de données Informix", [
                 'dsn' => $this->dsn,
-                'user' => $this->user
+                'user' => $this->user,
+                'dsn_length' => strlen($this->dsn),
+                'user_length' => strlen($this->user),
+                'password_length' => strlen($this->password)
             ]);
 
-            $this->conn = odbc_connect($this->dsn, $this->user, $this->password);
+            // Nettoyer les paramètres pour éviter les problèmes de mémoire tampon
+            $cleanDsn = $this->sanitizeForOdbc($this->dsn);
+            $cleanUser = $this->sanitizeForOdbc($this->user);
+            $cleanPassword = $this->sanitizeForOdbc($this->password);
+
+            $this->conn = @odbc_connect($cleanDsn, $cleanUser, $cleanPassword);
 
             if (!$this->conn) {
                 $error = odbc_errormsg();
-                $this->logger->error("Échec de la connexion ODBC", [
+
+                // Analyser l'erreur pour fournir des informations plus détaillées
+                $errorDetails = $this->analyzeOdbcError($error);
+
+                $this->logger->error("Échec de la connexion ODBC Informix", [
                     'error' => $error,
+                    'error_details' => $errorDetails,
                     'dsn' => $this->dsn,
-                    'user' => $this->user
+                    'user' => $this->user,
+                    'dsn_length' => strlen($this->dsn),
+                    'user_length' => strlen($this->user),
+                    'password_length' => strlen($this->password)
                 ]);
-                throw new \RuntimeException("Échec de la connexion ODBC: " . $error);
+                throw new \RuntimeException("Échec de la connexion ODBC Informix: " . $error . ($errorDetails ? " - " . $errorDetails : ""));
             }
 
             $this->isConnected = true;
             $this->logger->info("Connexion à la base de données Informix établie avec succès");
         } catch (\Exception $e) {
-            $this->logger->error("Erreur lors de la connexion", [
+            $this->logger->error("Erreur lors de la connexion Informix", [
                 'message' => $e->getMessage(),
                 'dsn' => $this->dsn,
-                'user' => $this->user
+                'user' => $this->user,
+                'dsn_length' => strlen($this->dsn),
+                'user_length' => strlen($this->user),
+                'password_length' => strlen($this->password)
             ]);
             throw new \RuntimeException("Impossible de se connecter à la base de données Informix: " . $e->getMessage(), 0, $e);
         }
+    }
+
+    /**
+     * Nettoie une chaîne pour l'utilisation avec ODBC
+     * @param string $input
+     * @return string
+     */
+    private function sanitizeForOdbc(string $input): string
+    {
+        // Supprimer les caractères de contrôle et les espaces en début/fin
+        $cleaned = trim($input);
+
+        // Supprimer les caractères de contrôle (0x00-0x1F et 0x7F)
+        $cleaned = preg_replace('/[\x00-\x1F\x7F]/', '', $cleaned);
+
+        // S'assurer que la chaîne n'est pas vide après nettoyage
+        if (empty($cleaned)) {
+            throw new \InvalidArgumentException("Le paramètre ne peut pas être vide après nettoyage");
+        }
+
+        return $cleaned;
+    }
+
+    /**
+     * Analyse une erreur ODBC pour fournir des détails supplémentaires
+     * @param string $error
+     * @return string
+     */
+    private function analyzeOdbcError(string $error): string
+    {
+        $error = strtolower($error);
+
+        if (strpos($error, 'longueur') !== false || strpos($error, 'length') !== false) {
+            return "Problème de longueur de chaîne détecté. Vérifiez que les paramètres ne dépassent pas les limites ODBC.";
+        }
+
+        if (strpos($error, 'mémoire tampon') !== false || strpos($error, 'buffer') !== false) {
+            return "Problème de mémoire tampon détecté. Vérifiez la configuration ODBC et les paramètres de connexion.";
+        }
+
+        if (strpos($error, 'dsn') !== false) {
+            return "Problème avec le DSN. Vérifiez que la source de données est correctement configurée.";
+        }
+
+        if (strpos($error, 'password') !== false || strpos($error, 'mot de passe') !== false) {
+            return "Problème d'authentification. Vérifiez le nom d'utilisateur et le mot de passe.";
+        }
+
+        if (strpos($error, 'driver') !== false || strpos($error, 'pilote') !== false) {
+            return "Problème de pilote ODBC. Vérifiez que le pilote approprié est installé.";
+        }
+
+        return "Erreur ODBC générique. Consultez la documentation du pilote pour plus d'informations.";
     }
 
     /**

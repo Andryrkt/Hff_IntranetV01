@@ -7,6 +7,7 @@ vendor
 /node_modules/
 /Views/images/
 .env
+config/env.local.yaml
 configuration_lanto_hasina.txt
 configuration_prod.txt
 /var/log/app_errors.log

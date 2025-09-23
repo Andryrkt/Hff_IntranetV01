@@ -61,7 +61,7 @@ $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
 $container->setParameter('kernel.debug', true);
 
-// Ajouter les paramètres ODBC
+// Ajouter les paramètres ODBC avec résolution des variables d'environnement
 $container->setParameter('odbc.main.dsn', $_ENV['DB_DNS_SQLSERV'] ?? 'HFF_INTRANET_V01_TEST_TEST');
 $container->setParameter('odbc.main.user', $_ENV['DB_USERNAME_SQLSERV'] ?? 'sa');
 $container->setParameter('odbc.main.password', $_ENV['DB_PASSWORD_SQLSERV'] ?? 'Hff@sql2024');
@@ -77,6 +77,26 @@ $container->setParameter('odbc.dote4gc.password', $_ENV['DB_PASSWORD_SQLSERV_4']
 $container->setParameter('odbc.informix.dsn', $_ENV['DB_DNS_INFORMIX'] ?? 'IPS_HFFPROD_TEST');
 $container->setParameter('odbc.informix.user', $_ENV['DB_USERNAME_INFORMIX'] ?? 'informix');
 $container->setParameter('odbc.informix.password', $_ENV['DB_PASSWORD_INFORMIX'] ?? 'informix');
+
+// Ajouter les paramètres LDAP
+$container->setParameter('ldap.host', $_ENV['LDAP_HOST'] ?? '192.168.0.1');
+$container->setParameter('ldap.port', (int)($_ENV['LDAP_PORT'] ?? 389));
+$container->setParameter('ldap.domain', $_ENV['LDAP_DOMAIN'] ?? '@@fraise.hff.mg');
+$container->setParameter('ldap.dn', $_ENV['LDAP_DN'] ?? 'OU=HFF Users,DC=fraise,DC=hff,DC=mg');
+
+// Ajouter les paramètres mailer
+$container->setParameter('mailer.host', $_ENV['MAILER_HOST'] ?? 'smtp.gmail.com');
+$container->setParameter('mailer.port', (int)($_ENV['MAILER_PORT'] ?? 587));
+$container->setParameter('mailer.user', $_ENV['MAILER_USER'] ?? 'noreply@hff.mg');
+$container->setParameter('mailer.password', $_ENV['MAILER_PASSWORD'] ?? 'your_password_here');
+$container->setParameter('mailer.from_email', $_ENV['MAILER_FROM_EMAIL'] ?? 'noreply.email@hff.mg');
+$container->setParameter('mailer.from_name', $_ENV['MAILER_FROM_NAME'] ?? 'noreply');
+
+// Ajouter les paramètres de chemins
+$container->setParameter('upload_directory', $_ENV['BASE_PATH_FICHIER'] ?? 'C:/wamp64/www/Upload/');
+$container->setParameter('app.error_log_path', $_ENV['BASE_PATH_LOG'] ?? 'C:/wamp64/www/Hffintranet/var/app_errors.log');
+$container->setParameter('app.base_path_long', $_ENV['BASE_PATH_LONG'] ?? 'C:/wamp64/www/Hffintranet');
+$container->setParameter('auth.csv_file_path', ($_ENV['BASE_PATH_LONG'] ?? 'C:/wamp64/www/Hffintranet') . '/src/Controller/authentification.csv');
 
 // Désactiver l'autowiring strict
 $container->setParameter('container.autowiring.strict_mode', false);

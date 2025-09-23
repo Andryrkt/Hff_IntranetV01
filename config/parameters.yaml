@@ -67,22 +67,8 @@ parameters:
     # Chemin du fichier CSV d'authentification
     auth.csv_file_path: '%kernel.project_dir%/src/Controller/authentification.csv'
 
-    # Paramètres de connexion ODBC
-    odbc.main.dsn: '%env(DB_DNS_SQLSERV)%'
-    odbc.main.user: '%env(DB_USERNAME_SQLSERV)%'
-    odbc.main.password: '%env(DB_PASSWORD_SQLSERV)%'
-
-    odbc.dote4.dsn: '%env(DB_DNS_SQLSERV_4)%'
-    odbc.dote4.user: '%env(DB_USERNAME_SQLSERV_4)%'
-    odbc.dote4.password: '%env(DB_PASSWORD_SQLSERV_4)%'
-
-    odbc.dote4gc.dsn: '%env(DB_DNS_SQLSERV_4_GCOT)%'
-    odbc.dote4gc.user: '%env(DB_USERNAME_SQLSERV_4)%'
-    odbc.dote4gc.password: '%env(DB_PASSWORD_SQLSERV_4)%'
-
-    odbc.informix.dsn: '%env(DB_DNS_INFORMIX)%'
-    odbc.informix.user: '%env(DB_USERNAME_INFORMIX)%'
-    odbc.informix.password: '%env(DB_PASSWORD_INFORMIX)%'
+    # Paramètres de connexion ODBC (définis directement dans bootstrap_di.php)
+    # Ces paramètres sont définis dans bootstrap_di.php et n'ont pas besoin d'être redéfinis ici
 
     # Chemin pour les logs d'erreur
     app.error_log_path: '%env(BASE_PATH_LOG)%'

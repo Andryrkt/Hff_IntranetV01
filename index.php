@@ -1,5 +1,12 @@
 <?php
 
+// Configuration pour l'affichage détaillé des erreurs
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+ini_set('log_errors', 1);
+ini_set('error_log', __DIR__ . '/var/log/php_errors.log');
+
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -70,12 +77,38 @@ try {
     $response->setContent($htmlContent);
     $response->setStatusCode(403);
 } catch (Exception $e) {
-    // Erreur générale
-    $htmlContent = $twig->render('erreur/500.html.twig', [
+    // Erreur générale - Affichage détaillé pour le débogage
+    $errorDetails = [
         'message' => $e->getMessage(),
-    ]);
-    $response->setContent($htmlContent);
-    $response->setStatusCode(500);
+        'file' => $e->getFile(),
+        'line' => $e->getLine(),
+        'trace' => $e->getTraceAsString(),
+        'code' => $e->getCode(),
+        'previous' => $e->getPrevious() ? $e->getPrevious()->getMessage() : null
+    ];
+
+    // En mode développement, afficher les détails complets
+    if (isset($_ENV['APP_ENV']) && $_ENV['APP_ENV'] === 'dev') {
+        echo "<h1>Erreur 500 - Détails de l'erreur</h1>";
+        echo "<h2>Message d'erreur:</h2>";
+        echo "<pre>" . htmlspecialchars($e->getMessage()) . "</pre>";
+        echo "<h2>Fichier et ligne:</h2>";
+        echo "<pre>" . htmlspecialchars($e->getFile() . ':' . $e->getLine()) . "</pre>";
+        echo "<h2>Stack trace:</h2>";
+        echo "<pre>" . htmlspecialchars($e->getTraceAsString()) . "</pre>";
+        echo "<h2>Code d'erreur:</h2>";
+        echo "<pre>" . $e->getCode() . "</pre>";
+        if ($e->getPrevious()) {
+            echo "<h2>Erreur précédente:</h2>";
+            echo "<pre>" . htmlspecialchars($e->getPrevious()->getMessage()) . "</pre>";
+        }
+        exit;
+    } else {
+        // En mode production, utiliser le template
+        $htmlContent = $twig->render('erreur/500.html.twig', $errorDetails);
+        $response->setContent($htmlContent);
+        $response->setStatusCode(500);
+    }
 }
 
 // Envoyer la réponse

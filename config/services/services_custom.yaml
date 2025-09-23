@@ -35,12 +35,12 @@ services:
         class: App\Service\EmailService
         arguments:
             $twig: '@Twig\Environment'
-            $mailerHost: 'smtp.gmail.com'
-            $mailerUser: 'noreply@hff.mg'
-            $mailerPass: 'your_password_here'
-            $mailerPort: 587
-            $fromEmail: 'noreply.email@hff.mg'
-            $fromName: 'noreply'
+            $mailerHost: '%env(MAILER_HOST)%'
+            $mailerUser: '%env(MAILER_USER)%'
+            $mailerPass: '%env(MAILER_PASSWORD)%'
+            $mailerPort: '%env(MAILER_PORT)%'
+            $fromEmail: '%env(MAILER_FROM_EMAIL)%'
+            $fromName: '%env(MAILER_FROM_NAME)%'
             $bccRecipients: 
                 - 'ranofimenjajam@gmail.com'
                 - 'hasina.andrianadison@hff.mg'
@@ -62,10 +62,10 @@ services:
     App\Model\LdapModel:
         class: App\Model\LdapModel
         arguments:
-            $ldapHost: '192.168.0.1'
-            $ldapPort: 389
-            $domain: '@@fraise.hff.mg'
-            $ldapDn: 'OU=HFF Users,DC=fraise,DC=hff,DC=mg'
+            $ldapHost: '%env(LDAP_HOST)%'
+            $ldapPort: '%env(LDAP_PORT)%'
+            $domain: '%env(LDAP_DOMAIN)%'
+            $ldapDn: '%env(LDAP_DN)%'
             $logger: '@App\Service\AppLogger'
         public: true
 
@@ -73,42 +73,52 @@ services:
     App\Model\Connexion:
         class: App\Model\Connexion
         arguments:
-            $dbDns: 'HFF_INTRANET_V01_TEST_TEST'
-            $dbUsername: 'sa'
-            $dbPassword: 'Hff@sql2024'
+            $dbDns: '%odbc.main.dsn%'
+            $dbUsername: '%odbc.main.user%'
+            $dbPassword: '%odbc.main.password%'
             $logger: '@App\Service\AppLogger'
         public: true
 
     App\Service\AppLogger:
         class: App\Service\AppLogger
         arguments:
-            $logFilePath: 'C:/wamp64/www/Hffintranet/var/app_errors.log'
+            $logFilePath: '%env(BASE_PATH_LOG)%'
+        public: true
+
+    App\Service\DoctrineOdbcWrapper:
+        class: App\Service\DoctrineOdbcWrapper
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $connexion: '@App\Model\Connexion'
+            $connexionDote4: '@App\Model\ConnexionDote4'
+            $connexionDote4Gcot: '@App\Model\ConnexionDote4Gcot'
+            $connexionInformix: '@App\Model\DatabaseInformix'
         public: true
 
     App\Model\ConnexionDote4:
         class: App\Model\ConnexionDote4
         arguments:
-            $dbDns: 'HFF_INTRANET_V04_TEST'
-            $dbUsername: 'sa'
-            $dbPassword: 'catkpi'
+            $dbDns: '%odbc.dote4.dsn%'
+            $dbUsername: '%odbc.dote4.user%'
+            $dbPassword: '%odbc.dote4.password%'
             $logger: '@App\Service\AppLogger'
         public: true
 
     App\Model\ConnexionDote4Gcot:
         class: App\Model\ConnexionDote4Gcot
         arguments:
-            $dbDns: 'HFF_GCOT64'
-            $dbUsername: 'sa'
-            $dbPassword: 'catkpi'
+            $dbDns: '%odbc.dote4gc.dsn%'
+            $dbUsername: '%odbc.dote4gc.user%'
+            $dbPassword: '%odbc.dote4gc.password%'
             $logger: '@App\Service\AppLogger'
         public: true
 
     App\Model\DatabaseInformix:
         class: App\Model\DatabaseInformix
         arguments:
-            $dsn: 'IPS_HFFPROD_TEST'
-            $user: 'informix'
-            $password: 'k6UK19zaaAV10i'
+            $dsn: '%odbc.informix.dsn%'
+            $user: '%odbc.informix.user%'
+            $password: '%odbc.informix.password%'
             $logger: '@App\Service\AppLogger'
         public: true
 
@@ -139,7 +149,7 @@ services:
     App\Service\genererPdf\GeneratePdfDevisMagasin:
         class: App\Service\genererPdf\GeneratePdfDevisMagasin
         arguments:
-            $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
+            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
         public: true
 
 
@@ -260,7 +270,7 @@ services:
     App\Service\fichier\FileUploaderService:
         class: App\Service\fichier\FileUploaderService
         arguments:
-            $targetDirectory: 'C:/wamp64/www/Upload'
+            $targetDirectory: '%env(BASE_PATH_FICHIER)%'
 
     App\Service\docuware\CopyDocuwareService:
         public: true
@@ -273,7 +283,7 @@ services:
     App\Service\da\FileUploaderForDAService:
         class: App\Service\da\FileUploaderForDAService
         arguments:
-            $basePath: 'C:/wamp64/www/Hffintranet/public/uploads/da'
+            $basePath: '%env(BASE_PATH_LONG)%/public/uploads/da'
         public: true
 
     App\Service\da\EmailDaService:
@@ -286,7 +296,7 @@ services:
         class: App\Service\genererPdf\GenererPdfDit
         arguments:
             $tcpdf: '@TCPDF'
-            $baseCheminDuFichier: 'C:/wamp64/www/Upload/'
+            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
         public: false
 
     App\Factory\BreadcrumbFactory:
@@ -400,7 +410,7 @@ services:
         class: App\Controller\Authentification
         arguments:
             $ldapModel: '@App\Model\LdapModel'
-            $authCsvFilePath: 'C:/wamp64/www/Hffintranet/src/Controller/authentification.csv'
+            $authCsvFilePath: '%env(BASE_PATH_LONG)%/src/Controller/authentification.csv'
             $emailDaService: '@App\Service\da\EmailDaService'
             $daFileUploader: '@App\Service\da\FileUploaderForDAService'
             $daAfficherRepository: null
@@ -423,12 +433,12 @@ services:
 
     App\Service\genererPdf\GeneretePdfInventaire:
         arguments:
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
+            $baseCheminDuFichier: '%upload_directory%'
         public: true
 
     App\Service\genererPdf\GeneretePdfBordereau:
         arguments:
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
+            $baseCheminDuFichier: '%upload_directory%'
         public: true
 
     # Formulaires avec injection de dépendances

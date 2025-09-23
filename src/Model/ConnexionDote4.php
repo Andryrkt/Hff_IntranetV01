@@ -44,16 +44,48 @@ class ConnexionDote4
      */
     private function validateConnectionParameters(): void
     {
+        // Nettoyer et valider le DSN
+        $this->DB = trim($this->DB);
         if (empty($this->DB)) {
             throw new \InvalidArgumentException("Le DSN de la base de données ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le nom d'utilisateur
+        $this->User = trim($this->User);
         if (empty($this->User)) {
             throw new \InvalidArgumentException("Le nom d'utilisateur ne peut pas être vide.");
         }
 
+        // Nettoyer et valider le mot de passe
+        $this->pswd = trim($this->pswd);
         if (empty($this->pswd)) {
             throw new \InvalidArgumentException("Le mot de passe ne peut pas être vide.");
+        }
+
+        // Vérifier que les paramètres ne contiennent pas de caractères problématiques
+        if (strlen($this->DB) > 255) {
+            throw new \InvalidArgumentException("Le DSN de la base de données est trop long (max 255 caractères).");
+        }
+
+        if (strlen($this->User) > 128) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur est trop long (max 128 caractères).");
+        }
+
+        if (strlen($this->pswd) > 128) {
+            throw new \InvalidArgumentException("Le mot de passe est trop long (max 128 caractères).");
+        }
+
+        // Vérifier les caractères spéciaux qui peuvent causer des problèmes ODBC
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->DB)) {
+            throw new \InvalidArgumentException("Le DSN contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->User)) {
+            throw new \InvalidArgumentException("Le nom d'utilisateur contient des caractères de contrôle non autorisés.");
+        }
+
+        if (preg_match('/[\x00-\x1F\x7F]/', $this->pswd)) {
+            throw new \InvalidArgumentException("Le mot de passe contient des caractères de contrôle non autorisés.");
         }
     }
 
@@ -66,19 +98,35 @@ class ConnexionDote4
         try {
             $this->logger->info("Tentative de connexion à la base de données Dote4", [
                 'dsn' => $this->DB,
-                'user' => $this->User
+                'user' => $this->User,
+                'dsn_length' => strlen($this->DB),
+                'user_length' => strlen($this->User),
+                'password_length' => strlen($this->pswd)
             ]);
 
-            $this->conn = odbc_connect($this->DB, $this->User, $this->pswd);
+            // Nettoyer les paramètres pour éviter les problèmes de mémoire tampon
+            $cleanDsn = $this->sanitizeForOdbc($this->DB);
+            $cleanUser = $this->sanitizeForOdbc($this->User);
+            $cleanPassword = $this->sanitizeForOdbc($this->pswd);
+
+            $this->conn = @odbc_connect($cleanDsn, $cleanUser, $cleanPassword);
 
             if (!$this->conn || !is_resource($this->conn)) {
                 $error = odbc_errormsg() ?: 'Connexion invalide ou échouée';
+
+                // Analyser l'erreur pour fournir des informations plus détaillées
+                $errorDetails = $this->analyzeOdbcError($error);
+
                 $this->logger->error("Échec de la connexion ODBC Dote4", [
                     'error' => $error,
+                    'error_details' => $errorDetails,
                     'dsn' => $this->DB,
-                    'user' => $this->User
+                    'user' => $this->User,
+                    'dsn_length' => strlen($this->DB),
+                    'user_length' => strlen($this->User),
+                    'password_length' => strlen($this->pswd)
                 ]);
-                throw new \RuntimeException("Échec de la connexion ODBC Dote4: " . $error);
+                throw new \RuntimeException("Échec de la connexion ODBC Dote4: " . $error . ($errorDetails ? " - " . $errorDetails : ""));
             }
 
             $this->isConnected = true;
@@ -87,10 +135,66 @@ class ConnexionDote4
             $this->logger->error("Erreur lors de la connexion Dote4", [
                 'message' => $e->getMessage(),
                 'dsn' => $this->DB,
-                'user' => $this->User
+                'user' => $this->User,
+                'dsn_length' => strlen($this->DB),
+                'user_length' => strlen($this->User),
+                'password_length' => strlen($this->pswd)
             ]);
             throw new \RuntimeException("Impossible de se connecter à la base de données Dote4: " . $e->getMessage(), 0, $e);
         }
+    }
+
+    /**
+     * Nettoie une chaîne pour l'utilisation avec ODBC
+     * @param string $input
+     * @return string
+     */
+    private function sanitizeForOdbc(string $input): string
+    {
+        // Supprimer les caractères de contrôle et les espaces en début/fin
+        $cleaned = trim($input);
+
+        // Supprimer les caractères de contrôle (0x00-0x1F et 0x7F)
+        $cleaned = preg_replace('/[\x00-\x1F\x7F]/', '', $cleaned);
+
+        // S'assurer que la chaîne n'est pas vide après nettoyage
+        if (empty($cleaned)) {
+            throw new \InvalidArgumentException("Le paramètre ne peut pas être vide après nettoyage");
+        }
+
+        return $cleaned;
+    }
+
+    /**
+     * Analyse une erreur ODBC pour fournir des détails supplémentaires
+     * @param string $error
+     * @return string
+     */
+    private function analyzeOdbcError(string $error): string
+    {
+        $error = strtolower($error);
+
+        if (strpos($error, 'longueur') !== false || strpos($error, 'length') !== false) {
+            return "Problème de longueur de chaîne détecté. Vérifiez que les paramètres ne dépassent pas les limites ODBC.";
+        }
+
+        if (strpos($error, 'mémoire tampon') !== false || strpos($error, 'buffer') !== false) {
+            return "Problème de mémoire tampon détecté. Vérifiez la configuration ODBC et les paramètres de connexion.";
+        }
+
+        if (strpos($error, 'dsn') !== false) {
+            return "Problème avec le DSN. Vérifiez que la source de données est correctement configurée.";
+        }
+
+        if (strpos($error, 'password') !== false || strpos($error, 'mot de passe') !== false) {
+            return "Problème d'authentification. Vérifiez le nom d'utilisateur et le mot de passe.";
+        }
+
+        if (strpos($error, 'driver') !== false || strpos($error, 'pilote') !== false) {
+            return "Problème de pilote ODBC. Vérifiez que le pilote approprié est installé.";
+        }
+
+        return "Erreur ODBC générique. Consultez la documentation du pilote pour plus d'informations.";
     }
 
 
