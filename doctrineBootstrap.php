@@ -12,7 +12,7 @@ require_once __DIR__ . '/config/dotenv.php';
 
 // Configuration
 $paths = [__DIR__ . "/src/Entity"];
-$isDevMode = false;
+$isDevMode = false; // Mode production pour de meilleures performances
 
 // Dossier des proxies
 $proxyDir = str_replace('/', DIRECTORY_SEPARATOR, __DIR__ . '/var/cache/proxies');
@@ -40,6 +40,9 @@ $config = Setup::createAnnotationMetadataConfiguration(
 
 $config->setProxyNamespace('App\\Proxies');
 $config->setAutoGenerateProxyClasses(false); // en mode dev true / mode prod false
+
+// Optimisations de performance - Désactivées temporairement
+// Les caches seront activés une fois les dépendances installées
 
 
 // Configuration DB - Utilisation du DSN ODBC directement

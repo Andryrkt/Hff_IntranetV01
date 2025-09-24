@@ -1,8 +1,0 @@
-[2025-09-24 04:39:39] [INFO] Tentative de connexion à la base de données ODBC {"dsn":"HFF_INTRANET_V01_TEST_TEST","user":"sa","dsn_length":26,"user_length":2,"password_length":11}
-[2025-09-24 04:39:39] [INFO] Connexion à la base de données ODBC établie avec succès 
-[2025-09-24 04:39:39] [INFO] Tentative de connexion à la base de données Informix {"dsn":"IPS_HFFPROD_TEST","user":"informix","dsn_length":16,"user_length":8,"password_length":14}
-[2025-09-24 04:39:39] [INFO] Connexion à la base de données Informix établie avec succès 
-[2025-09-24 04:39:39] [INFO] Tentative de connexion à la base de données Dote4 {"dsn":"HFF_INTRANET_V04_TEST","user":"sa","dsn_length":21,"user_length":2,"password_length":6}
-[2025-09-24 04:39:39] [INFO] Connexion à la base de données Dote4 établie avec succès 
-[2025-09-24 04:39:39] [INFO] Tentative de connexion à la base de données Dote4Gcot {"dsn":"HFF_GCOT64","user":"sa","dsn_length":10,"user_length":2,"password_length":6}
-[2025-09-24 04:39:39] [INFO] Connexion à la base de données Dote4Gcot établie avec succès 

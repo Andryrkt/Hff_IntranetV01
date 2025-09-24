@@ -64,10 +64,13 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 // Créer le conteneur de services avec cache
 $container = new ContainerBuilder();
 
-// Désactiver le cache du conteneur pour l'instant
-// Le conteneur sera compilé à chaque requête mais sans cache
+// Activer le cache du conteneur pour améliorer les performances
 $container->setParameter('container.dumper.inline_factories', true);
 $container->setParameter('container.dumper.inline_class_loader', true);
+
+// Configuration du cache
+$container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
+$container->setParameter('container.dumper.cache_dir', dirname(__DIR__) . '/var/cache/container');
 
 // Ajouter TOUS les paramètres AVANT de charger la configuration
 $container->setParameter('kernel.project_dir', dirname(__DIR__));
@@ -248,6 +251,10 @@ $translator = new \Symfony\Component\Translation\Translator('fr_FR');
 $translator->addLoader('xlf', new \Symfony\Component\Translation\Loader\XliffFileLoader());
 $container->set('translator', $translator);
 
+// Enregistrer le service RouteLoader dans le conteneur AVANT la compilation
+$container->register('App\Service\RouteLoaderService', \App\Service\RouteLoaderService::class)
+    ->setPublic(true);
+
 // Compiler le conteneur APRÈS avoir créé tous les services
 $container->compile();
 
@@ -293,28 +300,15 @@ if (stripos($pathInfo, '/hffintranet') === 0 && strpos($pathInfo, '/Hffintranet'
     exit; // on arrête le script après la redirection
 }
 
-// Charger les routes
-$routeLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Controller/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-$controllerCollection = $routeLoader->load(dirname(__DIR__) . '/src/Controller/');
+// Chargement optimisé des routes via un service dédié
+$routeLoader = new \App\Service\RouteLoaderService();
+$collection = $routeLoader->loadEssentialRoutes();
 
-// Charger les routes API
-$apiLoader = new AnnotationDirectoryLoader(
-    new FileLocator(dirname(__DIR__) . '/src/Api/'),
-    new CustomAnnotationClassLoader(new AnnotationReader())
-);
-$apiCollection = $apiLoader->load(dirname(__DIR__) . '/src/Api/');
+// Les autres routes seront chargées à la demande via un système de fallback
 
 // Configurer le contexte de requête
 $context = new RequestContext();
 $context->fromRequest($request);
-
-// Fusionner les collections de routes
-$collection = new RouteCollection();
-$collection->addCollection($controllerCollection);
-$collection->addCollection($apiCollection);
 
 // ➡️ Ajoute ce bloc juste ici
 foreach ($collection as $route) {

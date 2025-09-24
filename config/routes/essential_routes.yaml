@@ -1,0 +1,78 @@
+# Routes essentielles pour le démarrage de l'application
+essential_routes:
+  # Navigation principale
+  login:
+    path: /login
+    controller: App\Controller\AuthentificationController::login
+    
+  profil_acceuil:
+    path: /
+    controller: App\Controller\HomeController::showPageAcceuil
+    
+  logout:
+    path: /logout
+    controller: App\Controller\AuthentificationController::logout
+    
+  auth_deconnexion:
+    path: /auth/deconnexion
+    controller: App\Controller\AuthentificationController::logout
+
+# Modules fonctionnels critiques
+functional_routes:
+  liste_tik_index:
+    path: /tik-liste
+    controller: App\Controller\tik\ListeTikController::index
+    
+  dit_index:
+    path: /dit
+    controller: App\Controller\dit\DitController::index
+    
+  da_edit_direct:
+    path: /da-edit-direct/{id}
+    controller: App\Controller\da\DaController::editDirect
+    
+  documentation_index:
+    path: /documentation-technique/
+    controller: App\Controller\DocumentationController::index
+
+# Administration
+admin_routes:
+  utilisateur_index:
+    path: /admin/utilisateur
+    controller: App\Controller\admin\utilisateur\UtilisateurController::index
+    
+  role_index:
+    path: /admin/role
+    controller: App\Controller\admin\utilisateur\RoleController::index
+    
+  permission_index:
+    path: /admin/permission
+    controller: App\Controller\admin\utilisateur\PermissionController::index
+    
+  application_index:
+    path: /admin/application
+    controller: App\Controller\admin\ApplicationController::index
+    
+  AgServIrium_index:
+    path: /admin/agServIrium/
+    controller: App\Controller\admin\AgenceServiceIriumController::index
+    
+  societte_index:
+    path: /admin/societte
+    controller: App\Controller\admin\SocietteController::index
+    
+  agence_index:
+    path: /admin/agence
+    controller: App\Controller\admin\AgenceController::index
+    
+  service_index:
+    path: /admin/service
+    controller: App\Controller\admin\ServiceController::index
+    
+  personnel_index:
+    path: /admin/personnel
+    controller: App\Controller\admin\personnel\PersonnelController::index
+    
+  contact_agence_ate_index:
+    path: /admin/contact-agence-ate-index
+    controller: App\Controller\admin\ContactAgenceAteController::index
