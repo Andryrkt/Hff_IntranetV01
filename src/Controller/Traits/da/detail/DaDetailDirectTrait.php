@@ -63,7 +63,7 @@ trait DaDetailDirectTrait
                 'type'       => 'Facture / Bon de livraison',
                 'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'nomFichierScannee', 'idFacBl'),
+                'fichiers'   => $this->normalizePathsForFacBl($tab['facblPath']),
             ],
         ];
     }
