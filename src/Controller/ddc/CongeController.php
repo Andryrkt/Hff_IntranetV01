@@ -11,6 +11,9 @@ use App\Form\ddc\DemandeCongeType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/rh/demande-de-conge")
+ */
 class CongeController extends Controller
 {
     use ConversionTrait;
