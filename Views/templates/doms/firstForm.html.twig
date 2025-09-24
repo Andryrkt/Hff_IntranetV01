@@ -41,7 +41,9 @@
 				</div>
 				<div class="row">
 					<div class="col-12">
-						{{ form_row(form.categorie)}}
+						{% if form.categoryId is defined %}
+							{{ form_row(form.categoryId)}}
+						{% endif %}
 					</div>
 				</div>
 				<div class="row" id="Interne">

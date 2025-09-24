@@ -360,7 +360,7 @@ class Dom
      * @ORM\ManyToOne(targetEntity=Catg::class, inversedBy="domCatg")
      * @ORM\JoinColumn(name="category_id", referencedColumnName="id")
      */
-    private  $categoryId;
+    private  $categoryId = null;
 
 
     private $codeAgenceAutoriser;
@@ -982,12 +982,12 @@ class Dom
 
     public function getCategorie()
     {
-        return $this->categorie;
+        return $this->categoryId;
     }
 
     public function setCategorie($categorie): self
     {
-        $this->categorie = $categorie;
+        $this->categoryId = $categorie;
 
         return $this;
     }
@@ -1284,7 +1284,7 @@ class Dom
 
             'sousTypeDocument' => $this->sousTypeDocument,
             'salarier' => $this->salarier,
-            'categorie' => $this->categorie,
+            'categoryId' => $this->categoryId,
             'matricule' => $this->matricule,
             'nom' => $this->nom,
             'prenom' => $this->prenom,
