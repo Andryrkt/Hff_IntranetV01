@@ -58,18 +58,19 @@ trait DaDetailTrait
      * Normaliser les chemins pour plusieurs fichiers
      * 
      * @param array $allDocs
-     * @param string $numKey
+     * @param string $numKey1
+     * @param string $numKey2
      * @return array
      */
-    private function normalizePathsForManyFiles($allDocs, string $numKey): array
+    private function normalizePathsForManyFiles($allDocs, string $numKey1, string $numKey2 = ''): array
     {
         if ($allDocs === '-' || empty($allDocs)) {
             return [];
         }
 
-        return array_map(function ($doc) use ($numKey) {
+        return array_map(function ($doc) use ($numKey1, $numKey2) {
             return [
-                'nom'  => $doc[$numKey],
+                'nom'  => $doc[$numKey1] ?? $doc[$numKey2],
                 'path' => $doc['path']
             ];
         }, $allDocs);

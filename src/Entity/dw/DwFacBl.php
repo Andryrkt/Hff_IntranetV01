@@ -24,6 +24,11 @@ class DwFacBl
     private $idFacBl;
 
     /**
+     * @ORM\Column(type="string", length=50, name="numero_bc", nullable=true)
+     */
+    private $numeroBc;
+
+    /**
      * @ORM\Column(type="string", length=50, name="numero_da", nullable=true)
      */
     private $numeroDa;
@@ -32,6 +37,11 @@ class DwFacBl
      * @ORM\Column(type="string", length=8, name="numero_or", nullable=true)
      */
     private $numeroOr;
+
+    /**
+     * @ORM\Column(type="string", name="nom_fichier_scannee", length=255, nullable=true)
+     */
+    private $nomFichierScannee;
 
     /**
      * @ORM\Column(type="string", name="id_tiroir", length=255, nullable=true)
@@ -335,6 +345,46 @@ class DwFacBl
     public function setIdFacBl($idFacBl)
     {
         $this->idFacBl = $idFacBl;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroBc
+     */
+    public function getNumeroBc()
+    {
+        return $this->numeroBc;
+    }
+
+    /**
+     * Set the value of numeroBc
+     *
+     * @return  self
+     */
+    public function setNumeroBc($numeroBc)
+    {
+        $this->numeroBc = $numeroBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of nomFichierScannee
+     */
+    public function getNomFichierScannee()
+    {
+        return $this->nomFichierScannee;
+    }
+
+    /**
+     * Set the value of nomFichierScannee
+     *
+     * @return  self
+     */
+    public function setNomFichierScannee($nomFichierScannee)
+    {
+        $this->nomFichierScannee = $nomFichierScannee;
 
         return $this;
     }
