@@ -134,19 +134,10 @@ trait DaListeTrait
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            $this->modificationDateRestant($data, $em);
+            $this->ajoutNbrJourRestant($data);
             $this->modificationStatutBC($data, $em);
         }
         $em->flush();
-    }
-
-    /** 
-     * Permet de calculer le nombre de jours restants pour chaque DAL
-     */
-    private function modificationDateRestant(DaAfficher $data, $em): void
-    {
-        $this->ajoutNbrJourRestant($data);
-        $em->persist($data);
     }
 
     /**
