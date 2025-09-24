@@ -106,8 +106,9 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        // dump($qte);
+        $qte = $achatDirect
+            ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
 
