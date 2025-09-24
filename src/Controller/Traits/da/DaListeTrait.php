@@ -97,14 +97,12 @@ trait DaListeTrait
     /**
      * Met à jour le champ `joursDispo` pour chaque DAL sauf si elle est déjà validée.
      *
-     * @param iterable<DemandeApproL> $dalDernieresVersions
+     * @param DaAfficher $daAfficher
      */
-    private function ajoutNbrJourRestant($dalDernieresVersions)
+    private function ajoutNbrJourRestant($daAfficher)
     {
-        foreach ($dalDernieresVersions as $dal) {
-            if ($dal->getStatutDal() != DemandeAppro::STATUT_VALIDE) { // si le statut de la DAL est différent de "Bon d’achats validé" 
-                $dal->setJoursDispo($this->getJoursRestants($dal));
-            }
+        if (!in_array($daAfficher->getStatutCde(), [DaSoumissionBc::STATUT_COMPLET_NON_LIVRE, DaSoumissionBc::STATUT_TOUS_LIVRES])) {
+            $daAfficher->setJoursDispo($this->getJoursRestants($daAfficher));
         }
     }
 
@@ -131,21 +129,10 @@ trait DaListeTrait
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            if (!$sortField && !$sortDirection) {
-                $this->modificationDateRestant($data, $em);
-            }
+            $this->ajoutNbrJourRestant($data);
             $this->modificationStatutBC($data, $em);
         }
         $em->flush();
-    }
-
-    /** 
-     * Permet de calculer le nombre de jours restants pour chaque DAL
-     */
-    private function modificationDateRestant(DaAfficher $data, $em): void
-    {
-        $this->ajoutNbrJourRestant($data);
-        $em->persist($data);
     }
 
     /**
