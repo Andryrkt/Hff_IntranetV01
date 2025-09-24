@@ -36,7 +36,8 @@ class DaPropositionArticleDirectController extends Controller
     {
         parent::__construct();
 
-        $this->initDaPropositionDirectTrait($this->getUrlGenerator());
+        $this->initDaPropositionDirectTrait();
+        $this->initDaValidationDirectTrait();
     }
 
     /**
@@ -217,7 +218,13 @@ class DaPropositionArticleDirectController extends Controller
         $this->modificationChoixEtligneDal($refs, $dals);
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true); // enregistrement dans la table DaAfficher
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE); // enregistrement dans la table DaAfficher
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LA VALIDATION DES ARTICLES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [
@@ -247,7 +254,13 @@ class DaPropositionArticleDirectController extends Controller
         /** VALIDATION DU PROPOSITION PAR L'ATE */
         $nomEtChemin = $this->validerProposition($numDa);
 
-        $this->ajouterDansTableAffichageParNumDa($numDa, true);
+        $this->ajouterDansTableAffichageParNumDa($numDa, true, DemandeAppro::STATUT_DW_A_VALIDE);
+
+        // ajout des données dans la table DaSoumisAValidation
+        $this->ajouterDansDaSoumisAValidation($da);
+
+        /** envoi dans docuware */
+        $this->fusionAndCopyToDW($da->getNumeroDemandeAppro());
 
         /** ENVOI DE MAIL POUR LES ARTICLES VALIDES */
         $this->emailDaService->envoyerMailValidationDaDirect($da, $nomEtChemin, [

@@ -29,7 +29,7 @@ class DaDetailDirectController extends Controller
 	{
 		parent::__construct();
 
-		$this->initDaDetailDirectTrait($this->getUrlGenerator());
+		$this->initDaDetailDirectTrait();
 	}
 
 	/**

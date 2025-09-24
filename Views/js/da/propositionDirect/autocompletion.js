@@ -1,37 +1,15 @@
 import { AutoComplete } from "../../utils/AutoComplete";
-import { updateDropdown } from "../../utils/selectionHandler";
 
-export function autocompleteTheField(
-  field,
-  fieldName,
-  numPage = null,
-  iscatalogue = null
-) {
+export function autocompleteTheField(field, fieldName) {
   let baseId = field.id.replace("demande_appro_proposition", "");
 
   let reference = getField(field.id, fieldName, "reference");
   let fournisseur = getField(field.id, fieldName, "fournisseur");
   let numeroFournisseur = getField(field.id, fieldName, "numeroFournisseur");
   let designation = getField(field.id, fieldName, "designation");
-  let line = baseId.replace(`_${fieldName}_`, "");
-
-  let codeFams1 = getValueCodeFams("codeFams1", line);
-  let codeFams2 = getValueCodeFams("codeFams2", line);
 
   let suggestionContainer = document.getElementById(`suggestion${baseId}`);
   let loaderElement = document.getElementById(`spinner_container${baseId}`);
-
-  if (numPage) {
-    const sousFamille = document.querySelector(
-      "#demande_appro_proposition_codeFams2_" + numPage
-    );
-    const famille = document.querySelector(
-      "#demande_appro_proposition_codeFams1_" + numPage
-    );
-
-    codeFams1 = safeValue(famille.value);
-    codeFams2 = safeValue(sousFamille.value);
-  }
 
   new AutoComplete({
     inputElement: field,
@@ -57,19 +35,13 @@ export function autocompleteTheField(
         fournisseur,
         numeroFournisseur,
         reference,
-        designation,
         getField(field.id, fieldName, "codeFams1"),
-        getField(field.id, fieldName, "codeFams2"),
-        iscatalogue
+        getField(field.id, fieldName, "codeFams2")
       ),
     itemToStringCallback: (item) => stringsToSearch(item, fieldName),
     itemToStringForBlur: (item) => stringsToSearchForBlur(item, fieldName),
     onBlurCallback: (found) => onBlurEvents(found, designation, fieldName),
   });
-}
-
-function safeValue(val) {
-  return val && val.trim() !== "" ? val : "-";
 }
 
 function onBlurEvents(found, designation, fieldName) {
@@ -78,17 +50,21 @@ function onBlurEvents(found, designation, fieldName) {
     .id.split("_")
     .pop();
   const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-  if (designation.value.trim() !== "") {
-    const desi = `designation_${numPage}`;
+  const desi = `designation_${numPage}`;
+  let baseId = designation.id.replace(desi, "");
+  let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
+  let referencePiece = document.querySelector(
+    `#demande_appro_proposition_reference_${numPage}`
+  );
 
-    let baseId = designation.id.replace(desi, "");
-
-    let allFields = document.querySelectorAll(`[id*="${baseId}"]`);
-    let referencePiece = document.querySelector(
-      `#demande_appro_proposition_reference_${numPage}`
+  if (fieldName == "reference") {
+    let foundInput = document.querySelector(
+      `[id*="${baseId}"][id*="found_${numPage}"]`
     );
-
-    if (fieldName == "designation") {
+    foundInput.value = found ? "1" : "0";
+    console.log(foundInput.value);
+  } else if (fieldName == "designation") {
+    if (designation.value.trim() !== "") {
       // Texte rouge ou non, ajout de valeur dans catalogue
       allFields.forEach((field) => {
         if (!found) {
@@ -108,11 +84,14 @@ function onBlurEvents(found, designation, fieldName) {
       // Si non trouvé alors valeur de reférence pièce = ''
       referencePiece.value = found ? referencePiece.value : "ST";
     }
+  } else if (fieldName == "fournisseur") {
+    if (!found) {
+      let numFrnInput = document.querySelector(
+        `[id*="${baseId}"][id*="numeroFournisseur_${numPage}"]`
+      );
+      numFrnInput.value = "-";
+    }
   }
-}
-
-function getValueCodeFams(fams, line) {
-  return document.getElementById(`${fams}_${line}`).value;
 }
 
 function getField(id, fieldName, fieldNameReplace) {
@@ -123,7 +102,7 @@ function displayValues(item, fieldName) {
   if (fieldName === "fournisseur") {
     return `N° Fournisseur: ${item.numerofournisseur} - Nom Fournisseur: ${item.nomfournisseur}`;
   } else {
-    return `Référence: ${item.referencepiece} - Fournisseur: ${item.fournisseur} <br>Désignation: ${item.designation}`;
+    return `Référence: ${item.referencepiece} <br>Désignation: ${item.designation}`;
   }
 }
 
@@ -153,42 +132,18 @@ function handleValuesOfFields(
   fournisseur,
   numeroFournisseur,
   reference,
-  designation,
   famille,
-  sousFamille,
-  iscatalogue
+  sousFamille
 ) {
   if (fieldName === "fournisseur") {
     fournisseur.value = item.nomfournisseur;
     numeroFournisseur.value = item.numerofournisseur;
   } else {
     reference.value = item.referencepiece;
-    fournisseur.value = item.fournisseur;
+    /* fournisseur.value = item.fournisseur;
     numeroFournisseur.value = item.numerofournisseur;
-    designation.value = item.designation;
+    designation.value = item.designation; */
     famille.value = item.codefamille ?? "-";
     sousFamille.value = item.codesousfamille ?? "-";
-    const numeroDa = document
-      .querySelector(".tab-pane.fade.show.active.dalr")
-      .id.split("_")
-      .pop();
-    const numPage = localStorage.getItem(`currentTab_${numeroDa}`);
-    const spinnerElement = document.querySelector(
-      "#spinner_codeFams2_" + numPage
-    );
-    const containerElement = document.querySelector(
-      "#container_codeFams2_" + numPage
-    );
-
-    if (iscatalogue == "") {
-      updateDropdown(
-        sousFamille,
-        `api/demande-appro/sous-famille/${famille.value}`,
-        "-- Choisir une sous-famille --",
-        spinnerElement,
-        containerElement,
-        item.codesousfamille
-      );
-    }
   }
 }

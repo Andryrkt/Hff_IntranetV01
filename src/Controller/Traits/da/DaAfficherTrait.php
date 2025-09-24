@@ -22,9 +22,11 @@ trait DaAfficherTrait
      *
      * @param string $numDa  le numéro de la Demande d'Achat à traiter
      * @param bool $validationDA  indique si l'ajout est effectué dans le cadre d'une validation de la DA
+     * @param string $statutOr le statut depuis DW (statut OR pour une DA avec DIT)
+     * 
      * @return void
      */
-    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false): void
+    public function ajouterDansTableAffichageParNumDa(string $numDa, bool $validationDA = false, string $statutOr = ''): void
     {
         $em = $this->getEntityManager();
 
@@ -58,6 +60,9 @@ trait DaAfficherTrait
             }
             if ($validationDA) {
                 $daAfficher->setDateValidation(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')));
+            }
+            if ($statutOr) {
+                $daAfficher->setStatutOr($statutOr);
             }
 
             $em->persist($daAfficher);

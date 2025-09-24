@@ -218,6 +218,11 @@ class DaAfficherRepository extends EntityRepository
             ->from(DaAfficher::class, 'd')
             ->groupBy('d.numeroDemandeAppro');
 
+        // Liste des statuts OR (statut depuis DW pour les DA directs)
+        $statutOrs = [
+            DitOrsSoumisAValidation::STATUT_VALIDE,
+            DemandeAppro::STATUT_DW_VALIDEE
+        ];
 
         // Liste des exceptions pour lesquelles statutOr n'est pas requis
         $exceptions = [
@@ -225,7 +230,7 @@ class DaAfficherRepository extends EntityRepository
         ];
         // Condition générique sur statutOr avec exceptions
         $orCondition = $subQb->expr()->orX(
-            $subQb->expr()->eq('d.statutOr', ':statutOR'),
+            $subQb->expr()->in('d.statutOr', ':statutOrs'),
             $subQb->expr()->in('d.numeroDemandeAppro', ':exceptions')
         );
         // Appliquer la condition selon la présence de achatDirect
@@ -234,8 +239,9 @@ class DaAfficherRepository extends EntityRepository
         } else {
             $subQb->andWhere($orCondition);
         }
+
         // Paramètres communs
-        $subQb->setParameter('statutOR', DitOrsSoumisAValidation::STATUT_VALIDE)
+        $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
         $this->applyDynamicFilters($subQb, $criteria, true);
