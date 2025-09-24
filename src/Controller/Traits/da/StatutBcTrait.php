@@ -187,15 +187,17 @@ trait StatutBcTrait
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
+            if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
+                if (empty($infoDaDirect)) {
+                    return true;
+                }
 
-            if (empty($infoDaDirect)) {
-                return false;
+                // Si le numéro de commande est vide
+                $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
+
+                return $numCdeVide;
             }
-
-            // Si le numéro de commande est vide
-            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
-
-            return $numCdeVide;
+            return false;
         } else {
 
             $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
