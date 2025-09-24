@@ -60,7 +60,7 @@ class MutationController extends Controller
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $mutationModel = new MutationModel;
+            $mutationModel = $this->getService('App\Model\mutation\MutationModel');
             /** 
              * @var Mutation $data
              */

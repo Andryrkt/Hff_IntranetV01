@@ -29,7 +29,8 @@ class BadmDupliController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->badm = new BadmModel();
+        global $container;
+        $this->badm = $container->get('App\Model\badm\BadmModel');
     }
 
     /**
@@ -112,7 +113,7 @@ class BadmDupliController extends Controller
                 $this->getEntityManager()->flush();
 
                 /** CREATION PDF */
-                $createPdf = new GenererPdfBadm();
+                $createPdf = $this->getService('App\Service\genererPdf\GenererPdfBadm');
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
                 $createPdf->copyInterneToDOCUWARE($badm->getNumBadm(), substr($badm->getAgenceEmetteur(), 0, 2) . substr($badm->getServiceEmetteur(), 0, 3));
 

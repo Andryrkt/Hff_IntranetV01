@@ -357,10 +357,9 @@ $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()
 $twig->addExtension(new AssetExtension($packages));
 
 // Configurer le moteur de rendu des formulaires
-// Ajouter les templates de formulaires Symfony par défaut
+// Utiliser le thème Bootstrap 5 personnalisé
 $formEngine = new TwigRendererEngine([
-    'bootstrap_5_layout.html.twig',
-    'form_div_layout.html.twig'
+    'bootstrap_5_layout.html.twig'
 ], $twig);
 $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     FormRenderer::class => function () use ($formEngine) {

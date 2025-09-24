@@ -28,8 +28,10 @@ class BadmsController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
-        $this->badm = new BadmModel();
+        // Utiliser le conteneur de services pour l'injection de dépendances
+        global $container;
+        $this->historiqueOperation = $container->get('App\Service\historiqueOperation\HistoriqueOperationBADMService');
+        $this->badm = $container->get('App\Model\badm\BadmModel');
     }
 
     /**

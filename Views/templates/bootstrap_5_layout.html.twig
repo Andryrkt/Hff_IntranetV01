@@ -1,0 +1,233 @@
+{% use "form_div_layout.html.twig" %}
+
+{# Form Start #}
+{% block form_start -%}
+    {%- do form.setMethodRendered() -%}
+    {% set method = method|upper %}
+    {%- if method in ["GET", "POST"] -%}
+        {% set form_method = method %}
+    {%- else -%}
+        {% set form_method = "POST" %}
+    {%- endif -%}
+    <form{% if name != '' %} name="{{ name }}"{% endif %} method="{{ form_method|lower }}"{% if action != '' %} action="{{ action }}"{% endif %}{{ block('attributes') }}{% if multipart %} enctype="multipart/form-data"{% endif %}>
+    {%- if form_method != method -%}
+        <input type="hidden" name="_method" value="{{ method }}">
+    {%- endif -%}
+{%- endblock form_start %}
+
+{# Form End #}
+{% block form_end -%}
+    {%- if not render_rest is defined or render_rest -%}
+        {{ form_rest(form) }}
+    {%- endif -%}
+    </form>
+{%- endblock form_end %}
+
+{# Form Row #}
+{% block form_row -%}
+    <div class="mb-3">
+        {{- form_label(form) -}}
+        {{- form_widget(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock form_row %}
+
+{# Form Label #}
+{% block form_label -%}
+    {%- if label is not same as(false) -%}
+        {%- if not compound -%}
+            {% set label_attr = label_attr|merge({'for': id}) %}
+        {%- endif -%}
+        {%- if required -%}
+            {%- set label_attr = label_attr|merge({'class': (label_attr.class|default('') ~ ' required')|trim}) -%}
+        {%- endif -%}
+        {%- if label is empty -%}
+            {%- if label_format is not empty -%}
+                {% set label = label_format|replace({
+                    '%name%': name,
+                    '%id%': id,
+                }) %}
+            {%- else -%}
+                {% set label = name|humanize %}
+            {%- endif -%}
+        {%- endif -%}
+        <label{% if label_attr %}{% with { attr: label_attr } %}{{ block('attributes') }}{% endwith %}{% endif %}>{{ translation_domain is same as(false) ? label : label|trans(label_translation_parameters, translation_domain) }}</label>
+    {%- endif -%}
+{%- endblock form_label %}
+
+{# Form Widget #}
+{% block form_widget -%}
+    {% if compound %}
+        {{- block('form_widget_compound') -}}
+    {% else %}
+        {{- block('form_widget_simple') -}}
+    {% endif %}
+{%- endblock form_widget %}
+
+{# Form Widget Simple #}
+{% block form_widget_simple -%}
+    {% set type = type|default('text') %}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    <input type="{{ type }}" {{ block('widget_attributes') }} {% if value is not empty %}value="{{ value }}" {% endif %}/>
+{%- endblock form_widget_simple %}
+
+{# Choice Widget (Select) #}
+{% block choice_widget -%}
+    {% if expanded %}
+        {{- block('choice_widget_expanded') -}}
+    {% else %}
+        {{- block('choice_widget_collapsed') -}}
+    {% endif %}
+{%- endblock choice_widget %}
+
+{# Choice Widget Collapsed (Select) #}
+{% block choice_widget_collapsed -%}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-select')|trim}) %}
+    <select {{ block('widget_attributes') }}{% if multiple %} multiple="multiple"{% endif %}>
+        {% if placeholder is defined and placeholder is not same as(false) %}
+            <option value=""{% if required and value is empty %} selected="selected"{% endif %}>{{ translation_domain is same as(false) ? placeholder : placeholder|trans(attr_translation_parameters, translation_domain) }}</option>
+        {% endif %}
+        {% if preferred_choices|length > 0 %}
+            {% set options = preferred_choices %}
+            {% set render_preferred_choices = true %}
+            {{- block('choice_widget_options') -}}
+            {% if choices|length > 0 and separator is not defined %}
+                <option disabled="disabled">{{ separator }}</option>
+            {% endif %}
+        {% endif %}
+        {% set options = choices %}
+        {% set render_preferred_choices = false %}
+        {{- block('choice_widget_options') -}}
+    </select>
+{%- endblock choice_widget_collapsed %}
+
+{# Choice Widget Options #}
+{% block choice_widget_options -%}
+    {% for group_label, choice in options %}
+        {% if choice is iterable %}
+            <optgroup label="{{ group_label|trans({}, choice_translation_domain) }}">
+                {% set options = choice %}
+                {% set render_preferred_choices = false %}
+                {{- block('choice_widget_options') -}}
+            </optgroup>
+        {% else %}
+            <option value="{{ choice.value }}"{% if choice.attr %}{% with { attr: choice.attr } %}{{ block('attributes') }}{% endwith %}{% endif %}{% if choice is selectedchoice(value) %} selected="selected"{% endif %}>{{ choice.label|trans({}, choice_translation_domain) }}</option>
+        {% endif %}
+    {% endfor %}
+{%- endblock choice_widget_options %}
+
+{# Choice Widget Expanded (Radio/Checkbox) #}
+{% block choice_widget_expanded -%}
+    <div {{ block('widget_container_attributes') }}>
+        {% for child in form %}
+            {{- form_widget(child) -}}
+            {{- form_label(child, null, {translation_domain: choice_translation_domain}) -}}
+        {% endfor %}
+    </div>
+{%- endblock choice_widget_expanded %}
+
+{# Radio Widget #}
+{% block radio_widget -%}
+    <div class="form-check">
+        <input type="radio" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} class="form-check-input" />
+        <label class="form-check-label" for="{{ id }}">{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}</label>
+    </div>
+{%- endblock radio_widget %}
+
+{# Checkbox Widget #}
+{% block checkbox_widget -%}
+    <div class="form-check">
+        <input type="checkbox" {{ block('widget_attributes') }}{% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} class="form-check-input" />
+        <label class="form-check-label" for="{{ id }}">{{ translation_domain is same as(false) ? label : label|trans({}, translation_domain) }}</label>
+    </div>
+{%- endblock checkbox_widget %}
+
+{# Textarea Widget #}
+{% block textarea_widget -%}
+    {% set attr = attr|merge({'class': (attr.class|default('') ~ ' form-control')|trim}) %}
+    <textarea {{ block('widget_attributes') }}>{{ value }}</textarea>
+{%- endblock textarea_widget %}
+
+{# Form Widget Compound #}
+{% block form_widget_compound -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- if form.parent is empty -%}
+            {{ form_errors(form) }}
+        {%- endif -%}
+        {{- block('form_rows') -}}
+        {{- form_rest(form) -}}
+    </div>
+{%- endblock form_widget_compound %}
+
+{# Form Errors #}
+{% block form_errors -%}
+    {%- if errors|length > 0 -%}
+        <div class="invalid-feedback d-block">
+            {%- for error in errors -%}
+                <div>{{ error.message }}</div>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{%- endblock form_errors %}
+
+{# Form Rest #}
+{% block form_rest -%}
+    {% for child in form -%}
+        {% if not child.rendered %}
+            {{- form_row(child) -}}
+        {% endif %}
+    {%- endfor -%}
+{%- endblock form_rest %}
+
+{# Widget Attributes #}
+{% block widget_attributes -%}
+    id="{{ id }}" name="{{ full_name }}"
+    {%- if disabled %} disabled="disabled"{% endif -%}
+    {%- if required %} required="required"{% endif -%}
+    {%- for attrname, attrvalue in attr -%}
+        {{- " " -}}
+        {%- if attrname in ['placeholder', 'title'] -%}
+            {{- attrname }}="{{ translation_domain is same as(false) ? attrvalue : attrvalue|trans(attr_translation_parameters, translation_domain) }}"
+        {%- elseif attrvalue is same as(true) -%}
+            {{- attrname }}="{{ attrname }}"
+        {%- elseif attrvalue is not same as(false) -%}
+            {{- attrname }}="{{ attrvalue }}"
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock widget_attributes %}
+
+{# Widget Container Attributes #}
+{% block widget_container_attributes -%}
+    {%- if id is not empty %} id="{{ id }}"{% endif -%}
+    {%- for attrname, attrvalue in attr -%}
+        {{- " " -}}
+        {%- if attrname in ['placeholder', 'title'] -%}
+            {{- attrname }}="{{ translation_domain is same as(false) ? attrvalue : attrvalue|trans(attr_translation_parameters, translation_domain) }}"
+        {%- elseif attrvalue is same as(true) -%}
+            {{- attrname }}="{{ attrname }}"
+        {%- elseif attrvalue is not same as(false) -%}
+            {{- attrname }}="{{ attrvalue }}"
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock widget_container_attributes %}
+
+{# Attributes #}
+{% block attributes -%}
+    {%- for attrname, attrvalue in attr -%}
+        {{- " " -}}
+        {%- if attrname in ['placeholder', 'title'] -%}
+            {{- attrname }}="{{ translation_domain is same as(false) ? attrvalue : attrvalue|trans(attr_translation_parameters, translation_domain) }}"
+        {%- elseif attrvalue is same as(true) -%}
+            {{- attrname }}="{{ attrname }}"
+        {%- elseif attrvalue is not same as(false) -%}
+            {{- attrname }}="{{ attrvalue }}"
+        {%- endif -%}
+    {%- endfor -%}
+{%- endblock attributes %}
+
+{# Form Rows #}
+{% block form_rows -%}
+    {% for child in form -%}
+        {{- form_row(child) -}}
+    {%- endfor -%}
+{%- endblock form_rows %}

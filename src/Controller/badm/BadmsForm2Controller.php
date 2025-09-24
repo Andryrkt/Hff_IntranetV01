@@ -35,9 +35,10 @@ class BadmsForm2Controller extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->historiqueOperation = new HistoriqueOperationBADMService($this->getEntityManager());
-        $this->fusionPdf = new FusionPdf();
-        $this->badm = new BadmModel();
+        global $container;
+        $this->historiqueOperation = $container->get('App\Service\historiqueOperation\HistoriqueOperationBADMService');
+        $this->fusionPdf = $container->get('App\Service\FusionPdf');
+        $this->badm = $container->get('App\Model\badm\BadmModel');
     }
 
     /**
@@ -135,7 +136,7 @@ class BadmsForm2Controller extends Controller
                 $this->getEntityManager()->flush();
 
                 /** CREATION PDF */
-                $createPdf = new GenererPdfBadm();
+                $createPdf = $this->getService('App\Service\genererPdf\GenererPdfBadm');
                 $generPdfBadm = $this->genereteTabPdf($OR, $data, $badm, $form, $this->getEntityManager(), $idTypeMouvement);
                 $createPdf->genererPdfBadm($generPdfBadm, $orDb);
                 //envoie des pièce jointe dans une dossier et le fusionner
