@@ -289,7 +289,10 @@ class DaAfficherRepository extends EntityRepository
         $qb = $this->_em->createQueryBuilder();
         $qb->select('d')
             ->from(DaAfficher::class, 'd')
-            ->Where('d.statutCde != :statutPasDansOr') // enlever les ligne qui a le statut PAS DANS OR
+            ->Where($qb->expr()->orX(
+                'd.statutCde != :statutPasDansOr',
+                'd.statutCde IS NULL'
+            )) // enlever les ligne qui a le statut PAS DANS OR
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
         if ($hasAchatDirecte) {
@@ -299,9 +302,10 @@ class DaAfficherRepository extends EntityRepository
 
         if ($hasAchatDirecte) {
             $qb->andWhere('d.statutDal = :statutDal')
+                ->andWhere($qb->expr()->in('d.statutOr', ':statutOrsValide'))
+                ->setParameter('statutOrsValide', $statutOrs)
                 ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
         }
-
 
         // Condition sur les versions maximales (à partir de la sous-requête)
         $orX = $qb->expr()->orX();

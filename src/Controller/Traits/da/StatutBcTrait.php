@@ -106,8 +106,9 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        // dump($qte);
+        $qte = $achatDirect
+            ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
 
@@ -187,15 +188,17 @@ trait StatutBcTrait
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
+            if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
+                if (empty($infoDaDirect)) {
+                    return true;
+                }
 
-            if (empty($infoDaDirect)) {
-                return false;
+                // Si le numéro de commande est vide
+                $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
+
+                return $numCdeVide;
             }
-
-            // Si le numéro de commande est vide
-            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
-
-            return $numCdeVide;
+            return false;
         } else {
 
             $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;

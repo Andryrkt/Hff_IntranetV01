@@ -47,7 +47,7 @@ class DomFirstController extends Controller
         //CREATION DU FORMULAIRE
         $form = $this->getFormFactory()->createBuilder(DomForm1Type::class, $dom)->getForm();
         //TRAITEMENT DU FORMULAIRE
-        $this->traitemementForm($form, $request);
+        $this->traitemementForm($form, $request, $dom);
 
         //HISTORISATION DE LA PAGE
         $this->logUserVisit('dom_first_form'); // historisation du page visité par l'utilisateur
@@ -59,14 +59,14 @@ class DomFirstController extends Controller
         ]);
     }
 
-    private function traitemementForm($form, $request)
+    private function traitemementForm($form, $request, $dom)
     {
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // $salarier = $form->get('salarie')->getData();
-            // $dom->setSalarier($salarier);
+            $salarier = $form->get('salarie')->getData();
+            $dom->setSalarier($salarier);
 
             $formData = $form->getData()->toArray();
 
