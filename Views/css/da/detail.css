@@ -277,6 +277,17 @@
   box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.2);
 }
 
+.file-item.related {
+  border-left: 3px dashed #ff9900; /* orange vif pour marquer la relation */
+  background-color: #fff3e0; /* fond clair, subtil mais perceptible */
+  box-shadow: none; /* pas de shadow pour rester secondaire */
+  transition: background-color 0.2s ease; /* pour un hover fluide */
+}
+
+.file-item.related:hover {
+  background-color: #ffe0b2; /* légèrement plus visible au survol */
+}
+
 .checkmark-selected {
   position: absolute;
   top: 6px;
