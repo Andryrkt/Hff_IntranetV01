@@ -111,7 +111,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée, une vérification de prix est déjà en cours sur ce devis";
+            $message = "Une confirmation de prix pour ce devis est déjà en cours au magasin. (VP)";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }

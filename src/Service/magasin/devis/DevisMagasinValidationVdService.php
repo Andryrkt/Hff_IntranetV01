@@ -137,7 +137,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée car le devis est en cours de validation pour la validation de prix.";
+            $message = "Une confirmation de prix pour ce devis est déjà en cours au magasin. (VD)";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
@@ -159,11 +159,11 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'Validé'
+            DevisMagasin::STATUT_PRIX_VALIDER_TANA
         ];
 
         if ($this->isStatusBlockingPartialBeginWith($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Soumission bloquée car le devis doit passer par vérification de prix";
+            $message = "Les prix ont déjà été validés par le parts manager. Veuillez envoyer le devis au client";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // Validation failed
         }
@@ -257,7 +257,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
 
         if ($oldSumOfLines === null) {
-            $message = "le devis doit passer par validation de prix avant de le valider";
+            $message = "Veuillez demander une confirmation des prix du devis";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false; // le devis n'existe pas
         }
