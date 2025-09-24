@@ -24,8 +24,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 class DevisMagasinValidationDevisController extends Controller
 {
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
-    private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
-    private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
     private const MESSAGE_DE_CONFIRMATION = 'validation';
     use AutorisationTrait;
 
@@ -119,7 +117,7 @@ class DevisMagasinValidationDevisController extends Controller
 
                 // Validation de la somme des lignes et statut prix refusé
                 $newSumOfMontant = (float)$firstDevisIps['montant_total'];
-                if (!$validationService->isSumOfMontantUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfMontant, self::STATUT_PRIX_REFUSE)) {
+                if (!$validationService->isSumOfMontantUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfMontant, [DevisMagasin::STATUT_PRIX_MODIFIER_TANA, DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE])) {
                     return; // Arrête le traitement si la somme des lignes est identique
                 }
 
@@ -149,7 +147,7 @@ class DevisMagasinValidationDevisController extends Controller
                     ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
                     ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                    ->setStatutDw(self::STATUT_A_VALIDER_CHEF_AGENCE)
+                    ->setStatutDw(DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
                     ->setTypeSoumission(self::TYPE_SOUMISSION_VALIDATION_DEVIS)
                     ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
                     ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)

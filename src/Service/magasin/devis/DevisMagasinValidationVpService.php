@@ -3,6 +3,7 @@
 namespace App\Service\magasin\devis;
 
 use Symfony\Component\Form\FormInterface;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
@@ -106,8 +107,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'Prix à confirmer',
-            'Soumis à validation'
+            DevisMagasin::STATUT_PRIX_A_CONFIRMER,
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
@@ -125,19 +125,21 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * Cette méthode empêche l'utilisateur de soumettre un devis à validation de prix
      * si le prix a déjà été vérifié ou si le devis est dans un autre statut bloquant
      * 
-     * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
+     * @param LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
     public function checkBlockingStatusOnSubmissionForVd(
-        LatestSumOfLinesRepositoryInterface $repository,
+        DevisMagasinRepository $repository,
         string $numeroDevis,
         int $newSumOfLines
     ): bool {
         $blockingStatuses = [
-            'Prix validé magasin',
-            'Prix refusé magasin',
-            'A valider chef d’agence'
+            DevisMagasin::STATUT_PRIX_MODIFIER_TANA,
+            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE,
+            DevisMagasin::STATUT_PRIX_VALIDER_TANA,
+            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE,
+            DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE,
         ];
 
         $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
@@ -169,7 +171,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * @return bool true si le nombre de lignes est inchangé (bloquant), false sinon
      */
     public function estSommeDeLigneInChanger(
-        DevisMagasinRepository $repository,
+        LatestSumOfLinesRepositoryInterface $repository,
         string $numeroDevis,
         int $newSumOfLines
     ): bool {

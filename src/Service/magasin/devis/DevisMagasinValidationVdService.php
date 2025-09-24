@@ -3,6 +3,7 @@
 namespace App\Service\magasin\devis;
 
 use Symfony\Component\Form\FormInterface;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\validation\ValidationServiceBase;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
@@ -106,8 +107,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
         string $numeroDevis
     ): bool {
         $blockingStatuses = [
-            'A valider chef d’agence',
-            'Soumis à validation'
+            DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE,
         ];
 
         if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
@@ -206,22 +206,22 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
     }
 
     /**
-     * Vérifie si le montant est inchangés et le statut du devis est Prix refusé magasin
+     * Vérifie si le montant est inchangés et le statut du devis est Prix modifier tana ou Prix modifier agence
      * 
-     * Cette méthode compare le montant précédentes et le nouveau montant et aussi le statut actuels est "Prix refusé magasin"
+     * Cette méthode compare le montant précédentes et le nouveau montant et aussi le statut actuels est "Prix modifier tana" ou "Prix modifier agence"
      * pour s'assurer qu'aucune modification n'a été apportée au devis depuis la dernière validation
      * 
      * @param DevisMagasinRepository $repository Le repository pour accéder aux données du devis
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @param float $newSumOfMontant Le nouveau montant
-     * @param string $newStatut Le nouveau statut
+     * @param array $newStatuts Le nouveau statuts
      * @return bool true si le montant et le statut sont identiques, false sinon
      */
     public function isSumOfMontantUnchangedAndStatutVp(
         DevisMagasinRepository $repository,
         string $numeroDevis,
         float $newSumOfMontant,
-        string $newStatut
+        array $newStatuts
     ): bool {
         $oldSumOfMontant = $repository->findLatestSumOfMontantByIdentifier($numeroDevis);
         $oldStatut = $repository->findLatestStatusByIdentifier($numeroDevis);
@@ -231,7 +231,7 @@ class DevisMagasinValidationVdService extends ValidationServiceBase
             return true;
         }
 
-        if ($oldSumOfMontant === $newSumOfMontant && $oldStatut === $newStatut) {
+        if ($oldSumOfMontant === $newSumOfMontant && in_array($oldStatut, $newStatuts)) {
             $message = "Le magasin a oublié de modifier le prix dans IPS. Veuillez informer le Parts Manager";
             $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
             return false;
