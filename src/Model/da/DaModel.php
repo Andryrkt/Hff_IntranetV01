@@ -312,7 +312,7 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr)
+    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr)
     {
         if (!$numOr) return [];
 
@@ -323,7 +323,7 @@ class DaModel extends Model
                 slor_constp as cst,
                 slor_natcm,
                 TRIM(slor_refp) as reference,
-                                TRIM(slor_desi) as designation,    
+                TRIM(slor_desi) as designation,    
                 ROUND(
                         CASE
                             WHEN slor_typlig = 'P' THEN (
@@ -379,6 +379,34 @@ class DaModel extends Model
                                 AND TRIM(slor.slor_refp) = '$ref'
                         and TRIM(slor.slor_desi) = '$designation'
                 ";
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getEvolutionQteDaDirect(string $numCde, string $ref = '', string $designation = '')
+    {
+        if (!$numCde) return [];
+
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statement = " SELECT  
+                fcdl_constp as cst, 
+                (
+                    select fcde_numcde from frn_cde where fcde_numcde = c.fcdl_numcde
+                ) as num_cde,
+                TRIM(fcdl_refp) as reference,
+                TRIM(fcdl_desi) as designation, 
+                ROUND(fcdl_qte) as qte_dem,
+                ROUND(fcdl_qteli) as qte_receptionnee 
+                    FROM frn_cdl c 
+                WHERE fcdl_constp ='ZDI' 
+                AND fcdl_numcde = '$numCde'
+                AND fcdl_refp = '$ref'
+                AND fcdl_desi = '$designation'
+        ";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
