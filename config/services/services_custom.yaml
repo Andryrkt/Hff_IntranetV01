@@ -1,17 +1,5 @@
 services:
-    # Service Twig Environment
-    Twig\Environment:
-        class: Twig\Environment
-        arguments:
-            - '@twig.loader'
-            - []
-        public: true
-
-    twig.loader:
-        class: Twig\Loader\FilesystemLoader
-        arguments:
-            - '%kernel.project_dir%/Views/templates'
-        public: true
+    # Service Twig Environment - défini dans services_twig.yaml
 
     TCPDF:
         class: TCPDF
@@ -28,13 +16,13 @@ services:
     App\Service\TwigMailerService:
         arguments:
             $phpMailer: '@PHPMailer\PHPMailer\PHPMailer' # Assumes PHPMailer is registered as a service
-            $twigEnvironment: '@Twig\Environment'
+            $twigEnvironment: '@twig'
             $assetFolder: '%kernel.project_dir%/public'
 
     App\Factory\EmailServiceFactory:
         class: App\Factory\EmailServiceFactory
         arguments:
-            $twig: '@Twig\Environment'
+            $twig: '@twig'
         public: true
 
     App\Service\EmailService:
@@ -78,7 +66,7 @@ services:
     App\Service\AppLogger:
         class: App\Service\AppLogger
         arguments:
-            $logFilePath: '%env(BASE_PATH_LOG)%'
+            $logFilePath: '%app.error_log_path%'
         public: true
 
     App\Service\DoctrineOdbcWrapper:
@@ -145,7 +133,7 @@ services:
     App\Service\genererPdf\GeneratePdfDevisMagasin:
         class: App\Service\genererPdf\GeneratePdfDevisMagasin
         arguments:
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
+            $baseCheminDuFichier: '%upload_directory%'
         public: true
 
 
@@ -266,7 +254,7 @@ services:
     App\Service\fichier\FileUploaderService:
         class: App\Service\fichier\FileUploaderService
         arguments:
-            $targetDirectory: '%env(BASE_PATH_FICHIER)%'
+            $targetDirectory: '%upload_directory%'
 
     App\Service\docuware\CopyDocuwareService:
         public: true
@@ -281,6 +269,7 @@ services:
         arguments:
             $sessionService: '@App\Service\SessionManagerService'
             $authorizationChecker: '@security.authorization_checker'
+            $entityManager: '@doctrine.orm.default_entity_manager'
         public: true
 
     # Voter pour les autorisations d'application
@@ -291,7 +280,7 @@ services:
     App\Service\da\FileUploaderForDAService:
         class: App\Service\da\FileUploaderForDAService
         arguments:
-            $basePath: '%env(BASE_PATH_LONG)%/public/uploads/da'
+            $basePath: '%app.base_path_long%/public/uploads/da'
         public: true
 
     App\Service\da\EmailDaService:
@@ -304,7 +293,7 @@ services:
         class: App\Service\genererPdf\GenererPdfDit
         arguments:
             $tcpdf: '@TCPDF'
-            $baseCheminDuFichier: '%env(BASE_PATH_FICHIER)%'
+            $baseCheminDuFichier: '%upload_directory%'
         public: false
 
     App\Factory\BreadcrumbFactory:
@@ -324,7 +313,7 @@ services:
     App\Service\tik\HandleRequestService:
         arguments:
             $em: '@doctrine.orm.default_entity_manager'
-            $twig: '@Twig\Environment'
+            $twig: '@twig'
             $emailTikService: '@App\Service\tik\EmailTikService'
             $sessionService: '@App\Service\SessionManagerService'
         public: true
@@ -342,7 +331,7 @@ services:
     App\Service\tik\EmailTikService:
         arguments:
             $em: '@doctrine.orm.default_entity_manager'
-            $twig: '@Twig\Environment'
+            $twig: '@twig'
             $emailService: '@App\Service\EmailService'
         public: true
 

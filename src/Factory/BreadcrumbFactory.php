@@ -7,16 +7,23 @@ use App\Service\navigation\BreadcrumbMenuService;
 class BreadcrumbFactory
 {
     private string $baseUrl;
-    private array $menuConfig;
+    private ?array $menuConfig;
+    private BreadcrumbMenuService $breadcrumbMenuService;
 
     public function __construct(string $baseUrl = '/', BreadcrumbMenuService $breadcrumbMenuService)
     {
         $this->baseUrl = rtrim($baseUrl, '/');
-        $this->menuConfig = $breadcrumbMenuService->getFullMenuConfig();
+        $this->breadcrumbMenuService = $breadcrumbMenuService;
+        $this->menuConfig = null; // Chargé à la demande
     }
 
     public function createFromCurrentUrl(): array
     {
+        // Charger le menu à la demande seulement si nécessaire
+        if ($this->menuConfig === null) {
+            $this->menuConfig = $this->breadcrumbMenuService->getFullMenuConfig();
+        }
+
         $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $segments = array_filter(explode('/', trim($path, '/')));
         $breadcrumbs = [];

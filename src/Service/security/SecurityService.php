@@ -7,6 +7,7 @@ use App\Service\SessionManagerService;
 use App\Security\Voter\ApplicationVoter;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
+use Doctrine\ORM\EntityManagerInterface;
 
 /**
  * Service de sécurité pour la gestion des autorisations et des sessions
@@ -16,13 +17,16 @@ class SecurityService
 {
     private $sessionService;
     private $authorizationChecker;
+    private $entityManager;
 
     public function __construct(
         SessionManagerService $sessionService,
-        AuthorizationCheckerInterface $authorizationChecker
+        AuthorizationCheckerInterface $authorizationChecker,
+        EntityManagerInterface $entityManager
     ) {
         $this->sessionService = $sessionService;
         $this->authorizationChecker = $authorizationChecker;
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -39,7 +43,7 @@ class SecurityService
         $this->verifyUserSession();
 
         // Vérification des autorisations d'accès via le Voter
-        if (!$this->authorizationChecker->isGranted($attribute, $application)) {
+        if (!$this->isGranted($application, $attribute, $user)) {
             throw new AccessDeniedException('Accès refusé à l\'application');
         }
     }
@@ -63,9 +67,43 @@ class SecurityService
      * @param string $attribute L'attribut d'autorisation
      * @return bool
      */
-    public function isGranted($application, string $attribute = ApplicationVoter::ACCESS): bool
+    public function isGranted($application, string $attribute = ApplicationVoter::ACCESS, $user = null): bool
     {
-        return $this->authorizationChecker->isGranted($attribute, $application);
+        // Utiliser le système d'authentification de l'application au lieu de Symfony Security
+        if (!$user) {
+            $user = $this->getUserFromSession();
+        }
+
+        if (!$user) {
+            return false;
+        }
+
+        // Vérifier les autorisations via le Voter personnalisé
+        $voter = new \App\Security\Voter\ApplicationVoter();
+
+        // Créer un token pour le voter
+        $token = new \Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken(
+            $user,
+            'main',
+            ['ROLE_USER']
+        );
+
+        return $voter->vote($token, $application, [$attribute]) === \Symfony\Component\Security\Core\Authorization\Voter\VoterInterface::ACCESS_GRANTED;
+    }
+
+    /**
+     * Récupère l'utilisateur depuis la session de l'application
+     */
+    public function getUserFromSession()
+    {
+        $userId = $this->sessionService->get('user_id');
+
+        if ($userId && $userId !== '-') {
+            // Récupérer l'utilisateur depuis la base de données
+            return $this->entityManager->getRepository('App\Entity\admin\utilisateur\User')->find($userId);
+        }
+
+        return null;
     }
 
     /**

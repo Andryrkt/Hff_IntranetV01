@@ -1,5 +1,23 @@
 services:
-    # Services Twig
+    # Service Twig Environment
+    twig:
+        class: Twig\Environment
+        arguments:
+            - '@twig.loader'
+            - { debug: true }
+        public: true
+
+    twig.loader:
+        class: Twig\Loader\FilesystemLoader
+        arguments:
+            - '%kernel.project_dir%/Views/templates'
+            - '%kernel.project_dir%/vendor/symfony/twig-bridge/Resources/views/Form'
+        public: true
+
+    # Alias pour Twig\Environment pour l'autowiring
+    Twig\Environment: '@twig'
+
+    # Services Twig Extensions
     App\Twig\AppExtension:
         arguments:
             - '@session'
@@ -12,6 +30,7 @@ services:
         arguments:
             - '@App\Service\navigation\BreadcrumbMenuService'
         tags: ['twig.extension']
+        public: true
 
     App\Twig\CarbonExtension:
         tags: ['twig.extension']

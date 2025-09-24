@@ -22,7 +22,22 @@ trait SecurityTrait
      */
     protected function requireAccess(string $application, string $attribute = ApplicationVoter::ACCESS): void
     {
-        $this->securityService->verifyUserAccess($this->getUser(), $application, $attribute);
+        // Utiliser le système d'authentification de l'application au lieu de Symfony Security
+        $user = $this->getUserFromSession();
+        $this->securityService->verifyUserAccess($user, $application, $attribute);
+    }
+
+    /**
+     * Récupère l'utilisateur depuis la session de l'application
+     */
+    private function getUserFromSession()
+    {
+        // Utiliser le SecurityService qui a accès à l'EntityManager
+        if ($this->securityService) {
+            return $this->securityService->getUserFromSession();
+        }
+
+        return null;
     }
 
     /**
@@ -34,7 +49,8 @@ trait SecurityTrait
      */
     protected function canAccess(string $application, string $attribute = ApplicationVoter::ACCESS): bool
     {
-        return $this->securityService->isGranted($application, $attribute);
+        $user = $this->getUserFromSession();
+        return $this->securityService->isGranted($application, $attribute, $user);
     }
 
     /**

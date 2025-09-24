@@ -1,5 +1,13 @@
 <?php
 
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor/autoload.php';
+
+// Charger les variables d'environnement
+if (file_exists(dirname(__DIR__) . '/.env')) {
+    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+    $dotenv->load();
+}
+
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Config\FileLocator;
@@ -53,15 +61,20 @@ if (!isset($_SERVER['REQUEST_URI'])) {
 
 // Configuration pour les tests CLI (session gérée dans test_di.php)
 
-// Créer le conteneur de services
+// Créer le conteneur de services avec cache
 $container = new ContainerBuilder();
 
-// Ajouter les paramètres de base manquants
+// Désactiver le cache du conteneur pour l'instant
+// Le conteneur sera compilé à chaque requête mais sans cache
+$container->setParameter('container.dumper.inline_factories', true);
+$container->setParameter('container.dumper.inline_class_loader', true);
+
+// Ajouter TOUS les paramètres AVANT de charger la configuration
 $container->setParameter('kernel.project_dir', dirname(__DIR__));
 $container->setParameter('kernel.cache_dir', dirname(__DIR__) . '/var/cache');
 $container->setParameter('kernel.debug', true);
 
-// Ajouter les paramètres ODBC avec résolution des variables d'environnement
+// Paramètres ODBC
 $container->setParameter('odbc.main.dsn', $_ENV['DB_DNS_SQLSERV'] ?? 'HFF_INTRANET_V01_TEST_TEST');
 $container->setParameter('odbc.main.user', $_ENV['DB_USERNAME_SQLSERV'] ?? 'sa');
 $container->setParameter('odbc.main.password', $_ENV['DB_PASSWORD_SQLSERV'] ?? 'Hff@sql2024');
@@ -78,13 +91,13 @@ $container->setParameter('odbc.informix.dsn', $_ENV['DB_DNS_INFORMIX'] ?? 'IPS_H
 $container->setParameter('odbc.informix.user', $_ENV['DB_USERNAME_INFORMIX'] ?? 'informix');
 $container->setParameter('odbc.informix.password', $_ENV['DB_PASSWORD_INFORMIX'] ?? 'informix');
 
-// Ajouter les paramètres LDAP
+// Paramètres LDAP
 $container->setParameter('ldap.host', $_ENV['LDAP_HOST'] ?? '192.168.0.1');
 $container->setParameter('ldap.port', (int)($_ENV['LDAP_PORT'] ?? 389));
 $container->setParameter('ldap.domain', $_ENV['LDAP_DOMAIN'] ?? '@@fraise.hff.mg');
 $container->setParameter('ldap.dn', $_ENV['LDAP_DN'] ?? 'OU=HFF Users,DC=fraise,DC=hff,DC=mg');
 
-// Ajouter les paramètres mailer
+// Paramètres mailer
 $container->setParameter('mailer.host', $_ENV['MAILER_HOST'] ?? 'smtp.gmail.com');
 $container->setParameter('mailer.port', (int)($_ENV['MAILER_PORT'] ?? 587));
 $container->setParameter('mailer.user', $_ENV['MAILER_USER'] ?? 'noreply@hff.mg');
@@ -96,13 +109,13 @@ $container->setParameter('mailer.bcc_recipients', [
     'hasina.andrianadison@hff.mg'
 ]);
 
-// Ajouter les paramètres de chemins
+// Paramètres de chemins
 $container->setParameter('upload_directory', $_ENV['BASE_PATH_FICHIER'] ?? 'C:/wamp64/www/Upload/');
 $container->setParameter('app.error_log_path', $_ENV['BASE_PATH_LOG'] ?? 'C:/wamp64/www/Hffintranet/var/app_errors.log');
 $container->setParameter('app.base_path_long', $_ENV['BASE_PATH_LONG'] ?? 'C:/wamp64/www/Hffintranet');
 $container->setParameter('auth.csv_file_path', ($_ENV['BASE_PATH_LONG'] ?? 'C:/wamp64/www/Hffintranet') . '/src/Controller/authentification.csv');
 
-// Désactiver l'autowiring strict
+// Paramètres de conteneur
 $container->setParameter('container.autowiring.strict_mode', false);
 $container->setParameter('container.dumper.inline_factories', false);
 
@@ -124,17 +137,9 @@ $container->set('doctrine.orm.default_entity_manager', $entityManager);
 $loader = new YamlFileLoader($container, new FileLocator(__DIR__));
 $loader->load('services.yaml');
 
-// Désactiver complètement l'autowiring pour éviter les conflits
-$container->setParameter('container.autowiring.strict_mode', false);
-$container->setParameter('container.dumper.inline_factories', false);
+// Les paramètres ont déjà été définis avant le chargement des services
 
-// Créer les services de base manuellement
-$container->register('twig', 'Twig\Environment')
-    ->setSynthetic(true)
-    ->setPublic(true);
-
-// Ajouter l'alias pour Twig\Environment
-$container->setAlias('Twig\Environment', 'twig');
+// Le service Twig est maintenant défini dans services_twig.yaml
 
 $container->register('form.factory', 'Symfony\Component\Form\FormFactory')
     ->setSynthetic(true)
@@ -165,6 +170,10 @@ $container->register('App\Twig\AppExtension', \App\Twig\AppExtension::class)
     ->setSynthetic(true)
     ->setPublic(true);
 
+$container->register('App\Twig\BreadcrumbExtension', \App\Twig\BreadcrumbExtension::class)
+    ->setSynthetic(true)
+    ->setPublic(true);
+
 $container->register('App\Service\navigation\MenuService', \App\Service\navigation\MenuService::class)
     ->setSynthetic(true)
     ->setPublic(true);
@@ -173,9 +182,10 @@ $container->register('App\Service\navigation\BreadcrumbMenuService', \App\Servic
     ->setSynthetic(true)
     ->setPublic(true);
 
-$container->register('App\Twig\BreadcrumbExtension', \App\Twig\BreadcrumbExtension::class)
-    ->setSynthetic(true)
-    ->setPublic(true);
+// Désactiver BreadcrumbExtension pour éviter les requêtes DB au démarrage
+// $container->register('App\Twig\BreadcrumbExtension', \App\Twig\BreadcrumbExtension::class)
+//     ->setSynthetic(true)
+//     ->setPublic(true);
 
 $container->register('App\Twig\CarbonExtension', \App\Twig\CarbonExtension::class)
     ->setSynthetic(true)
@@ -193,18 +203,18 @@ $loader->load('parameters.yaml');
 // Désactiver l'autowiring avant la compilation
 $container->setParameter('container.autowiring.strict_mode', false);
 
-// Compiler le conteneur
-$container->compile();
-
-// Créer les services manuellement (comme dans l'ancien bootstrap)
-$twig = new \Twig\Environment(new \Twig\Loader\FilesystemLoader([
-    dirname(__DIR__) . '/Views/templates',
-    dirname(__DIR__) . '/vendor/symfony/twig-bridge/Resources/views/Form',
-]), ['debug' => true]);
-
-$container->set('twig', $twig);
 
 
+// Les services de base ont été créés et assignés avant la compilation
+
+
+// Les services de base ont été créés et assignés avant la compilation
+
+
+
+// Les services Twig seront créés après la récupération des services du conteneur
+
+// Le service Twig est maintenant géré par la configuration YAML
 
 // Create the form factory with container integration
 $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
@@ -216,7 +226,6 @@ $formFactory = \Symfony\Component\Form\Forms::createFormFactoryBuilder()
     ->getFormFactory();
 
 $container->set('form.factory', $formFactory);
-
 
 // Créer et assigner les autres services
 $session = new \Symfony\Component\HttpFoundation\Session\Session(new \Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage());
@@ -239,15 +248,16 @@ $translator = new \Symfony\Component\Translation\Translator('fr_FR');
 $translator->addLoader('xlf', new \Symfony\Component\Translation\Loader\XliffFileLoader());
 $container->set('translator', $translator);
 
-// Récupérer les services du conteneur
+// Compiler le conteneur APRÈS avoir créé tous les services
+$container->compile();
+
+// Récupérer les services du conteneur après la compilation
 $session = $container->get('session');
 $requestStack = $container->get('request_stack');
 $tokenStorage = $container->get('security.token_storage');
 $authorizationChecker = $container->get('security.authorization_checker');
 
-
-
-// Créer et assigner les services Twig APRÈS la compilation
+// Créer et assigner les services Twig APRÈS la récupération des services
 $appExtension = new \App\Twig\AppExtension($container);
 $container->set('App\Twig\AppExtension', $appExtension);
 
@@ -258,14 +268,17 @@ $container->set('App\Service\navigation\MenuService', $menuService);
 $breadcrumbMenuService = new \App\Service\navigation\BreadcrumbMenuService($menuService);
 $container->set('App\Service\navigation\BreadcrumbMenuService', $breadcrumbMenuService);
 
-$breadcrumbExtension = new \App\Twig\BreadcrumbExtension($breadcrumbMenuService);
-$container->set('App\Twig\BreadcrumbExtension', $breadcrumbExtension);
+// BreadcrumbExtension sera créé après la compilation du conteneur
 
 $carbonExtension = new \App\Twig\CarbonExtension();
 $container->set('App\Twig\CarbonExtension', $carbonExtension);
 
 $deleteWordExtension = new \App\Twig\DeleteWordExtension();
 $container->set('App\Twig\DeleteWordExtension', $deleteWordExtension);
+
+// Créer BreadcrumbExtension après la compilation du conteneur
+$breadcrumbExtension = new \App\Twig\BreadcrumbExtension($breadcrumbMenuService);
+$container->set('App\Twig\BreadcrumbExtension', $breadcrumbExtension);
 
 // Créer la requête et la réponse
 $request = Request::createFromGlobals();
@@ -319,6 +332,15 @@ $matcher = new UrlMatcher($collection, $context);
 $controllerResolver = new \Symfony\Component\HttpKernel\Controller\ContainerControllerResolver($container);
 $argumentResolver = new ArgumentResolver();
 
+// Récupérer le service Twig du conteneur
+$twig = $container->get('twig');
+
+// Ajouter le chemin des templates de formulaires Symfony au loader
+$loader = $twig->getLoader();
+if ($loader instanceof \Twig\Loader\FilesystemLoader) {
+    $loader->addPath(dirname(__DIR__) . '/vendor/symfony/twig-bridge/Resources/views/Form');
+}
+
 // Configurer Twig avec les extensions
 $twig->addExtension(new DebugExtension());
 $twig->addExtension(new TranslationExtension($container->get('translator')));
@@ -335,8 +357,11 @@ $packages = new Packages(new PathPackage($publicPath, new EmptyVersionStrategy()
 $twig->addExtension(new AssetExtension($packages));
 
 // Configurer le moteur de rendu des formulaires
-$defaultFormTheme = 'bootstrap_5_layout.html.twig';
-$formEngine = new TwigRendererEngine([$defaultFormTheme], $twig);
+// Ajouter les templates de formulaires Symfony par défaut
+$formEngine = new TwigRendererEngine([
+    'bootstrap_5_layout.html.twig',
+    'form_div_layout.html.twig'
+], $twig);
 $twig->addRuntimeLoader(new FactoryRuntimeLoader([
     FormRenderer::class => function () use ($formEngine) {
         return new FormRenderer($formEngine);
