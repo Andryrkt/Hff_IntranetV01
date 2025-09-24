@@ -101,7 +101,7 @@ class ListeDevisMagasinModel extends Model
 
     public function getCodeLibelleClient()
     {
-        $statement = "SELECT nent_numcli as code_client, nent_nomcli as nom_client
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
                         from neg_ent
         ";
 

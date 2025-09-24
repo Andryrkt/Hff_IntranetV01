@@ -33,7 +33,7 @@ class ListeDevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
-        
+
         $this->styleStatutDw = [
             DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
             DevisMagasin::STATUT_PRIX_VALIDER_TANA => 'bg-prix-valider-tana',
@@ -174,19 +174,31 @@ class ListeDevisMagasinController extends Controller
 
         // Filtre par date de création (début)
         if (!empty($criteria['dateCreation']['debut'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateDebut = $criteria['dateCreation']['debut'];
-            if ($dateCreation < $dateDebut) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateDebut = $criteria['dateCreation']['debut'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') < $dateDebut->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 
         // Filtre par date de création (fin)
         if (!empty($criteria['dateCreation']['fin'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateFin = $criteria['dateCreation']['fin'];
-            if ($dateCreation > $dateFin) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateFin = $criteria['dateCreation']['fin'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') > $dateFin->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 
