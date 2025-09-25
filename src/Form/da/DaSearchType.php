@@ -123,6 +123,16 @@ class DaSearchType extends  AbstractType
                 'choices'       => $statut_bc,
                 'required'      => false
             ])
+            ->add('sortNbJours', ChoiceType::class, [
+                'placeholder'   => '-- Choisir un tri --',
+                'label'         => 'Tri par Nbr Jour(s)',
+                'mapped'        => false,
+                'choices'       => [
+                    'Ordre croissant'   => 'asc',
+                    'Ordre décroissant' => 'desc',
+                ],
+                'required'      => false
+            ])
             ->add('idMateriel', TextType::class, [
                 'label'         => "N° Matériel",
                 'required'      => false
@@ -138,7 +148,7 @@ class DaSearchType extends  AbstractType
                 'label_html'    => true,
                 'class'         => WorNiveauUrgence::class,
                 'choice_label'  => 'description',
-                'placeholder'   => '-- Choisir un niveau--',
+                'placeholder'   => '-- Choisir un niveau --',
                 'required'      => false,
                 'query_builder' => function (EntityRepository $er) {
                     return $er->createQueryBuilder('n')
@@ -174,7 +184,7 @@ class DaSearchType extends  AbstractType
                 'choice_label'  => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
-                'placeholder'   => '-- Choisir une agence--',
+                'placeholder'   => '-- Choisir une agence --',
                 'required'      => false,
                 'attr'          => ['class' => 'agenceEmetteur']
             ])
@@ -194,7 +204,7 @@ class DaSearchType extends  AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir un service--',
+                    'placeholder' => '-- Choisir un service --',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function (ServiceRepository $serviceRepository) {
@@ -223,7 +233,7 @@ class DaSearchType extends  AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir un service--',
+                    'placeholder' => '-- Choisir un service --',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function (ServiceRepository $serviceRepository) {
@@ -238,7 +248,7 @@ class DaSearchType extends  AbstractType
                 'choice_label' => function (Agence $agence): string {
                     return $agence->getCodeAgence() . ' ' . $agence->getLibelleAgence();
                 },
-                'placeholder' => '-- Choisir une agence--',
+                'placeholder' => '-- Choisir une agence --',
                 'required' => false,
                 'attr' => ['class' => 'agenceDebiteur']
             ])
@@ -258,7 +268,7 @@ class DaSearchType extends  AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir un service--',
+                    'placeholder' => '-- Choisir un service --',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function (ServiceRepository $serviceRepository) {
@@ -290,7 +300,7 @@ class DaSearchType extends  AbstractType
                     'choice_label' => function (Service $service): string {
                         return $service->getCodeService() . ' ' . $service->getLibelleService();
                     },
-                    'placeholder' => '-- Choisir un service--',
+                    'placeholder' => '-- Choisir un service --',
                     'choices' => $services,
                     'required' => false,
                     'query_builder' => function (ServiceRepository $serviceRepository) {
