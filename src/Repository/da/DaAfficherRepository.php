@@ -415,7 +415,9 @@ class DaAfficherRepository extends EntityRepository
         $distinctQb = clone $qb;
         $distinctQb->select('daf.numeroDemandeAppro')
             ->groupBy('daf.numeroDemandeAppro')
-            ->resetDQLPart('orderBy')
+            ->orderBy('MAX(daf.dateDemande)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
