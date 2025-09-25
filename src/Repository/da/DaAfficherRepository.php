@@ -411,18 +411,51 @@ class DaAfficherRepository extends EntityRepository
         $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
         $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
 
-        // 5️⃣ Pagination
-        $qb->orderBy('daf.dateDemande', 'DESC')
-            ->addOrderBy('daf.numeroFournisseur', 'DESC')
-            ->addOrderBy('daf.numeroCde', 'DESC')
+        // 5️⃣ Pagination sur les DA distincts
+        $distinctQb = clone $qb;
+        $distinctQb->select('daf.numeroDemandeAppro')
+            ->groupBy('daf.numeroDemandeAppro')
+            ->resetDQLPart('orderBy')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        $results = $qb->getQuery()->getResult();
+        $numeroDAsPage = array_column($distinctQb->getQuery()->getResult(), 'numeroDemandeAppro');
+
+        if (empty($numeroDAsPage)) {
+            return [
+                'results' => [],
+                'totalItems' => $totalItems
+            ];
+        }
+
+        // 6️⃣ Charger les dernières versions uniquement pour les DA de la page
+        $finalQb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
+            ->andWhere('daf.deleted = 0')
+            ->setParameter('numeroDAsPage', $numeroDAsPage)
+            ->orderBy('daf.dateDemande', 'DESC')
+            ->addOrderBy('daf.numeroFournisseur', 'DESC')
+            ->addOrderBy('daf.numeroCde', 'DESC');
+
+        // Limiter aux numéros de version max
+        $orX = $finalQb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            if (in_array($numeroDA, $numeroDAsPage)) {
+                $orX->add($finalQb->expr()->andX(
+                    $finalQb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                    $finalQb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+                ));
+                $finalQb->setParameter('da_' . $numeroDA, $numeroDA);
+                $finalQb->setParameter('ver_' . $numeroDA, $versionMax);
+            }
+        }
+        $finalQb->andWhere($orX);
+
+        $results = $finalQb->getQuery()->getResult();
 
         return [
-            'results'     => $results,
-            'totalItems'  => $totalItems
+            'results'    => $results,
+            'totalItems' => $totalItems
         ];
     }
 
