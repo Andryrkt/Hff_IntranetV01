@@ -278,7 +278,7 @@
 }
 
 .file-item.related {
-  border-left: 3px dashed #ff9900; /* orange vif pour marquer la relation */
+  border: 3px dashed #ff9900; /* orange vif pour marquer la relation */
   background-color: #fff3e0; /* fond clair, subtil mais perceptible */
   box-shadow: none; /* pas de shadow pour rester secondaire */
   transition: background-color 0.2s ease; /* pour un hover fluide */

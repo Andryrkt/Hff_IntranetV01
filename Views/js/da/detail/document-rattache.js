@@ -1,6 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const viewer = document.getElementById("file-viewer");
+  const height = window.innerHeight;
+  // Tous les éléments .file-item
   const fileItems = document.querySelectorAll(".file-item");
+
+  // Seulement ceux avec data-doc-label-type="BC"
+  const bcFileItems = Array.from(fileItems).filter(
+    (item) => item.dataset.docLabelType === "BC"
+  );
+
+  // Seulement ceux avec data-doc-label-type="FACBL"
+  const facblFileItems = Array.from(fileItems).filter(
+    (item) => item.dataset.docLabelType === "FACBL"
+  );
+
+  // Éléments pour lesquels on va ajouter un événement spécifique (BC ou FACBL)
+  const relatedFileItems = Array.from(fileItems).filter((item) =>
+    ["BC", "FACBL"].includes(item.dataset.docLabelType)
+  );
 
   fileItems.forEach((fileItem) => {
     // Clic sur un fichier (hors lien de téléchargement)
@@ -8,13 +25,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (event.target.closest("a")) return; // ignore le clic sur l'icône de téléchargement
 
       const downloadLink = this.querySelector("a");
+      const docLabelType = this.dataset.docLabelType;
       const fileName = this.querySelector("small").innerText;
       const docType = downloadLink.dataset.docType;
       const filePath = downloadLink.href;
-      const height = window.innerHeight;
       let textHtml = "";
 
-      toggleSelectedItem(fileItem, fileItems);
+      toggleSelectedItem(this, fileItems);
+      toggleRelatedItem(
+        this,
+        docLabelType,
+        fileName,
+        relatedFileItems,
+        bcFileItems,
+        facblFileItems
+      );
 
       // Vérification côté JS avant affichage
       fetch(filePath, { method: "HEAD" })
@@ -107,5 +132,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Ajouter la sélection à son bloc parent
     selectedItem.closest(".list-file-item")?.classList.add("selected");
+  }
+
+  function toggleRelatedItem(
+    selectedItem,
+    docLabelType,
+    fileName,
+    relatedFileItems,
+    bcFileItems,
+    facblFileItems
+  ) {
+    if (["BC", "FACBL"].includes(docLabelType)) {
+      // Retirer toutes les effets pour les élements liés
+      relatedFileItems.forEach((item) => {
+        item.classList.remove("related");
+      });
+
+      if (docLabelType === "BC") {
+        // Seulement ceux avec data-doc-label-type="FACBL"
+        const relatedFacBls = Array.from(facblFileItems).filter(
+          (item) => item.dataset.relatedNumBc === fileName
+        );
+        relatedFacBls.forEach((relatedFacBl) => {
+          relatedFacBl.classList.add("related"); // ajouter l'effet pour l'élement lié
+        });
+      } else {
+        const relatedNumBc = selectedItem.dataset.relatedNumBc;
+        const relatedBcs = Array.from(bcFileItems).filter(
+          (item) => item.querySelector("small").innerText === relatedNumBc
+        );
+        relatedBcs.forEach((relatedBc) => {
+          relatedBc.classList.add("related"); // ajouter l'effet pour l'élement lié
+        });
+      }
+    }
   }
 });
