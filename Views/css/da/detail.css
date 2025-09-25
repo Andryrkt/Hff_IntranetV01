@@ -246,6 +246,12 @@
   box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
 }
 
+.list-file-item.related {
+  background-color: #fff7e6;
+  box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.2); /* effet léger */
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 /* Style de la carte de chaque type de document */
 .document-type {
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;

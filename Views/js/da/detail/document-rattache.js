@@ -150,14 +150,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!["BC", "FACBL"].includes(docLabelType)) return;
 
     // Retirer l'effet des éléments liés
-    relatedFileItems.forEach((item) => item.classList.remove("related"));
+    relatedFileItems.forEach((item) => {
+      item.classList.remove("related");
+      item.closest(".list-file-item")?.classList.remove("related");
+    });
 
     if (docLabelType === "BC") {
       const relatedFacbls = bcToFacbl.get(fileName) || []; // Chercher les FACBL liés au BC
-      relatedFacbls.forEach((item) => item.classList.add("related"));
+      relatedFacbls.forEach((item) => {
+        item.classList.add("related");
+        item.closest(".list-file-item")?.classList.add("related");
+      });
     } else if (docLabelType === "FACBL") {
       const relatedBc = facblToBc.get(selectedItem); // Chercher le BC lié au FACBL
-      if (relatedBc) relatedBc.classList.add("related");
+      if (relatedBc) {
+        relatedBc.classList.add("related");
+        relatedBc.closest(".list-file-item")?.classList.add("related");
+      }
     }
   }
 });
