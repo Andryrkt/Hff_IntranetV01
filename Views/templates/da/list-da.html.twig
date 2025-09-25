@@ -54,7 +54,14 @@
 					<th class="text-center">Qté livrée</th>
 					<th class="text-center">Date fin souhaitée</th>
 					<th class="text-center">Date livraison prévue</th>
-					<th class="text-center">Nbr Jour(s)</th>
+					<th class="text-center">
+						<div class="d-flex flex-row align-items-center">
+							<span>Nbr Jour(s) dispo</span>
+							<div class="{{ sortJoursClass ? '' : 'd-none' }}">
+								<i class="{{ sortJoursClass }} fs-4 text-warning"></i>
+							</div>
+						</div>
+					</th>
 					<th class="text-center">Suppression</th>
 				</tr>
 			</thead>

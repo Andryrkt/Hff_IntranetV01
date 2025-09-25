@@ -50,6 +50,12 @@ class listeDaController extends Controller
         }
         $this->getSessionService()->set('criteria_for_excel', $criteria);
 
+        $sortJoursClass = false;
+
+        if ($criteria && $criteria['sortNbJours']) {
+            $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        }
+
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
@@ -60,12 +66,13 @@ class listeDaController extends Controller
         $dataPrepared = $this->prepareDataForDisplay($paginationData['data']);
 
         return $this->render('da/list-da.html.twig', [
-            'data'             => $dataPrepared,
-            'form'             => $form->createView(),
-            'criteria'         => $criteria,
-            'currentPage'      => $paginationData['currentPage'],
-            'totalPages'       => $paginationData['lastPage'],
-            'resultat'         => $paginationData['totalItems'],
+            'data'           => $dataPrepared,
+            'form'           => $form->createView(),
+            'criteria'       => $criteria,
+            'sortJoursClass' => $sortJoursClass,
+            'currentPage'    => $paginationData['currentPage'],
+            'totalPages'     => $paginationData['lastPage'],
+            'resultat'       => $paginationData['totalItems'],
         ]);
     }
 }

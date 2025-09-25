@@ -126,7 +126,6 @@ class DaSearchType extends  AbstractType
             ->add('sortNbJours', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un tri --',
                 'label'         => 'Tri par Nbr Jour(s)',
-                'mapped'        => false,
                 'choices'       => [
                     'Ordre croissant'   => 'asc',
                     'Ordre décroissant' => 'desc',
