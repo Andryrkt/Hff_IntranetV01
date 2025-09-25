@@ -244,9 +244,9 @@ class DaAfficherRepository extends EntityRepository
         $subQb->setParameter('statutOrs', $statutOrs)
             ->setParameter('exceptions', $exceptions);
 
-        $this->applyDynamicFilters($subQb, $criteria, true);
-        $this->applyStatutsFilters($subQb, $criteria, true);
-        $this->applyDateFilters($subQb, $criteria, true);
+        $this->applyDynamicFilters($subQb, "d", $criteria, true);
+        $this->applyStatutsFilters($subQb, "d", $criteria, true);
+        $this->applyDateFilters($subQb, "d", $criteria, true);
 
         // ----------------------
         // 2. Compter distinctement les DA
@@ -350,11 +350,11 @@ class DaAfficherRepository extends EntityRepository
             ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
-        $this->applyDynamicFilters($subQb, $criteria);
-        $this->applyAgencyServiceFilters($subQb, $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($subQb, $criteria);
-        $this->applyFilterAppro($subQb, $estAppro, $estAdmin);
-        $this->applyStatutsFilters($subQb, $criteria);
+        $this->applyDynamicFilters($subQb, "d", $criteria);
+        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($subQb, "d", $criteria);
+        $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
+        $this->applyStatutsFilters($subQb, "d", $criteria);
 
         // ⚡ Cloner avant de limiter les résultats
         $countQb = clone $subQb;
@@ -426,10 +426,10 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
-    private function applyFilterAppro(QueryBuilder $qb, bool $estAppro, bool $estAdmin): void
+    private function applyFilterAppro(QueryBuilder $qb, string $qbLabel, bool $estAppro, bool $estAdmin): void
     {
         if (!$estAdmin && $estAppro) {
-            $qb->andWhere('d.statutDal IN (:authorizedStatuts)')
+            $qb->andWhere($qbLabel . 'statutDal IN (:authorizedStatuts)')
                 ->setParameter('authorizedStatuts', [
                     DemandeAppro::STATUT_SOUMIS_APPRO,
                     DemandeAppro::STATUT_SOUMIS_ATE,
@@ -440,22 +440,22 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    private function applyDynamicFilters(QueryBuilder $qb, array $criteria, bool $estCdeFrn = false): void
+    private function applyDynamicFilters(QueryBuilder $qb, string $qbLabel, array $criteria, bool $estCdeFrn = false): void
     {
         if ($estCdeFrn) {
             $map = [
-                'numDa'     => 'd.numeroDemandeAppro',
-                'numDit'    => 'd.numeroDemandeDit',
-                'numCde'    => 'd.numeroCde',
-                'numOr'     => 'd.numeroOr',
-                'numFrn'    => 'd.numeroFournisseur',
-                'frn'       => 'd.nomFournisseur',
+                'numDa'     => "$qbLabel.numeroDemandeAppro",
+                'numDit'    => "$qbLabel.numeroDemandeDit",
+                'numCde'    => "$qbLabel.numeroCde",
+                'numOr'     => "$qbLabel.numeroOr",
+                'numFrn'    => "$qbLabel.numeroFournisseur",
+                'frn'       => "$qbLabel.nomFournisseur",
             ];
         } else {
             $map = [
-                'numDa'     => 'd.numeroDemandeAppro',
-                'numDit'    => 'd.numeroDemandeDit',
-                'demandeur' => 'd.demandeur'
+                'numDa'     => "$qbLabel.numeroDemandeAppro",
+                'numDit'    => "$qbLabel.numeroDemandeDit",
+                'demandeur' => "$qbLabel.demandeur",
             ];
         }
 
@@ -468,9 +468,9 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (empty($criteria['numDit']) && empty($criteria['numDa'])) {
-            $qb->leftJoin('d.dit', 'dit')
+            $qb->leftJoin("$qbLabel.dit", 'dit')
                 ->leftJoin('dit.idStatutDemande', 'statut')
-                ->andWhere('d.dit IS NULL OR statut.id NOT IN (:clotureStatut)')
+                ->andWhere("$qbLabel.dit IS NULL OR statut.id NOT IN (:clotureStatut)")
                 ->setParameter('clotureStatut', [
                     DemandeIntervention::STATUT_CLOTUREE_ANNULEE,
                     DemandeIntervention::STATUT_CLOTUREE_HORS_DELAI
@@ -478,155 +478,155 @@ class DaAfficherRepository extends EntityRepository
         }
 
         if (!empty($criteria['niveauUrgence'])) {
-            $qb->andWhere("d.niveauUrgence = :niveau")
+            $qb->andWhere("$qbLabel.niveauUrgence = :niveau")
                 ->setParameter("niveau", $criteria['niveauUrgence']->getDescription());
         }
 
         if (!empty($criteria['ref'])) {
-            $qb->andWhere('d.artRefp LIKE :ref')
+            $qb->andWhere("$qbLabel.artRefp LIKE :ref")
                 ->setParameter('ref', '%' . $criteria['ref'] . '%');
         }
 
         if (!empty($criteria['designation'])) {
-            $qb->andWhere('d.artDesi LIKE :designation')
+            $qb->andWhere("$qbLabel.artDesi LIKE :designation")
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
         if (!empty($criteria['typeAchat']) && $criteria['typeAchat'] !== 'tous') {
             $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
-            $qb->andWhere('d.achatDirect = :typeAchat')
+            $qb->andWhere("$qbLabel.achatDirect = :typeAchat")
                 ->setParameter('typeAchat', $typeAchat);
         }
     }
 
-    private function applyStatutsFilters(QueryBuilder $queryBuilder, array $criteria, bool $estCdeFrn = false)
+    private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
             if (!empty($criteria['statutBc'])) {
-                $queryBuilder->andWhere('d.statutCde = :statutBc')
+                $queryBuilder->andWhere($qbLabel . 'statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBc']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere('d.statutDal = :statutDa')
+                $queryBuilder->andWhere($qbLabel . 'statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
             } else {
-                $queryBuilder->andWhere('d.statutDal != :statutDa')
+                $queryBuilder->andWhere($qbLabel . 'statutDal != :statutDa')
                     ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
             }
 
             if (!empty($criteria['statutOR'])) {
-                $queryBuilder->andWhere('d.statutOr = :statutOr')
+                $queryBuilder->andWhere($qbLabel . 'statutOr = :statutOr')
                     ->setParameter('statutOr', $criteria['statutOR']);
             }
 
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere('d.statutCde = :statutBc')
+                $queryBuilder->andWhere($qbLabel . 'statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBC']);
             }
         }
     }
 
 
-    private function applyDateFilters($qb, array $criteria, bool $estCdeFrn = false)
+    private function applyDateFilters($qb, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . 'dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . 'dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . 'datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . 'datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         } else {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . 'dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . 'dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** Date DA (date de demande) */
             if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateDemande >= :dateDemandeDebut')
+                $qb->andWhere($qbLabel . 'dateDemande >= :dateDemandeDebut')
                     ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
             }
 
             if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.dateDemande <= :dateDemandeFin')
+                $qb->andWhere($qbLabel . 'dateDemande <= :dateDemandeFin')
                     ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . 'datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere('d.datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . 'datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         }
     }
 
-    private function applyAgencyServiceFilters($qb, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
+    private function applyAgencyServiceFilters($qb, string $qbLabel, array $criteria, User $user, int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin)
     {
         if (!$estAtelier && !$estAppro && !$estAdmin) {
             $qb
                 ->andWhere(
                     $qb->expr()->orX(
-                        'd.agenceDebiteur IN (:agenceAutoriserIds)',
-                        'd.agenceEmetteur = :codeAgence'
+                        "$qbLabel.agenceDebiteur IN (:agenceAutoriserIds)",
+                        "$qbLabel.agenceEmetteur = :codeAgence"
                     )
                 )
                 ->setParameter('agenceAutoriserIds', $user->getAgenceAutoriserIds(), ArrayParameterType::INTEGER)
                 ->setParameter('codeAgence', $idAgenceUser)
                 ->andWhere(
                     $qb->expr()->orX(
-                        'd.serviceDebiteur IN (:serviceAutoriserIds)',
-                        'd.serviceEmetteur IN (:serviceAutoriserIds)'
+                        "$qbLabel.serviceDebiteur IN (:serviceAutoriserIds)",
+                        "$qbLabel.serviceEmetteur IN (:serviceAutoriserIds)"
                     )
                 )
                 ->setParameter('serviceAutoriserIds', $user->getServiceAutoriserIds(), ArrayParameterType::INTEGER);
         }
 
         if (!empty($criteria['agenceEmetteur'])) {
-            $qb->andWhere('d.agenceEmetteur = :agEmet')
+            $qb->andWhere("$qbLabel.agenceEmetteur = :agEmet")
                 ->setParameter('agEmet', $criteria['agenceEmetteur']->getId());
         }
         if (!empty($criteria['serviceEmetteur'])) {
-            $qb->andWhere('d.serviceEmetteur = :agServEmet')
+            $qb->andWhere("$qbLabel.serviceEmetteur = :agServEmet")
                 ->setParameter('agServEmet', $criteria['serviceEmetteur']->getId());
         }
 
 
         if (!empty($criteria['agenceDebiteur'])) {
-            $qb->andWhere('d.agenceDebiteur = :agDebit')
+            $qb->andWhere("$qbLabel.agenceDebiteur = :agDebit")
                 ->setParameter('agDebit', $criteria['agenceDebiteur']->getId())
             ;
         }
 
         if (!empty($criteria['serviceDebiteur'])) {
-            $qb->andWhere('d.serviceDebiteur = :serviceDebiteur')
+            $qb->andWhere("$qbLabel.serviceDebiteur = :serviceDebiteur")
                 ->setParameter('serviceDebiteur', $criteria['serviceDebiteur']->getId());
         }
     }
