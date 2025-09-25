@@ -12,6 +12,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (type in fileItemsByType) fileItemsByType[type].push(item);
   });
 
+  // Construire les relations BC → FACBL et FACBL → BC
+  const bcToFacbl = new Map(); // one to many
+  fileItemsByType.BC.forEach((bc) => {
+    const fileName = bc.querySelector("small").innerText;
+    const relatedFacbls = fileItemsByType.FACBL.filter(
+      (facbl) => facbl.dataset.relatedNumBc === fileName
+    );
+    bcToFacbl.set(fileName, relatedFacbls);
+  });
+
+  const facblToBc = new Map(); // one to one
+  fileItemsByType.FACBL.forEach((facbl) => {
+    const relatedNumBc = facbl.dataset.relatedNumBc;
+    const relatedBc = fileItemsByType.BC.find(
+      (bc) => bc.querySelector("small").innerText === relatedNumBc
+    );
+    if (relatedBc) facblToBc.set(facbl, relatedBc);
+  });
+
   // Éléments concernés pour toggle related
   const relatedFileItems = Array.from(fileItems).filter((item) =>
     ["BC", "FACBL"].includes(item.dataset.docLabelType)
@@ -31,13 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let textHtml = "";
 
       toggleSelectedItem(this, fileItems);
-      toggleRelatedItem(
-        this,
-        docLabelType,
-        fileName,
-        relatedFileItems,
-        fileItemsByType
-      );
+      toggleRelatedItem(this, docLabelType, fileName);
 
       // Vérification côté JS avant affichage
       fetch(filePath, { method: "HEAD" })
@@ -133,31 +146,18 @@ document.addEventListener("DOMContentLoaded", () => {
     selectedItem.closest(".list-file-item")?.classList.add("selected"); // Ajouter la sélection à son bloc parent
   }
 
-  function toggleRelatedItem(
-    selectedItem,
-    docLabelType,
-    fileName,
-    relatedFileItems,
-    fileItemsByType
-  ) {
+  function toggleRelatedItem(selectedItem, docLabelType, fileName) {
     if (!["BC", "FACBL"].includes(docLabelType)) return;
 
     // Retirer l'effet des éléments liés
     relatedFileItems.forEach((item) => item.classList.remove("related"));
 
     if (docLabelType === "BC") {
-      // Chercher les FACBL liés au BC
-      const relatedFacBls = fileItemsByType.FACBL.filter(
-        (item) => item.dataset.relatedNumBc === fileName
-      );
-      relatedFacBls.forEach((item) => item.classList.add("related"));
-    } else {
-      // Chercher les BC liés au FACBL
-      const relatedNumBc = selectedItem.dataset.relatedNumBc;
-      const relatedBcs = fileItemsByType.BC.filter(
-        (item) => item.querySelector("small").innerText === relatedNumBc
-      );
-      relatedBcs.forEach((item) => item.classList.add("related"));
+      const relatedFacbls = bcToFacbl.get(fileName) || []; // Chercher les FACBL liés au BC
+      relatedFacbls.forEach((item) => item.classList.add("related"));
+    } else if (docLabelType === "FACBL") {
+      const relatedBc = facblToBc.get(selectedItem); // Chercher le BC lié au FACBL
+      if (relatedBc) relatedBc.classList.add("related");
     }
   }
 });
