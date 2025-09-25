@@ -3,6 +3,7 @@
 namespace App\Service\validation;
 
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
+use App\Repository\Interfaces\LatestSumOfMontantRepositoryInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\Interfaces\StatusRepositoryInterface;
@@ -129,8 +130,8 @@ abstract class ValidationServiceBase
         return false;
     }
 
-        /**
-     * Vérifie si le statut le plus récent d'une entité est bloquant avec recherche partielle
+    /**
+     * Vérifie si le statut le plus récent d'une entité est bloquant avec recherche partielle en commençant par
      * 
      * Cette méthode effectue une correspondance partielle (insensible à la casse) entre
      * le statut actuel et les mots-clés bloquants fournis
@@ -187,6 +188,32 @@ abstract class ValidationServiceBase
         }
 
         return $oldSumOfLines === $newSumOfLines;
+    }
+
+    /**
+     * Vérifie si le montant total d'une entité est inchangé
+     * 
+     * Cette méthode compare le montant total actuel avec le montant total
+     * précédent pour détecter les modifications
+     * 
+     * @param LatestSumOfMontantRepositoryInterface $repository Le repository pour accéder aux données de montant
+     * @param string $identifier L'identifiant de l'entité (ex: numéro de devis)
+     * @param float $newSumOfMontant Le nouveau montant total à comparer
+     * @return bool true si le montant total est identique, false sinon
+     */
+    protected function isSumOfMontantUnchanged(
+        LatestSumOfMontantRepositoryInterface $repository,
+        string $identifier,
+        float $newSumOfMontant
+    ): bool {
+        $oldSumOfMontant = $repository->findLatestSumOfMontantByIdentifier($identifier);
+
+        if ($oldSumOfMontant === null) {
+            // No previous version to compare against, so it's not a blocking issue.
+            return false;
+        }
+
+        return $oldSumOfMontant === $newSumOfMontant;
     }
 
 

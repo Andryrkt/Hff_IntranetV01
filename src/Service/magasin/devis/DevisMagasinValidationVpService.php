@@ -9,18 +9,20 @@ use App\Repository\Interfaces\StatusRepositoryInterface;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator;
 
 /**
- * Service de validation pour les devis magasin - Validation de Prix (VP)
+ * Service de validation pour les devis magasin - Validation de Prix (VP) (Version refactorisée)
  * 
- * Ce service gère toutes les validations nécessaires pour la validation de prix des devis magasin,
- * incluant la vérification des fichiers, des statuts et des modifications de contenu.
+ * Ce service utilise maintenant l'orchestrateur de validation VP pour déléguer
+ * les responsabilités à des validateurs spécialisés.
+ * 
+ * @deprecated Cette classe est maintenue pour la compatibilité ascendante.
+ * Utilisez DevisMagasinValidationVpOrchestrator directement pour les nouveaux développements.
  */
 class DevisMagasinValidationVpService extends ValidationServiceBase
 {
-    private const FILE_FIELD_NAME = 'pieceJoint01';
-    private const FILENAME_PATTERN = '/^(DEVIS MAGASIN|CONTROLE DEVIS)_(\d+)_(\d+)_(\d+)\\.pdf$/';
-
+    private DevisMagasinValidationVpOrchestrator $orchestrator;
     private HistoriqueOperationDevisMagasinService $historiqueService;
     private string $expectedNumeroDevis;
 
@@ -34,6 +36,7 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
     {
         $this->historiqueService = $historiqueService;
         $this->expectedNumeroDevis = $expectedNumeroDevis;
+        $this->orchestrator = new DevisMagasinValidationVpOrchestrator($historiqueService, $expectedNumeroDevis);
     }
 
     /**
@@ -44,59 +47,22 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      */
     public function checkMissingIdentifier(?string $numeroDevis): bool
     {
-        if ($this->isIdentifierMissing($numeroDevis)) {
-            $message = "Le numero de devis est obligatoire pour la soumission.";
-            $this->historiqueService->sendNotificationSoumission($message, '', 'devis_magasin_liste', false);
-            return false; // Validation failed
-        }
-        return true; // Validation passed
+        return $this->orchestrator->checkMissingIdentifier($numeroDevis);
     }
 
     /**
      * Valide le fichier soumis pour la validation de prix d'un devis magasin
-     * 
-     * Cette méthode vérifie :
-     * - Si un fichier a été soumis
-     * - Si le nom du fichier correspond au format attendu (DEVIS MAGASIN_XXX_XXX_XXX.pdf)
-     * - Si le numéro de devis dans le nom du fichier correspond au numéro attendu
      * 
      * @param FormInterface $form Le formulaire contenant le fichier à valider
      * @return bool true si le fichier est valide, false sinon
      */
     public function validateSubmittedFile(FormInterface $form): bool
     {
-        // Vérifie si un fichier a été soumis
-        if (!$this->isFileSubmitted($form, self::FILE_FIELD_NAME)) {
-            $message = "Aucun fichier n'a été soumis.";
-            $this->historiqueService->sendNotificationSoumission($message, '', 'devis_magasin_liste', false);
-            return false;
-        }
-
-        $file = $form->get(self::FILE_FIELD_NAME)->getData();
-        $fileName = $file->getClientOriginalName();
-
-        // Vérifie si le nom du fichier correspond au pattern attendu (S'assurer que c'est bien un devis qui soit soumis)
-        if (!$this->matchPattern($fileName, self::FILENAME_PATTERN)) {
-            $message = "Le nom du fichier soumis n'est pas conforme au format attendu. Reçu: " . $fileName;
-            $this->historiqueService->sendNotificationSoumission($message, '', 'devis_magasin_liste', false);
-            return false;
-        }
-
-        // Vérifie si le numéro de devis dans le nom du fichier correspond au numéro de devis attendu (S'assurer que le devis envoyé corresponde à la ligne de devis utilisé pour la soumission dans l'intranet)
-        if (!$this->matchNumberAfterUnderscore($fileName, $this->expectedNumeroDevis)) {
-            $message = "Le numéro de devis dans le nom du fichier ($fileName) ne correspond pas au devis du formulaire ( $this->expectedNumeroDevis )";
-            $this->historiqueService->sendNotificationSoumission($message, $this->expectedNumeroDevis, 'devis_magasin_liste', false);
-            return false;
-        }
-
-        return true;
+        return $this->orchestrator->validateSubmittedFile($form);
     }
 
     /**
      * Bloqué si le devis est en cours de vérification de prix
-     * 
-     * Cette méthode vérifie si le devis est dans un statut en cours de vérification de prix 
-     * (ex: "prix à confirmer", "Soumis à validation")
      * 
      * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
      * @param string $numeroDevis Le numéro de devis à vérifier
@@ -106,27 +72,15 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         StatusRepositoryInterface $repository,
         string $numeroDevis
     ): bool {
-        $blockingStatuses = [
-            DevisMagasin::STATUT_PRIX_A_CONFIRMER,
-        ];
-
-        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses)) {
-            $message = "Une confirmation de prix pour ce devis est déjà en cours au magasin. (VP)";
-            $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
-            return false; // Validation failed
-        }
-
-        return true; // Validation passed
+        return $this->orchestrator->checkBlockingStatusOnSubmission($repository, $numeroDevis);
     }
 
     /**
      * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
      * 
-     * Cette méthode empêche l'utilisateur de soumettre un devis à validation de prix
-     * si le prix a déjà été vérifié ou si le devis est dans un autre statut bloquant
-     * 
-     * @param LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données
+     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
      * @param string $numeroDevis Le numéro de devis à vérifier
+     * @param int $newSumOfLines Le nouveau nombre de lignes
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
     public function checkBlockingStatusOnSubmissionForVd(
@@ -134,60 +88,27 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         string $numeroDevis,
         int $newSumOfLines
     ): bool {
-        $blockingStatuses = [
-            DevisMagasin::STATUT_PRIX_MODIFIER_TANA,
-            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE,
-            DevisMagasin::STATUT_PRIX_VALIDER_TANA,
-            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE,
-            DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE,
-        ];
-
-        $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
-
-        if ($oldSumOfLines === null) {
-            // No previous version to compare against, so it's not a blocking issue.
-            return true;
-        }
-
-        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {
-            $message = "Le prix a été déjà vérifié ... Veuillez soumettre le devis à validation";
-            $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
-            return false; // Validation failed
-        }
-
-        return true; // Validation passed
+        return $this->orchestrator->checkBlockingStatusOnSubmissionForVd($repository, $numeroDevis, $newSumOfLines);
     }
 
+
     /**
-     * Vérifie si le nombre de lignes du devis a changé pour la validation de prix
+     * Effectue toutes les validations nécessaires avant la validation de prix d'un devis (Version améliorée)
      * 
-     * Cette méthode compare le nombre de lignes actuel avec le nombre de lignes précédent
-     * pour détecter les modifications qui nécessitent une validation de devis avant
-     * la validation de prix
-     * 
-     * @param LatestSumOfLinesRepositoryInterface $repository Le repository pour accéder aux données de lignes
-     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @param StatusRepositoryInterface $statusRepository Le repository pour accéder aux statuts
+     * @param DevisMagasinRepository $devisRepository Le repository pour accéder aux données du devis
+     * @param LatestSumOfLinesRepositoryInterface $linesRepository Le repository pour accéder aux données de lignes
+     * @param string $numeroDevis Le numéro de devis à valider
      * @param int $newSumOfLines Le nouveau nombre de lignes
-     * @return bool true si le nombre de lignes est inchangé (bloquant), false sinon
+     * @return bool true si toutes les validations passent, false sinon
      */
-    public function estSommeDeLigneInChanger(
-        LatestSumOfLinesRepositoryInterface $repository,
+    public function validateBeforeVpSubmission(
+        StatusRepositoryInterface $statusRepository,
+        DevisMagasinRepository $devisRepository,
+        LatestSumOfLinesRepositoryInterface $linesRepository,
         string $numeroDevis,
         int $newSumOfLines
     ): bool {
-        $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
-
-        if ($oldSumOfLines === null) {
-            // No previous version to compare against, so it's not a blocking issue.
-            return false;
-        }
-
-        if ($this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)) {
-            $message = "soumission bloquée (doit passer par validation devis)";
-            $this->historiqueService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', false);
-            return true; // Is blocking
-        }
-
-        return false; // Is not blocking
+        return $this->orchestrator->validateBeforeVpSubmission($statusRepository, $devisRepository, $linesRepository, $numeroDevis, $newSumOfLines);
     }
 }
