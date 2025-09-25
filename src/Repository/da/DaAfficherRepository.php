@@ -343,63 +343,51 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
-    private function getPaginatedDas(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit): array
+    /**
+     * Étape 1 : Récupérer les dernières versions de chaque DA
+     */
+    private function getLastVersions(): array
     {
-        $subQb = $this->createQueryBuilder('d')
+        $qb = $this->createQueryBuilder('d')
             ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
             ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
-        $this->applyDynamicFilters($subQb, "d", $criteria);
-        $this->applyAgencyServiceFilters($subQb, "d", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($subQb, "d", $criteria);
-        $this->applyFilterAppro($subQb, "d", $estAppro, $estAdmin);
-        $this->applyStatutsFilters($subQb, "d", $criteria);
-
-        // ⚡ Cloner avant de limiter les résultats
-        $countQb = clone $subQb;
-        $countQb->resetDQLPart('orderBy'); // pas besoin d'ORDER BY dans un COUNT
-
-        // Nombre total de DA distincts
-        $totalItems = count($countQb->getQuery()->getResult());
-
-        // Pagination + order by
-        $subQb->orderBy('MAX(d.dateDemande)', 'DESC')
-            ->addOrderBy('MAX(d.numeroFournisseur)', 'DESC')
-            ->addOrderBy('MAX(d.numeroCde)', 'DESC')
-            ->setFirstResult(($page - 1) * $limit)
-            ->setMaxResults($limit);
-
-        return [
-            'results'    => $subQb->getQuery()->getArrayResult(),
-            'totalItems' => $totalItems
-        ];
+        return $qb->getQuery()->getArrayResult(); // retourne [ ['numeroDemandeAppro'=>.., 'maxVersion'=>..], ... ]
     }
 
     /**
-     * fonction Pour récupérer les données filtrées
+     * Étape 2 : Filtrer les dernières versions et paginer
      */
-    public function findPaginatedAndFilteredDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin, int $page, int $limit)
-    {
-        $paginatedDAs = $this->getPaginatedDas($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
-        $numeroDAsPage = array_column($paginatedDAs['results'], 'numeroDemandeAppro');
-        $versionsMax = array_column($paginatedDAs['results'], 'maxVersion', 'numeroDemandeAppro');
-
-        if (empty($numeroDAsPage)) {
+    private function getFilteredLastVersions(
+        User $user,
+        array $criteria,
+        int $idAgenceUser,
+        bool $estAppro,
+        bool $estAtelier,
+        bool $estAdmin,
+        int $page,
+        int $limit
+    ): array {
+        // 1️⃣ Récupérer toutes les dernières versions
+        $lastVersions = $this->getLastVersions();
+        if (empty($lastVersions)) {
             return [
-                'data'        => [],
-                'totalItems'  => 0,
-                'currentPage' => $page,
-                'lastPage'    => 0,
+                'results'    => [],
+                'totalItems' => 0
             ];
         }
 
+        $numeroDAs = array_column($lastVersions, 'numeroDemandeAppro');
+        $versionsMax = array_column($lastVersions, 'maxVersion', 'numeroDemandeAppro');
+
+        // 2️⃣ Créer la requête sur les dernières versions uniquement
         $qb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
             ->andWhere('daf.deleted = 0')
-            ->setParameter('numeroDAs', $numeroDAsPage);
+            ->setParameter('numeroDAs', $numeroDAs);
 
-        // Ajouter condition version max (évite duplications)
+        // Limiter aux numéros de version max
         $orX = $qb->expr()->orX();
         foreach ($versionsMax as $numeroDA => $versionMax) {
             $orX->add($qb->expr()->andX(
@@ -411,25 +399,64 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
+        // 3️⃣ Appliquer les filtres sur ces dernières versions uniquement
+        $this->applyDynamicFilters($qb, "daf", $criteria);
+        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, "daf", $criteria);
+        $this->applyFilterAppro($qb, "daf", $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, "daf", $criteria);
+
+        // 4️⃣ Compter le total distinct des DA après filtrage
+        $countQb = clone $qb;
+        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
+        $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
+
+        // 5️⃣ Pagination
         $qb->orderBy('daf.dateDemande', 'DESC')
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
-            ->addOrderBy('daf.numeroCde', 'DESC');
+            ->addOrderBy('daf.numeroCde', 'DESC')
+            ->setFirstResult(($page - 1) * $limit)
+            ->setMaxResults($limit);
 
-        $totalItems = $paginatedDAs['totalItems'];
-        $lastPage = ceil($totalItems / $limit);
+        $results = $qb->getQuery()->getResult();
 
         return [
-            'data'        => $qb->getQuery()->getResult(),
-            'totalItems'  => $totalItems,
-            'currentPage' => $page,
-            'lastPage'    => $lastPage,
+            'results'     => $results,
+            'totalItems'  => $totalItems
         ];
     }
+
+    /**
+     * Fonction publique : renvoie les DA paginés avec filtres appliqués uniquement sur les dernières versions
+     */
+    public function findPaginatedAndFilteredDA(
+        User $user,
+        array $criteria,
+        int $idAgenceUser,
+        bool $estAppro,
+        bool $estAtelier,
+        bool $estAdmin,
+        int $page,
+        int $limit
+    ): array {
+        $paginated = $this->getFilteredLastVersions($user, $criteria, $idAgenceUser, $estAppro, $estAtelier, $estAdmin, $page, $limit);
+
+        $totalItems = $paginated['totalItems'];
+        $lastPage = $totalItems > 0 ? ceil($totalItems / $limit) : 0;
+
+        return [
+            'data'        => $paginated['results'],
+            'totalItems'  => $totalItems,
+            'currentPage' => $page,
+            'lastPage'    => $lastPage
+        ];
+    }
+
 
     private function applyFilterAppro(QueryBuilder $qb, string $qbLabel, bool $estAppro, bool $estAdmin): void
     {
         if (!$estAdmin && $estAppro) {
-            $qb->andWhere($qbLabel . 'statutDal IN (:authorizedStatuts)')
+            $qb->andWhere($qbLabel . '.statutDal IN (:authorizedStatuts)')
                 ->setParameter('authorizedStatuts', [
                     DemandeAppro::STATUT_SOUMIS_APPRO,
                     DemandeAppro::STATUT_SOUMIS_ATE,
@@ -503,25 +530,25 @@ class DaAfficherRepository extends EntityRepository
     {
         if ($estCdeFrn) {
             if (!empty($criteria['statutBc'])) {
-                $queryBuilder->andWhere($qbLabel . 'statutCde = :statutBc')
+                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBc']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
-                $queryBuilder->andWhere($qbLabel . 'statutDal = :statutDa')
+                $queryBuilder->andWhere($qbLabel . '.statutDal = :statutDa')
                     ->setParameter('statutDa', $criteria['statutDA']);
             } else {
-                $queryBuilder->andWhere($qbLabel . 'statutDal != :statutDa')
+                $queryBuilder->andWhere($qbLabel . '.statutDal != :statutDa')
                     ->setParameter('statutDa', DemandeAppro::STATUT_TERMINER);
             }
 
             if (!empty($criteria['statutOR'])) {
-                $queryBuilder->andWhere($qbLabel . 'statutOr = :statutOr')
+                $queryBuilder->andWhere($qbLabel . '.statutOr = :statutOr')
                     ->setParameter('statutOr', $criteria['statutOR']);
             }
 
             if (!empty($criteria['statutBC'])) {
-                $queryBuilder->andWhere($qbLabel . 'statutCde = :statutBc')
+                $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
                     ->setParameter('statutBc', $criteria['statutBC']);
             }
         }
@@ -533,56 +560,56 @@ class DaAfficherRepository extends EntityRepository
         if ($estCdeFrn) {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         } else {
             /** Date fin souhaite */
             if (!empty($criteria['dateDebutfinSouhaite']) && $criteria['dateDebutfinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateFinSouhaite >= :dateDebutfinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite >= :dateDebutfinSouhaite')
                     ->setParameter('dateDebutfinSouhaite', $criteria['dateDebutfinSouhaite']);
             }
 
             if (!empty($criteria['dateFinFinSouhaite']) && $criteria['dateFinFinSouhaite'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateFinSouhaite <= :dateFinFinSouhaite')
+                $qb->andWhere($qbLabel . '.dateFinSouhaite <= :dateFinFinSouhaite')
                     ->setParameter('dateFinFinSouhaite', $criteria['dateFinFinSouhaite']);
             }
 
             /** Date DA (date de demande) */
             if (!empty($criteria['dateDebutCreation']) && $criteria['dateDebutCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateDemande >= :dateDemandeDebut')
+                $qb->andWhere($qbLabel . '.dateDemande >= :dateDemandeDebut')
                     ->setParameter('dateDemandeDebut', $criteria['dateDebutCreation']);
             }
 
             if (!empty($criteria['dateFinCreation']) && $criteria['dateFinCreation'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'dateDemande <= :dateDemandeFin')
+                $qb->andWhere($qbLabel . '.dateDemande <= :dateDemandeFin')
                     ->setParameter('dateDemandeFin', $criteria['dateFinCreation']);
             }
 
             /** DATE PLANNING OR */
             if (!empty($criteria['dateDebutOR']) && $criteria['dateDebutOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'datePlannigOr >= :dateDebutOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr >= :dateDebutOR')
                     ->setParameter('dateDebutOR', $criteria['dateDebutOR']);
             }
 
             if (!empty($criteria['dateFinOR']) && $criteria['dateFinOR'] instanceof \DateTimeInterface) {
-                $qb->andWhere($qbLabel . 'datePlannigOr <= :dateFinOR')
+                $qb->andWhere($qbLabel . '.datePlannigOr <= :dateFinOR')
                     ->setParameter('dateFinOR', $criteria['dateFinOR']);
             }
         }
