@@ -1,24 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const viewer = document.getElementById("file-viewer");
   const height = window.innerHeight;
-  // Tous les éléments .file-item
+
+  // Récupérer tous les éléments .file-item
   const fileItems = document.querySelectorAll(".file-item");
 
-  // Seulement ceux avec data-doc-label-type="BC"
-  const bcFileItems = Array.from(fileItems).filter(
-    (item) => item.dataset.docLabelType === "BC"
-  );
+  // Regrouper par type pour un accès rapide
+  const fileItemsByType = { BC: [], FACBL: [] };
+  fileItems.forEach((item) => {
+    const type = item.dataset.docLabelType;
+    if (type in fileItemsByType) fileItemsByType[type].push(item);
+  });
 
-  // Seulement ceux avec data-doc-label-type="FACBL"
-  const facblFileItems = Array.from(fileItems).filter(
-    (item) => item.dataset.docLabelType === "FACBL"
-  );
-
-  // Éléments pour lesquels on va ajouter un événement spécifique (BC ou FACBL)
+  // Éléments concernés pour toggle related
   const relatedFileItems = Array.from(fileItems).filter((item) =>
     ["BC", "FACBL"].includes(item.dataset.docLabelType)
   );
 
+  // Gestion du clic sur un fichier
   fileItems.forEach((fileItem) => {
     // Clic sur un fichier (hors lien de téléchargement)
     fileItem.addEventListener("click", function (event) {
@@ -37,8 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
         docLabelType,
         fileName,
         relatedFileItems,
-        bcFileItems,
-        facblFileItems
+        fileItemsByType
       );
 
       // Vérification côté JS avant affichage
@@ -120,6 +118,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // ---------------------
+  // Fonctions
+  // ---------------------
+
   function toggleSelectedItem(selectedItem, allItems) {
     // Retirer toutes les sélections
     allItems.forEach((item) => {
@@ -127,11 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
       item.closest(".list-file-item")?.classList.remove("selected");
     });
 
-    // Ajouter la sélection au fichier cliqué
-    selectedItem.classList.add("selected");
-
-    // Ajouter la sélection à son bloc parent
-    selectedItem.closest(".list-file-item")?.classList.add("selected");
+    selectedItem.classList.add("selected"); // Ajouter la sélection au fichier cliqué
+    selectedItem.closest(".list-file-item")?.classList.add("selected"); // Ajouter la sélection à son bloc parent
   }
 
   function toggleRelatedItem(
@@ -139,32 +138,26 @@ document.addEventListener("DOMContentLoaded", () => {
     docLabelType,
     fileName,
     relatedFileItems,
-    bcFileItems,
-    facblFileItems
+    fileItemsByType
   ) {
-    if (["BC", "FACBL"].includes(docLabelType)) {
-      // Retirer toutes les effets pour les élements liés
-      relatedFileItems.forEach((item) => {
-        item.classList.remove("related");
-      });
+    if (!["BC", "FACBL"].includes(docLabelType)) return;
 
-      if (docLabelType === "BC") {
-        // Seulement ceux avec data-doc-label-type="FACBL"
-        const relatedFacBls = Array.from(facblFileItems).filter(
-          (item) => item.dataset.relatedNumBc === fileName
-        );
-        relatedFacBls.forEach((relatedFacBl) => {
-          relatedFacBl.classList.add("related"); // ajouter l'effet pour l'élement lié
-        });
-      } else {
-        const relatedNumBc = selectedItem.dataset.relatedNumBc;
-        const relatedBcs = Array.from(bcFileItems).filter(
-          (item) => item.querySelector("small").innerText === relatedNumBc
-        );
-        relatedBcs.forEach((relatedBc) => {
-          relatedBc.classList.add("related"); // ajouter l'effet pour l'élement lié
-        });
-      }
+    // Retirer l'effet des éléments liés
+    relatedFileItems.forEach((item) => item.classList.remove("related"));
+
+    if (docLabelType === "BC") {
+      // Chercher les FACBL liés au BC
+      const relatedFacBls = fileItemsByType.FACBL.filter(
+        (item) => item.dataset.relatedNumBc === fileName
+      );
+      relatedFacBls.forEach((item) => item.classList.add("related"));
+    } else {
+      // Chercher les BC liés au FACBL
+      const relatedNumBc = selectedItem.dataset.relatedNumBc;
+      const relatedBcs = fileItemsByType.BC.filter(
+        (item) => item.querySelector("small").innerText === relatedNumBc
+      );
+      relatedBcs.forEach((item) => item.classList.add("related"));
     }
   }
 });
