@@ -413,9 +413,11 @@ class DaAfficherRepository extends EntityRepository
 
         // 5️⃣ Pagination sur les DA distincts
         $distinctQb = clone $qb;
-        $distinctQb->select('daf.numeroDemandeAppro')
-            ->groupBy('daf.numeroDemandeAppro')
-            ->orderBy('MAX(daf.dateDemande)', 'DESC')
+        $distinctQb
+            ->select('daf.numeroDemandeAppro')
+            ->groupBy('daf.numeroDemandeAppro');
+        $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
+        $distinctQb
             ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
             ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
@@ -434,8 +436,9 @@ class DaAfficherRepository extends EntityRepository
         $finalQb = $this->createQueryBuilder('daf')
             ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
             ->andWhere('daf.deleted = 0')
-            ->setParameter('numeroDAsPage', $numeroDAsPage)
-            ->orderBy('daf.dateDemande', 'DESC')
+            ->setParameter('numeroDAsPage', $numeroDAsPage);
+        $this->handleOrderBy($finalQb, 'daf', $criteria);
+        $finalQb
             ->addOrderBy('daf.numeroFournisseur', 'DESC')
             ->addOrderBy('daf.numeroCde', 'DESC');
 
@@ -487,6 +490,28 @@ class DaAfficherRepository extends EntityRepository
         ];
     }
 
+    private function handleOrderBy(QueryBuilder $qb, string $qbLabel, $criteria, $aggregation = false)
+    {
+        $allowedDirs = ['ASC', 'DESC'];
+
+        if ($criteria && !empty($criteria['sortNbJours'])) {
+            $orderDir = strtoupper($criteria['sortNbJours']);
+            if (!in_array($orderDir, $allowedDirs, true)) {
+                $orderDir = 'DESC';
+            }
+
+            if ($aggregation) {
+                $orderFunc = $orderDir === 'DESC' ? 'MAX' : 'MIN';
+                $qb->orderBy("$orderFunc($qbLabel.joursDispo)", $orderDir);
+            } else {
+                $qb->orderBy("$qbLabel.joursDispo", $orderDir);
+            }
+        }
+
+        // Fallback par défaut ou ordre secondaire
+        $dateDemandeExpr = $aggregation ? "MAX($qbLabel.dateDemande)" : "$qbLabel.dateDemande";
+        $qb->addOrderBy($dateDemandeExpr, 'DESC');
+    }
 
     private function applyFilterAppro(QueryBuilder $qb, string $qbLabel, bool $estAppro, bool $estAdmin): void
     {
@@ -554,7 +579,7 @@ class DaAfficherRepository extends EntityRepository
                 ->setParameter('designation', '%' . $criteria['designation'] . '%');
         }
 
-        if (!empty($criteria['typeAchat']) && $criteria['typeAchat'] !== 'tous') {
+        if (!empty($criteria['typeAchat'])) {
             $typeAchat = $criteria['typeAchat'] === 'direct' ? 1 : 0;
             $qb->andWhere("$qbLabel.achatDirect = :typeAchat")
                 ->setParameter('typeAchat', $typeAchat);
