@@ -111,21 +111,39 @@ trait DaListeTrait
         }
     }
 
-    public function getPaginationData(array $criteria, int $page, int $limit): array
+    public function getPaginationData(array $criteria, int $page, int $limit, &$fonctions): array
     {
+        $start = microtime(true);
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
+        $fonctions[] = ['fonctionName' => '$this->getUser()', 'executionTime' => number_format(microtime(true) - $start, 4)];
+
+        $start = microtime(true);
         $codeAgence = $userConnecter->getCodeAgenceUser();
+        $fonctions[] = ['fonctionName' => '$userConnecter->getCodeAgenceUser()', 'executionTime' => number_format(microtime(true) - $start, 4)];
+
+        $start = microtime(true);
         $idAgenceUser = $this->agenceRepository->findIdByCodeAgence($codeAgence);
+        $fonctions[] = ['fonctionName' => '$this->agenceRepository->findIdByCodeAgence($codeAgence)', 'executionTime' => number_format(microtime(true) - $start, 4)];
+
+        $start = microtime(true);
         $paginationData = $this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, $criteria, $idAgenceUser, $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estAdmin(), $page, $limit);
+        $fonctions[] = ['fonctionName' => '$this->daAfficherRepository->findPaginatedAndFilteredDA($userConnecter, ...', 'executionTime' => number_format(microtime(true) - $start, 4)];
+
+        $start = microtime(true);
         /** @var array $daAffichers Filtrage des DA en fonction des critères */
         $daAffichers = $paginationData['data'];
+        $fonctions[] = ['fonctionName' => '$paginationData[\'data\']', 'executionTime' => number_format(microtime(true) - $start, 4)];
 
+        $start = microtime(true);
         // mise à jours des donner dans la base de donner
-        $this->quelqueModifictionDansDatabase($daAffichers);
+        // $this->quelqueModifictionDansDatabase($daAffichers);
+        $fonctions[] = ['fonctionName' => '$this->quelqueModifictionDansDatabase($daAffichers)', 'executionTime' => number_format(microtime(true) - $start, 4)];
 
+        $start = microtime(true);
         // Vérification du verrouillage des DA et Retourne les DA filtrées
         $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
+        $fonctions[] = ['fonctionName' => '$this->appliquerVerrouillageSelonProfil($daAffichers, ...', 'executionTime' => number_format(microtime(true) - $start, 4)];
 
         return $paginationData;
     }

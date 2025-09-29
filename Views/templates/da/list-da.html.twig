@@ -21,6 +21,36 @@
 			{% include "/partials/_notification.html.twig" %}
 			{% include "/da/shared/listeDA/_formulaireRecherche.html.twig" %}
 			{% include "/da/shared/listeDA/_pagination.html.twig" %}
+			<table class="table">
+				<thead class="table-dark align-middle">
+					<tr>
+						<th class="text-center">N°</th>
+						<th class="text-center">Fonction</th>
+						<th></th>
+						<th class="text-center">Temps d'exécution</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% set total_execution = 0 %}
+					{% for item in fonctions %}
+						<tr>
+							<td class="text-center">{{ loop.index }}</td>
+							<td class="text-start">{{ item.fonctionName }}</td>
+							<td class="text-center">============================================></td>
+							<td class="text-center">{{ item.executionTime }}
+								s</td>
+						</tr>
+						{% set total_execution = total_execution + item.executionTime %}
+					{% endfor %}
+				</tbody>
+				<tfoot class="table-dark">
+					<tr>
+						<td class="text-center" colspan="3">TOTAL</td>
+						<td class="text-center">{{ total_execution }}
+							s</td>
+					</tr>
+				</tfoot>
+			</table>
 		</div>
 	</div>
 
