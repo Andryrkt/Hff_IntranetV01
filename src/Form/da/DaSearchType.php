@@ -63,7 +63,6 @@ class DaSearchType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Tous'     => 'tous',
         'Avec DIT' => 'avec_dit',
         'Direct'   => 'direct',
     ];
@@ -138,7 +137,7 @@ class DaSearchType extends  AbstractType
             ])
             ->add('typeAchat', ChoiceType::class, [
                 'label'         => 'Type de la demande d\'achat',
-                'placeholder'   => false,
+                'placeholder'   => '-- Choisir le type de la DA --',
                 'choices'       => $type_achat,
                 'required'      => false
             ])
