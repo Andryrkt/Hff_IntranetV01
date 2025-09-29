@@ -82,7 +82,7 @@
 	<input type="hidden" name="numeroFournisseur_{{ currentPage }}" id="numeroFournisseur_{{ currentPage }}" value="{{ article.numeroFournisseur }}">
 
 	{{ macroForm.sousTitre3(estCreateurDaDirecte ? 'Article(s) proposée(s) par l’APPRO' : 'Proposition d’une article', { "class": "mt-3" }) }}
-	<div class="{{ estCreateurDaDirecte ? 'd-none' : ''}}">
+	<div class="{{ estAppro ? '' : 'd-none'}}">
 		<div class="row">
 			<input id="demande_appro_proposition_codeFams1_{{ currentPage }}" class="d-none">
 			<input id="demande_appro_proposition_codeFams2_{{ currentPage }}" class="d-none">
@@ -149,7 +149,7 @@
 		<input type="text" id="demande_appro_proposition_found_{{ currentPage }}" class="form-control d-none">
 
 		<div class="d-flex justify-content-end">
-			<button type="button" id="add_line_{{ currentPage }}" class="btn bouton mt-2 {{ estCreateurDaDirecte ? 'd-none':''}}">
+			<button type="button" id="add_line_{{ currentPage }}" class="btn bouton mt-2 {{ estAppro ? '' : 'd-none' }}">
 				<i class="fas fa-plus"></i>
 				Ajouter l'article
 			</button>
