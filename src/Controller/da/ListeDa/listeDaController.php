@@ -48,7 +48,7 @@ class listeDaController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        $this->getSessionService()->set('criteria_for_excel', $criteria);
+        $this->getSessionService()->set('criteria_for_excel_list_da', $criteria);
 
         $sortJoursClass = false;
 
