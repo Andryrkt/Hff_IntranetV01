@@ -52,38 +52,106 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
     }
 
     /**
-     * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
+     * Vérifie si le statut du devis est Prix validé - devis à soumettre (si agence) et somme de lignes et montant inchangé
      * 
-     * Cette méthode empêche l'utilisateur de soumettre un devis à validation de prix
-     * si le prix a déjà été vérifié ou si le devis est dans un autre statut bloquant
-     * 
-     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
+     * @param DevisMagasinRepository $repository Le repository pour accéder aux données du devis
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @param float $newSumOfMontant Le nouveau montant total
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
-    public function checkBlockingStatusOnSubmissionForVd(
-        DevisMagasinRepository $repository,
-        string $numeroDevis,
-        int $newSumOfLines
-    ): bool {
-        
-
-        $oldSumOfLines = $repository->findLatestSumOfLinesByIdentifier($numeroDevis);
-
-        if ($oldSumOfLines === null) {
-            // No previous version to compare against, so it's not a blocking issue.
-            return true;
-        }
-
+    public function verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
         return $this->validateStatusWithContent(
             $repository,
             $numeroDevis,
             DevisMagasinValidationConfig::VP_PRIX_VALIDER_AGENCE_BLOCKING_STATUSES,
-            $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines),
-            "Le prix a été déjà vérifié ... Veuillez soumettre le devis à validation"
+            function () use ($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant) {
+                return $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)
+                    && $this->isSumOfMontantUnchanged($repository, $numeroDevis, $newSumOfMontant);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['vp_prix_valide_agence_et_somme_de_lignes_et_amount_inchangé']
         );
     }
+
+    /**
+     * Vérifie si le statut du devis est Prix modifié - devis à soumettre (si agence) et somme de lignes inchangée et montant changé
+     * 
+     * @param DevisMagasinRepository $repository Le repository pour accéder aux données du devis
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @param float $newSumOfMontant Le nouveau montant total
+     * @return bool true si la soumission est autorisée, false si elle est bloquée
+     */
+    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+        return $this->validateStatusWithContent(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_PRIX_MODIFIER_AGENCE_BLOCKING_STATUSES,
+            function () use ($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant) {
+                return $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)
+                    && !$this->isSumOfMontantUnchanged($repository, $numeroDevis, $newSumOfMontant);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['vp_prix_modifier_agence_et_somme_de_lignes_et_amount_inchangé']
+        );
+    }
+
+
+
+    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+        return $this->validateStatusWithContent(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_VALIDE_A_ENVOYER_AU_CLIENT_BLOCKING_STATUSES,
+            function () use ($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant) {
+                return !$this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines)
+                    && $this->isSumOfMontantUnchanged($repository, $numeroDevis, $newSumOfMontant);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['vp_valide_a_envoyer_au_client_et_somme_de_lignes_changeet_amount_inchange']
+        );
+    }
+
+    /**
+     * Vérifie si le statut est "A valider chef d'agence"
+     * 
+     * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si la soumission est autorisée, false si elle est bloquée
+     */
+    public function verifieStatutAvalideChefAgence(
+        StatusRepositoryInterface $repository,
+        string $numeroDevis
+    ): bool {
+        return $this->validateSimpleBlockingStatus(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_BLOCKING_STATUTS_VALIDE_CHEF_AGENCE,
+            DevisMagasinValidationConfig::ERROR_MESSAGES['status_blocking_general']
+        );
+    }
+
+/**
+     * Vérifie si le statut est "A valider chef d'agence"
+     * 
+     * @param StatusRepositoryInterface $repository Le repository pour accéder aux statuts
+     * @param string $numeroDevis Le numéro de devis à vérifier
+     * @return bool true si la soumission est autorisée, false si elle est bloquée
+     */
+    public function verifieStatutValideAEnvoyerAuclientEtSommeMontantInchange(
+        StatusRepositoryInterface $repository,
+        string $numeroDevis
+    ): bool {
+        return $this->validateSimpleBlockingStatus(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_BLOCKING_STATUTS_VALIDE_CHEF_AGENCE,
+            DevisMagasinValidationConfig::ERROR_MESSAGES['status_blocking_general']
+        );
+    }
+
+
+
+
+    //-----------------------------------------------------------------
 
     /**
      * Valide un statut bloquant simple
@@ -108,28 +176,18 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
         return true; // Validation passed
     }
 
-    /**
-     * Valide un statut avec vérification de contenu
-     * 
-     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
-     * @param string $numeroDevis Le numéro de devis à vérifier
-     * @param array $blockingStatuses Les statuts bloquants
-     * @param callable $contentCheck Fonction de vérification du contenu
-     * @param string $errorMessage Le message d'erreur à afficher
-     * @return bool true si la validation passe, false sinon
-     */
     private function validateStatusWithContent(
-        DevisMagasinRepository $repository,
+        StatusRepositoryInterface $repository,
         string $numeroDevis,
         array $blockingStatuses,
-        bool $contentCheck,
+        callable $conditionCallback,
         string $errorMessage
     ): bool {
-        if ($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $contentCheck()) {
+        if($this->isStatusBlocking($repository, $numeroDevis, $blockingStatuses) && $conditionCallback()) {
             $this->historiqueService->sendNotificationSoumission($errorMessage, $numeroDevis, 'devis_magasin_liste', false);
-            return false; // Validation failed
+            return false;
         }
-
-        return true; // Validation passed
+        return true;
     }
+
 }

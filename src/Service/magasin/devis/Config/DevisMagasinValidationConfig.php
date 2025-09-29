@@ -69,6 +69,18 @@ class DevisMagasinValidationConfig
         DevisMagasin::STATUT_PRIX_VALIDER_AGENCE,
     ];
 
+    public const VP_PRIX_MODIFIER_AGENCE_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE,
+    ];
+
+    public const VP_VALIDE_A_ENVOYER_AU_CLIENT_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_VALIDE_AGENCE,
+    ];
+
+    public const VP_BLOCKING_STATUTS_VALIDE_CHEF_AGENCE = [
+        DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE
+    ];
+
     // Messages d'erreur
     public const ERROR_MESSAGES = [
         // blocage avant soumission
@@ -83,6 +95,9 @@ class DevisMagasinValidationConfig
         'amount_modified' => "Le devis a déjà été validé. Veuillez l'envoyer au client",
         'lines_amount_modified' => "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix",
         'lines_modified' => "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix.",
+        'vp_prix_valide_agence_et_somme_de_lignes_et_amount_inchangé' => "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence",
+        'vp_prix_modifier_agence_et_somme_de_lignes_et_amount_inchangé' => "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence",
+        'vp_valide_a_envoyer_au_client_et_somme_de_lignes_changeet_amount_inchange' => "Le montant du devis validé ne correspond pas au montant du devis dans IPS. Veuillez refaire valider le devis.",
         //TODO: ----------------------------
         'no_file_submitted' => "Aucun fichier n'a été soumis.",
         'invalid_filename_format' => 'Le nom du fichier soumis n\'est pas conforme au format attendu. Reçu: %s',

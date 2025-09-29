@@ -75,22 +75,6 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
         return $this->orchestrator->checkBlockingStatusOnSubmission($repository, $numeroDevis);
     }
 
-    /**
-     * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
-     * 
-     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
-     * @param string $numeroDevis Le numéro de devis à vérifier
-     * @param int $newSumOfLines Le nouveau nombre de lignes
-     * @return bool true si la soumission est autorisée, false si elle est bloquée
-     */
-    public function checkBlockingStatusOnSubmissionForVd(
-        DevisMagasinRepository $repository,
-        string $numeroDevis,
-        int $newSumOfLines
-    ): bool {
-        return $this->orchestrator->checkBlockingStatusOnSubmissionForVd($repository, $numeroDevis, $newSumOfLines);
-    }
-
 
     /**
      * Effectue toutes les validations nécessaires avant la validation de prix d'un devis (Version améliorée)
@@ -100,15 +84,16 @@ class DevisMagasinValidationVpService extends ValidationServiceBase
      * @param LatestSumOfLinesRepositoryInterface $linesRepository Le repository pour accéder aux données de lignes
      * @param string $numeroDevis Le numéro de devis à valider
      * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @param float $newSumOfMontant Le nouveau montant total
      * @return bool true si toutes les validations passent, false sinon
      */
     public function validateBeforeVpSubmission(
         StatusRepositoryInterface $statusRepository,
         DevisMagasinRepository $devisRepository,
-        LatestSumOfLinesRepositoryInterface $linesRepository,
         string $numeroDevis,
-        int $newSumOfLines
+        int $newSumOfLines,
+        float $newSumOfMontant
     ): bool {
-        return $this->orchestrator->validateBeforeVpSubmission($statusRepository, $devisRepository, $linesRepository, $numeroDevis, $newSumOfLines);
+        return $this->orchestrator->validateBeforeVpSubmission($statusRepository, $devisRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 }
