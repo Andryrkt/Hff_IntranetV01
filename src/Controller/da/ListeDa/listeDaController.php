@@ -39,16 +39,17 @@ class listeDaController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
+        /** Initialisation criteria */
+        $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
+
         //formulaire de recherche
         $form = $this->getFormFactory()->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
 
         $form->handleRequest($request);
-
-        $criteria = [];
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria = $form->getData();
         }
-        $this->getSessionService()->set('criteria_for_excel_list_da', $criteria);
+        $this->getSessionService()->set('criteria_search_list_da', $criteria);
 
         $sortJoursClass = false;
 
