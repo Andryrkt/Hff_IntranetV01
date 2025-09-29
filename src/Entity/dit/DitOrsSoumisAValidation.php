@@ -106,6 +106,11 @@ class DitOrsSoumisAValidation
      */
     private ?string $libellelItv = '';
 
+    /**
+     * @ORM\Column(type="string", length=3000, nullable=true)
+     */
+    private ?string $observation = '';
+
 
 
     private $pieceJoint01;
@@ -556,5 +561,25 @@ class DitOrsSoumisAValidation
     public function estEgalParNumero(DitOrsSoumisAValidation $autre)
     {
         return $this->numeroItv === $autre->numeroItv;
+    }
+
+    /**
+     * Get the value of observation
+     */
+    public function getObservation()
+    {
+        return $this->observation;
+    }
+
+    /**
+     * Set the value of observation
+     *
+     * @return  self
+     */
+    public function setObservation($observation)
+    {
+        $this->observation = $observation;
+
+        return $this;
     }
 }

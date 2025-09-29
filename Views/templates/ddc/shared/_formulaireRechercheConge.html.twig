@@ -98,9 +98,17 @@ document.addEventListener('DOMContentLoaded', function() {
     hiddenServiceInput.id = 'service_hidden';
     form.appendChild(hiddenServiceInput);
     
+    // Restaurer la valeur du service si elle existe dans les critères
+    const criteria = {{ criteria|json_encode|raw }};
+    let previouslySelectedService = null;
+    if (criteria && criteria.selected_service) {
+        previouslySelectedService = criteria.selected_service;
+        hiddenServiceInput.value = criteria.selected_service;
+    }
+    
     if (agenceSelect && serviceSelect) {
         // Fonction pour charger les services en fonction de l'agence sélectionnée
-        function loadServices(agenceCode) {
+        function loadServices(agenceCode, selectedService = null) {
             if (!agenceCode) {
                 // Si aucune agence n'est sélectionnée, vider le select de service
                 serviceSelect.innerHTML = '<option value="">Tous les services</option>';
@@ -117,9 +125,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(service => {
                         const option = document.createElement('option');
                         option.value = service.code;
-                        option.textContent = service.nom;
+                        option.textContent = service.code + ' ' + service.nom;
                         serviceSelect.appendChild(option);
                     });
+                    
+                    // Si un service était sélectionné, le rétablir
+                    if (selectedService) {
+                        serviceSelect.value = selectedService;
+                        // Mettre à jour le champ caché également
+                        hiddenServiceInput.value = selectedService;
+                    }
                 })
                 .catch(error => {
                     console.error('Erreur lors de la récupération des services:', error);
@@ -129,31 +144,33 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Charger les services au chargement de la page si une agence est déjà sélectionnée
-        if (agenceSelect.value) {
-            loadServices(agenceSelect.value);
+        if (agenceSelect.value && previouslySelectedService) {
+            loadServices(agenceSelect.value, previouslySelectedService);
         }
         
         // Ajouter un écouteur d'événement pour le changement d'agence
         agenceSelect.addEventListener('change', function() {
+            // Réinitialiser le service sélectionné quand l'agence change
+            previouslySelectedService = null;
+            hiddenServiceInput.value = '';
             loadServices(this.value);
+        });
+        
+        // Ajouter un écouteur d'événement pour le changement de service
+        serviceSelect.addEventListener('change', function() {
+            // Mettre à jour le champ caché quand le service change
+            hiddenServiceInput.value = this.value;
         });
     }
     
-    // Remplacer la fonction de soumission du formulaire par :
     // Ajouter l'écouteur d'événement de soumission du formulaire
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         // Récupérer la valeur du champ service
         const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
         const serviceValue = serviceSelect ? serviceSelect.value : '';
         console.log('Valeur du service avant soumission:', serviceValue);
-        
         // Mettre à jour le champ caché
         document.getElementById('service_hidden').value = serviceValue;
-        
-        // Soumettre le formulaire
-        this.submit();
     });
 });
 </script>

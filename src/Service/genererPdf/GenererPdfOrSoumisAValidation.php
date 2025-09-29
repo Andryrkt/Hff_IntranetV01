@@ -287,6 +287,16 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
 
         $pdf->writeHTML($html, true, false, true, false, '');
 
+        //==========================================================================================================
+        //Titre: Observation
+        $pdf->setFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 6, 'Observation : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(5, true);
+        $pdf->setFont('helvetica', '', 9);
+        $pdf->MultiCell(164, 100, $ditInsertionOr->getObservation(), 1, '', 0, 0, '', '', true);
+
+        //==========================================================================================================
+        //Affichage de l'email
         $pdf->SetTextColor(0, 0, 0);
         $pdf->SetFont('helvetica', '', 10);
         $pdf->SetXY(118, 2);

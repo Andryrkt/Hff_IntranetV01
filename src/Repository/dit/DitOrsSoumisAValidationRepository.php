@@ -238,9 +238,11 @@ class DitOrsSoumisAValidationRepository extends EntityRepository
         $montantValide = $this->createQueryBuilder('osv')
             ->where('osv.numeroVersion = :numeroVersionMax')
             ->andWhere('osv.numeroOR = :numOr')
+            ->andWhere('osv.statut IN (:statut)')
             ->setParameters([
                 'numeroVersionMax' => $numeroVersionMax,
                 'numOr' => $numOr,
+                'statut' => ['Validé', 'Livré', 'Livré partiellement'],
             ])
             ->getQuery()
             ->getResult();

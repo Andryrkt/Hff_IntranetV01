@@ -3,10 +3,9 @@
 namespace App\Entity\ddc;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Repository\ddc\DemandeCongeRepository;
 
 /**
- * @ORM\Entity(repositoryClass=DemandeCongeRepository::class)
+ * @ORM\Entity(repositoryClass="App\Repository\ddc\DemandeCongeRepository")
  * @ORM\Table(name="demande_de_conge")
  */
 class DemandeConge
@@ -14,7 +13,7 @@ class DemandeConge
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
-     * @ORM\Column(name="ID", type="integer")
+     * @ORM\Column(name="id", type="integer")
      */
     private ?int $id = null;
 
@@ -42,6 +41,11 @@ class DemandeConge
      * @ORM\Column(name="Date_Demande", type="date")
      */
     private ?\DateTimeInterface $dateDemande = null;
+
+    /**
+     * @ORM\Column(name="Agence_Debiteur", type="string", length=10)
+     */
+    private ?string $agenceDebiteur = null;
 
     /**
      * @ORM\Column(name="Agence_Service", type="string", length=100)
@@ -107,7 +111,7 @@ class DemandeConge
     {
         return $this->typeDemande;
     }
-    public function setTypeDemande(string $typeDemande): self
+    public function setTypeDemande(?string $typeDemande): self
     {
         $this->typeDemande = $typeDemande;
         return $this;
@@ -116,7 +120,7 @@ class DemandeConge
     {
         return $this->numeroDemande;
     }
-    public function setNumeroDemande(string $numeroDemande): self
+    public function setNumeroDemande(?string $numeroDemande): self
     {
         $this->numeroDemande = $numeroDemande;
         return $this;
@@ -125,7 +129,7 @@ class DemandeConge
     {
         return $this->matricule;
     }
-    public function setMatricule(string $matricule): self
+    public function setMatricule(?string $matricule): self
     {
         $this->matricule = $matricule;
         return $this;
@@ -134,7 +138,7 @@ class DemandeConge
     {
         return $this->nomPrenoms;
     }
-    public function setNomPrenoms(string $nomPrenoms): self
+    public function setNomPrenoms(?string $nomPrenoms): self
     {
         $this->nomPrenoms = $nomPrenoms;
         return $this;
@@ -148,11 +152,20 @@ class DemandeConge
         $this->dateDemande = $dateDemande;
         return $this;
     }
+    public function getAgenceDebiteur(): ?string
+    {
+        return $this->agenceDebiteur;
+    }
+    public function setAgenceDebiteur(?string $agenceDebiteur): self
+    {
+        $this->agenceDebiteur = $agenceDebiteur;
+        return $this;
+    }
     public function getAgenceService(): ?string
     {
         return $this->agenceService;
     }
-    public function setAgenceService(string $agenceService): self
+    public function setAgenceService(?string $agenceService): self
     {
         $this->agenceService = $agenceService;
         return $this;
@@ -161,7 +174,7 @@ class DemandeConge
     {
         return $this->adresseMailDemandeur;
     }
-    public function setAdresseMailDemandeur(string $adresseMailDemandeur): self
+    public function setAdresseMailDemandeur(?string $adresseMailDemandeur): self
     {
         $this->adresseMailDemandeur = $adresseMailDemandeur;
         return $this;
@@ -170,7 +183,7 @@ class DemandeConge
     {
         return $this->sousTypeDocument;
     }
-    public function setSousTypeDocument(string $sousTypeDocument): self
+    public function setSousTypeDocument(?string $sousTypeDocument): self
     {
         $this->sousTypeDocument = $sousTypeDocument;
         return $this;
@@ -179,7 +192,7 @@ class DemandeConge
     {
         return $this->dureeConge;
     }
-    public function setDureeConge(string $dureeConge): self
+    public function setDureeConge(?string $dureeConge): self
     {
         $this->dureeConge = $dureeConge;
         return $this;
@@ -206,7 +219,7 @@ class DemandeConge
     {
         return $this->soldeConge;
     }
-    public function setSoldeConge(string $soldeConge): self
+    public function setSoldeConge(?string $soldeConge): self
     {
         $this->soldeConge = $soldeConge;
         return $this;
@@ -215,7 +228,7 @@ class DemandeConge
     {
         return $this->motifConge;
     }
-    public function setMotifConge(string $motifConge): self
+    public function setMotifConge(?string $motifConge): self
     {
         $this->motifConge = $motifConge;
         return $this;
@@ -256,6 +269,8 @@ class DemandeConge
             'matricule' => $this->matricule,
             'nomPrenoms' => $this->nomPrenoms,
             'dateDemande' => $this->dateDemande,
+            'agenceDebiteur' => $this->agenceDebiteur,
+            'agence' => $this->agenceDebiteur,
             'agenceService' => $this->agenceService,
             'adresseMailDemandeur' => $this->adresseMailDemandeur,
             'sousTypeDocument' => $this->sousTypeDocument,

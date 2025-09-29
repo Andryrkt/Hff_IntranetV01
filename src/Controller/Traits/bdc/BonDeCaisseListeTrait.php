@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\bdc;
 
 use App\Entity\admin\Agence;
-use App\Entity\admin\Service;
 use App\Entity\admin\StatutDemande;
 use App\Entity\admin\utilisateur\User;
 

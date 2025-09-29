@@ -295,6 +295,10 @@ class DaAfficherRepository extends EntityRepository
             )) // enlever les ligne qui a le statut PAS DANS OR
             ->setParameter('statutPasDansOr', DaSoumissionBc::STATUT_PAS_DANS_OR)
         ;
+        if ($hasAchatDirecte) {
+            $qb->andWhere('d.statutDal = :statutDal')
+                ->setParameter('statutDal', DemandeAppro::STATUT_VALIDE);
+        }
 
         if ($hasAchatDirecte) {
             $qb->andWhere('d.statutDal = :statutDal')

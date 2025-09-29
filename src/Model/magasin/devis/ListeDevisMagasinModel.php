@@ -25,6 +25,8 @@ class ListeDevisMagasinModel extends Model
 
             FROM neg_ent
             WHERE nent_natop = 'DEV'
+            AND nent_soc = 'HF'
+            AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
             AND year(Nent_datecde) = '2025'
         ";
 
@@ -99,7 +101,7 @@ class ListeDevisMagasinModel extends Model
 
     public function getCodeLibelleClient()
     {
-        $statement = "SELECT nent_numcli as code_client, nent_nomcli as nom_client
+        $statement = "SELECT DISTINCT nent_numcli as code_client, nent_nomcli as nom_client
                         from neg_ent
         ";
 
@@ -108,5 +110,19 @@ class ListeDevisMagasinModel extends Model
         $data = $this->connect->fetchResults($result);
 
         return $this->convertirEnUtf8($data);
+    }
+
+    public function getUtilisateurCreateurDevis(string $numeroDevis)
+    {
+        $statement = "SELECT ausr_nom as utilisateur_createur_devis
+            FROM informix.sav_eor se
+            JOIN informix.agr_usr au ON au.ausr_num = se.seor_usr
+            WHERE se.seor_numor = '$numeroDevis'";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'utilisateur_createur_devis');
     }
 }

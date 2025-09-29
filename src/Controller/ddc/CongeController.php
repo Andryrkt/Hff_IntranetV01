@@ -3,16 +3,13 @@
 namespace App\Controller\ddc;
 
 use App\Controller\Controller;
-use App\Entity\ddc\DemandeConge;
-use App\Entity\admin\Application;
-use App\Form\ddc\DemandeCongeType;
-use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\AutorisationTrait;
-use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
+use App\Controller\Traits\FormatageTrait;
+use App\Entity\ddc\DemandeConge;
+use App\Form\ddc\DemandeCongeType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 /**
  * @Route("/rh/demande-de-conge")
@@ -22,7 +19,6 @@ class CongeController extends Controller
     use ConversionTrait;
     use CongeListeTrait;
     use FormatageTrait;
-    use AutorisationTrait;
 
     /**
      * Affiche la liste des demandes de congé
@@ -35,6 +31,43 @@ class CongeController extends Controller
         $autoriser = $this->autorisationRole($this->getEntityManager());
 
         $congeSearch = new DemandeConge();
+
+        // Vérifier s'il s'agit d'un accès direct à la route (sans paramètres de recherche)
+        // Dans ce cas, nous réinitialisons tous les filtres
+        $isDirectAccess = empty($request->query->all()) ||
+            (count($request->query->all()) == 1 && $request->query->has('page'));
+
+        if ($isDirectAccess) {
+            // Réinitialiser tous les filtres - créer un objet vide sans données de session
+            $congeSearch = new DemandeConge();
+
+            // Effacer les critères de recherche de la session
+            $this->sessionService->remove('conge_search_criteria');
+            $this->sessionService->remove('conge_search_option');
+        } else {
+            // Utiliser les critères de recherche stockés dans la session si disponibles
+            $sessionCriteria = $this->sessionService->get('conge_search_criteria', []);
+
+            if (!empty($sessionCriteria)) {
+                // Remplir l'objet congeSearch avec les critères de session
+                $congeSearch->setTypeDemande($sessionCriteria['typeDemande'] ?? null)
+                    ->setNumeroDemande($sessionCriteria['numeroDemande'] ?? null)
+                    ->setMatricule($sessionCriteria['matricule'] ?? null)
+                    ->setNomPrenoms($sessionCriteria['nomPrenoms'] ?? null)
+                    ->setDateDemande($sessionCriteria['dateDemande'] ?? null)
+                    ->setAgenceService($sessionCriteria['agenceService'] ?? null)
+                    ->setAdresseMailDemandeur($sessionCriteria['adresseMailDemandeur'] ?? null)
+                    ->setSousTypeDocument($sessionCriteria['sousTypeDocument'] ?? null)
+                    ->setDureeConge($sessionCriteria['dureeConge'] ?? null)
+                    ->setDateDebut($sessionCriteria['dateDebut'] ?? null)
+                    ->setDateFin($sessionCriteria['dateFin'] ?? null)
+                    ->setSoldeConge($sessionCriteria['soldeConge'] ?? null)
+                    ->setMotifConge($sessionCriteria['motifConge'] ?? null)
+                    ->setStatutDemande($sessionCriteria['statutDemande'] ?? null)
+                    ->setDateStatut($sessionCriteria['dateStatut'] ?? null)
+                    ->setPdfDemande($sessionCriteria['pdfDemande'] ?? null);
+            }
+        }
 
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la navigation pagination */
         $this->initialisation($congeSearch, $this->getEntityManager());
@@ -53,15 +86,21 @@ class CongeController extends Controller
             //'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
+        // Si le formulaire est soumis et valide, mettre à jour les critères
         if ($form->isSubmitted() && $form->isValid()) {
+            // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
 
-            // Récupérer la date de demande fin (non mappée)
-            if ($form->has('dateDemandeFin')) {
-                $dateDemandeFin = $form->get('dateDemandeFin')->getData();
-                if ($dateDemandeFin) {
-                    $options['dateDemandeFin'] = $dateDemandeFin;
-                }
+            // Récupérer les dates de demande (mappées et non mappées)
+            $dateDemande = $form->get('dateDemande')->getData();
+            $dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
+
+            // Stocker les dates dans les options pour le repository
+            if ($dateDemande) {
+                $options['dateDemande'] = $dateDemande;
+            }
+            if ($dateDemandeFin) {
+                $options['dateDemandeFin'] = $dateDemandeFin;
             }
 
             // Récupérer le service et l'agence
@@ -69,17 +108,38 @@ class CongeController extends Controller
             if ($serviceHidden) {
                 $options['agenceService'] = $serviceHidden;
             }
-        }
 
-        // Transformer l'objet congeSearch en tableau pour la session
-        $criteria = $congeSearch->toArray();
+            // Récupérer l'agence pour le filtre Agence_Debiteur
+            $agence = $request->query->get('demande_conge')['agence'] ?? null;
+            if ($agence) {
+                $options['agence'] = $agence;
+            }
 
-        // Ajouter les options non mappées aux critères
-        if (isset($options['dateDemandeFin'])) {
-            $criteria['dateDemandeFin'] = $options['dateDemandeFin'];
-        }
-        if (isset($options['service'])) {
-            $criteria['service'] = $options['service'];
+            // Stocker les critères dans la session
+            $criteria = $congeSearch->toArray();
+
+            // Ajouter les dates aux critères pour persistance
+            if ($dateDemande) {
+                $criteria['dateDemande'] = $dateDemande;
+            }
+            if ($dateDemandeFin) {
+                $criteria['dateDemandeFin'] = $dateDemandeFin;
+            }
+
+            // Ajouter le service sélectionné aux critères pour persistance
+            $serviceHidden = $request->query->get('service_hidden');
+            if ($serviceHidden) {
+                $criteria['selected_service'] = $serviceHidden;
+            }
+
+            // Enregistrement des critères dans la session
+            $this->sessionService->set('conge_search_criteria', $criteria);
+            $this->sessionService->set('conge_search_option', $options);
+        } else if (!$isDirectAccess) {
+            // Utiliser les options de recherche stockées dans la session si disponibles
+            // (seulement si ce n'est pas un accès direct)
+            $sessionOptions = $this->sessionService->get('conge_search_option', []);
+            $options = $sessionOptions;
         }
 
         // Pagination
@@ -90,17 +150,14 @@ class CongeController extends Controller
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options);
 
-        // Enregistrement des critères dans la session
-        $this->getSessionService()->set('conge_search_criteria', $criteria);
-        $this->getSessionService()->set('conge_search_option', $options);
-
         // Formatage des critères pour l'affichage
-        $criteriaTab = $criteria;
-        $criteriaTab['statutDemande'] = $criteria['statutDemande'] ?? null;
-        $criteriaTab['dateDebut'] = $criteria['dateDebut'] ? $criteria['dateDebut']->format('d-m-Y') : null;
-        $criteriaTab['dateFin'] = $criteria['dateFin'] ? $criteria['dateFin']->format('d-m-Y') : null;
-        $criteriaTab['dateDemande'] = $criteria['dateDemande'] ? $criteria['dateDemande']->format('d-m-Y') : null;
-        $criteriaTab['dateDemandeFin'] = isset($criteria['dateDemandeFin']) && $criteria['dateDemandeFin'] ? $criteria['dateDemandeFin']->format('d-m-Y') : null;
+        $criteriaTab = $congeSearch->toArray();
+        $criteriaTab['statutDemande'] = $criteriaTab['statutDemande'] ?? null;
+        $criteriaTab['dateDebut'] = $criteriaTab['dateDebut'] ? $criteriaTab['dateDebut']->format('d-m-Y') : null;
+        $criteriaTab['dateFin'] = $criteriaTab['dateFin'] ? $criteriaTab['dateFin']->format('d-m-Y') : null;
+        $criteriaTab['dateDemande'] = $criteriaTab['dateDemande'] ? $criteriaTab['dateDemande']->format('d-m-Y') : null;
+        $criteriaTab['dateDemandeFin'] = isset($criteriaTab['dateDemandeFin']) && $criteriaTab['dateDemandeFin'] ? $criteriaTab['dateDemandeFin']->format('d-m-Y') : null;
+        $criteriaTab['selected_service'] = $criteriaTab['selected_service'] ?? null;
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
@@ -119,58 +176,7 @@ class CongeController extends Controller
         );
     }
 
-    /**
-     * Affiche et gère la demande de congé
-     * @Route("/conge-demande", name="conge_demande")
-     */
-    public function demandeConge(Request $request)
-    {
-        //verification si user connecter
-        $this->verifierSessionUtilisateur();
 
-        $conge = new DemandeConge();
-        $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $conge, [
-            'em' => $this->getEntityManager()
-        ])->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $conge = $form->getData();
-            $conge->setDateDemande(new \DateTime());
-            $conge->setNomPrenoms($this->getSessionService()->get('user_nom'));
-            $conge->setAdresseMailDemandeur($this->getSessionService()->get('user_email'));
-            $conge->setStatutDemande('EN_ATTENTE');
-            $conge->setDateStatut(new \DateTime());
-
-            // Gestion du fichier PDF si présent
-            $pdfFile = $form->get('pdfDemande')->getData();
-            if ($pdfFile) {
-                $originalFilename = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
-                $safeFilename = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalFilename);
-                $newFilename = $safeFilename . '-' . uniqid() . '.' . $pdfFile->guessExtension();
-
-                try {
-                    $pdfFile->move(
-                        // $this->getParameter('pdf_directory'), TODO: ajouter le chemin du fichier
-                        $newFilename
-                    );
-                    $conge->setPdfDemande($newFilename);
-                } catch (FileException $e) {
-                    // Gérer l'exception si quelque chose se passe pendant le téléchargement
-                }
-            }
-
-            $this->getEntityManager()->persist($conge);
-            $this->getEntityManager()->flush();
-
-            return $this->redirectToRoute('conge_liste');
-        }
-
-        return $this->render('doms/conge_demande.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
 
     /**
      * @Route("/export-conge-excel", name="export_conge_excel")
@@ -181,26 +187,45 @@ class CongeController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Récupère les critères dans la session
-        $criteria = $this->getSessionService()->get('conge_search_criteria', []);
-        $option = $this->getSessionService()->get('conge_search_option', []);
+        $criteria = $this->sessionService->get('conge_search_criteria', []);
+        $option = $this->sessionService->get('conge_search_option', []);
+
+        // S'assurer que $option est toujours un tableau
+        if (!is_array($option)) {
+            $option = [];
+        }
+
+        // Convertir les dates du format string au format DateTime si nécessaire
+        if (isset($criteria['dateDemande']) && is_string($criteria['dateDemande'])) {
+            $criteria['dateDemande'] = \DateTime::createFromFormat('d-m-Y', $criteria['dateDemande']);
+        }
+        if (isset($criteria['dateDemandeFin']) && is_string($criteria['dateDemandeFin'])) {
+            $criteria['dateDemandeFin'] = \DateTime::createFromFormat('d-m-Y', $criteria['dateDemandeFin']);
+        }
+        if (isset($criteria['dateDebut']) && is_string($criteria['dateDebut'])) {
+            $criteria['dateDebut'] = \DateTime::createFromFormat('d-m-Y', $criteria['dateDebut']);
+        }
+        if (isset($criteria['dateFin']) && is_string($criteria['dateFin'])) {
+            $criteria['dateFin'] = \DateTime::createFromFormat('d-m-Y', $criteria['dateFin']);
+        }
 
         $congeSearch = new DemandeConge();
-        $congeSearch->setTypeDemande($criteria['typeDemande'] ?? null)
-            ->setNumeroDemande($criteria['numeroDemande'] ?? null)
-            ->setMatricule($criteria['matricule'] ?? null)
-            ->setNomPrenoms($criteria['nomPrenoms'] ?? null)
-            ->setDateDemande($criteria['dateDemande'] ?? null)
-            ->setAgenceService($criteria['agenceService'] ?? null)
-            ->setAdresseMailDemandeur($criteria['adresseMailDemandeur'] ?? null)
-            ->setSousTypeDocument($criteria['sousTypeDocument'] ?? null)
-            ->setDureeConge($criteria['dureeConge'] ?? null)
-            ->setDateDebut($criteria['dateDebut'] ?? null)
-            ->setDateFin($criteria['dateFin'] ?? null)
-            ->setSoldeConge($criteria['soldeConge'] ?? null)
-            ->setMotifConge($criteria['motifConge'] ?? null)
-            ->setStatutDemande($criteria['statutDemande'] ?? null)
-            ->setDateStatut($criteria['dateStatut'] ?? null)
-            ->setPdfDemande($criteria['pdfDemande'] ?? null);
+        $congeSearch->setTypeDemande(isset($criteria['typeDemande']) ? $criteria['typeDemande'] : null)
+            ->setNumeroDemande(isset($criteria['numeroDemande']) ? $criteria['numeroDemande'] : null)
+            ->setMatricule(isset($criteria['matricule']) ? $criteria['matricule'] : null)
+            ->setNomPrenoms(isset($criteria['nomPrenoms']) ? $criteria['nomPrenoms'] : null)
+            ->setDateDemande(isset($criteria['dateDemande']) ? $criteria['dateDemande'] : null)
+            ->setAgenceService(isset($criteria['agenceService']) ? $criteria['agenceService'] : null)
+            ->setAdresseMailDemandeur(isset($criteria['adresseMailDemandeur']) ? $criteria['adresseMailDemandeur'] : null)
+            ->setSousTypeDocument(isset($criteria['sousTypeDocument']) ? $criteria['sousTypeDocument'] : null)
+            ->setDureeConge(isset($criteria['dureeConge']) ? $criteria['dureeConge'] : null)
+            ->setDateDebut(isset($criteria['dateDebut']) ? $criteria['dateDebut'] : null)
+            ->setDateFin(isset($criteria['dateFin']) ? $criteria['dateFin'] : null)
+            ->setSoldeConge(isset($criteria['soldeConge']) ? $criteria['soldeConge'] : null)
+            ->setMotifConge(isset($criteria['motifConge']) ? $criteria['motifConge'] : null)
+            ->setStatutDemande(isset($criteria['statutDemande']) ? $criteria['statutDemande'] : null)
+            ->setDateStatut(isset($criteria['dateStatut']) ? $criteria['dateStatut'] : null)
+            ->setPdfDemande(isset($criteria['pdfDemande']) ? $criteria['pdfDemande'] : null);
 
         // Récupère les entités filtrées
         $entities = $this->getEntityManager()->getRepository(DemandeConge::class)->findAndFilteredExcel($congeSearch, $option);
@@ -243,65 +268,20 @@ class CongeController extends Controller
 
         // Crée le fichier Excel
         $this->excelService->createSpreadsheet($data);
+        exit();
     }
 
     /**
-     * @Route("/conge-list-annuler", name="conge_list_annuler")
-     *
-     * @param Request $request
-     * @return void
+     * @Route("/conge-liste-clear", name="conge_liste_clear")
      */
-    public function listAnnuler(Request $request)
+    public function clearListeConge()
     {
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+        // Clear the search criteria from session
+        $this->sessionService->remove('conge_search_criteria');
+        $this->sessionService->remove('conge_search_option');
 
-        $congeSearch = new DemandeConge();
-
-        $agenceServiceIps = $this->agenceServiceIpsObjet();
-        /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la navigation pagination */
-        $this->initialisation($congeSearch, $this->getEntityManager());
-
-        // Correction ici aussi
-        $form = $this->getFormFactory()->createBuilder(DemandeCongeType::class, $congeSearch, [
-            'method' => 'GET',
-            'em' => $this->getEntityManager()
-        ])->getForm();
-
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $congeSearch = $form->getData();
-        }
-
-        $criteria = [];
-        //transformer l'objet congeSearch en tableau
-        $criteria = $congeSearch->toArray();
-
-        $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
-
-        $option = [
-            'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
-        ];
-        $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
-        $paginationData = $repository->findPaginatedAndFilteredAnnuler($page, $limit, $congeSearch, $option);
-
-        //enregistre le critère dans la session
-        $this->getSessionService()->set('conge_search_criteria', $criteria);
-        $this->getSessionService()->set('conge_search_option', $option);
-
-        return $this->render(
-            'doms/conge_list.html.twig',
-            [
-                'form' => $form->createView(),
-                'data' => $paginationData['data'],
-                'currentPage' => $paginationData['currentPage'],
-                'lastPage' => $paginationData['lastPage'],
-                'resultat' => $paginationData['totalItems'],
-                'criteria' => $criteria,
-            ]
-        );
+        // Redirect to the main congé list
+        return $this->redirectToRoute("conge_liste");
     }
 
     /**

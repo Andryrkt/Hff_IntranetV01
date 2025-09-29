@@ -24,6 +24,14 @@ class GeneratePdf
             throw new \Exception("Le fichier source n'existe pas : $sourcePath");
         }
 
+        // Créer le répertoire de destination s'il n'existe pas
+        $destinationDir = dirname($destinationPath);
+        if (!is_dir($destinationDir)) {
+            if (!mkdir($destinationDir, 0755, true)) {
+                throw new \Exception("Impossible de créer le répertoire : $destinationDir");
+            }
+        }
+
         if (!copy($sourcePath, $destinationPath)) {
             throw new \Exception("Impossible de copier le fichier : $sourcePath vers $destinationPath");
         }
