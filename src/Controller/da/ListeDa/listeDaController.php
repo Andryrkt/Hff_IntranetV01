@@ -2,6 +2,7 @@
 
 namespace App\Controller\da\ListeDa;
 
+use App\Entity\da\DaSearch;
 use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
@@ -39,16 +40,22 @@ class listeDaController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
-        /** Initialisation criteria */
-        $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
+        /** Initialisation DaSearch */
+        $daSearch = new DaSearch;
+        $this->initialisationRechercheDa($daSearch);
 
         //formulaire de recherche
-        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, null, ['method' => 'GET'])->getForm();
+        $form = $this->getFormFactory()->createBuilder(DaSearchType::class, $daSearch, ['method' => 'GET'])->getForm();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $criteria = $form->getData();
+            $daSearch = $form->getData();
         }
+
+        $criteria = [];
+        //transformer l'objet daSearch en tableau
+        $criteria = $daSearch->toArray();
+        //recupères les données du criteria dans une session nommé criteria_search_list_da
         $this->getSessionService()->set('criteria_search_list_da', $criteria);
 
         $sortJoursClass = false;

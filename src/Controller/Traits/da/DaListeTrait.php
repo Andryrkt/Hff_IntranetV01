@@ -5,8 +5,8 @@ namespace App\Controller\Traits\da;
 use App\Model\da\DaModel;
 use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -297,5 +297,12 @@ trait DaListeTrait
         );
 
         return $urls;
+    }
+
+    public function initialisationRechercheDa(DaSearch $daSearch)
+    {
+        $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
+
+        $daSearch->toObject($criteria);
     }
 }

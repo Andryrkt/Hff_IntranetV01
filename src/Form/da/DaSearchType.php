@@ -12,6 +12,7 @@ use Symfony\Component\Form\FormEvents;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Entity\da\DaSearch;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\admin\ServiceRepository;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -312,6 +313,8 @@ class DaSearchType extends  AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => DaSearch::class,
+        ]);
     }
 }
