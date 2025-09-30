@@ -90,6 +90,11 @@ class DevisMagasinValidationConfig
         DevisMagasin::STATUT_ENVOYER_CLIENT
     ];
 
+
+    public const POINTAGE_PRIX_A_CONFIRMER_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_PRIX_A_CONFIRMER,
+    ];
+
     // Messages d'erreur
     public const ERROR_MESSAGES = [
         // blocage avant soumission
