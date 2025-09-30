@@ -555,7 +555,7 @@ class Controller
      */
     protected function verifierSessionUtilisateur()
     {
-        if (!$this->getSessionService()->has('user_id')) {
+        if (!$this->isUserConnected()) {
             $this->redirectToRoute("security_signin");
         }
     }

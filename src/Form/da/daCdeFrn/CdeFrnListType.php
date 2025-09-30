@@ -27,7 +27,6 @@ class CdeFrnListType extends  AbstractType
     ];
 
     private const TYPE_ACHAT = [
-        'Tous'     => 'tous',
         'Avec DIT' => 'avec_dit',
         'Direct'   => 'direct',
     ];
@@ -41,7 +40,7 @@ class CdeFrnListType extends  AbstractType
             ])
             ->add('typeAchat', ChoiceType::class, [
                 'label'       => 'Type de la demande d\'achat',
-                'placeholder' => '-- Choisir le type --',
+                'placeholder' => '-- Choisir le type de la DA --',
                 'choices'     => self::TYPE_ACHAT,
                 'required'    => false
             ])
