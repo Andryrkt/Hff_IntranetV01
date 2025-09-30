@@ -205,6 +205,13 @@ class DaAfficher
     private ?int $numeroVersion = 0;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version_or_maj_statut")
+     *
+     * @var integer | null
+     */
+    private ?int $numeroVersionOrMajStatut = 0;
+
+    /**
      * @ORM\Column(type="string", length=50, name="niveau_urgence")
      */
     private ?string $niveauUrgence = null;
@@ -265,6 +272,11 @@ class DaAfficher
      * @ORM\Column(type="datetime", name="date_derniere_bav", nullable=true)
      */
     private $dateValidation;
+
+    /**
+     * @ORM\Column(type="datetime", name="date_maj_statut_or", nullable=true)
+     */
+    private $dateMajStatutOr;
 
     /**
      * @ORM\Column(type="boolean", name="est_dalr")
@@ -1533,6 +1545,70 @@ class DaAfficher
 
         return $this;
     }
+
+    /**
+     * Get the value of dateMajStatutOr
+     */
+    public function getDateMajStatutOr()
+    {
+        return $this->dateMajStatutOr;
+    }
+
+    /**
+     * Set the value of dateMajStatutOr
+     *
+     * @return  self
+     */
+    public function setDateMajStatutOr($dateMajStatutOr)
+    {
+        $this->dateMajStatutOr = $dateMajStatutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */
+    public function getNumeroVersionOrMajStatut()
+    {
+        return $this->numeroVersionOrMajStatut;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $numeroVersionOrMajStatut  | null
+     *
+     * @return  self
+     */
+    public function setNumeroVersionOrMajStatut($numeroVersionOrMajStatut)
+    {
+        $this->numeroVersionOrMajStatut = $numeroVersionOrMajStatut;
+
+        return $this;
+    }
+
+    /**
+     * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
+     *
+     * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
+     * de l'ancien DaAfficher, par exemple lors d'une rectification ou d'une version précédente.
+     *
+     * @param DaAfficher $oldDaAfficher L'objet source dont les propriétés doivent être copiées.
+     * @return void
+     */
+    public function copyFromOld(DaAfficher $oldDaAfficher): void
+    {
+        $this
+            ->setStatutOr($oldDaAfficher->getStatutOr())
+            ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
+            ->setDateValidation($oldDaAfficher->getDateValidation())
+            ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
+        ;
+    }
+
 
     public function enregistrerDa(DemandeAppro $da)
     {

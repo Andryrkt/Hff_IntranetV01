@@ -45,7 +45,7 @@ class DaAfficherRepository extends EntityRepository
         }
     }
 
-    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName): void
+    public function markAsDeletedByNumeroLigne(string $numeroDemandeAppro, array $numeroLignes, string $userName, $numeroVersion): void
     {
         if (empty($numeroLignes)) return; // rien à faire
 
@@ -58,7 +58,7 @@ class DaAfficherRepository extends EntityRepository
             ->andWhere('d.numeroLigne IN (:lines)')
             ->setParameters([
                 'num'       => $numeroDemandeAppro,
-                'version'   => $this->getNumeroVersionMax($numeroDemandeAppro),
+                'version'   => $numeroVersion,
                 'deleted'   => true,
                 'deletedBy' => $userName,
                 'lines'     => $numeroLignes,

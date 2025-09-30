@@ -2,6 +2,8 @@
 
 namespace App\Controller\Traits\da;
 
+use DateTime;
+use DateTimeZone;
 use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DemandeApproL;
@@ -36,7 +38,7 @@ trait DaAfficherTrait
         $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
         $numeroVersionMaxDaAfficher = 0;
 
-        if (!empty($oldDaAffichers) && isset($oldDaAffichers[0])) {
+        if (!empty($oldDaAffichers)) {
             $numeroVersionMaxDaAfficher = $oldDaAffichers[0]->getNumeroVersion();
         }
 
@@ -44,10 +46,15 @@ trait DaAfficherTrait
         $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
-        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName());
+        $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName(), $numeroVersionMaxDaAfficher);
+
+        $dateValidation = new DateTime('now', new DateTimeZone('Indian/Antananarivo'));
 
         foreach ($newDaAffichers as $newDaAfficher) {
             $daAfficher = new DaAfficher();
+            if (!empty($oldDaAffichers)) {
+                $daAfficher->copyFromOld($oldDaAffichers[0]);
+            }
             if ($demandeAppro->getDit()) {
                 $daAfficher->setDit($demandeAppro->getDit());
             }
@@ -59,7 +66,7 @@ trait DaAfficherTrait
                 $daAfficher->enregistrerDalr($newDaAfficher); // enregistrement pour DALR
             }
             if ($validationDA) {
-                $daAfficher->setDateValidation(new \DateTime('now', new \DateTimeZone('Indian/Antananarivo')));
+                $daAfficher->setDateValidation($dateValidation);
             }
             if ($statutOr) {
                 $daAfficher->setStatutOr($statutOr);
