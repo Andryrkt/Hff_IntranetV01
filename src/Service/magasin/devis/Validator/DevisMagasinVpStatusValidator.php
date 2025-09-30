@@ -149,7 +149,37 @@ class DevisMagasinVpStatusValidator extends ValidationServiceBase
     }
 
 
+    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(
+        DevisMagasinRepository $repository,
+        string $numeroDevis,
+        int $newSumOfLines,
+        float $newSumOfMontant
+    ): bool {
+        return $this->validateStatusWithContent(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_BLOCKING_STATUTS_VALIDE_A_ENVOYER_AU_CLIENT_ET_SOMME_LINES_INCHANGE,
+            function () use ($repository, $numeroDevis, $newSumOfLines) {
+                return $this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['vp_valide_a_envoyer_au_client_et_somme_lignes_inchange']
+        );
+    }
 
+    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(
+        DevisMagasinRepository $repository, 
+        string $numeroDevis, 
+        int $newSumOfLines): bool {
+        return $this->validateStatusWithContent(
+            $repository,
+            $numeroDevis,
+            DevisMagasinValidationConfig::VP_BLOCKING_STATUTS_CLOTURE_A_MODIFIER_ET_SOMME_MONTANT_IPS_INFERIEUR_SOMME_MONTANT_DEVIS,
+            function () use ($repository, $numeroDevis, $newSumOfLines) {
+                return !$this->isSumOfLinesUnchanged($repository, $numeroDevis, $newSumOfLines);
+            },
+            DevisMagasinValidationConfig::ERROR_MESSAGES['vp_cloture_a_modifier_et_somme_montant_ips_inferieur_somme_montant_devis']
+        );
+    }
 
     //-----------------------------------------------------------------
 

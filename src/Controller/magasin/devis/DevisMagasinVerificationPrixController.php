@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\magasin\devis\DevisMagasinValidationVpService;
+use App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
 /**
@@ -57,17 +57,16 @@ class DevisMagasinVerificationPrixController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         // Instantiation et validation de la présence du numéro de devis
-        $validationService = new DevisMagasinValidationVpService($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
-        if (!$validationService->checkMissingIdentifier($numeroDevis)) {
-            // Le service a envoyé la notification, on arrête le traitement ici.
-            return;
-        }
+        $validationService = new DevisMagasinValidationVpOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
+        //recupération des informations utile dans IPS
+        $devisIps = $this->listeDevisMagasinModel->getInfoDev($numeroDevis);
+        $firstDevisIps = reset($devisIps);
+        // Validation de la somme des lignes
+        $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+        $newSumOfMontant = (float)$firstDevisIps['montant_total'];
 
-        // Validation du statut du devis pour la verification de prix (encours de validation)
-        if (!$validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
-            return; // Arrête le traitement si le statut est bloquant
-        }
-        
+        $validationService->validateBeforeVpSubmission($this->devisMagasinRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+
 
         //instancier le devis magasin
         $devisMagasin = new DevisMagasin();
@@ -77,7 +76,7 @@ class DevisMagasinVerificationPrixController extends Controller
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin, $validationService);
+        $this->traitementFormualire($form, $request,  $devisMagasin, $devisIps, $firstDevisIps);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -87,36 +86,17 @@ class DevisMagasinVerificationPrixController extends Controller
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVpService $validationService)
+    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, array $devisIps, array $firstDevisIps)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            // Validation du fichier soumis 
-            if (!$validationService->validateSubmittedFile($form)) {
-                return; // Arrête le traitement si la validation échoue
-            }
 
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
-            //recupération des informations utile dans IPS
-            $devisIps = $this->listeDevisMagasinModel->getInfoDev($devisMagasin->getNumeroDevis());
-
             if (!empty($devisIps)) {
-                $firstDevisIps = reset($devisIps);
-
-                // Validation de la somme des lignes
-                $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-
-                // Validation du statut du devis pour la validation de devis (doit passer par validation devis)
-                if (!$validationService->checkBlockingStatusOnSubmissionForVd($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
-                    return; // Arrête le traitement si le statut est bloquant
-                }
 
 
-                if ($validationService->estSommeDeLigneInChanger($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines)) {
-                    return; // Arrête le traitement si la somme des lignes est identique
-                }
                 // recupération de numero version max
                 $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
