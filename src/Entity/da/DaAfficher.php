@@ -1606,9 +1606,9 @@ class DaAfficher
             ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
             ->setDateValidation($oldDaAfficher->getDateValidation())
             ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
+            ->setStatutCde($oldDaAfficher->getStatutCde())
         ;
     }
-
 
     public function enregistrerDa(DemandeAppro $da)
     {

@@ -35,7 +35,12 @@ trait DaAfficherTrait
         /** @var DemandeAppro $demandeAppro la DA correspondant au numero DA $numDa */
         $demandeAppro = $this->demandeApproRepository->findOneBy(['numeroDemandeAppro' => $numDa]);
 
+        /** @var iterable<DaAfficher> $oldDaAffichers collection d'objets d'anciens DaAfficher */
         $oldDaAffichers = $this->daAfficherRepository->getLastDaAfficher($numDa);
+        $oldDaAffichersByNumero = [];
+        foreach ($oldDaAffichers as $old) {
+            $oldDaAffichersByNumero[$old->getNumeroLigne()] = $old;
+        }
         $numeroVersionMaxDaAfficher = 0;
 
         if (!empty($oldDaAffichers)) {
@@ -43,6 +48,8 @@ trait DaAfficherTrait
         }
 
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
+
+        /** @var iterable<DaAfficher> $newDaAffichers collection d'objets des nouveaux DaAfficher */
         $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
@@ -52,8 +59,9 @@ trait DaAfficherTrait
 
         foreach ($newDaAffichers as $newDaAfficher) {
             $daAfficher = new DaAfficher();
-            if (!empty($oldDaAffichers)) {
-                $daAfficher->copyFromOld($oldDaAffichers[0]);
+            if (isset($oldDaAffichersByNumero[$newDaAfficher->getNumeroLigne()])) {
+                $ancien = $oldDaAffichersByNumero[$newDaAfficher->getNumeroLigne()];
+                $daAfficher->copyFromOld($ancien);
             }
             if ($demandeAppro->getDit()) {
                 $daAfficher->setDit($demandeAppro->getDit());
