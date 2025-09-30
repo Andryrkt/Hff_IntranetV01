@@ -6,7 +6,7 @@
  * Ce script permet d'exécuter facilement tous les tests et de générer des rapports.
  */
 
-require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../../vendor/autoload.php';
 
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\TextUI\TestRunner;
