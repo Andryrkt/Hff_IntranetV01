@@ -71,28 +71,28 @@
 			<th class="text-start">Commentaire / motif</th>
 			<th class="text-start">Pièces jointes</th>
 			<th class="text-start">Fiche technique</th>
-			<th class="text-center">Choix</th>
 			<th class="text-center">Suppression</th>
 		</tr>
 	</thead>
 	<tbody>
 		{% for DAL in demandeApproLines %}
+			{% set choisi = DAL.demandeApproLR is empty %}
 			<tr class="parent-row align-middle fw-bold">
-				<td class="text-center p-1">
+				<td class="text-center p-1 {{ choisi ? 'bg-warning' : ''}}">
 					<button class="btn btn-outline-primary btn-sm rounded toggle-btn pb-0">
 						<i class="fas fa-chevron-up"></i>
 					</button>
 				</td>
-				<td>{{ DAL.artFams1 }}</td>
-				<td>{{ DAL.artFams2 }}</td>
-				<td>{{ DAL.artRefp }}</td>
-				<td>{{ DAL.artDesi }}</td>
-				<td>{{ DAL.nomFournisseur }}</td>
-				<td class="text-center">{{ DAL.dateFinSouhaite }}</td>
-				<td class="format-mtt text-end">{{ DAL.prixUnitaire }}</td>
-				<td class="text-center">{{ DAL.qteDem }}</td>
-				<td>{{ DAL.commentaire }}</td>
-				<td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.artFams1 }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.artFams2 }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.artRefp }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.artDesi }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.nomFournisseur }}</td>
+				<td class="text-center {{ choisi ? 'bg-warning' : ''}}">{{ DAL.dateFinSouhaite }}</td>
+				<td class="format-mtt text-end {{ choisi ? 'bg-warning' : ''}}">{{ DAL.prixUnitaire }}</td>
+				<td class="text-center {{ choisi ? 'bg-warning' : ''}}">{{ DAL.qteDem }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">{{ DAL.commentaire }}</td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">
 					{% if DAL.fileNames|length > 0 %}
 						<ul class="mb-0 px-0">
 							{% for file in DAL.fileNames %}
@@ -105,7 +105,7 @@
 						Aucune pièce jointe
 					{% endif %}
 				</td>
-				<td>
+				<td class="{{ choisi ? 'bg-warning' : ''}}">
 					{% if DAL.estFicheTechnique %}
 						{% if DAL.nomFicheTechnique %}
 							<a href="{{ App.base_path_fichier }}/da/{{ DAL.numeroDemandeAppro }}/{{ DAL.nomFicheTechnique }}" target="_blank">{{ DAL.nomFicheTechnique }}</a>
@@ -116,14 +116,7 @@
 						NON
 					{% endif %}
 				</td>
-				<td class="text-center">
-					{% if DAL.demandeApproLR is empty %}
-						<i class="fas fa-check text-success"></i>
-					{% else %}
-						<i class="fas fa-xmark text-danger"></i>
-					{% endif %}
-				</td>
-				<td class="text-center">
+				<td class="text-center {{ choisi ? 'bg-warning' : ''}}">
 					<i class="fas fa-trash-can text-danger fs-6 delete-line-DA" style="cursor:pointer;" title="Supprimer la ligne de DA" data-bs-toggle="tooltip" data-delete-path="{{ DAL.urlDelete }}"></i>
 				</td>
 			</tr>
@@ -133,18 +126,19 @@
 				</tr>
 			{% else %}
 				{% for item in DAL.demandeApproLR %}
+					{% set choisi = item.choix %}
 					<tr class="child-row">
-						<td></td>
-						<td class="text-start">{{ item.artFams1 ?? '-' }}</td>
-						<td class="text-start">{{ item.artFams2 ?? '-' }}</td>
-						<td class="text-start">{{ item.artRefp ?? '-' }}</td>
-						<td class="text-start">{{ item.artDesi }}</td>
-						<td class="text-start">{{ item.nomFournisseur }}</td>
-						<td class="text-center">{{ DAL.dateFinSouhaite }}</td>
-						<td class="text-end format-mtt">{{ item.prixUnitaire }}</td>
-						<td class="text-center">{{ item.qteDispo ?? '-' }}</td>
-						<td class="text-start">{{ item.motif }}</td>
-						<td class="text-start">
+						<td class="{{ choisi ? 'bg-warning' : ''}}"></td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.artFams1 ?? '-' }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.artFams2 ?? '-' }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.artRefp ?? '-' }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.artDesi }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.nomFournisseur }}</td>
+						<td class="text-center {{ choisi ? 'bg-warning' : ''}}">{{ DAL.dateFinSouhaite }}</td>
+						<td class="text-end format-mtt {{ choisi ? 'bg-warning' : ''}}">{{ item.prixUnitaire }}</td>
+						<td class="text-center {{ choisi ? 'bg-warning' : ''}}">{{ item.qteDispo ?? '-' }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">{{ item.motif }}</td>
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">
 							{% if item.fileNames|length > 0 %}
 								<ul class="mb-0 px-0">
 									{% for file in item.fileNames %}
@@ -157,7 +151,7 @@
 								Aucune pièce jointe
 							{% endif %}
 						</td>
-						<td class="text-start">
+						<td class="text-start {{ choisi ? 'bg-warning' : ''}}">
 							{% if DAL.estFicheTechnique %}
 								{% if item.nomFicheTechnique %}
 									<a href="{{ App.base_path_fichier }}/da/{{ item.numeroDemandeAppro }}/{{ item.nomFicheTechnique }}" target="_blank">{{ item.nomFicheTechnique }}</a>
@@ -168,14 +162,7 @@
 								NON
 							{% endif %}
 						</td>
-						<td class="text-center">
-							{% if item.choix %}
-								<i class="fas fa-check text-success"></i>
-							{% else %}
-								<i class="fas fa-xmark text-danger"></i>
-							{% endif %}
-						</td>
-						<td></td>
+						<td class="{{ choisi ? 'bg-warning' : ''}}"></td>
 					</tr>
 				{% endfor %}
 			{% endif %}
