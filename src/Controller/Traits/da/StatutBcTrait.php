@@ -123,7 +123,7 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
-        if (empty($situationCde) && !$achatDirect) {
+        if (empty($situationCde) && !$achatDirect && $DaAfficher->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE) {
             return 'PAS DANS OR';
         }
 
