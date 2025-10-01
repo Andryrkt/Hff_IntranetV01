@@ -172,6 +172,7 @@ trait DaTrait
      * Détermine si une DA doit être verrouillée selon son statut et le profil utilisateur
      * 
      * @param string $statutDa
+     * @param string $statut statut OR ou statut DW
      * @param bool $estAdmin
      * @param bool $estAppro
      * @param bool $estAtelier
@@ -179,7 +180,7 @@ trait DaTrait
      * 
      * @return bool True si la DA doit être verrouillée, false sinon
      */
-    private function estDaVerrouillee(string $statutDa, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estEmetteurDaDirect): bool
+    private function estDaVerrouillee(string $statutDa, string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estEmetteurDaDirect): bool
     {
         $statutDaCliquable = [
             DemandeAppro::STATUT_EN_COURS_CREATION,
