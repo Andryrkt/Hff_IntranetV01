@@ -258,12 +258,14 @@ class DitFactureSoumisAValidationController extends Controller
         $orSoumisValidationRepository = $this->getEntityManager()->getRepository(DitOrsSoumisAValidation::class)->findOrSoumisValid($this->ditFactureSoumiAValidation->getNumeroOR());
         $montantItvOr = $this->calculerMontantItvOr($orSoumisValidationRepository, $factureSoumisAValidation);
         $montantFacture = $this->calculerMontantFacture($factureSoumisAValidation);
+        
         $estFactureConformAOr = abs($montantFacture - $montantItvOr) <= 0.01;
-        if(!$estFactureConformAOr) {
+        if(!$estFactureConformAOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
             $montantFactureOr = 'NON';
         } else {
             $montantFactureOr = 'OUI';
         }
+
         return $montantFactureOr;
     }
     private function filtrerOrSelonLesIntervetnionFac(array $orSoumisValidationRepository, array $factureSoumisAValidation): array
@@ -276,6 +278,7 @@ class DitFactureSoumisAValidationController extends Controller
                 }
             }
         }
+
         return $orSoumisValidationRepositoryFiltre;
     }
     private function calculerMontantFacture(array $factureSoumisAValidation): float

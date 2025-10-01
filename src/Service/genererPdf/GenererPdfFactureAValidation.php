@@ -64,7 +64,7 @@ class GenererPdfFactureAValidation extends GeneratePdf
         $pdf->cell(50, 6, $etatOr, 0, 1, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(130);
         $pdf->setFont('helvetica', 'B', 10);
-        $pdf->cell(30, 6, 'Facture conforme à l’OR :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(50, 6, 'Facture conforme à l’OR :', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setFont('helvetica', '', 10);
         $pdf->cell(0, 6, $estFactureConformAOr, 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
