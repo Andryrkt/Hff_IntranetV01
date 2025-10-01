@@ -8,7 +8,16 @@ class DemandeApproService
 {
     /**
      * Règles de déverrouillage par rôle utilisateur.
-     * Chaque clé est un rôle, chaque valeur est la liste des statuts de DA et statut OR ou DW modifiables.
+     *
+     * Chaque clé du tableau correspond à un rôle utilisateur.
+     * Chaque valeur est un tableau associatif où :
+     *   - La clé est un statut de DemandeAppro.
+     *   - La valeur peut être :
+     *       - `true` si le statut est modifiable,
+     *       - `false` si le statut n’est pas modifiable,
+     *       - un tableau associatif de sous-statuts pour des règles plus fines.
+     *
+     * @var array<string,array<int|string,bool|array<int|string,bool>>> Règles d'accès par rôle
      */
     private const PERMISSIONS = [
         'admin' => [
