@@ -6,10 +6,8 @@ namespace App\Controller\da\Detail;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeApproL;
 use App\Entity\admin\Application;
 use App\Form\da\DaObservationType;
-use App\Entity\dit\DemandeIntervention;
 use App\Controller\Traits\lienGenerique;
 use App\Controller\Traits\AutorisationTrait;
 use App\Controller\Traits\da\DaAfficherTrait;
@@ -85,23 +83,6 @@ class DaDetailAvecDitController extends Controller
 			'estAte'            		=> $this->estUserDansServiceAtelier(),
 			'estAppro'          		=> $this->estUserDansServiceAppro(),
 		]);
-	}
-
-	/**  
-	 * Filtre les lignes de la DA (Demande Appro) pour ne garder que celles qui correspondent au numero de version max
-	 */
-	private function filtreDal($demandeAppro, $dit, int $numeroVersionMax): DemandeAppro
-	{
-		$demandeAppro->setDit($dit); // association de la DA avec le DIT
-
-		// filtre une collection de versions selon le numero de version max
-
-		$dernieresVersions = $demandeAppro->getDAL()->filter(function ($item) use ($numeroVersionMax) {
-			return $item->getNumeroVersion() == $numeroVersionMax && $item->getDeleted() == 0;
-		});
-		$demandeAppro->setDAL($dernieresVersions); // on remplace la collection de versions par la collection filtrée
-
-		return $demandeAppro;
 	}
 
 	/** 
