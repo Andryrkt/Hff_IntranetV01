@@ -28,6 +28,39 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
+  // Bouton global "tout ouvrir / tout fermer"
+  const toggleAllBtn = document.querySelector("#toggle-all");
+  let allVisible = true; // état global
+
+  toggleAllBtn.addEventListener("click", function () {
+    const childRows = document.querySelectorAll(".child-row");
+    const icons = document.querySelectorAll(".toggle-btn i");
+
+    childRows.forEach(function (row) {
+      row.style.display = allVisible ? "none" : "table-row";
+    });
+
+    // Met à jour toutes les icônes des boutons individuels
+    icons.forEach(function (icon) {
+      icon.classList.toggle("fa-chevron-down", allVisible);
+      icon.classList.toggle("fa-chevron-up", !allVisible);
+    });
+
+    // Met à jour l’état
+    allVisible = !allVisible;
+
+    // Met à jour le tooltip Bootstrap
+    this.dataset.bsOriginalTitle = allVisible ? "Tout fermer" : "Tout ouvrir";
+
+    // Si le tooltip est déjà initialisé, on le rafraîchit
+    const tooltipInstance = bootstrap.Tooltip.getInstance(this);
+    if (tooltipInstance) {
+      tooltipInstance.setContent({
+        ".tooltip-inner": this.dataset.bsOriginalTitle,
+      });
+    }
+  });
+
   /**
    * Suppression de ligne de DA
    */
