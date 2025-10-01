@@ -37,8 +37,7 @@ trait DitFactureSoumisAValidationtrait
     private function ditFactureSoumisAValidation($numDit, $dataForm, $ditFactureSoumiAValidationModel, $numeroSoumission, $em, $ditFactureSoumiAValidation): array
     {
         $infoFacture = $ditFactureSoumiAValidationModel->recupInfoFact($dataForm->getNumeroOR(), $ditFactureSoumiAValidation->getNumeroFact());
-        
-    
+
         $agServDebDit = $em->getRepository(DemandeIntervention::class)->findAgSevDebiteur($numDit);
 
         $factureSoumisAValidation = [];
@@ -122,7 +121,7 @@ trait DitFactureSoumisAValidationtrait
             $statutOrsSoumisValidation = $em->getRepository(DitOrsSoumisAValidation::class)->findStatutByNumeroVersionMax($value['numeroor'], (int)$value['numeroitv']);
             $montantValide = (float) ($em->getRepository(DitOrsSoumisAValidation::class)->findMontantValide($value['numeroor'], (int)$value['numeroitv'])['montantItv']);
             $montantFacture = (float) $value['montantfactureitv'];
-    
+
             $conditionDifferenceServDeb =  $agServDebDit !== $agServFac;
             $conditionDifferenceMontant = abs($montantValide - $montantFacture) > 0.01; // Comparaison avec tolérance
             $conditionPasSoumissionOr = $nombreItv === 0;
@@ -138,28 +137,26 @@ trait DitFactureSoumisAValidationtrait
             } elseif ($conditionPasSoumissionOr) {
                 $statutFac[] = 'INTERVENTION NON SOUMISE A VALIDATION'; // pas de soumission or
                 $nombreStatutControle['nbrNonValideFacture']++;
-            } elseif ($conditionExiteMotRefuse ) {
+            } elseif ($conditionExiteMotRefuse) {
                 $statutFac[] = 'INTERVENTION REFUSEE';
                 $nombreStatutControle['nbrNonValideFacture']++;
             } elseif ($conditionStatutDiffValide) {
                 $statutFac[] = 'INTERVENTION NON VALIDEE';
                 $nombreStatutControle['nbrNonValideFacture']++;
             } elseif ($conditionStatutValide) {
-                if ($conditionDifferenceMontant) { 
+                if ($conditionDifferenceMontant) {
                     if ($migration == 1) {
                         $statutFac[] = 'DIT migrée';
                     } else {
                         $statutFac[] = 'Mtt validé # Mtt facturé';
                     }
                     $nombreStatutControle['nbrMttValideDiffMttFac']++;
-                }
-                else {
+                } else {
                     $statutFac[] = 'OK';
                 }
             } else {
                 $statutFac[] = 'OK';
             }
-
         }
 
         return [
@@ -167,7 +164,7 @@ trait DitFactureSoumisAValidationtrait
             'nombreStatutControle' => $nombreStatutControle
         ];
     }
-    
+
 
     private function infoItvFac($factureSoumisAValidation, $statut)
     {

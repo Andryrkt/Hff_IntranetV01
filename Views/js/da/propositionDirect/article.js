@@ -31,7 +31,10 @@ export function ajouterReference(addLineId) {
       if (divValidation) {
         divValidation.classList.add("d-none"); // On le cache
       }
-      if (envoyerSelections) {
+      if (
+        envoyerSelections &&
+        envoyerSelections.dataset.daDirecteAppro != "1"
+      ) {
         envoyerSelections.classList.remove("d-none"); // On l'affiche
       }
       if (validerSelections) {

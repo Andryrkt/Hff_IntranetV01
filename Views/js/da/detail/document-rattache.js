@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
       event.preventDefault();
 
       const docType = this.dataset.docType;
+      const docName = this.dataset.docName;
       const filePath = this.href;
 
       if (filePath.endsWith("-")) {
@@ -123,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Télécharger manuellement
         const link = document.createElement("a");
         link.href = filePath;
-        link.download = filePath.split("/").pop();
+        link.download = docName;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

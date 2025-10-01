@@ -33,12 +33,18 @@ class ListeDevisMagasinController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->agenceRepository = $this->getEntityManager()->getRepository(\App\Entity\admin\Agence::class);
-        
+
         $this->styleStatutDw = [
             DevisMagasin::STATUT_PRIX_A_CONFIRMER => 'bg-prix-a-confirmer',
-            DevisMagasin::STATUT_PRIX_VALIDER_MAGASIN => 'bg-prix-valider-magasin',
-            DevisMagasin::STATUT_PRIX_REFUSE_MAGASIN => 'bg-prix-refuse-magasin',
+            DevisMagasin::STATUT_PRIX_VALIDER_TANA => 'bg-prix-valider-tana',
+            DevisMagasin::STATUT_PRIX_VALIDER_AGENCE => 'bg-prix-valider-agence',
+            DevisMagasin::STATUT_PRIX_MODIFIER_TANA => 'bg-prix-modifier-magasin',
+            DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE => 'bg-prix-modifier-agence',
             DevisMagasin::STATUT_DEMANDE_REFUSE_PAR_PM => 'bg-demande-refuse-par-pm',
+            DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE => 'bg-a-valider-chef-agence',
+            DevisMagasin::STATUT_VALIDE_AGENCE => 'bg-valide-agence',
+            DevisMagasin::STATUT_ENVOYER_CLIENT => 'bg-envoyer-client',
+            DevisMagasin::STATUT_CLOTURER_A_MODIFIER => 'bg-cloturer-a-modifier',
         ];
     }
 
@@ -92,6 +98,7 @@ class ListeDevisMagasinController extends Controller
             $devisIp['statut_dw'] = $devisSoumi ? $devisSoumi->getStatutDw() : '';
             $devisIp['operateur'] = $devisSoumi ? $devisSoumi->getUtilisateur() : '';
             $devisIp['date_envoi_devis_au_client'] = $devisSoumi ? ($devisSoumi->getDateEnvoiDevisAuClient() ? $devisSoumi->getDateEnvoiDevisAuClient() : '') : '';
+            $devisIp['utilisateur_createur_devis'] = $this->listeDevisMagasinModel->getUtilisateurCreateurDevis($devisIp['numero_devis']) ?? '';
 
             // Appliquer les filtres si des critères sont fournis
             if (!empty($criteria) && !$this->matchesCriteria($devisIp, $criteria)) {
@@ -167,19 +174,31 @@ class ListeDevisMagasinController extends Controller
 
         // Filtre par date de création (début)
         if (!empty($criteria['dateCreation']['debut'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateDebut = $criteria['dateCreation']['debut'];
-            if ($dateCreation < $dateDebut) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateDebut = $criteria['dateCreation']['debut'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') < $dateDebut->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 
         // Filtre par date de création (fin)
         if (!empty($criteria['dateCreation']['fin'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateFin = $criteria['dateCreation']['fin'];
-            if ($dateCreation > $dateFin) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateFin = $criteria['dateCreation']['fin'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') > $dateFin->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 

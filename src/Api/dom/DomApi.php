@@ -58,8 +58,19 @@ class DomApi extends Controller
 
             $catg = $this->getEntityManager()->getRepository(Indemnite::class)->findDistinctByCriteria($criteria);
 
+            $categories = [];
+            foreach ($catg as $value) {
+                $category = $this->getEntityManager()->getRepository(Catg::class)->find($value['id']);
+                if ($category) {
+                    $categories[] = [
+                        'id' => $category->getId(),
+                        'description' => $category->getDescription()
+                    ];
+                }
+            }
+
             header("Content-type:application/json");
-            echo json_encode($catg);
+            echo json_encode($categories);
         } catch (\Exception $e) {
             header("Content-type:application/json");
             http_response_code(500);

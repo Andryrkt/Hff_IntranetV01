@@ -39,7 +39,8 @@ class DemandeCongeType extends AbstractType
         // Créer un tableau associatif pour les agences (libellé => code)
         foreach ($agencesServices as $as) {
             // Utiliser agence_ips au lieu de agence_i100
-            $agences[$as->getNomagencei100()] = $as->getAgenceips();
+            // Format: "Code - Nom" (ex: "80 - Administration")
+            $agences[$as->getAgenceips() . ' ' . $as->getNomagencei100()] = $as->getAgenceips();
         }
 
         // Récupérer les statuts depuis la table Statut_demande
@@ -139,7 +140,8 @@ class DemandeCongeType extends AbstractType
                     ->getArrayResult();
 
                 foreach ($services as $row) {
-                    $choices[$row['nom']] = $row['code'];
+                    // Format: "Code - Nom" (ex: "A102 - Service RH")
+                    $choices[$row['code'] . ' ' . $row['nom']] = $row['code'];
                 }
             }
 
@@ -187,7 +189,7 @@ class DemandeCongeType extends AbstractType
             ->createQueryBuilder('s')
             ->select('s.codeStatut, s.description')
             ->where('s.codeApp = :app')
-            ->setParameter('app', 'DOM')
+            ->setParameter('app', 'DDC')
             ->getQuery()
             ->getResult();
 

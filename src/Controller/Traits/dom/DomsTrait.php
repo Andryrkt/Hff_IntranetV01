@@ -15,7 +15,6 @@ use App\Entity\admin\Personnel;
 use App\Entity\admin\Application;
 use App\Entity\admin\dom\Indemnite;
 use App\Entity\admin\StatutDemande;
-use App\Repository\dom\DomRepository;
 use App\Entity\admin\utilisateur\User;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Entity\admin\dom\SousTypeDocument;
@@ -31,7 +30,7 @@ trait DomsTrait
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
         $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $dom->setCategorie($form1Data['categorie']);
+        $dom->setCategorie($form1Data['categoryId']);
         $dom->setDateDemande(new \DateTime());
         if ($form1Data['salarier'] === "TEMPORAIRE") {
             $dom->setNom($form1Data['nom']);
@@ -84,7 +83,7 @@ trait DomsTrait
     private function criteria($form1Data, $em)
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
-        $catg = $form1Data['categorie'];
+        $catg = $form1Data['categoryId'];
 
         $agenceServiceEmetteur =  $this->agenceServiceIpsObjet();
 
@@ -307,8 +306,8 @@ trait DomsTrait
         }
 
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find($form1Data['sousTypeDocument']->getId());
-        if (isset($form1Data['categorie'])) {
-            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categorie']->getId());
+        if (isset($form1Data['categoryId'])) {
+            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categoryId']->getId());
         } else {
             $categoryId = null;
         }

@@ -133,6 +133,7 @@ class DitOrsSoumisAValidationController extends Controller
 
             /** DEBUT CONDITION DE BLOCAGE */
             $originalName = $form->get("pieceJoint01")->getData()->getClientOriginalName();
+            $observation = $form->get("observation")->getData();
             $conditionBloquage = $this->conditionsDeBloquegeSoumissionOr($originalName, $numOr, $ditInsertionOrSoumis, $numDit);
 
             /** FIN CONDITION DE BLOCAGE */
@@ -144,6 +145,7 @@ class DitOrsSoumisAValidationController extends Controller
                     ->setNumeroVersion($this->autoIncrement($numeroVersionMax))
                     ->setHeureSoumission($this->getTime())
                     ->setDateSoumission(new \DateTime($this->getDatesystem()))
+                    ->setObservation($observation)
                 ;
 
                 $orSoumisValidationModel = $this->ditModel->recupOrSoumisValidation($ditInsertionOrSoumis->getNumeroOR());

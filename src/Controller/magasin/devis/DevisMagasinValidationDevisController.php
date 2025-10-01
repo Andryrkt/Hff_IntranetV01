@@ -17,6 +17,7 @@ use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Service\magasin\devis\DevisMagasinValidationVdService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -24,8 +25,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 class DevisMagasinValidationDevisController extends Controller
 {
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
-    private const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
-    private const STATUT_PRIX_REFUSE = 'Prix refusé magasin';
     private const MESSAGE_DE_CONFIRMATION = 'validation';
     use AutorisationTrait;
 
@@ -57,28 +56,16 @@ class DevisMagasinValidationDevisController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        // Instantiation et validation de la présence du numéro de devis
-        $validationService = new DevisMagasinValidationVdService($this->historiqueOperationDeviMagasinService, $numeroDevis ?? '');
-        if (!$validationService->checkMissingIdentifier($numeroDevis)) {
-            // Le service a envoyé la notification, on arrête le traitement ici.
-            return;
-        }
+        //recupération des informations utile dans IPS
+        $devisIps = $this->listeDevisMagasinModel->getInfoDev($numeroDevis);
+        $firstDevisIps = reset($devisIps);
+        $newSumOfMontant = (float)$firstDevisIps['montant_total'];
+        $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+        $orchestrator = new DevisMagasinValidationOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis);
+        // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
+        $orchestrator->validateBeforeSubmission($this->devisMagasinRepository, $this->listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+            
 
-        if (!$validationService->isDevisExiste($this->devisMagasinRepository, $numeroDevis)) {
-            // Le service a envoyé la notification, on arrête le traitement ici.
-            return;
-        }
-
-        // Validation du statut du devis
-        if (!$validationService->checkBlockingStatusOnSubmission($this->devisMagasinRepository, $numeroDevis)) {
-            return; // Arrête le traitement si le statut est bloquant
-        }
-        if (!$validationService->checkBlockingStatusOnSubmissionVp($this->devisMagasinRepository, $numeroDevis)) {
-            return; // Arrête le traitement si le statut est bloquant
-        }
-        if (!$validationService->checkBlockingStatusOnSubmissionForVp($this->devisMagasinRepository, $numeroDevis)) {
-            return; // Arrête le traitement si le statut est bloquant
-        }
 
 
         //instancier le devis magasin
@@ -89,7 +76,7 @@ class DevisMagasinValidationDevisController extends Controller
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
         //traitement du formualire
-        $this->traitementFormualire($form, $request,  $devisMagasin, $validationService);
+        $this->traitementFormualire($form, $request, $devisMagasin, $orchestrator, $devisIps, $firstDevisIps);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -99,40 +86,24 @@ class DevisMagasinValidationDevisController extends Controller
         ]);
     }
 
-    private function traitementFormualire($form, Request $request,  DevisMagasin $devisMagasin, DevisMagasinValidationVdService $validationService)
+    private function traitementFormualire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $devisIps, array $firstDevisIps)
     {
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
             // Validation du fichier soumis via le service dédié
-            if (!$validationService->validateSubmittedFile($form)) {
+            if (!$orchestrator->validateSubmittedFile($form)) {
                 return; // Arrête le traitement si la validation échoue
             }
 
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
-            //recupération des informations utile dans IPS
-            $devisIps = $this->listeDevisMagasinModel->getInfoDev($devisMagasin->getNumeroDevis());
+
 
             if (!empty($devisIps)) {
-                $firstDevisIps = reset($devisIps);
-
-                // Validation de la somme des lignes et statut prix refusé
-                $newSumOfMontant = (float)$firstDevisIps['montant_total'];
-                if (!$validationService->isSumOfMontantUnchangedAndStatutVp($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfMontant, self::STATUT_PRIX_REFUSE)) {
-                    return; // Arrête le traitement si la somme des lignes est identique
-                }
-
-                // Validation de la somme des lignes qui est différent de la dernière version
-                $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
-                if (!$validationService->isSumOfLineschanged($this->devisMagasinRepository, $devisMagasin->getNumeroDevis(), $newSumOfLines, $newSumOfMontant)) {
-                    return; // Arrête le traitement si la somme des lignes est identique
-                }
 
                 // recupération de numero version max
                 $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
-
-                //TODO: creation de pdf (à specifier par Antsa)
 
                 /** @var User $utilisateur */
                 $utilisateur = $this->getUser();
@@ -149,7 +120,7 @@ class DevisMagasinValidationDevisController extends Controller
                     ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
                     ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                    ->setStatutDw(self::STATUT_A_VALIDER_CHEF_AGENCE)
+                    ->setStatutDw(DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
                     ->setTypeSoumission(self::TYPE_SOUMISSION_VALIDATION_DEVIS)
                     ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
                     ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)

@@ -3,10 +3,11 @@
 namespace App\Repository\magasin\devis;
 
 use App\Repository\Interfaces\LatestSumOfLinesRepositoryInterface;
+use App\Repository\Interfaces\LatestSumOfMontantRepositoryInterface;
 use App\Repository\Interfaces\StatusRepositoryInterface;
 use Doctrine\ORM\EntityRepository;
 
-class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface
+class DevisMagasinRepository extends EntityRepository implements StatusRepositoryInterface, LatestSumOfLinesRepositoryInterface, LatestSumOfMontantRepositoryInterface
 {
     public function getNumeroVersionMax(string $numDevis)
     {

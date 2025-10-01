@@ -11,9 +11,6 @@ use App\Entity\bdc\BonDeCaisse;
 use App\Form\bdc\BonDeCaisseType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 /**
  * @Route("/compta/demande-de-paiement")
@@ -38,6 +35,30 @@ class BonDeCaisseController extends Controller
 
         $agenceServiceIps = $this->agenceServiceIpsObjet();
 
+        // Vérifier s'il y a des paramètres GET dans l'URL
+        $hasGetParams = !empty($request->query->all());
+
+        // Si aucun paramètre GET n'est présent, supprimer les sessions
+        if (!$hasGetParams) {
+            $this->sessionService->remove('bon_caisse_search_criteria');
+            $this->sessionService->remove('bon_caisse_search_option');
+        } else {
+            // Si des paramètres GET sont présents, utiliser les valeurs de session
+            $sessionCriteria = $this->sessionService->get('bon_caisse_search_criteria', []);
+            $sessionOptions = $this->sessionService->get('bon_caisse_search_option', []);
+
+            // Appliquer les critères de session à l'objet de recherche
+            if (!empty($sessionCriteria)) {
+                $bonCaisseSearch->setNumeroDemande($sessionCriteria['numeroDemande'] ?? null);
+                $bonCaisseSearch->setDateDemande($sessionCriteria['dateDemande'] ?? null);
+                $bonCaisseSearch->setAgenceDebiteur($sessionCriteria['agenceDebiteur'] ?? null);
+                $bonCaisseSearch->setStatutDemande($sessionCriteria['statutDemande'] ?? null);
+                $bonCaisseSearch->setCaisseRetrait($sessionCriteria['caisseRetrait'] ?? null);
+                $bonCaisseSearch->setTypePaiement($sessionCriteria['typePaiement'] ?? null);
+                $bonCaisseSearch->setRetraitLie($sessionCriteria['retraitLie'] ?? null);
+            }
+        }
+
         /** INITIALIASATION et REMPLISSAGE de RECHERCHE pendant la navigation pagination */
         $this->initialisation($bonCaisseSearch, $this->getEntityManager());
 
@@ -51,13 +72,19 @@ class BonDeCaisseController extends Controller
 
         // Options pour le repository
         $options = [
-            'boolean' => $autoriser,
-            'idAgence' => $this->agenceIdAutoriser($this->getEntityManager())
+            //'boolean' => $autoriser,
+            //'idAgence' => $this->agenceIdAutoriser(self::$em)
         ];
 
         // Traitement du formulaire de recherche
         if ($form->isSubmitted() && $form->isValid()) {
             $bonCaisseSearch = $form->getData();
+
+            // Récupérer la date de demande (début)
+            $dateDemande = $bonCaisseSearch->getDateDemande();
+            if ($dateDemande) {
+                $options['dateDemande'] = $dateDemande;
+            }
 
             // Récupérer la date de demande fin (non mappée)
             if ($form->has('dateDemandeFin')) {
@@ -73,8 +100,6 @@ class BonDeCaisseController extends Controller
                 $options['service'] = $serviceFromRequest;
             }
 
-            // Dans la méthode listeBonCaisse, remplacez la récupération du service
-            // Remplacez le bloc de traitement du service par :
             // Récupérer le service depuis le champ caché
             $serviceHidden = $request->query->get('service_hidden');
             if ($serviceHidden) {
@@ -94,7 +119,6 @@ class BonDeCaisseController extends Controller
         if (isset($options['service'])) {
             $criteria['service'] = $options['service'];
         }
-
         // Récupérer les données paginées et filtrées
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
@@ -103,18 +127,19 @@ class BonDeCaisseController extends Controller
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $bonCaisseSearch, $options);
 
         //enregistre le critère dans la session
-        $this->getSessionService()->set('bon_caisse_search_criteria', $criteria);
-        $this->getSessionService()->set('bon_caisse_search_option', $options);
+        $this->sessionService->set('bon_caisse_search_criteria', $criteria);
+        $this->sessionService->set('bon_caisse_search_option', $options);
 
         $criteriaTab = $criteria;
 
         $criteriaTab['statutDemande'] = $criteria['statutDemande'] ?? null;
         $criteriaTab['dateDemande'] = $criteria['dateDemande'] ? $criteria['dateDemande']->format('d-m-Y') : null;
         $criteriaTab['dateDemandeFin'] = isset($criteria['dateDemandeFin']) && $criteria['dateDemandeFin'] ? $criteria['dateDemandeFin']->format('d-m-Y') : null;
+        $criteriaTab['service'] = $criteria['service'] ?? null;
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
-        $filteredCriteria = array_filter($criteriaTab);
+
         return $this->render(
             'bdc/bon_caisse_list.html.twig',
             [
@@ -137,8 +162,8 @@ class BonDeCaisseController extends Controller
         $this->verifierSessionUtilisateur();
 
         // Récupère les critères dans la session
-        $criteria = $this->getSessionService()->get('bon_caisse_search_criteria', []);
-        $option = $this->getSessionService()->get('bon_caisse_search_option', []);
+        $criteria = $this->sessionService->get('bon_caisse_search_criteria', []);
+        $option = $this->sessionService->get('bon_caisse_search_option', []);
 
         $bonCaisseSearch = new BonDeCaisse();
         $bonCaisseSearch->setTypeDemande($criteria['typeDemande'] ?? null)

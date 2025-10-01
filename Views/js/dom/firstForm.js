@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   );
   const agenceInput = document.querySelector('#dom_form1_agenceEmetteur');
 
-  const categorie = document.querySelector('#dom_form1_categorie');
+  const categorie = document.querySelector('#dom_form1_categoryId');
 
   sousTypeDocument.addEventListener('change', changementSelon);
 
@@ -75,33 +75,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   function selectCategorie() {
-    const sousTypeDocumentValue = sousTypeDocument.value;
-    let url = `categorie-fetch/${sousTypeDocumentValue}`;
-    fetchManager
-      .get(url)
-      .then((categories) => {
-        console.log(categories);
-
-        //Supprimer toutes les options existantes
-        while (categorie.options.length > 0) {
-          categorie.remove(0);
-        }
-
-        //Ajouter les nouvelles options à partir du tableau services
-        for (var i = 0; i < categories.length; i++) {
-          var option = document.createElement('option');
-          option.value = categories[i].id;
-          option.text = categories[i].description;
-          categorie.add(option);
-        }
-
-        //Afficher les nouvelles valeurs et textes des options
-        for (var i = 0; i < categorie.options.length; i++) {
-          var option = categorie.options[i];
-          console.log('Value: ' + option.value + ', Text: ' + option.text);
-        }
-      })
-      .catch((error) => console.error('Error:', error));
+    // Le formulaire Symfony gère déjà les choix via les event listeners
+    // On n'a pas besoin de modifier le select manuellement
+    console.log('Catégories chargées par Symfony');
   }
 
   /**

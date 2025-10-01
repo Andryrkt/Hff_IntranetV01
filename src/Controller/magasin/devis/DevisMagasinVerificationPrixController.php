@@ -24,7 +24,6 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 class DevisMagasinVerificationPrixController extends Controller
 {
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
-    private const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
     private const MESSAGE_DE_CONFIRMATION = 'verification prix';
 
     use AutorisationTrait;
@@ -138,7 +137,7 @@ class DevisMagasinVerificationPrixController extends Controller
                     ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
                     ->setUtilisateur($this->getUser()->getNomUtilisateur())
                     ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                    ->setStatutDw(self::STATUT_PRIX_A_CONFIRMER)
+                    ->setStatutDw(DevisMagasin::STATUT_PRIX_A_CONFIRMER)
                     ->setTypeSoumission(self::TYPE_SOUMISSION_VERIFICATION_PRIX)
                     ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
                     ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)

@@ -94,12 +94,30 @@
   .bg-prix-a-confirmer {
     background-color: #ffc107!important;
   }
-  .bg-prix-valider-magasin {
+  .bg-prix-valider-tana {
     background-color: #28a745!important;
   }
-  .bg-prix-refuse-magasin {
+  .bg-prix-modifier-tana {
+    background-color: #dc3545!important;
+  }
+  .bg-prix-valider-agence {
+    background-color: #28a745!important;
+  }
+  .bg-prix-modifier-agence {
     background-color: #dc3545!important;
   }
   .bg-demande-refuse-par-pm {
+    background-color: #6c757d!important;
+  }
+  .bg-a-valider-chef-agence {
+    background-color: #ffc107!important;
+  }
+  .bg-valide-agence {
+    background-color: #28a745!important;
+  }
+  .bg-envoyer-client {
+    background-color: #007bff!important;
+  }
+  .bg-cloturer-a-modifier {
     background-color: #6c757d!important;
   }
