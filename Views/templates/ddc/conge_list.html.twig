@@ -36,16 +36,15 @@
             <tbody>
                 {% for demande in data %}
                     {% set classeStatut = '' %}
-                    {% set styleStatut = '' %}
 
-                    {% if demande.statutDemande | trim == 'VALIDEE' %}
-                        {% set classeStatut = 'bg-success' %}
+                    {% if demande.statutDemande | trim == 'Validé' %}
+                        {% set classeStatut = 'bg-success text-white' %}
                     {% elseif demande.statutDemande | trim == 'EN ATTENTE' %}
-                        {% set classeStatut = 'bg-warning' %}
+                        {% set classeStatut = 'bg-warning text-dark' %}
                     {% elseif demande.statutDemande | trim == 'REJETEE' %}
-                        {% set classeStatut = 'bg-danger' %}
+                        {% set classeStatut = 'bg-danger text-white' %}
                     {% elseif demande.statutDemande | trim == 'EN COURS' %}
-                        {% set classeStatut = 'bg-info' %}
+                        {% set classeStatut = 'bg-info text-dark' %}
                     {% endif %}
 
                     <tr>
@@ -59,10 +58,10 @@
                             {% endif %}
                         </td>
 
-                        <td class="{{ classeStatut }}" style="{{ styleStatut }}">{{ demande.statutDemande }}</td>
+                        <td class="{{ classeStatut }}">{{ demande.statutDemande }}</td>
                         <td>{{ demande.sousTypeDocument }}</td>
                         <td>{{ demande.numeroDemande }}</td>
-                        <td>{{ demande.dateDemande|date('d/m/Y') }}</td>
+                        <td>{{ demande.dateDemande ? demande.dateDemande|date('d/m/Y') : '' }}</td>
                         <td class="text-center">{{ demande.matricule }}</td>
                         <td>{{ demande.nomPrenoms }}</td>
                         <td>{{ demande.agenceDebiteur }}</td>
@@ -70,8 +69,8 @@
                         <td>{{ demande.adresseMailDemandeur }}</td>
                         <td>{{ demande.motifConge }}</td>
                         <td>{{ demande.dureeConge }} jours</td>
-                        <td>{{ demande.dateDebut|date('d/m/Y') }}</td>
-                        <td>{{ demande.dateFin|date('d/m/Y') }}</td>
+                        <td>{{ demande.dateDebut ? demande.dateDebut|date('d/m/Y') : '' }}</td>
+                        <td>{{ demande.dateFin ? demande.dateFin|date('d/m/Y') : '' }}</td>
                     </tr>
                 {% else %}
                     <tr>

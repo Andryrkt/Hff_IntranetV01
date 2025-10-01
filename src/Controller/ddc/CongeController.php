@@ -92,10 +92,12 @@ class CongeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
-            dd($congeSearch);
+
             // Récupérer les dates de demande (mappées et non mappées)
             $dateDemande = $form->get('dateDemande')->getData();
             $dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
+            // Stocker les critères dans la session
+            $criteria = $congeSearch->toArray();
 
             // Stocker les dates dans les options pour le repository
             if ($dateDemande) {
@@ -105,20 +107,24 @@ class CongeController extends Controller
                 $options['dateDemandeFin'] = $dateDemandeFin;
             }
 
-            // Récupérer le service et l'agence
-            $serviceHidden = $request->query->get('service_hidden');
-            if ($serviceHidden) {
-                $options['agenceService'] = $serviceHidden;
-            }
 
-            // Récupérer l'agence pour le filtre Agence_Debiteur
+            // Récupérer l'agence pour le filtre Agence_service
             $agence = $request->query->get('demande_conge')['agence'] ?? null;
             if ($agence) {
                 $options['agence'] = $agence;
             }
 
-            // Stocker les critères dans la session
-            $criteria = $congeSearch->toArray();
+            // Récupérer le service pour le filtre Agence_service
+            $service = $request->query->get('demande_conge')['service'] ?? null;
+            if ($service) {
+                $options['service'] = $service;
+            }
+
+            $agenceCode = isset($options['agence']) ? $options['agence'] : null;
+            $serviceCode = isset($options['service']) ? $options['service'] : null;
+            $options['agenceService'] = ($agenceCode && $serviceCode)
+                ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
+                : null;
 
             // Ajouter les dates aux critères pour persistance
             if ($dateDemande) {
@@ -160,6 +166,9 @@ class CongeController extends Controller
         $criteriaTab['dateDemande'] = $criteriaTab['dateDemande'] ? $criteriaTab['dateDemande']->format('d-m-Y') : null;
         $criteriaTab['dateDemandeFin'] = isset($criteriaTab['dateDemandeFin']) && $criteriaTab['dateDemandeFin'] ? $criteriaTab['dateDemandeFin']->format('d-m-Y') : null;
         $criteriaTab['selected_service'] = $criteriaTab['selected_service'] ?? null;
+        $criteriaTab['agenceService'] = ($agenceCode && $serviceCode)
+            ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
+            : null;
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
@@ -179,6 +188,13 @@ class CongeController extends Controller
     }
 
 
+    private function getAgenceServiceSage(string $codeAgence, string $codeService): ?string
+    {
+        $agenceServiceIrium = $this->getEntityManager()
+            ->getRepository(AgenceServiceIrium::class)
+            ->findOneBy(["agence_ips" => $codeAgence, "service_ips" => $codeService]);
+        return $agenceServiceIrium ? $agenceServiceIrium->getServicesagepaie() : null;
+    }
 
     /**
      * @Route("/export-conge-excel", name="export_conge_excel")
