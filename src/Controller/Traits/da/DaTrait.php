@@ -175,16 +175,16 @@ trait DaTrait
      * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
      * en fonction de son statut et du profil utilisateur.
      *
-     * @param string $statutDa  Statut actuel de la DA
-     * @param string $statut    Statut complémentaire (OR ou DW)
-     * @param bool   $estAdmin  Vrai si l'utilisateur est administrateur
-     * @param bool   $estAppro  Vrai si l'utilisateur est approvisionneur
-     * @param bool   $estAtelier Vrai si l'utilisateur est membre de l'atelier
-     * @param bool   $estCreateurDaDirecte Vrai si l'utilisateur est le créateur d'une DA directe
+     * @param string      $statutDa  Statut actuel de la DA
+     * @param string|null $statut    Statut complémentaire (OR ou DW)
+     * @param bool        $estAdmin  Vrai si l'utilisateur est administrateur
+     * @param bool        $estAppro  Vrai si l'utilisateur est approvisionneur
+     * @param bool        $estAtelier Vrai si l'utilisateur est membre de l'atelier
+     * @param bool        $estCreateurDaDirecte Vrai si l'utilisateur est le créateur d'une DA directe
      *
      * @return bool True si la DA doit être verrouillée, False sinon
      */
-    private function estDaVerrouillee(string $statutDa, string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
+    private function estDaVerrouillee(string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
     {
         $roles = [];
 

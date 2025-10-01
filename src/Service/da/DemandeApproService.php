@@ -48,13 +48,13 @@ class DemandeApproService
      * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
      * en fonction de son statut et des rôles de l'utilisateur.
      *
-     * @param string   $statutDa Statut actuel de la DA
-     * @param string   $statut   Statut complémentaire (OR ou DW)
-     * @param string[] $roles    Liste des rôles de l'utilisateur (ex: ['admin', 'appro'])
+     * @param string        $statutDa Statut actuel de la DA
+     * @param string|null   $statut   Statut complémentaire (OR ou DW)
+     * @param string[]      $roles    Liste des rôles de l'utilisateur (ex: ['admin', 'appro'])
      *
      * @return bool True si la DA doit être verrouillée, False sinon
      */
-    public function isDemandeVerrouillee(string $statutDa, string $statut, array $roles): bool
+    public function isDemandeVerrouillee(string $statutDa, ?string $statut, array $roles): bool
     {
         foreach ($roles as $role) {
             if ($this->canRoleEditDa($role, $statutDa, $statut)) {
@@ -68,13 +68,13 @@ class DemandeApproService
     /**
      * Vérifie si un rôle donné peut modifier une DA selon son statut.
      *
-     * @param string $role     Rôle utilisateur
-     * @param string $statutDa Statut de la DA
-     * @param string $statut   Statut complémentaire (OR ou DW)
+     * @param string      $role     Rôle utilisateur
+     * @param string      $statutDa Statut de la DA
+     * @param string|null $statut   Statut complémentaire (OR ou DW)
      *
      * @return bool
      */
-    private function canRoleEditDa(string $role, string $statutDa, string $statut): bool
+    private function canRoleEditDa(string $role, string $statutDa, ?string $statut): bool
     {
         // rôle non défini
         if (!isset(self::PERMISSIONS[$role])) {
