@@ -32,7 +32,7 @@
 			<div class="d-flex justify-content-between mt-2">
 				<div class="d-flex">
 					<div>
-						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer">
+						<button type="submit" class="btn bouton mb-2 d-none" id="envoyerSelections" name="enregistrer" data-da-directe-appro={{ estCreateurDaDirecte and estAppro }}>
 							Envoyer proposition au service émetteur
 							<i class="fa-solid fa-square-arrow-up-right"></i>
 						</button>
@@ -47,11 +47,11 @@
 						</button>
 					</div>
 				</div>
-				<div
-					class="d-flex">{# <button type="submit" class="btn bouton mb-2 d-none" id="validerSelections" name="valider">
-												Valider la proposition
-												<i class="fa-solid fa-square-arrow-up-right"></i>
-											</button> #}
+				<div class="d-flex">
+					<button type="submit" class="btn bouton mb-2 d-none" id="validerSelections" name="valider">
+						Valider la proposition
+						<i class="fa-solid fa-square-arrow-up-right"></i>
+					</button>
 				</div>
 				<div id="validationButtons">
 					<div>

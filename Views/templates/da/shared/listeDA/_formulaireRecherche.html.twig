@@ -19,32 +19,29 @@
 					<div class="col-12 col-md-2">
 						{{ macroForm.agence_service_change(form.agenceDebiteur, form.serviceDebiteur, 'spinner-service-debiteur', 'service-container-debiteur')}}
 						{{ form_row(form.statutOR)}}
-
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.numDit) }}
 						{{ form_row(form.numDa) }}
 						{{ form_row(form.statutBC)}}
-
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutCreation) }}
 						{{ form_row(form.dateFinCreation) }}
-						{{ form_row(form.demandeur) }}
-
-
+						{{ form_row(form.typeAchat)}}
 					</div>
 					<div class="col-12 col-md-2">
 						{{ form_row(form.dateDebutfinSouhaite) }}
 						{{ form_row(form.dateFinFinSouhaite) }}
-						<div class="d-none">
-							{{form_row(form.idMateriel)}}
-						</div>
+						{{ form_row(form.sortNbJours) }}
 					</div>
 					<div class="col-12 col-md-2">
-						{{ form_row(form.typeAchat)}}
+						{{ form_row(form.demandeur) }}
 						{{ form_label(form.niveauUrgence, '<a href="#" data-bs-toggle="modal" data-bs-target="#niveauUrgence" >Niveau d\'urgence</a>', { 'label_html': true }) }}
 						{{ form_widget(form.niveauUrgence, {'attr': {'class': 'mb-3'}}) }}
+						<div class="d-none">
+							{{ form_row(form.idMateriel) }}
+						</div>
 					</div>
 				</div>
 

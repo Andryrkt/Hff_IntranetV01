@@ -62,16 +62,38 @@ trait DaDetailTrait
      * @param string $numKey2
      * @return array
      */
-    private function normalizePathsForManyFiles($allDocs, string $numKey1, string $numKey2 = ''): array
+    private function normalizePathsForManyFiles($allDocs, string $numKey): array
     {
         if ($allDocs === '-' || empty($allDocs)) {
             return [];
         }
 
-        return array_map(function ($doc) use ($numKey1, $numKey2) {
+        return array_map(function ($doc) use ($numKey) {
             return [
-                'nom'  => $doc[$numKey1] ?? $doc[$numKey2],
+                'nom'  => $doc[$numKey],
                 'path' => $doc['path']
+            ];
+        }, $allDocs);
+    }
+
+    /** 
+     * Normaliser les chemins pour plusieurs fichiers de facture / Bon de Livraison
+     * 
+     * @param array $allDocs
+     * @return array
+     */
+    private function normalizePathsForFacBl($allDocs): array
+    {
+        if ($allDocs === '-' || empty($allDocs)) {
+            return [];
+        }
+
+        return array_map(function ($doc) {
+
+            return [
+                'nom'   => $doc['nomFichierScannee'] ?? $doc['idFacBl'],
+                'numBC' => $doc['numeroBc'],
+                'path'  => $doc['path']
             ];
         }, $allDocs);
     }

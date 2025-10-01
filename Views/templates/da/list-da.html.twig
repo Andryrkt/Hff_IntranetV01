@@ -15,8 +15,6 @@
 	{% include "/shared/_overlay.html.twig"  %}
 {% endblock %}
 
-{% set currentParams = criteria %}
-
 {% block content %}
 	<div class="sticky-header-titre">
 		<div class="container">
@@ -57,13 +55,8 @@
 					<th class="text-center">
 						<div class="d-flex flex-row align-items-center">
 							<span>Nbr Jour(s) dispo</span>
-							<div class="d-none flex-column sort-icons ms-1">
-								<a href="{{ path('list_da', currentParams|merge({ page: 1, sort: 'joursDispo', direction: 'asc' })) }}" class="sort-icon">
-									<i class="fas fa-sort-up {{ currentSortClass.asc }}" data-bs-toggle="tooltip" title="Trier par Nbr Jour(s) dispo (croissant)"></i>
-								</a>
-								<a href="{{ path('list_da', currentParams|merge({ page: 1, sort: 'joursDispo', direction: 'desc' })) }}" class="sort-icon">
-									<i class="fas fa-sort-down {{ currentSortClass.desc }}" data-bs-toggle="tooltip" title="Trier par Nbr Jour(s) dispo (décroissant)"></i>
-								</a>
+							<div class="{{ sortJoursClass ? '' : 'd-none' }}">
+								<i class="{{ sortJoursClass }} fs-4 text-warning"></i>
 							</div>
 						</div>
 					</th>
