@@ -185,6 +185,7 @@ trait DaListeTrait
         foreach ($daAffichers as $daAfficher) {
             $verrouille = $this->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
+                $daAfficher->getStatutOr(),
                 $estAdmin,
                 $estAppro,
                 $estAtelier,

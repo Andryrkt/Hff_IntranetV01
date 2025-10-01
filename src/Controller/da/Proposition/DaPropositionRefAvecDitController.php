@@ -47,8 +47,7 @@ class DaPropositionRefAvecDitController extends Controller
         $this->verifierSessionUtilisateur();
 
         $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
-        $statutDa = $da->getStatutDal();
-        $this->checkPageAccess(!$this->estDaVerrouillee($statutDa, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
+        $this->checkPageAccess(!$this->estDaVerrouillee($da->getStatutDal(), $da->getStatutOr(), $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
 
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
