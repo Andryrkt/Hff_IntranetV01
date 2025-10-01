@@ -27,7 +27,6 @@
                     <th>Agence Débiteur</th>
                     <th>Agence/Service</th>
                     <th>Email</th>
-                    <th>Motif</th>
                     <th>Durée</th>
                     <th>Date début</th>
                     <th>Date fin</th>
@@ -67,7 +66,6 @@
                         <td>{{ demande.agenceDebiteur }}</td>
                         <td>{{ demande.agenceService }}</td>
                         <td>{{ demande.adresseMailDemandeur }}</td>
-                        <td>{{ demande.motifConge }}</td>
                         <td>{{ demande.dureeConge }} jours</td>
                         <td>{{ demande.dateDebut ? demande.dateDebut|date('d/m/Y') : '' }}</td>
                         <td>{{ demande.dateFin ? demande.dateFin|date('d/m/Y') : '' }}</td>
