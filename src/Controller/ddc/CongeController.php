@@ -3,13 +3,15 @@
 namespace App\Controller\ddc;
 
 use App\Controller\Controller;
-use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\ddc\CongeListeTrait;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\ddc\DemandeConge;
 use App\Form\ddc\DemandeCongeType;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\ConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Traits\ddc\CongeListeTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/rh/demande-de-conge")
@@ -90,7 +92,7 @@ class CongeController extends Controller
         if ($form->isSubmitted() && $form->isValid()) {
             // Formulaire soumis avec des critères de recherche
             $congeSearch = $form->getData();
-
+            dd($congeSearch);
             // Récupérer les dates de demande (mappées et non mappées)
             $dateDemande = $form->get('dateDemande')->getData();
             $dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
@@ -299,5 +301,33 @@ class CongeController extends Controller
         }
 
         return $this->redirectToRoute("conge_liste");
+    }
+
+    /**
+     * @Route("/api/services-by-agence/{codeAgence}")
+     */
+    public function getServiceSelonAgence(string $codeAgence)
+    {
+        $agencesServices = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy(["agence_ips" => $codeAgence]);
+
+        $services = [];
+        $seen   = [];
+
+        foreach ($agencesServices as $agence) {
+            $code = $agence->getServiceIps();
+            $nom  = $agence->getLibelleServiceIps();
+
+            // clé unique basée sur code+nom
+            $key = $code . '|' . $nom;
+
+            if (!isset($seen[$key])) {
+                $services[] = [
+                    'code' => $code,
+                    'nom'  => $nom,
+                ];
+                $seen[$key] = true;
+            }
+        }
+        return new JsonResponse($services);
     }
 }

@@ -32,7 +32,15 @@
                         {{ form_row(form.agence, {'attr': {'class': 'form-select-sm'}}) }}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.service, {'attr': {'class': 'form-select-sm'}}) }}
+                        <div id="serviceSpinner" class="d-none">
+                            <div class="spinner-border spinner-border-sm text-secondary" role="status">
+                                <span class="visually-hidden">Chargement...</span>
+                            </div>
+                            <span class="ms-2 small text-muted">Chargement des services...</span>
+                        </div>
+                        <div id="serviceFieldContainer">
+                            {{ form_row(form.service, {'attr': {'class': 'form-select-sm'}}) }}
+                        </div>
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form.statutDemande, {'attr': {'class': 'form-select-sm'}}) }}
@@ -89,6 +97,23 @@ document.addEventListener('DOMContentLoaded', function() {
     // Gestion de la dépendance Agence -> Service
     const agenceSelect = document.querySelector('[name="demande_conge[agence]"]');
     const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
+    const serviceFieldContainer = document.getElementById('serviceFieldContainer');
+    const serviceSpinner = document.getElementById('serviceSpinner');
+
+
+    //permet d'afficher ou masquer le champs service et afficher une spinner
+    function toggleServiceLoading(isLoading) {
+        if (!serviceFieldContainer || !serviceSpinner) return;
+        if (isLoading) {
+            serviceFieldContainer.classList.add('d-none');
+            serviceSpinner.classList.remove('d-none');
+            if (serviceSelect) serviceSelect.disabled = true;
+        } else {
+            serviceSpinner.classList.add('d-none');
+            serviceFieldContainer.classList.remove('d-none');
+            if (serviceSelect) serviceSelect.disabled = false;
+        }
+    }
     
     // Ajouter un champ caché pour le service
     const form = document.querySelector('form');
@@ -99,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
     form.appendChild(hiddenServiceInput);
     
     // Restaurer la valeur du service si elle existe dans les critères
-    const criteria = {{ criteria|json_encode|raw }};
+    const criteria = JSON.parse(`{{ (criteria|default({}))|json_encode|e("js") }}`);
     let previouslySelectedService = null;
     if (criteria && criteria.selected_service) {
         previouslySelectedService = criteria.selected_service;
@@ -112,11 +137,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!agenceCode) {
                 // Si aucune agence n'est sélectionnée, vider le select de service
                 serviceSelect.innerHTML = '<option value="">Tous les services</option>';
+                toggleServiceLoading(false);
                 return;
             }
             
             // Utiliser FetchManager pour récupérer les services
-            fetchManager.get(`api/services-by-agence/${agenceCode}`)
+            toggleServiceLoading(true);
+            fetchManager.get(`rh/demande-de-conge/api/services-by-agence/${agenceCode}`)
                 .then(data => {
                     // Vider le select de service
                     serviceSelect.innerHTML = '<option value="">Tous les services</option>';
@@ -140,12 +167,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error('Erreur lors de la récupération des services:', error);
                     // Afficher un message d'erreur à l'utilisateur
                     serviceSelect.innerHTML = '<option value="">Erreur de chargement des services</option>';
+                })
+                .finally(() => {
+                    toggleServiceLoading(false);
                 });
         }
         
         // Charger les services au chargement de la page si une agence est déjà sélectionnée
         if (agenceSelect.value && previouslySelectedService) {
             loadServices(agenceSelect.value, previouslySelectedService);
+        } else {
+            toggleServiceLoading(false);
         }
         
         // Ajouter un écouteur d'événement pour le changement d'agence
@@ -153,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Réinitialiser le service sélectionné quand l'agence change
             previouslySelectedService = null;
             hiddenServiceInput.value = '';
+            toggleServiceLoading(true);
             loadServices(this.value);
         });
         
@@ -166,7 +199,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Ajouter l'écouteur d'événement de soumission du formulaire
     form.addEventListener('submit', function(e) {
         // Récupérer la valeur du champ service
-        const serviceSelect = document.querySelector('[name="demande_conge[service]"]');
         const serviceValue = serviceSelect ? serviceSelect.value : '';
         console.log('Valeur du service avant soumission:', serviceValue);
         // Mettre à jour le champ caché
