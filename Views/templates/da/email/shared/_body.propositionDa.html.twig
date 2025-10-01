@@ -1,3 +1,5 @@
+{% set service_demandeur = demandeAppro.achatDirect ? 'du service emetteur' : 'de l’Atelier' %}
+
 <p>
 	Une nouvelle proposition a été créée par
 	<b>{{ tab.userConnecter }}</b>.
@@ -28,7 +30,7 @@
 	</ul>
 </p>
 <hr>
-<p>Demande(s) de l'Atelier avec proposition(s) de l'Appro.</p>
+<p>Demande(s) {{ service_demandeur }} avec proposition(s) de l'Appro.</p>
 <p>
 	Présentation :
 	<ul>
@@ -36,7 +38,7 @@
 			<b>sans fond coloré</b>
 			et en
 			<b>gras</b>
-			correspondent aux demandes initiales de l’Atelier.</li>
+			correspondent aux demandes initiales {{ service_demandeur }}.</li>
 		<li>Les lignes
 			<b>avec un fond clair</b>
 			et un
