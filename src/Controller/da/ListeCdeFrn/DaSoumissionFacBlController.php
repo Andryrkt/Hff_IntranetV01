@@ -3,6 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use Exception;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
@@ -108,11 +109,27 @@ class DaSoumissionFacBlController extends Controller
                 /** COPIER DANS DW */
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
+                /** MODIFICATION DA AFFICHER */
+                $this->modificationDaAfficher($numDa, $numeroVersionMax);
+
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
                 $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
             }
         }
+    }
+
+    /**
+     * Modification du colonne est_facture_bl_soumis dans la table da_afficher
+     *
+     * @param string $numDa
+     * @param int $numeroVersionMax
+     */
+    private function modificationDaAfficher(string $numDa, int $numeroVersionMax): void
+    {
+        $daAfficher = $this->getEntityManager()->getRepository(DaAfficher::class)->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $daAfficher->setEstFactureBlSoumis(true);
+        $this->getEntityManager()->flush();
     }
 
     private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl

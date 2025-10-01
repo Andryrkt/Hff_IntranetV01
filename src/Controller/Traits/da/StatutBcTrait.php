@@ -109,7 +109,7 @@ trait StatutBcTrait
         $qte = $achatDirect
             ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
             : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr);
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
+        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
 
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
@@ -163,7 +163,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        if ($DaAfficher->getBcEnvoyerFournisseur()) {
+        if ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
             return 'BC envoyé au fournisseur';
         }
 
@@ -262,7 +262,7 @@ trait StatutBcTrait
         }
     }
 
-    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect): array
+    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect, DaAfficher $DaAfficher): array
     {
         if (empty($qte)) {
             return [false, false, false, false];
@@ -284,11 +284,10 @@ trait StatutBcTrait
         }
 
 
-        $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
-        $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
-            ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee));
-        $tousLivres = $qteDem == $qteLivee && $qteDem != 0;
-        $partiellementLivre = $qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer);
+        $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $DaAfficher->getEstFactureBlSoumis();
+        $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $DaAfficher->getEstFactureBlSoumis();
+        $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $DaAfficher->getEstFactureBlSoumis();
+        $partiellementLivre = ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $DaAfficher->getEstFactureBlSoumis();
 
         return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre];
     }
