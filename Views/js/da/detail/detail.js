@@ -1,4 +1,3 @@
-import { baseUrl } from "../../utils/config";
 import { formaterNombre } from "../../utils/formatNumberUtils";
 import { displayOverlay } from "../../utils/spinnerUtils";
 
@@ -8,51 +7,57 @@ document.addEventListener("DOMContentLoaded", function () {
     mtt.innerText = formaterNombre(mtt.innerText);
   });
 
-  /** Toggle button pour le + et - */
-  document.querySelectorAll(".toggle-btn").forEach(function (button) {
+  // Toggle individuel
+  document.querySelectorAll(".toggle-btn").forEach((button) => {
     button.addEventListener("click", function () {
       const icon = this.querySelector("i");
       const parentRow = this.closest("tr");
       let nextRow = parentRow.nextElementSibling;
+      let delay = 0;
+      let show = true;
 
-      // Toggle les lignes enfants jusqu'à ce qu'on tombe sur une nouvelle ligne parente
+      // déterminer si on ouvre ou ferme
+      if (nextRow && nextRow.style.display !== "none") {
+        show = false;
+      }
+
       while (nextRow && nextRow.classList.contains("child-row")) {
-        nextRow.style.display =
-          nextRow.style.display === "none" ? "table-row" : "none";
+        toggleChildRow(nextRow, show, delay);
+        delay += 50; // délai en ms pour effet cascade
         nextRow = nextRow.nextElementSibling;
       }
 
-      // Change le bouton de + à - et inversement
-      icon.classList.toggle("fa-chevron-down");
-      icon.classList.toggle("fa-chevron-up");
+      // Change l’icône
+      icon.classList.toggle("fa-chevron-down", !show);
+      icon.classList.toggle("fa-chevron-up", show);
     });
   });
 
-  // Bouton global "tout ouvrir / tout fermer"
+  // Toggle global "tout ouvrir / tout fermer"
   const toggleAllBtn = document.querySelector("#toggle-all");
-  let allVisible = true; // état global
+  let allVisible = true;
 
   toggleAllBtn.addEventListener("click", function () {
-    const childRows = document.querySelectorAll(".child-row");
+    const childRows = Array.from(document.querySelectorAll(".child-row"));
     const icons = document.querySelectorAll(".toggle-btn i");
+    let delay = 0;
 
-    childRows.forEach(function (row) {
-      row.style.display = allVisible ? "none" : "table-row";
+    childRows.forEach((row) => {
+      toggleChildRow(row, !allVisible, delay);
+      delay += 50; // cascade globale
     });
 
     // Met à jour toutes les icônes des boutons individuels
-    icons.forEach(function (icon) {
+    icons.forEach((icon) => {
       icon.classList.toggle("fa-chevron-down", allVisible);
       icon.classList.toggle("fa-chevron-up", !allVisible);
     });
 
-    // Met à jour l’état
+    // Met à jour l’état global
     allVisible = !allVisible;
 
-    // Met à jour le tooltip Bootstrap
+    // Tooltip Bootstrap
     this.dataset.bsOriginalTitle = allVisible ? "Tout fermer" : "Tout ouvrir";
-
-    // Si le tooltip est déjà initialisé, on le rafraîchit
     const tooltipInstance = bootstrap.Tooltip.getInstance(this);
     if (tooltipInstance) {
       tooltipInstance.setContent({
@@ -102,4 +107,21 @@ function deleteLigneDa(button) {
       });
     }
   });
+}
+
+// Fonction pour toggle une ligne avec animation
+function toggleChildRow(row, show, delay = 0) {
+  setTimeout(() => {
+    if (show) {
+      row.classList.remove("hide");
+      row.classList.add("show");
+      row.style.display = "table-row";
+    } else {
+      row.classList.remove("show");
+      row.classList.add("hide");
+      setTimeout(() => {
+        row.style.display = "none";
+      }, 300); // durée de l'animation
+    }
+  }, delay);
 }
