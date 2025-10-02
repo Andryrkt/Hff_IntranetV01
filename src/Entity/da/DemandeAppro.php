@@ -156,6 +156,11 @@ class DemandeAppro
     private $dateDemandeDevis;
 
     /**
+     * @ORM\Column(type="string", length=100, name="Devis_demander_par", nullable=true)
+     */
+    private ?string $devisDemandePar = '';
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private string $validePar;
@@ -910,6 +915,26 @@ class DemandeAppro
     public function setDateDemandeDevis($dateDemandeDevis)
     {
         $this->dateDemandeDevis = $dateDemandeDevis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of devisDemandePar
+     */
+    public function getDevisDemandePar()
+    {
+        return $this->devisDemandePar;
+    }
+
+    /**
+     * Set the value of devisDemandePar
+     *
+     * @return  self
+     */
+    public function setDevisDemandePar($devisDemandePar)
+    {
+        $this->devisDemandePar = $devisDemandePar;
 
         return $this;
     }

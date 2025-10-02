@@ -57,3 +57,6 @@ ADD Devis_demander bit null;
 
 ALTER TABLE Demande_Appro
 ADD Date_demande_devis DATETIME2(0) null;
+
+ALTER TABLE Demande_Appro
+ADD Devis_demander_par varchar(100) null;
