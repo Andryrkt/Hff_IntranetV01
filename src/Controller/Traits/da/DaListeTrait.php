@@ -60,6 +60,8 @@ trait DaListeTrait
             DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE         => 'bg-soumis-validation',
             DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
+            DemandeAppro::STATUT_DEMANDE_DEVIS       => 'bg-demande-devis',
+            DemandeAppro::STATUT_DEVIS_A_RELANCER    => 'bg-devis-a-relancer',
             DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
         ];
