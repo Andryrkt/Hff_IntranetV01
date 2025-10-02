@@ -218,7 +218,7 @@ trait DaListeTrait
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
             // Construction d'urls
-            $urls = $this->buildItemUrls($item);
+            $urls = $this->buildItemUrls($item, $ajouterDA);
 
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
@@ -279,18 +279,19 @@ trait DaListeTrait
      * Construit l'ensemble des URLs associées à un item de demande d'approvisionnement.
      *
      * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
+     * @param bool       $ajouterDA savoir si il faut ajouter le bouton de l'ajout de DA.
      *
      * @return array{detail:string,designation:string,delete:string,demandeDevis:string,creation:string}
      */
-    private function buildItemUrls(DaAfficher $item): array
+    private function buildItemUrls(DaAfficher $item, bool $ajouterDA): array
     {
         $urls = [];
 
         // URL création de DA avec DIT
-        $urls['creation'] = $this->getUrlGenerator()->generate('da_new_avec_dit', [
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
             'daId'  => 0,
             'ditId' => $item->getDit()->getId(),
-        ]);
+        ]) : '';
 
         // URL détail
         $urls['detail'] = $this->getUrlGenerator()->generate(
