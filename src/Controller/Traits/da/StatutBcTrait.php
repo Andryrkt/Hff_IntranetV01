@@ -90,7 +90,7 @@ trait StatutBcTrait
             return $statutBc;
         }
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
-        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
@@ -106,13 +106,13 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        // dump($qte);
+        
+        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr, $statutBc);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
-
 
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
+        
 
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
@@ -141,6 +141,7 @@ trait StatutBcTrait
         if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw, $infoDaDirect, $achatDirect)) {
             return 'A soumettre à validation';
         }
+        
 
         if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $achatDirect)) {
             return 'A envoyer au fournisseur';
@@ -305,6 +306,7 @@ trait StatutBcTrait
                 $qteLivee = (int)$q['qte_livree'];
                 $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             }
 
             $DaAfficher
@@ -327,7 +329,7 @@ trait StatutBcTrait
                 $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
             }
             $DaAfficher->setPositionBc($positionBc)
-                ->setNumeroCde($numcde);
+                ->setNumeroCde($situationCde[0]['num_cde']);
         }
     }
 

@@ -180,10 +180,20 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statutCde = [
+            'A soumettre à validation',
+            'A envoyer au fournisseur',
+            'Partiellement dispo',
+            'Complet non livré',
+            'Tous livrés',
+            'Partiellement livré',
+            'BC envoyé au fournisseur'
+        ];
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
@@ -233,16 +243,22 @@ class DaModel extends Model
                         AND slor.slor_typlig = 'P'
                         -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
-                        and TRIM(slor_refp) LIKE '%$ref%'
-                                    and TRIM(slor.slor_desi) like '%$designation%'
+                        and TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) LIKE '%$ref%'
+                                    and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) like '%$designation%'
                                     and seor.seor_refdem = '$numDit'
             ";
 
+        if(in_array($statutBc, $statutCde)) {
+            $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        }
+// dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return $data;
     }
+
+
 
     public function getInfoDaDirect(string $numDa, ?string $ref = '', ?string $designation = '')
     {
@@ -291,11 +307,22 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr)
+    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr, $statutBc)
     {
         if (!$numOr) return [];
 
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+
+        $statutCde = [
+            'A soumettre à validation',
+            'A envoyer au fournisseur',
+            'Partiellement dispo',
+            'Complet non livré',
+            'Tous livrés',
+            'Partiellement livré',
+            'BC envoyé au fournisseur'
+        ];
 
         $statement = " SELECT 
 
@@ -355,10 +382,14 @@ class DaModel extends Model
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 and seor.seor_refdem = '$numDit'
-                                AND TRIM(slor.slor_refp) = '$ref'
-                        and TRIM(slor.slor_desi) = '$designation'
+                                AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
+                        and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
-                // dump($statement);
+
+            if(in_array($statutBc, $statutCde)) {
+                $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+            }
+            // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
