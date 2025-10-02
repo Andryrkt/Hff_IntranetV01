@@ -316,6 +316,11 @@ class DaAfficher
      */
     private ?string $deletedBy = null;
 
+    /**
+     * @ORM\Column(type="integer", name="qte_dem_ips")
+     */
+    private int $qteDemIps = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1530,6 +1535,24 @@ class DaAfficher
     public function setDateValidation($dateValidation)
     {
         $this->dateValidation = $dateValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteDemIps
+     */
+    public function getQteDemIps(): int
+    {
+        return $this->qteDemIps;
+    }
+
+    /**
+     * Set the value of qteDemIps
+     */
+    public function setQteDemIps(int $qteDemIps): self
+    {
+        $this->qteDemIps = $qteDemIps;
 
         return $this;
     }

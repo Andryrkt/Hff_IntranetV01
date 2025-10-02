@@ -106,13 +106,13 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        
+
         $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr, $statutBc);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
 
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
-        
+
 
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
@@ -141,7 +141,7 @@ trait StatutBcTrait
         if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw, $infoDaDirect, $achatDirect)) {
             return 'A soumettre à validation';
         }
-        
+
 
         if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $achatDirect)) {
             return 'A envoyer au fournisseur';
@@ -301,6 +301,7 @@ trait StatutBcTrait
                 $qteLivee = 0; //TODO: en attend du decision du client
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             } else {
                 $q = $qte[0];
                 $qteLivee = (int)$q['qte_livree'];
@@ -313,9 +314,8 @@ trait StatutBcTrait
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
                 ->setQteDispo($qteDispo)
+                ->setQteDemIps($qteDem)
             ;
-
-            // dump($DaAfficher);
         }
     }
 
