@@ -231,4 +231,26 @@ trait DaTrait
 
         return $deletedLineNumbers;
     }
+
+    public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut)
+    {
+        $em = $this->getEntityManager();
+
+        $demandeAppro->setStatutDal($statut);
+
+        /** @var DemandeApproL $demandeApproL */
+        foreach ($demandeAppro->getDAL() as $demandeApproL) {
+            $demandeApproL->setStatutDal($statut);
+            /** @var DemandeApproLR $demandeApproLR */
+            foreach ($demandeApproL->getDemandeApproLR() as $demandeApproLR) {
+                $demandeApproLR->setStatutDal($statut);
+                $em->persist($demandeApproLR);
+            }
+            $em->persist($demandeApproL);
+        }
+
+        $em->persist($demandeAppro);
+
+        $em->flush();
+    }
 }

@@ -6,8 +6,6 @@ use DateTime;
 use DateTimeZone;
 use App\Entity\da\DemandeAppro;
 use App\Controller\Traits\da\DaTrait;
-use App\Entity\da\DemandeApproL;
-use App\Entity\da\DemandeApproLR;
 
 trait DaDemandeDevisTrait
 {
@@ -24,28 +22,12 @@ trait DaDemandeDevisTrait
 
     public function appliquerStatutDemandeDevisEnCours(DemandeAppro $demandeAppro, string $username)
     {
-        $em = $this->getEntityManager();
-
         $demandeAppro
-            ->setStatutDal(DemandeAppro::STATUT_DEMANDE_DEVIS)
             ->setDevisDemande(true)
             ->setDateDemandeDevis(new DateTime('now', new DateTimeZone('Indian/Antananarivo')))
             ->setDevisDemandePar($username)
         ;
 
-        /** @var DemandeApproL $demandeApproL */
-        foreach ($demandeAppro->getDAL() as $demandeApproL) {
-            $demandeApproL->setStatutDal(DemandeAppro::STATUT_DEMANDE_DEVIS);
-            /** @var DemandeApproLR $demandeApproLR */
-            foreach ($demandeApproL->getDemandeApproLR() as $demandeApproLR) {
-                $demandeApproLR->setStatutDal(DemandeAppro::STATUT_DEMANDE_DEVIS);
-                $em->persist($demandeApproLR);
-            }
-            $em->persist($demandeApproL);
-        }
-
-        $em->persist($demandeAppro);
-
-        $em->flush();
+        $this->appliquerChangementStatut($demandeAppro, DemandeAppro::STATUT_DEMANDE_DEVIS);
     }
 }
