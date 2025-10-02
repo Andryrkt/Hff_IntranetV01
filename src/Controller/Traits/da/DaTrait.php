@@ -232,7 +232,7 @@ trait DaTrait
         return $deletedLineNumbers;
     }
 
-    public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut)
+    public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut, bool $withFlush = true)
     {
         $em = $this->getEntityManager();
 
@@ -251,6 +251,8 @@ trait DaTrait
 
         $em->persist($demandeAppro);
 
-        $em->flush();
+        if ($withFlush) {
+            $em->flush();
+        }
     }
 }
