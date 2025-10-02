@@ -167,15 +167,15 @@ class DitFactureSoumisAValidationController extends Controller
             $pathPageDeGarde = $this->enregistrerPdf($dataForm, $numDit, $factureSoumisAValidation, $interneExterne);
             $pathFichiers = $this->enregistrerFichiers($form, $numFac, $this->ditFactureSoumiAValidation->getNumeroSoumission(), $interneExterne);
 
-                    if ($interneExterne === 'INTERNE') {
-                        $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
-                        $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
-                        $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
-                        $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                    } else {
-                        $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
-                        $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
-                    }
+            if ($interneExterne === 'INTERNE') {
+                $ficherAfusioner = $this->fileUploaderService->insertFileAtPosition($pathFichiers, $pathPageDeGarde, 0);
+                $fichierConvertie = $this->ConvertirLesPdf($ficherAfusioner);
+                $this->fusionPdf->mergePdfs($fichierConvertie, $pathPageDeGarde);
+                $this->genererPdfFacture->copyToDwFactureSoumis($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+            } else {
+                $this->genererPdfFacture->copyToDwFacture($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac);
+                $this->genererPdfFacture->copyToDwFactureFichier($this->ditFactureSoumiAValidation->getNumeroSoumission(), $numFac, $pathFichiers); //d'après le demande de Antsa le 22/08/2025
+            }
 
             /** ENVOIE des DONNEE dans BASE DE DONNEE */
             // Persist les entités liées
@@ -297,8 +297,8 @@ class DitFactureSoumisAValidationController extends Controller
         foreach ($this->filtrerOrSelonLesIntervetnionFac($orSoumisValidationRepository, $factureSoumisAValidation) as $value) {
             $montantItvOr += $value->getMontantItv();
         }
-    
-    return $montantItvOr;
+
+        return $montantItvOr;
     }
 
     public function enregistrerFichiers(FormInterface $form, string $numeroFac, int $numeroSoumission, $interneExterne): array

@@ -3,13 +3,15 @@
 namespace App\Controller\ddc;
 
 use App\Controller\Controller;
-use App\Controller\Traits\ConversionTrait;
-use App\Controller\Traits\ddc\CongeListeTrait;
-use App\Controller\Traits\FormatageTrait;
 use App\Entity\ddc\DemandeConge;
 use App\Form\ddc\DemandeCongeType;
+use App\Entity\admin\AgenceServiceIrium;
+use App\Controller\Traits\FormatageTrait;
+use App\Controller\Traits\ConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
+use App\Controller\Traits\ddc\CongeListeTrait;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 /**
  * @Route("/rh/demande-de-conge")
@@ -94,6 +96,8 @@ class CongeController extends Controller
             // Récupérer les dates de demande (mappées et non mappées)
             $dateDemande = $form->get('dateDemande')->getData();
             $dateDemandeFin = $form->has('dateDemandeFin') ? $form->get('dateDemandeFin')->getData() : null;
+            // Stocker les critères dans la session
+            $criteria = $congeSearch->toArray();
 
             // Stocker les dates dans les options pour le repository
             if ($dateDemande) {
@@ -103,20 +107,24 @@ class CongeController extends Controller
                 $options['dateDemandeFin'] = $dateDemandeFin;
             }
 
-            // Récupérer le service et l'agence
-            $serviceHidden = $request->query->get('service_hidden');
-            if ($serviceHidden) {
-                $options['agenceService'] = $serviceHidden;
-            }
 
-            // Récupérer l'agence pour le filtre Agence_Debiteur
+            // Récupérer l'agence pour le filtre Agence_service
             $agence = $request->query->get('demande_conge')['agence'] ?? null;
             if ($agence) {
                 $options['agence'] = $agence;
             }
 
-            // Stocker les critères dans la session
-            $criteria = $congeSearch->toArray();
+            // Récupérer le service pour le filtre Agence_service
+            $service = $request->query->get('demande_conge')['service'] ?? null;
+            if ($service) {
+                $options['service'] = $service;
+            }
+
+            $agenceCode = isset($options['agence']) ? $options['agence'] : null;
+            $serviceCode = isset($options['service']) ? $options['service'] : null;
+            $options['agenceService'] = ($agenceCode && $serviceCode)
+                ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
+                : null;
 
             // Ajouter les dates aux critères pour persistance
             if ($dateDemande) {
@@ -158,6 +166,11 @@ class CongeController extends Controller
         $criteriaTab['dateDemande'] = $criteriaTab['dateDemande'] ? $criteriaTab['dateDemande']->format('d-m-Y') : null;
         $criteriaTab['dateDemandeFin'] = isset($criteriaTab['dateDemandeFin']) && $criteriaTab['dateDemandeFin'] ? $criteriaTab['dateDemandeFin']->format('d-m-Y') : null;
         $criteriaTab['selected_service'] = $criteriaTab['selected_service'] ?? null;
+        $agenceCode = isset($options['agence']) ? $options['agence'] : null;
+            $serviceCode = isset($options['service']) ? $options['service'] : null;
+        $criteriaTab['agenceService'] = ($agenceCode && $serviceCode)
+            ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
+            : null;
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
@@ -177,6 +190,13 @@ class CongeController extends Controller
     }
 
 
+    private function getAgenceServiceSage(string $codeAgence, string $codeService): ?string
+    {
+        $agenceServiceIrium = $this->getEntityManager()
+            ->getRepository(AgenceServiceIrium::class)
+            ->findOneBy(["agence_ips" => $codeAgence, "service_ips" => $codeService]);
+        return $agenceServiceIrium ? $agenceServiceIrium->getServicesagepaie() : null;
+    }
 
     /**
      * @Route("/export-conge-excel", name="export_conge_excel")
@@ -267,7 +287,7 @@ class CongeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
         exit();
     }
 
@@ -299,5 +319,33 @@ class CongeController extends Controller
         }
 
         return $this->redirectToRoute("conge_liste");
+    }
+
+    /**
+     * @Route("/api/services-by-agence/{codeAgence}")
+     */
+    public function getServiceSelonAgence(string $codeAgence)
+    {
+        $agencesServices = $this->getEntityManager()->getRepository(AgenceServiceIrium::class)->findBy(["agence_ips" => $codeAgence]);
+
+        $services = [];
+        $seen   = [];
+
+        foreach ($agencesServices as $agence) {
+            $code = $agence->getServiceIps();
+            $nom  = $agence->getLibelleServiceIps();
+
+            // clé unique basée sur code+nom
+            $key = $code . '|' . $nom;
+
+            if (!isset($seen[$key])) {
+                $services[] = [
+                    'code' => $code,
+                    'nom'  => $nom,
+                ];
+                $seen[$key] = true;
+            }
+        }
+        return new JsonResponse($services);
     }
 }

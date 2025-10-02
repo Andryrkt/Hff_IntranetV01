@@ -15,18 +15,22 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use App\Repository\magasin\devis\DevisMagasinRepository;
-use App\Service\magasin\devis\DevisMagasinValidationVdService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
+use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 
 /**
  * @Route("/magasin/dematerialisation")
  */
 class DevisMagasinValidationDevisController extends Controller
 {
+    use AutorisationTrait;
+    use DevisMagasinTrait;
+
+
     private const TYPE_SOUMISSION_VALIDATION_DEVIS = 'VD';
     private const MESSAGE_DE_CONFIRMATION = 'validation';
-    use AutorisationTrait;
+
 
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
@@ -57,14 +61,13 @@ class DevisMagasinValidationDevisController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
         //recupération des informations utile dans IPS
-        $devisIps = $this->listeDevisMagasinModel->getInfoDev($numeroDevis);
-        $firstDevisIps = reset($devisIps);
-        $newSumOfMontant = (float)$firstDevisIps['montant_total'];
-        $newSumOfLines = (int)$firstDevisIps['somme_numero_lignes'];
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
+
+        //instanciation de l'orchestrateur de validation
         $orchestrator = new DevisMagasinValidationOrchestrator($this->historiqueOperationDeviMagasinService, $numeroDevis);
         // Validation avant soumission - utilise la nouvelle méthode qui retourne un booléen
         $orchestrator->validateBeforeSubmission($this->devisMagasinRepository, $this->listeDevisMagasinModel, $numeroDevis, $newSumOfLines, $newSumOfMontant);
-            
 
 
 
@@ -75,8 +78,8 @@ class DevisMagasinValidationDevisController extends Controller
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(DevisMagasinType::class, $devisMagasin)->getForm();
 
-        //traitement du formualire
-        $this->traitementFormualire($form, $request, $devisMagasin, $orchestrator, $devisIps, $firstDevisIps);
+        //traitement du formulaire
+        $this->traitementFormulaire($form, $request, $devisMagasin, $orchestrator, $firstDevisIps);
 
         //affichage du formulaire
         return $this->render('magasin/devis/soumission.html.twig', [
@@ -86,7 +89,7 @@ class DevisMagasinValidationDevisController extends Controller
         ]);
     }
 
-    private function traitementFormualire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $devisIps, array $firstDevisIps)
+    private function traitementFormulaire($form, Request $request, DevisMagasin $devisMagasin, DevisMagasinValidationOrchestrator $orchestrator, array $firstDevisIps)
     {
 
         $form->handleRequest($request);
@@ -99,45 +102,26 @@ class DevisMagasinValidationDevisController extends Controller
 
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
+            // recupération de numero version max
+            $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
-            if (!empty($devisIps)) {
+            /** @var string $userMail */
+            $userMail = $this->getUserMail();
 
-                // recupération de numero version max
-                $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
+            /** @var array  enregistrement du fichier*/
+            $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $userMail)[0]);
+            $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
 
-                /** @var User $utilisateur */
-                $utilisateur = $this->getUser();
-                $email = method_exists($utilisateur, 'getMail') ? $utilisateur->getMail() : (method_exists($utilisateur, 'getNomUtilisateur') ? $utilisateur->getNomUtilisateur() : '');
-                /** @var array  enregistrement du fichier*/
-                $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $email)[0]);
-                $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
+            //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
+            $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VALIDATION_DEVIS);
 
-                //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
-                $devisMagasin
-                    ->setNumeroDevis($devisMagasin->getNumeroDevis())
-                    ->setMontantDevis($firstDevisIps['montant_total'])
-                    ->setDevise($firstDevisIps['devise'])
-                    ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
-                    ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                    ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                    ->setStatutDw(DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
-                    ->setTypeSoumission(self::TYPE_SOUMISSION_VALIDATION_DEVIS)
-                    ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
-                    ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
-                    ->setNomFichier($nomFichier)
-                ;
+            //enregistrement du devis magasin
+            $this->getEntityManager()->persist($devisMagasin);
+            $this->getEntityManager()->flush();
 
-                //enregistrement du devis magasin
-                $this->getEntityManager()->persist($devisMagasin);
-                $this->getEntityManager()->flush();
+            //envoie du fichier dans DW
+            $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier);
 
-                //envoie du fichier dans DW
-                $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier);
-            } else {
-                //message d'erreur
-                $message = "Aucune information trouvé dans IPS pour le devis numero : " . $devisMagasin->getNumeroDevis();
-                $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', false);
-            }
 
             //HISTORISATION DE L'OPERATION
             $message = "la validation du devis numero : " . $devisMagasin->getNumeroDevis() . " a été envoyée avec succès .";

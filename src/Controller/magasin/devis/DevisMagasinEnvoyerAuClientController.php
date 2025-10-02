@@ -4,11 +4,13 @@ namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\magasin\devis\DevisMagasinRepository;
+use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 
@@ -18,6 +20,7 @@ use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 class DevisMagasinEnvoyerAuClientController extends Controller
 {
     use AutorisationTrait;
+    use DevisMagasinTrait;
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private DevisMagasinRepository $devisMagasinRepository;
@@ -40,12 +43,11 @@ class DevisMagasinEnvoyerAuClientController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        $statut = $this->devisMagasinRepository->findLatestStatusByIdentifier($numeroDevis);
-        if ($statut === DevisMagasin::STATUT_ENVOYER_CLIENT) {
-            $message = "Le devis n'est pas déjà pointé";
-            $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
-            return;
-        }
+        //recupération des informations utile dans IPS
+        $firstDevisIps = $this->getInfoDevisIps($numeroDevis);
+        [$newSumOfLines, $newSumOfMontant] = $this->newSumOfLinesAndAmount($firstDevisIps);
+
+
 
         //formulaire de création
         $form = $this->getFormFactory()->createBuilder(DevisMagasinEnvoyerAuClientType::class, null, [
@@ -54,6 +56,17 @@ class DevisMagasinEnvoyerAuClientController extends Controller
             ]
         ])->getForm();
 
+        /** Traitement du formulaire */
+        $this->traitementFormulaire($form, $request, $numeroDevis);
+
+        //affichage du formulaire
+        return $this->render('magasin/devis/envoyerAuClient.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis) 
+    {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
@@ -70,10 +83,5 @@ class DevisMagasinEnvoyerAuClientController extends Controller
             $message = "Pointage enregistré avec succès .";
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
         }
-
-        //affichage du formulaire
-        return $this->render('magasin/devis/envoyerAuClient.html.twig', [
-            'form' => $form->createView()
-        ]);
     }
 }

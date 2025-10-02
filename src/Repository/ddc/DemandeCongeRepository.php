@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repository\ddc;
 
 use Doctrine\ORM\EntityRepository;
@@ -14,17 +15,17 @@ class DemandeCongeRepository extends EntityRepository
         array $options
     ): array {
         $queryBuilder = $this->createQueryBuilder('d');
-        
+
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')
                 ->setParameter('matricule', $conge->getMatricule());
         }
-        
+
         if ($conge->getNumeroDemande()) {
             $queryBuilder->andWhere('d.numeroDemande = :numeroDemande')
                 ->setParameter('numeroDemande', $conge->getNumeroDemande());
         }
-        
+
         // Filtrer par plage de date de demande selon les règles spécifiées
         if (isset($options['dateDemande']) && isset($options['dateDemandeFin'])) {
             // Si les deux dates sont renseignées, rechercher entre ces deux dates
@@ -40,7 +41,7 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.dateDemande <= :dateDemandeFin')
                 ->setParameter('dateDemandeFin', $options['dateDemandeFin']);
         }
-        
+
         // Filtrer par plage de date de congé
         if ($conge->getDateDebut() && $conge->getDateFin()) {
             $queryBuilder->andWhere('d.dateDebut >= :dateDebut')
@@ -54,7 +55,7 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.dateFin <= :dateFin')
                 ->setParameter('dateFin', $conge->getDateFin());
         }
-        
+
         // Filtrer par Agence_Service (ex. : 'PER' ou 'BR80 - A102')
         if (isset($options['agenceService']) && $options['agenceService']) {
             $queryBuilder->andWhere('d.agenceService = :agenceService')
@@ -70,13 +71,13 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.agenceService LIKE :servicePattern')
                 ->setParameter('servicePattern', '% - ' . $options['service']);
         }
-        
+
         // Filtrer par statut
         if ($conge->getStatutDemande()) {
             $queryBuilder->andWhere('d.statutDemande = :statutDemande')
                 ->setParameter('statutDemande', $conge->getStatutDemande());
         }
-    
+
         // Filtrer par agences autorisées si nécessaire
         if (isset($options['idAgence']) && !empty($options['idAgence']) && !isset($options['agenceService'])) {
             if (is_array($options['idAgence'])) {
@@ -91,17 +92,17 @@ class DemandeCongeRepository extends EntityRepository
                 }
             }
         }
-        
+
         $query = $queryBuilder
             ->orderBy('d.id', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery();
-    
+
         $paginator = new Paginator($query);
         $totalItems = count($paginator);
         $pagesCount = (int) ceil($totalItems / $limit);
-    
+
         return [
             'data' => $paginator->getIterator(),
             'currentPage' => $page,
@@ -109,21 +110,21 @@ class DemandeCongeRepository extends EntityRepository
             'totalItems' => $totalItems
         ];
     }
-    
+
     public function findAndFilteredExcel(DemandeConge $conge, array $options): array
     {
         $queryBuilder = $this->createQueryBuilder('d');
-        
+
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')
                 ->setParameter('matricule', $conge->getMatricule());
         }
-        
+
         if ($conge->getNumeroDemande()) {
             $queryBuilder->andWhere('d.numeroDemande = :numeroDemande')
                 ->setParameter('numeroDemande', $conge->getNumeroDemande());
         }
-        
+
         // Filtrer par plage de date de demande selon les règles spécifiées
         if (isset($options['dateDemande']) && isset($options['dateDemandeFin'])) {
             // Si les deux dates sont renseignées, rechercher entre ces deux dates
@@ -139,7 +140,7 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.dateDemande <= :dateDemandeFin')
                 ->setParameter('dateDemandeFin', $options['dateDemandeFin']);
         }
-        
+
         // Filtrer par plage de date de congé
         if ($conge->getDateDebut() && $conge->getDateFin()) {
             $queryBuilder->andWhere('d.dateDebut >= :dateDebut')
@@ -153,7 +154,7 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.dateFin <= :dateFin')
                 ->setParameter('dateFin', $conge->getDateFin());
         }
-        
+
         // Filtrer par Agence_Service (ex. : 'PER' ou 'BR80 - A102')
         if (isset($options['agenceService']) && $options['agenceService']) {
             $queryBuilder->andWhere('d.agenceService = :agenceService')
@@ -169,13 +170,13 @@ class DemandeCongeRepository extends EntityRepository
             $queryBuilder->andWhere('d.agenceService LIKE :servicePattern')
                 ->setParameter('servicePattern', '% - ' . $options['service']);
         }
-        
+
         // Filtrer par statut
         if ($conge->getStatutDemande()) {
             $queryBuilder->andWhere('d.statutDemande = :statutDemande')
                 ->setParameter('statutDemande', $conge->getStatutDemande());
         }
-    
+
         // Filtrer par agences autorisées si nécessaire
         if (isset($options['idAgence']) && !empty($options['idAgence']) && !isset($options['agenceService'])) {
             if (is_array($options['idAgence'])) {
@@ -190,7 +191,7 @@ class DemandeCongeRepository extends EntityRepository
                 }
             }
         }
-        
+
         return $queryBuilder
             ->orderBy('d.id', 'DESC')
             ->getQuery()

@@ -328,6 +328,11 @@ class DaAfficher
      */
     private ?string $deletedBy = null;
 
+    /**
+     * @ORM\Column(type="boolean", name="est_facture_bl_soumis")
+     */
+    private $estFactureBlSoumis = false;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1542,6 +1547,24 @@ class DaAfficher
     public function setDateValidation($dateValidation)
     {
         $this->dateValidation = $dateValidation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of estFactureBlSoumis
+     */
+    public function getEstFactureBlSoumis()
+    {
+        return $this->estFactureBlSoumis;
+    }
+
+    /**
+     * Set the value of estFactureBlSoumis
+     */
+    public function setEstFactureBlSoumis($estFactureBlSoumis): self
+    {
+        $this->estFactureBlSoumis = $estFactureBlSoumis;
 
         return $this;
     }

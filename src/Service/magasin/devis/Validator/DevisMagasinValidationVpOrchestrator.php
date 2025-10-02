@@ -73,27 +73,42 @@ class DevisMagasinValidationVpOrchestrator
     }
 
     /**
-     * Vérifie si le statut du devis bloque la soumission pour la validation de devis (VD)
+     * Vérifie si le statut du devis est Prix validé - devis à soumettre (si agence) et somme de lignes et montant inchangé
      * 
-     * @param DevisMagasinRepository $repository Le repository pour accéder aux données
+     * @param DevisMagasinRepository $repository Le repository pour accéder aux données du devis
      * @param string $numeroDevis Le numéro de devis à vérifier
      * @param int $newSumOfLines Le nouveau nombre de lignes
+     * @param float $newSumOfMontant Le nouveau montant total
      * @return bool true si la soumission est autorisée, false si elle est bloquée
      */
-    public function checkBlockingStatusOnSubmissionForVd(
-        DevisMagasinRepository $repository,
-        string $numeroDevis,
-        int $newSumOfLines
-    ): bool {
-        return $this->statusValidator->checkBlockingStatusOnSubmissionForVd($repository, $numeroDevis, $newSumOfLines);
+    public function verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool
+    {
+        return $this->statusValidator->verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
     }
 
+    public function verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+        return $this->statusValidator->verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+    }
 
+    public function verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+        return $this->statusValidator->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+    }
+
+    public function verifieStatutAvalideChefAgence(DevisMagasinRepository $repository, string $numeroDevis): bool {
+        return $this->statusValidator->verifieStatutAvalideChefAgence($repository, $numeroDevis);
+    }
+
+    public function verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines, float $newSumOfMontant): bool {
+        return $this->statusValidator->verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange($repository, $numeroDevis, $newSumOfLines, $newSumOfMontant);
+    }
+
+    public function verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis(DevisMagasinRepository $repository, string $numeroDevis, int $newSumOfLines): bool {
+        return $this->statusValidator->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($repository, $numeroDevis, $newSumOfLines);
+    }
 
     /**
      * Effectue toutes les validations nécessaires avant la validation de prix d'un devis
      * 
-     * @param StatusRepositoryInterface $statusRepository Le repository pour accéder aux statuts
      * @param DevisMagasinRepository $devisRepository Le repository pour accéder aux données du devis
      * @param LatestSumOfLinesRepositoryInterface $linesRepository Le repository pour accéder aux données de lignes
      * @param string $numeroDevis Le numéro de devis à valider
@@ -101,11 +116,10 @@ class DevisMagasinValidationVpOrchestrator
      * @return bool true si toutes les validations passent, false sinon
      */
     public function validateBeforeVpSubmission(
-        StatusRepositoryInterface $statusRepository,
         DevisMagasinRepository $devisRepository,
-        LatestSumOfLinesRepositoryInterface $linesRepository,
         string $numeroDevis,
-        int $newSumOfLines
+        int $newSumOfLines,
+        float $newSumOfMontant
     ): bool {
         // 1. Vérifier si le numéro de devis est manquant
         if (!$this->checkMissingIdentifier($numeroDevis)) {
@@ -113,15 +127,39 @@ class DevisMagasinValidationVpOrchestrator
         }
 
         // 2. verification si le statut est Prix à confirmer
-        if (!$this->checkBlockingStatusOnSubmission($statusRepository, $numeroDevis)) {
+        if (!$this->checkBlockingStatusOnSubmission($devisRepository, $numeroDevis)) {
             return false;
         }
 
-        // 3. Vérifier si le statut est "Prix validé - devis à soumettre (si agence)" et la somme de lignes et montant total sont inchangée
-        if (!$this->checkBlockingStatusOnSubmissionForVd($devisRepository, $numeroDevis, $newSumOfLines)) {
+        // 3. Vérifier si le statut est Prix validé - devis à soumettre (si agence) et somme de lignes et montant inchangé
+        if (!$this->verifierStatutPrixValideAgenceEtSommeDeLignesAndAmountInchangée($devisRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
             return false;
         }
 
+        // 4. Vérifier si le statut est Prix modifié - devis à soumettre (si agence) et somme de lignes inchangée et montant changé
+        if (!$this->verificationStatutPrixModifierAgenceEtSommeDeLignesInchangéeEtMontantchange($devisRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+            return false;
+        }
+
+        // 5. Vérifier si le statut est Validé - à envoyer au client et somme de lignes change et montant change
+        if (!$this->verificationStatutValideAEnvoyerAuclientEtSommeDeLignesChangeEtMontantChange($devisRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+            return false;
+        }
+
+        // 6. Vérifier si le statut est A valider chef d'agence
+        if (!$this->verifieStatutAvalideChefAgence($devisRepository, $numeroDevis)) {
+            return false;
+        }
+
+        // 7. Vérifier si le statut est Validé - à envoyer au client et somme de lignes inchangée
+        if (!$this->verifieStatutValideAEnvoyerAuclientEtSommeLignesInchange($devisRepository, $numeroDevis, $newSumOfLines, $newSumOfMontant)) {
+            return false;
+        }
+
+        // 8. Vérifier si le statut est Cloturé - A modifier et somme de lignes IPS inférieure à somme de lignes devis
+        if (!$this->verifieStatutClotureAModifierEtSommeLignesIpsInferieurSommeLignesDevis($devisRepository, $numeroDevis, $newSumOfLines)) {
+            return false;
+        }
 
         return true;
     }

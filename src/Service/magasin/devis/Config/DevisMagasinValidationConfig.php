@@ -69,6 +69,32 @@ class DevisMagasinValidationConfig
         DevisMagasin::STATUT_PRIX_VALIDER_AGENCE,
     ];
 
+    public const VP_PRIX_MODIFIER_AGENCE_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_PRIX_MODIFIER_AGENCE,
+    ];
+
+    public const VP_VALIDE_A_ENVOYER_AU_CLIENT_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_VALIDE_AGENCE,
+    ];
+
+    public const VP_BLOCKING_STATUTS_VALIDE_CHEF_AGENCE = [
+        DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE
+    ];
+
+    public const VP_BLOCKING_STATUTS_VALIDE_A_ENVOYER_AU_CLIENT_ET_SOMME_LINES_INCHANGE = [
+        DevisMagasin::STATUT_VALIDE_AGENCE,
+    ];
+
+    public const VP_BLOCKING_STATUTS_CLOTURE_A_MODIFIER_ET_SOMME_MONTANT_IPS_INFERIEUR_SOMME_MONTANT_DEVIS = [
+        DevisMagasin::STATUT_CLOTURER_A_MODIFIER,
+        DevisMagasin::STATUT_ENVOYER_CLIENT
+    ];
+
+
+    public const POINTAGE_PRIX_A_CONFIRMER_BLOCKING_STATUSES = [
+        DevisMagasin::STATUT_PRIX_A_CONFIRMER,
+    ];
+
     // Messages d'erreur
     public const ERROR_MESSAGES = [
         // blocage avant soumission
@@ -83,6 +109,11 @@ class DevisMagasinValidationConfig
         'amount_modified' => "Le devis a déjà été validé. Veuillez l'envoyer au client",
         'lines_amount_modified' => "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix",
         'lines_modified' => "Une ligne a été ajoutée au devis dans IPS. Veuillez demander une confirmation des prix.",
+        'vp_prix_valide_agence_et_somme_de_lignes_et_amount_inchangé' => "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence",
+        'vp_prix_modifier_agence_et_somme_de_lignes_et_amount_inchangé' => "Les prix ont déjà été validés par le parts manager,. Veuillez faire valider le devis au chef d'agence",
+        'vp_valide_a_envoyer_au_client_et_somme_de_lignes_changeet_amount_inchange' => "Le montant du devis validé ne correspond pas au montant du devis dans IPS. Veuillez refaire valider le devis.",
+        'vp_valide_a_envoyer_au_client_et_somme_lignes_inchange' => "Le devis a déjà été validé. Veuillez l'envoyer au client",
+        'vp_cloture_a_modifier_et_somme_montant_ips_inferieur_somme_montant_devis' => "Le devis a été modifié dans IPS. Veuillez le refaire valider par le chef d'agence.",
         //TODO: ----------------------------
         'no_file_submitted' => "Aucun fichier n'a été soumis.",
         'invalid_filename_format' => 'Le nom du fichier soumis n\'est pas conforme au format attendu. Reçu: %s',
