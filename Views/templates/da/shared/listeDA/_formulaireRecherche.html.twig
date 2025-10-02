@@ -56,19 +56,4 @@
 			</div>
 		</div>
 	</div>
-	<div class="container">
-		<div class=" d-flex  justify-content-between">
-			<div class="d-flex flex-row align-items-center">
-				{% include "/partials/_statutSituationPiece.html.twig" with { 'avecBackOrder' : false } %}
-			</div>
-			{% if serviceAppro %}
-				<div class="my-2 d-flex flex-row">
-					<div role="button" tabindex="0">
-						<i class="fa-solid fa-circle text-danger"></i>
-						<small class="text-danger">DA à déverrouiller</small>
-					</div>
-				</div>
-			{% endif %}
-		</div>
-	</div>
 </div>
