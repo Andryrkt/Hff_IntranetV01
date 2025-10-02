@@ -1625,7 +1625,9 @@ class DaAfficher
     public function copyFromOld(DaAfficher $oldDaAfficher): void
     {
         $this
+            ->setNumeroOr($oldDaAfficher->getNumeroOr())
             ->setStatutOr($oldDaAfficher->getStatutOr())
+            ->setDatePlannigOr($oldDaAfficher->getDatePlannigOr())
             ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
             ->setDateValidation($oldDaAfficher->getDateValidation())
             ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
