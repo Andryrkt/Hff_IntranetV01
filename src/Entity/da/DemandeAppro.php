@@ -146,6 +146,16 @@ class DemandeAppro
     private $estValidee = false;
 
     /**
+     * @ORM\Column(type="boolean", name="Devis_demander", nullable=true)
+     */
+    private $devisDemande;
+
+    /**
+     * @ORM\Column(type="datetime", name="Date_demande_devis", nullable=true)
+     */
+    private $dateDemandeDevis;
+
+    /**
      * @ORM\Column(type="string", length=50, name="valide_par")
      */
     private string $validePar;
@@ -860,6 +870,46 @@ class DemandeAppro
     public function setNomFichierBav($nomFichierBav)
     {
         $this->nomFichierBav = $nomFichierBav;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of devisDemande
+     */
+    public function getDevisDemande()
+    {
+        return $this->devisDemande;
+    }
+
+    /**
+     * Set the value of devisDemande
+     *
+     * @return  self
+     */
+    public function setDevisDemande($devisDemande)
+    {
+        $this->devisDemande = $devisDemande;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateDemandeDevis
+     */
+    public function getDateDemandeDevis()
+    {
+        return $this->dateDemandeDevis;
+    }
+
+    /**
+     * Set the value of dateDemandeDevis
+     *
+     * @return  self
+     */
+    public function setDateDemandeDevis($dateDemandeDevis)
+    {
+        $this->dateDemandeDevis = $dateDemandeDevis;
 
         return $this;
     }
