@@ -210,7 +210,7 @@ trait DaListeTrait
             $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
 
             // Pré-calculer les booléens
-            $ajouterDA = false && !$achatDirect && ($estAtelier || $estAdmin); // pas achat direct && (atelier ou admin)  
+            $ajouterDA = !$achatDirect && ($estAtelier || $estAdmin); // pas achat direct && (atelier ou admin)  
             $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable);
             $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO;
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
@@ -258,9 +258,11 @@ trait DaListeTrait
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
+                'urlCreation'         => $urls['creation'],
                 'urlDetail'           => $urls['detail'],
                 'urlDesignation'      => $urls['designation'],
                 'urlDelete'           => $urls['delete'],
+                'urlDemandeDevis'     => $urls['demandeDevis'],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
                 'demandeDevis'        => $demandeDevis,
@@ -278,11 +280,17 @@ trait DaListeTrait
      *
      * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
      *
-     * @return array{detail:string,designation:string,delete:string}
+     * @return array{detail:string,designation:string,delete:string,demandeDevis:string,creation:string}
      */
     private function buildItemUrls(DaAfficher $item): array
     {
         $urls = [];
+
+        // URL création de DA avec DIT
+        $urls['creation'] = $this->getUrlGenerator()->generate('da_new_avec_dit', [
+            'daId'  => 0,
+            'ditId' => $item->getDit()->getId(),
+        ]);
 
         // URL détail
         $urls['detail'] = $this->getUrlGenerator()->generate(
@@ -305,6 +313,12 @@ trait DaListeTrait
         $urls['delete'] = $this->getUrlGenerator()->generate(
             $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
             ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
+        );
+
+        // URL demande de devis
+        $urls['demandeDevis'] = $this->getUrlGenerator()->generate(
+            'da_demande_devis_en_cours',
+            ['id' => $item->getDemandeAppro()->getId()]
         );
 
         return $urls;

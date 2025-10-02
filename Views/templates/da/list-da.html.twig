@@ -75,12 +75,12 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									{% if row.ajouterDA %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Créer une DA à partir du DIT</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlCreation }}">Créer une DA à partir du DIT</a>
 										</li>
 									{% endif %}
 									{% if row.demandeDevis %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="#">Devis demandé</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlDemandeDevis }}">Devis demandé</a>
 										</li>
 									{% endif %}
 									{% if row.statutValide %}

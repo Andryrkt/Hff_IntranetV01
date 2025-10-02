@@ -1630,6 +1630,7 @@ class DaAfficher
             ->setDateValidation($oldDaAfficher->getDateValidation())
             ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
             ->setStatutCde($oldDaAfficher->getStatutCde())
+            ->setDit($oldDaAfficher->getDit())
         ;
     }
 
