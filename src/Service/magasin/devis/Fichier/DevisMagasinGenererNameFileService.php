@@ -30,7 +30,30 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
     }
 
     /**
+     * Génère un nom pour votre cas spécifique de vérification de prix
+     */
+    public function generateValidationDevisName(
+        UploadedFile $file,
+        string $numDevis,
+        int $numeroVersion,
+        string $suffix,
+        string $mail,
+        int $index = 1
+    ): string {
+        return $this->generateFileName($file, [
+            'format' => 'validationdevis_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
+            'variables' => [
+                'numDevis' => $numDevis,
+                'numeroVersion' => $numeroVersion,
+                'suffix' => $suffix,
+                'mail' => $mail
+            ]
+        ], $index);
+    }
+
+    /**
      * Génère un nom pour le bon de commande
+     * TODO: mbola vao ho avy
      */
     public function generateBonCommandeName(
         UploadedFile $file,
@@ -49,6 +72,7 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
 
     /**
      * Génère un nom pour la facture
+     * TODO: mbola vao ho avy
      */
     public function generateFactureName(
         UploadedFile $file,
