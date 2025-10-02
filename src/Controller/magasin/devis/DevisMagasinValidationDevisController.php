@@ -140,7 +140,7 @@ class DevisMagasinValidationDevisController extends Controller
             $this->getEntityManager()->flush();
 
             //envoie du fichier dans DW
-            $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier);
+            $this->generatePdfDevisMagasin->copyToDWDevisMagasin($nomFichier, $devisMagasin->getNumeroDevis());
 
 
             //HISTORISATION DE L'OPERATION
@@ -151,8 +151,13 @@ class DevisMagasinValidationDevisController extends Controller
 
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail): array
     {
+        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
+        if (!is_dir($devisPath)) {
+            mkdir($devisPath, 0777, true);
+        }
+
         $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
-            'repertoire' => $this->cheminBaseUpload,
+            'repertoire' => $devisPath,
             'generer_nom_callback' => function (
                 UploadedFile $file,
                 int $index

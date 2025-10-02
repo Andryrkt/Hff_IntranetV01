@@ -14,7 +14,7 @@ class GeneratePdf
         string $baseCheminDocuware = null
     ) {
         // Injection de dépendances avec fallback sur les variables d'environnement
-        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
+        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '');
         $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
     }
 
@@ -181,10 +181,10 @@ class GeneratePdf
 
 
     // devis Magasin
-    public function copyToDWDevisMagasin($fileName)
+    public function copyToDWDevisMagasin($fileName, $numeroDevis)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
