@@ -127,6 +127,8 @@ class DevisMagasin
 
     private $pieceJoint01;
 
+    private $pieceJoint2;
+
     /**
      * @ORM\Column(type="datetime", name="date_pointage", nullable=true)
      *
@@ -456,6 +458,24 @@ class DevisMagasin
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint2
+     */
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of pieceJoint2
+     */
+    public function setPieceJoint2($pieceJoint2): self
+    {
+        $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
     }
