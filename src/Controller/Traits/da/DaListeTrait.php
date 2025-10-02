@@ -192,22 +192,32 @@ trait DaListeTrait
 
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
-        $this->initStyleStatuts(); // Initialiser le style pour les statuts
+        // Roles
+        $estAdmin   = $this->estAdmin();
+        $estAppro   = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
+
+        // Initialiser le style pour les statuts
+        $this->initStyleStatuts();
 
         foreach ($data as $item) {
+            // Variables à employer
+            $achatDirect = $item->getAchatDirect();
+
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
             $styleStatutOR = $this->styleStatutOR[$item->getStatutOr()] ?? '';
             $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
 
             // Pré-calculer les booléens
-            $ajouterDA = false && !$item->getAchatDirect() && ($this->estUserDansServiceAtelier() || $this->estAdmin()); // pas achat direct && (atelier ou admin)  
-            $supprimable = ($this->estUserDansServiceAppro() || $this->estUserDansServiceAtelier() || $this->estAdmin()) && in_array($item->getStatutDal(), $statutDASupprimable);
+            $ajouterDA = false && !$achatDirect && ($estAtelier || $estAdmin); // pas achat direct && (atelier ou admin)  
+            $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable);
+            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO;
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
-            $achatDirect = $item->getAchatDirect();
+            // Construction d'urls
             $urls = $this->buildItemUrls($item);
 
             // Statut OR | Statut DocuWare
@@ -215,7 +225,6 @@ trait DaListeTrait
             if (!$achatDirect && !empty($statutOR)) {
                 $statutOR = "OR - $statutOR";
             }
-
 
             // Tout regrouper
             $datasPrepared[] = [
@@ -254,6 +263,7 @@ trait DaListeTrait
                 'urlDelete'           => $urls['delete'],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
+                'demandeDevis'        => $demandeDevis,
                 'telechargerOR'       => $telechargerOR,
                 'pathOrMax'           => $pathOrMax,
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,

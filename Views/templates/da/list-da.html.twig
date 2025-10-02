@@ -78,6 +78,11 @@
 											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Créer une DA à partir du DIT</a>
 										</li>
 									{% endif %}
+									{% if row.demandeDevis %}
+										<li>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Devis demandé</a>
+										</li>
+									{% endif %}
 									{% if row.statutValide %}
 										<li>
 											<a class="dropdown-item fw-bold" href="{{ App.base_path_fichier }}/da/{{ row.numeroDemandeAppro }}/{{ row.numeroDemandeAppro }}.pdf" target="_blank">Afficher le PDF de la DA</a>
