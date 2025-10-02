@@ -10,12 +10,16 @@ use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Form\magasin\devis\DevisMagasinType;
+use App\Service\fichier\TraitementDeFichier;
+use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
 use App\Service\genererPdf\GeneratePdfDevisMagasin;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
+use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator;
 
@@ -26,6 +30,7 @@ class DevisMagasinVerificationPrixController extends Controller
 {
     use AutorisationTrait;
     use DevisMagasinTrait;
+    use PdfConversionTrait;
 
     private const TYPE_SOUMISSION_VERIFICATION_PRIX = 'VP';
     private const MESSAGE_DE_CONFIRMATION = 'verification prix';
@@ -36,6 +41,9 @@ class DevisMagasinVerificationPrixController extends Controller
     private string $cheminBaseUpload;
     private GeneratePdfDevisMagasin $generatePdfDevisMagasin;
     private DevisMagasinRepository $devisMagasinRepository;
+    private DevisMagasinGenererNameFileService $nameGenerator;
+    private UploderFileService $uploader;
+    private TraitementDeFichier $traitementDeFichier;
 
     public function __construct()
     {
@@ -43,9 +51,12 @@ class DevisMagasinVerificationPrixController extends Controller
         global $container;
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
-        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
+        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+        $this->nameGenerator = new DevisMagasinGenererNameFileService();
+        $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
+        $this->traitementDeFichier = new TraitementDeFichier();
     }
 
     /**
@@ -98,19 +109,25 @@ class DevisMagasinVerificationPrixController extends Controller
                 return; // Arrête le traitement si la validation échoue
             }
 
+            /** @var string recuperation des suffix selon le constructeur magasin */
             $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
-            // recupération de numero version max
+            /** @var int recupération de numero version max */
             $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
             //TODO: creation de pdf (à specifier par Antsa)
 
-            /** @var string $userMail */
-           $userMail = $this->getUserMail();
+            /** 
+             * Enregistrement de fichier uploder
+             * @var array $nomEtCheminFichiersEnregistrer 
+             * @var string $nomAvecCheminFichier
+             * @var string $nomFichier
+             */
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0]);
 
-            /** @var array  enregistrement du fichier*/
-            $fichiersEnregistrer = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $userMail)[0]);
-            $nomFichier = !empty($fichiersEnregistrer) ? $fichiersEnregistrer[0] : '';
+            /** @var array fusions des fichiers */
+            $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+            $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
             //ajout des informations de IPS et des informations manuelles comme nombre de lignes, cat, nonCat dans le devis magasin
             $this->ajoutInfoIpsDansDevisMagasin($devisMagasin, $firstDevisIps, $numeroVersion, $nomFichier, self::TYPE_SOUMISSION_VERIFICATION_PRIX);
@@ -129,17 +146,22 @@ class DevisMagasinVerificationPrixController extends Controller
         }
     }
 
+
     private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail): array
     {
-        return (new UploderFileService($this->cheminBaseUpload))->getNomsFichiers($form, [
+        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
             'repertoire' => $this->cheminBaseUpload,
-            'format_nom' => 'verificationprix_{numDevis}-{numeroVersion}#{suffix}!{mail}.{extension}',
-            'variables' => [
-                'numDevis' => $numDevis,
-                'numeroVersion' => $numeroVersion,
-                'suffix' => $suffix,
-                'mail' => $mail
-            ]
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDevis, $numeroVersion, $suffix, $mail) {
+                return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
+            }
         ]);
+
+        $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0];
+        $nomFichier = $this->nameGenerator->getNomFichier($nomEtCheminFichiersEnregistrer);
+
+        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }

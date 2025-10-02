@@ -40,23 +40,23 @@ trait DevisMagasinTrait
         return [$newSumOfLines, $newSumOfMontant];
     }
 
-
+    
     private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission): void
     {
         $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
         $devisMagasin
-                ->setNumeroDevis($devisMagasin->getNumeroDevis())
-                ->setMontantDevis($firstDevisIps['montant_total'])
-                ->setDevise($firstDevisIps['devise'])
-                ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
-                ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                ->setStatutDw(DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
-                ->setTypeSoumission($typeSoumission)
-                ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
-                ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
-                ->setNomFichier($nomFichier)
-            ;
+            ->setNumeroDevis($devisMagasin->getNumeroDevis())
+            ->setMontantDevis($firstDevisIps['montant_total'])
+            ->setDevise($firstDevisIps['devise'])
+            ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
+            ->setStatutDw($typeSoumission == 'VP' ? DevisMagasin::STATUT_PRIX_A_CONFIRMER : DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
+            ->setTypeSoumission($typeSoumission)
+            ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
+            ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
+            ->setNomFichier((string)$nomFichier)
+        ;
     }
 }
