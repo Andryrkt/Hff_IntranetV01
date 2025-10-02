@@ -7,7 +7,6 @@ use App\Form\da\DaSearchType;
 use App\Controller\Controller;
 use App\Entity\admin\Application;
 use App\Controller\Traits\da\DaListeTrait;
-use App\Controller\Traits\da\StatutBcTrait;
 use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
