@@ -180,7 +180,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, string $statutBc)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
@@ -248,7 +248,7 @@ class DaModel extends Model
                                     and seor.seor_refdem = '$numDit'
             ";
 
-        if (in_array($statutBc, $statutCde)) {
+        if ($statutBc && in_array($statutBc, $statutCde)) {
             $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
         }
 
