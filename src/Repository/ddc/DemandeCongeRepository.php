@@ -197,4 +197,14 @@ class DemandeCongeRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+
+    public function getStatut()
+    {
+        return $this->createQueryBuilder('d')
+            ->select('DISTINCT d.statutDemande')
+            ->orderBy('d.statutDemande', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }
