@@ -425,10 +425,8 @@ a.choix:hover {
   background-color: #ffc107 !important;
   color: #6b3e00 !important;
 }
-.bg-or-valider-ca {
-  background-color: #f1c232 !important;
-  color: #8e5a00 !important;
-}
+.bg-or-valider-ca,
+.bg-or-valider-dt,
 .bg-or-valider-client {
   background-color: #f1c232 !important;
   color: #8e5a00 !important;
