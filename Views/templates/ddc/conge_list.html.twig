@@ -17,7 +17,7 @@
     <table class="table rounded table-plein-ecran">
         <thead class="table-dark">
             <tr>
-                <th>PDF Demande</th>
+                {# <th>PDF Demande</th> #}
                 <th>Statut</th>
                 <th>Sous-type</th>
                 <th>N° Demande</th>
@@ -48,7 +48,7 @@
 
             <tr>
                 <td>
-                    {% if demande.pdfDemande %}
+                    {# {% if demande.pdfDemande %} #}
                     <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank"
                         class="btn btn-sm btn-primary">
                         <i class="fas fa-file-pdf"></i> Voir
