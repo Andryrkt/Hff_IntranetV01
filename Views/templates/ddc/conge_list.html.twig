@@ -13,28 +13,28 @@
     {% include "/ddc/shared/_pagination_conge.html.twig" %}
 </div>
 
-    <div class="container-fluid">
-        <table class="table rounded table-plein-ecran">
-            <thead class="table-dark">
-                <tr>
-                    <th>PDF Demande</th>
-                    <th>Statut</th>
-                    <th>Sous-type</th>
-                    <th>N° Demande</th>
-                    <th>Date demande</th>
-                    <th>Matricule</th>
-                    <th>Nom et Prénoms</th>
-                    <th>Agence Débiteur</th>
-                    <th>Agence/Service</th>
-                    <th>Email</th>
-                    <th>Durée</th>
-                    <th>Date début</th>
-                    <th>Date fin</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for demande in data %}
-                    {% set classeStatut = '' %}
+<div class="container-fluid">
+    <table class="table rounded table-plein-ecran">
+        <thead class="table-dark">
+            <tr>
+                <th>PDF Demande</th>
+                <th>Statut</th>
+                <th>Sous-type</th>
+                <th>N° Demande</th>
+                <th>Date demande</th>
+                <th>Matricule</th>
+                <th>Nom et Prénoms</th>
+                <th>Agence Débiteur</th>
+                <th>Agence/Service</th>
+                <th>Email</th>
+                <th>Durée</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for demande in data %}
+            {% set classeStatut = '' %}
 
             {% if demande.statutDemande | trim == 'Validé' %}
             {% set classeStatut = 'bg-success text-white' %}
@@ -67,7 +67,6 @@
                 <td>{{ demande.agenceDebiteur }}</td>
                 <td>{{ demande.agenceService }}</td>
                 <td>{{ demande.adresseMailDemandeur }}</td>
-                <td>{{ demande.motifConge }}</td>
                 <td>{{ demande.dureeConge | number_format(1, ',', '.') }} jours</td>
                 <td>{{ demande.dateDebut ? demande.dateDebut|date('d/m/Y') : '' }}</td>
                 <td>{{ demande.dateFin ? demande.dateFin|date('d/m/Y') : '' }}</td>
