@@ -409,4 +409,26 @@ class DaModel extends Model
 
         return array_column($data, 'num_or');
     }
+
+    /**
+     * recupère le numéro et le nom du fournissuer
+     * 
+     * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
+     * en utilisant comme jointure le numero du fournissuer
+     * 
+     */
+    public function getNumAndNomFournisseurSelonReference(string $numCde, string $ref): array
+    {
+        $statement = " SELECT fcdl_numfou as num_fournisseur, 
+                fbse_nomfou as nom_fournisseur
+            from informix.frn_cdl 
+            inner join informix.frn_bse on fcdl_numfou = fbse_numfou 
+            where fcdl_numcde ='$numCde' and fcdl_refp ='$ref'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
 }
