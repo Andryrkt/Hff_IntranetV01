@@ -331,8 +331,9 @@ trait StatutBcTrait
             } else {
                 $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
             }
+            $numCde = array_key_exists(0, $situationCde) ? $situationCde[0]['num_cde'] : $numcde;
             $DaAfficher->setPositionBc($positionBc)
-                ->setNumeroCde($situationCde[0]['num_cde']);
+                ->setNumeroCde($numCde);
         }
     }
 
