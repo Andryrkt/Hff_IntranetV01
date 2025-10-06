@@ -248,10 +248,10 @@ class DaModel extends Model
                                     and seor.seor_refdem = '$numDit'
             ";
 
-        if(in_array($statutBc, $statutCde)) {
-            $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        if (in_array($statutBc, $statutCde)) {
+            $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
         }
-// dd($statement);
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -386,10 +386,10 @@ class DaModel extends Model
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
 
-            if(in_array($statutBc, $statutCde)) {
-                $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
-            }
-            // dump($statement);
+        if (in_array($statutBc, $statutCde)) {
+            $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        }
+        // dump($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
