@@ -201,7 +201,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, string $statutBc)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
@@ -269,10 +269,10 @@ class DaModel extends Model
                                     and seor.seor_refdem = '$numDit'
             ";
 
-        if (in_array($statutBc, $statutCde)) {
-            $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
         }
-        // dd($statement);
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -450,5 +450,27 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'num_or');
+    }
+
+    /**
+     * recupère le numéro et le nom du fournissuer
+     * 
+     * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
+     * en utilisant comme jointure le numero du fournissuer
+     * 
+     */
+    public function getNumAndNomFournisseurSelonReference(string $numCde, string $ref): array
+    {
+        $statement = " SELECT fcdl_numfou as num_fournisseur, 
+                fbse_nomfou as nom_fournisseur
+            from informix.frn_cdl 
+            inner join informix.frn_bse on fcdl_numfou = fbse_numfou 
+            where fcdl_numcde ='$numCde' and fcdl_refp ='$ref'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
     }
 }
