@@ -9,3 +9,6 @@ CREATE TABLE bl_soumission
     date_modification DATETIME2(0) not null,
     CONSTRAINT PK_bl_soumission PRIMARY KEY (id)
 );
+
+
+ALTER TABLE bl_soumission ADD type_bl VARCHAR(50)
