@@ -48,12 +48,11 @@ class DaPropositionArticleDirectController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
-
         /** Autorisation accès */
-        $this->checkPageAccess(!$this->estDaVerrouillee($da->getStatutDal(), $da->getStatutOr(), $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), $this->estCreateurDeDADirecte()));
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
         /** FIN AUtorisation accès */
 
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
