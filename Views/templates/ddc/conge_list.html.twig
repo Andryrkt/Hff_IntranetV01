@@ -24,7 +24,7 @@
                 <th>Date demande</th>
                 <th>Matricule</th>
                 <th>Nom et Prénoms</th>
-                <th>Agence Débiteur</th>
+                {# <th>Agence Débiteur</th> #}
                 <th>Agence/Service</th>
                 <th>Email</th>
                 <th>Durée</th>
@@ -49,13 +49,13 @@
             <tr>
                 <td>
                     {# {% if demande.pdfDemande %} #}
-                    <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank"
-                        class="btn btn-sm btn-primary">
-                        <i class="fas fa-file-pdf"></i> Voir
-                    </a>
-                    {% else %}
-                    <span class="text-muted">Aucun PDF</span>
-                    {% endif %}
+                    {# <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank" #} {#
+                        class="btn btn-sm btn-primary"> #}
+                        {# <i class="fas fa-file-pdf"></i> Voir #}
+                        {# </a> #}
+                    {# {% else %} #}
+                    {# <span class="text-muted">Aucun PDF</span> #}
+                    {# {% endif %} #}
                 </td>
 
                 <td class="{{ classeStatut }}">{{ demande.statutDemande }}</td>
@@ -64,7 +64,7 @@
                 <td>{{ demande.dateDemande ? demande.dateDemande|date('d/m/Y') : '' }}</td>
                 <td class="text-center">{{ demande.matricule }}</td>
                 <td>{{ demande.nomPrenoms }}</td>
-                <td>{{ demande.agenceDebiteur }}</td>
+                {# <td>{{ demande.agenceDebiteur }}</td> #}
                 <td>{{ demande.agenceService }}</td>
                 <td>{{ demande.adresseMailDemandeur }}</td>
                 <td>{{ demande.dureeConge | number_format(1, ',', '.') }} jours</td>

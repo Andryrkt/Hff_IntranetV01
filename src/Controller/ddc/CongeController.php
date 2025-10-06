@@ -171,7 +171,7 @@ class CongeController extends Controller
         $criteriaTab['dateDemandeFin'] = isset($criteriaTab['dateDemandeFin']) && $criteriaTab['dateDemandeFin'] ? $criteriaTab['dateDemandeFin']->format('d-m-Y') : null;
         $criteriaTab['selected_service'] = $criteriaTab['selected_service'] ?? null;
         $agenceCode = isset($options['agence']) ? $options['agence'] : null;
-            $serviceCode = isset($options['service']) ? $options['service'] : null;
+        $serviceCode = isset($options['service']) ? $options['service'] : null;
         $criteriaTab['agenceService'] = ($agenceCode && $serviceCode)
             ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
             : null;
@@ -351,5 +351,15 @@ class CongeController extends Controller
             }
         }
         return new JsonResponse($services);
+    }
+
+
+    /**
+     * @Route("/api/matricule-nom-prenom")
+     */
+    public function getMatriculeNomPrenom()
+    {
+        $matriculeNomPrenom = $this->getEntityManager()->getRepository(DemandeConge::class)->getMatriculeNomPrenom();
+        return new JsonResponse($matriculeNomPrenom);
     }
 }
