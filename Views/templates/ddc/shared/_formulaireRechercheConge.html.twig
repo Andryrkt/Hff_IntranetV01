@@ -12,6 +12,8 @@
                 <div class="row g-3">
                     <div class="col-md-3">
                         {{ form_row(form.matricule, {'attr': {'class': 'form-control-sm'}}) }}
+                        <div id="suggestion-matricule-nom-prenom" class="suggestions-container"></div>
+                        <div id="loader-matricule-nom-prenom" class="spinner" style="display: none;">Chargement...</div>
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form.numeroDemande, {'attr': {'class': 'form-control-sm'}}) }}

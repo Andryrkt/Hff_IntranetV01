@@ -203,6 +203,8 @@ class DemandeCongeRepository extends EntityRepository
      * 
      * cette methode recupère tous les statuts DISTINCT dans le table demande_de_congé
      * et le mettre en ordre ascendante
+     * 
+     * @return array
      */
     public function getStatut(): array
     {
@@ -213,6 +215,14 @@ class DemandeCongeRepository extends EntityRepository
             ->getResult();
     }
 
+    /**
+     * recupérer tous les matricules, noms, et prénoms
+     * 
+     * cette methode recupère tous les matricules, noms et prénoms DISTINCT dans la table demande_decongé
+     * et le mettre en ordre ascendante par rapprt au numéro matricule
+     * 
+     * @return array
+     */
     public function getMatriculeNomPrenom(): array
     {
         return $this->createQueryBuilder('d')

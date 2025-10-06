@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
 {% endblock %}
 
 {% block content %}
@@ -38,16 +39,16 @@
 
             {% if demande.statutDemande | trim == 'Validé' %}
             {% set classeStatut = 'bg-success text-white' %}
-            {% elseif demande.statutDemande | trim == 'EN ATTENTE' %}
+            {% elseif demande.statutDemande | trim == 'A valider chef de service' %}
             {% set classeStatut = 'bg-warning text-dark' %}
-            {% elseif demande.statutDemande | trim == 'REJETEE' %}
+            {% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
             {% set classeStatut = 'bg-danger text-white' %}
             {% elseif demande.statutDemande | trim == 'EN COURS' %}
             {% set classeStatut = 'bg-info text-dark' %}
             {% endif %}
 
             <tr>
-                <td>
+                {# <td> #}
                     {# {% if demande.pdfDemande %} #}
                     {# <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank" #} {#
                         class="btn btn-sm btn-primary"> #}
@@ -56,7 +57,7 @@
                     {# {% else %} #}
                     {# <span class="text-muted">Aucun PDF</span> #}
                     {# {% endif %} #}
-                </td>
+                    {# </td> #}
 
                 <td class="{{ classeStatut }}">{{ demande.statutDemande }}</td>
                 <td>{{ demande.sousTypeDocument }}</td>
@@ -96,6 +97,6 @@
 
 {% block javascript %}
 {# La ligne ci-dessous a été supprimée pour résoudre l'erreur 404 #}
-{#
-<script src="{{ App.base_path }}/Views/js/conge/listConge.js" type="module"></script> #}
+
+<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
 {% endblock %}
