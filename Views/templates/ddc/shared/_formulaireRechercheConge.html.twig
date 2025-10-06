@@ -16,18 +16,17 @@
                         <div id="loader-matricule-nom-prenom" class="spinner" style="display: none;">Chargement...</div>
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.numeroDemande, {'attr': {'class': 'form-control-sm'}}) }}
+                        {{ form_row(form.agence, {'attr': {'class': 'form-select-sm'}}) }}
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form.dateDemande, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})
                         }}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.dateDemandeFin, {'attr': {'class': 'form-control-sm datepicker', 'type':
-                        'date'}}) }}
+                        {{ form_row(form.dateDebut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})}}
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.agence, {'attr': {'class': 'form-select-sm'}}) }}
+                        {{ form_row(form.numeroDemande, {'attr': {'class': 'form-control-sm'}}) }}
                     </div>
                     <div class="col-md-3">
                         <div id="serviceSpinner" class="d-none">
@@ -41,8 +40,8 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        {{ form_row(form.dateDebut, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}})
-                        }}
+                        {{ form_row(form.dateDemandeFin, {'attr': {'class': 'form-control-sm datepicker',
+                        'type':'date'}}) }}
                     </div>
                     <div class="col-md-3">
                         {{ form_row(form.dateFin, {'attr': {'class': 'form-control-sm datepicker', 'type': 'date'}}) }}

@@ -268,7 +268,6 @@ class CongeController extends Controller
             "Date de fin",
             "Durée congé",
             "Solde congé",
-            "Motif congé",
             "PDF Demande"
         ];
 
@@ -285,7 +284,6 @@ class CongeController extends Controller
                 $entity->getDateFin() ? $entity->getDateFin()->format('d/m/Y') : '',
                 $entity->getDureeConge(),
                 $entity->getSoldeConge(),
-                $entity->getMotifConge(),
                 $entity->getPdfDemande()
             ];
         }
