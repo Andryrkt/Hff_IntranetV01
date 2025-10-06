@@ -198,12 +198,36 @@ class DemandeCongeRepository extends EntityRepository
             ->getResult();
     }
 
-
-    public function getStatut()
+    /**
+     * recupérer tous les statuts 
+     * 
+     * cette methode recupère tous les statuts DISTINCT dans le table demande_de_congé
+     * et le mettre en ordre ascendante
+     * 
+     * @return array
+     */
+    public function getStatut(): array
     {
         return $this->createQueryBuilder('d')
             ->select('DISTINCT d.statutDemande')
             ->orderBy('d.statutDemande', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * recupérer tous les matricules, noms, et prénoms
+     * 
+     * cette methode recupère tous les matricules, noms et prénoms DISTINCT dans la table demande_decongé
+     * et le mettre en ordre ascendante par rapprt au numéro matricule
+     * 
+     * @return array
+     */
+    public function getMatriculeNomPrenom(): array
+    {
+        return $this->createQueryBuilder('d')
+            ->select('DISTINCT d.matricule, d.nomPrenoms')
+            ->orderBy('d.matricule', 'ASC')
             ->getQuery()
             ->getResult();
     }

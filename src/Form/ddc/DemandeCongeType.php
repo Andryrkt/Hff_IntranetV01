@@ -51,7 +51,7 @@ class DemandeCongeType extends AbstractType
             ->add('matricule', TextType::class, [
                 'required' => false,
                 'mapped' => true,
-                'label' => 'Matricule'
+                'label' => 'Matricule, Nom et Prénoms'
             ])
             ->add('numeroDemande', TextType::class, [
                 'required' => false,

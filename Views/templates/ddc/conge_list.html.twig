@@ -2,6 +2,7 @@
 
 {% block stylesheets %}
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/ddc/listeConge.css">
 {% endblock %}
 
 {% block content %}
@@ -24,7 +25,7 @@
                 <th>Date demande</th>
                 <th>Matricule</th>
                 <th>Nom et Prénoms</th>
-                <th>Agence Débiteur</th>
+                {# <th>Agence Débiteur</th> #}
                 <th>Agence/Service</th>
                 <th>Email</th>
                 <th>Durée</th>
@@ -38,25 +39,25 @@
 
             {% if demande.statutDemande | trim == 'Validé' %}
             {% set classeStatut = 'bg-success text-white' %}
-            {% elseif demande.statutDemande | trim == 'EN ATTENTE' %}
+            {% elseif demande.statutDemande | trim == 'A valider chef de service' %}
             {% set classeStatut = 'bg-warning text-dark' %}
-            {% elseif demande.statutDemande | trim == 'REJETEE' %}
+            {% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
             {% set classeStatut = 'bg-danger text-white' %}
             {% elseif demande.statutDemande | trim == 'EN COURS' %}
             {% set classeStatut = 'bg-info text-dark' %}
             {% endif %}
 
             <tr>
-                <td>
+                {# <td> #}
                     {# {% if demande.pdfDemande %} #}
-                    <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank"
-                        class="btn btn-sm btn-primary">
-                        <i class="fas fa-file-pdf"></i> Voir
-                    </a>
-                    {% else %}
-                    <span class="text-muted">Aucun PDF</span>
-                    {% endif %}
-                </td>
+                    {# <a href="{{ App.base_path }}/uploads/pdf/{{ demande.pdfDemande }}" target="_blank" #} {#
+                        class="btn btn-sm btn-primary"> #}
+                        {# <i class="fas fa-file-pdf"></i> Voir #}
+                        {# </a> #}
+                    {# {% else %} #}
+                    {# <span class="text-muted">Aucun PDF</span> #}
+                    {# {% endif %} #}
+                    {# </td> #}
 
                 <td class="{{ classeStatut }}">{{ demande.statutDemande }}</td>
                 <td>{{ demande.sousTypeDocument }}</td>
@@ -64,7 +65,7 @@
                 <td>{{ demande.dateDemande ? demande.dateDemande|date('d/m/Y') : '' }}</td>
                 <td class="text-center">{{ demande.matricule }}</td>
                 <td>{{ demande.nomPrenoms }}</td>
-                <td>{{ demande.agenceDebiteur }}</td>
+                {# <td>{{ demande.agenceDebiteur }}</td> #}
                 <td>{{ demande.agenceService }}</td>
                 <td>{{ demande.adresseMailDemandeur }}</td>
                 <td>{{ demande.dureeConge | number_format(1, ',', '.') }} jours</td>
@@ -96,6 +97,6 @@
 
 {% block javascript %}
 {# La ligne ci-dessous a été supprimée pour résoudre l'erreur 404 #}
-{#
-<script src="{{ App.base_path }}/Views/js/conge/listConge.js" type="module"></script> #}
+
+<script src="{{ App.base_path }}/Views/js/ddc/listConge.js" type="module"></script>
 {% endblock %}
