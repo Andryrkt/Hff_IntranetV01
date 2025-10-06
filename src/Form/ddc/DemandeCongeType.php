@@ -34,7 +34,7 @@ class DemandeCongeType extends AbstractType
         }
 
         // Récupérer les agences et services depuis AgenceServiceIrium
-        $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findAll();
+        $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findBy(["societe_ios" => 'HF'], ["agence_ips" => "ASC"]);
         $agences = [];
 
         // Créer un tableau associatif pour les agences (libellé => code)

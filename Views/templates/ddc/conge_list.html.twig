@@ -13,29 +13,28 @@
     {% include "/ddc/shared/_pagination_conge.html.twig" %}
 </div>
 
-<div class="container-fluid">
-    <table class="table rounded table-plein-ecran">
-        <thead class="table-dark">
-            <tr>
-                <th>PDF Demande</th>
-                <th>Statut</th>
-                <th>Sous-type</th>
-                <th>N° Demande</th>
-                <th>Date demande</th>
-                <th>Matricule</th>
-                <th>Nom et Prénoms</th>
-                <th>Agence Débiteur</th>
-                <th>Agence/Service</th>
-                <th>Email</th>
-                <th>Motif</th>
-                <th>Durée</th>
-                <th>Date début</th>
-                <th>Date fin</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for demande in data %}
-            {% set classeStatut = '' %}
+    <div class="container-fluid">
+        <table class="table rounded table-plein-ecran">
+            <thead class="table-dark">
+                <tr>
+                    <th>PDF Demande</th>
+                    <th>Statut</th>
+                    <th>Sous-type</th>
+                    <th>N° Demande</th>
+                    <th>Date demande</th>
+                    <th>Matricule</th>
+                    <th>Nom et Prénoms</th>
+                    <th>Agence Débiteur</th>
+                    <th>Agence/Service</th>
+                    <th>Email</th>
+                    <th>Durée</th>
+                    <th>Date début</th>
+                    <th>Date fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in data %}
+                    {% set classeStatut = '' %}
 
             {% if demande.statutDemande | trim == 'Validé' %}
             {% set classeStatut = 'bg-success text-white' %}

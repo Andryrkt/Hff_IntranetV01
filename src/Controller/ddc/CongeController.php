@@ -170,6 +170,8 @@ class CongeController extends Controller
         $criteriaTab['dateDemande'] = $criteriaTab['dateDemande'] ? $criteriaTab['dateDemande']->format('d-m-Y') : null;
         $criteriaTab['dateDemandeFin'] = isset($criteriaTab['dateDemandeFin']) && $criteriaTab['dateDemandeFin'] ? $criteriaTab['dateDemandeFin']->format('d-m-Y') : null;
         $criteriaTab['selected_service'] = $criteriaTab['selected_service'] ?? null;
+        $agenceCode = isset($options['agence']) ? $options['agence'] : null;
+            $serviceCode = isset($options['service']) ? $options['service'] : null;
         $criteriaTab['agenceService'] = ($agenceCode && $serviceCode)
             ? $this->getAgenceServiceSage($agenceCode, $serviceCode)
             : null;
@@ -289,7 +291,7 @@ class CongeController extends Controller
         }
 
         // Crée le fichier Excel
-        $this->excelService->createSpreadsheet($data);
+        $this->getExcelService()->createSpreadsheet($data);
         exit();
     }
 
