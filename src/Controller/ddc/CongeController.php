@@ -150,6 +150,10 @@ class CongeController extends Controller
             $options = $sessionOptions;
         }
 
+        // Déterminer les codes agence/service pour l'affichage même si le formulaire n'a pas été soumis
+        $agenceCode = $options['agence'] ?? null;
+        $serviceCode = $options['service'] ?? null;
+
         // Pagination
         $page = max(1, $request->query->getInt('page', 1));
         $limit = 10;
