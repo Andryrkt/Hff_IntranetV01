@@ -34,13 +34,14 @@ class BonDeCaisseType extends AbstractType
         }
 
         // Récupérer les agences et services depuis AgenceServiceIrium
-        $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findAll();
+        $agencesServices = $em->getRepository(AgenceServiceIrium::class)->findBy(["societe_ios" => 'HF'], ["agence_ips" => "ASC"]);
         $agences = [];
 
         // Créer un tableau associatif pour les agences (libellé => code)
         foreach ($agencesServices as $as) {
             // Utiliser agence_ips au lieu de agence_i100
-            $agences[$as->getNomagencei100()] = $as->getAgenceips();
+            // Format: "Code - Nom" (ex: "80 - Administration")
+            $agences[$as->getAgenceips() . ' ' . $as->getNomagencei100()] = $as->getAgenceips();
         }
 
         // Récupérer les statuts depuis la table Statut_demande
@@ -64,6 +65,7 @@ class BonDeCaisseType extends AbstractType
             ])
             ->add('agenceDebiteur', ChoiceType::class, [
                 'required' => false,
+                'mapped' => false,
                 'label' => 'Agence',
                 'choices' => array_unique($agences),
                 'placeholder' => 'Toutes les agences',
@@ -150,7 +152,8 @@ class BonDeCaisseType extends AbstractType
                     ->getArrayResult();
 
                 foreach ($services as $row) {
-                    $choices[$row['nom']] = $row['code'];
+                    // Format: "Code - Nom" (ex: "A102 - Service RH")
+                    $choices[$row['code'] . ' ' . $row['nom']] = $row['code'];
                 }
             }
 
@@ -178,6 +181,7 @@ class BonDeCaisseType extends AbstractType
             ]);
         });
     }
+
 
     public function configureOptions(OptionsResolver $resolver): void
     {
