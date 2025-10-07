@@ -51,35 +51,40 @@ trait DaDetailAvecDitTrait
     private function getAllDAFile($tab): array
     {
         return [
-            'BA'    => [
+            [
+                'labelType'  => 'BA',
                 'type'       => "Bon d'achat",
                 'icon'       => 'fa-solid fa-file-signature',
                 'colorClass' => 'border-left-ba',
                 'fichiers'   => $this->normalizePaths($tab['baPath']),
             ],
-            'OR'    => [
+            [
+                'labelType'  => 'OR',
                 'type'       => 'Ordre de réparation',
                 'icon'       => 'fa-solid fa-wrench',
                 'colorClass' => 'border-left-or',
                 'fichiers'   => $this->normalizePathsForOneFile($tab['orPath'], 'numeroOr'),
             ],
-            'DEVPJ' => [
+            [
+                'labelType'  => 'DEVPJ',
                 'type'       => 'Devis / Pièce(s) jointe(s)',
                 'icon'       => 'fa-solid fa-money-bill-wave',
                 'colorClass' => 'border-left-devpj',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['devPjPath'], 'nomPj'),
             ],
-            'BC'    => [
+            [
+                'labelType'  => 'BC',
                 'type'       => 'Bon de commande',
                 'icon'       => 'fa-solid fa-file-circle-check',
                 'colorClass' => 'border-left-bc',
                 'fichiers'   => $this->normalizePathsForManyFiles($tab['bcPath'], 'numeroBc'),
             ],
-            'FACBL' => [
+            [
+                'labelType'  => 'FACBL',
                 'type'       => 'Facture / Bon de livraison',
                 'icon'       => 'fa-solid fa-file-invoice',
                 'colorClass' => 'border-left-facbl',
-                'fichiers'   => $this->normalizePathsForManyFiles($tab['facblPath'], 'idFacBl'),
+                'fichiers'   => $this->normalizePathsForFacBl($tab['facblPath'], 'nomFichierScannee', 'idFacBl'),
             ],
         ];
     }

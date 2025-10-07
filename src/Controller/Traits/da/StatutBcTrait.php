@@ -90,7 +90,7 @@ trait StatutBcTrait
             return $statutBc;
         }
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
-        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr);
+        $situationCde = $this->daModel->getSituationCde($ref, $numDit, $numDa, $designation, $numeroOr, $statutBc);
 
         $statutDaIntanert = [
             DemandeAppro::STATUT_SOUMIS_ATE,
@@ -106,13 +106,15 @@ trait StatutBcTrait
         $bcExiste = $this->daSoumissionBcRepository->bcExists($numcde);
         $statutSoumissionBc = $em->getRepository(DaSoumissionBc::class)->getStatut($numcde);
 
-        $qte = $this->daModel->getEvolutionQte($numDit, $numDa, $ref, $designation, $numeroOr);
-        // dump($qte);
-        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect);
+        $qte = $achatDirect
+            ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa);
+        [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
 
         $this->updateSituationCdeDansDaAfficher($situationCde, $DaAfficher, $numcde, $infoDaDirect, $achatDirect);
         $this->updateQteCdeDansDaAfficher($qte, $DaAfficher, $infoDaDirect, $achatDirect);
+
 
         $statutBcDw = [
             DaSoumissionBc::STATUT_SOUMISSION,
@@ -122,7 +124,7 @@ trait StatutBcTrait
             DaSoumissionBc::STATUT_REFUSE
         ];
 
-        if (empty($situationCde) && !$achatDirect) {
+        if (empty($situationCde) && !$achatDirect && $DaAfficher->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE) {
             return 'PAS DANS OR';
         }
 
@@ -141,6 +143,7 @@ trait StatutBcTrait
         if ($this->doitSoumettreBc($situationCde, $bcExiste, $statutBc, $statutBcDw, $infoDaDirect, $achatDirect)) {
             return 'A soumettre à validation';
         }
+
 
         if ($this->doitEnvoyerBc($situationCde, $statutBc, $DaAfficher, $statutSoumissionBc, $infoDaDirect, $achatDirect)) {
             return 'A envoyer au fournisseur';
@@ -162,7 +165,7 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        if ($DaAfficher->getBcEnvoyerFournisseur()) {
+        if ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
             return 'BC envoyé au fournisseur';
         }
 
@@ -187,15 +190,17 @@ trait StatutBcTrait
     private function doitGenererBc(array $situationCde, string $statutDa, ?string $statutOr, array $infoDaDirect, bool $achatDirect): bool
     {
         if ($achatDirect) {
+            if ($statutOr === DemandeAppro::STATUT_DW_VALIDEE) {
+                if (empty($infoDaDirect)) {
+                    return true;
+                }
 
-            if (empty($infoDaDirect)) {
-                return false;
+                // Si le numéro de commande est vide
+                $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
+
+                return $numCdeVide;
             }
-
-            // Si le numéro de commande est vide
-            $numCdeVide = empty($infoDaDirect[0]['num_cde'] ?? null);
-
-            return $numCdeVide;
+            return false;
         } else {
 
             $daValide = $statutDa === DemandeAppro::STATUT_VALIDE;
@@ -259,7 +264,7 @@ trait StatutBcTrait
         }
     }
 
-    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect): array
+    private function evaluerQuantites(array $qte, array $infoDaDirect, bool $achatDirect, DaAfficher $DaAfficher): array
     {
         if (empty($qte)) {
             return [false, false, false, false];
@@ -281,11 +286,10 @@ trait StatutBcTrait
         }
 
 
-        $partiellementDispo = $qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0;
-        $completNonLivrer = ($qteDem == $qteALivrer && $qteLivee < $qteDem) ||
-            ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee));
-        $tousLivres = $qteDem == $qteLivee && $qteDem != 0;
-        $partiellementLivre = $qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer);
+        $partiellementDispo = ($qteDem != $qteALivrer && $qteLivee == 0 && $qteALivrer > 0) && $DaAfficher->getEstFactureBlSoumis();
+        $completNonLivrer = (($qteDem == $qteALivrer && $qteLivee < $qteDem) || ($qteALivrer > 0 && $qteDem == ($qteALivrer + $qteLivee))) && $DaAfficher->getEstFactureBlSoumis();
+        $tousLivres = ($qteDem == $qteLivee && $qteDem != 0) && $DaAfficher->getEstFactureBlSoumis();
+        $partiellementLivre = ($qteLivee > 0 && $qteLivee != $qteDem && $qteDem > ($qteLivee + $qteALivrer)) && $DaAfficher->getEstFactureBlSoumis();
 
         return [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre];
     }
@@ -300,20 +304,21 @@ trait StatutBcTrait
                 $qteLivee = 0; //TODO: en attend du decision du client
                 $qteReliquat = (int)$q['qte_en_attente']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             } else {
                 $q = $qte[0];
                 $qteLivee = (int)$q['qte_livree'];
                 $qteReliquat = (int)$q['qte_reliquat']; // quantiter en attente
                 $qteDispo = (int)$q['qte_dispo'];
+                $qteDem = (int)$q['qte_dem'];
             }
 
             $DaAfficher
                 ->setQteEnAttent($qteReliquat)
                 ->setQteLivrer($qteLivee)
                 ->setQteDispo($qteDispo)
+                ->setQteDemIps($qteDem)
             ;
-
-            // dump($DaAfficher);
         }
     }
 

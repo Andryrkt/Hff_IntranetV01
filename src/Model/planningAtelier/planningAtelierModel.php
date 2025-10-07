@@ -40,7 +40,7 @@ class planningAtelierModel extends Model
                     $ressource
                     $section
 
-                    order by   section,numOR,itv,ressource
+                    order by   section,numOR,itv,ressource,nbJour,dateDebut
         ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);

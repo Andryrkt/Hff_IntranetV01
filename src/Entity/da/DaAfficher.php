@@ -205,6 +205,13 @@ class DaAfficher
     private ?int $numeroVersion = 0;
 
     /**
+     * @ORM\Column(type="integer", name="numero_version_or_maj_statut")
+     *
+     * @var integer | null
+     */
+    private ?int $numeroVersionOrMajStatut = 0;
+
+    /**
      * @ORM\Column(type="string", length=50, name="niveau_urgence")
      */
     private ?string $niveauUrgence = null;
@@ -267,6 +274,11 @@ class DaAfficher
     private $dateValidation;
 
     /**
+     * @ORM\Column(type="datetime", name="date_maj_statut_or", nullable=true)
+     */
+    private $dateMajStatutOr;
+
+    /**
      * @ORM\Column(type="boolean", name="est_dalr")
      */
     private bool $estDalr = false;
@@ -315,6 +327,16 @@ class DaAfficher
      * @ORM\Column(type="string", name="deleted_by", nullable=true)
      */
     private ?string $deletedBy = null;
+
+    /**
+     * @ORM\Column(type="boolean", name="est_facture_bl_soumis")
+     */
+    private $estFactureBlSoumis = false;
+
+    /**
+     * @ORM\Column(type="integer", name="qte_dem_ips")
+     */
+    private int $qteDemIps = 0;
 
     /**==============================================================================
      * GETTERS & SETTERS
@@ -1532,6 +1554,106 @@ class DaAfficher
         $this->dateValidation = $dateValidation;
 
         return $this;
+    }
+
+    /**
+     * Get the value of estFactureBlSoumis
+     */
+    public function getEstFactureBlSoumis()
+    {
+        return $this->estFactureBlSoumis;
+    }
+
+    /**
+     * Set the value of estFactureBlSoumis
+     */
+    public function setEstFactureBlSoumis($estFactureBlSoumis): self
+    {
+        $this->estFactureBlSoumis = $estFactureBlSoumis;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateMajStatutOr
+     */
+    public function getDateMajStatutOr()
+    {
+        return $this->dateMajStatutOr;
+    }
+
+    /**
+     * Set the value of dateMajStatutOr
+     *
+     * @return  self
+     */
+    public function setDateMajStatutOr($dateMajStatutOr)
+    {
+        $this->dateMajStatutOr = $dateMajStatutOr;
+
+        return $this;
+    }
+
+    /**
+     * Get | null
+     *
+     * @return  integer
+     */
+    public function getNumeroVersionOrMajStatut()
+    {
+        return $this->numeroVersionOrMajStatut;
+    }
+
+    /**
+     * Set | null
+     *
+     * @param  integer  $numeroVersionOrMajStatut  | null
+     *
+     * @return  self
+     */
+    public function setNumeroVersionOrMajStatut($numeroVersionOrMajStatut)
+    {
+        $this->numeroVersionOrMajStatut = $numeroVersionOrMajStatut;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of qteDemIps
+     */
+    public function getQteDemIps(): int
+    {
+        return $this->qteDemIps;
+    }
+
+    /**
+     * Set the value of qteDemIps
+     */
+    public function setQteDemIps(int $qteDemIps): self
+    {
+        $this->qteDemIps = $qteDemIps;
+
+        return $this;
+    }
+
+    /**
+     * Copie les propriétés pertinentes d'un ancien DaAfficher vers l'objet courant.
+     *
+     * Cela permet de "mettre à jour" l'objet courant avec les valeurs de référence
+     * de l'ancien DaAfficher, par exemple lors d'une rectification ou d'une version précédente.
+     *
+     * @param DaAfficher $oldDaAfficher L'objet source dont les propriétés doivent être copiées.
+     * @return void
+     */
+    public function copyFromOld(DaAfficher $oldDaAfficher): void
+    {
+        $this
+            ->setStatutOr($oldDaAfficher->getStatutOr())
+            ->setNumeroVersionOrMajStatut($oldDaAfficher->getNumeroVersionOrMajStatut())
+            ->setDateValidation($oldDaAfficher->getDateValidation())
+            ->setDateMajStatutOr($oldDaAfficher->getDateMajStatutOr())
+            ->setStatutCde($oldDaAfficher->getStatutCde())
+        ;
     }
 
     public function enregistrerDa(DemandeAppro $da)

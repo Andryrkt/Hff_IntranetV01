@@ -23,6 +23,14 @@ class GeneratePdf
             throw new \Exception("Le fichier source n'existe pas : $sourcePath");
         }
 
+        // Créer le répertoire de destination s'il n'existe pas
+        $destinationDir = dirname($destinationPath);
+        if (!is_dir($destinationDir)) {
+            if (!mkdir($destinationDir, 0755, true)) {
+                throw new \Exception("Impossible de créer le répertoire : $destinationDir");
+            }
+        }
+
         if (!copy($sourcePath, $destinationPath)) {
             throw new \Exception("Impossible de copier le fichier : $sourcePath vers $destinationPath");
         }
@@ -150,7 +158,7 @@ class GeneratePdf
     public function copyToDWDaAValider($numDa)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . "ORDRE_DE_MISSION/$numDa#_a_valider.pdf";
-        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/A valider/$numDa.pdf";
+        $cheminDestinationLocal = $this->baseCheminDuFichier . "da/$numDa/$numDa#_a_valider.pdf";
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
@@ -172,17 +180,25 @@ class GeneratePdf
 
 
     // devis Magasin
-    public function copyToDWDevisMagasin($fileName)
+    public function copyToDWDevisMagasin($fileName, $numeroDevis)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    // bl FUT
-    public function copyToDWBlFut($fileName)
+    // BL - INTERNE FTU
+    public function copyToDWBlFutInterne($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'BON DE SORTIE FTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //FACTURE -BL (clients) FTU
+    public function copyToDWBlFutFactureClient($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BONLIV EXTERNE MAGFTU/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

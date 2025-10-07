@@ -158,7 +158,8 @@ class DaSoumissionBcController extends Controller
 
     private function conditionDeBlocage(DaSoumissionBc $soumissionBc, string $numCde, string $numDa): array
     {
-        $nomdeFichier = $soumissionBc->getPieceJoint1() ?? '';
+        $nomdeFichier = $soumissionBc->getPieceJoint1()->getClientOriginalName();
+        $nomdeFichier = str_replace('BON_DE_COMMANDE', 'BON DE COMMANDE', $nomdeFichier);
         $statut = $this->daSoumissionBcRepository->getStatut($numCde);
 
         //recuperation du numDa dans Informix

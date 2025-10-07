@@ -293,7 +293,7 @@ class GenererPdfOrSoumisAValidation extends GeneratePdf
         $pdf->Cell(0, 6, 'Observation : ', 0, 0, 'L', false, '', 0, false, 'T', 'M');
         $pdf->Ln(5, true);
         $pdf->setFont('helvetica', '', 9);
-        $pdf->MultiCell(164, 100, $ditInsertionOr->getObservation(), 1, '', 0, 0, '', '', true);
+        $pdf->MultiCell(164, 100, $ditInsertionOr->getObservation(), 0, '', 0, 0, '', '', true);
 
         //==========================================================================================================
         //Affichage de l'email

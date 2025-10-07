@@ -75,6 +75,9 @@ class BLSoumissionController extends Controller
         }
 
         try {
+
+            $typeBl = $form->getData()['typeBl'];
+
             // Enregistrement des fichiers
             $nomFichiers = $this->enregistrementFichier($form);
 
@@ -84,14 +87,18 @@ class BLSoumissionController extends Controller
 
             // Création de l'entité
             $cheminEtNomFichier = $this->cheminDeBase . $nomFichiers[0];
-            $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier);
+            $blSoumission = BLSoumissionFactory::createBLSoumission($this->getUser(), $cheminEtNomFichier, $typeBl);
 
             // Sauvegarde
             $this->getEntityManager()->persist($blSoumission);
             $this->getEntityManager()->flush();
 
             //envoie dans DW
-            $this->generatePdfBlFut->copyToDWBlFut($nomFichiers[0]);
+            if ($typeBl === 1) {
+                $this->generatePdfBlFut->copyToDWBlFutInterne($nomFichiers[0]);
+            } else {
+                $this->generatePdfBlFut->copyToDWBlFutFactureClient($nomFichiers[0]);
+            }
 
             // Historisation et notification
             $message = 'Le document est soumis pour validation';

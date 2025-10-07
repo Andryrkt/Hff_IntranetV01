@@ -92,6 +92,50 @@ class ListeDevisMagasinController extends Controller
     }
 
     /**
+     * Récupère le modèle ListeDevisMagasinModel
+     */
+    private function getListeDevisMagasinModel(): ListeDevisMagasinModel
+    {
+        if ($this->listeDevisMagasinModel === null) {
+            $this->listeDevisMagasinModel = $this->getService(ListeDevisMagasinModel::class);
+        }
+        return $this->listeDevisMagasinModel;
+    }
+
+    /**
+     * Récupère l'EntityManager
+     */
+    private function getEntityManagerService(): EntityManagerInterface
+    {
+        if ($this->entityManager === null) {
+            $this->entityManager = $this->getEntityManager();
+        }
+        return $this->entityManager;
+    }
+
+    /**
+     * Récupère le repository DevisMagasinRepository
+     */
+    private function getDevisMagasinRepository(): DevisMagasinRepository
+    {
+        if ($this->devisMagasinRepository === null) {
+            $this->devisMagasinRepository = $this->getEntityManagerService()->getRepository(DevisMagasin::class);
+        }
+        return $this->devisMagasinRepository;
+    }
+
+    /**
+     * Récupère le repository AgenceRepository
+     */
+    private function getAgenceRepository(): AgenceRepository
+    {
+        if ($this->agenceRepository === null) {
+            $this->agenceRepository = $this->getEntityManagerService()->getRepository(\App\Entity\admin\Agence::class);
+        }
+        return $this->agenceRepository;
+    }
+
+    /**
      * @Route("/liste-devis-magasin", name="devis_magasin_liste")
      */
     public function listeDevisMagasin(Request $request)
@@ -217,19 +261,31 @@ class ListeDevisMagasinController extends Controller
 
         // Filtre par date de création (début)
         if (!empty($criteria['dateCreation']['debut'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateDebut = $criteria['dateCreation']['debut'];
-            if ($dateCreation < $dateDebut) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateDebut = $criteria['dateCreation']['debut'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') < $dateDebut->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 
         // Filtre par date de création (fin)
         if (!empty($criteria['dateCreation']['fin'])) {
-            $dateCreation = new \DateTime($devisIp['date_creation']);
-            $dateFin = $criteria['dateCreation']['fin'];
-            if ($dateCreation > $dateFin) {
-                return false;
+            try {
+                $dateCreation = new \DateTime($devisIp['date_creation']);
+                $dateFin = $criteria['dateCreation']['fin'];
+                // Comparer seulement la partie date (sans l'heure)
+                if ($dateCreation->format('Y-m-d') > $dateFin->format('Y-m-d')) {
+                    return false;
+                }
+            } catch (\Exception $e) {
+                // Si la date n'est pas valide, ignorer ce filtre
+                return true;
             }
         }
 

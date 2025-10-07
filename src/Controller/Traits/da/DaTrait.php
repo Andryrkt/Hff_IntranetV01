@@ -57,10 +57,9 @@ trait DaTrait
     /**
      * Permet de calculer le nombre de jours disponibles avant la date de fin souhaitée
      *
-     * @param DemandeApproL $dal
      * @return int Nombre de jours disponibles (positif si la date n'est pas encore passée, négatif si elle l'est)
      */
-    public function getJoursRestants(DemandeApproL $dal): int
+    public function getJoursRestants($dal): int
     {
         $dateFin = clone $dal->getDateFinSouhaite();
         $dateFin->setTime(0, 0, 0);

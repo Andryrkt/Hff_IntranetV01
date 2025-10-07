@@ -2,10 +2,8 @@
 
 namespace App\Controller\Traits\da\creation;
 
-use App\Entity\da\DaSoumisAValidation;
 use App\Entity\da\DemandeAppro;
 use App\Service\genererPdf\GenererPdfDaDirect;
-use DateTime;
 
 trait DaNewDirectTrait
 {
@@ -50,40 +48,5 @@ trait DaNewDirectTrait
         ;
 
         return $demandeAppro;
-    }
-
-    /**
-     * Ajoute les données d'une Demande d'Achat direct dans la table `DaSoumisAValidation`
-     *
-     * @param DemandeAppro $demandeAppro  Objet de la demande d'achat direct à traiter
-     */
-    private function ajouterDansDaSoumisAValidation(DemandeAppro $demandeAppro): void
-    {
-        $daSoumisAValidation = new DaSoumisAValidation();
-
-        $daSoumisAValidation
-            ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-            ->setNumeroVersion(1)
-            ->setStatut($demandeAppro->getStatutDal())
-            ->setDateSoumission(new DateTime())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-        ;
-
-        $this->getEntityManager()->persist($daSoumisAValidation);
-        $this->getEntityManager()->flush();
-    }
-
-    /** 
-     * Fonction pour créer le PDF sans Dit à valider DW
-     * 
-     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
-     */
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro)
-    {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
-        $dals = $demandeAppro->getDAL();
-
-        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals, $this->getUserMail());
-        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

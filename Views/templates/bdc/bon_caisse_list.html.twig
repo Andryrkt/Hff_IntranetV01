@@ -38,9 +38,9 @@
 
             {% if demande.statutDemande | trim == 'VALIDEE' %}
             {% set classeStatut = 'bg-success' %}
-            {% elseif demande.statutDemande | trim == 'EN ATTENTE' %}
+            {% elseif demande.statutDemande | trim == 'A valider chef de service' %}
             {% set classeStatut = 'bg-warning' %}
-            {% elseif demande.statutDemande | trim == 'REJETEE' %}
+            {% elseif demande.statutDemande | trim == 'Refusé chef de service' %}
             {% set classeStatut = 'bg-danger' %}
             {% elseif demande.statutDemande | trim == 'EN COURS' %}
             {% set classeStatut = 'bg-info' %}

@@ -447,7 +447,7 @@ class MenuService
         /** =====================sortie de pieces / lubs========================= */
         if ($this->getEstAdmin() || in_array(Application::ID_BDL, $this->getApplicationIds())) { // BDL
             $subitems[] = $this->createSubMenuItem(
-                'SORTIE DE PIECES / LUBS',
+                'SORTIE DE PIECES',
                 'arrow-left',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'bl_soumission'),

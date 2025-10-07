@@ -5,8 +5,8 @@ namespace App\Controller\Traits\da;
 use App\Model\da\DaModel;
 use App\Entity\admin\Agence;
 use App\Entity\da\DaAfficher;
+use App\Entity\da\DaSearch;
 use App\Entity\da\DemandeAppro;
-use App\Entity\da\DemandeApproL;
 use App\Entity\da\DaSoumissionBc;
 use App\Repository\admin\AgenceRepository;
 use App\Entity\dit\DitOrsSoumisAValidation;
@@ -43,7 +43,17 @@ trait DaListeTrait
         $em = $this->getEntityManager();
 
 
-        //----------------------------------------------------------------------------------------------------
+        $this->daModel = new DaModel();
+        $this->dwModel = new DossierInterventionAtelierModel();
+        $this->userDataService = new UserDataService($em);
+        $this->agenceRepository = $em->getRepository(Agence::class);
+        $this->daSoumissionBcRepository = $em->getRepository(DaSoumissionBc::class);
+        $this->ditOrsSoumisAValidationRepository = $em->getRepository(DitOrsSoumisAValidation::class);
+    }
+    //=====================================================================================
+
+    private function initStyleStatuts()
+    {
         $this->styleStatutDA = [
             DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
             DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
@@ -64,6 +74,10 @@ trait DaListeTrait
             DitOrsSoumisAValidation::STATUT_REFUSE_CLIENT              => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_REFUSE_DT                  => 'bg-or-non-valide',
             DitOrsSoumisAValidation::STATUT_SOUMIS_A_VALIDATION        => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_A_VALIDE                           => 'bg-or-soumis-validation',
+            DemandeAppro::STATUT_DW_VALIDEE                            => 'bg-or-valide',
+            DemandeAppro::STATUT_DW_A_MODIFIER                         => 'bg-modif-demande-client',
+            DemandeAppro::STATUT_DW_REFUSEE                            => 'bg-or-non-valide',
         ];
         $this->styleStatutBC = [
             DaSoumissionBc::STATUT_A_GENERER                => 'bg-bc-a-generer',
@@ -97,18 +111,16 @@ trait DaListeTrait
     /**
      * Met à jour le champ `joursDispo` pour chaque DAL sauf si elle est déjà validée.
      *
-     * @param iterable<DemandeApproL> $dalDernieresVersions
+     * @param DaAfficher $daAfficher
      */
-    private function ajoutNbrJourRestant($dalDernieresVersions)
+    private function ajoutNbrJourRestant($daAfficher)
     {
-        foreach ($dalDernieresVersions as $dal) {
-            if ($dal->getStatutDal() != DemandeAppro::STATUT_VALIDE) { // si le statut de la DAL est différent de "Bon d’achats validé" 
-                $dal->setJoursDispo($this->getJoursRestants($dal));
-            }
+        if (!in_array($daAfficher->getStatutCde(), [DaSoumissionBc::STATUT_COMPLET_NON_LIVRE, DaSoumissionBc::STATUT_TOUS_LIVRES])) {
+            $daAfficher->setJoursDispo($this->getJoursRestants($daAfficher));
         }
     }
 
-    public function getPaginationData(array $criteria, int $page, int $limit, ?string $sortField, ?string $sortDirection): array
+    public function getPaginationData(array $criteria, int $page, int $limit): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
         $userConnecter = $this->getUser();
@@ -119,7 +131,7 @@ trait DaListeTrait
         $daAffichers = $paginationData['data'];
 
         // mise à jours des donner dans la base de donner
-        $this->quelqueModifictionDansDatabase($daAffichers, $sortField, $sortDirection);
+        $this->quelqueModifictionDansDatabase($daAffichers);
 
         // Vérification du verrouillage des DA et Retourne les DA filtrées
         $paginationData['data'] = $this->appliquerVerrouillageSelonProfil($daAffichers, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier());
@@ -127,25 +139,14 @@ trait DaListeTrait
         return $paginationData;
     }
 
-    private function quelqueModifictionDansDatabase(array $datas, ?string $sortField, ?string $sortDirection): void
+    private function quelqueModifictionDansDatabase(array $datas): void
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            if (!$sortField && !$sortDirection) {
-                $this->modificationDateRestant($data, $em);
-            }
+            $this->ajoutNbrJourRestant($data);
             $this->modificationStatutBC($data, $em);
         }
         $em->flush();
-    }
-
-    /** 
-     * Permet de calculer le nombre de jours restants pour chaque DAL
-     */
-    private function modificationDateRestant(DaAfficher $data, $em): void
-    {
-        $this->ajoutNbrJourRestant($data);
-        $em->persist($data);
     }
 
     /**
@@ -199,6 +200,8 @@ trait DaListeTrait
 
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
+        $this->initStyleStatuts(); // Initialiser le style pour les statuts
+
         foreach ($data as $item) {
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
@@ -215,6 +218,13 @@ trait DaListeTrait
             $achatDirect = $item->getAchatDirect();
             $urls = $this->buildItemUrls($item);
 
+            // Statut OR | Statut DocuWare
+            $statutOR = $item->getStatutOr();
+            if (!$achatDirect && !empty($statutOR)) {
+                $statutOR = "OR - $statutOR";
+            }
+
+
             // Tout regrouper
             $datasPrepared[] = [
                 'dit'                 => $item->getDit(),
@@ -227,7 +237,7 @@ trait DaListeTrait
                 'demandeur'           => $item->getDemandeur(),
                 'dateDemande'         => $item->getDateDemande() ? $item->getDateDemande()->format('d/m/Y') : '',
                 'statutDal'           => $item->getStatutDal(),
-                'statutOr'            => $item->getStatutOr(),
+                'statutOr'            => $statutOR,
                 'statutCde'           => $item->getStatutCde(),
                 'datePlannigOr'       => $achatDirect ? $safeIconBan : ($item->getDatePlannigOr() ? $item->getDatePlannigOr()->format('d/m/Y') : ''),
                 'nomFournisseur'      => $item->getNomFournisseur(),
@@ -296,5 +306,12 @@ trait DaListeTrait
         );
 
         return $urls;
+    }
+
+    public function initialisationRechercheDa(DaSearch $daSearch)
+    {
+        $criteria = $this->getSessionService()->get('criteria_search_list_da', []) ?? [];
+
+        $daSearch->toObject($criteria);
     }
 }

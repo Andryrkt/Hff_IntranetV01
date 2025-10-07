@@ -3,6 +3,7 @@
 namespace App\Controller\da\ListeCdeFrn;
 
 use Exception;
+use App\Entity\da\DaAfficher;
 use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaSoumissionFacBl;
@@ -85,33 +86,50 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
+                /** ENREGISTREMENT DE FICHIER */
+                $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
-            /** ENREGISTREMENT DE FICHIER */
-            $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
+                //numeroversion max
+                $numeroVersionMax = $this->autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
+                /** FUSION DES PDF */
+                $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
+                $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
+                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
+                $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
+                $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
-            //numeroversion max
-            $numeroVersionMax = $this->autoIncrement($this->daSoumissionFacBlRepository->getNumeroVersionMax($numCde));
-            /** FUSION DES PDF */
-            $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
-            $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-            $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
-            $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
-            $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
+                /** AJOUT DES INFO NECESSAIRE */
+                $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $numOr);
 
-            /** AJOUT DES INFO NECESSAIRE */
-            $soumissionFacBl = $this->ajoutInfoNecesaireSoumissionFacBl($numCde, $numDa, $soumissionFacBl, $nomPdfFusionner, $numeroVersionMax, $numOr);
+                /** ENREGISTREMENT DANS LA BASE DE DONNEE */
+                $this->getEntityManager()->persist($soumissionFacBl);
+                $this->getEntityManager()->flush();
 
-            /** ENREGISTREMENT DANS LA BASE DE DONNEE */
-            $this->getEntityManager()->persist($soumissionFacBl);
-            $this->getEntityManager()->flush();
+                /** COPIER DANS DW */
+                $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
-            /** COPIER DANS DW */
-            $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
+                /** MODIFICATION DA AFFICHER */
+                $this->modificationDaAfficher($numDa, $numeroVersionMax);
 
-            /** HISTORISATION */
-            $message = 'Le document est soumis pour validation';
-            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
+                /** HISTORISATION */
+                $message = 'Le document est soumis pour validation';
+                $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn', true);
+            }
         }
+    }
+
+    /**
+     * Modification du colonne est_facture_bl_soumis dans la table da_afficher
+     *
+     * @param string $numDa
+     * @param int $numeroVersionMax
+     */
+    private function modificationDaAfficher(string $numDa, int $numeroVersionMax): void
+    {
+        $daAfficher = $this->getEntityManager()->getRepository(DaAfficher::class)->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
+        $daAfficher->setEstFactureBlSoumis(true);
+        $this->getEntityManager()->flush();
     }
 
     private function ajoutInfoNecesaireSoumissionFacBl(string $numCde, string $numDa, DaSoumissionFacBl $soumissionFacBl, string $nomPdfFusionner, int $numeroVersionMax, string $numOr): DaSoumissionFacBl
@@ -242,5 +260,32 @@ class DaSoumissionFacBlController extends Controller
         }
 
         return $filePath;
+    }
+
+    private function conditionDeBlocage(DaSoumissionFacBl $soumissionFacBl): array
+    {
+        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+
+        return [
+            'nomDeFichier' => preg_match('/[#\-_~]/', $nomDeFichier), // contient au moins un des caractères
+        ];
+    }
+
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde): bool
+    {
+        $conditions = $this->conditionDeBlocage($soumissionFacBl);
+        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+        $okey = false;
+
+        if ($conditions['nomDeFichier']) {
+            $message = "Le nom de fichier ('{$nomDeFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+
+            $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
+            $okey = false;
+        } else {
+            $okey = true; // Aucune condition de blocage n'est remplie
+        }
+
+        return $okey;
     }
 }

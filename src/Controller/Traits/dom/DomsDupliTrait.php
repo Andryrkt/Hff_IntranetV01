@@ -40,7 +40,7 @@ trait DomsDupliTrait
         $dom->setMatricule($form1Data['matricule']);
         $dom->setSalarier($form1Data['salarier']);
         $dom->setSousTypeDocument($form1Data['sousTypeDocument']);
-        $dom->setCategorie($form1Data['categorie']);
+        $dom->setCategorie($form1Data['categoryId']);
         $dom->setDateDemande(new \DateTime());
         if ($form1Data['salarier'] === "TEMPORAIRE") {
             $dom->setNom($form1Data['nom']);
@@ -71,7 +71,7 @@ trait DomsDupliTrait
 
         //initialisation site
 
-        $criteria = $this->criteria($form1Data, $em);
+        $criteria = $this->criteria($dom, $em, $form1Data);
         $indemites = $em->getRepository(Indemnite::class)->findBy($criteria);
         $sites = [];
         foreach ($indemites as $key => $value) {
@@ -86,10 +86,10 @@ trait DomsDupliTrait
         $dom->setRmq($criteria['rmq']);
     }
 
-    private function criteria($dom, $em)
+    private function criteria($dom, $em, $form1Data)
     {
         $sousTypedocument = $form1Data['sousTypeDocument'];
-        $catg = $form1Data['categorie'];
+        $catg = $form1Data['categoryId'];
         $Code_AgenceService_Sage = $this->badm->getAgence_SageofCours($this->getSessionService()->get('user'));
         $CodeServiceofCours = $this->badm->getAgenceServiceIriumofcours($Code_AgenceService_Sage, $this->getSessionService()->get('user'));
 
@@ -191,8 +191,8 @@ trait DomsDupliTrait
         }
 
         $sousTypeDocument = $em->getRepository(SousTypeDocument::class)->find($form1Data['sousTypeDocument']->getId());
-        if (isset($form1Data['categorie'])) {
-            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categorie']->getId());
+        if (isset($form1Data['categoryId'])) {
+            $categoryId = $em->getRepository(Catg::class)->find($form1Data['categoryId']->getId());
         } else {
             $categoryId = null;
         }

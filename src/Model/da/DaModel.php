@@ -201,10 +201,20 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statutCde = [
+            'A soumettre à validation',
+            'A envoyer au fournisseur',
+            'Partiellement dispo',
+            'Complet non livré',
+            'Tous livrés',
+            'Partiellement livré',
+            'BC envoyé au fournisseur'
+        ];
 
         $statement = "SELECT DISTINCT
                         slor_natcm,
@@ -233,7 +243,7 @@ class DaModel extends Model
                     --  ON sitv.sitv_numor = slor.slor_numor 
                     --AND sitv.sitv_soc = slor.slor_soc 
                     --AND sitv.sitv_succ = slor.slor_succ 
-                    -- AND slor.slor_soc = 'HF'getSituationCde
+                    -- AND slor.slor_soc = 'HF'
 
                     -- jointure pour natcm = 'C'
                     LEFT JOIN Informix.frn_cde c
@@ -254,10 +264,18 @@ class DaModel extends Model
                         AND slor.slor_typlig = 'P'
                         -- AND slor.slor_refp NOT LIKE 'PREST%' selon la demande hoby rahalahy 04/08/2025
                         and slor_numor = '$numOr'
-                        and TRIM(slor_refp) LIKE '%$ref%'
-                                    and TRIM(slor.slor_desi) like '%$designation%'
+                        and TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) LIKE '%$ref%'
+                                    and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) like '%$designation%'
                                     and seor.seor_refdem = '$numDit'
             ";
+
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND (
+                            (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                            OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                            )";
+        }
+
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
@@ -312,18 +330,29 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQte(?string $numDit, string $numDa, string $ref = '', string $designation = '', ?string $numOr)
+    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
     {
         if (!$numOr) return [];
 
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+
+        $statutCde = [
+            'A soumettre à validation',
+            'A envoyer au fournisseur',
+            'Partiellement dispo',
+            'Complet non livré',
+            'Tous livrés',
+            'Partiellement livré',
+            'BC envoyé au fournisseur'
+        ];
 
         $statement = " SELECT 
 
                 slor_constp as cst,
                 slor_natcm,
                 TRIM(slor_refp) as reference,
-                                TRIM(slor_desi) as designation,    
+                TRIM(slor_desi) as designation,    
                 ROUND(
                         CASE
                             WHEN slor_typlig = 'P' THEN (
@@ -376,9 +405,45 @@ class DaModel extends Model
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
                                 and seor.seor_refdem = '$numDit'
-                                AND TRIM(slor.slor_refp) = '$ref'
-                        and TRIM(slor.slor_desi) = '$designation'
+                                AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
+                        and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
+
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND (
+                    (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                    OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                    )";
+        }
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    public function getEvolutionQteDaDirect(string $numCde, string $ref = '', string $designation = '')
+    {
+        if (!$numCde) return [];
+
+        $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
+
+        $statement = " SELECT  
+                fcdl_constp as cst, 
+                (
+                    select fcde_numcde from frn_cde where fcde_numcde = c.fcdl_numcde
+                ) as num_cde,
+                TRIM(fcdl_refp) as reference,
+                TRIM(fcdl_desi) as designation, 
+                ROUND(fcdl_qte) as qte_dem,
+                ROUND(fcdl_qteli) as qte_receptionnee 
+                    FROM frn_cdl c 
+                WHERE fcdl_constp ='ZDI' 
+                AND fcdl_numcde = '$numCde'
+                AND fcdl_refp = '$ref'
+                AND fcdl_desi = '$designation'
+        ";
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -397,5 +462,27 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'num_or');
+    }
+
+    /**
+     * recupère le numéro et le nom du fournissuer
+     * 
+     * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
+     * en utilisant comme jointure le numero du fournissuer
+     * 
+     */
+    public function getNumAndNomFournisseurSelonReference(string $numCde, string $ref): array
+    {
+        $statement = " SELECT fcdl_numfou as num_fournisseur, 
+                fbse_nomfou as nom_fournisseur
+            from informix.frn_cdl 
+            inner join informix.frn_bse on fcdl_numfou = fbse_numfou 
+            where fcdl_numcde ='$numCde' and fcdl_refp ='$ref'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
     }
 }

@@ -359,10 +359,13 @@ class DitRepository extends EntityRepository
                 ->setParameter('numOr', $ditSearch->getNumOr());
         }
 
-        //filtre selon le numero Or
+        //filtre selon le numero Or mais pour le elseif filtre tous les listes de ne pas afficher les statuts réfusé
         if (!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr = :statutOr')
                 ->setParameter('statutOr',  $ditSearch->getStatutOr());
+        } elseif (empty($ditSearch->getNumOr()) && empty($ditSearch->getNumDevis()) && empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.statutOr NOT LIKE :statutRefuser')
+                ->setParameter('statutRefuser',  'Refusé%');
         }
 
         //filtre selon le categorie de demande

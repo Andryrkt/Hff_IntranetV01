@@ -15,12 +15,16 @@ class DevisMagasin
 {
     use DateTrait;
 
-    public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
     public const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
-    public const STATUT_PRIX_VALIDER_MAGASIN = 'Prix validé magasin';
-    public const STATUT_PRIX_REFUSE_MAGASIN = 'Prix refusé magasin';
-    public const STATUT_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_PRIX_VALIDER_TANA = 'Prix validé - devis à envoyer au client (si Tana)';
+    public const STATUT_PRIX_VALIDER_AGENCE = 'Prix validé - devis à soumettre (si agence)';
+    public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client (si Tana)';
+    public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre (si agence)';
     public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
+    public const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
+    public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';
+    public const STATUT_ENVOYER_CLIENT = 'Envoyé au client';
+    public const STATUT_CLOTURER_A_MODIFIER = 'Cloturé - A modifier';
 
     /**
      * @ORM\Id
@@ -122,6 +126,8 @@ class DevisMagasin
     private int $sommeNumeroLignes;
 
     private $pieceJoint01;
+
+    private $pieceJoint2;
 
     /**
      * @ORM\Column(type="datetime", name="date_pointage", nullable=true)
@@ -452,6 +458,24 @@ class DevisMagasin
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint2
+     */
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of pieceJoint2
+     */
+    public function setPieceJoint2($pieceJoint2): self
+    {
+        $this->pieceJoint2 = $pieceJoint2;
 
         return $this;
     }

@@ -6,11 +6,8 @@ use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\da\DaSoumisAValidation;
-use App\Service\autres\VersionService;
 use App\Repository\da\DaObservationRepository;
 use App\Service\genererPdf\GenererPdfDaDirect;
-use App\Repository\da\DaSoumisAValidationRepository;
 
 trait DaEditDirectTrait
 {
@@ -27,7 +24,6 @@ trait DaEditDirectTrait
         $em = $this->getEntityManager();
         
         $this->daObservationRepository = $em->getRepository(DaObservation::class);
-        $this->daSoumisAValidationRepository = $em->getRepository(DaSoumisAValidation::class);
     }
     //==================================================================================================
 
@@ -84,31 +80,6 @@ trait DaEditDirectTrait
             $dalr->setStatutDal($statut);
             $em->persist($dalr);
         }
-    }
-
-    /**
-     * Ajoute les données d'une Demande d'Achat direct dans la table `DaSoumisAValidation`
-     *
-     * @param DemandeAppro $demandeAppro  Objet de la demande d'achat direct à traiter
-     */
-    private function ajouterDansDaSoumisAValidation(DemandeAppro $demandeAppro): void
-    {
-        $daSoumisAValidation = new DaSoumisAValidation();
-
-        // Récupère le dernier numéro de version existant pour cette demande d'achat
-        $numeroVersionMax = $this->daSoumisAValidationRepository->getNumeroVersionMax($demandeAppro->getNumeroDemandeAppro());
-        $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
-
-        $daSoumisAValidation
-            ->setNumeroDemandeAppro($demandeAppro->getNumeroDemandeAppro())
-            ->setNumeroVersion($numeroVersion)
-            ->setStatut($demandeAppro->getStatutDal())
-            ->setDateSoumission(new DateTime())
-            ->setUtilisateur($demandeAppro->getDemandeur())
-        ;
-
-        $this->getEntityManager()->persist($daSoumisAValidation);
-        $this->getEntityManager()->flush();
     }
 
     /** 
