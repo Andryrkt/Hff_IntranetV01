@@ -86,7 +86,8 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
+            $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $nomOriginalFichier)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -95,7 +96,7 @@ class DaSoumissionFacBlController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
+                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -271,14 +272,14 @@ class DaSoumissionFacBlController extends Controller
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $nomOriginalFichier): bool
     {
         $conditions = $this->conditionDeBlocage($soumissionFacBl);
-        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
-            $message = "Le nom de fichier ('{$nomDeFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;
