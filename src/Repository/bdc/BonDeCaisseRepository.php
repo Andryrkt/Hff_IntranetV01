@@ -122,4 +122,21 @@ class BonDeCaisseRepository extends EntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * recupérer tous les statuts 
+     * 
+     * cette methode recupère tous les statuts DISTINCT dans le table demande_bon_de_caisse
+     * et le mettre en ordre ascendante
+     * 
+     * @return array
+     */
+    public function getStatut(): array
+    {
+        return $this->createQueryBuilder('b')
+            ->select('DISTINCT b.statutDemande')
+            ->orderBy('b.statutDemande', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

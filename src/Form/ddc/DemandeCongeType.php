@@ -185,7 +185,7 @@ class DemandeCongeType extends AbstractType
 
     private function getStatutChoicesFromDatabase(EntityManagerInterface $em): array
     {
-        // Récupération des statuts depuis la table Statut_demande
+        // Récupération des statuts depuis la table demande_de_conge
         $statuts = $em->getRepository(DemandeConge::class)->getStatut();
         $choices = [];
         $choices = array_column($statuts, 'statutDemande', 'statutDemande');
