@@ -453,7 +453,7 @@ class DitRepository extends EntityRepository
         }
 
         //filtre selon le section support 3
-        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        $sectionSupport3 = $ditSearch->getSectionSupport3();
         if (!empty($sectionSupport3)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();
