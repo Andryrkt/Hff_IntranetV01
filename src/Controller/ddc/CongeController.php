@@ -162,6 +162,10 @@ class CongeController extends Controller
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
         $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options);
 
+
+
+
+
         // Formatage des critères pour l'affichage
         $criteriaTab = $congeSearch->toArray();
         $criteriaTab['statutDemande'] = $criteriaTab['statutDemande'] ?? null;
@@ -178,6 +182,12 @@ class CongeController extends Controller
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
+        
+        // ajout de agence service code dans le donnée à afficher
+        foreach ($paginationData['data'] as $key => $value) {
+            $codeAgenceService = $this->getCodeAgenceService($value->getAgenceService());
+            $value->setCodeAgenceService($codeAgenceService);
+        }
 
         // Affichage du template
         return $this->render(
@@ -193,6 +203,13 @@ class CongeController extends Controller
         );
     }
 
+    private function getCodeAgenceService(string $agenceServiceSage)
+    {
+        $agenceServiceIrium = $this->getEntityManager()
+            ->getRepository(AgenceServiceIrium::class)
+            ->findOneBy(["service_sage_paie" => $agenceServiceSage]);
+        return $agenceServiceIrium ? $agenceServiceIrium->getAgenceips() . '-' . $agenceServiceIrium->getServiceips() : null;
+    }
 
     private function getAgenceServiceSage(string $codeAgence, string $codeService): ?string
     {

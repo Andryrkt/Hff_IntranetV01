@@ -102,6 +102,8 @@ class DemandeConge
      */
     private ?string $pdfDemande = null;
 
+    private ?string $codeAgenceService;
+
     // Getters et Setters (inchangés)
     public function getId(): ?int
     {
@@ -258,6 +260,24 @@ class DemandeConge
     public function setPdfDemande(?string $pdfDemande): self
     {
         $this->pdfDemande = $pdfDemande;
+        return $this;
+    }
+
+    /**
+     * Get the value of codeAgenceService
+     */
+    public function getCodeAgenceService(): ?string
+    {
+        return $this->codeAgenceService;
+    }
+
+    /**
+     * Set the value of codeAgenceService
+     */
+    public function setCodeAgenceService(?string $codeAgenceService): self
+    {
+        $this->codeAgenceService = $codeAgenceService;
+
         return $this;
     }
 
