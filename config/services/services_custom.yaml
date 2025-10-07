@@ -167,17 +167,36 @@ services:
             $email: 'noreply@example.com'
         public: false
 
-    # Service DevisMagasinValidationVdService - configuration explicite pour éviter l'autowiring
-    App\Service\magasin\devis\DevisMagasinValidationVdService:
+    # Paramètre partagé pour la validation de numéro de devis magasin
+    App\Service\magasin\devis\Validator\DevisMagasinFileValidator:
         arguments:
             $expectedNumeroDevis: 'DEV'
         public: false
 
-    # Service DevisMagasinValidationVpService - configuration explicite pour éviter l'autowiring
-    App\Service\magasin\devis\DevisMagasinValidationVpService:
+    App\Service\magasin\devis\Validator\DevisMagasinVpFileValidator:
         arguments:
             $expectedNumeroDevis: 'DEV'
         public: false
+
+    App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator:
+        arguments:
+            $expectedNumeroDevis: 'DEV'
+        public: false
+
+    App\Service\magasin\devis\Validator\DevisMagasinValidationVpOrchestrator:
+        arguments:
+            $expectedNumeroDevis: 'DEV'
+        public: false
+
+    # Les services suivants ont été retirés car les classes référencées n'existent pas
+    # App\Service\magasin\devis\DevisMagasinValidationVdService:
+    #     arguments:
+    #         $expectedNumeroDevis: 'DEV'
+    #     public: false
+    # App\Service\magasin\devis\DevisMagasinValidationVpService:
+    #     arguments:
+    #         $expectedNumeroDevis: 'DEV'
+    #     public: false
 
     # Service FileReaderModel - configuration explicite pour éviter l'autowiring
     App\Model\FileReaderModel:

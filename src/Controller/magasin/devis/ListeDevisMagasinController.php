@@ -94,46 +94,7 @@ class ListeDevisMagasinController extends Controller
     /**
      * Récupère le modèle ListeDevisMagasinModel
      */
-    private function getListeDevisMagasinModel(): ListeDevisMagasinModel
-    {
-        if ($this->listeDevisMagasinModel === null) {
-            $this->listeDevisMagasinModel = $this->getService(ListeDevisMagasinModel::class);
-        }
-        return $this->listeDevisMagasinModel;
-    }
 
-    /**
-     * Récupère l'EntityManager
-     */
-    private function getEntityManagerService(): EntityManagerInterface
-    {
-        if ($this->entityManager === null) {
-            $this->entityManager = $this->getEntityManager();
-        }
-        return $this->entityManager;
-    }
-
-    /**
-     * Récupère le repository DevisMagasinRepository
-     */
-    private function getDevisMagasinRepository(): DevisMagasinRepository
-    {
-        if ($this->devisMagasinRepository === null) {
-            $this->devisMagasinRepository = $this->getEntityManagerService()->getRepository(DevisMagasin::class);
-        }
-        return $this->devisMagasinRepository;
-    }
-
-    /**
-     * Récupère le repository AgenceRepository
-     */
-    private function getAgenceRepository(): AgenceRepository
-    {
-        if ($this->agenceRepository === null) {
-            $this->agenceRepository = $this->getEntityManagerService()->getRepository(\App\Entity\admin\Agence::class);
-        }
-        return $this->agenceRepository;
-    }
 
     /**
      * @Route("/liste-devis-magasin", name="devis_magasin_liste")

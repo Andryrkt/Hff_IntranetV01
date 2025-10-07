@@ -3,7 +3,7 @@ essential_routes:
   # Navigation principale
   login:
     path: /login
-    controller: App\Controller\AuthentificationController::login
+    controller: App\Controller\Authentification::affichageSingnin
     
   profil_acceuil:
     path: /
@@ -11,11 +11,11 @@ essential_routes:
     
   logout:
     path: /logout
-    controller: App\Controller\AuthentificationController::logout
+    controller: App\Controller\Authentification::deconnexion
     
   auth_deconnexion:
     path: /auth/deconnexion
-    controller: App\Controller\AuthentificationController::logout
+    controller: App\Controller\Authentification::deconnexion
 
 # Modules fonctionnels critiques
 functional_routes:
