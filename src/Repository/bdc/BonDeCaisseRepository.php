@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repository\bdc;
 
 use Doctrine\ORM\EntityRepository;
@@ -14,16 +15,16 @@ class BonDeCaisseRepository extends EntityRepository
         array $options
     ): array {
         $queryBuilder = $this->createQueryBuilder('b');
-        
+
         if ($bonDeCaisse->getNumeroDemande()) {
             $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
                 ->setParameter('numeroDemande', $bonDeCaisse->getNumeroDemande());
         }
-        
+
         // Filtrer par plage de date de demande
         if ($bonDeCaisse->getDateDemande()) {
             $dateDemandeFin = $options['dateDemandeFin'] ?? null;
-            
+
             if ($dateDemandeFin) {
                 // Si on a une date de fin, on filtre sur la plage
                 $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
@@ -35,48 +36,41 @@ class BonDeCaisseRepository extends EntityRepository
                     ->setParameter('dateDemande', $bonDeCaisse->getDateDemande());
             }
         }
-        
+
         // Filtrer par agence et service
-        if ($bonDeCaisse->getAgenceDebiteur()) {
+        if ($bonDeCaisse->getAgenceDebiteur() && isset($options['service']) && $options['service']) {
             $queryBuilder->andWhere('b.agenceDebiteur = :agenceDebiteur')
-                ->setParameter('agenceDebiteur', $bonDeCaisse->getAgenceDebiteur());
-        }
-        
-        // Filtrer par service si présent dans les options
-        if (isset($options['service']) && $options['service']) {
-            $queryBuilder->andWhere('b.serviceDebiteur = :serviceDebiteur')
+                ->andWhere('b.serviceDebiteur = :serviceDebiteur')
+                ->setParameter('agenceDebiteur', $bonDeCaisse->getAgenceDebiteur())
                 ->setParameter('serviceDebiteur', $options['service']);
         }
-        
+
+
+
         // Filtrer par caisse de retrait
         if ($bonDeCaisse->getCaisseRetrait()) {
             $queryBuilder->andWhere('b.caisseRetrait = :caisseRetrait')
                 ->setParameter('caisseRetrait', $bonDeCaisse->getCaisseRetrait());
         }
-        
+
         // Filtrer par type de paiement
         if ($bonDeCaisse->getTypePaiement()) {
             $queryBuilder->andWhere('b.typePaiement = :typePaiement')
                 ->setParameter('typePaiement', $bonDeCaisse->getTypePaiement());
         }
-        
+
         // Filtrer par retrait lié
         if ($bonDeCaisse->getRetraitLie()) {
             $queryBuilder->andWhere('b.retraitLie = :retraitLie')
                 ->setParameter('retraitLie', $bonDeCaisse->getRetraitLie());
         }
-        
+
         // Filtrer par statut
         if ($bonDeCaisse->getStatutDemande()) {
             $queryBuilder->andWhere('b.statutDemande = :statutDemande')
                 ->setParameter('statutDemande', $bonDeCaisse->getStatutDemande());
         }
 
-        // Filtrer par agences autorisées si nécessaire
-        if (isset($options['idAgence']) && !empty($options['idAgence'])) {
-            $queryBuilder->andWhere('b.agenceDebiteur IN (:idAgence)')
-                ->setParameter('idAgence', $options['idAgence']);
-        }
 
         $query = $queryBuilder
             ->orderBy('b.id', 'DESC')
@@ -95,21 +89,21 @@ class BonDeCaisseRepository extends EntityRepository
             'totalItems' => $totalItems
         ];
     }
-    
+
     public function findAndFilteredExcel(BonDeCaisse $bonDeCaisse, array $options): array
     {
         $queryBuilder = $this->createQueryBuilder('b');
-        
+
         // Appliquer les mêmes filtres que pour la pagination
         if ($bonDeCaisse->getNumeroDemande()) {
             $queryBuilder->andWhere('b.numeroDemande = :numeroDemande')
                 ->setParameter('numeroDemande', $bonDeCaisse->getNumeroDemande());
         }
-        
+
         // Filtrer par plage de date de demande
         if ($bonDeCaisse->getDateDemande()) {
             $dateDemandeFin = $options['dateDemandeFin'] ?? null;
-            
+
             if ($dateDemandeFin) {
                 $queryBuilder->andWhere('b.dateDemande BETWEEN :dateDemande AND :dateDemandeFin')
                     ->setParameter('dateDemande', $bonDeCaisse->getDateDemande())
@@ -119,10 +113,10 @@ class BonDeCaisseRepository extends EntityRepository
                     ->setParameter('dateDemande', $bonDeCaisse->getDateDemande());
             }
         }
-        
+
         // Autres filtres identiques à findPaginatedAndFiltered
         // ...
-        
+
         return $queryBuilder
             ->orderBy('b.id', 'DESC')
             ->getQuery()
