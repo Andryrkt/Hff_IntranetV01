@@ -325,6 +325,8 @@ class CongeController extends Controller
 
     /**
      * @Route("/api/services-by-agence/{codeAgence}")
+     * 
+     * recupère les service selon le code d'agence dans le table Agence_service_irium
      */
     public function getServiceSelonAgence(string $codeAgence)
     {
