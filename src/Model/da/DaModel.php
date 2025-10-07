@@ -222,7 +222,7 @@ class DaModel extends Model
                     --  ON sitv.sitv_numor = slor.slor_numor 
                     --AND sitv.sitv_soc = slor.slor_soc 
                     --AND sitv.sitv_succ = slor.slor_succ 
-                    -- AND slor.slor_soc = 'HF'getSituationCde
+                    -- AND slor.slor_soc = 'HF'
 
                     -- jointure pour natcm = 'C'
                     LEFT JOIN Informix.frn_cde c
@@ -249,8 +249,12 @@ class DaModel extends Model
             ";
 
         if ($statutBc && in_array($statutBc, $statutCde)) {
-            $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+            $statement .= " AND (
+                            (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                            OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                            )";
         }
+
 
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
@@ -386,10 +390,13 @@ class DaModel extends Model
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
 
-        if (in_array($statutBc, $statutCde)) {
-            $statement .= " AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND (
+                    (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                    OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                    )";
         }
-        // dump($statement);
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
