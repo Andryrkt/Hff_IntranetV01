@@ -156,7 +156,7 @@ class CongeController extends Controller
 
         // Pagination
         $page = max(1, $request->query->getInt('page', 1));
-        $limit = 10;
+        $limit = 50;
 
         // Récupération des données filtrées
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
@@ -275,7 +275,7 @@ class CongeController extends Controller
         $data = [];
         $data[] = [
             "Statut",
-            "Type Demande",
+            "Sous type",
             "N° Demande",
             "Date demande",
             "Matricule",
@@ -284,14 +284,13 @@ class CongeController extends Controller
             "Date de début",
             "Date de fin",
             "Durée congé",
-            "Solde congé",
-            "PDF Demande"
+            "Solde congé"
         ];
 
         foreach ($entities as $entity) {
             $data[] = [
                 $entity->getStatutDemande(),
-                $entity->getTypeDemande(),
+                $entity->getSousTypeDocument(),
                 $entity->getNumeroDemande(),
                 $entity->getDateDemande() ? $entity->getDateDemande()->format('d/m/Y') : '',
                 $entity->getMatricule(),
@@ -300,8 +299,7 @@ class CongeController extends Controller
                 $entity->getDateDebut() ? $entity->getDateDebut()->format('d/m/Y') : '',
                 $entity->getDateFin() ? $entity->getDateFin()->format('d/m/Y') : '',
                 $entity->getDureeConge(),
-                $entity->getSoldeConge(),
-                $entity->getPdfDemande()
+                $entity->getSoldeConge()
             ];
         }
 

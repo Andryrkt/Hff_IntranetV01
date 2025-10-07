@@ -14,7 +14,8 @@ class DemandeCongeRepository extends EntityRepository
         DemandeConge $conge,
         array $options
     ): array {
-        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder = $this->createQueryBuilder('d')
+                    ->leftJoin('d.agenceServiceirium', 'asi');
 
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')
@@ -92,13 +93,25 @@ class DemandeCongeRepository extends EntityRepository
                 }
             }
         }
+        // ---------------------------------
+$query = $queryBuilder->getQuery();
+    $sql = $query->getSQL();
+    $params = $query->getParameters();
 
+    dump("SQL : " . $sql . "\n");
+    foreach ($params as $param) {
+        dump($param->getName());
+        dump($param->getValue());
+    }
+
+    //-------------------------------------
         $query = $queryBuilder
             ->orderBy('d.id', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery();
 
+            
         $paginator = new Paginator($query);
         $totalItems = count($paginator);
         $pagesCount = (int) ceil($totalItems / $limit);

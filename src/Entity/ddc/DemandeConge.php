@@ -3,6 +3,7 @@
 namespace App\Entity\ddc;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\AgenceServiceIrium;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ddc\DemandeCongeRepository")
@@ -104,7 +105,16 @@ class DemandeConge
 
     private ?string $codeAgenceService;
 
-    // Getters et Setters (inchangés)
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="demandeDeConge")
+     * @ORM\JoinColumn(name="Agence_Service", referencedColumnName="service_sage_paie")
+     */
+    private $agenceServiceirium;
+
+    /** ==================================================================================
+     * Getters et Setters (inchangés)
+     *=============================================================================*/
+
     public function getId(): ?int
     {
         return $this->id;
@@ -303,5 +313,23 @@ class DemandeConge
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
         ];
+    }
+
+    /**
+     * Get the value of agenceServiceirium
+     */
+    public function getAgenceServiceirium()
+    {
+        return $this->agenceServiceirium;
+    }
+
+    /**
+     * Set the value of agenceServiceirium
+     */
+    public function setAgenceServiceirium($agenceServiceirium): self
+    {
+        $this->agenceServiceirium = $agenceServiceirium;
+
+        return $this;
     }
 }
