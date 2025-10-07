@@ -108,7 +108,7 @@ trait StatutBcTrait
 
         $qte = $achatDirect
             ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
-            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr);
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
 
