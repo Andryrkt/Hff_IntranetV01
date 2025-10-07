@@ -1,107 +1,127 @@
 {% extends "baseTemplate.html.twig" %}
 
 {% block title %}
-	Liste des Commandes Fournisseurs
+Liste des Commandes Fournisseurs
 {% endblock %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00">
-	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00">
+<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00">
 {% endblock %}
 
 {% block content %}
-	<div class="container-fluid">
-		<div class="sticky-header-titre">
-			<div class="container">
-				{% include "/partials/_notification.html.twig" %}
-				{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
-				{% include "/da/shared/cdeFrn/_pagination.html.twig" %}
-			</div>
+<div class="container-fluid">
+	<div class="sticky-header-titre">
+		<div class="container">
+			{% include "/partials/_notification.html.twig" %}
+			{% include "/da/shared/cdeFrn/_formulaireRecherche.html.twig" %}
+			{% include "/da/shared/cdeFrn/_pagination.html.twig" %}
 		</div>
-
-		<table class="table table-sticky">
-			<thead class="table-dark align-middle">
-				<tr>
-					<th class="text-center">N° DA</th>
-					<th class="text-center">Achat direct</th>
-					<th class="text-center">N° DIT</th>
-					<th class="text-center">Niv. Urgence</th>
-					<th class="text-center">N° OR</th>
-					<th class="text-center">Date planning OR</th>
-					<th class="text-center">N° Fournisseur</th>
-					<th class="text-center">Fournisseur</th>
-					<th class="text-center">N° Commande</th>
-					<th class="text-center">Statut DA</th>
-					<th class="text-center">Statut BC</th>
-					<th class="text-center">Date fin souhaité</th>
-					<th class="text-center">Réference</th>
-					<th class="text-center">Désignation</th>
-					<th class="text-center">Qté demandée</th>
-					<th class="text-center">Qté en attente</th>
-					<th class="text-center">Qté Dispo (Qté à livrer)</th>
-					<th class="text-center">Qté livrée</th>
-					<th class="text-center">Date livraison prévue</th>
-					<th class="text-center">Nb jours dispo</th>
-					<th class="text-center">Demandeur</th>
-				</tr>
-			</thead>
-			<tbody id="tableBody">
-				{% for item in daAfficherValides %}
-
-					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
-					<tr>
-						<td class="text-center">
-							<a href="{{ path(url_detail, { id: item.demandeAppro.id }) }}" target="_blank">
-								{{ item.numeroDemandeAppro }}
-							</a>
-						</td>
-						<td class="text-center">
-							{% if item.achatDirect %}
-								<i class="fas fa-check text-success"></i>
-							{% endif %}
-						</td>
-						<td class="text-center">{{ item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}</td>
-						<td class="text-center">{{ item.niveauUrgence }}</td>
-						<td class="text-center">{{ item.numeroOr|default('<i class="fas fa-ban text-muted"></i>')|raw }}</td>
-						<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' : item.datePlannigOr == null ? '': item.datePlannigOr| date('d/m/Y')}}</td>
-						<td class="text-center">{{ item.numeroFournisseur }}</td>
-						<td class="text-center">{{ item.nomFournisseur }}</td>
-						{% if item.numeroCde %}
-							<td class="text-center commande-cellule commande" data-commande-id="{{item.numeroCde}}" data-num-da="{{item.numeroDemandeAppro}}" data-num-or="{{item.numeroOr}}" data-statut-bc="{{item.statutCde}}" data-position-cde="{{item.positionBc}}">
-								{{ item.numeroCde }}
-							</td>
-						{% else %}
-							<td class="text-center">
-								{{ item.numeroCde }}
-							</td>
-						{% endif %}
-
-						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
-						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
-						<td class="text-center">{{ item.artRefp }}</td>
-						<td class="text-start">{{ item.artDesi }}</td>
-						<td class="text-center ">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
-						<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
-						<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
-						<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
-						<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue| date('d/m/Y')}}</td>
-						<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
-						<td class="text-center">{{ item.demandeur}}</td>
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
 	</div>
 
-	<!-- FIN tableau -->
-	{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+	<table class="table table-sticky">
+		<thead class="table-dark align-middle">
+			<tr>
+				<th class="text-center">N° DA</th>
+				<th class="text-center">Achat direct</th>
+				<th class="text-center">N° DIT</th>
+				<th class="text-center">Niv. Urgence</th>
+				<th class="text-center">N° OR</th>
+				<th class="text-center">Date planning OR</th>
+				<th class="text-center">N° Fournisseur</th>
+				<th class="text-center">Fournisseur</th>
+				<th class="text-center">N° Commande</th>
+				<th class="text-center">Statut DA</th>
+				<th class="text-center">Statut BC</th>
+				<th class="text-center">Date fin souhaité</th>
+				<th class="text-center">Réference</th>
+				<th class="text-center">Désignation</th>
+				<th class="text-center">Qté demandée</th>
+				<th class="text-center">Qté en attente</th>
+				<th class="text-center">Qté Dispo (Qté à livrer)</th>
+				<th class="text-center">Qté livrée</th>
+				<th class="text-center">Date livraison prévue</th>
+				<th class="text-center">Nb jours dispo</th>
+				<th class="text-center">Demandeur</th>
+			</tr>
+		</thead>
+		<tbody id="tableBody">
+			{% for item in daAfficherValides %}
+
+			{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
+			<tr>
+				<td class="text-center">
+					<a href="{{ path(url_detail, { id: item.demandeAppro.id }) }}" target="_blank">
+						{{ item.numeroDemandeAppro }}
+					</a>
+				</td>
+				<td class="text-center">
+					{% if item.achatDirect %}
+					<i class="fas fa-check text-success"></i>
+					{% endif %}
+				</td>
+				<td class="text-center">{{ item.numeroDemandeDit|default('<i class="fas fa-ban text-muted"></i>')|raw}}
+				</td>
+				<td class="text-center">{{ item.niveauUrgence }}</td>
+				<td class="text-center">{{ item.numeroOr|default('<i class="fas fa-ban text-muted"></i>')|raw }}</td>
+				<td class="text-center">{{ item.achatDirect ? '<i class="fas fa-ban text-muted"></i>' :
+					item.datePlannigOr == null ? '': item.datePlannigOr| date('d/m/Y')}}</td>
+				<td class="text-center">{{ item.numeroFournisseur }}</td>
+				<td class="text-center">{{ item.nomFournisseur }}</td>
+				{% if item.numeroCde %}
+				<td class="text-center commande-cellule commande" data-commande-id="{{item.numeroCde}}"
+					data-num-da="{{item.numeroDemandeAppro}}" data-num-or="{{item.numeroOr}}"
+					data-statut-bc="{{item.statutCde}}" data-position-cde="{{item.positionBc}}">
+					{{ item.numeroCde }}
+				</td>
+				{% else %}
+				<td class="text-center">
+					{{ item.numeroCde }}
+				</td>
+				{% endif %}
+
+				<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
+				<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
+				<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}
+				</td>
+				<td class="text-center">{{ item.artRefp }}</td>
+				<td class="text-start">{{ item.artDesi }}</td>
+				<td class="text-center ">{{ item.qteDem == 0 ? '-': item.qteDem }}</td>
+				<td class="text-center">{{ item.qteEnAttent == 0 ? '-': item.qteEnAttent }}</td>
+				<td class="text-center">{{ item.qteDispo == 0 ? '-': item.qteDispo }}</td>
+				<td class="text-center">{{ item.qteLivrer == 0 ? '-': item.qteLivrer }}</td>
+				<td class="text-center">{{ item.dateLivraisonPrevue == null ? '' : item.dateLivraisonPrevue|
+					date('d/m/Y')}}</td>
+				<td class="text-center {{ item.joursDispo < 0 ? 'text-danger' : '' }}">{{ item.joursDispo}}</td>
+				<td class="text-center">{{ item.demandeur}}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<div class="pagination justify-content-center mt-3">
+	{% if currentPage > 1 %}
+	<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
+	{% endif %}
+
+	{% for i in 1..totalPages %}
+	<a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
+	{% endfor %}
+
+	{% if currentPage < totalPages %} <a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
+		{% endif %}
+</div>
+
+<!-- FIN tableau -->
+{% include "/da/shared/cdeFrn/_menuContextuel.html.twig" %}
+{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
 
 {% endblock %}
 
 {% block javascript %}
-	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js?v=2025.09.15.08.00" type="module"></script>
+<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
+<script type="module" src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js?v=2025.09.15.08.00"
+	type="module"></script>
 {% endblock %}

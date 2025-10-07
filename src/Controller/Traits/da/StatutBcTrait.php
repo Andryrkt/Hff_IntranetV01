@@ -332,7 +332,7 @@ trait StatutBcTrait
                 $positionBc = array_key_exists(0, $situationCde) ? $situationCde[0]['position_bc'] : '';
             }
             $DaAfficher->setPositionBc($positionBc)
-                ->setNumeroCde($situationCde[0]['num_cde']);
+                ->setNumeroCde($numcde);
         }
     }
 
