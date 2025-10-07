@@ -48,10 +48,7 @@ class DemandeConge
      */
     private ?string $agenceDebiteur = null;
 
-    /**
-     * @ORM\Column(name="Agence_Service", type="string", length=100)
-     */
-    private ?string $agenceService = null;
+
 
     /**
      * @ORM\Column(name="Adresse_Mail_Demandeur", type="string", length=100)
@@ -173,15 +170,7 @@ class DemandeConge
         $this->agenceDebiteur = $agenceDebiteur;
         return $this;
     }
-    public function getAgenceService(): ?string
-    {
-        return $this->agenceService;
-    }
-    public function setAgenceService(?string $agenceService): self
-    {
-        $this->agenceService = $agenceService;
-        return $this;
-    }
+
     public function getAdresseMailDemandeur(): ?string
     {
         return $this->adresseMailDemandeur;
@@ -301,7 +290,7 @@ class DemandeConge
             'dateDemande' => $this->dateDemande,
             'agenceDebiteur' => $this->agenceDebiteur,
             'agence' => $this->agenceDebiteur,
-            'agenceService' => $this->agenceService,
+            'agenceService' => $this->agenceServiceirium ? $this->agenceServiceirium->getServicesagepaie() : null,
             'adresseMailDemandeur' => $this->adresseMailDemandeur,
             'sousTypeDocument' => $this->sousTypeDocument,
             'dureeConge' => $this->dureeConge,

@@ -57,7 +57,6 @@ class CongeController extends Controller
                     ->setMatricule($sessionCriteria['matricule'] ?? null)
                     ->setNomPrenoms($sessionCriteria['nomPrenoms'] ?? null)
                     ->setDateDemande($sessionCriteria['dateDemande'] ?? null)
-                    ->setAgenceService($sessionCriteria['agenceService'] ?? null)
                     ->setAdresseMailDemandeur($sessionCriteria['adresseMailDemandeur'] ?? null)
                     ->setSousTypeDocument($sessionCriteria['sousTypeDocument'] ?? null)
                     ->setDureeConge($sessionCriteria['dureeConge'] ?? null)
@@ -182,10 +181,11 @@ class CongeController extends Controller
 
         // Filtrer les critères pour supprimer les valeurs "falsy"
         $filteredCriteria = array_filter($criteriaTab);
-        
+
         // ajout de agence service code dans le donnée à afficher
         foreach ($paginationData['data'] as $key => $value) {
-            $codeAgenceService = $this->getCodeAgenceService($value->getAgenceService());
+            $agenceServiceCode = $value->getAgenceServiceirium() ? $value->getAgenceServiceirium()->getServicesagepaie() : null;
+            $codeAgenceService = $agenceServiceCode ? $this->getCodeAgenceService($agenceServiceCode) : null;
             $value->setCodeAgenceService($codeAgenceService);
         }
 
@@ -256,7 +256,6 @@ class CongeController extends Controller
             ->setMatricule(isset($criteria['matricule']) ? $criteria['matricule'] : null)
             ->setNomPrenoms(isset($criteria['nomPrenoms']) ? $criteria['nomPrenoms'] : null)
             ->setDateDemande(isset($criteria['dateDemande']) ? $criteria['dateDemande'] : null)
-            ->setAgenceService(isset($criteria['agenceService']) ? $criteria['agenceService'] : null)
             ->setAdresseMailDemandeur(isset($criteria['adresseMailDemandeur']) ? $criteria['adresseMailDemandeur'] : null)
             ->setSousTypeDocument(isset($criteria['sousTypeDocument']) ? $criteria['sousTypeDocument'] : null)
             ->setDureeConge(isset($criteria['dureeConge']) ? $criteria['dureeConge'] : null)
@@ -295,7 +294,7 @@ class CongeController extends Controller
                 $entity->getDateDemande() ? $entity->getDateDemande()->format('d/m/Y') : '',
                 $entity->getMatricule(),
                 $entity->getNomPrenoms(),
-                $entity->getAgenceService(),
+                ($entity->getAgenceServiceirium() ? $entity->getAgenceServiceirium()->getServicesagepaie() : null),
                 $entity->getDateDebut() ? $entity->getDateDebut()->format('d/m/Y') : '',
                 $entity->getDateFin() ? $entity->getDateFin()->format('d/m/Y') : '',
                 $entity->getDureeConge(),
