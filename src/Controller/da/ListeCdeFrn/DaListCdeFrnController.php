@@ -68,6 +68,13 @@ class DaListCdeFrnController extends Controller
         $criteria = $this->traitementFormulaireRecherche($request, $form);
         $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteria);
 
+        // classe pour visuel de trie nombre de jour dispo
+        $sortJoursClass = false;
+
+        if ($criteria && $criteria['sortNbJours']) {
+            $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        }
+
         //recupère le numero de page
         $page = $request->query->getInt('page', 1);
         //nombre de ligne par page
@@ -96,6 +103,7 @@ class DaListCdeFrnController extends Controller
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
+            'sortJoursClass'    => $sortJoursClass,
         ]);
     }
 

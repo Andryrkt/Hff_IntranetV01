@@ -117,6 +117,15 @@ class CdeFrnListType extends  AbstractType
                 'label' => 'Date fin fin souhaité',
                 'required' => false,
             ])
+            ->add('sortNbJours', ChoiceType::class, [
+                'placeholder'   => '-- Choisir un tri --',
+                'label'         => 'Tri par Nbr Jour(s)',
+                'choices'       => [
+                    'Ordre croissant'   => 'asc',
+                    'Ordre décroissant' => 'desc',
+                ],
+                'required'      => false
+            ])
         ;
     }
 

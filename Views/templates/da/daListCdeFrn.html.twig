@@ -42,7 +42,14 @@ Liste des Commandes Fournisseurs
 				<th class="text-center">Qté Dispo (Qté à livrer)</th>
 				<th class="text-center">Qté livrée</th>
 				<th class="text-center">Date livraison prévue</th>
-				<th class="text-center">Nb jours dispo</th>
+				<th class="text-center">
+					<div class="d-flex flex-row align-items-center">
+						<span>Nbr Jour(s) dispo</span>
+						<div class="{{ sortJoursClass ? '' : 'd-none' }}">
+							<i class="{{ sortJoursClass }} fs-4 text-warning"></i>
+						</div>
+					</div>
+				</th>
 				<th class="text-center">Demandeur</th>
 			</tr>
 		</thead>
