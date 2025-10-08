@@ -14,7 +14,7 @@ class GeneratePdf
         string $baseCheminDocuware = null
     ) {
         // Injection de dépendances avec fallback sur les variables d'environnement
-        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '');
+        $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
         $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
     }
 
