@@ -259,8 +259,9 @@ class DitFactureSoumisAValidationController extends Controller
         $montantItvOr = $this->calculerMontantItvOr($orSoumisValidationRepository, $factureSoumisAValidation);
         $montantFacture = $this->calculerMontantFacture($factureSoumisAValidation);
         
-        $estFactureConformAOr = abs($montantFacture - $montantItvOr) <= 0.01;
-        if(!$estFactureConformAOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
+        $estFactureDifférentDeOr = $montantFacture != $montantItvOr;
+
+        if($estFactureDifférentDeOr || ($montantFacture == 0.0 && $montantItvOr == 0.0)) {
             $montantFactureOr = 'NON';
         } else {
             $montantFactureOr = 'OUI';
@@ -285,7 +286,7 @@ class DitFactureSoumisAValidationController extends Controller
     {
         $montantFacture = 0;
         foreach ($factureSoumisAValidation as $value) {
-            $montantFacture += $value->getMttItv();
+            $montantFacture += $value->getMontantFactureitv();
         }
 
         return $montantFacture;
