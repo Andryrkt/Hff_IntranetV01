@@ -7,6 +7,7 @@ use App\Entity\da\DaSoumissionBc;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Component\Form\AbstractType;
 use App\Entity\admin\dit\WorNiveauUrgence;
+use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -29,6 +30,11 @@ class CdeFrnListType extends  AbstractType
     private const TYPE_ACHAT = [
         'Avec DIT' => 'avec_dit',
         'Direct'   => 'direct',
+    ];
+
+    private const TRI_NBR_JOURS =  [
+        'Ordre croissant'   => 'asc',
+        'Ordre décroissant' => 'desc',
     ];
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -120,10 +126,7 @@ class CdeFrnListType extends  AbstractType
             ->add('sortNbJours', ChoiceType::class, [
                 'placeholder'   => '-- Choisir un tri --',
                 'label'         => 'Tri par Nbr Jour(s)',
-                'choices'       => [
-                    'Ordre croissant'   => 'asc',
-                    'Ordre décroissant' => 'desc',
-                ],
+                'choices'       => self::TRI_NBR_JOURS,
                 'required'      => false
             ])
         ;
@@ -131,6 +134,8 @@ class CdeFrnListType extends  AbstractType
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'data_class' => CdeFrnSearchDto::class
+        ]);
     }
 }

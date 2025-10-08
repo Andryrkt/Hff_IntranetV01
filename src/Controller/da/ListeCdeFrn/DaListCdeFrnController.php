@@ -18,6 +18,7 @@ use App\Controller\Traits\da\StatutBcTrait;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Repository\da\DaAfficherRepository;
 use App\Controller\Traits\AutorisationTrait;
+use App\Factory\da\CdeFrnDto\CdeFrnSearchDto;
 use App\Repository\da\DemandeApproRepository;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\da\DaSoumissionBcRepository;
@@ -61,18 +62,20 @@ class DaListCdeFrnController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_APPRO);
         /** FIN AUtorisation acées */
 
+
+
         /** ===  Formulaire pour la recherche === */
-        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, null, [
+        $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $this->initialisationCdeFrnSearchDto(), [
             'method' => 'GET',
         ])->getForm();
-        $criteria = $this->traitementFormulaireRecherche($request, $form);
-        $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteria);
+        $criteriaTab = $this->traitementFormulaireRecherche($request, $form);
+        $this->getSessionService()->set('criteria_for_excel_Da_Cde_frn', $criteriaTab);
 
         // classe pour visuel de trie nombre de jour dispo
         $sortJoursClass = false;
 
-        if ($criteria && $criteria['sortNbJours']) {
-            $sortJoursClass = $criteria['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
+        if ($criteriaTab && $criteriaTab['sortNbJours']) {
+            $sortJoursClass = $criteriaTab['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
         }
 
         //recupère le numero de page
@@ -81,7 +84,7 @@ class DaListCdeFrnController extends Controller
         $limit = 20;
 
         /** ==== récupération des données à afficher ==== */
-        $paginationData = $this->getPaginationData($criteria, $page, $limit);
+        $paginationData = $this->getPaginationData($criteriaTab, $page, $limit);
 
         /** mise à jour des donners daAfficher */
         $this->quelqueMiseAjourDaAfficher($paginationData['data']);
@@ -99,12 +102,22 @@ class DaListCdeFrnController extends Controller
             'styleStatutBC'     => $this->styleStatutBC,
             'styleStatutDA'     => $this->styleStatutDA,
             'styleStatutOR'     => $this->styleStatutOR,
-            'criteria'          => $criteria,
+            'criteria'          => $criteriaTab,
             'currentPage'       => $page,
             'totalPages'        => $paginationData['lastPage'],
             'resultat'          => $paginationData['totalItems'],
             'sortJoursClass'    => $sortJoursClass,
         ]);
+    }
+
+    private function initialisationCdeFrnSearchDto(): CdeFrnSearchDto
+    {
+        // recupération de la session pour le criteria
+        $criteriaTab = $this->getSessionService()->get('criteria_for_excel_Da_Cde_frn');
+
+        // transforme en objet
+        $cdeFrnSearchDto = new CdeFrnSearchDto();
+        return $cdeFrnSearchDto->toObject($criteriaTab);
     }
 
     private function quelqueMiseAjourDaAfficher(array $daAfficherValides)
@@ -172,7 +185,7 @@ class DaListCdeFrnController extends Controller
             return [];
         }
 
-        $data = $form->getData();
+        $data = $form->getData()->toArray();
 
         // Filtrer les champs vides ou nuls
         $dataFiltered = array_filter($data, fn($val) => $val !== null && $val !== '');
