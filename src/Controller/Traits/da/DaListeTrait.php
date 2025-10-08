@@ -99,18 +99,6 @@ trait DaListeTrait
         ];
     }
 
-    /**
-     * Met à jour le champ `joursDispo` pour chaque DAL sauf si elle est déjà validée.
-     *
-     * @param DaAfficher $daAfficher
-     */
-    private function ajoutNbrJourRestant($daAfficher)
-    {
-        if (!in_array($daAfficher->getStatutCde(), [DaSoumissionBc::STATUT_COMPLET_NON_LIVRE, DaSoumissionBc::STATUT_TOUS_LIVRES])) {
-            $daAfficher->setJoursDispo($this->getJoursRestants($daAfficher));
-        }
-    }
-
     public function getPaginationData(array $criteria, int $page, int $limit): array
     {
         //recuperation de l'id de l'agence de l'utilisateur connecter
@@ -134,7 +122,6 @@ trait DaListeTrait
     {
         $em = $this->getEntityManager();
         foreach ($datas as $data) {
-            $this->ajoutNbrJourRestant($data);
             $this->modificationStatutBC($data, $em);
         }
         $em->flush();
