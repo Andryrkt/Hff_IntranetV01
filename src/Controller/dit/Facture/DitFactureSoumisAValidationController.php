@@ -285,7 +285,7 @@ class DitFactureSoumisAValidationController extends Controller
     {
         $montantFacture = 0;
         foreach ($factureSoumisAValidation as $value) {
-            $montantFacture += $value->getMttItv();
+            $montantFacture += $value->getMontantFactureitv();
         }
 
         return $montantFacture;
