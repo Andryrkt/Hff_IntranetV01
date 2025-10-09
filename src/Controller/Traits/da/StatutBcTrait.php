@@ -165,9 +165,10 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        if ($DaAfficher->getBcEnvoyerFournisseur() || !$DaAfficher->getEstFactureBlSoumis()) {
+        if ($DaAfficher->getBcEnvoyerFournisseur()) {
             return 'BC envoyé au fournisseur';
         }
+
 
         return $statutSoumissionBc;
     }

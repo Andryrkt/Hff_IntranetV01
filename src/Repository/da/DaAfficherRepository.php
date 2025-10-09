@@ -317,10 +317,15 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        // Ordre final
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
+        // triage selon le filtre choisi par l'utilisateur
+        if (!empty($criteria['sortNbJours'])) {
+            $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
+        } else {
+            // Ordre final
+            $qb->orderBy('d.dateDemande', 'DESC')
+                ->addOrderBy('d.numeroFournisseur', 'DESC')
+                ->addOrderBy('d.numeroCde', 'DESC');
+        }
         // DEBUT debug
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();

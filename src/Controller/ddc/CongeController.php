@@ -282,8 +282,7 @@ class CongeController extends Controller
             "Agence/Service",
             "Date de début",
             "Date de fin",
-            "Durée congé",
-            "Solde congé"
+            "Durée congé"
         ];
 
         foreach ($entities as $entity) {
@@ -297,8 +296,7 @@ class CongeController extends Controller
                 ($entity->getAgenceServiceirium() ? $entity->getAgenceServiceirium()->getServicesagepaie() : null),
                 $entity->getDateDebut() ? $entity->getDateDebut()->format('d/m/Y') : '',
                 $entity->getDateFin() ? $entity->getDateFin()->format('d/m/Y') : '',
-                $entity->getDureeConge(),
-                $entity->getSoldeConge()
+                $entity->getDureeConge()
             ];
         }
 

@@ -111,7 +111,7 @@ class DemandeCongeRepository extends EntityRepository
     public function findAndFilteredExcel(DemandeConge $conge, array $options): array
     {
         $queryBuilder = $this->createQueryBuilder('d')
-        ->leftJoin('d.agenceServiceirium', 'asi')
+            ->leftJoin('d.agenceServiceirium', 'asi')
             ->addSelect('asi');
 
         if ($conge->getMatricule()) {

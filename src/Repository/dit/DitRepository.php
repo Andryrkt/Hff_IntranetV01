@@ -365,7 +365,7 @@ class DitRepository extends EntityRepository
                 ->setParameter('statutOr',  $ditSearch->getStatutOr());
         } elseif (empty($ditSearch->getNumOr()) && empty($ditSearch->getNumDevis()) && empty($ditSearch->getNumDit())) {
             $queryBuilder->andWhere('d.statutOr NOT LIKE :statutRefuser OR d.statutOr IS NULL')
-        ->setParameter('statutRefuser', 'Refusé%');
+                ->setParameter('statutRefuser', 'Refusé%');
         }
 
         //filtre selon le categorie de demande
