@@ -317,6 +317,10 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
+
+        $this->applyDynamicFilters($qb, "d", $criteria, true);
+        $this->applyStatutsFilters($qb, "d", $criteria, true);
+        $this->applyDateFilters($qb, "d", $criteria, true);
         // triage selon le filtre choisi par l'utilisateur
         if (!empty($criteria['sortNbJours'])) {
             $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
@@ -594,9 +598,10 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
-            if (!empty($criteria['statutBc'])) {
+
+            if (!empty($criteria['statutBC'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBc']);
+                    ->setParameter('statutBc', $criteria['statutBC']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
