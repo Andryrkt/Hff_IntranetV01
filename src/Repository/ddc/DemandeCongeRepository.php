@@ -89,7 +89,8 @@ class DemandeCongeRepository extends EntityRepository
 
         //-------------------------------------
         $query = $queryBuilder
-            ->orderBy('d.id', 'DESC')
+            ->orderBy('d.dateDemande', 'DESC')
+            ->orderBy('d.dateDebut', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery();
