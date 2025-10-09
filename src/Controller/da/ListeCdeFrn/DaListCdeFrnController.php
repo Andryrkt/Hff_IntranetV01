@@ -74,7 +74,7 @@ class DaListCdeFrnController extends Controller
         // classe pour visuel de trie nombre de jour dispo
         $sortJoursClass = false;
 
-        if ($criteriaTab && $criteriaTab['sortNbJours']) {
+        if ($criteriaTab &&  isset($criteriaTab['sortNbJours'])) {
             $sortJoursClass = $criteriaTab['sortNbJours'] === 'asc' ? 'fas fa-arrow-up-1-9' : 'fas fa-arrow-down-9-1';
         }
 
