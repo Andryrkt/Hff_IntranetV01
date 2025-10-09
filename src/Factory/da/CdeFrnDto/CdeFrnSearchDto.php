@@ -316,11 +316,17 @@ class CdeFrnSearchDto
         return $this;
     }
 
-    /**
+
+        /**
      * Hydrate l'objet à partir d'un tableau
      */
-    public function toObject(array $data): self
+    public function toObject(?array $data): self
     {
+        // Si les données sont null, on retourne l'objet tel quel
+        if ($data === null) {
+            return $this;
+        }
+
         foreach ($data as $key => $value) {
             $method = 'set' . ucfirst($key);
 
