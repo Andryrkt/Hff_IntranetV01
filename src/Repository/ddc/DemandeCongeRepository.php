@@ -89,7 +89,8 @@ class DemandeCongeRepository extends EntityRepository
 
         //-------------------------------------
         $query = $queryBuilder
-            ->orderBy('d.id', 'DESC')
+            ->orderBy('d.dateDemande', 'DESC')
+            ->orderBy('d.dateDebut', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit)
             ->getQuery();
@@ -109,7 +110,9 @@ class DemandeCongeRepository extends EntityRepository
 
     public function findAndFilteredExcel(DemandeConge $conge, array $options): array
     {
-        $queryBuilder = $this->createQueryBuilder('d');
+        $queryBuilder = $this->createQueryBuilder('d')
+        ->leftJoin('d.agenceServiceirium', 'asi')
+            ->addSelect('asi');
 
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')
