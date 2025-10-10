@@ -1,7 +1,11 @@
 <?php
+
 namespace App\Service\genererPdf;
+
 use TCPDF;
-class GeneretePdfBordereau extends GeneratePdf{
+
+class GeneretePdfBordereau extends GeneratePdf
+{
     public function genererPDF(array $data)
     {
         $pdf = new TCPDF();
@@ -18,17 +22,17 @@ class GeneretePdfBordereau extends GeneratePdf{
 
         // Numéro de page en dessous
         $pdf->SetFont('dejavusans', '', 8);
-        $pdf->SetXY($W_total-25, 5);
+        $pdf->SetXY($W_total - 25, 5);
         $pdf->Cell(0, 5, 'Page ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
 
         // Ajout du logo
         $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
         $pdf->Image($logoPath, 10, 12, 35);
-        
+
         // Date en haut à droite
         $pdf->SetFont('dejavusans', '', 8);
         $pdf->SetXY(250, 10);
-        $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R'); 
+        $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R');
 
         // Titre principal
         $pdf->SetFont('dejavusans', 'B', 10);
@@ -60,14 +64,19 @@ class GeneretePdfBordereau extends GeneratePdf{
         $pdf->SetFont('dejavusans', '', 5.5);
         $ref_count = 0;
         $lastBordereau = null;
+        $i = 0;
         foreach ($data as $row) {
             if ($lastBordereau !== $row['numBordereau']) {
+                if ($i > 0) {
+                    $pdf->AddPage();
+                }
                 $lastBordereau = $row['numBordereau'];
                 $pdf->SetFont('dejavusans', 'B', 5.5);
                 $pdf->Cell(0, 4, "BORDEREAU : " . strtoupper($lastBordereau), 1, 1, 'C');
                 $pdf->SetFont('dejavusans', '', 5.5);
+                $i++;
             }
-            $ref_count ++;
+            $ref_count++;
             // $montant_ecarts = str_replace('.', '', $row['montant_ajuste']);
             // $total += (float)$montant_ecarts;
             $pdf->Cell(15, 4, $row['ligne'], 1, 0, 'C');
@@ -76,8 +85,8 @@ class GeneretePdfBordereau extends GeneratePdf{
             $pdf->Cell(20, 4, $row['refp'], 1, 0, 'C');
             $pdf->Cell($usable_width - 155, 4, $row['descrip'], 1, 0, 'C');
             $pdf->Cell(15, 4, '', 1, 0, 'C');
-            $pdf->Cell(15, 4, $row['qte_alloue'] !== "0" ? "X":"", 1, 0, 'C');
-            $pdf->Cell(15, 4, $row['qte_alloue'] === "0" ? "":$row['qte_alloue'], 1, 0, 'C');
+            $pdf->Cell(15, 4, $row['qte_alloue'] !== "0" ? "X" : "", 1, 0, 'C');
+            $pdf->Cell(15, 4, $row['qte_alloue'] === "0" ? "" : $row['qte_alloue'], 1, 0, 'C');
             $pdf->Cell(35, 4, '', 1, 1, 'R');
         }
 
