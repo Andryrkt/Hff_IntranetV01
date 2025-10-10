@@ -341,7 +341,7 @@ class DaAfficher
     /**
      * @ORM\Column(type="integer", name="numero_intervention_ips")
      */
-    private int $numeroInterventionIps = 0;
+    private ?int $numeroInterventionIps = 0;
 
     /**==============================================================================
      * GETTERS & SETTERS
