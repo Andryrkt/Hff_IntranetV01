@@ -73,7 +73,7 @@
 							<td>{{ item.idStatutDemande}}</td>
 							<td>{{item.agenceRattacher.codeAgence()}}</td>
 							<td style="text-align:left">{{item.Casier}}</td>
-							<td>{{item.Date_Creation|date("d/m/Y")}}</td>
+							<td>{{item.dateCreation|date("d/m/Y")}}</td>
 							<td>{{item.NumeroCAS}}</td>
 							{% if 1 in role_ids  %}
 								<td>
