@@ -338,6 +338,11 @@ class DaAfficher
      */
     private int $qteDemIps = 0;
 
+    /**
+     * @ORM\Column(type="integer", name="numero_intervention_ips")
+     */
+    private int $numeroInterventionIps = 0;
+
     /**==============================================================================
      * GETTERS & SETTERS
      *===============================================================================*/
@@ -1632,6 +1637,26 @@ class DaAfficher
     public function setQteDemIps(int $qteDemIps): self
     {
         $this->qteDemIps = $qteDemIps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of numeroInterventionIps
+     */
+    public function getNumeroInterventionIps()
+    {
+        return $this->numeroInterventionIps;
+    }
+
+    /**
+     * Set the value of numeroInterventionIps
+     *
+     * @return  self
+     */
+    public function setNumeroInterventionIps($numeroInterventionIps)
+    {
+        $this->numeroInterventionIps = $numeroInterventionIps;
 
         return $this;
     }

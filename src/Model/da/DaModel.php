@@ -485,4 +485,37 @@ class DaModel extends Model
 
         return $data;
     }
+
+    /**
+     * recupère le numéro de ligne et le numéro d'intervention dans ips
+     * 
+     * @param string $ref
+     * @param string $desi
+     * @param string $numOr
+     * @return array qui a un ou plusieurs éléments
+     */
+    public function getNumLigneAntItvIps(string $ref, string $desi, string $numOr): array
+    {
+        $statement = " SELECT 
+                    slor_nogrp/100 as numero_intervention , 
+                    slor_nolign as numero_ligne,
+                    ROUND(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (
+                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                            )
+                        END
+                    ) AS qte_dem
+                    from informix.sav_lor 
+                    where slor_numor ='$numOr' 
+                    and slor_refp = '$ref' 
+                    and slor_desi = '$desi'
+                    order by qte_dem desc
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
 }
