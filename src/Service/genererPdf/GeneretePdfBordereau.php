@@ -9,6 +9,7 @@ class GeneretePdfBordereau extends GeneratePdf
     public function genererPDF(array $data)
     {
         $pdf = new TCPDF();
+        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
 
         $W_total = $pdf->getPageWidth();  // Hauteur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
@@ -20,40 +21,7 @@ class GeneretePdfBordereau extends GeneratePdf
         $pdf->SetAutoPageBreak(TRUE, 10);
         $pdf->AddPage();
 
-        // Numéro de page en dessous
-        $pdf->SetFont('dejavusans', '', 8);
-        $pdf->SetXY($W_total - 25, 5);
-        $pdf->Cell(0, 5, 'Page ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
-
-        // Ajout du logo
-        $logoPath = $_ENV['BASE_PATH_LONG'] . '/Views/assets/henriFraise.jpg';
-        $pdf->Image($logoPath, 10, 12, 35);
-
-        // Date en haut à droite
-        $pdf->SetFont('dejavusans', '', 8);
-        $pdf->SetXY(250, 10);
-        $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R');
-
-        // Titre principal
-        $pdf->SetFont('dejavusans', 'B', 10);
-        $pdf->Cell(0, 5, 'Bordereau  de comptage', 0, 1, 'C');
-        // Sous-titre
-        $pdf->SetFont('dejavusans', '', 8);
-        $pdf->Cell(0, 5, 'INVENTAIRE N°:' . $data[0]['numinv'], 0, 1, 'C');
-        $pdf->Cell(0, 5, 'du : ' . $data[0]['dateinv'], 0, 1, 'C');
-        $pdf->Ln();
-
-        // Création du tableau
-        $pdf->SetFont('dejavusans', '', 6.5);
-        $pdf->Cell(15, 4, 'Ligne', 1, 0, 'C');
-        $pdf->Cell(20, 4, 'Casier', 1, 0, 'C');
-        $pdf->Cell(20, 4, 'CST', 1, 0, 'C');
-        $pdf->Cell(20, 4, 'Référence', 1, 0, 'C');
-        $pdf->Cell($usable_width - 155, 4, 'Désignation', 1, 0, 'C');
-        $pdf->Cell(15, 4, 'Qté Phy.', 1, 0, 'C');
-        $pdf->Cell(15, 4, 'All.', 1, 0, 'C');
-        $pdf->Cell(15, 4, 'Qté All.', 1, 0, 'C');
-        $pdf->Cell(35, 4, 'Observation', 1, 1, 'C');
+        $this->entete($pdf, $W_total, $logoPath, $data, $usable_width);
 
         // Tri des données par CST
         usort($data, function ($a, $b) {
@@ -69,6 +37,7 @@ class GeneretePdfBordereau extends GeneratePdf
             if ($lastBordereau !== $row['numBordereau']) {
                 if ($i > 0) {
                     $pdf->AddPage();
+                    $this->entete($pdf, $W_total, $logoPath, $data, $usable_width);
                 }
                 $lastBordereau = $row['numBordereau'];
                 $pdf->SetFont('dejavusans', 'B', 5.5);
@@ -96,5 +65,42 @@ class GeneretePdfBordereau extends GeneratePdf
 
         // Sortie du fichier PDF
         $pdf->Output('bordereau_de_comptage.pdf', 'I');
+    }
+
+    public function entete($pdf, $W_total, $logoPath, $data, $usable_width)
+    {
+        // Numéro de page en dessous
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->SetXY($W_total - 25, 5);
+        $pdf->Cell(0, 5, 'Page ' . $pdf->getAliasNumPage() . '/' . $pdf->getAliasNbPages(), 0, 1, 'R');
+
+        // Ajout du logo
+        $pdf->Image($logoPath, 10, 12, 35);
+
+        // Date en haut à droite
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->SetXY(250, 10);
+        $pdf->Cell(0, 5, date('d/m/Y'), 0, 1, 'R');
+
+        // Titre principal
+        $pdf->SetFont('dejavusans', 'B', 10);
+        $pdf->Cell(0, 5, 'Bordereau  de comptage', 0, 1, 'C');
+        // Sous-titre
+        $pdf->SetFont('dejavusans', '', 8);
+        $pdf->Cell(0, 5, 'INVENTAIRE N°:' . $data[0]['numinv'], 0, 1, 'C');
+        $pdf->Cell(0, 5, 'du : ' . $data[0]['dateinv'], 0, 1, 'C');
+        $pdf->Ln();
+
+        // Création du tableau
+        $pdf->SetFont('dejavusans', '', 6.5);
+        $pdf->Cell(15, 4, 'Ligne', 1, 0, 'C');
+        $pdf->Cell(20, 4, 'Casier', 1, 0, 'C');
+        $pdf->Cell(20, 4, 'CST', 1, 0, 'C');
+        $pdf->Cell(20, 4, 'Référence', 1, 0, 'C');
+        $pdf->Cell($usable_width - 155, 4, 'Désignation', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'Qté Phy.', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'All.', 1, 0, 'C');
+        $pdf->Cell(15, 4, 'Qté All.', 1, 0, 'C');
+        $pdf->Cell(35, 4, 'Observation', 1, 1, 'C');
     }
 }
