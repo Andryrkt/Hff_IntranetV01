@@ -40,7 +40,7 @@ trait DevisMagasinTrait
         return [$newSumOfLines, $newSumOfMontant];
     }
 
-    
+
     private function ajoutInfoIpsDansDevisMagasin(DevisMagasin $devisMagasin, array $firstDevisIps, string $numeroVersion, string $nomFichier, string $typeSoumission): void
     {
         $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
@@ -57,6 +57,7 @@ trait DevisMagasinTrait
             ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
             ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
             ->setNomFichier((string)$nomFichier)
+            ->setTacheValidateur($typeSoumission == 'VP' ? $devisMagasin->getTacheValidateur() : null)
         ;
     }
 }

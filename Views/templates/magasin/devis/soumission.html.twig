@@ -21,7 +21,8 @@
 					<div class="row">
 						{{ form_row(form.numeroDevis) }}
 					</div>
-					<div class="row">
+
+					<div class="row {{message == 'verification prix' ? '' : 'd-none'}}">
 						<div class="col-12 col-md-4">
 							{{ form_row(form.tacheValidateur) }}
 						</div>
@@ -33,7 +34,8 @@
 							</p>
 							{% include '/partials/_dropZoneFile.html.twig' with {'id': '1', 'form': form, 'fieldName': 'pieceJoint01'} %}
 						</div>
-						<div class="col-12 col-md-3">
+
+						<div class="col-12 col-md-3 {{message == 'verification prix' ? '' : 'd-none'}}">
 							<p>Insérer
 								<strong>les autres fichiers ici *</strong>
 							</p>
@@ -60,11 +62,13 @@
 						Devis
 					</button>
 				</li>
-				<li class="nav-item" role="presentation">
-					<button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
-						Autres fichiers
-					</button>
-				</li>
+				{% if message == 'verification prix' %}
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="tab2-tab" data-bs-toggle="tab" data-bs-target="#tab2" type="button" role="tab">
+							Autres fichiers
+						</button>
+					</li>
+				{% endif %}
 			</ul>
 
 			<!-- Contenu des onglets -->
@@ -74,10 +78,12 @@
 				<div class="tab-pane fade show active" id="tab1" role="tabpanel" aria-labelledby="tab1-tab">
 					<div id="file-list-1" class="mt-3"></div>
 				</div>
-				<!-- Tab 2 -->
-				<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
-					<div id="file-list-2" class="mt-3"></div>
-				</div>
+				{% if message == 'verification prix' %}
+					<!-- Tab 2 -->
+					<div class="tab-pane fade" id="tab2" role="tabpanel" aria-labelledby="tab2-tab">
+						<div id="file-list-2" class="mt-3"></div>
+					</div>
+				{% endif %}
 			</div>
 		</div>
 	</div>
