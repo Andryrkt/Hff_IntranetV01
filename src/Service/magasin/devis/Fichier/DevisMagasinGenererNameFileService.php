@@ -25,7 +25,8 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
                 'numeroVersion' => $numeroVersion,
                 'suffix' => $suffix,
                 'mail' => $mail
-            ]
+            ],
+            'sauter_premier_index' => false // Ne pas sauter le premier index
         ], $index);
     }
 
