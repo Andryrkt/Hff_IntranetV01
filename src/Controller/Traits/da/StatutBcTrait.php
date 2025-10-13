@@ -339,18 +339,13 @@ trait StatutBcTrait
 
     private function updateInfoOR(string $numDit, DaAfficher $DaAfficher)
     {
-        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
         $datePlanningOr = $this->getDatePlannigOr($numOr);
 
         $DaAfficher
             ->setNumeroOr($numOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
-
-        // ? Désactiver la mise à jour du statut OR dans DaAfficher
-        /* if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
-            $DaAfficher->setStatutOr($statutOr);
-        } */
     }
 
     private function getDatePlannigOr(?string $numOr)
