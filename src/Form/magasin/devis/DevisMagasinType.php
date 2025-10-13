@@ -3,6 +3,7 @@
 namespace App\Form\magasin\devis;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
@@ -13,6 +14,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DevisMagasinType extends AbstractType
 {
+    private const TACHE_VALIDATEUR = [
+        'Vérification prix' => 'Vérification prix',
+        'Remise' => 'Remise',
+        'Vérification prix et remise' => 'Vérification prix et remise',
+    ];
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -57,7 +64,13 @@ class DevisMagasinType extends AbstractType
                     ],
                 ]
             )
-            ;
+            ->add('tacheValidateur', ChoiceType::class, [
+                'label' => 'Tâche du validateur',
+                'choices' => self::TACHE_VALIDATEUR,
+                'data' => 'Vérification prix',
+                'expanded' => false,
+            ])
+        ;
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)
