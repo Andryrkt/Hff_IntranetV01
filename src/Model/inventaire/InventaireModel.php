@@ -309,7 +309,7 @@ class InventaireModel extends Model
 	                    AND ainvp_numinv = ( select  max(ainvi_numinv) from art_invi  where ainvi_numinv_mait = '" . $numInv . "')
 	                    AND ainvp_nbordereau > 0
                         $ecart
-                    	order by 4,2,3
+                    	order by 4,3
                     ";
         //  dd($statement);
         $result = $this->connect->executeQuery($statement);
@@ -330,6 +330,7 @@ class InventaireModel extends Model
                         $dateDebut
                         $dateFin
                         AND  ainvi_comment not matches 'KPI*'
+                        AND ainvi_sequence = 1
                        order by 1
         ";
         // dd($statement);

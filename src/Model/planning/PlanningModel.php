@@ -218,7 +218,8 @@ class PlanningModel extends Model
 		                order by 10  ";
 
 
-    // dump($statement);
+     dump($statement);
+     die;
     $result = $this->connect->executeQuery($statement);
     $data = $this->connect->fetchResults($result);
     $resultat = $this->convertirEnUtf8($data);
