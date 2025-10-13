@@ -309,7 +309,7 @@ class InventaireModel extends Model
 	                    AND ainvp_numinv = ( select  max(ainvi_numinv) from art_invi  where ainvi_numinv_mait = '" . $numInv . "')
 	                    AND ainvp_nbordereau > 0
                         $ecart
-                    	order by 2,3
+                    	order by 4,2,3
                     ";
         //  dd($statement);
         $result = $this->connect->executeQuery($statement);

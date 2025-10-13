@@ -135,6 +135,7 @@ class DetailInventaireController extends Controller
 
     public function recupData($inventDispo)
     {
+
         $data = [];
         if (!empty($inventDispo)) {
             for ($i = 0; $i < count($inventDispo); $i++) {
@@ -149,13 +150,13 @@ class DetailInventaireController extends Controller
                     'desi' => $inventDispo[$i]['desi'],
                     'casier' => $inventDispo[$i]['casier'],
                     'tsock' => $inventDispo[$i]['tsk'],
-                    'prix' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['prix'])),
-                    'valeur_stock' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['valeur_stock'])),
+                    'prix' =>(float)  $inventDispo[$i]['prix'],
+                    'valeur_stock' => (float) $inventDispo[$i]['valeur_stock'],
                     'comptage1' => $inventDispo[$i]['comptage1'],
                     'comptage2' => $inventDispo[$i]['comptage2'],
                     'comptage3' => $inventDispo[$i]['comptage3'],
                     'ecart' => $inventDispo[$i]['ecart'] == "0.00" ? "" : $inventDispo[$i]['ecart'],
-                    'montant_ecart' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['montant_ecart'])) == "0,0" ? "" : str_replace(".", "", $this->formatNumber($inventDispo[$i]['montant_ecart'])),
+                    'montant_ecart' => (float) ($inventDispo[$i]['montant_ecart'] == "0,0" ? 0.0 :$inventDispo[$i]['montant_ecart']),
                 ];
             }
         }
