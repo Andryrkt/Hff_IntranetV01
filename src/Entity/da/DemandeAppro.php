@@ -405,20 +405,6 @@ class DemandeAppro
     }
 
     /**
-     * Définit la date de fin souhaitée automatiquement à 3 jours ouvrables à partir d'aujourd'hui.
-     *
-     * @return  self
-     */
-    public function setDateFinSouhaiteAutomatique()
-    {
-        $date = $this->ajouterJoursOuvrables(3);
-
-        $this->setDateFinSouhaite($date);
-
-        return $this;
-    }
-
-    /**
      * Get the value of statutDal
      *
      * @return string

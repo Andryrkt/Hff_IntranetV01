@@ -55,7 +55,6 @@ trait DaNewAvecDitTrait
             ->setUser($this->getUser())
             ->setNumeroDemandeAppro($this->autoDecrement('DAP'))
             ->setDemandeur($this->getUser()->getNomUtilisateur())
-            ->setDateFinSouhaiteAutomatique() // Définit la date de fin souhaitée automatiquement à 3 jours après la date actuelle
         ;
 
         return $demandeAppro;
