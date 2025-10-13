@@ -111,7 +111,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numeroVersionMax);
+                $this->modificationDaAfficher($numDa, $numeroVersionMax, $numCde);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -126,10 +126,16 @@ class DaSoumissionFacBlController extends Controller
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, int $numeroVersionMax): void
+    private function modificationDaAfficher(string $numDa, int $numeroVersionMax, string $numCde): void
     {
-        $daAfficher = $this->getEntityManager()->getRepository(DaAfficher::class)->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        $daAfficher->setEstFactureBlSoumis(true);
+        $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
+        foreach ($daAffichers as  $daAfficher) {
+            if (!$daAfficher instanceof DaAfficher) {
+                throw new Exception('Erreur: L\'objet DaAfficher est invalide.');
+            }
+            $daAfficher->setEstFactureBlSoumis(true);
+            $this->getEntityManager()->persist($daAfficher);
+        }
         $this->getEntityManager()->flush();
     }
 
