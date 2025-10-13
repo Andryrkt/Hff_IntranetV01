@@ -67,7 +67,10 @@ class DaNewAvecDitController extends Controller
         $dit = $this->ditRepository->find($ditId);
 
         $demandeAppro = $daId === 0 ? $this->initialisationDemandeApproAvecDit($dit) : $this->demandeApproRepository->findAvecDernieresDALetLR($daId);
-        $demandeAppro->setDit($dit);
+        $demandeAppro
+            ->setDit($dit)
+            ->setDateFinSouhaite($this->dateLivraisonPrevueDA($dit->getNumeroDemandeIntervention(), $dit->getIdNiveauUrgence()->getDescription()))
+        ;
 
         $form = $this->getFormFactory()->createBuilder(DemandeApproFormType::class, $demandeAppro)->getForm();
         $this->traitementForm($form, $request, $demandeAppro, $dit);
