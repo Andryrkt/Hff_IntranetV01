@@ -66,6 +66,16 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->setAbsY(83);
 
         //===================================================================================================
+        /**PRIORITE */
+        $this->renderTextWithLine($pdf, 'Priorité');
+
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->setFont('helvetica', 'B', 10);
+        $pdf->cell(20, 6, 'Urgence :', 0, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->cell(25, 6, $da->getNiveauUrgence(), 1, 0, '', false, '', 0, false, 'T', 'M');
+        $pdf->Ln(6, true);
+
+        //===================================================================================================
         /**AGENCE-SERVICE */
         $this->renderTextWithLine($pdf, 'Agence - Service');
 

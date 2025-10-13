@@ -77,6 +77,8 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
 
+        //===================================================================================================
+        /**INTERVENTION */
         $this->renderTextWithLine($pdf, 'Intervention');
 
         $pdf->SetTextColor(0, 0, 0);
