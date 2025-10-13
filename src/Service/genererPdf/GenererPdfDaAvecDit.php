@@ -32,7 +32,6 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
-        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'DEMANDE D\'APPROVISIONNEMENT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
         // entête email
