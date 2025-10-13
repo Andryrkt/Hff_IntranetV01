@@ -22,7 +22,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableGeneratorDaAvecDit();
+        $generator = new PdfTableMatriceGenerator();
 
         $pdf->AddPage();
 
@@ -179,14 +179,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);
-        $header = [
-            ['key' => 'reference',   'label' => 'Référence',   'width' => 110, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'designation', 'label' => 'Désignation', 'width' => 190, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'pu1',         'label' => 'PU',          'width' => 80,  'style' => 'font-weight: bold; text-align: right;'],
-            ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
-            ['key' => 'mttTotal',    'label' => 'Montant',     'width' => 100, 'style' => 'font-weight: bold; text-align: right;'],
-        ];
-        $html1 = $generator->generateTableForDA($header, $dals);
+        $html1 = $generator->generer($dals);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=========================================================================================
@@ -206,6 +199,6 @@ class GenererPdfDaAvecDit extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", 'F');
+        $pdf->Output("$Dossier/$numDa.pdf");
     }
 }
