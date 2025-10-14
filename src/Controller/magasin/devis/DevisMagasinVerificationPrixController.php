@@ -116,7 +116,6 @@ class DevisMagasinVerificationPrixController extends Controller
             $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
 
-
             /** 
              * Enregistrement de fichier uploder
              * @var array $nomEtCheminFichiersEnregistrer 
@@ -128,8 +127,7 @@ class DevisMagasinVerificationPrixController extends Controller
             // creation de pdf 
             $this->generatePdfDevisMagasin->genererPdf($this->getUser(), $devisMagasin, $nomAvecCheminFichier);
             //insertion de la page de garde à la position 0
-            $nomEtCheminFichiersEnregistrer = $this->traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomFichier, 0);
-
+            $nomEtCheminFichiersEnregistrer = $this->traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);;
             /** @var array fusions des fichiers */
             $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
             $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
@@ -150,5 +148,4 @@ class DevisMagasinVerificationPrixController extends Controller
             $this->historiqueOperationDeviMagasinService->sendNotificationSoumission($message, $devisMagasin->getNumeroDevis(), 'devis_magasin_liste', true);
         }
     }
-
 }
