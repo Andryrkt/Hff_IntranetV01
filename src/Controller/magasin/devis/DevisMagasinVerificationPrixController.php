@@ -123,9 +123,9 @@ class DevisMagasinVerificationPrixController extends Controller
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0]);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VERIFICATION_PRIX);
 
-            //TODO: creation de pdf (à specifier par Antsa)
+            // creation de pdf 
             $this->generatePdfDevisMagasin->genererPdf($this->getUser(), $devisMagasin, $nomAvecCheminFichier);
             //insertion de la page de garde à la position 0
             $nomEtCheminFichiersEnregistrer = $this->traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomFichier, 0);
@@ -151,27 +151,4 @@ class DevisMagasinVerificationPrixController extends Controller
         }
     }
 
-
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail): array
-    {
-        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
-        if (!is_dir($devisPath)) {
-            mkdir($devisPath, 0777, true);
-        }
-
-        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
-            'repertoire' => $devisPath,
-            'generer_nom_callback' => function (
-                UploadedFile $file,
-                int $index
-            ) use ($numDevis, $numeroVersion, $suffix, $mail) {
-                return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-            }
-        ]);
-
-        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
-        $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
-
-        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
-    }
 }

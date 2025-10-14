@@ -15,7 +15,6 @@ use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Model\magasin\devis\ListeDevisMagasinModel;
-use App\Service\genererPdf\GeneratePdfDevisMagasin;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
@@ -40,7 +39,6 @@ class DevisMagasinValidationDevisController extends Controller
     private ListeDevisMagasinModel $listeDevisMagasinModel;
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private string $cheminBaseUpload;
-    private GeneratePdfDevisMagasin $generatePdfDevisMagasin;
     private DevisMagasinRepository $devisMagasinRepository;
     private DevisMagasinGenererNameFileService $nameGenerator;
     private UploderFileService $uploader;
@@ -53,7 +51,6 @@ class DevisMagasinValidationDevisController extends Controller
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
-        $this->generatePdfDevisMagasin = new GeneratePdfDevisMagasin();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
         $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
@@ -125,7 +122,7 @@ class DevisMagasinValidationDevisController extends Controller
              * @var string $nomAvecCheminFichier
              * @var string $nomFichier
              */
-            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0]);
+            [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $devisMagasin->getNumeroDevis(), VersionService::autoIncrement($numeroVersion), $suffixConstructeur, explode('@', $this->getUserMail())[0], self::TYPE_SOUMISSION_VALIDATION_DEVIS);
 
             /** @var array fusions des fichiers */
             $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
@@ -149,26 +146,4 @@ class DevisMagasinValidationDevisController extends Controller
         }
     }
 
-    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail): array
-    {
-        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
-        if (!is_dir($devisPath)) {
-            mkdir($devisPath, 0777, true);
-        }
-
-        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
-            'repertoire' => $devisPath,
-            'generer_nom_callback' => function (
-                UploadedFile $file,
-                int $index
-            ) use ($numDevis, $numeroVersion, $suffix, $mail) {
-                return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
-            }
-        ]);
-
-        $nomAvecCheminFichier = $nomEtCheminFichiersEnregistrer[0];
-        $nomFichier = $this->nameGenerator->getNomFichier($nomEtCheminFichiersEnregistrer);
-
-        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
-    }
 }
