@@ -8,25 +8,6 @@ use App\Entity\admin\dom\SousTypeDocument;
 
 trait CongeListeTrait
 {
-    // ce trait contient les methodes pour la liste des conges
-    private function autorisationRole($em): bool
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        $roleIds = $userConnecter->getRoleIds();
-        return in_array(1, $roleIds);
-        //FIN AUTORISATION
-    }
-
-    private function agenceIdAutoriser($em): array
-    {
-        /** CREATION D'AUTORISATION */
-        $userId = $this->getSessionService()->get('user_id');
-        $userConnecter = $em->getRepository(User::class)->find($userId);
-        return $userConnecter->getAgenceAutoriserIds();
-        //FIN AUTORISATION
-    }
 
     private function initialisation($congeSearch, $em)
     {
