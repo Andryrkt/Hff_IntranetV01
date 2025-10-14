@@ -8,6 +8,7 @@ use App\Entity\admin\dom\SousTypeDocument;
 
 trait CongeListeTrait
 {
+    // ce trait contient les methodes pour la liste des conges
     private function autorisationRole($em): bool
     {
         /** CREATION D'AUTORISATION */
