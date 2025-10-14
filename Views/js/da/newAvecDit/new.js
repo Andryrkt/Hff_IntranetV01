@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
       confirmButtonText: "Compris",
       confirmButtonColor: "#fbbb01", // couleur cohérente avec ton style
       customClass: {
-        popup: "text-start", // alignement gauche professionnel
+        htmlContainer: "swal-text-left",
       },
     });
   });

@@ -94,9 +94,9 @@ trait DaNewAvecDitTrait
     /**
      * Définit la date de fin souhaitée automatiquement à 3 jours ouvrables à partir d'aujourd'hui.
      *
-     * @return  self
+     * @return DateTime la date de livraison prévue.
      */
-    public function dateLivraisonPrevueDA(string $numDit, string $niveauUrgence)
+    public function dateLivraisonPrevueDA(string $numDit, string $niveauUrgence): DateTime
     {
         $jours = ['P0' => 5, 'P1' => 7, 'P2' => 10, 'P3' => 15, 'P4' => 15];
         [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
