@@ -1,8 +1,30 @@
+import { formatDatePartielDate } from "../../tik/calendarModule/formatDateModule";
 import { displayOverlay } from "../../utils/spinnerUtils";
 import { ajouterUneLigne } from "./dal";
 
 document.addEventListener("DOMContentLoaded", function () {
   buildIndexFromLines(); // initialiser le compteur de ligne pour la création d'une DA avec DIT
+
+  const dateFinSouhaiteeInput = document.getElementById(
+    "demande_appro_form_dateFinSouhaite"
+  );
+  const dateFinSouhaiteevalue = dateFinSouhaiteeInput.value;
+  const dateFinSouhaitee = new Date(dateFinSouhaiteevalue);
+
+  // Ajouter un écouteur d'événement pour la validation de la date
+  dateFinSouhaiteeInput.addEventListener("change", function (e) {
+    const selectedDate = new Date(e.target.value);
+    if (selectedDate < dateFinSouhaitee) {
+      Swal.fire({
+        icon: "warning",
+        title: "Attention !",
+        text: `La date fin souhaitée ne peut pas être antérieure à la date initiale prévue (${formatDatePartielDate(
+          dateFinSouhaitee
+        )}).`,
+      });
+      e.target.value = dateFinSouhaiteevalue; // réinitialiser à la valeur précédente
+    }
+  });
 
   document
     .getElementById("add-child")
