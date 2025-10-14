@@ -102,10 +102,10 @@ trait DaNewAvecDitTrait
         [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
         $datePlanningOR = $this->getDatePlannigOr($numOr);
         if ($datePlanningOR) { // DIT avec OR plannifiée
-            $dateDans7JoursOuvrables = $this->ajouterJoursOuvrables(7);
-            if ($datePlanningOR < $dateDans7JoursOuvrables) { // si date planning or - date du jour < 7 (ouvrable)
+            $dateDans12JoursOuvrables = $this->ajouterJoursOuvrables(12);
+            if ($datePlanningOR < $dateDans12JoursOuvrables) { // si date planning or - date du jour < 12 (ouvrable)
                 return $this->ajouterJoursOuvrables(5);
-            } else { // si date planning or - date du jour >= 7 (ouvrable)
+            } else { // si date planning or - date du jour >= 12 (ouvrable)
                 return $this->retirerJoursOuvrables(7, $datePlanningOR); // on retire 7 jours ouvrables à la date planning or
             }
         } else { // DIT sans OR ou avec OR non plannifiée
