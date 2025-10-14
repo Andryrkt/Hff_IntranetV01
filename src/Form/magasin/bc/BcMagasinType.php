@@ -2,13 +2,14 @@
 
 namespace App\Form\magasin\bc;
 
-use Doctrine\DBAL\Types\TextType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Callback;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class BcMagasinType extends AbstractType
@@ -30,6 +31,17 @@ class BcMagasinType extends AbstractType
                 'label' => 'Montant BC * ',
                 'required' => true,
             ])
+            ->add(
+                'observation',
+                TextareaType::class,
+                [
+                    'label' => 'Observation',
+                    'required' => false,
+                    'attr' => [
+                        'rows' => 5,
+                    ],
+                ]
+            )
             ->add(
                 'pieceJoint01',
                 FileType::class,
