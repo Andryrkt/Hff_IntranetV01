@@ -2,6 +2,7 @@
 
 namespace App\Service\genererPdf;
 
+use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeAppro;
 use TCPDF;
 
@@ -11,11 +12,12 @@ class GenererPdfDaDirect extends GeneratePdf
      * Fonction pour générer le PDF d'un bon d'achat validé d'une DA sans DIT
      * 
      * @param DemandeAppro $da la DA correspondante
+     * @param iterable<DaObservation> $observations les observations liées à la DA
      * @param string $userMail l'email de l'utilisateur (optionnel)
      * 
      * @return void
      */
-    public function genererPdfBonAchatValide(DemandeAppro $da, string $userMail = ''): void
+    public function genererPdfBonAchatValide(DemandeAppro $da, iterable $observations, string $userMail = ''): void
     {
         $pdf = new TCPDF();
         $dals = $da->getDAL();
