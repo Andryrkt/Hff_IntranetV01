@@ -36,7 +36,14 @@
 								{{ form_row(form.detailDal) }}
 								<span id="charCount" class="position-absolute bottom-0 end-0 p-0 small text-muted"></span>
 							</div>
-							{{ form_row(form.dateFinSouhaite) }}
+							<div class="row">
+								<div class="col col-md">
+									{{ form_row(form.niveauUrgence) }}
+								</div>
+								<div class="col col-md">
+									{{ form_row(form.dateFinSouhaite) }}
+								</div>
+							</div>
 						</div>
 						<div class="col-12 col-md-4">
 							{{ macroForm.sousTitre3('Agence et service') }}
