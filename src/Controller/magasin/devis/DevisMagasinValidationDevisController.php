@@ -18,6 +18,7 @@ use App\Model\magasin\devis\ListeDevisMagasinModel;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
+use App\Service\genererPdf\magasin\devis\GeneratePdfDeviMagasinVp;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
 use App\Service\magasin\devis\Validator\DevisMagasinValidationOrchestrator;
@@ -43,6 +44,7 @@ class DevisMagasinValidationDevisController extends Controller
     private DevisMagasinGenererNameFileService $nameGenerator;
     private UploderFileService $uploader;
     private TraitementDeFichier $traitementDeFichier;
+    private GeneratePdfDeviMagasinVp $generatePdfDevisMagasin;
 
     public function __construct()
     {
@@ -55,6 +57,7 @@ class DevisMagasinValidationDevisController extends Controller
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
         $this->uploader = new UploderFileService($this->cheminBaseUpload, $this->nameGenerator);
         $this->traitementDeFichier = new TraitementDeFichier();
+        $this->generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
     }
 
     /**
@@ -114,7 +117,7 @@ class DevisMagasinValidationDevisController extends Controller
             /** @var int recupération de numero version max */
             $numeroVersion = $this->devisMagasinRepository->getNumeroVersionMax($devisMagasin->getNumeroDevis());
 
-            //TODO: creation de pdf (à specifier par Antsa)
+            // TODO: creation de pdf (à specifier par Antsa)
 
             /** 
              * Enregistrement de fichier uploder
