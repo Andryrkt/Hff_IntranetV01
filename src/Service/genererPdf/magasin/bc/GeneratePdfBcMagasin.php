@@ -10,6 +10,29 @@ use App\Service\genererPdf\PdfTableGeneratorFlexible;
 
 class GeneratePdfBcMagasin extends GeneratePdf
 {
+    /**
+     * copie la page de garde du devis magasin dans docuware
+     *
+     * @param string $fileName
+     * @param string $numeroDevis
+     * @return void
+     */
+    public function copyToDWBcMagasin(string $fileName, string $numeroDevis): void
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    /**
+     * creation du pdf de la page de garde du BC magasin
+     *
+     * @param User $user
+     * @param BcMagasinDto $dto
+     * @param string $filePath
+     * @param float $montantDevis
+     * @return void
+     */
     public function generer(User $user, BcMagasinDto $dto, string $filePath, float $montantDevis): void
     {
         $pdf = new HeaderPdf($user->getNomUtilisateur() . ' - ' . $user->getMail());
@@ -61,8 +84,7 @@ class GeneratePdfBcMagasin extends GeneratePdf
         $html1 = $generatorFlexible->generateTable($header, $dto->lignes, []);
         $pdf->writeHTML($html1, true, false, true, false, '');
 
-        $pdf->Output($filePath, 'I');
-        die('Fin');
+        $pdf->Output($filePath, 'F');
     }
 
     private function headerTableau(): array
@@ -122,14 +144,14 @@ class GeneratePdfBcMagasin extends GeneratePdf
             ],
             [
                 'key' => 'remise1',
-                'label' => 'remise1',
+                'label' => '%remise1',
                 'width' => 30,
                 'style' => $styleBoldCenter,
                 'type' => 'number',
             ],
             [
                 'key' => 'remise2',
-                'label' => 'remise2',
+                'label' => '%remise2',
                 'width' => 30,
                 'style' => $styleBoldCenter,
                 'type' => 'number',

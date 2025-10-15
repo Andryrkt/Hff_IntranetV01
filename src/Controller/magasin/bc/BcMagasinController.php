@@ -21,6 +21,7 @@ use App\Factory\magasin\bc\BcMagasinDtoFactory;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\genererPdf\magasin\bc\GeneratePdfBcMagasin;
+use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 
 /**
@@ -32,12 +33,14 @@ class BcMagasinController extends Controller
     use PdfConversionTrait;
 
     private string $cheminBaseUpload;
+    private HistoriqueOperationBcMagasinService $historiqueOperationBcMagasinService;
 
     public function __construct()
     {
         parent::__construct();
         global $container;
         $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
+        $this->historiqueOperationBcMagasinService = $container->get(HistoriqueOperationBcMagasinService::class);
     }
 
     /**
@@ -87,9 +90,9 @@ class BcMagasinController extends Controller
             // Enregistrement des données dans la base de données
             $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
 
-
-            //TODO: historique du document
-
+            // historique du document
+            $message = 'Le bon de commande a été soumis avec succès.';
+            $this->historiqueOperationBcMagasinService->sendNotificationSoumission($message, $numeroDevis, 'devis_magasin_liste', true);
         }
     }
 
@@ -115,7 +118,8 @@ class BcMagasinController extends Controller
         $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
         $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
 
-        // TODO: envoie du pdf fusion dans DW
+        // copie du pdf fusioné dans DW
+        $generatePdf->copyToDWBcMagasin($nomFichier, $numeroDevis);
     }
 
     private function enregistrementDonnees(BcMagasinDto $dto, ?float $montantDevis, $numeroVersionMax): void
