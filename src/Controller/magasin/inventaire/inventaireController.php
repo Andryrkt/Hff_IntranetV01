@@ -22,6 +22,7 @@ use App\Service\genererPdf\GeneretePdfBordereau;
 use App\Entity\inventaire\InventaireDetailSearch;
 use App\Service\genererPdf\GeneretePdfInventaire;
 use App\Form\inventaire\InventaireDetailSearchType;
+
 /**
  * @Route("/magasin/inventaire")
  */
@@ -251,9 +252,19 @@ class InventaireController extends Controller
             $sumNbrEcart = 0;
             $sumNbrPourcentEcart = 0;
             for ($i = 0; $i < count($listInvent); $i++) {
-                $numIntvMax = $this->inventaireModel->maxNumInv($listInvent[$i]['numero_inv']);
-                // dump($numIntvMax);
-                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvMax[0]['numinvmax']);
+                $numIntvAssocie = $this->inventaireModel->getInventairesAssocies($listInvent[$i]['numero_inv']);
+                $invLigne = $this->inventaireModel->inventaireLigneEC($numIntvAssocie[0]['numinv']);
+                // condition pour avoir le résultat de 1
+                if (
+                    $invLigne[0]['nbre_ref_ecarts_positif'] == 0 &&
+                    $invLigne[0]['nbre_ref_ecarts_negatifs'] == 0 &&
+                    $invLigne[0]['total_nbre_ref_ecarts'] == 0 &&
+                    $invLigne[0]['pourcentage_ref_avec_ecart'] == 0 &&
+                    $invLigne[0]['montant_ecart'] == 0 &&
+                    $invLigne[0]['pourcentage_ecart'] == 0
+                ) { // = 0 daholo le résultat (champ1 = 0 && champ2 = 0 && ....)
+                    $invLigne = isset($numIntvAssocie[1]) ? $this->inventaireModel->inventaireLigneEC($numIntvAssocie[1]['numinv']) : $invLigne;
+                }
                 // $sumMontEcart = $this->inventaireModel->sumInventaireDetail($numIntvMax[0]['numinvmax']);
                 // dump($sumMontEcart);
                 if ($listInvent[$i]['date_clo'] == null) {

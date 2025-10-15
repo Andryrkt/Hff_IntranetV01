@@ -146,6 +146,19 @@ class InventaireModel extends Model
         return $resultat;
     }
 
+    public function getInventairesAssocies($numInv)
+    {
+        $statement = "SELECT  ainvi_numinv as numInv
+                      FROM art_invi WHERE ainvi_numinv_mait = '" . $numInv . "' 
+                      ORDER BY ainvi_numinv DESC
+                      ";
+        $result = $this->connect->executeQuery($statement);
+        //  dump($statement);
+        $data = $this->connect->fetchResults($result);
+        $resultat = $this->convertirEnUtf8($data);
+        return $resultat;
+    }
+
     public function inventaireLigneEC($numInvMax)
     {
         $statement = "SELECT 
