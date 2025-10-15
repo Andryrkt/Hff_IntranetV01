@@ -15,6 +15,8 @@ class BcMagasin
 {
     use DateTrait;
 
+    public const STATUT_SOUMIS_VALIDATION = 'Soumis à validation';
+
     /**
      * @ORM\Id
      * @ORM\GeneratedValue

@@ -4,10 +4,12 @@ namespace App\Controller\magasin\bc;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\magasin\bc\BcMagasin;
 use App\Form\magasin\bc\BcMagasinType;
 use App\Model\magasin\bc\BcMagasinDto;
+use App\Model\magasin\bc\BcMagasinModel;
 use App\Controller\Traits\AutorisationTrait;
-use App\Entity\magasin\bc\BcMagasin;
+use App\Factory\magasin\bc\BcMagasinFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Factory\magasin\bc\BcMagasinDtoFactory;
@@ -46,15 +48,19 @@ class BcMagasinController extends Controller
         ]);
     }
 
-    public function tratitementFormulaire($form, Request $request)
+    public function tratitementFormulaire($form, Request $request, ?string $numeroDevis = null): void
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var \App\Model\magasin\bc\BcMagasinDto $dto */
+            /** @var BcMagasinDto $dto */
             $dto = $form->getData();
 
+            // recupération montant devis
+            $bcMagasinModel = new BcMagasinModel();
+            $montantDevis  = $bcMagasinModel->getMontantDevis($numeroDevis)[0] ?? 0.00;
+
             // Utiliser la factory pour créer l'entité à partir du DTO
-            $this->enregistrementDonnees($dto);
+            $this->enregistrementDonnees($dto, (float) $montantDevis);
 
             // TODO: creation de page de garde
 
@@ -69,11 +75,13 @@ class BcMagasinController extends Controller
         }
     }
 
-    private function enregistrementDonnees(BcMagasinDto $dto): void
+    private function enregistrementDonnees(BcMagasinDto $dto, ?float $montantDevis): void
     {
-        $factory = new \App\Factory\magasin\bc\BcMagasinFactory();
-        $bcMagasin = $factory->createFromDto($dto, $this->getUser());
         $entityManager = $this->getEntityManager();
+
+        $factory = new BcMagasinFactory();
+        $bcMagasin = $factory->createFromDto($dto, $this->getUser(), $entityManager, $montantDevis);
+
         $entityManager->persist($bcMagasin);
         $entityManager->flush();
     }

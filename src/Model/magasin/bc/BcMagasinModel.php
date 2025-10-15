@@ -35,4 +35,22 @@ class BcMagasinModel extends Model
 
         return $this->convertirEnUtf8($data);
     }
+
+    public function getMontantDevis(string $numeroDevis): array
+    {
+        $statement = " SELECT nent_cdeht as montant
+            FROM neg_ent
+            WHERE nent_natop = 'DEV'
+            AND nent_soc = 'HF'
+            AND CAST(nent_numcli AS VARCHAR(20)) NOT LIKE '199%'
+            AND year(Nent_datecde) = '2025'
+            and nent_numcde ='$numeroDevis'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+
+        $data = $this->connect->fetchResults($result);
+
+        return array_column($this->convertirEnUtf8($data), 'montant');
+    }
 }
