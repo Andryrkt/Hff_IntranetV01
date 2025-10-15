@@ -111,6 +111,7 @@ class DetailInventaireController extends Controller
         $listInvent = $this->InventaireModel->ligneInventaire($criteria);
         $data = $this->recupData($listInvent);
         $header = [
+            'saisie_compte' => 'Saisie Comptage',
             'numinv' => 'Numéro',
             'date' => 'Date',
             'nbr_comptage' => 'Nbr comptage',
@@ -124,8 +125,11 @@ class DetailInventaireController extends Controller
             'prix' => 'Prix',
             'valeur_stock' => 'Valeur stock',
             'comptage1' => 'Comptage1',
+            'ecart1' => 'Ecart 1',
             'comptage2' => 'Comptage2',
+            'ecart2' => 'Ecart 2',
             'comptage3' => 'Comptage3',
+            'ecart3' => 'Ecart 3',
             'ecart' => 'Ecart',
             'montant_ecart' => 'Mont.ecart',
         ];

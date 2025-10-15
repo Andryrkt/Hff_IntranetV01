@@ -139,6 +139,8 @@ class InventaireController extends Controller
         $listInvent = $this->inventaireModel->listeInventaire($this->inventaireSearch);
         $data = $this->recupDataList($listInvent);
         $header = [
+            'saisie_compte' => 'Saisie compte',
+            'compte_cours' => 'Comptage encours',
             'numero' => 'Numéro',
             'description' => 'Description',
             'ouvert' => 'Ouvert le',

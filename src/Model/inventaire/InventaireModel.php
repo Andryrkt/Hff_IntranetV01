@@ -380,7 +380,7 @@ ainvp_prix as prix,
 ainvp_stktheo*ainvp_prix as Valeur_Stock,
 ROUND((ainvp_stktheo + ainvp_ecart)) as comptage1,
 ----ecart1
-  round((ainvp_stktheo + ainvp_ecart)) - (ainvp_stktheo*ainvp_prix) as ecart1,
+  round((ainvp_stktheo + ainvp_ecart)) - ROUND(ainvp_stktheo) as ecart1,
 --
 ROUND((
 select (cpt2.ainvp_stktheo + cpt2.ainvp_ecart)
@@ -436,7 +436,7 @@ and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
 and cpt2.ainvp_nligne = cpt.ainvp_nligne
 
 
-)) -(ainvp_stktheo*ainvp_prix )
+)) - ROUND(ainvp_stktheo)
 end as ecart2,
 ---
 ROUND((
@@ -493,7 +493,7 @@ and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
 and cpt3.ainvp_nligne = cpt.ainvp_nligne
 
 
-)) -(ainvp_stktheo*ainvp_prix ) 
+)) - ROUND(ainvp_stktheo)
 end as ecart3,
 ----
 CASE (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv)
