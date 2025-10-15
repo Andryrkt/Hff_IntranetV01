@@ -139,6 +139,7 @@ class DetailInventaireController extends Controller
         if (!empty($inventDispo)) {
             for ($i = 0; $i < count($inventDispo); $i++) {
                 $data[$i] = [
+                    'saisie_compte' => $inventDispo[$i]['saisie_comptage'],
                     'numinv' => $inventDispo[$i]['numinv'],
                     'date' => (new DateTime($inventDispo[$i]['date']))->format('d/m/Y'),
                     'nbr_comptage' => $inventDispo[$i]['nbr_comptage'],

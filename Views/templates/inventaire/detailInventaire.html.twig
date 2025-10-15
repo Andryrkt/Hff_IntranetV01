@@ -21,6 +21,7 @@
 		<table class="table rounded table-sticky text-center">
 			<thead class="table-dark">
 				<tr>
+					<th>Saisie comptage</th>
 					<th>Numéro</th>
 					<th>Date</th>
 					<th>Nbr comptage</th>
@@ -43,6 +44,7 @@
 			<tbody id="tableBody">
 				{% for item in data %}
 					<tr>
+						<td>{{ item.saisie_compte }}</td>
 						<td>{{ item.numinv }}</td>
 						<td>{{ item.date }}</td>
 						<td>{{ item.nbr_comptage }}</td>

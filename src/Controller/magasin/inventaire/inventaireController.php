@@ -84,7 +84,6 @@ class InventaireController extends Controller
         if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->inventaireModel->listeInventaire($criteria);
             $data = $this->recupDataList($listInvent, true);
-            // dump($data);
         }
         return $this->render('inventaire/inventaire.html.twig', [
             'form' => $form->createView(),
@@ -263,6 +262,10 @@ class InventaireController extends Controller
                     $dateCLo = (new DateTime($listInvent[$i]['date_clo']))->format('d/m/Y');
                 }
                 $data[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ----
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),
@@ -281,6 +284,10 @@ class InventaireController extends Controller
                     'pourcentage_ecart' => $invLigne[0]['pourcentage_ecart'] == "0%" ? "" : $invLigne[0]['pourcentage_ecart'],
                 ];
                 $dataExcel[$i] = [
+                    // ajoute de ces 2 colonnes
+                    'saisie_compte' => $listInvent[$i]['saisie_comptage'],
+                    'compte_cours' => $listInvent[$i]['comptage_encours'],
+                    // ------
                     'numero' => $listInvent[$i]['numero_inv'],
                     'description' => $listInvent[$i]['description'],
                     'ouvert' => (new DateTime($listInvent[$i]['ouvert_le']))->format('d/m/Y'),

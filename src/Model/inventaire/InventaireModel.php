@@ -45,6 +45,10 @@ class InventaireModel extends Model
         $dateD = $this->dateDebut($criteria);
         $dateF = $this->dateFin($criteria);
         $statement = "SELECT  
+        
+            decode((select count(*) from art_invp where ainvp_numinv = ainvi_numinv and ainvp_ctrlok > 0 and ainvp_stktheo > 0),0,'Non','Oui') as saisie_comptage,
+            (select max(b.ainvi_sequence) from art_invi b where b.ainvi_numinv_mait = ainvi.ainvi_numinv) as comptage_encours,
+
                 ainvi_numinv_mait as numero_inv, 
                 ainvi_date as ouvert_le, 
                 (SELECT MAX(DATE (ladm_date)) FROM log_art_invi A 
@@ -119,10 +123,11 @@ class InventaireModel extends Model
                 ainvi_cloture,
                 nbre_casier,
                 date_clo,
-                statut
+                statut,
+                saisie_comptage,
+                comptage_encours
                 order by ainvi_numinv_mait desc
         ";
-        // dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
@@ -346,8 +351,9 @@ class InventaireModel extends Model
     public function ligneInventaire($criteria)
     {
         $inventDispo = $this->invenatireDispoligne($criteria);
-       
+
         $statement = "SELECT ainvi_numinv_mait as numinv, 
+decode(ainvp_ctrlok ,0,'Non','Oui') as saisie_comptage,
 ainvi_date as date ,
  (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv) as nbr_comptage,
 ROUND(ainvp_nbordereau) as nb_bordereau, 
@@ -427,7 +433,6 @@ WHERE ainvp_nbordereau <> 0
 and (ainvp_numinv = ainvi_numinv_mait and ainvi_sequence = 1)
  $inventDispo
 order by ainvi_numinv_mait, ainvi_numinv,ainvp_nbordereau, ainvp_nligne";
-        // dd($statement);
         $result = $this->connect->executeQuery($statement);
         $data = $this->connect->fetchResults($result);
         $resultat = $this->convertirEnUtf8($data);
