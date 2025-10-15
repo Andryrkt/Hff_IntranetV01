@@ -2,6 +2,7 @@
 
 namespace App\Form\magasin\bc;
 
+use App\Model\magasin\bc\BcMagasinDto;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Validator\Constraints\File;
@@ -11,6 +12,8 @@ use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class BcMagasinType extends AbstractType
 {
@@ -77,7 +80,10 @@ class BcMagasinType extends AbstractType
                     ],
                 ]
             )
-        ;
+            ->add('lignes', CollectionType::class, [
+                'entry_type' => BcMagasinLigneType::class,
+                'entry_options' => ['label' => false],
+            ]);
     }
 
     public function validateFiles($files, ExecutionContextInterface $context)
@@ -114,10 +120,10 @@ class BcMagasinType extends AbstractType
         }
     }
 
-    public function configureOptions(\Symfony\Component\OptionsResolver\OptionsResolver $resolver): void
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            // Configure your form options here
+            'data_class' => BcMagasinDto::class,
         ]);
     }
 }

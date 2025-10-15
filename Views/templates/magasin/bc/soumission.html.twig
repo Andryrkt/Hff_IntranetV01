@@ -4,7 +4,7 @@
 	<link href="{{ App.base_path }}/Views/css/magasin/devis/soumission.css?v=2025.09.15.08.00" rel="stylesheet"/>
 {% endblock %}
 {% block content %}
-	<div class=" container">
+	<div class=" container mt-6">
 		<div class="card">
 			<div class="card-body">
 
@@ -50,7 +50,69 @@
 					<div class="row">
 						{{ form_row(form.observation) }}
 					</div>
+					<div class="row table-container">
+						<table class="styled-table">
+							<thead>
+								<tr>
+									<th>N° Ligne</th>
+									<th>Constructeur</th>
+									<th>Référence</th>
+									<th>Désignation</th>
+									<th>Qté</th>
+									<th>Prix HT</th>
+									<th>Montant net</th>
+									<th>%Remise 1</th>
+									<th>%Remise 2</th>
+									<th>R.A.S</th>
+									<th>Qté à modifier</th>
+									<th>Ligne à supprimer</th>
+								</tr>
 
+							</thead>
+							<tbody>
+								{% for ligneForm in form.lignes %}
+									{% set ligneData = ligneForm.vars.data %}
+									<tr class="border-bottom" id="row-{{ ligneData.numeroLigne }}">
+										<td>{{ ligneData.numeroLigne }}</td>
+										<td class="text-center">{{ ligneData.constructeur }}</td>
+										<td>{{ ligneData.ref }}</td>
+										<td>{{ ligneData.designation }}</td>
+										<td class="text-center">{{ ligneData.qte }}</td>
+										<td>{{ ligneData.prixHt|number_format(2, ',', '.') }}</td>
+										<td>{{ ligneData.montantNet|number_format(2, ',', '.') }}</td>
+										<td>{{ ligneData.remise1|number_format(2, ',', '.') }}</td>
+										<td>{{ ligneData.remise2|number_format(2, ',', '.') }}</td>
+										<td>
+											<div class="checkbox-container">
+												{{ form_widget(ligneForm.ras, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
+												<span class="checkbox-label">{{ form_label(ligneForm.ras) }}</span>
+												<div id="ras-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;"></div>
+											</div>
+										</td>
+										<td>
+											<div class="checkbox-container">
+												{{ form_widget(ligneForm.qteModifier, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
+												<span class="checkbox-label">{{ form_label(ligneForm.qteModifier) }}</span>
+												<div id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
+													Modifiée
+												</div>
+											</div>
+										</td>
+										<td>
+											<div class="checkbox-container">
+												{{ form_widget(ligneForm.supprimer, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
+												<span class="checkbox-label">{{ form_label(ligneForm.supprimer) }}</span>
+												<div id="delete-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
+													À supprimer
+												</div>
+											</div>
+										</td>
+										{{ form_widget(ligneForm.numeroLigne) }}
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
 					<div class="d-flex justify-content-end">
 						<button type="submit" class="btn bouton mt-2" id="btn-enregistre-devis" data-confirmation data-form="#upload-form" data-confirmation-text="Vous êtes en train de soumettre le Bc client pour validation">
 							<i class="fas fa-save"></i>
