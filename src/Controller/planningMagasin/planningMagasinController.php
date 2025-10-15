@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\AutorisationTrait;
 use App\Form\planningMagasin\PlanningMagasinSearchType;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Controller\Traits\PlanningTraits;
+
 /**
  * @Route("/magasin")
  */
@@ -17,6 +19,9 @@ class planningMagasinController extends Controller
 {
 
     use AutorisationTrait;
+    use PlanningTraits;
+
+
     private PlanningMagasinModel $planningMagasinModel;
     private PlanningMagasinSearch $planningMagasinSearch;
 
@@ -60,8 +65,21 @@ class planningMagasinController extends Controller
             // dd($form->getdata());
             $criteria =  $form->getdata();
         }
+        if ($request->query->get('action') !== 'oui') {
+            $data = $this->planningMagasinModel->recuperationCommadeplanifier($criteria);
+            // dd($data);
+        } else {
+            $data = [];
+        }
+        $tabObjetPlanning = $this->creationTableauObjetPlanningMagasin($data);
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = $this->ajoutMoiDetailMagasin($tabObjetPlanning);
+        // dd($fusionResult);
+        $forDisplay = $this->prepareDataForDisplay($fusionResult, $criteria->getMonths() == null ? 3 : $criteria->getMonths());
         return $this->render('planningMagasin/planning.html.twig', [
-            'form' => $form->createView()
+            'form' => $form->createView(),
+            'uniqueMonths' => $forDisplay['uniqueMonths'],
+            'preparedData' => $forDisplay['preparedData'],
         ]);
     }
 }

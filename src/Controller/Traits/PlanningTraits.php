@@ -193,7 +193,39 @@ trait PlanningTraits
         }
         return $objetPlanning;
     }
+    private function creationTableauObjetPlanningMagasin(array $data): array
+    {
+        $objetPlanning = [];
+        //Recuperation de idmat et les truc
+        foreach ($data as $item) {
+            $planningMateriel = new PlanningMateriel();
 
+
+            //initialisation
+            $planningMateriel
+                ->setCodeSuc($item['codesuc'])
+                ->setLibSuc($item['libsuc'])
+                ->setCodeServ($item['codeserv'])
+                ->setLibServ($item['libserv'])
+                ->setIdMat($item['idmat'])
+                ->setMarqueMat($item['markmat'])
+                ->setTypeMat($item['typemat'])
+                ->setNumSerie($item['numserie'])
+                ->setNumParc($item['numparc'])
+                ->setCasier($item['casier'])
+                ->setAnnee($item['annee'])
+                ->setMois($item['mois'])
+                ->setOrIntv($item['orintv'])
+                ->setQteCdm($item['qtecdm'])
+                ->setQteLiv($item['qtliv'])
+                ->setQteAll($item['qteall'])
+                // ->setNumeroOr($item['numeroor'])
+                ->addMoisDetailMagasin($item['mois'], $item['annee'], $item['orintv'], $item['qtecdm'], $item['qtliv'], $item['qteall'], $item['commentaire'])
+            ;
+            $objetPlanning[] = $planningMateriel;
+        }
+        return $objetPlanning;
+    }
     private function ajoutMoiDetail(array $objetPlanning): array
     {
         // Fusionner les objets en fonction de l'idMat
@@ -223,7 +255,32 @@ trait PlanningTraits
         }
         return $fusionResult;
     }
+private function ajoutMoiDetailMagasin(array $objetPlanning): array
+    {
+        // Fusionner les objets en fonction de l'idMat
+        $fusionResult = [];
+        foreach ($objetPlanning as $materiel) {
+            $key = $materiel->getIdMat(); // Utiliser idMat comme clé unique
+            if (!isset($fusionResult[$key])) {
+                $fusionResult[$key] = $materiel; // Si la clé n'existe pas, on l'ajoute
+            } else {
+                // Si l'élément existe déjà, on fusionne les détails des mois
+                foreach ($materiel->moisDetails as $moisDetail) {
 
+                    $fusionResult[$key]->addMoisDetailMagasin(
+                        $moisDetail['mois'],
+                        $moisDetail['annee'],
+                        $moisDetail['orIntv'],
+                        $moisDetail['qteCdm'],
+                        $moisDetail['qteLiv'],
+                        $moisDetail['qteAll'],
+                        $moisDetail['commentaire']
+                    );
+                }
+            }
+        }
+        return $fusionResult;
+    }
     /**
      * fonction pour affichage des 12 mois glissantes (3 mois suivant, 6 mois suivant, Année encours, Année suivant)
      *
