@@ -125,7 +125,7 @@ class DevisMagasinVerificationPrixController extends Controller
             // creation de pdf 
             $this->generatePdfDevisMagasin->genererPdf($this->getUser(), $devisMagasin, $nomAvecCheminFichier);
             //insertion de la page de garde à la position 0
-            $nomEtCheminFichiersEnregistrer = $this->traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);;
+            $nomEtCheminFichiersEnregistrer = $this->traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, 0);
             /** @var array fusions des fichiers */
             $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
             $this->traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);

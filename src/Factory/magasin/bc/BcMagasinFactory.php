@@ -18,10 +18,10 @@ class BcMagasinFactory
      * @param User $user L'utilisateur courant
      * @return BcMagasin
      */
-    public function createFromDto(BcMagasinDto $dto, User $user, EntityManagerInterface $em, float $montantDevis = 0.00): BcMagasin
+    public function createFromDto(BcMagasinDto $dto, User $user, float $montantDevis = 0.00, int $numeroVersionMax): BcMagasin
     {
         $bcMagasin = new BcMagasin();
-        $numeroVersionMax = $em->getRepository(BcMagasin::class)->getNumeroVersionMax($dto->numeroDevis);
+
 
         // Convertit un montant formaté (ex: "1 234,56") en float
         $montantBcFloat = (float)str_replace(',', '.', str_replace(' ', '', $dto->montantBc ?? '0'));

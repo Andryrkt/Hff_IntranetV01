@@ -7,13 +7,21 @@ use App\Entity\admin\Application;
 use App\Entity\magasin\bc\BcMagasin;
 use App\Form\magasin\bc\BcMagasinType;
 use App\Model\magasin\bc\BcMagasinDto;
+use App\Service\autres\VersionService;
 use App\Model\magasin\bc\BcMagasinModel;
+use Symfony\Component\Form\FormInterface;
+use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Factory\magasin\bc\BcMagasinFactory;
+use App\Service\fichier\TraitementDeFichier;
+use App\Controller\Traits\PdfConversionTrait;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Factory\magasin\bc\BcMagasinDtoFactory;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use App\Service\genererPdf\magasin\bc\GeneratePdfBcMagasin;
+use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -21,6 +29,16 @@ use Symfony\Component\Routing\Annotation\Route;
 class BcMagasinController extends Controller
 {
     use AutorisationTrait;
+    use PdfConversionTrait;
+
+    private string $cheminBaseUpload;
+
+    public function __construct()
+    {
+        parent::__construct();
+        global $container;
+        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
+    }
 
     /**
      * @Route("/soumission-bc-magasin/{numeroDevis}", name="bc_magasin_soumission", defaults={"numeroDevis"=null})
@@ -40,7 +58,7 @@ class BcMagasinController extends Controller
         $form = $this->getFormFactory()->createBuilder(BcMagasinType::class, $bcMagasinDto)->getForm();
 
         //tratiement formulaire
-        $this->tratitementFormulaire($form, $request);
+        $this->tratitementFormulaire($form, $request, $numeroDevis);
 
         //affichage du formulaire
         return $this->render('magasin/bc/soumission.html.twig', [
@@ -59,50 +77,80 @@ class BcMagasinController extends Controller
             $bcMagasinModel = new BcMagasinModel();
             $montantDevis  = $bcMagasinModel->getMontantDevis($numeroDevis)[0] ?? 0.00;
 
-            // Utiliser la factory pour créer l'entité à partir du DTO
-            $this->enregistrementDonnees($dto, (float) $montantDevis);
+            // recuperation de numero version
+            $numeroVersionMax = $this->getEntityManager()->getRepository(BcMagasin::class)->getNumeroVersionMax($numeroDevis);
+            $numeroVersion = VersionService::autoIncrement($numeroVersionMax);
 
-            // TODO: creation de page de garde
+            //traitemnet des fichiers
+            $this->traitementDesFichiers($form, $numeroDevis, $dto, $montantDevis, $numeroVersion);
 
-            // TODO: gestion des pieces jointes
+            // Enregistrement des données dans la base de données
+            $this->enregistrementDonnees($dto, (float) $montantDevis, $numeroVersion);
 
-            // TODO: fusion du page de garde et des pieces jointes (mettre la page de garde en derniere page)
-
-            // TODO: envoie du pdf fusion dans DW
 
             //TODO: historique du document
 
         }
     }
 
-    private function enregistrementDonnees(BcMagasinDto $dto, ?float $montantDevis): void
+    private function traitementDesFichiers(FormInterface $form, string $numeroDevis, BcMagasinDto $dto, float $montantDevis, int $numeroVersion): void
+    {
+        /** 
+         * gestion des pieces jointes et generer le nom du fichier PDF
+         * Enregistrement de fichier uploder
+         * @var array $nomEtCheminFichiersEnregistrer 
+         * @var string $nomAvecCheminFichier
+         * @var string $nomFichier
+         */
+        [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier] = $this->enregistrementFichier($form, $numeroDevis, $numeroVersion);
+
+        // creation de page de garde
+        $generatePdf = new GeneratePdfBcMagasin();
+        $generatePdf->generer($this->getUser(), $dto, $nomAvecCheminFichier, (float) $montantDevis);
+
+        // ajout du page de garde à la dernière position
+        $traitementDeFichier = new TraitementDeFichier();
+        $nomEtCheminFichiersEnregistrer = $traitementDeFichier->insertFileAtPosition($nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, count($nomEtCheminFichiersEnregistrer));
+        // fusion du page de garde et des pieces jointes (conversion avant la fusion)
+        $nomEtCheminFichierConvertie = $this->ConvertirLesPdf($nomEtCheminFichiersEnregistrer);
+        $traitementDeFichier->fusionFichers($nomEtCheminFichierConvertie, $nomAvecCheminFichier);
+
+        // TODO: envoie du pdf fusion dans DW
+    }
+
+    private function enregistrementDonnees(BcMagasinDto $dto, ?float $montantDevis, $numeroVersionMax): void
     {
         $entityManager = $this->getEntityManager();
 
         $factory = new BcMagasinFactory();
-        $bcMagasin = $factory->createFromDto($dto, $this->getUser(), $entityManager, $montantDevis);
+        $bcMagasin = $factory->createFromDto($dto, $this->getUser(), $montantDevis, $numeroVersionMax);
 
         $entityManager->persist($bcMagasin);
         $entityManager->flush();
     }
 
-    private function mettreLesDonnerDansEntite(BcMagasinDto $dto): BcMagasin
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion): array
     {
-        $bcMagasin = new BcMagasin();
+        $nameGenerator = new DevisMagasinGenererNameFileService();
+        $uploader = new UploderFileService($this->cheminBaseUpload, $nameGenerator);
+        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
+        if (!is_dir($devisPath)) {
+            mkdir($devisPath, 0777, true);
+        }
 
-        return $bcMagasin->setNumeroDevis($dto->numeroDevis)
-            ->setNumeroBc($dto->numeroBc)
-            ->setMontantDevis(0.00)
-            ->setMontantBc($this->modificationEnFloat($dto->montantBc))
-            ->setNumeroVersion(1)
-            ->setStatutBc('Soumis à validation')
-            ->setObservation($dto->observation)
-            ->setUtilisateur($this->getUser()->getNomUtilisateur());
-    }
+        $nomEtCheminFichiersEnregistrer = $uploader->getNomsEtCheminFichiers($form, [
+            'repertoire' => $devisPath,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDevis, $numeroVersion, $nameGenerator) {
+                return $nameGenerator->generateBonCommandeName($file, $numDevis, $numeroVersion, $index);
+            }
+        ]);
 
-    private function modificationEnFloat(string $montant): float
-    {
-        $montant = str_replace([' ', ','], ['', '.'], $montant);
-        return (float) $montant;
+        $nomAvecCheminFichier = $nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
+        $nomFichier = $nameGenerator->getNomFichier($nomAvecCheminFichier);
+
+        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }
