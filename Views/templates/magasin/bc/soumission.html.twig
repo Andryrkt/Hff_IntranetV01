@@ -86,13 +86,14 @@
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.ras, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
 												<span class="checkbox-label">{{ form_label(ligneForm.ras) }}</span>
-												<div id="ras-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;"></div>
+												
 											</div>
 										</td>
 										<td>
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.qteModifier, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
 												<span class="checkbox-label">{{ form_label(ligneForm.qteModifier) }}</span>
+												{{ form_widget(ligneForm.nouvelleQte) }}
 												<div id="qty-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
 													Modifiée
 												</div>
@@ -102,9 +103,7 @@
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.supprimer, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
 												<span class="checkbox-label">{{ form_label(ligneForm.supprimer) }}</span>
-												<div id="delete-status-{{ ligneData.numeroLigne }}" class="status-badge" style="display: none;">
-													À supprimer
-												</div>
+												
 											</div>
 										</td>
 										{{ form_widget(ligneForm.numeroLigne) }}

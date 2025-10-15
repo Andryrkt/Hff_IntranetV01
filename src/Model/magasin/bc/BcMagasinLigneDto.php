@@ -17,4 +17,6 @@ class BcMagasinLigneDto
     public bool $ras = true;
     public bool $qteModifier = false;
     public bool $supprimer = false;
+
+    public ?string $nouvelleQte = null;
 }

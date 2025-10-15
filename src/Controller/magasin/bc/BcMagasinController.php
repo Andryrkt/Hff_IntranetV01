@@ -4,12 +4,13 @@ namespace App\Controller\magasin\bc;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
-use App\Entity\magasin\bc\BcMagasin;
 use App\Form\magasin\bc\BcMagasinType;
-use App\Model\magasin\bc\BcMagasinModel;
+use App\Model\magasin\bc\BcMagasinDto;
 use App\Controller\Traits\AutorisationTrait;
+use App\Entity\magasin\bc\BcMagasin;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Factory\magasin\bc\BcMagasinDtoFactory;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -30,26 +31,8 @@ class BcMagasinController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
-        $bcMagasinDto = new \App\Model\magasin\bc\BcMagasinDto();
-        $bcMagasinDto->numeroDevis = $numeroDevis;
-
-        // recuperatino de l'info du devis
-        $bcMagasinModel = new BcMagasinModel();
-        $infoDevis = $bcMagasinModel->getInformaitonDevisMagasin($numeroDevis);
-
-        foreach ($infoDevis as $ligneData) {
-            $ligneDto = new \App\Model\magasin\bc\BcMagasinLigneDto();
-            $ligneDto->numeroLigne = $ligneData['numero_ligne'];
-            $ligneDto->constructeur = $ligneData['constructeur'];
-            $ligneDto->ref = $ligneData['ref'];
-            $ligneDto->designation = $ligneData['designation'];
-            $ligneDto->qte = $ligneData['qte'];
-            $ligneDto->prixHt = $ligneData['prix_ht'];
-            $ligneDto->montantNet = $ligneData['montant_net'];
-            $ligneDto->remise1 = $ligneData['remise1'];
-            $ligneDto->remise2 = $ligneData['remise2'];
-            $bcMagasinDto->lignes[] = $ligneDto;
-        }
+        $factory = new BcMagasinDtoFactory();
+        $bcMagasinDto = $factory->create($numeroDevis);
 
         //création du formulaire
         $form = $this->getFormFactory()->createBuilder(BcMagasinType::class, $bcMagasinDto)->getForm();
@@ -67,7 +50,51 @@ class BcMagasinController extends Controller
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // TODO: traiter et enregistrer les données du formulaire
+            /** @var \App\Model\magasin\bc\BcMagasinDto $dto */
+            $dto = $form->getData();
+
+            // Utiliser la factory pour créer l'entité à partir du DTO
+            $this->enregistrementDonnees($dto);
+
+            // TODO: creation de page de garde
+
+            // TODO: gestion des pieces jointes
+
+            // TODO: fusion du page de garde et des pieces jointes (mettre la page de garde en derniere page)
+
+            // TODO: envoie du pdf fusion dans DW
+
+            //TODO: historique du document
+
         }
+    }
+
+    private function enregistrementDonnees(BcMagasinDto $dto): void
+    {
+        $factory = new \App\Factory\magasin\bc\BcMagasinFactory();
+        $bcMagasin = $factory->createFromDto($dto, $this->getUser());
+        $entityManager = $this->getEntityManager();
+        $entityManager->persist($bcMagasin);
+        $entityManager->flush();
+    }
+
+    private function mettreLesDonnerDansEntite(BcMagasinDto $dto): BcMagasin
+    {
+        $bcMagasin = new BcMagasin();
+
+        return $bcMagasin->setNumeroDevis($dto->numeroDevis)
+            ->setNumeroBc($dto->numeroBc)
+            ->setMontantDevis(0.00)
+            ->setMontantBc($this->modificationEnFloat($dto->montantBc))
+            ->setNumeroVersion(1)
+            ->setStatutBc('Soumis à validation')
+            ->setObservation($dto->observation)
+            ->setUtilisateur($this->getUser()->getNomUtilisateur());
+    }
+
+    private function modificationEnFloat(string $montant): float
+    {
+        $montant = str_replace([' ', ','], ['', '.'], $montant);
+        return (float) $montant;
     }
 }
