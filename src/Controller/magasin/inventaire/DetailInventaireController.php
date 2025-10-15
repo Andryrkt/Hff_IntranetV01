@@ -153,8 +153,11 @@ class DetailInventaireController extends Controller
                     'prix' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['prix'])),
                     'valeur_stock' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['valeur_stock'])),
                     'comptage1' => $inventDispo[$i]['comptage1'],
+                    'ecart1' => $inventDispo[$i]['ecart1'],
                     'comptage2' => $inventDispo[$i]['comptage2'],
+                    'ecart2' => $inventDispo[$i]['ecart2'],
                     'comptage3' => $inventDispo[$i]['comptage3'],
+                    'ecart3' => $inventDispo[$i]['ecart3'],
                     'ecart' => $inventDispo[$i]['ecart'] == "0.00" ? "" : $inventDispo[$i]['ecart'],
                     'montant_ecart' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['montant_ecart'])) == "0,0" ? "" : str_replace(".", "", $this->formatNumber($inventDispo[$i]['montant_ecart'])),
                 ];

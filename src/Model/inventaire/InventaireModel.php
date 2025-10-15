@@ -379,6 +379,9 @@ ROUND(ainvp_stktheo) as tsk,
 ainvp_prix as prix,
 ainvp_stktheo*ainvp_prix as Valeur_Stock,
 ROUND((ainvp_stktheo + ainvp_ecart)) as comptage1,
+----ecart1
+  round((ainvp_stktheo + ainvp_ecart)) - (ainvp_stktheo*ainvp_prix) as ecart1,
+--
 ROUND((
 select (cpt2.ainvp_stktheo + cpt2.ainvp_ecart)
 from art_invp cpt2, art_invi inv2
@@ -387,6 +390,55 @@ and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
 and cpt2.ainvp_nligne = cpt.ainvp_nligne
 )) as comptage2,
+-----ecart2
+
+case when 
+ROUND((
+
+
+select (cpt2.ainvp_stktheo + cpt2.ainvp_ecart)
+
+
+from art_invp cpt2, art_invi inv2
+
+
+where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
+
+
+and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
+
+
+and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
+
+
+and cpt2.ainvp_nligne = cpt.ainvp_nligne
+
+
+)) > 0 then 
+ROUND((
+
+
+select (cpt2.ainvp_stktheo + cpt2.ainvp_ecart)
+
+
+from art_invp cpt2, art_invi inv2
+
+
+where cpt2.ainvp_numinv = inv2.ainvi_numinv and inv2.ainvi_sequence = 2
+
+
+and inv2.ainvi_numinv_mait = cpt.ainvp_numinv
+
+
+and cpt2.ainvp_nbordereau = cpt.ainvp_nbordereau
+
+
+and cpt2.ainvp_nligne = cpt.ainvp_nligne
+
+
+)) -(ainvp_stktheo*ainvp_prix )
+end as ecart2,
+---
 ROUND((
 select (cpt3.ainvp_stktheo + cpt3.ainvp_ecart)
 from art_invp cpt3, art_invi inv3
@@ -395,6 +447,55 @@ and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
 and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
 and cpt3.ainvp_nligne = cpt.ainvp_nligne
 )) as comptage3,
+----ecart3
+case  when
+ROUND((
+
+
+select (cpt3.ainvp_stktheo + cpt3.ainvp_ecart)
+
+
+from art_invp cpt3, art_invi inv3
+
+
+where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
+
+
+and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
+
+
+and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
+
+
+and cpt3.ainvp_nligne = cpt.ainvp_nligne
+
+
+)) > 0 then
+
+ROUND((
+
+
+select (cpt3.ainvp_stktheo + cpt3.ainvp_ecart)
+
+
+from art_invp cpt3, art_invi inv3
+
+
+where cpt3.ainvp_numinv = inv3.ainvi_numinv and inv3.ainvi_sequence = 3
+
+
+and inv3.ainvi_numinv_mait = cpt.ainvp_numinv
+
+
+and cpt3.ainvp_nbordereau = cpt.ainvp_nbordereau
+
+
+and cpt3.ainvp_nligne = cpt.ainvp_nligne
+
+
+)) -(ainvp_stktheo*ainvp_prix ) 
+end as ecart3,
+----
 CASE (select max(ainvi_sequence) from art_invi maxi where maxi.ainvi_numinv_mait = ainvp_numinv)
 when 1 then
 ROUND(cpt.ainvp_ecart)
