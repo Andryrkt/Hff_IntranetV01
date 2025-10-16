@@ -164,22 +164,6 @@ class GenererPdfDaDirect extends GeneratePdf
                 $pdf->Ln(6);
                 $yStart = $pdf->GetY();
 
-                // Cercle avec initiale
-                $initial = strtoupper(mb_substr($user, 0, 1));
-                $circleX = $isAppro
-                    ? $x + $bubbleWidth + 5   // côté droit, mais dans la marge visible
-                    : $x - 8;                 // côté gauche, avant la bulle
-                $circleY = $yStart + 4;
-                $circleColor = $isAppro ? [100, 150, 255] : [180, 180, 180];
-
-                $pdf->SetFillColor(...$circleColor);
-                $pdf->Circle($circleX, $circleY, 3, 0, 360, 'F', [], $circleColor);
-
-                $pdf->SetFont('helvetica', 'B', 8);
-                $pdf->SetTextColor(255, 255, 255);
-                $pdf->SetXY($circleX - 1.5, $circleY - 1.5);
-                $pdf->Cell(3, 3, $initial, 0, 0, 'C', false);
-
                 // Nom + date sur une même ligne
                 $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('helvetica', 'B', 9);
@@ -193,16 +177,17 @@ class GenererPdfDaDirect extends GeneratePdf
 
             // Message (bulle)
             $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetFont('helvetica', '', 10);
             $msgHeight = $pdf->getStringHeight($bubbleWidth - 6, $message);
 
             $yBubble = $pdf->GetY() + 2;
             $pdf->SetFillColor(...$fillColor);
-            $pdf->RoundedRect($x, $yBubble, $bubbleWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
+            $pdf->RoundedRect($x, $yBubble, $bubbleWidth - 4, $msgHeight + 4, $borderRadius, '1111', 'F');
 
-            $pdf->SetXY($x + 3, $yBubble + 2);
+            $pdf->SetXY($x + 2, $yBubble + 2);
             $pdf->MultiCell($bubbleWidth - 6, 0, $message, 0, 'L', false, 1);
 
-            $pdf->Ln(3);
+            $pdf->Ln(2);
             $previousUser = $user;
         }
     }
