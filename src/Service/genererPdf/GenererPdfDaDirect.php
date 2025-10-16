@@ -121,10 +121,10 @@ class GenererPdfDaDirect extends GeneratePdf
     }
 
     /**
-     * Affiche une liste d'observations sous forme de chat dans un PDF TCPDF.
+     * Affiche une conversation type chat dans un PDF TCPDF.
      *
-     * @param TCPDF $pdf L'instance TCPDF
-     * @param iterable<DaObservation> $observations Liste d'objets Daobservation (ayant utilisateur, observation, date_creation)
+     * @param TCPDF $pdf
+     * @param iterable<DaObservation> $observations  Liste d'objets (avec getUtilisateur(), getObservation(), getDateCreation())
      */
     function renderChatMessages(TCPDF $pdf, iterable $observations): void
     {
@@ -134,51 +134,63 @@ class GenererPdfDaDirect extends GeneratePdf
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right'];
 
-        $leftColor = [240, 240, 240]; // gris clair
-        $rightColor = [210, 230, 255]; // bleu clair
-        $borderRadius = 3;
-
+        $leftColor = [220, 220, 220];     // fond gauche : gris clair
+        $rightColor = [255, 209, 69];      // fond droite : jaune CAT
+        $borderRadius = 2;
         $maxWidth = 120;
 
         foreach ($observations as $obs) {
             $user    = $obs->getUtilisateur();
-            $message = $obs->getObservation();
+            $message = str_replace('<br>', "\n", $obs->getObservation());
             $date    = $obs->getDateCreation()->format('d/m/Y H:i');
             $isAppro = in_array($user, $appro);
 
-            $align = $isAppro ? 'R' : 'L';
+            // Couleur de fond selon côté
             $fillColor = $isAppro ? $rightColor : $leftColor;
-
-            // Remplace <br> par \n pour MultiCell
-            $message = str_replace('<br>', "\n", $message);
-
-            // Calcule la largeur et position X
+            $align = $isAppro ? 'R' : 'L';
             $x = $isAppro ? $usable_width - $maxWidth + $margins['left'] : $margins['left'];
 
-            // Position Y actuelle
-            $y = $pdf->GetY() + 5;
-
-            // En-tête : nom + date
-            $header = sprintf('%s — %s', $user, $date);
-            $pdf->SetFont('helvetica', 'B', 9);
-            $pdf->MultiCell($maxWidth, 5, $header, 0, $align, false, 1, $x, $y, true);
-            $y = $pdf->GetY();
-
-            // Mesure la hauteur du message
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->SetXY($x, $y);
-            $messageHeight = $pdf->getStringHeight($maxWidth - 4, $message);
-
-            // Dessine une bulle arrondie
-            $pdf->SetFillColor(...$fillColor);
-            $pdf->RoundedRect($x, $y, $maxWidth, $messageHeight + 4, $borderRadius, '1111', 'DF');
-
-            // Texte du message
-            $pdf->SetXY($x + 2, $y + 2);
-            $pdf->MultiCell($maxWidth - 4, 0, $message, 0, 'L', false, 1, '', '', true);
-
-            // Saut après le message
+            // Position Y de départ
             $pdf->Ln(3);
+            $yStart = $pdf->GetY();
+
+            // === Cercle avec initiale ===
+            $initial = strtoupper(mb_substr($user, 0, 1));
+            $circleX = $isAppro ? $x + $maxWidth + 4 : $x - 10;
+            $circleY = $yStart + 2;
+            $circleColor = $isAppro ? [100, 150, 255] : [180, 180, 180];
+
+            $pdf->SetFillColor(...$circleColor);
+            $pdf->Circle($circleX, $circleY + 3, 3, 0, 360, 'F', [], $circleColor);
+            $pdf->SetFont('helvetica', 'B', 8);
+            $pdf->SetTextColor(255, 255, 255);
+            $pdf->SetXY($circleX - 1.5, $circleY + 0.5);
+            $pdf->Cell(3, 3, $initial, 0, 0, 'C', false);
+
+            // === Nom + date ===
+            $pdf->SetTextColor(0, 0, 0);
+            $pdf->SetXY($x, $yStart);
+            $pdf->SetFont('helvetica', 'B', 9);
+            $pdf->Cell($maxWidth, 5, $user, 0, 1, $align, false);
+
+            $pdf->SetFont('helvetica', '', 8);
+            $pdf->SetTextColor(100, 100, 100);
+            $pdf->Cell($maxWidth, 4, $date, 0, 1, $align, false);
+
+            // === Message (bulle) ===
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->SetTextColor(0, 0, 0);
+            $msgHeight = $pdf->getStringHeight($maxWidth - 6, $message);
+
+            $yBubble = $pdf->GetY() + 1;
+            $pdf->SetFillColor(...$fillColor);
+            $pdf->RoundedRect($x, $yBubble, $maxWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
+
+            // Texte dans la bulle
+            $pdf->SetXY($x + 3, $yBubble + 2);
+            $pdf->MultiCell($maxWidth - 6, 0, $message, 0, 'L', false, 1);
+
+            $pdf->Ln(4);
         }
     }
 }
