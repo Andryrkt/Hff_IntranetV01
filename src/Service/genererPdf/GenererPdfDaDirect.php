@@ -132,7 +132,6 @@ class GenererPdfDaDirect extends GeneratePdf
 
         $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
-        $usable_width = $w_total - $margins['left'] - $margins['right'];
 
         $leftColor  = [220, 220, 220];    // messages autres
         $rightColor = [255, 209, 69];     // messages APPRO
@@ -159,35 +158,34 @@ class GenererPdfDaDirect extends GeneratePdf
             // position X selon côté
             $x = $isAppro ? $w_total - $margins['right'] - $bubbleWidth : $margins['left'];
 
-            $yStart = $pdf->GetY();
+            // Si premier message d'un groupe, afficher Nom 
+            if ($previousUser !== $user) {
+                $pdf->SetFont('helvetica', 'B', 9);
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetXY($x, $pdf->GetY());
+                $pdf->Cell($bubbleWidth, 5, $user, 0, 1, $align, false);
+            }
 
+            $yStart = $pdf->GetY();
             // Afficher la date au-dessus de chaque message
             $pdf->SetFont('helvetica', '', 8);
             $pdf->SetTextColor(100, 100, 100);
             $pdf->SetXY($x, $yStart);
             $pdf->Cell($bubbleWidth, 4, $date, 0, 1, $align, false);
 
-            // Si premier message d'un groupe, afficher Nom — Date en haut du groupe
-            if ($previousUser !== $user) {
-                $pdf->SetFont('helvetica', 'B', 9);
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetXY($x, $pdf->GetY());
-                $pdf->Cell($bubbleWidth, 5, $user . ' — ' . $date, 0, 1, $align, false);
-            }
-
             // Message (bulle)
             $pdf->SetFont('helvetica', '', 10);
             $pdf->SetTextColor(0, 0, 0);
             $msgHeight = $pdf->getStringHeight($bubbleWidth - 6, $message);
 
-            $yBubble = $pdf->GetY() + 2;
+            $yBubble = $pdf->GetY();
             $pdf->SetFillColor(...$fillColor);
-            $pdf->RoundedRect($x, $yBubble, $bubbleWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
+            $pdf->RoundedRect($x + ($isAppro ? 4 : 0), $yBubble, $bubbleWidth - 4, $msgHeight + 4, $borderRadius, '1111', 'F');
 
-            $pdf->SetXY($x + 3, $yBubble + 2);
+            $pdf->SetXY($x + ($isAppro ? 6 : 3), $yBubble + 2);
             $pdf->MultiCell($bubbleWidth - 6, 0, $message, 0, 'L', false, 1);
 
-            $pdf->Ln(4);
+            $pdf->Ln(3);
             $previousUser = $user;
         }
     }
