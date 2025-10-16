@@ -30,6 +30,8 @@
 				<th></th>
 				<th></th>
 				<th></th>
+				<th></th>
+				<th></th>
 				<th style="text-align: center;">{{ data.sum.nbr_casier }}</th>
 				<th style="text-align: center;">{{ data.sum.nbr_ref }}</th>
 				<th style="text-align: center;">{{ data.sum.qte_comptee }}</th>
@@ -49,6 +51,10 @@
 				<th>
 					<i class="fas fa-ellipsis-vertical"></i>
 				</th>
+				<th style="text-align: center;">
+					Saisie compte</th>
+				<th style="text-align: center;">
+					Comptage encours</th>
 				<th style="text-align: center;">
 					Numéro</th>
 				<th style="text-align: center;">
@@ -117,6 +123,10 @@
 						</div>
 					</td>
 					{# Fin Actions #}
+					<td style="text-align: center;">
+						{{item.saisie_compte}}</td>
+					<td style="text-align: center;">
+						{{item.compte_cours}}</td>
 					<td style="text-align: center;">
 						{{item.numero}}</td>
 					<td>
