@@ -16,6 +16,7 @@ class BcMagasin
     use DateTrait;
 
     public const STATUT_SOUMIS_VALIDATION = 'Soumis à validation';
+    public const STATUT_EN_ATTENTE_BC = 'En attente BC';
 
     /**
      * @ORM\Id

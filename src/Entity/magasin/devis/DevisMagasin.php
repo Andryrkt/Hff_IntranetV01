@@ -143,6 +143,13 @@ class DevisMagasin
      */
     private ?string $tacheValidateur;
 
+        /**
+     * @ORM\Column(type="string", length=100, name="statut_bc", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $statutBc = '';
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
@@ -549,6 +556,30 @@ class DevisMagasin
     public function setTacheValidateur($tacheValidateur)
     {
         $this->tacheValidateur = $tacheValidateur;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of statutBc
+     *
+     * @return  string|null
+     */ 
+    public function getStatutBc()
+    {
+        return $this->statutBc;
+    }
+
+    /**
+     * Set the value of statutBc
+     *
+     * @param  string|null  $statutBc
+     *
+     * @return  self
+     */ 
+    public function setStatutBc($statutBc)
+    {
+        $this->statutBc = $statutBc;
 
         return $this;
     }

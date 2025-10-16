@@ -77,4 +77,18 @@ class DevisMagasinRepository extends EntityRepository implements StatusRepositor
 
         return array_column($result, 'statutDw');
     }
+
+    public function getStatutDwEtStatutBc(string $numeroDevis): ?array
+    {
+        $result = $this->createQueryBuilder('d')
+            ->select('d.statutDw, d.statutBc')
+            ->where('d.numeroDevis = :numeroDevis')
+            ->setParameter('numeroDevis', $numeroDevis)
+            ->orderBy('d.numeroVersion', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getScalarResult();
+
+        return $result[0] ?? null;
+    }
 }

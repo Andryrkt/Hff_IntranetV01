@@ -10,6 +10,7 @@ use App\Model\magasin\bc\BcMagasinDto;
 use App\Service\autres\VersionService;
 use App\Model\magasin\bc\BcMagasinModel;
 use Symfony\Component\Form\FormInterface;
+use App\Entity\magasin\devis\DevisMagasin;
 use App\Service\fichier\UploderFileService;
 use App\Controller\Traits\AutorisationTrait;
 use App\Factory\magasin\bc\BcMagasinFactory;
@@ -19,10 +20,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Factory\magasin\bc\BcMagasinDtoFactory;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\magasin\bc\BcMagasinValidationService;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use App\Service\genererPdf\magasin\bc\GeneratePdfBcMagasin;
-use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
 use App\Service\magasin\devis\Fichier\DevisMagasinGenererNameFileService;
+use App\Service\historiqueOperation\magasin\bc\HistoriqueOperationBcMagasinService;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -54,6 +56,9 @@ class BcMagasinController extends Controller
         /** Autorisation accées */
         $this->autorisationAcces($this->getUser(), Application::ID_DVM);
 
+        /** Gestion de blocage */
+        $this->gestionDeBlocage($numeroDevis);
+
         $factory = new BcMagasinDtoFactory();
         $bcMagasinDto = $factory->create($numeroDevis);
 
@@ -67,6 +72,20 @@ class BcMagasinController extends Controller
         return $this->render('magasin/bc/soumission.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+
+    private function gestionDeBlocage(string $numeroDevis): Response
+    {
+        $validateur = new BcMagasinValidationService();
+        $data = [
+            'numeroDevis' => $numeroDevis,
+            'bcRepository' => $this->getEntityManager()->getRepository(BcMagasin::class),
+            'devisMagasinRepository' => $this->getEntityManager()->getRepository(DevisMagasin::class)
+        ];
+        if (!$validateur->validateData($data)) {
+            return $this->redirectToRoute($validateur->getRedirectRoute());
+        }
+        return new Response();
     }
 
     public function tratitementFormulaire($form, Request $request, ?string $numeroDevis = null): void
