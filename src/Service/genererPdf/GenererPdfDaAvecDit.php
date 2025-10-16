@@ -200,6 +200,6 @@ class GenererPdfDaAvecDit extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf");
+        $pdf->Output("$Dossier/$numDa.pdf", "F");
     }
 }
