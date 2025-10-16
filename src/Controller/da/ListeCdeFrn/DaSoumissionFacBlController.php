@@ -111,7 +111,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numeroVersionMax, $numCde);
+                $this->modificationDaAfficher($numDa, $numCde);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -126,8 +126,9 @@ class DaSoumissionFacBlController extends Controller
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, int $numeroVersionMax, string $numCde): void
+    private function modificationDaAfficher(string $numDa, string $numCde): void
     {
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
         $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
         foreach ($daAffichers as  $daAfficher) {
             if (!$daAfficher instanceof DaAfficher) {
