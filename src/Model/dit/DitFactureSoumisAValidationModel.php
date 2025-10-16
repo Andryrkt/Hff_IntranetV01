@@ -250,7 +250,7 @@ class DitFactureSoumisAValidationModel extends Model
                             AND sitv_interv = slor_nogrp / 100
                 WHERE
                     --sitv_servcrt IN ('ATE', 'FOR', 'GAR', 'MAN', 'CSP', 'MAS', 'LR6', 'LST')
-                    AND slor_numor = '" . $numOr . "'
+                     slor_numor = '" . $numOr . "'
                     AND slor_numfac = '" . $numFact . "'
                 GROUP BY
                 numeroOr, numeroItv

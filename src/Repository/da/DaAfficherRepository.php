@@ -779,4 +779,31 @@ class DaAfficherRepository extends EntityRepository
             ->getQuery()
             ->getSingleColumnResult();
     }
+
+    
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->where(
+            'd.numeroVersion = (
+                    SELECT MAX(d2.numeroVersion)
+                    FROM ' . DaAfficher::class . ' d2
+                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
+                )'
+        );
+
+
+        $this->applyDynamicFilters($qb, 'd', $criteria);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, 'd', $criteria);
+
+        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, 'd', $criteria);
+
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
+        return $qb->getQuery()->getResult();
+    }
 }
