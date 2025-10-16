@@ -124,7 +124,7 @@ class GenererPdfDaDirect extends GeneratePdf
      * Affiche une conversation type chat dans un PDF TCPDF.
      *
      * @param TCPDF $pdf
-     * @param iterable<DaObservation> $observations  Liste d'objets (avec getUtilisateur(), getObservation(), getDateCreation())
+     * @param iterable<DaObservation> $observations Liste d'objets (getUtilisateur(), getObservation(), getDateCreation())
      */
     function renderChatMessages(TCPDF $pdf, iterable $observations): void
     {
@@ -134,8 +134,8 @@ class GenererPdfDaDirect extends GeneratePdf
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right'];
 
-        $leftColor  = [220, 220, 220];    // fond des messages des autres
-        $rightColor = [255, 209, 69];    // fond des messages de l'utilisateur courant
+        $leftColor  = [220, 220, 220];    // messages autres
+        $rightColor = [255, 209, 69];     // messages APPRO
         $borderRadius = 3;
         $maxWidth = 120;                  // largeur max autorisée
         $minWidth = 40;                   // largeur mini d'une bulle
@@ -151,43 +151,43 @@ class GenererPdfDaDirect extends GeneratePdf
             $fillColor = $isAppro ? $rightColor : $leftColor;
             $align = $isAppro ? 'R' : 'L';
 
-            // largeur dynamique selon texte
+            // largeur dynamique du message
             $pdf->SetFont('helvetica', '', 10);
             $textWidth = $pdf->GetStringWidth($message) + 10;
             $bubbleWidth = max($minWidth, min($textWidth, $maxWidth));
 
-            // Position X (toujours dans la zone de page)
-            $x = $isAppro ? $usable_width - $maxWidth + $margins['left'] : $margins['left'];
+            // position X selon côté
+            $x = $isAppro ? $w_total - $margins['right'] - $bubbleWidth : $margins['left'];
 
-            // Espace avant un nouveau groupe
+            $yStart = $pdf->GetY();
+
+            // Afficher la date au-dessus de chaque message
+            $pdf->SetFont('helvetica', '', 8);
+            $pdf->SetTextColor(100, 100, 100);
+            $pdf->SetXY($x, $yStart);
+            $pdf->Cell($bubbleWidth, 4, $date, 0, 1, $align, false);
+
+            // Si premier message d'un groupe, afficher Nom — Date en haut du groupe
             if ($previousUser !== $user) {
-                $pdf->Ln(6);
-                $yStart = $pdf->GetY();
-
-                // Nom + date sur une même ligne
-                $pdf->SetTextColor(0, 0, 0);
                 $pdf->SetFont('helvetica', 'B', 9);
-                $pdf->SetXY($x, $yStart);
-                $pdf->Cell($bubbleWidth, 5, $user, 0, 0, $align, false);
-
-                $pdf->SetFont('helvetica', '', 8);
-                $pdf->SetTextColor(100, 100, 100);
-                $pdf->Cell(0, 5, ' — ' . $date, 0, 1, $align, false);
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetXY($x, $pdf->GetY());
+                $pdf->Cell($bubbleWidth, 5, $user . ' — ' . $date, 0, 1, $align, false);
             }
 
             // Message (bulle)
-            $pdf->SetTextColor(0, 0, 0);
             $pdf->SetFont('helvetica', '', 10);
+            $pdf->SetTextColor(0, 0, 0);
             $msgHeight = $pdf->getStringHeight($bubbleWidth - 6, $message);
 
             $yBubble = $pdf->GetY() + 2;
             $pdf->SetFillColor(...$fillColor);
-            $pdf->RoundedRect($x, $yBubble, $bubbleWidth - 4, $msgHeight + 4, $borderRadius, '1111', 'F');
+            $pdf->RoundedRect($x, $yBubble, $bubbleWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
 
-            $pdf->SetXY($x + 2, $yBubble + 2);
+            $pdf->SetXY($x + 3, $yBubble + 2);
             $pdf->MultiCell($bubbleWidth - 6, 0, $message, 0, 'L', false, 1);
 
-            $pdf->Ln(2);
+            $pdf->Ln(4);
             $previousUser = $user;
         }
     }
