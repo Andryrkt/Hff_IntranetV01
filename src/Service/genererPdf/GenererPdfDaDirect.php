@@ -2,9 +2,9 @@
 
 namespace App\Service\genererPdf;
 
-use App\Entity\da\DaObservation;
-use App\Entity\da\DemandeAppro;
 use TCPDF;
+use App\Entity\da\DemandeAppro;
+use App\Entity\da\DaObservation;
 
 class GenererPdfDaDirect extends GeneratePdf
 {
@@ -103,6 +103,9 @@ class GenererPdfDaDirect extends GeneratePdf
         $pdf->writeHTML($html1, true, false, true, false, '');
 
         //=========================================================================================
+        /** OBSERVATIONS */
+        $this->renderTextWithLine($pdf, 'Echange entre le service Emetteur et le service Appro');
+        $this->renderChatMessages($pdf, $observations);
 
         // Obtention du chemin absolu du répertoire de travail
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
@@ -115,5 +118,67 @@ class GenererPdfDaDirect extends GeneratePdf
         }
 
         $pdf->Output("$Dossier/$numDa.pdf", 'I');
+    }
+
+    /**
+     * Affiche une liste d'observations sous forme de chat dans un PDF TCPDF.
+     *
+     * @param TCPDF $pdf L'instance TCPDF
+     * @param iterable<DaObservation> $observations Liste d'objets Daobservation (ayant utilisateur, observation, date_creation)
+     */
+    function renderChatMessages(TCPDF $pdf, iterable $observations): void
+    {
+        $appro = ['marie', 'Vania', 'stg.tahina', 'narindra.veloniaina', 'hobimalala'];
+
+        $w_total = $pdf->GetPageWidth();  // Largeur totale du PDF
+        $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
+        $usable_width = $w_total - $margins['left'] - $margins['right'];
+
+        $leftColor = [240, 240, 240]; // gris clair
+        $rightColor = [210, 230, 255]; // bleu clair
+        $borderRadius = 3;
+
+        $maxWidth = 120;
+
+        foreach ($observations as $obs) {
+            $user    = $obs->getUtilisateur();
+            $message = $obs->getObservation();
+            $date    = $obs->getDateCreation()->format('d/m/Y H:i');
+            $isAppro = in_array($user, $appro);
+
+            $align = $isAppro ? 'R' : 'L';
+            $fillColor = $isAppro ? $rightColor : $leftColor;
+
+            // Remplace <br> par \n pour MultiCell
+            $message = str_replace('<br>', "\n", $message);
+
+            // Calcule la largeur et position X
+            $x = $isAppro ? $usable_width - $maxWidth + $margins['left'] : $margins['left'];
+
+            // Position Y actuelle
+            $y = $pdf->GetY() + 5;
+
+            // En-tête : nom + date
+            $header = sprintf('%s — %s', $user, $date);
+            $pdf->SetFont('helvetica', 'B', 9);
+            $pdf->MultiCell($maxWidth, 5, $header, 0, $align, false, 1, $x, $y, true);
+            $y = $pdf->GetY();
+
+            // Mesure la hauteur du message
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->SetXY($x, $y);
+            $messageHeight = $pdf->getStringHeight($maxWidth - 4, $message);
+
+            // Dessine une bulle arrondie
+            $pdf->SetFillColor(...$fillColor);
+            $pdf->RoundedRect($x, $y, $maxWidth, $messageHeight + 4, $borderRadius, '1111', 'DF');
+
+            // Texte du message
+            $pdf->SetXY($x + 2, $y + 2);
+            $pdf->MultiCell($maxWidth - 4, 0, $message, 0, 'L', false, 1, '', '', true);
+
+            // Saut après le message
+            $pdf->Ln(3);
+        }
     }
 }
