@@ -32,3 +32,6 @@ CREATE TABLE devis_soumis_a_validation_neg
 
     ALTER TABLE devis_soumis_a_validation_neg
     ADD statut_bc VARCHAR(100) NULL;
+
+    ALTER TABLE devis_soumis_a_validation_neg
+    ADD relance VARCHAR(50) NULL;

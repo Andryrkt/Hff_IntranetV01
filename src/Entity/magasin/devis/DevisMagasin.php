@@ -150,6 +150,13 @@ class DevisMagasin
      */
     private ?string $statutBc = '';
 
+        /**
+     * @ORM\Column(type="string", length=100, name="relance", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $relance = '';
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
@@ -580,6 +587,30 @@ class DevisMagasin
     public function setStatutBc($statutBc)
     {
         $this->statutBc = $statutBc;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of relance
+     *
+     * @return  string|null
+     */ 
+    public function getRelance()
+    {
+        return $this->relance;
+    }
+
+    /**
+     * Set the value of relance
+     *
+     * @param  string|null  $relance
+     *
+     * @return  self
+     */ 
+    public function setRelance($relance)
+    {
+        $this->relance = $relance;
 
         return $this;
     }
