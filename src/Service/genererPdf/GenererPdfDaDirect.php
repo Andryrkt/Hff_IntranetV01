@@ -134,63 +134,76 @@ class GenererPdfDaDirect extends GeneratePdf
         $margins = $pdf->GetMargins();    // Tableau des marges (left, top, right)
         $usable_width = $w_total - $margins['left'] - $margins['right'];
 
-        $leftColor = [220, 220, 220];     // fond gauche : gris clair
-        $rightColor = [255, 209, 69];      // fond droite : jaune CAT
-        $borderRadius = 2;
-        $maxWidth = 120;
+        $leftColor  = [220, 220, 220];    // fond des messages des autres
+        $rightColor = [255, 209, 69];    // fond des messages de l'utilisateur courant
+        $borderRadius = 3;
+        $maxWidth = 120;                  // largeur max autorisée
+        $minWidth = 40;                   // largeur mini d'une bulle
+
+        $previousUser = null;
 
         foreach ($observations as $obs) {
             $user    = $obs->getUtilisateur();
-            $message = str_replace('<br>', "\n", $obs->getObservation());
+            $message = str_replace('<br>', "\n", trim($obs->getObservation()));
             $date    = $obs->getDateCreation()->format('d/m/Y H:i');
             $isAppro = in_array($user, $appro);
 
-            // Couleur de fond selon côté
             $fillColor = $isAppro ? $rightColor : $leftColor;
             $align = $isAppro ? 'R' : 'L';
+
+            // largeur dynamique selon texte
+            $pdf->SetFont('helvetica', '', 10);
+            $textWidth = $pdf->GetStringWidth($message) + 10;
+            $bubbleWidth = max($minWidth, min($textWidth, $maxWidth));
+
+            // Position X (toujours dans la zone de page)
             $x = $isAppro ? $usable_width - $maxWidth + $margins['left'] : $margins['left'];
 
-            // Position Y de départ
-            $pdf->Ln(3);
-            $yStart = $pdf->GetY();
+            // Espace avant un nouveau groupe
+            if ($previousUser !== $user) {
+                $pdf->Ln(6);
+                $yStart = $pdf->GetY();
 
-            // === Cercle avec initiale ===
-            $initial = strtoupper(mb_substr($user, 0, 1));
-            $circleX = $isAppro ? $x + $maxWidth + 4 : $x - 10;
-            $circleY = $yStart + 2;
-            $circleColor = $isAppro ? [100, 150, 255] : [180, 180, 180];
+                // Cercle avec initiale
+                $initial = strtoupper(mb_substr($user, 0, 1));
+                $circleX = $isAppro
+                    ? $x + $bubbleWidth + 5   // côté droit, mais dans la marge visible
+                    : $x - 8;                 // côté gauche, avant la bulle
+                $circleY = $yStart + 4;
+                $circleColor = $isAppro ? [100, 150, 255] : [180, 180, 180];
 
-            $pdf->SetFillColor(...$circleColor);
-            $pdf->Circle($circleX, $circleY + 3, 3, 0, 360, 'F', [], $circleColor);
-            $pdf->SetFont('helvetica', 'B', 8);
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetXY($circleX - 1.5, $circleY + 0.5);
-            $pdf->Cell(3, 3, $initial, 0, 0, 'C', false);
+                $pdf->SetFillColor(...$circleColor);
+                $pdf->Circle($circleX, $circleY, 3, 0, 360, 'F', [], $circleColor);
 
-            // === Nom + date ===
+                $pdf->SetFont('helvetica', 'B', 8);
+                $pdf->SetTextColor(255, 255, 255);
+                $pdf->SetXY($circleX - 1.5, $circleY - 1.5);
+                $pdf->Cell(3, 3, $initial, 0, 0, 'C', false);
+
+                // Nom + date sur une même ligne
+                $pdf->SetTextColor(0, 0, 0);
+                $pdf->SetFont('helvetica', 'B', 9);
+                $pdf->SetXY($x, $yStart);
+                $pdf->Cell($bubbleWidth, 5, $user, 0, 0, $align, false);
+
+                $pdf->SetFont('helvetica', '', 8);
+                $pdf->SetTextColor(100, 100, 100);
+                $pdf->Cell(0, 5, ' — ' . $date, 0, 1, $align, false);
+            }
+
+            // Message (bulle)
             $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetXY($x, $yStart);
-            $pdf->SetFont('helvetica', 'B', 9);
-            $pdf->Cell($maxWidth, 5, $user, 0, 1, $align, false);
+            $msgHeight = $pdf->getStringHeight($bubbleWidth - 6, $message);
 
-            $pdf->SetFont('helvetica', '', 8);
-            $pdf->SetTextColor(100, 100, 100);
-            $pdf->Cell($maxWidth, 4, $date, 0, 1, $align, false);
-
-            // === Message (bulle) ===
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->SetTextColor(0, 0, 0);
-            $msgHeight = $pdf->getStringHeight($maxWidth - 6, $message);
-
-            $yBubble = $pdf->GetY() + 1;
+            $yBubble = $pdf->GetY() + 2;
             $pdf->SetFillColor(...$fillColor);
-            $pdf->RoundedRect($x, $yBubble, $maxWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
+            $pdf->RoundedRect($x, $yBubble, $bubbleWidth, $msgHeight + 4, $borderRadius, '1111', 'F');
 
-            // Texte dans la bulle
             $pdf->SetXY($x + 3, $yBubble + 2);
-            $pdf->MultiCell($maxWidth - 6, 0, $message, 0, 'L', false, 1);
+            $pdf->MultiCell($bubbleWidth - 6, 0, $message, 0, 'L', false, 1);
 
-            $pdf->Ln(4);
+            $pdf->Ln(3);
+            $previousUser = $user;
         }
     }
 }
