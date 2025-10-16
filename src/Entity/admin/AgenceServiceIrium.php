@@ -3,6 +3,7 @@
 namespace App\Entity\admin;
 
 use App\Entity\admin\Personnel;
+use App\Entity\ddc\DemandeConge;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\admin\utilisateur\User;
 use Doctrine\Common\Collections\Collection;
@@ -109,12 +110,18 @@ class AgenceServiceIrium
      */
     private $chefServiceId;
 
+   /**
+     * @ORM\OneToMany(targetEntity=DemandeConge::class, mappedBy="agenceServiceirium")
+     */
+    private $demandeDeConge;
+
     //=============================================================================================
 
     public function __construct()
     {
         $this->userAgenceService = new ArrayCollection();
         $this->personnelId = new ArrayCollection();
+        $this->demandeDeConge = new ArrayCollection();
     }
 
 
@@ -341,4 +348,30 @@ class AgenceServiceIrium
 
         return $this;
     }
+
+    public function getDemandeDeConge()
+    {
+        return $this->demandeDeConge;
+    }
+
+    public function addDemandeDeConge(DemandeConge $demandeDeConge): self
+    {
+        if (!$this->demandeDeConge->contains($demandeDeConge)) {
+            $this->demandeDeConge[] = $demandeDeConge;
+            $demandeDeConge->setAgenceServiceIrium($this);
+        }
+        return $this;
+    }
+
+    public function removeDemandeDeConge(DemandeConge $demandeDeConge): self
+    {
+        if ($this->demandeDeConge->contains($demandeDeConge)) {
+            $this->demandeDeConge->removeElement($demandeDeConge);
+            if ($demandeDeConge->getAgenceServiceIrium() === $this) {
+                $demandeDeConge->setAgenceServiceIrium(null);
+            }
+        }
+        return $this;
+    }
+
 }

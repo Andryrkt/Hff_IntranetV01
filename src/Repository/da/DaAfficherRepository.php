@@ -317,10 +317,19 @@ class DaAfficherRepository extends EntityRepository
         }
         $qb->andWhere($orX);
 
-        // Ordre final
-        $qb->orderBy('d.dateDemande', 'DESC')
-            ->addOrderBy('d.numeroFournisseur', 'DESC')
-            ->addOrderBy('d.numeroCde', 'DESC');
+
+        $this->applyDynamicFilters($qb, "d", $criteria, true);
+        $this->applyStatutsFilters($qb, "d", $criteria, true);
+        $this->applyDateFilters($qb, "d", $criteria, true);
+        // triage selon le filtre choisi par l'utilisateur
+        if (!empty($criteria['sortNbJours'])) {
+            $qb->orderBy('d.joursDispo', $criteria['sortNbJours']);
+        } else {
+            // Ordre final
+            $qb->orderBy('d.dateDemande', 'DESC')
+                ->addOrderBy('d.numeroFournisseur', 'DESC')
+                ->addOrderBy('d.numeroCde', 'DESC');
+        }
         // DEBUT debug
         // $query = $qb->getQuery();
         // $sql = $query->getSQL();
@@ -589,9 +598,10 @@ class DaAfficherRepository extends EntityRepository
     private function applyStatutsFilters(QueryBuilder $queryBuilder, string $qbLabel, array $criteria, bool $estCdeFrn = false)
     {
         if ($estCdeFrn) {
-            if (!empty($criteria['statutBc'])) {
+
+            if (!empty($criteria['statutBC'])) {
                 $queryBuilder->andWhere($qbLabel . '.statutCde = :statutBc')
-                    ->setParameter('statutBc', $criteria['statutBc']);
+                    ->setParameter('statutBc', $criteria['statutBC']);
             }
         } else {
             if (!empty($criteria['statutDA'])) {
@@ -768,5 +778,32 @@ class DaAfficherRepository extends EntityRepository
             ])
             ->getQuery()
             ->getSingleColumnResult();
+    }
+
+    
+    public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
+    {
+        $qb = $this->createQueryBuilder('d');
+
+        $qb->where(
+            'd.numeroVersion = (
+                    SELECT MAX(d2.numeroVersion)
+                    FROM ' . DaAfficher::class . ' d2
+                    WHERE d2.numeroDemandeAppro = d.numeroDemandeAppro
+                )'
+        );
+
+
+        $this->applyDynamicFilters($qb, 'd', $criteria);
+        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, 'd', $criteria);
+
+        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, 'd', $criteria);
+
+        $qb->orderBy('d.dateDemande', 'DESC')
+            ->addOrderBy('d.numeroFournisseur', 'DESC')
+            ->addOrderBy('d.numeroCde', 'DESC');
+        return $qb->getQuery()->getResult();
     }
 }

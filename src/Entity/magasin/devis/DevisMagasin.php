@@ -125,14 +125,23 @@ class DevisMagasin
      */
     private int $sommeNumeroLignes;
 
-    private $pieceJoint01;
-
     /**
      * @ORM\Column(type="datetime", name="date_pointage", nullable=true)
      *
      * @var [type]
      */
     private $datePointage = null;
+
+    private $pieceJoint01;
+
+    private $pieceJoint2;
+
+    /**
+     * @ORM\Column(type="string", length=50, name="tache_validateur", nullable=true)
+     *
+     * @var string|null
+     */
+    private ?string $tacheValidateur;
 
     /** =========================================
      * GETTERS & SETTERS
@@ -440,25 +449,7 @@ class DevisMagasin
         return $this;
     }
 
-    /**
-     * Get the value of pieceJoint01
-     */
-    public function getPieceJoint01()
-    {
-        return $this->pieceJoint01;
-    }
 
-    /**
-     * Set the value of pieceJoint01
-     *
-     * @return  self
-     */
-    public function setPieceJoint01($pieceJoint01)
-    {
-        $this->pieceJoint01 = $pieceJoint01;
-
-        return $this;
-    }
 
     /**
      * Get the value of sommeNumeroLignes
@@ -500,6 +491,64 @@ class DevisMagasin
     public function setDatePointage($datePointage)
     {
         $this->datePointage = $datePointage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint01
+     */
+    public function getPieceJoint01()
+    {
+        return $this->pieceJoint01;
+    }
+
+    /**
+     * Set the value of pieceJoint01
+     *
+     * @return  self
+     */
+    public function setPieceJoint01($pieceJoint01)
+    {
+        $this->pieceJoint01 = $pieceJoint01;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pieceJoint2
+     */
+    public function getPieceJoint2()
+    {
+        return $this->pieceJoint2;
+    }
+
+    /**
+     * Set the value of pieceJoint2
+     */
+    public function setPieceJoint2($pieceJoint2): self
+    {
+        $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of tacheValidateur
+     */
+    public function getTacheValidateur()
+    {
+        return $this->tacheValidateur;
+    }
+
+    /**
+     * Set the value of tacheValidateur
+     *
+     * @return  self
+     */
+    public function setTacheValidateur($tacheValidateur)
+    {
+        $this->tacheValidateur = $tacheValidateur;
 
         return $this;
     }

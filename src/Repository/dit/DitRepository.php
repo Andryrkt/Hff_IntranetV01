@@ -359,10 +359,13 @@ class DitRepository extends EntityRepository
                 ->setParameter('numOr', $ditSearch->getNumOr());
         }
 
-        //filtre selon le numero Or
+        //filtre selon le numero Or mais pour le elseif filtre tous les listes de ne pas afficher les statuts réfusé
         if (!empty($ditSearch->getStatutOr())) {
             $queryBuilder->andWhere('d.statutOr = :statutOr')
                 ->setParameter('statutOr',  $ditSearch->getStatutOr());
+        } elseif (empty($ditSearch->getNumOr()) && empty($ditSearch->getNumDevis()) && empty($ditSearch->getNumDit())) {
+            $queryBuilder->andWhere('d.statutOr NOT LIKE :statutRefuser OR d.statutOr IS NULL')
+                ->setParameter('statutRefuser', 'Refusé%');
         }
 
         //filtre selon le categorie de demande
@@ -450,7 +453,7 @@ class DitRepository extends EntityRepository
         }
 
         //filtre selon le section support 3
-        $sectionSupport3 = $ditSearch->getSectionSupport1();
+        $sectionSupport3 = $ditSearch->getSectionSupport3();
         if (!empty($sectionSupport3)) {
             $groupes = ['Chef section', 'Chef de section', 'Responsable section', 'Chef d\'équipe'];
             $orX = $queryBuilder->expr()->orX();

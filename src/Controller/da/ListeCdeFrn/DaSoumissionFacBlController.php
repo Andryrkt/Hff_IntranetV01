@@ -86,7 +86,8 @@ class DaSoumissionFacBlController extends Controller
 
         if ($form->isSubmitted() && $form->isValid()) {
             $soumissionFacBl = $form->getData();
-            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde)) {
+            $nomOriginalFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+            if ($this->verifierConditionDeBlocage($soumissionFacBl, $numCde, $nomOriginalFichier)) {
                 /** ENREGISTREMENT DE FICHIER */
                 $nomDeFichiers = $this->enregistrementFichier($form, $numCde, $numDa);
 
@@ -95,7 +96,7 @@ class DaSoumissionFacBlController extends Controller
                 /** FUSION DES PDF */
                 $nomFichierAvecChemins = $this->addPrefixToElementArray($nomDeFichiers, $this->cheminDeBase . $numDa . '/');
                 $fichierConvertir = $this->ConvertirLesPdf($nomFichierAvecChemins);
-                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '.pdf';
+                $nomPdfFusionner =  'FACBL' . $numCde . '#' . $numDa . '-' . $numOr . '_' . $numeroVersionMax . '~' . $nomOriginalFichier;
                 $nomAvecCheminPdfFusionner = $this->cheminDeBase . $numDa . '/' . $nomPdfFusionner;
                 $this->traitementDeFichier->fusionFichers($fichierConvertir, $nomAvecCheminPdfFusionner);
 
@@ -110,7 +111,7 @@ class DaSoumissionFacBlController extends Controller
                 $this->generatePdf->copyToDWFacBlDa($nomPdfFusionner, $numDa);
 
                 /** MODIFICATION DA AFFICHER */
-                $this->modificationDaAfficher($numDa, $numeroVersionMax);
+                $this->modificationDaAfficher($numDa, $numCde);
 
                 /** HISTORISATION */
                 $message = 'Le document est soumis pour validation';
@@ -125,10 +126,18 @@ class DaSoumissionFacBlController extends Controller
      * @param string $numDa
      * @param int $numeroVersionMax
      */
-    private function modificationDaAfficher(string $numDa, int $numeroVersionMax): void
+    private function modificationDaAfficher(string $numDa, string $numCde): void
     {
-        $daAfficher = $this->getEntityManager()->getRepository(DaAfficher::class)->findOneBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax]);
-        $daAfficher->setEstFactureBlSoumis(true);
+        $numeroVersionMax = $this->getEntityManager()->getRepository(DaAfficher::class)->getNumeroVersionMax($numDa);
+        $daAffichers = $this->getEntityManager()->getRepository(DaAfficher::class)->findBy(['numeroDemandeAppro' => $numDa, 'numeroVersion' => $numeroVersionMax, 'numeroCde' => $numCde]);
+
+        foreach ($daAffichers as  $daAfficher) {
+            if (!$daAfficher instanceof DaAfficher) {
+                throw new Exception('Erreur: L\'objet DaAfficher est invalide.');
+            }
+            $daAfficher->setEstFactureBlSoumis(true);
+            $this->getEntityManager()->persist($daAfficher);
+        }
         $this->getEntityManager()->flush();
     }
 
@@ -271,14 +280,14 @@ class DaSoumissionFacBlController extends Controller
         ];
     }
 
-    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde): bool
+    private function verifierConditionDeBlocage(DaSoumissionFacBl $soumissionFacBl, $numCde, $nomOriginalFichier): bool
     {
         $conditions = $this->conditionDeBlocage($soumissionFacBl);
-        $nomDeFichier = $soumissionFacBl->getPieceJoint1()->getClientOriginalName();
+
         $okey = false;
 
         if ($conditions['nomDeFichier']) {
-            $message = "Le nom de fichier ('{$nomDeFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
+            $message = "Le nom de fichier ('{$nomOriginalFichier}') n'est pas valide. Il ne doit pas contenir les caractères suivants : #, -, _ ou ~. Merci de renommer votre fichier avant de le soumettre dans DocuWare.";
 
             $this->historiqueOperation->sendNotificationSoumission($message, $numCde, 'da_list_cde_frn');
             $okey = false;

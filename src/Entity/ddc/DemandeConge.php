@@ -3,6 +3,7 @@
 namespace App\Entity\ddc;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\admin\AgenceServiceIrium;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ddc\DemandeCongeRepository")
@@ -47,10 +48,7 @@ class DemandeConge
      */
     private ?string $agenceDebiteur = null;
 
-    /**
-     * @ORM\Column(name="Agence_Service", type="string", length=100)
-     */
-    private ?string $agenceService = null;
+
 
     /**
      * @ORM\Column(name="Adresse_Mail_Demandeur", type="string", length=100)
@@ -102,7 +100,18 @@ class DemandeConge
      */
     private ?string $pdfDemande = null;
 
-    // Getters et Setters (inchangés)
+    private ?string $codeAgenceService;
+
+    /**
+     * @ORM\ManyToOne(targetEntity=AgenceServiceIrium::class, inversedBy="demandeDeConge")
+     * @ORM\JoinColumn(name="Agence_Service", referencedColumnName="service_sage_paie")
+     */
+    private $agenceServiceirium;
+
+    /** ==================================================================================
+     * Getters et Setters (inchangés)
+     *=============================================================================*/
+
     public function getId(): ?int
     {
         return $this->id;
@@ -161,15 +170,7 @@ class DemandeConge
         $this->agenceDebiteur = $agenceDebiteur;
         return $this;
     }
-    public function getAgenceService(): ?string
-    {
-        return $this->agenceService;
-    }
-    public function setAgenceService(?string $agenceService): self
-    {
-        $this->agenceService = $agenceService;
-        return $this;
-    }
+
     public function getAdresseMailDemandeur(): ?string
     {
         return $this->adresseMailDemandeur;
@@ -261,6 +262,24 @@ class DemandeConge
         return $this;
     }
 
+    /**
+     * Get the value of codeAgenceService
+     */
+    public function getCodeAgenceService(): ?string
+    {
+        return $this->codeAgenceService;
+    }
+
+    /**
+     * Set the value of codeAgenceService
+     */
+    public function setCodeAgenceService(?string $codeAgenceService): self
+    {
+        $this->codeAgenceService = $codeAgenceService;
+
+        return $this;
+    }
+
     public function toArray(): array
     {
         return [
@@ -271,7 +290,7 @@ class DemandeConge
             'dateDemande' => $this->dateDemande,
             'agenceDebiteur' => $this->agenceDebiteur,
             'agence' => $this->agenceDebiteur,
-            'agenceService' => $this->agenceService,
+            'agenceService' => $this->agenceServiceirium ? $this->agenceServiceirium->getServicesagepaie() : null,
             'adresseMailDemandeur' => $this->adresseMailDemandeur,
             'sousTypeDocument' => $this->sousTypeDocument,
             'dureeConge' => $this->dureeConge,
@@ -283,5 +302,23 @@ class DemandeConge
             'dateStatut' => $this->dateStatut,
             'pdfDemande' => $this->pdfDemande,
         ];
+    }
+
+    /**
+     * Get the value of agenceServiceirium
+     */
+    public function getAgenceServiceirium()
+    {
+        return $this->agenceServiceirium;
+    }
+
+    /**
+     * Set the value of agenceServiceirium
+     */
+    public function setAgenceServiceirium($agenceServiceirium): self
+    {
+        $this->agenceServiceirium = $agenceServiceirium;
+
+        return $this;
     }
 }

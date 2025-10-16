@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block overlay %}
-	{% include "/shared/_overlay.html.twig"  %}
+	{% include "/shared/_overlay.html.twig" %}
 {% endblock %}
 
 {% block content %}
@@ -75,12 +75,8 @@
 								<ul class="dropdown-menu dropdown-menu-end" id="dropdown-menu" aria-labelledby="dropdownMenuButton">
 									{% if row.ajouterDA %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlCreation }}">Créer une DA à partir du DIT</a>
-										</li>
-									{% endif %}
-									{% if row.demandeDevis %}
-										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlDemandeDevis }}">Devis demandé</a>
+											<a class="dropdown-item fw-bold ajout-overlay" href="{{ path('da_new_avec_dit', { id : row.dit.id }) }}">Créer une DA à partir du
+																					DIT</a>
 										</li>
 									{% endif %}
 									{% if row.statutValide %}
@@ -144,7 +140,21 @@
 		</table>
 	</div>
 
-	{% include "/dit/shared/_modalNiveauUrgence.html.twig"  %}
+	<div class="pagination justify-content-center mt-3">
+		{% if currentPage > 1 %}
+			<a href="?page={{ currentPage - 1 }}" class="page-link">Précédent</a>
+		{% endif %}
+
+		{% for i in 1..totalPages %}
+			<a href="?page={{ i }}" class="page-link {% if i == currentPage %}active{% endif %}">{{ i }}</a>
+		{% endfor %}
+
+		{% if currentPage < totalPages %}
+			<a href="?page={{ currentPage + 1 }}" class="page-link">Suivant</a>
+		{% endif %}
+	</div>
+
+	{% include "/dit/shared/_modalNiveauUrgence.html.twig" %}
 {% endblock %}
 
 {% block javascript %}

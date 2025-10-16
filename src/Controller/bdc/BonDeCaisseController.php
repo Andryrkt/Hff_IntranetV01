@@ -94,17 +94,14 @@ class BonDeCaisseController extends Controller
                 }
             }
 
-            // Récupérer le service directement depuis la requête au lieu du formulaire
+            // Récupérer de l'agence  et le service directement depuis la requête au lieu du formulaire
+            $agenceFromRequest = $request->query->get('bon_de_caisse')['agenceDebiteur'] ?? null;
             $serviceFromRequest = $request->query->get('bon_de_caisse')['service'] ?? null;
-            if ($serviceFromRequest) {
+            if ($serviceFromRequest && $agenceFromRequest) {
+                $options['agenceDebiteur'] = $agenceFromRequest;
                 $options['service'] = $serviceFromRequest;
             }
 
-            // Récupérer le service depuis le champ caché
-            $serviceHidden = $request->query->get('service_hidden');
-            if ($serviceHidden) {
-                $options['service'] = $serviceHidden;
-            }
         }
 
 
@@ -116,7 +113,8 @@ class BonDeCaisseController extends Controller
         if (isset($options['dateDemandeFin'])) {
             $criteria['dateDemandeFin'] = $options['dateDemandeFin'];
         }
-        if (isset($options['service'])) {
+        if (isset($options['service']) && isset($options['agenceDebiteur'])) {
+            $criteria['agenceDebiteur'] = $options['agenceDebiteur'];
             $criteria['service'] = $options['service'];
         }
         // Récupérer les données paginées et filtrées

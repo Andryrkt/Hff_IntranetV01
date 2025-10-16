@@ -181,17 +181,25 @@ class GeneratePdf
 
 
     // devis Magasin
-    public function copyToDWDevisMagasin($fileName)
+    public function copyToDWDevisMagasin($fileName, $numeroDevis)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/' . $fileName;
-        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'magasin/devis/' . $numeroDevis . '/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
-    // bl FUT
-    public function copyToDWBlFut($fileName)
+    // BL - INTERNE FTU
+    public function copyToDWBlFutInterne($fileName)
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'BON DE SORTIE FTU/' . $fileName;
+        $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
+    }
+
+    //FACTURE -BL (clients) FTU
+    public function copyToDWBlFutFactureClient($fileName)
+    {
+        $cheminFichierDistant = $this->baseCheminDocuware . 'BONLIV EXTERNE MAGFTU/' . $fileName;
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'bl/' . $fileName;
         $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }

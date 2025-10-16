@@ -108,9 +108,15 @@ class ExportExcelCdefrnController extends Controller
 
     private function donnerAfficher(?array $criteria): array
     {
-        /** @var array récupération des lignes de daValider avec version max et or valider */
-        $daAfficherValiders =  $this->daAfficherRepository->getDaOrValider($criteria);
-
-        return $daAfficherValiders;
+        // Utiliser le repository DaAfficher pour récupérer toutes les dernières versions valides (sans limite)
+        // 1) récupérer le total
+        $firstPass = $this->daAfficherRepository->findValidatedPaginatedDas($criteria ?? [], 1, 1);
+        $totalItems = (int)($firstPass['totalItems'] ?? 0);
+        if ($totalItems === 0) {
+            return [];
+        }
+        // 2) récupérer toutes les lignes en une fois
+        $result = $this->daAfficherRepository->findValidatedPaginatedDas($criteria ?? [], 1, $totalItems);
+        return $result['data'] ?? [];
     }
 }

@@ -9,6 +9,7 @@ use App\Entity\da\DaSoumissionBc;
 use App\Entity\dit\DitOrsSoumisAValidation;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Model\da\DaModel;
+use Symfony\Component\Validator\Constraints\Length;
 
 trait StatutBcTrait
 {
@@ -109,7 +110,7 @@ trait StatutBcTrait
 
         $qte = $achatDirect
             ? $this->daModel->getEvolutionQteDaDirect($numcde, $ref, $designation)
-            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr);
+            : $this->daModel->getEvolutionQteDaAvecDit($numDit, $ref, $designation, $numeroOr, $statutBc, $numDa);
         [$partiellementDispo, $completNonLivrer, $tousLivres, $partiellementLivre] = $this->evaluerQuantites($qte,  $infoDaDirect, $achatDirect, $DaAfficher);
 
 
@@ -166,9 +167,10 @@ trait StatutBcTrait
             return 'Partiellement livré';
         }
 
-        if ($DaAfficher->getBcEnvoyerFournisseur() && !$DaAfficher->getEstFactureBlSoumis()) {
+        if ($DaAfficher->getBcEnvoyerFournisseur()) {
             return 'BC envoyé au fournisseur';
         }
+
 
         return $statutSoumissionBc;
     }
@@ -373,5 +375,31 @@ trait StatutBcTrait
             'numeroVersion' => $numeroVersionMax
         ];
         return $this->daAfficherRepository->findOneBy($conditionDeRecuperation);
+    }
+
+
+    private function modificationNumLigneEtItv(string $ref, string $desi, string $numOr, DaAfficher $DaAfficher)
+    {
+        $numLigneEtItv = $this->daModel->getNumLigneAntItvIps($ref, $desi, $numOr);
+
+        if (!empty($numLigneEtItv)) {
+            if (count($numLigneEtItv) > 1) {
+                foreach ($numLigneEtItv as $value) {
+                    if ($DaAfficher->getNumeroLigneIps() == null && $DaAfficher->getNumeroInterventionIps() == null && $DaAfficher->getQteDemIps() == $value['qte_dem']) {
+
+                        $DaAfficher
+                            ->setNumeroLigneIps($value['num_ligne'])
+                            ->setNumeroInterventionIps($value['numero_intervention_ips']);
+                        break;
+                    }
+                }
+            } else {
+                $numLigne = $numLigneEtItv[0]['num_ligne'];
+                $numIntervention = $numLigneEtItv[0]['numero_intervention_ips'];
+                $DaAfficher
+                    ->setNumeroLigneIps($numLigne)
+                    ->setNumeroInterventionIps($numIntervention);
+            }
+        }
     }
 }

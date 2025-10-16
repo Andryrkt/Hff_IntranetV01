@@ -3,7 +3,9 @@
 namespace App\Controller\Traits\magasin\devis;
 
 use App\Service\autres\VersionService;
+use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 trait DevisMagasinTrait
 {
@@ -46,17 +48,46 @@ trait DevisMagasinTrait
         $suffixConstructeur = $this->listeDevisMagasinModel->constructeurPieceMagasin($devisMagasin->getNumeroDevis());
 
         $devisMagasin
-                ->setNumeroDevis($devisMagasin->getNumeroDevis())
-                ->setMontantDevis($firstDevisIps['montant_total'])
-                ->setDevise($firstDevisIps['devise'])
-                ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
-                ->setUtilisateur($this->getUser()->getNomUtilisateur())
-                ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
-                ->setStatutDw(DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
-                ->setTypeSoumission($typeSoumission)
-                ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
-                ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
-                ->setNomFichier($nomFichier)
-            ;
+            ->setNumeroDevis($devisMagasin->getNumeroDevis())
+            ->setMontantDevis($firstDevisIps['montant_total'])
+            ->setDevise($firstDevisIps['devise'])
+            ->setSommeNumeroLignes($firstDevisIps['somme_numero_lignes'])
+            ->setUtilisateur($this->getUser()->getNomUtilisateur())
+            ->setNumeroVersion(VersionService::autoIncrement($numeroVersion))
+            ->setStatutDw($typeSoumission == 'VP' ? DevisMagasin::STATUT_PRIX_A_CONFIRMER : DevisMagasin::STATUT_A_VALIDER_CHEF_AGENCE)
+            ->setTypeSoumission($typeSoumission)
+            ->setCat($suffixConstructeur === 'C' || $suffixConstructeur === 'CP' ? true : false)
+            ->setNonCat($suffixConstructeur === 'P' || $suffixConstructeur === 'CP' ? true : false)
+            ->setNomFichier((string)$nomFichier)
+            ->setTacheValidateur($typeSoumission == 'VP' ? $devisMagasin->getTacheValidateur() : null)
+        ;
+    }
+
+    private function enregistrementFichier(FormInterface $form, string $numDevis, int $numeroVersion, string $suffix, string $mail, string $typeDevis): array
+    {
+        $devisPath = $this->cheminBaseUpload . $numDevis . '/';
+        if (!is_dir($devisPath)) {
+            mkdir($devisPath, 0777, true);
+        }
+
+        $nomEtCheminFichiersEnregistrer = $this->uploader->getNomsEtCheminFichiers($form, [
+            'repertoire' => $devisPath,
+            'generer_nom_callback' => function (
+                UploadedFile $file,
+                int $index
+            ) use ($numDevis, $numeroVersion, $suffix, $mail, $typeDevis) {
+                if ($typeDevis === 'VP') {
+                    return $this->nameGenerator->generateVerificationPrixName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
+                } else {
+
+                    return $this->nameGenerator->generateValidationDevisName($file, $numDevis, $numeroVersion, $suffix, $mail, $index);
+                }
+            }
+        ]);
+
+        $nomAvecCheminFichier = $this->nameGenerator->getCheminEtNomDeFichierSansIndex($nomEtCheminFichiersEnregistrer[0]);
+        $nomFichier = $this->nameGenerator->getNomFichier($nomAvecCheminFichier);
+
+        return [$nomEtCheminFichiersEnregistrer, $nomAvecCheminFichier, $nomFichier];
     }
 }

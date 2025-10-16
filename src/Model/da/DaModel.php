@@ -205,7 +205,7 @@ class DaModel extends Model
         return array_column($data, 'prix');
     }
 
-    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, string $statutBc)
+    public function getSituationCde(?string $ref = '', string $numDit, string $numDa, ?string $designation = '', ?string $numOr, ?string $statutBc)
     {
         if (!$numOr) return [];
         $designation = str_replace("'", "''", mb_convert_encoding($designation, 'ISO-8859-1', 'UTF-8'));
@@ -247,7 +247,7 @@ class DaModel extends Model
                     --  ON sitv.sitv_numor = slor.slor_numor 
                     --AND sitv.sitv_soc = slor.slor_soc 
                     --AND sitv.sitv_succ = slor.slor_succ 
-                    -- AND slor.slor_soc = 'HF'getSituationCde
+                    -- AND slor.slor_soc = 'HF'
 
                     -- jointure pour natcm = 'C'
                     LEFT JOIN Informix.frn_cde c
@@ -273,10 +273,14 @@ class DaModel extends Model
                                     and seor.seor_refdem = '$numDit'
             ";
 
-        if (in_array($statutBc, $statutCde)) {
-            $statement .= " AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa' ";
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND (
+                            (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                            OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                            )";
         }
-        // dd($statement);
+
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -330,7 +334,7 @@ class DaModel extends Model
         return array_column($data, 'constructeur');
     }
 
-    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr)
+    public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
     {
         if (!$numOr) return [];
 
@@ -408,6 +412,14 @@ class DaModel extends Model
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
+
+        if ($statutBc && in_array($statutBc, $statutCde)) {
+            $statement .= " AND (
+                    (slor.slor_natcm = 'C' AND TRIM(REPLACE(REPLACE(c.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa') 
+                    OR (slor.slor_natcm = 'L' AND TRIM(REPLACE(REPLACE(cde.fcde_cdeext, '\t', ''), CHR(9), '')) = '$numDa')
+                    )";
+        }
+
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -454,5 +466,60 @@ class DaModel extends Model
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
         return array_column($data, 'num_or');
+    }
+
+    /**
+     * recupère le numéro et le nom du fournissuer
+     * 
+     * cette méthode utilise les tables frn_cdl et frn_bse pour recupérer le numéro et le nom du fournisseur
+     * en utilisant comme jointure le numero du fournissuer
+     * 
+     */
+    public function getNumAndNomFournisseurSelonReference(string $numCde, string $ref): array
+    {
+        $statement = " SELECT fcdl_numfou as num_fournisseur, 
+                fbse_nomfou as nom_fournisseur
+            from informix.frn_cdl 
+            inner join informix.frn_bse on fcdl_numfou = fbse_numfou 
+            where fcdl_numcde ='$numCde' and fcdl_refp ='$ref'
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
+    }
+
+    /**
+     * recupère le numéro de ligne et le numéro d'intervention dans ips
+     * 
+     * @param string $ref
+     * @param string $desi
+     * @param string $numOr
+     * @return array qui a un ou plusieurs éléments
+     */
+    public function getNumLigneAntItvIps(string $ref, string $desi, string $numOr): array
+    {
+        $statement = " SELECT 
+                    slor_nogrp/100 as numero_intervention , 
+                    slor_nolign as numero_ligne,
+                    ROUND(
+                        CASE
+                            WHEN slor_typlig = 'P' THEN (
+                                slor_qterel + slor_qterea + slor_qteres + slor_qtewait - slor_qrec
+                            )
+                        END
+                    ) AS qte_dem
+                    from informix.sav_lor 
+                    where slor_numor ='$numOr' 
+                    and slor_refp = '$ref' 
+                    and slor_desi = '$desi'
+                    order by qte_dem desc
+        ";
+
+        $result = $this->connect->executeQuery($statement);
+        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+
+        return $data;
     }
 }

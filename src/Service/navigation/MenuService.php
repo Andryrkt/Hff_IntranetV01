@@ -314,7 +314,8 @@ class MenuService
                 'umbrella-beach',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', 'conge_liste')
+                    $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank'),
+                    $this->createSubItem('Consultation', 'search', 'conge_liste'),
                 ]
             );
         }
@@ -439,7 +440,7 @@ class MenuService
                 'file-alt',
                 [
                     $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire', ['action' => 'oui']),
+                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
                 ]
             );
         }

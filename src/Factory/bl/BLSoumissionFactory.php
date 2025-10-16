@@ -8,7 +8,7 @@ use App\Entity\admin\utilisateur\User;
 
 class BLSoumissionFactory
 {
-    public static function createBLSoumission(User $user, string $cheminEtNomFichier): BLSoumission
+    public static function createBLSoumission(User $user, string $cheminEtNomFichier, int $typeBl): BLSoumission
     {
         $blSoumission = new BLSoumission();
         // Set default values or perform any initialization if needed
@@ -16,6 +16,7 @@ class BLSoumissionFactory
         $blSoumission->setServiceUser($user->getCodeServiceUser());
         $blSoumission->setUtilisateur($user->getNomUtilisateur());
         $blSoumission->setPathFichierSoumis($cheminEtNomFichier);
+        $blSoumission->setTypeBl($typeBl === 2 ? BLSoumission::TYPE_BL_INTERNE : BLSoumission::TYPE_FACTURE_BL_CLIENT);
 
         return $blSoumission;
     }

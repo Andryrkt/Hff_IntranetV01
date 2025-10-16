@@ -3,7 +3,7 @@
 namespace App\Form\ddc;
 
 use App\Entity\admin\AgenceServiceIrium;
-use App\Entity\admin\StatutDemande;
+use App\Entity\ddc\DemandeConge;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -50,7 +50,7 @@ class DemandeCongeType extends AbstractType
             ->add('matricule', TextType::class, [
                 'required' => false,
                 'mapped' => true,
-                'label' => 'Matricule'
+                'label' => 'Matricule, Nom et Prénoms'
             ])
             ->add('numeroDemande', TextType::class, [
                 'required' => false,
@@ -184,26 +184,11 @@ class DemandeCongeType extends AbstractType
 
     private function getStatutChoicesFromDatabase(EntityManagerInterface $em): array
     {
-        // Récupération des statuts depuis la table Statut_demande
-        $statuts = $em->getRepository(StatutDemande::class)
-            ->createQueryBuilder('s')
-            ->select('s.codeStatut, s.description')
-            ->where('s.codeApp = :app')
-            ->setParameter('app', 'DDC')
-            ->getQuery()
-            ->getResult();
-
+        // Récupération des statuts depuis la table demande_de_conge
+        $statuts = $em->getRepository(DemandeConge::class)->getStatut();
         $choices = [];
-        foreach ($statuts as $statut) {
-            // Utiliser les getters pour accéder aux propriétés des objets
-            if (is_object($statut)) {
-                // Si le résultat est un objet (entité)
-                $choices[$statut->getDescription()] = $statut->getCodeStatut();
-            } else {
-                // Si le résultat est un tableau associatif (résultat de la requête SELECT)
-                $choices[$statut['description']] = $statut['codeStatut'];
-            }
-        }
+        $choices = array_column($statuts, 'statutDemande', 'statutDemande');
+
         return $choices;
     }
 }
