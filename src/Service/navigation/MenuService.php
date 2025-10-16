@@ -314,7 +314,8 @@ class MenuService
                 'umbrella-beach',
                 [
                     $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', 'conge_liste')
+                    $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank'),
+                    $this->createSubItem('Consultation', 'search', 'conge_liste'),
                 ]
             );
         }
