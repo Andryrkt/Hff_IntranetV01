@@ -85,6 +85,13 @@ class DaSoumissionBc
      */
     private $numeroVersion;
 
+    /**
+     * @ORM\Column(type="decimal", precision=15, scale=2, name="montant_bc", nullable=true)
+     *
+     * @var float|null
+     */
+    private ?float $montantBc;
+
     /**===========================================================================
      * GETTER & SETTER
      *
@@ -266,6 +273,30 @@ class DaSoumissionBc
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of montantBc
+     *
+     * @return  float|null
+     */ 
+    public function getMontantBc()
+    {
+        return $this->montantBc;
+    }
+
+    /**
+     * Set the value of montantBc
+     *
+     * @param  float|null  $montantBc
+     *
+     * @return  self
+     */ 
+    public function setMontantBc($montantBc)
+    {
+        $this->montantBc = $montantBc;
 
         return $this;
     }
