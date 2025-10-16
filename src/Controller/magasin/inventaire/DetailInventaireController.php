@@ -79,22 +79,20 @@ class DetailInventaireController extends Controller
             detailInventaireSearchType::class,
             $this->DetailInventaireSearch,
             [
-                'method' => 'GET'
+                'method' => 'POST'
             ]
         )->getForm();
         $form->handleRequest($request);
         $criteria = $this->DetailInventaireSearch;
-
+        
+        $data = [];
         $this->getSessionService()->set('detail_invetaire_search_criteria', $criteria);
         if ($form->isSubmitted() && $form->isValid()) {
             $criteria =  $form->getdata();
-        }
-
-        $data = [];
-        if ($request->query->get('action') !== 'oui') {
             $listInvent = $this->InventaireModel->ligneInventaire($criteria);
             $data = $this->recupData($listInvent);
         }
+
         return $this->render('inventaire/detailInventaire.html.twig', [
             'form' => $form->createView(),
             'data' => $data
@@ -121,7 +119,7 @@ class DetailInventaireController extends Controller
             'ref' => 'Reférence',
             'desi' => 'Désignation',
             'casier' => 'Casier',
-            'tsock' => 'Stock',
+            // 'tsock' => 'Stock',
             'prix' => 'Prix',
             'valeur_stock' => 'Valeur stock',
             'comptage1' => 'Comptage1',
@@ -153,7 +151,7 @@ class DetailInventaireController extends Controller
                     'ref' => $inventDispo[$i]['ref'],
                     'desi' => $inventDispo[$i]['desi'],
                     'casier' => $inventDispo[$i]['casier'],
-                    'tsock' => $inventDispo[$i]['tsk'],
+                    // 'tsock' => $inventDispo[$i]['tsk'],
                     'prix' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['prix'])),
                     'valeur_stock' => str_replace(".", "", $this->formatNumber($inventDispo[$i]['valeur_stock'])),
                     'comptage1' => $inventDispo[$i]['comptage1'],

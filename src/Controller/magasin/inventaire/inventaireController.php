@@ -347,7 +347,7 @@ class InventaireController extends Controller
                 'nbre_ref_ecarts_positif' => $sumNbrPositif,
                 'nbre_ref_ecarts_negatifs' => $sumNbrNegatif,
                 'total_nbre_ref_ecarts' => $sumNbrRefsansEcart,
-                'pourcentage_ref_avec_ecart' => $sumNbrRefavecEcart,
+                'pourcentage_ref_avec_ecart' =>$sumNbrecartavecEcart, //$sumNbrRefavecEcart,
                 'montant_ecart' => $sumNbrEcart,
                 'pourcentage_ecart' => $sumEcart, //$sumNbrPourcentEcart,
             ];

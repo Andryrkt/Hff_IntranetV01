@@ -439,7 +439,7 @@ class MenuService
                 'file-alt',
                 [
                     $this->createSubItem('Liste inventaire', 'file-alt', 'liste_inventaire', ['action' => 'oui']),
-                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire', ['action' => 'oui']),
+                    $this->createSubItem('Inventaire détaillé', 'file-alt', 'liste_detail_inventaire'),
                 ]
             );
         }
