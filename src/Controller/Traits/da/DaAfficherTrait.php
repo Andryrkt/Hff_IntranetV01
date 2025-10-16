@@ -50,7 +50,7 @@ trait DaAfficherTrait
         $numeroVersionMax = $this->demandeApproLRepository->getNumeroVersionMax($numDa);
 
         /** @var iterable<DaAfficher> $newDaAffichers collection d'objets des nouveaux DaAfficher */
-        $newDaAffichers = $this->getLignesRectifieesDA($numDa, $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
+        $newDaAffichers = $this->getLignesRectifieesDA($numDa, (int) $numeroVersionMax); // Récupère les lignes rectifiées de la DA (nouveaux Da afficher)
 
         $deletedLineNumbers = $this->getDeletedLineNumbers($oldDaAffichers, $newDaAffichers);
         $this->daAfficherRepository->markAsDeletedByNumeroLigne($numDa, $deletedLineNumbers, $this->getUserName(), $numeroVersionMaxDaAfficher);
