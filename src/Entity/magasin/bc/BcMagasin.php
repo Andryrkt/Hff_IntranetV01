@@ -66,13 +66,13 @@ class BcMagasin
     private ?string $statutBc = '';
 
     /**
-     * @ORM\Column(type="string", length=500, name="observation", nullable=true)
+     * @ORM\Column(type="string", length=500, name="observations", nullable=true)
      *
      * @var string|null
      */
     private ?string $observation = '';
 
-        /**
+    /**
      * @ORM\Column(type="string", length=100, name="utilisateur", nullable=false)
      *
      * @var string
@@ -82,14 +82,14 @@ class BcMagasin
     private $pieceJoint01;
 
     private $pieceJoint2;
-    
+
     /** =========================================
      * GETTERS & SETTERS
      *============================================*/
 
     /**
      * Get the value of id
-     */ 
+     */
     public function getId()
     {
         return $this->id;
@@ -99,7 +99,7 @@ class BcMagasin
      * Get the value of numeroDevis
      *
      * @return  string
-     */ 
+     */
     public function getNumeroDevis()
     {
         return $this->numeroDevis;
@@ -111,7 +111,7 @@ class BcMagasin
      * @param  string  $numeroDevis
      *
      * @return  self
-     */ 
+     */
     public function setNumeroDevis(string $numeroDevis)
     {
         $this->numeroDevis = $numeroDevis;
@@ -123,7 +123,7 @@ class BcMagasin
      * Get the value of numeroBc
      *
      * @return  string
-     */ 
+     */
     public function getNumeroBc()
     {
         return $this->numeroBc;
@@ -135,7 +135,7 @@ class BcMagasin
      * @param  string  $numeroBc
      *
      * @return  self
-     */ 
+     */
     public function setNumeroBc(string $numeroBc)
     {
         $this->numeroBc = $numeroBc;
@@ -147,7 +147,7 @@ class BcMagasin
      * Get the value of montantDevis
      *
      * @return  float
-     */ 
+     */
     public function getMontantDevis()
     {
         return $this->montantDevis;
@@ -159,7 +159,7 @@ class BcMagasin
      * @param  float  $montantDevis
      *
      * @return  self
-     */ 
+     */
     public function setMontantDevis(float $montantDevis)
     {
         $this->montantDevis = $montantDevis;
@@ -171,7 +171,7 @@ class BcMagasin
      * Get the value of montantBc
      *
      * @return  float
-     */ 
+     */
     public function getMontantBc()
     {
         return $this->montantBc;
@@ -183,7 +183,7 @@ class BcMagasin
      * @param  float  $montantBc
      *
      * @return  self
-     */ 
+     */
     public function setMontantBc(float $montantBc)
     {
         $this->montantBc = $montantBc;
@@ -193,7 +193,7 @@ class BcMagasin
 
     /**
      * Get the value of numeroVersion
-     */ 
+     */
     public function getNumeroVersion()
     {
         return $this->numeroVersion;
@@ -203,7 +203,7 @@ class BcMagasin
      * Set the value of numeroVersion
      *
      * @return  self
-     */ 
+     */
     public function setNumeroVersion($numeroVersion)
     {
         $this->numeroVersion = $numeroVersion;
@@ -215,7 +215,7 @@ class BcMagasin
      * Get the value of statutBc
      *
      * @return  string|null
-     */ 
+     */
     public function getStatutBc()
     {
         return $this->statutBc;
@@ -227,7 +227,7 @@ class BcMagasin
      * @param  string|null  $statutBc
      *
      * @return  self
-     */ 
+     */
     public function setStatutBc($statutBc)
     {
         $this->statutBc = $statutBc;
@@ -239,7 +239,7 @@ class BcMagasin
      * Get the value of observation
      *
      * @return  string|null
-     */ 
+     */
     public function getObservation()
     {
         return $this->observation;
@@ -251,7 +251,7 @@ class BcMagasin
      * @param  string|null  $observation
      *
      * @return  self
-     */ 
+     */
     public function setObservation($observation)
     {
         $this->observation = $observation;
@@ -263,7 +263,7 @@ class BcMagasin
      * Get the value of utilisateur
      *
      * @return  string
-     */ 
+     */
     public function getUtilisateur()
     {
         return $this->utilisateur;
@@ -275,7 +275,7 @@ class BcMagasin
      * @param  string  $utilisateur
      *
      * @return  self
-     */ 
+     */
     public function setUtilisateur(string $utilisateur)
     {
         $this->utilisateur = $utilisateur;
@@ -285,7 +285,7 @@ class BcMagasin
 
     /**
      * Get the value of pieceJoint01
-     */ 
+     */
     public function getPieceJoint01()
     {
         return $this->pieceJoint01;
@@ -295,7 +295,7 @@ class BcMagasin
      * Set the value of pieceJoint01
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint01($pieceJoint01)
     {
         $this->pieceJoint01 = $pieceJoint01;
@@ -305,7 +305,7 @@ class BcMagasin
 
     /**
      * Get the value of pieceJoint2
-     */ 
+     */
     public function getPieceJoint2()
     {
         return $this->pieceJoint2;
@@ -315,7 +315,7 @@ class BcMagasin
      * Set the value of pieceJoint2
      *
      * @return  self
-     */ 
+     */
     public function setPieceJoint2($pieceJoint2)
     {
         $this->pieceJoint2 = $pieceJoint2;

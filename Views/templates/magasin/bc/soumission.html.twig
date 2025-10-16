@@ -1,4 +1,6 @@
 {% extends "baseTemplate.html.twig" %}
+{% block title %}Soumission BC magasin
+{% endblock %}
 {% block stylesheets %}
 	<link href="{{ App.base_path }}/Views/css/new.css?v=2025.09.15.08.00" rel="stylesheet"/>
 	<link href="{{ App.base_path }}/Views/css/magasin/devis/soumission.css?v=2025.09.15.08.00" rel="stylesheet"/>
@@ -86,7 +88,7 @@
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.ras, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
 												<span class="checkbox-label">{{ form_label(ligneForm.ras) }}</span>
-												
+
 											</div>
 										</td>
 										<td>
@@ -103,7 +105,7 @@
 											<div class="checkbox-container">
 												{{ form_widget(ligneForm.supprimer, {'attr': {'data-numero-ligne': ligneData.numeroLigne}}) }}
 												<span class="checkbox-label">{{ form_label(ligneForm.supprimer) }}</span>
-												
+
 											</div>
 										</td>
 										{{ form_widget(ligneForm.numeroLigne) }}
