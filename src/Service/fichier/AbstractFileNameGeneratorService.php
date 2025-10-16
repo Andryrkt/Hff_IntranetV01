@@ -20,6 +20,7 @@ abstract class AbstractFileNameGeneratorService
             'generer_nom_callback' => null,
             'variables' => [],
             'index_depart' => 1,
+            'sauter_premier_index' => true, // Nouvelle option pour la flexibilité
         ];
 
         $options = array_merge($defaultOptions, $options);
@@ -47,20 +48,26 @@ abstract class AbstractFileNameGeneratorService
                 ], $options['variables'])
             );
 
-            return $this->differentierParIndex($nomBase, $index, $options['index_depart'], $extension);
+            return $this->differentierParIndex($nomBase, $index, $options['index_depart'], $extension, $options['sauter_premier_index']);
         }
 
         return uniqid($options['prefixe'] . '_', true) . '.' . $extension;
     }
 
     /**
-     * Différencie les noms de fichiers par index
+     * Différencie les noms de fichiers par index.
+     * Peut sauter le premier index ou commencer l'indexation dès le début.
+     * @param bool $sauterPremier Si true, l'indexation commence après le premier élément. Si false, elle commence dès le premier.
      */
-    private function differentierParIndex(string $nomBase, int $index, int $indexDepart, string $extension): string
+    private function differentierParIndex(string $nomBase, int $index, int $indexDepart, string $extension, bool $sauterPremier = true): string
     {
-        if ($index > $indexDepart) {
+        // Détermine si on doit indexer en fonction de l'option $sauterPremier
+        $doitIndexer = $sauterPremier ? ($index > $indexDepart) : ($index >= $indexDepart);
+
+        if ($doitIndexer) {
+            // Si on n'a pas sauté le premier, le premier suffixe sera _00 si index et indexDepart sont égaux (ex: 1 et 1).
             $suffixeNumerique = sprintf("_%02d", $index - $indexDepart);
-            return preg_replace('/\.' . preg_quote($extension, '/') . '$/', $suffixeNumerique . '.' . $extension, $nomBase);
+            return preg_replace('/\\.' . preg_quote($extension, '/') . '$/', $suffixeNumerique . '.' . $extension, $nomBase);
         }
 
         return $nomBase;
@@ -73,7 +80,7 @@ abstract class AbstractFileNameGeneratorService
     {
         foreach ($variables as $key => $value) {
             if (strpos($format, '{' . $key . ':') !== false) {
-                preg_match('/\{' . $key . ':([^}]+)\}/', $format, $matches);
+                preg_match('/\\{' . $key . ':([^}]+)\\}/', $format, $matches);
                 if (isset($matches[1])) {
                     $formattedValue = sprintf('%' . $matches[1], $value);
                     $format = str_replace($matches[0], $formattedValue, $format);
@@ -91,14 +98,23 @@ abstract class AbstractFileNameGeneratorService
      * 
      * cette methode recupère le nom de fichier dans le première élement d'un tableau envoyer au paramère
      */
-    public function getNomFichier(array $nomEtCheminFichiersEnregistrer): string
+    public function getNomFichier(string $nomEtCheminFichiersEnregistrer): string
     {
         $dernierElement = '';
         if (!empty($nomEtCheminFichiersEnregistrer)) {
-            $parts = explode('/', $nomEtCheminFichiersEnregistrer[0]);
+            $parts = explode('/', $nomEtCheminFichiersEnregistrer);
             $dernierElement = end($parts);
         }
 
         return $dernierElement;
+    }
+
+    public function getCheminEtNomDeFichierSansIndex(string $nomEtCheminFichiersEnregistrer): string
+    {
+        // Supprimer uniquement le suffixe "_<nombre>" juste avant l’extension
+        // Exemple : rapport_15.docx → rapport.docx
+        $cheminSansIndex = preg_replace('/(_\d+)(\.[^.]+)$/', '$2', $nomEtCheminFichiersEnregistrer);
+
+        return $cheminSansIndex;
     }
 }
