@@ -157,10 +157,6 @@ class DitRiSoumisAValidationController extends Controller
                 $this->traitementDeFichier->upload($file, $this->cheminDeBase, $fileName);
                 $nomDesFichiers[] = $fileName;
             } catch (\Exception $e) {
-                $this->logger->error('Erreur upload fichier', [
-                    'intervention' => $itv,
-                    'erreur' => $e->getMessage()
-                ]);
 
                 $this->historiqueOperation->sendNotificationSoumission(
                     'Le fichier n\'a pas pu être copié pour l\'intervention : ' . $itv,
