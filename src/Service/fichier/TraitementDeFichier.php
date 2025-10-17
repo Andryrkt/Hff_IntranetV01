@@ -22,8 +22,19 @@ class TraitementDeFichier
             throw new \InvalidArgumentException("Le fichier fourni n'est pas une instance de UploadedFile.");
         }
 
-        if (!file_exists($file->getPathname())) {
-            throw new \RuntimeException("Le fichier temporaire n'existe plus : " . $file->getPathname());
+        $tempPath = $file->getPathname();
+
+        if (!file_exists($tempPath)) {
+            throw new \RuntimeException(
+                "Le fichier temporaire a été supprimé. " .
+                    "Temp path: " . $tempPath .
+                    ", Size: " . $file->getSize() .
+                    ", Error: " . $file->getError()
+            );
+        }
+
+        if (!is_uploaded_file($tempPath)) {
+            throw new \RuntimeException("Ce n'est pas un fichier uploadé valide");
         }
 
         try {
