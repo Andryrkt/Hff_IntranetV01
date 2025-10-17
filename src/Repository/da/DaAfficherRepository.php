@@ -353,32 +353,12 @@ class DaAfficherRepository extends EntityRepository
     }
 
     /**
-     * Étape 1 : Récupérer directement les dernières versions globales (même supprimées)
-     */
-    private function getLatestDaAfficherQueryBuilder(): QueryBuilder
-    {
-        // Sous-requête : récupère la version max par numeroDemandeAppro
-        $subQb = $this->createQueryBuilder('d2')
-            ->select('MAX(d2.numeroVersion)')
-            ->where('d2.numeroDemandeAppro = d.numeroDemandeAppro');
-
-        // Requête principale : ne garder que les enregistrements correspondant à cette dernière version
-        $qb = $this->createQueryBuilder('d');
-
-        $qb->where($qb->expr()->eq('d.numeroVersion', '(' . $subQb->getDQL() . ')'));
-
-        return $qb;
-    }
-
-
-    /**
      * Étape 1 : Récupérer les dernières versions de chaque DA
      */
     private function getLastVersions(): array
     {
         $qb = $this->createQueryBuilder('d')
             ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
-            ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
         return $qb->getQuery()->getArrayResult(); // retourne [ ['numeroDemandeAppro'=>.., 'maxVersion'=>..], ... ]
@@ -397,35 +377,98 @@ class DaAfficherRepository extends EntityRepository
         int $page,
         int $limit
     ): array {
-        // Étape 1 : point de départ — dernières versions globales
-        $qb = $this->getLatestDaAfficherQueryBuilder();
+        // 1️⃣ Récupérer toutes les dernières versions
+        $lastVersions = $this->getLastVersions();
+        if (empty($lastVersions)) {
+            return [
+                'results'    => [],
+                'totalItems' => 0
+            ];
+        }
 
-        // Étape 2 : filtrer pour ne garder que les non supprimées
-        $qb->andWhere('d.deleted = 0');
+        $numeroDAs = array_column($lastVersions, 'numeroDemandeAppro');
+        $versionsMax = array_column($lastVersions, 'maxVersion', 'numeroDemandeAppro');
 
-        // Étape 3 : appliquer les filtres métier
-        $this->applyDynamicFilters($qb, 'd', $criteria);
-        $this->applyAgencyServiceFilters($qb, 'd', $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
-        $this->applyDateFilters($qb, 'd', $criteria);
-        $this->applyFilterAppro($qb, 'd', $estAppro, $estAdmin);
-        $this->applyStatutsFilters($qb, 'd', $criteria);
+        // 2️⃣ Créer la requête sur les dernières versions uniquement
+        $qb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAs)')
+            ->andWhere('daf.deleted = 0')
+            ->setParameter('numeroDAs', $numeroDAs);
 
-        // Étape 4 : total distinct des DA après filtrage
+        // Limiter aux numéros de version max
+        $orX = $qb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            $orX->add($qb->expr()->andX(
+                $qb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                $qb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+            ));
+            $qb->setParameter('da_' . $numeroDA, $numeroDA);
+            $qb->setParameter('ver_' . $numeroDA, $versionMax);
+        }
+        $qb->andWhere($orX);
+
+        // 3️⃣ Appliquer les filtres sur ces dernières versions uniquement
+        $this->applyDynamicFilters($qb, "daf", $criteria);
+        $this->applyAgencyServiceFilters($qb, "daf", $criteria, $user, $idAgenceUser, $estAppro, $estAtelier, $estAdmin);
+        $this->applyDateFilters($qb, "daf", $criteria);
+        $this->applyFilterAppro($qb, "daf", $estAppro, $estAdmin);
+        $this->applyStatutsFilters($qb, "daf", $criteria);
+
+        // 4️⃣ Compter le total distinct des DA après filtrage
         $countQb = clone $qb;
-        $countQb->select('COUNT(DISTINCT d.numeroDemandeAppro)');
+        $countQb->select('COUNT(DISTINCT daf.numeroDemandeAppro) as total');
         $totalItems = (int)$countQb->getQuery()->getSingleScalarResult();
 
-        // Étape 5 : pagination et tri
-        $this->handleOrderBy($qb, 'd', $criteria);
-        $qb
+        // 5️⃣ Pagination sur les DA distincts
+        $distinctQb = clone $qb;
+        $distinctQb
+            ->select('daf.numeroDemandeAppro')
+            ->groupBy('daf.numeroDemandeAppro');
+        $this->handleOrderBy($distinctQb, 'daf', $criteria, true);
+        $distinctQb
+            ->addOrderBy('MAX(daf.numeroFournisseur)', 'DESC')
+            ->addOrderBy('MAX(daf.numeroCde)', 'DESC')
             ->setFirstResult(($page - 1) * $limit)
             ->setMaxResults($limit);
 
-        $results = $qb->getQuery()->getResult();
+        $numeroDAsPage = array_column($distinctQb->getQuery()->getResult(), 'numeroDemandeAppro');
+
+        if (empty($numeroDAsPage)) {
+            return [
+                'results' => [],
+                'totalItems' => $totalItems
+            ];
+        }
+
+        // 6️⃣ Charger les dernières versions uniquement pour les DA de la page
+        $finalQb = $this->createQueryBuilder('daf')
+            ->where('daf.numeroDemandeAppro IN (:numeroDAsPage)')
+            ->andWhere('daf.deleted = 0')
+            ->setParameter('numeroDAsPage', $numeroDAsPage);
+        $this->handleOrderBy($finalQb, 'daf', $criteria);
+        $finalQb
+            ->addOrderBy('daf.numeroFournisseur', 'DESC')
+            ->addOrderBy('daf.numeroCde', 'DESC');
+
+        // Limiter aux numéros de version max
+        $orX = $finalQb->expr()->orX();
+        foreach ($versionsMax as $numeroDA => $versionMax) {
+            if (in_array($numeroDA, $numeroDAsPage)) {
+                $orX->add($finalQb->expr()->andX(
+                    $finalQb->expr()->eq('daf.numeroDemandeAppro', ':da_' . $numeroDA),
+                    $finalQb->expr()->eq('daf.numeroVersion', ':ver_' . $numeroDA)
+                ));
+                $finalQb->setParameter('da_' . $numeroDA, $numeroDA);
+                $finalQb->setParameter('ver_' . $numeroDA, $versionMax);
+            }
+        }
+        $finalQb->andWhere($orX);
+
+        $results = $finalQb->getQuery()->getResult();
 
         return [
             'results'    => $results,
-            'totalItems' => $totalItems,
+            'totalItems' => $totalItems
         ];
     }
 
