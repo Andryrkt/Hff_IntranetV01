@@ -373,7 +373,7 @@ trait StatutBcTrait
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($numDa);
         $conditionDeRecuperation = [
             'numeroDemandeAppro' => $numDa,
-            'numeroDemandeDit' => $numDit,
+            //'numeroDemandeDit' => $numDit,
             'artRefp' => $ref,
             'artDesi' => $designation,
             'numeroVersion' => $numeroVersionMax

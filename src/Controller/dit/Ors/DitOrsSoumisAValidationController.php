@@ -223,7 +223,7 @@ class DitOrsSoumisAValidationController extends Controller
         $daAfficherValiders = $this->daAfficherRepository->findBy(['numeroVersion' => $numeroVersionMax, 'numeroDemandeDit' => $numDit, 'statutDal' => DemandeAppro::STATUT_VALIDE]);
         if (!empty($daAfficherValiders)) {
 
-            /** @var DaValider $daValider */
+            /** @var DaAfficher $daValider */
             foreach ($daAfficherValiders as $daValider) {
                 // recuperation du numéro de ligne
                 $numeroLigne = $this->ditOrsoumisAValidationModel->getNumeroLigne($daValider->getArtRefp(), $daValider->getArtDesi(), $numOr);

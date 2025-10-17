@@ -266,7 +266,7 @@ class DaModel extends Model
                         and slor_numor = '$numOr'
                         and TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) LIKE '%$ref%'
                                     and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) like '%$designation%'
-                                    and seor.seor_refdem = '$numDit'
+                                    --and seor.seor_refdem = '$numDit'
             ";
 
         if ($statutBc && in_array($statutBc, $statutCde)) {
@@ -316,19 +316,19 @@ class DaModel extends Model
         return $data;
     }
 
-    public function getAllConstructeur(string $numDit)
-    {
-        $statement = "SELECT DISTINCT slor_constp as constructeur
-            FROM sav_lor
-            INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
-            where seor_refdem = '$numDit'
-        ";
+    // public function getAllConstructeur(string $numDit)
+    // {
+    //     $statement = "SELECT DISTINCT slor_constp as constructeur
+    //         FROM sav_lor
+    //         INNER JOIN sav_eor on seor_numor = slor_numor and slor_soc = seor_soc and slor_succ = seor_succ and slor_soc = 'HF'
+    //         where seor_refdem = '$numDit'
+    //     ";
 
-        $result = $this->connect->executeQuery($statement);
-        $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
+    //     $result = $this->connect->executeQuery($statement);
+    //     $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
-        return array_column($data, 'constructeur');
-    }
+    //     return array_column($data, 'constructeur');
+    // }
 
     public function getEvolutionQteDaAvecDit(?string $numDit, string $ref = '', string $designation = '', ?string $numOr, $statutBc, string $numDa)
     {
@@ -404,7 +404,7 @@ class DaModel extends Model
                                 AND slor.slor_typlig = 'P'
                                 --AND slor.slor_refp NOT LIKE 'PREST%'
                                 and slor_numor = '$numOr'
-                                and seor.seor_refdem = '$numDit'
+                                --and seor.seor_refdem = '$numDit'
                                 AND TRIM(REPLACE(REPLACE(slor_refp, '\t', ''), CHR(9), '')) = '$ref'
                         and TRIM(REPLACE(REPLACE(slor_desi, '\t', ''), CHR(9), '')) = '$designation'
                 ";
