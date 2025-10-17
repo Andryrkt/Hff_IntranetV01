@@ -7,6 +7,7 @@
 {% block stylesheets %}
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list.css?v=2025.09.15.08.00">
+	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/list-cde-frn.css?v=2025.09.15.08.00">
 	<link rel="stylesheet" href="{{ App.base_path }}/Views/css/da/style.css?v=2025.09.15.08.00">
 {% endblock %}
 
@@ -92,7 +93,7 @@
 
 						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center"><input type="checkbox"></td>
+						<td class="text-center"><input class="modern-checkbox" type="checkbox"></td>
 						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.artRefp }}</td>
 						<td class="text-start">{{ item.artDesi }}</td>
