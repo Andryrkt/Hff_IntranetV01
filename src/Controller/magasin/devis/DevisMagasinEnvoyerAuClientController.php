@@ -14,6 +14,7 @@ use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -25,12 +26,15 @@ class DevisMagasinEnvoyerAuClientController extends Controller
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private DevisMagasinRepository $devisMagasinRepository;
+    private ListeDevisMagasinModel $listeDevisMagasinModel;
+
     public function __construct()
     {
         parent::__construct();
         global $container;
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+        $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
     }
 
     /**

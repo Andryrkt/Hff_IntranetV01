@@ -16,10 +16,10 @@ class DevisMagasin
     use DateTrait;
 
     public const STATUT_PRIX_A_CONFIRMER = 'Prix à confirmer';
-    public const STATUT_PRIX_VALIDER_TANA = 'Prix validé - devis à envoyer au client (si Tana)';
-    public const STATUT_PRIX_VALIDER_AGENCE = 'Prix validé - devis à soumettre (si agence)';
-    public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client (si Tana)';
-    public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre (si agence)';
+    public const STATUT_PRIX_VALIDER_TANA = 'Prix validé - devis à envoyer au client';
+    public const STATUT_PRIX_VALIDER_AGENCE = 'Prix validé - devis à soumettre';
+    public const STATUT_PRIX_MODIFIER_TANA = 'Prix modifié - devis à envoyer au client';
+    public const STATUT_PRIX_MODIFIER_AGENCE = 'Prix modifié - devis à soumettre';
     public const STATUT_DEMANDE_REFUSE_PAR_PM = 'Demande refusée par le PM';
     public const STATUT_A_VALIDER_CHEF_AGENCE = 'A valider chef d’agence';
     public const STATUT_VALIDE_AGENCE = 'Validé - à envoyer au client';

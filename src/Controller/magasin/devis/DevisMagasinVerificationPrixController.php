@@ -49,7 +49,7 @@ class DevisMagasinVerificationPrixController extends Controller
         global $container;
         $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
-        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . 'magasin/devis/';
+        $this->cheminBaseUpload = $_ENV['BASE_PATH_FICHIER'] . '/magasin/devis/';
         $this->generatePdfDevisMagasin = new GeneratePdfDeviMagasinVp();
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
         $this->nameGenerator = new DevisMagasinGenererNameFileService();
