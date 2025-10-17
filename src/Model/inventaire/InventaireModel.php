@@ -46,7 +46,7 @@ class InventaireModel extends Model
         $dateF = $this->dateFin($criteria);
         $statement = "SELECT  
         
-            decode((select count(*) from art_invp where ainvp_numinv = ainvi_numinv and ainvp_ctrlok > 0 and ainvp_stktheo > 0),0,'Non','Oui') as saisie_comptage,
+            decode((select count(*) from art_invp where ainvp_numinv = (SELECT  MAX(ainvi_numinv) FROM art_invi WHERE ainvi_numinv_mait = ainvi.ainvi_numinv_mait ) and ainvp_ctrlok > 0 and ainvp_stktheo > 0),0,'Non','Oui') as saisie_comptage,
             (select max(b.ainvi_sequence) from art_invi b where b.ainvi_numinv_mait = ainvi.ainvi_numinv) as comptage_encours,
 
                 ainvi_numinv_mait as numero_inv, 
