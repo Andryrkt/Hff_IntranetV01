@@ -8,11 +8,13 @@ document.addEventListener("DOMContentLoaded", function () {
       const checkedBoxes = [...checkboxes].filter((cb) => cb.checked);
       const daId = checkbox.dataset.daDemandeApproId;
 
+      console.log(lastCheckedDaId);
+
       if (lastCheckedDaId === 0 || daId === lastCheckedDaId) {
         updateRowState(checkbox, checkbox.checked);
         lastCheckedDaId = checkbox.checked ? daId : 0;
       } else {
-        confirmCheck(checkbox, checkedBoxes);
+        confirmCheck(checkbox, daId, checkedBoxes);
       }
     });
   });
@@ -25,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  function confirmCheck(checkbox, checkedBoxes) {
+  function confirmCheck(checkbox, daId, checkedBoxes) {
     Swal.fire({
       title: "Êtes-vous sûr(e) ?",
       html: `Vous ne pouvez sélectionner que des lignes appartenant à la même DA.<br>
