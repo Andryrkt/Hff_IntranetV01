@@ -359,7 +359,6 @@ class DaAfficherRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder('d')
             ->select('d.numeroDemandeAppro, MAX(d.numeroVersion) AS maxVersion')
-            ->where('d.deleted = 0')
             ->groupBy('d.numeroDemandeAppro');
 
         return $qb->getQuery()->getArrayResult(); // retourne [ ['numeroDemandeAppro'=>.., 'maxVersion'=>..], ... ]
@@ -780,7 +779,7 @@ class DaAfficherRepository extends EntityRepository
             ->getSingleColumnResult();
     }
 
-    
+
     public function findDerniereVersionDesDA(User $user, array $criteria,  int $idAgenceUser, bool $estAppro, bool $estAtelier, bool $estAdmin): array //liste_da
     {
         $qb = $this->createQueryBuilder('d');
