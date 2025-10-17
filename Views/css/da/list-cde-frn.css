@@ -25,3 +25,8 @@ input.modern-checkbox:checked {
   background-repeat: no-repeat;
   background-position: center;
 }
+
+.td-active {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  border-bottom: 1px solid white;
+}

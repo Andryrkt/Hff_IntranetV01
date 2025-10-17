@@ -93,7 +93,11 @@
 
 						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center"><input class="modern-checkbox" type="checkbox"></td>
+						<td class="text-center">
+							{% if item.statutCde is same as 'BC envoyé au fournisseur' %}
+								<input class="modern-checkbox" type="checkbox" data-da-afficher-id="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }}">
+							{% endif %}
+						</td>
 						<td class="text-center">{{ item.dateFinSouhaite == null ? '' : item.dateFinSouhaite| date('d/m/Y')}}</td>
 						<td class="text-center">{{ item.artRefp }}</td>
 						<td class="text-start">{{ item.artDesi }}</td>
@@ -132,6 +136,6 @@
 
 {% block javascript %}
 	<script src="{{ App.base_path }}/Views/js/utils/positionSticky.js?v=2025.09.15.08.00"></script>
-	<script src="{{ App.base_path }}/Views/js/da/listeCdeFrn/daNonDispo.js?v=2025.09.15.08.00" type="module"></script>
 	<script src="{{ App.base_path }}/Views/js/da/listeCdeFrn/listCdefrn.js?v=2025.09.15.08.00" type="module"></script>
+	<script src="{{ App.base_path }}/Views/js/da/listeCdeFrn/daNonDispo.js?v=2025.09.15.08.00" type="module"></script>
 {% endblock %}
