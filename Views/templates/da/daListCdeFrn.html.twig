@@ -61,7 +61,7 @@
 			</thead>
 			<tbody id="tableBody">
 				{% for item in daAfficherValides %}
-
+					{% set envoye_frn = item.statutCde is same as 'BC envoyé au fournisseur' %}
 					{% set url_detail = item.achatDirect ? 'da_detail_direct' : 'da_detail_avec_dit' %}
 					<tr>
 						<td class="text-center">
@@ -94,7 +94,7 @@
 						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
 						<td class="text-center">
-							{% if item.statutCde is same as 'BC envoyé au fournisseur' %}
+							{% if envoye_frn %}
 								<input class="modern-checkbox" type="checkbox" data-da-afficher-id="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }}">
 							{% endif %}
 						</td>

@@ -25,13 +25,14 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 class DaSearchType extends  AbstractType
 {
     private const STATUT_DA = [
-        DemandeAppro::STATUT_VALIDE              => DemandeAppro::STATUT_VALIDE,
-        DemandeAppro::STATUT_SOUMIS_ATE          => DemandeAppro::STATUT_SOUMIS_ATE,
-        DemandeAppro::STATUT_SOUMIS_APPRO        => DemandeAppro::STATUT_SOUMIS_APPRO,
-        DemandeAppro::STATUT_DEMANDE_DEVIS       => DemandeAppro::STATUT_DEMANDE_DEVIS,
-        DemandeAppro::STATUT_DEVIS_A_RELANCER    => DemandeAppro::STATUT_DEVIS_A_RELANCER,
-        DemandeAppro::STATUT_EN_COURS_CREATION   => DemandeAppro::STATUT_EN_COURS_CREATION,
-        DemandeAppro::STATUT_AUTORISER_MODIF_ATE => DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+        DemandeAppro::STATUT_VALIDE               => DemandeAppro::STATUT_VALIDE,
+        DemandeAppro::STATUT_SOUMIS_ATE           => DemandeAppro::STATUT_SOUMIS_ATE,
+        DemandeAppro::STATUT_SOUMIS_APPRO         => DemandeAppro::STATUT_SOUMIS_APPRO,
+        DemandeAppro::STATUT_DEMANDE_DEVIS        => DemandeAppro::STATUT_DEMANDE_DEVIS,
+        DemandeAppro::STATUT_DEVIS_A_RELANCER     => DemandeAppro::STATUT_DEVIS_A_RELANCER,
+        DemandeAppro::STATUT_EN_COURS_CREATION    => DemandeAppro::STATUT_EN_COURS_CREATION,
+        DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
+        DemandeAppro::STATUT_EN_COURS_PROPOSITION => DemandeAppro::STATUT_EN_COURS_PROPOSITION,
     ];
 
     private const STATUT_BC = [

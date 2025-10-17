@@ -391,6 +391,10 @@ a.choix:hover {
   background-color: #ffd6d0 !important;
   color: #8c2f1f !important;
 }
+.bg-en-cours-proposition {
+  background-color: #fbbb01 !important; /* jaune clair tirant vers le beige */
+  color: #7d6600 !important; /* couleur texte sombre pour contraste */
+}
 .bg-proposition-achat {
   background-color: #9fc5e8 !important;
   color: #073763 !important;

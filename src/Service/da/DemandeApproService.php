@@ -21,23 +21,25 @@ class DemandeApproService
      */
     private const PERMISSIONS = [
         'admin' => [
-            DemandeAppro::STATUT_SOUMIS_ATE          => true,
-            DemandeAppro::STATUT_SOUMIS_APPRO        => true,
-            DemandeAppro::STATUT_EN_COURS_CREATION   => true,
-            DemandeAppro::STATUT_DEMANDE_DEVIS       => true,
-            DemandeAppro::STATUT_DEVIS_A_RELANCER    => true,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => true,
-            DemandeAppro::STATUT_VALIDE              => [
+            DemandeAppro::STATUT_SOUMIS_ATE           => true,
+            DemandeAppro::STATUT_SOUMIS_APPRO         => true,
+            DemandeAppro::STATUT_EN_COURS_CREATION    => true,
+            DemandeAppro::STATUT_DEMANDE_DEVIS        => true,
+            DemandeAppro::STATUT_DEVIS_A_RELANCER     => true,
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION => true,
+            DemandeAppro::STATUT_VALIDE               => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
                 DemandeAppro::STATUT_DW_REFUSEE  => false,
             ],
         ],
         'appro' => [
-            DemandeAppro::STATUT_SOUMIS_ATE          => true,
-            DemandeAppro::STATUT_SOUMIS_APPRO        => true,
-            DemandeAppro::STATUT_DEMANDE_DEVIS       => true,
-            DemandeAppro::STATUT_DEVIS_A_RELANCER    => true,
-            DemandeAppro::STATUT_VALIDE              => [
+            DemandeAppro::STATUT_SOUMIS_ATE           => true,
+            DemandeAppro::STATUT_SOUMIS_APPRO         => true,
+            DemandeAppro::STATUT_DEMANDE_DEVIS        => true,
+            DemandeAppro::STATUT_DEVIS_A_RELANCER     => true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION => true,
+            DemandeAppro::STATUT_VALIDE               => [
                 DemandeAppro::STATUT_DW_A_VALIDE => false,
                 DemandeAppro::STATUT_DW_REFUSEE  => false,
             ],
