@@ -308,14 +308,17 @@ class MenuService
                 ]
             );
         }
-        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // MUT
+        if ($this->getEstAdmin() || in_array(Application::ID_DDC, $this->getApplicationIds())) { // DDC
+            $subSubitems = [];
+            $subSubitems[] = $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank');
+            if ($this->getEstAdmin()) {
+                $subSubitems[] = $this->createSubItem('Annulation Congé', 'calendar-xmark', 'annulation_conge', [], '_blank');
+            }
+            $subSubitems[] = $this->createSubItem('Consultation', 'search', 'conge_liste');
             $subitems[] = $this->createSubMenuItem(
                 'Congés',
                 'umbrella-beach',
-                [
-                    $this->createSubItem('Nouvelle demande', 'plus-circle', 'new_conge', [], '_blank'),
-                    $this->createSubItem('Consultation', 'search', 'conge_liste')
-                ]
+                $subSubitems
             );
         }
         if ($this->getEstAdmin()) {

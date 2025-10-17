@@ -25,7 +25,8 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
                 'numeroVersion' => $numeroVersion,
                 'suffix' => $suffix,
                 'mail' => $mail
-            ]
+            ],
+            'sauter_premier_index' => false // Ne pas sauter le premier index
         ], $index);
     }
 
@@ -53,19 +54,18 @@ class DevisMagasinGenererNameFileService extends AbstractFileNameGeneratorServic
 
     /**
      * Génère un nom pour le bon de commande
-     * TODO: mbola vao ho avy
      */
     public function generateBonCommandeName(
         UploadedFile $file,
         string $numDevis,
-        string $fournisseur,
+        int $numeroVersion,
         int $index = 1
     ): string {
         return $this->generateFileName($file, [
-            'format' => 'bon_commande_{numDevis}_{fournisseur}.{extension}',
+            'format' => 'bon_commande_{numDevis}-{numeroVersion}.{extension}',
             'variables' => [
                 'numDevis' => $numDevis,
-                'fournisseur' => $this->sanitizeFileName($fournisseur),
+                'numeroVersion' => $numeroVersion,
             ]
         ], $index);
     }

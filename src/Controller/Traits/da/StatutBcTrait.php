@@ -30,18 +30,22 @@ trait StatutBcTrait
 
         //----------------------------------------------------------------------------------------------------
         $this->styleStatutDA = [
-            DemandeAppro::STATUT_VALIDE              => 'bg-bon-achat-valide',
-            DemandeAppro::STATUT_TERMINER            => 'bg-primary text-white',
-            DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
-            DemandeAppro::STATUT_DW_A_VALIDE         => 'bg-soumis-validation',
-            DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
-            DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_VALIDE               => 'bg-bon-achat-valide',
+            DemandeAppro::STATUT_TERMINER             => 'bg-primary text-white',
+            DemandeAppro::STATUT_SOUMIS_ATE           => 'bg-proposition-achat',
+            DemandeAppro::STATUT_DW_A_VALIDE          => 'bg-soumis-validation',
+            DemandeAppro::STATUT_SOUMIS_APPRO         => 'bg-demande-achat',
+            DemandeAppro::STATUT_DEMANDE_DEVIS        => 'bg-demande-devis',
+            DemandeAppro::STATUT_DEVIS_A_RELANCER     => 'bg-devis-a-relancer',
+            DemandeAppro::STATUT_EN_COURS_CREATION    => 'bg-en-cours-creation',
+            DemandeAppro::STATUT_AUTORISER_MODIF_ATE  => 'bg-creation-demande-initiale',
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION => 'bg-en-cours-proposition',
         ];
         $this->styleStatutOR = [
             DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
             DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_DT               => 'bg-or-valider-dt',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
@@ -340,18 +344,13 @@ trait StatutBcTrait
 
     private function updateInfoOR(string $numDit, DaAfficher $DaAfficher)
     {
-        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
         $datePlanningOr = $this->getDatePlannigOr($numOr);
 
         $DaAfficher
             ->setNumeroOr($numOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
-
-        // ? Désactiver la mise à jour du statut OR dans DaAfficher
-        /* if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
-            $DaAfficher->setStatutOr($statutOr);
-        } */
     }
 
     private function getDatePlannigOr(?string $numOr)
@@ -373,7 +372,7 @@ trait StatutBcTrait
         $numeroVersionMax = $this->daAfficherRepository->getNumeroVersionMax($numDa);
         $conditionDeRecuperation = [
             'numeroDemandeAppro' => $numDa,
-            'numeroDemandeDit' => $numDit,
+            //'numeroDemandeDit' => $numDit,
             'artRefp' => $ref,
             'artDesi' => $designation,
             'numeroVersion' => $numeroVersionMax

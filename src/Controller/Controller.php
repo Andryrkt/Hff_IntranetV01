@@ -533,7 +533,7 @@ class Controller
     protected function logUserVisit(string $nomRoute, ?array $params = null)
     {
         $idUtilisateur = $this->getSessionService()->get('user_id');
-        $utilisateur = $idUtilisateur !== '-' ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
+        $utilisateur = ($idUtilisateur && $idUtilisateur !== '-') ? $this->getEntityManager()->getRepository(User::class)->find($idUtilisateur) : null;
         $utilisateurNom = $utilisateur ? $utilisateur->getNomUtilisateur() : null;
         $page = $this->getEntityManager()->getRepository(PageHff::class)->findPageByRouteName($nomRoute);
         $machine = gethostbyaddr($_SERVER['REMOTE_ADDR']) ?? $_SERVER['REMOTE_ADDR'];

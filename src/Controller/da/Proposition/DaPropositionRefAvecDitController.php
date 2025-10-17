@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
@@ -46,10 +47,11 @@ class DaPropositionRefAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
-        $statutDa = $da->getStatutDal();
-        $this->checkPageAccess(!$this->estDaVerrouillee($statutDa, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
@@ -107,7 +109,10 @@ class DaPropositionRefAvecDitController extends Controller
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
 
-            if ($request->request->has('enregistrer')) {
+            if ($request->request->has('brouillon')) {
+                /** Enregistrer provisoirement */
+                $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
@@ -327,6 +332,30 @@ class DaPropositionRefAvecDitController extends Controller
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
+
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->redirectToRoute("list_da");
+    }
+
+    private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
+    {
+        /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
+        $refs = $this->recuperationDesRef($request);
+
+        $notification = $this->traiterProposition(
+            $dals,
+            $dalrList,
+            $observation,
+            $da,
+            $refs,
+            "La proposition a été enregistré avec succès",
+            true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION
+        );
+
+        $this->modificationChoixEtligneDal($refs, $dals);
+
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

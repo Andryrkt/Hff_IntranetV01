@@ -55,9 +55,9 @@ class TraitementDeFichier
      * position 1 si le fichier principal doit etre en deuxieme page
      *  ex : ['fichier1.pdf', 'fichier2.pdf', 'fichier3.pdf', 'fichier4.pdf']
      *
-     * @param array $uploadedFiles
-     * @param string $mainFilePathName
-     * @param integer $position
+     * @param array $uploadedFiles // tableau des chemin de fichier à fusionner
+     * @param string $mainFilePathName // chemin du fichier principal (ilay atsofoka)
+     * @param integer $position // position du fichier principal
      * @return array
      */
     public function insertFileAtPosition(array $uploadedFiles, string $mainFilePathName, int $position = 0): array

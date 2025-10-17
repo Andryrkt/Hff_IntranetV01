@@ -7,7 +7,6 @@ use App\Entity\da\DaAfficher;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
-use App\Entity\da\DaSoumissionBc;
 use App\Entity\da\DemandeApproLR;
 use App\Service\da\EmailDaService;
 use App\Controller\Traits\lienGenerique;
@@ -16,6 +15,7 @@ use App\Service\da\FileUploaderForDAService;
 use App\Repository\da\DemandeApproRepository;
 use App\Repository\da\DemandeApproLRepository;
 use App\Repository\da\DemandeApproLRRepository;
+use App\Service\da\DemandeApproService;
 
 trait DaTrait
 {
@@ -29,6 +29,7 @@ trait DaTrait
     private DemandeApproLRepository $demandeApproLRepository;
     private DemandeApproLRRepository $demandeApproLRRepository;
     private EmailDaService $emailDaService;
+    private DemandeApproService $demandeApproService;
     private FileUploaderForDAService $daFileUploader;
 
     /**
@@ -41,6 +42,7 @@ trait DaTrait
 
         $em = $this->getEntityManager();
         $this->emailDaService = new EmailDaService($this->getTwig()); // Injection du service Twig depuis Controller
+        $this->demandeApproService = new DemandeApproService;
         $this->daFileUploader = new FileUploaderForDAService($_ENV['BASE_PATH_FICHIER']);
         $this->daAfficherRepository = $em->getRepository(DaAfficher::class);
         $this->demandeApproRepository = $em->getRepository(DemandeAppro::class);
@@ -149,11 +151,13 @@ trait DaTrait
      * Ajoute un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
      *
      * @param int $nbJoursOuvrables Nombre de jours ouvrables à ajouter.
+     * @param DateTime $date la date de référence (optionnel, par défaut aujourd'hui)
+     * 
      * @return DateTime La date résultante après ajout des jours ouvrables.
      */
-    private function ajouterJoursOuvrables(int $nbJoursOuvrables): DateTime
+    private function ajouterJoursOuvrables(int $nbJoursOuvrables, ?DateTime $date = null): DateTime
     {
-        $date = new DateTime();
+        $date = $date ?? new DateTime();
         $joursAjoutes = 0;
 
         while ($joursAjoutes < $nbJoursOuvrables) {
@@ -169,64 +173,54 @@ trait DaTrait
     }
 
     /**
-     * Détermine si une DA doit être verrouillée selon son statut et le profil utilisateur
+     * Retire un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
+     *
+     * @param int $nbJoursOuvrables Nombre de jours ouvrables à retirer.
+     * @param DateTime $date la date de référence (optionnel, par défaut aujourd'hui)
      * 
-     * @param string $statutDa
-     * @param bool $estAdmin
-     * @param bool $estAppro
-     * @param bool $estAtelier
-     * @param bool $estEmetteurDaDirect
-     * 
-     * @return bool True si la DA doit être verrouillée, false sinon
+     * @return DateTime La date résultante après retrait des jours ouvrables.
      */
-    private function estDaVerrouillee(string $statutDa, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estEmetteurDaDirect): bool
+    private function retirerJoursOuvrables(int $nbJoursOuvrables, ?DateTime $date = null): DateTime
     {
-        $statutDaCliquable = [
-            DemandeAppro::STATUT_EN_COURS_CREATION,
-            DemandeAppro::STATUT_DW_A_MODIFIER,
-            DemandeAppro::STATUT_SOUMIS_APPRO,
-            DemandeAppro::STATUT_VALIDE,
-            DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            DemandeAppro::STATUT_SOUMIS_ATE,
-        ];
-        // Définition des règles de déverrouillage par profil
-        $reglesDeverouillage = [
-            'admin' => fn() => in_array($statutDa, $statutDaCliquable),
-            'appro' => fn() => in_array($statutDa, [
-                DemandeAppro::STATUT_VALIDE,
-                DemandeAppro::STATUT_SOUMIS_ATE,
-                DemandeAppro::STATUT_SOUMIS_APPRO,
-            ]),
-            'atelier' => fn() => in_array($statutDa, [
-                DemandeAppro::STATUT_SOUMIS_ATE,
-                DemandeAppro::STATUT_EN_COURS_CREATION,
-                DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
-            ]),
-            'service_emetteur_da_direct' => fn() => in_array($statutDa, [
-                DemandeAppro::STATUT_SOUMIS_ATE,
-                DemandeAppro::STATUT_DW_A_MODIFIER,
-            ]),
-        ];
+        $date = $date ?? new DateTime();
+        $joursRetires = 0;
 
-        // Par défaut, la DA est verrouillée
-        $verrouille = true;
+        while ($joursRetires < $nbJoursOuvrables) {
+            $date->modify('-1 day');
 
-        // Vérifie chaque profil : si l'utilisateur correspond et la règle est vraie, déverrouille
-        $profils = [
-            'admin'                      => $estAdmin,
-            'appro'                      => $estAppro,
-            'atelier'                    => $estAtelier,
-            'service_emetteur_da_direct' => $estEmetteurDaDirect,
-        ];
-
-        foreach ($profils as $profil => $actif) {
-            if ($actif && $reglesDeverouillage[$profil]()) {
-                $verrouille = false;
-                break; // dès qu'une règle déverrouille, on s'arrête
+            // 'N' renvoie 1 (lundi) à 7 (dimanche)
+            if ($date->format('N') < 6) {
+                $joursRetires++;
             }
         }
 
-        return $verrouille;
+        return $date;
+    }
+
+
+    /**
+     * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
+     * en fonction de son statut et du profil utilisateur.
+     *
+     * @param string      $statutDa  Statut actuel de la DA
+     * @param string|null $statut    Statut complémentaire (OR ou DW)
+     * @param bool        $estAdmin  Vrai si l'utilisateur est administrateur
+     * @param bool        $estAppro  Vrai si l'utilisateur est approvisionneur
+     * @param bool        $estAtelier Vrai si l'utilisateur est membre de l'atelier
+     * @param bool        $estCreateurDaDirecte Vrai si l'utilisateur est le créateur d'une DA directe
+     *
+     * @return bool True si la DA doit être verrouillée, False sinon
+     */
+    private function estDaVerrouillee(string $statutDa, ?string $statut, bool $estAdmin, bool $estAppro, bool $estAtelier, bool $estCreateurDaDirecte): bool
+    {
+        $roles = [];
+
+        if ($estAdmin) $roles[] = 'admin';
+        if ($estAppro) $roles[] = 'appro';
+        if ($estAtelier) $roles[] = 'atelier';
+        if ($estCreateurDaDirecte) $roles[] = 'createur_da_directe';
+
+        return $this->demandeApproService->isDemandeVerrouillee($statutDa, $statut, $roles);
     }
 
     /**
@@ -240,7 +234,7 @@ trait DaTrait
      *
      * @return string[] Tableau des numéros de ligne à marquer comme supprimés
      */
-    function getDeletedLineNumbers(iterable $oldDAs, iterable $newDAs): array
+    public function getDeletedLineNumbers(iterable $oldDAs, iterable $newDAs): array
     {
         $oldLineNumbers = [];
         $newLineNumbers = [];
@@ -264,5 +258,29 @@ trait DaTrait
         }
 
         return $deletedLineNumbers;
+    }
+
+    public function appliquerChangementStatut(DemandeAppro $demandeAppro, string $statut, bool $withFlush = true)
+    {
+        $em = $this->getEntityManager();
+
+        $demandeAppro->setStatutDal($statut);
+
+        /** @var DemandeApproL $demandeApproL */
+        foreach ($demandeAppro->getDAL() as $demandeApproL) {
+            $demandeApproL->setStatutDal($statut);
+            /** @var DemandeApproLR $demandeApproLR */
+            foreach ($demandeApproL->getDemandeApproLR() as $demandeApproLR) {
+                $demandeApproLR->setStatutDal($statut);
+                $em->persist($demandeApproLR);
+            }
+            $em->persist($demandeApproL);
+        }
+
+        $em->persist($demandeAppro);
+
+        if ($withFlush) {
+            $em->flush();
+        }
     }
 }

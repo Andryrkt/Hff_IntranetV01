@@ -107,7 +107,10 @@ class DaPropositionArticleDirectController extends Controller
             $observation = $form->getData()->getObservation();
             $statutChange = $form->get('statutChange')->getData();
 
-            if ($request->request->has('enregistrer')) {
+            if ($request->request->has('brouillon')) {
+                /** Enregistrer provisoirement */
+                $this->traitementPourBtnBrouillon($dalrList, $request, $dals, $observation, $numDa, $da);
+            } elseif ($request->request->has('enregistrer')) {
                 /** Envoyer proposition à l'atelier */
                 $this->traitementPourBtnEnregistrer($dalrList, $request, $dals, $observation, $numDa, $da);
             } elseif ($request->request->has('changement')) {
@@ -339,6 +342,30 @@ class DaPropositionArticleDirectController extends Controller
             'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
+
+        $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
+        $this->redirectToRoute("list_da");
+    }
+
+    private function traitementPourBtnBrouillon($dalrList, Request $request, $dals, ?string $observation, string $numDa, DemandeAppro $da): void
+    {
+        /** RECUPERATION DE NUMERO DE page et NUMERO de ligne de tableau */
+        $refs = $this->recuperationDesRef($request);
+
+        $notification = $this->traiterProposition(
+            $dals,
+            $dalrList,
+            $observation,
+            $da,
+            $refs,
+            "La proposition a été enregistré avec succès",
+            true,
+            DemandeAppro::STATUT_EN_COURS_PROPOSITION
+        );
+
+        $this->modificationChoixEtligneDal($refs, $dals);
+
+        $this->ajouterDansTableAffichageParNumDa($numDa);
 
         $this->getSessionService()->set('notification', ['type' => $notification['type'], 'message' => $notification['message']]);
         $this->redirectToRoute("list_da");

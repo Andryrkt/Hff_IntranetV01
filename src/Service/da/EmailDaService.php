@@ -79,7 +79,7 @@ class EmailDaService
             'variables' => [
                 'tab'            => $tab,
                 'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'demandeAppro'   => $demandeAppro,
                 'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
             ],
@@ -98,7 +98,7 @@ class EmailDaService
             'variables' => [
                 'tab'            => $tab,
                 'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
+                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
                 'demandeAppro'   => $demandeAppro,
                 'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
             ],

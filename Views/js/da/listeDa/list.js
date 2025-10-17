@@ -72,6 +72,40 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   /**
+   * Demande de devis de ligne de DA
+   */
+  const demandeDevisBtns = document.querySelectorAll(".devis-demande");
+  demandeDevisBtns.forEach((demandeDevisBtn) => {
+    demandeDevisBtn.addEventListener("click", function () {
+      let demandeDevisPath = this.dataset.demandeDevisPath;
+      Swal.fire({
+        title: "Êtes-vous sûr(e) ?",
+        html: `Voulez-vous vraiment changer le statut de la demande d'achat en <strong style="colr: blue;">"Demande de devis en cours"</strong>?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#28a745",
+        cancelButtonColor: "#6c757d",
+        confirmButtonText: "Oui, changer le statut",
+        cancelButtonText: "Non, annuler",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          displayOverlay(true);
+          window.location = demandeDevisPath;
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          // ❌ Si l'utilisateur annule
+          Swal.fire({
+            icon: "info",
+            title: "Annulé",
+            text: "Le changement de statut de la demande d'achat a été annulée.",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+        }
+      });
+    });
+  });
+
+  /**
    * Désactiver l'ouverture du dropdown s'il n'y a pas d'enfant
    **/
   const dropdowns = document.querySelectorAll(".dropdown");
