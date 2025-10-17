@@ -80,7 +80,7 @@
 									{% endif %}
 									{% if row.demandeDevis %}
 										<li>
-											<a class="dropdown-item fw-bold ajout-overlay" href="{{ row.urlDemandeDevis }}">Devis demandé</a>
+											<a class="dropdown-item fw-bold devis-demande" style="cursor:pointer;" data-demande-devis-path="{{ row.urlDemandeDevis }}">Devis demandé</a>
 										</li>
 									{% endif %}
 									{% if row.statutValide %}
