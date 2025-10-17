@@ -528,6 +528,9 @@ class DaAfficherRepository extends EntityRepository
                 ->setParameter('authorizedStatuts', [
                     DemandeAppro::STATUT_SOUMIS_APPRO,
                     DemandeAppro::STATUT_SOUMIS_ATE,
+                    DemandeAppro::STATUT_DEMANDE_DEVIS,
+                    DemandeAppro::STATUT_DEVIS_A_RELANCER,
+                    DemandeAppro::STATUT_EN_COURS_PROPOSITION,
                     DemandeAppro::STATUT_AUTORISER_MODIF_ATE,
                     DemandeAppro::STATUT_VALIDE,
                     DemandeAppro::STATUT_TERMINER
