@@ -42,6 +42,7 @@ trait StatutBcTrait
             DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
             DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_DT               => 'bg-or-valider-dt',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
@@ -340,18 +341,13 @@ trait StatutBcTrait
 
     private function updateInfoOR(string $numDit, DaAfficher $DaAfficher)
     {
-        [$numOr, $statutOr] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
+        [$numOr,] = $this->ditOrsSoumisAValidationRepository->getNumeroEtStatutOr($numDit);
         $datePlanningOr = $this->getDatePlannigOr($numOr);
 
         $DaAfficher
             ->setNumeroOr($numOr)
             ->setDatePlannigOr($datePlanningOr)
         ;
-
-        // ? Désactiver la mise à jour du statut OR dans DaAfficher
-        /* if ($DaAfficher->getStatutOr() != DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION) {
-            $DaAfficher->setStatutOr($statutOr);
-        } */
     }
 
     private function getDatePlannigOr(?string $numOr)

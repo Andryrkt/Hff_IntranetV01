@@ -56,6 +56,16 @@ class DemandeApproFormType extends AbstractType
                 ]
             ])
             ->add(
+                'niveauUrgence',
+                TextType::class,
+                [
+                    'mapped' => false,
+                    'label' => 'Niveau d’urgence',
+                    'disabled' => true,
+                    'data' => $options["data"]->getNiveauUrgence()
+                ]
+            )
+            ->add(
                 'agenceEmetteur',
                 TextType::class,
                 [

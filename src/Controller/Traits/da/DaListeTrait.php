@@ -60,6 +60,8 @@ trait DaListeTrait
             DemandeAppro::STATUT_SOUMIS_ATE          => 'bg-proposition-achat',
             DemandeAppro::STATUT_DW_A_VALIDE         => 'bg-soumis-validation',
             DemandeAppro::STATUT_SOUMIS_APPRO        => 'bg-demande-achat',
+            DemandeAppro::STATUT_DEMANDE_DEVIS       => 'bg-demande-devis',
+            DemandeAppro::STATUT_DEVIS_A_RELANCER    => 'bg-devis-a-relancer',
             DemandeAppro::STATUT_EN_COURS_CREATION   => 'bg-en-cours-creation',
             DemandeAppro::STATUT_AUTORISER_MODIF_ATE => 'bg-creation-demande-initiale',
         ];
@@ -67,6 +69,7 @@ trait DaListeTrait
             DitOrsSoumisAValidation::STATUT_VALIDE                     => 'bg-or-valide',
             DitOrsSoumisAValidation::STATUT_A_RESOUMETTRE_A_VALIDATION => 'bg-a-resoumettre-a-validation',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CA               => 'bg-or-valider-ca',
+            DitOrsSoumisAValidation::STATUT_A_VALIDER_DT               => 'bg-or-valider-dt',
             DitOrsSoumisAValidation::STATUT_A_VALIDER_CLIENT           => 'bg-or-valider-client',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CA       => 'bg-modif-demande-ca',
             DitOrsSoumisAValidation::STATUT_MODIF_DEMANDE_PAR_CLIENT   => 'bg-modif-demande-client',
@@ -154,6 +157,7 @@ trait DaListeTrait
         foreach ($daAffichers as $daAfficher) {
             $verrouille = $this->estDaVerrouillee(
                 $daAfficher->getStatutDal(),
+                $daAfficher->getStatutOr(),
                 $estAdmin,
                 $estAppro,
                 $estAtelier,
@@ -178,30 +182,39 @@ trait DaListeTrait
 
         $statutDASupprimable = [DemandeAppro::STATUT_SOUMIS_APPRO, DemandeAppro::STATUT_SOUMIS_ATE, DemandeAppro::STATUT_VALIDE];
 
-        $this->initStyleStatuts(); // Initialiser le style pour les statuts
+        // Roles
+        $estAdmin   = $this->estAdmin();
+        $estAppro   = $this->estUserDansServiceAppro();
+        $estAtelier = $this->estUserDansServiceAtelier();
+
+        // Initialiser le style pour les statuts
+        $this->initStyleStatuts();
 
         foreach ($data as $item) {
+            // Variables à employer
+            $achatDirect = $item->getAchatDirect();
+
             // Pré-calculer les styles
             $styleStatutDA = $this->styleStatutDA[$item->getStatutDal()] ?? '';
             $styleStatutOR = $this->styleStatutOR[$item->getStatutOr()] ?? '';
             $styleStatutBC = $this->styleStatutBC[$item->getStatutCde()] ?? '';
 
             // Pré-calculer les booléens
-            $ajouterDA = false && !$item->getAchatDirect() && ($this->estUserDansServiceAtelier() || $this->estAdmin()); // pas achat direct && (atelier ou admin)  
-            $supprimable = ($this->estUserDansServiceAppro() || $this->estUserDansServiceAtelier() || $this->estAdmin()) && in_array($item->getStatutDal(), $statutDASupprimable);
+            $ajouterDA = !$achatDirect && ($estAtelier || $estAdmin); // pas achat direct && (atelier ou admin)  
+            $supprimable = ($estAppro || $estAtelier || $estAdmin) && in_array($item->getStatutDal(), $statutDASupprimable);
+            $demandeDevis = ($estAppro || $estAdmin) && $item->getStatutDal() === DemandeAppro::STATUT_SOUMIS_APPRO;
             $statutOrValide = $item->getStatutOr() === DitOrsSoumisAValidation::STATUT_VALIDE;
             $pathOrMax = $this->dwModel->findCheminOrVersionMax($item->getNumeroOr());
             $telechargerOR = $statutOrValide && !empty($pathOrMax);
 
-            $achatDirect = $item->getAchatDirect();
-            $urls = $this->buildItemUrls($item);
+            // Construction d'urls
+            $urls = $this->buildItemUrls($item, $ajouterDA);
 
             // Statut OR | Statut DocuWare
             $statutOR = $item->getStatutOr();
             if (!$achatDirect && !empty($statutOR)) {
                 $statutOR = "OR - $statutOR";
             }
-
 
             // Tout regrouper
             $datasPrepared[] = [
@@ -235,11 +248,14 @@ trait DaListeTrait
                 'styleStatutDA'       => $styleStatutDA,
                 'styleStatutOR'       => $styleStatutOR,
                 'styleStatutBC'       => $styleStatutBC,
+                'urlCreation'         => $urls['creation'],
                 'urlDetail'           => $urls['detail'],
                 'urlDesignation'      => $urls['designation'],
                 'urlDelete'           => $urls['delete'],
+                'urlDemandeDevis'     => $urls['demandeDevis'],
                 'ajouterDA'           => $ajouterDA,
                 'supprimable'         => $supprimable,
+                'demandeDevis'        => $demandeDevis,
                 'telechargerOR'       => $telechargerOR,
                 'pathOrMax'           => $pathOrMax,
                 'statutValide'        => $item->getStatutDal() === DemandeAppro::STATUT_VALIDE,
@@ -253,12 +269,19 @@ trait DaListeTrait
      * Construit l'ensemble des URLs associées à un item de demande d'approvisionnement.
      *
      * @param DaAfficher $item Objet métier utilisé pour déterminer les routes.
+     * @param bool       $ajouterDA savoir si il faut ajouter le bouton de l'ajout de DA.
      *
-     * @return array{detail:string,designation:string,delete:string}
+     * @return array{detail:string,designation:string,delete:string,demandeDevis:string,creation:string}
      */
-    private function buildItemUrls(DaAfficher $item): array
+    private function buildItemUrls(DaAfficher $item, bool $ajouterDA): array
     {
         $urls = [];
+
+        // URL création de DA avec DIT
+        $urls['creation'] = $ajouterDA ? $this->getUrlGenerator()->generate('da_new_avec_dit', [
+            'daId'  => 0,
+            'ditId' => $item->getDit()->getId(),
+        ]) : '';
 
         // URL détail
         $urls['detail'] = $this->getUrlGenerator()->generate(
@@ -281,6 +304,12 @@ trait DaListeTrait
         $urls['delete'] = $this->getUrlGenerator()->generate(
             $item->getAchatDirect() ? 'da_delete_line_direct' : 'da_delete_line_avec_dit',
             ['numDa' => $item->getNumeroDemandeAppro(), 'ligne' => $item->getNumeroLigne()]
+        );
+
+        // URL demande de devis
+        $urls['demandeDevis'] = $this->getUrlGenerator()->generate(
+            'da_demande_devis_en_cours',
+            ['id' => $item->getDemandeAppro()->getId()]
         );
 
         return $urls;

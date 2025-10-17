@@ -120,7 +120,8 @@ class DaModel extends Model
             ) AS prix
                 FROM art_bse a
                     WHERE abse_constp = 'ZST'                    
-                    AND abse_refp <> 'ST' 
+                    AND abse_refp <> 'ST'
+                    AND abse_numf <> '99' 
                     ";
         if ($codeFamille !== '-') {
             $statement .= " AND abse_fams1 = '$codeFamille'";
@@ -148,7 +149,9 @@ class DaModel extends Model
                     WHERE fbse_numfou = a.abse_numf
             ) AS fournisseur
                 FROM Informix.art_bse a
-                    WHERE abse_constp = 'ZDI'";
+                    WHERE abse_constp = 'ZDI'
+                    AND abse_numf <> '99'
+                    ";
         $result = $this->connect->executeQuery($statement);
         $data = $this->convertirEnUtf8($this->connect->fetchResults($result));
 
@@ -164,6 +167,7 @@ class DaModel extends Model
             INNER JOIN art_bse ON abse_refp = afrn_refp AND afrn_constp = abse_constp
             INNER JOIN frn_bse ON fbse_numfou = afrn_numf
             WHERE abse_constp = 'ZST'
+            AND fbse_numfou <> '99'
             ORDER BY nomfournisseur
             ";
         $result = $this->connect->executeQuery($statement);

@@ -6,6 +6,7 @@ use App\Controller\Controller;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
+use App\Entity\admin\Application;
 use App\Entity\da\DemandeApproLR;
 use App\Form\da\DaObservationType;
 use App\Entity\da\DemandeApproLRCollection;
@@ -46,10 +47,11 @@ class DaPropositionRefAvecDitController extends Controller
         //verification si user connecter
         $this->verifierSessionUtilisateur();
 
-        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
-        $statutDa = $da->getStatutDal();
-        $this->checkPageAccess(!$this->estDaVerrouillee($statutDa, $this->estAdmin(), $this->estUserDansServiceAppro(), $this->estUserDansServiceAtelier(), false));
+        /** Autorisation accès */
+        $this->autorisationAcces($this->getUser(), Application::ID_DAP);
+        /** FIN AUtorisation accès */
 
+        $da = $this->demandeApproRepository->findAvecDernieresDALetLR($id);
         $numDa = $da->getNumeroDemandeAppro();
         $dals = $da->getDAL();
 
