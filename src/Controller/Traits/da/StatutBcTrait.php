@@ -91,7 +91,7 @@ trait StatutBcTrait
             $this->updateInfoOR($numDit, $DaAfficher);
         }
 
-        if ($numeroOr == null && !$achatDirect) {
+        if (($numeroOr == null && !$achatDirect) || ($numeroOr != null && empty($DaAfficher->getStatutOr()))) {
             return $statutBc;
         }
         $infoDaDirect = $this->daModel->getInfoDaDirect($numDa, $ref, $designation);
