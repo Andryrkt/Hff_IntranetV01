@@ -71,7 +71,7 @@ class ListeDevisMagasinController extends Controller
             $criteria = $form->getData();
             $criteria['dateCreation'] = $form->get('dateCreation')->getData();
         }
-
+        dd($criteria);
         $this->getSessionService()->set('criteria_for_excel_liste_devis_magasin', $criteria);
 
         $listeDevisFactory = $this->recuperationDonner($criteria);
