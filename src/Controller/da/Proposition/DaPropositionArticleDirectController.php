@@ -336,10 +336,9 @@ class DaPropositionArticleDirectController extends Controller
         $this->ajouterDansTableAffichageParNumDa($numDa);
 
         /** ENVOIE D'EMAIL à l'ATE pour les propositions*/
-        $this->emailDaService->envoyerMailPropositionDaDirect($da, [
+        $this->emailDaService->envoyerMailPropositionDaDirect($this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()), [
             'service'       => 'appro',
             'observation'   => $observation,
-            'hydratedDa'    => $this->demandeApproRepository->findAvecDernieresDALetLR($da->getId()),
             'userConnecter' => $this->getUser()->getPersonnels()->getNom() . ' ' . $this->getUser()->getPersonnels()->getPrenoms(),
         ]);
 
