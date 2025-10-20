@@ -3,7 +3,6 @@
 namespace App\Controller\Traits\da\creation;
 
 use App\Entity\da\DemandeAppro;
-use App\Service\genererPdf\GenererPdfDaDirect;
 
 trait DaNewDirectTrait
 {
