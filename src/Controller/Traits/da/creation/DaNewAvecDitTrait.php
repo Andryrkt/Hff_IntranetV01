@@ -11,10 +11,11 @@ use App\Entity\dit\DitOrsSoumisAValidation;
 use Symfony\Component\HttpFoundation\Request;
 use App\Model\magasin\MagasinListeOrLivrerModel;
 use App\Repository\dit\DitOrsSoumisAValidationRepository;
+use App\Traits\JoursOuvrablesTrait;
 
 trait DaNewAvecDitTrait
 {
-    use DaNewTrait;
+    use DaNewTrait, JoursOuvrablesTrait;
 
     //=====================================================================================
     private DaModel $daModel;

@@ -3,10 +3,11 @@
 namespace App\Controller\Traits\da\creation;
 
 use App\Entity\da\DemandeAppro;
+use App\Traits\JoursOuvrablesTrait;
 
 trait DaNewDirectTrait
 {
-    use DaNewTrait;
+    use DaNewTrait, JoursOuvrablesTrait;
 
     //=====================================================================================
     /**

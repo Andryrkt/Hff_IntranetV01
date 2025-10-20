@@ -148,57 +148,6 @@ trait DaTrait
     }
 
     /**
-     * Ajoute un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
-     *
-     * @param int $nbJoursOuvrables Nombre de jours ouvrables à ajouter.
-     * @param DateTime $date la date de référence (optionnel, par défaut aujourd'hui)
-     * 
-     * @return DateTime La date résultante après ajout des jours ouvrables.
-     */
-    private function ajouterJoursOuvrables(int $nbJoursOuvrables, ?DateTime $date = null): DateTime
-    {
-        $date = $date ?? new DateTime();
-        $joursAjoutes = 0;
-
-        while ($joursAjoutes < $nbJoursOuvrables) {
-            $date->modify('+1 day');
-
-            // 'N' renvoie 1 (lundi) à 7 (dimanche)
-            if ($date->format('N') < 6) {
-                $joursAjoutes++;
-            }
-        }
-
-        return $date;
-    }
-
-    /**
-     * Retire un nombre donné de jours ouvrables (hors samedi et dimanche) à la date actuelle.
-     *
-     * @param int $nbJoursOuvrables Nombre de jours ouvrables à retirer.
-     * @param DateTime $date la date de référence (optionnel, par défaut aujourd'hui)
-     * 
-     * @return DateTime La date résultante après retrait des jours ouvrables.
-     */
-    private function retirerJoursOuvrables(int $nbJoursOuvrables, ?DateTime $date = null): DateTime
-    {
-        $date = $date ?? new DateTime();
-        $joursRetires = 0;
-
-        while ($joursRetires < $nbJoursOuvrables) {
-            $date->modify('-1 day');
-
-            // 'N' renvoie 1 (lundi) à 7 (dimanche)
-            if ($date->format('N') < 6) {
-                $joursRetires++;
-            }
-        }
-
-        return $date;
-    }
-
-
-    /**
      * Détermine si une Demande d'Approvisionnement (DA) doit être verrouillée
      * en fonction de son statut et du profil utilisateur.
      *
