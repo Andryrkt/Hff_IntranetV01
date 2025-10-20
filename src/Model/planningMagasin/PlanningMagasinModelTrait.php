@@ -11,6 +11,7 @@ trait planningMagasinModelTrait
         } else {
             $numCommande = "";
         }
+       return $numCommande; 
     }
     private function agenceDebite($criteria)
     {
@@ -30,4 +31,13 @@ trait planningMagasinModelTrait
         }
         return  $serviceDebite;
     }
+    private function codeClient($criteria)
+  {
+    if (!empty($criteria->getNumParc())) {
+      $vconditionNumParc = " AND nent_numcli  = '" . $criteria->getNumParc() . "'";
+    } else {
+      $vconditionNumParc = "";
+    }
+    return $vconditionNumParc;
+  }
 }

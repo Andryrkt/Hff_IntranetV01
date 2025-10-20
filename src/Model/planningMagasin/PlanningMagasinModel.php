@@ -87,6 +87,7 @@ class PlanningMagasinModel extends Model
         $numCmd = $this->numcommande($crieria);
         $agDebit = $this->agenceDebite($crieria);
         $servDebit = $this->serviceDebite($crieria);
+        $codeClient  = $this->codeClient($crieria);
 
         $statement = "SELECT 
                         trim(nent_succ) as codeSuc,
@@ -121,7 +122,7 @@ class PlanningMagasinModel extends Model
                         $numCmd
                         $agDebit
                         $servDebit
-
+                        $codeClient
                         group by 1,2,3,4,5,6,7,8,9,10,11,12,13,14
                         order by 12 desc, 13 desc";
                     // dump($statement);    
