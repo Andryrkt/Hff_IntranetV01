@@ -2,8 +2,12 @@
 
 namespace App\Factory\magasin\devis;
 
+use App\Factory\Traits\ArrayableTrait;
+
 class ListeDevisSearchDto
 {
+    use ArrayableTrait;
+
     private ?string $numeroDevis = null;
     private ?string $codeClient = null;
     private ?string $Operateur = null;
@@ -17,58 +21,14 @@ class ListeDevisSearchDto
      *============================================================*/
 
     /**
-     * Transforme l'objet en tableau en utilisant la réflexion
-     */
-    public function toArray(): array
-    {
-        $reflection = new \ReflectionClass($this);
-        $properties = $reflection->getProperties();
-        $result = [];
-
-        foreach ($properties as $property) {
-            $property->setAccessible(true);
-            $value = $property->getValue($this);
-
-            // Vérification plus complète pour les valeurs vides
-            if ($this->isValidValue($value)) {
-                $result[$property->getName()] = $value;
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Transforme l'objet en tableau en filtrant les propriétés nulles ou vides
      */
     public function toArrayFilter(): array
     {
-        return array_filter([
-            'numeroDevis' => $this->numeroDevis,
-            'codeClient' => $this->codeClient,
-            'Operateur' => $this->Operateur,
-            'statutDw' => $this->statutDw,
-            'statutIps' => $this->statutIps,
-            'emetteur' => $this->emetteur,
-            'dateCreation' => $this->dateCreation,
-        ], fn($val) => $this->isValidValue($val));
-    }
-
-    /**
-     * Vérifie si une valeur est valide (non nulle, non vide)
-     */
-    private function isValidValue($value): bool
-    {
-        if ($value === null || $value === '') {
-            return false;
-        }
-
-        // Vérifie si c'est un tableau vide
-        if (is_array($value) && empty($value)) {
-            return false;
-        }
-
-        return true;
+        // Utilise le trait avec des paramètres spécifiques si besoin
+        return $this->toArray(); // Toutes les propriétés
+        // ou return $this->toArray(['numeroDevis', 'codeClient']); // Seulement certaines
+        // ou return $this->toArray([], ['password']); // Toutes sauf certaines
     }
 
     /**
