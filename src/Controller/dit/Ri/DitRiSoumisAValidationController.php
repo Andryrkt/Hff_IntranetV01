@@ -150,56 +150,77 @@ class DitRiSoumisAValidationController extends Controller
             return $nomDesFichiers;
         }
 
-        foreach ($itvCoches as $itv) {
-            try {
-                $fileName = $this->genererNomFichier($dataForm->getNumeroOR(), $itv, $file);
+        if (empty($itvCoches)) {
+            return $nomDesFichiers;
+        }
 
-                $this->traitementDeFichier->upload($file, $this->cheminDeBase, $fileName);
-                $nomDesFichiers[] = $fileName;
-            } catch (\Exception $e) {
+        // On prend le premier ITV pour faire l'upload initial
+        $firstItv = $itvCoches[0];
+        $originalFileName = '';
 
-                $this->historiqueOperation->sendNotificationSoumission(
-                    'Le fichier n\'a pas pu être copié pour l\'intervention : ' . $itv,
-                    $fileName ?? '-',
-                    'dit_index'
-                );
+        try {
+            $originalFileName = $this->genererNomFichier($dataForm->getNumeroOR(), $firstItv, $file);
+            $this->traitementDeFichier->upload($file, $this->cheminDeBase, $originalFileName);
+            $nomDesFichiers[] = $originalFileName;
+            $sourcePath = $this->cheminDeBase . $originalFileName;
+
+            // On copie le fichier pour les autres ITVs
+            for ($i = 1; $i < count($itvCoches); $i++) {
+                $itv = $itvCoches[$i];
+                $newFileName = $this->genererNomFichier($dataForm->getNumeroOR(), $itv, $file);
+                $destinationPath = $this->cheminDeBase . $newFileName;
+                if (copy($sourcePath, $destinationPath)) {
+                    $nomDesFichiers[] = $newFileName;
+                } else {
+                    $this->historiqueOperation->sendNotificationSoumission(
+                        'Le fichier n\'a pas pu être copié pour l\'intervention : ' . $itv,
+                        $newFileName,
+                        'dit_index'
+                    );
+                }
             }
+        } catch (\Exception $e) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Erreur lors du traitement du fichier pour l\'intervention : ' . $firstItv,
+                $originalFileName ?: '-',
+                'dit_index'
+            );
         }
 
         return $nomDesFichiers;
     }
 
     private function validerFichier(UploadedFile $file): bool
-{
-    // Validation de la taille (5MB max)
-    if ($file->getSize() > 5 * 1024 * 1024) {
-        $this->historiqueOperation->sendNotificationSoumission(
-            'Le fichier est trop volumineux (max 5MB)',
-            $file->getClientOriginalName(),
-            'dit_index'
-        );
-        return false;
+    {
+        // Validation de la taille (5MB max)
+        if ($file->getSize() > 5 * 1024 * 1024) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Le fichier est trop volumineux (max 5MB)',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        // Validation du type MIME
+        $typesAutorises = ['application/pdf', 'image/jpeg', 'image/png'];
+        if (!in_array($file->getMimeType(), $typesAutorises)) {
+            $this->historiqueOperation->sendNotificationSoumission(
+                'Type de fichier non autorisé',
+                $file->getClientOriginalName(),
+                'dit_index'
+            );
+            return false;
+        }
+
+        return true;
     }
 
-    // Validation du type MIME
-    $typesAutorises = ['application/pdf', 'image/jpeg', 'image/png'];
-    if (!in_array($file->getMimeType(), $typesAutorises)) {
-        $this->historiqueOperation->sendNotificationSoumission(
-            'Type de fichier non autorisé',
-            $file->getClientOriginalName(),
-            'dit_index'
-        );
-        return false;
+    private function genererNomFichier(string $numeroOR, int $itv, UploadedFile $file): string
+    {
+        $extension = $file->getClientOriginalExtension();
+        return sprintf('RI_%s-%d.%s', $numeroOR, $itv, $extension);
     }
-
-    return true;
-}
-
-private function genererNomFichier(string $numeroOR, int $itv, UploadedFile $file): string
-{
-    $extension = $file->getClientOriginalExtension();
-    return sprintf('RI_%s-%d.%s', $numeroOR, $itv, $extension);
-}
     private function insertionInfoUtile($dataForm, $ditRiSoumiAValidation, $numeroSoumission, $numDit)
     {
         $ditRiSoumiAValidation

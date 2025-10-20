@@ -117,7 +117,7 @@ class GenererPdfDaDirect extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", 'I');
+        $pdf->Output("$Dossier/$numDa.pdf", 'F');
     }
 
     /**

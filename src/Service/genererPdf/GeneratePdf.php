@@ -85,7 +85,7 @@ class GeneratePdf
         for ($i = 0; $i < count($pathFichiers); $i++) {
             $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
-            copy($cheminDestinationLocal, $cheminFichierDistant);
+            $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
         }
     }
 
@@ -94,7 +94,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)

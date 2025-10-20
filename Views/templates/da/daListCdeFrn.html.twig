@@ -39,7 +39,7 @@
 					<th class="text-center">N° Commande</th>
 					<th class="text-center">Statut DA</th>
 					<th class="text-center">Statut BC</th>
-					<th class="text-center">Non dispo</th>
+					<th class="text-center d-none">Non dispo</th>
 					<th class="text-center">Date fin souhaité</th>
 					<th class="text-center">Réference</th>
 					<th class="text-center">Désignation</th>
@@ -93,7 +93,7 @@
 
 						<td class="text-center fw-bold {{ styleStatutDA[item.statutDal]|default('')}}">{{ item.statutDal }}</td>
 						<td class="text-center fw-bold {{ styleStatutBC[item.statutCde]}}">{{ item.statutCde}}</td>
-						<td class="text-center">
+						<td class="text-center d-none">
 							{% if envoye_frn %}
 								<input class="modern-checkbox" type="checkbox" data-da-afficher-id="{{ item.id }}" data-da-demande-appro-id="{{ item.demandeAppro.id }}">
 							{% endif %}
