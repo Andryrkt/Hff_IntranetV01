@@ -6,19 +6,19 @@ use TCPDF;
 
 class GeneratePdf
 {
-    private $baseCheminDuFichier;
-    private $baseCheminDocuware;
+    protected $baseCheminDuFichier;
+    protected $baseCheminDocuware;
 
     public function __construct(
-        string $baseCheminDuFichier = null,
-        string $baseCheminDocuware = null
+        ?string $baseCheminDuFichier = null,
+        ?string $baseCheminDocuware = null
     ) {
         // Injection de dépendances avec fallback sur les variables d'environnement
         $this->baseCheminDuFichier = $baseCheminDuFichier ?? ($_ENV['BASE_PATH_FICHIER'] ?? '') . '/';
         $this->baseCheminDocuware = $baseCheminDocuware ?? ($_ENV['BASE_PATH_DOCUWARE'] ?? '') . '/';
     }
 
-    private function copyFile(string $sourcePath, string $destinationPath): void
+    protected function copyFile(string $sourcePath, string $destinationPath): void
     {
         if (!file_exists($sourcePath)) {
             throw new \Exception("Le fichier source n'existe pas : $sourcePath");
@@ -85,7 +85,7 @@ class GeneratePdf
         for ($i = 0; $i < count($pathFichiers); $i++) {
             $cheminFichierDistant = $this->baseCheminDocuware . 'ORDRE_DE_MISSION/facture_client_' . $numeroDoc . '_' . $numeroVersion . '_' . $i . '.pdf';
             $cheminDestinationLocal = $pathFichiers[$i];
-            copy($cheminDestinationLocal, $cheminFichierDistant);
+            $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
         }
     }
 
@@ -94,7 +94,7 @@ class GeneratePdf
     {
         $cheminFichierDistant = $this->baseCheminDocuware . 'RAPPORT_INTERVENTION/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf';
         $cheminDestinationLocal = $this->baseCheminDuFichier . 'vri/RI_' . $numeroOR . '-' . $numeroVersion . '.pdf'; // avec tiret 6
-        copy($cheminDestinationLocal, $cheminFichierDistant);
+        $this->copyFile($cheminDestinationLocal, $cheminFichierDistant);
     }
 
     public function copyToDWCdeSoumis($fileName)

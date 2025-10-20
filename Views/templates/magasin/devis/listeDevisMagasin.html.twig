@@ -1,5 +1,7 @@
 {% extends "baseTemplate.html.twig" %}
 
+{% block title %} Liste devis magasin {% endblock %}
+
 {% block stylesheets %}
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/list.css?v=2025.09.15.08.00">
 <link rel="stylesheet" href="{{ App.base_path }}/Views/css/utils/autocomplete.css?v=2025.09.15.08.00">
@@ -57,6 +59,8 @@
 								<a class="dropdown-item fw-bold" href="{{ path("devis_magasin_envoyer_au_client",
 									{numeroDevis: item.numeroDevis})}}">Pointage envoye devis au client</a>
 								{% endif %}
+								<a class="dropdown-item fw-bold" href="{{ path("bc_magasin_soumission",
+									{numeroDevis:item.numeroDevis})}}">SSoumission BC client pour validation</a>
 							</li>
 						</ul>
 					</div>

@@ -210,5 +210,11 @@ function handleValuesOfFields(
         item.codesousfamille
       );
     }
+
+    famille.classList.add("non-modifiable");
+    sousFamille.classList.add("non-modifiable");
+    reference.classList.add("non-modifiable");
+    fournisseur.classList.add("non-modifiable");
+    designation.classList.add("non-modifiable");
   }
 }

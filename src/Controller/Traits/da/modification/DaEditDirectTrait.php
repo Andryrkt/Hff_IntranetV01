@@ -2,12 +2,10 @@
 
 namespace App\Controller\Traits\da\modification;
 
-use DateTime;
 use App\Entity\da\DemandeAppro;
 use App\Entity\da\DaObservation;
 use App\Entity\da\DemandeApproL;
 use App\Repository\da\DaObservationRepository;
-use App\Service\genererPdf\GenererPdfDaDirect;
 
 trait DaEditDirectTrait
 {
@@ -79,19 +77,5 @@ trait DaEditDirectTrait
             $dalr->setStatutDal($statut);
             $em->persist($dalr);
         }
-    }
-
-    /** 
-     * Fonction pour créer le PDF sans Dit à valider DW
-     * 
-     * @param DemandeAppro $demandeAppro la demande appro pour laquelle on génère le PDF
-     */
-    private function creationPdfSansDitAvaliderDW(DemandeAppro $demandeAppro)
-    {
-        $genererPdfDaDirect = new GenererPdfDaDirect;
-        $dals = $demandeAppro->getDAL();
-
-        $genererPdfDaDirect->genererPdfAValiderDW($demandeAppro, $dals, $this->getUserMail());
-        $genererPdfDaDirect->copyToDWDaAValider($demandeAppro->getNumeroDemandeAppro());
     }
 }

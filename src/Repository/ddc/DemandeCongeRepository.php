@@ -2,6 +2,7 @@
 
 namespace App\Repository\ddc;
 
+use App\Entity\admin\utilisateur\User;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use App\Entity\ddc\DemandeConge;
@@ -12,11 +13,16 @@ class DemandeCongeRepository extends EntityRepository
         int $page,
         int $limit,
         DemandeConge $conge,
-        array $options
+        array $options,
+        ?User $user = null
     ): array {
         $queryBuilder = $this->createQueryBuilder('d')
             ->leftJoin('d.agenceServiceirium', 'asi')
-            ->addSelect('asi');
+            ->addSelect('asi')
+            ->andWhere('asi.agence_ips IN (:agencesAutorisees)')
+            ->setParameter('agencesAutorisees', $user->getAgenceAutoriserCode())
+            ->andWhere('asi.service_ips IN (:servicesAutorises)')
+            ->setParameter('servicesAutorises', $user->getServiceAutoriserCode());
 
         if ($conge->getMatricule()) {
             $queryBuilder->andWhere('d.matricule = :matricule')

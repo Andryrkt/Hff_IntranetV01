@@ -4,10 +4,12 @@ namespace App\Controller\ddc;
 
 use App\Controller\Controller;
 use App\Entity\ddc\DemandeConge;
+use App\Entity\admin\Application;
 use App\Form\ddc\DemandeCongeType;
 use App\Entity\admin\AgenceServiceIrium;
 use App\Controller\Traits\FormatageTrait;
 use App\Controller\Traits\ConversionTrait;
+use App\Controller\Traits\AutorisationTrait;
 use Symfony\Component\HttpFoundation\Request;
 use App\Controller\Traits\ddc\CongeListeTrait;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,6 +23,7 @@ class CongeController extends Controller
     use ConversionTrait;
     use CongeListeTrait;
     use FormatageTrait;
+    use AutorisationTrait;
 
     /**
      * Affiche la liste des demandes de congé
@@ -30,7 +33,10 @@ class CongeController extends Controller
     {
         //verification si user connecter
         $this->verifierSessionUtilisateur();
-        $autoriser = $this->autorisationRole($this->getEntityManager());
+
+        // DEBUT D'AUTORISATION
+        $this->autorisationAcces($this->getUser(), Application::ID_DDC);
+        //FIN AUTORISATION
 
         $congeSearch = new DemandeConge();
 
@@ -159,7 +165,7 @@ class CongeController extends Controller
 
         // Récupération des données filtrées
         $repository = $this->getEntityManager()->getRepository(DemandeConge::class);
-        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options);
+        $paginationData = $repository->findPaginatedAndFiltered($page, $limit, $congeSearch, $options, $this->getUser());
 
 
 

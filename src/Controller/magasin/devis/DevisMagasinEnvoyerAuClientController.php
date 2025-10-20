@@ -4,6 +4,7 @@ namespace App\Controller\magasin\devis;
 
 use App\Controller\Controller;
 use App\Entity\admin\Application;
+use App\Entity\magasin\bc\BcMagasin;
 use Symfony\Component\Form\FormInterface;
 use App\Entity\magasin\devis\DevisMagasin;
 use App\Controller\Traits\AutorisationTrait;
@@ -13,6 +14,7 @@ use App\Repository\magasin\devis\DevisMagasinRepository;
 use App\Controller\Traits\magasin\devis\DevisMagasinTrait;
 use App\Form\magasin\devis\DevisMagasinEnvoyerAuClientType;
 use App\Service\historiqueOperation\HistoriqueOperationDevisMagasinService;
+use App\Model\magasin\devis\ListeDevisMagasinModel;
 
 /**
  * @Route("/magasin/dematerialisation")
@@ -24,12 +26,15 @@ class DevisMagasinEnvoyerAuClientController extends Controller
 
     private HistoriqueOperationDevisMagasinService $historiqueOperationDeviMagasinService;
     private DevisMagasinRepository $devisMagasinRepository;
+    private ListeDevisMagasinModel $listeDevisMagasinModel;
+
     public function __construct()
     {
         parent::__construct();
         global $container;
         $this->historiqueOperationDeviMagasinService = $container->get(HistoriqueOperationDevisMagasinService::class);
         $this->devisMagasinRepository = $this->getEntityManager()->getRepository(DevisMagasin::class);
+        $this->listeDevisMagasinModel = new ListeDevisMagasinModel();
     }
 
     /**
@@ -65,7 +70,7 @@ class DevisMagasinEnvoyerAuClientController extends Controller
         ]);
     }
 
-    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis) 
+    private function traitementFormulaire(FormInterface $form, Request $request, string $numeroDevis)
     {
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -75,6 +80,7 @@ class DevisMagasinEnvoyerAuClientController extends Controller
             $devisMagasin = $this->getEntityManager()->getRepository(DevisMagasin::class)->findOneBy(['numeroDevis' => $numeroDevis, 'numeroVersion' => $numeroVersionMax]);
             $devisMagasin->setDateEnvoiDevisAuClient($data['dateEnvoiDevisAuClient']);
             $devisMagasin->setStatutDw(DevisMagasin::STATUT_ENVOYER_CLIENT);
+            $devisMagasin->setStatutBc(BcMagasin::STATUT_EN_ATTENTE_BC);
             $devisMagasin->setDatePointage(new \DateTime());
             $this->getEntityManager()->persist($devisMagasin);
             $this->getEntityManager()->flush();

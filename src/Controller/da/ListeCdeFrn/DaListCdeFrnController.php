@@ -62,8 +62,6 @@ class DaListCdeFrnController extends Controller
         $this->autorisationAcces($this->getUser(), Application::ID_DAP, Service::ID_APPRO);
         /** FIN AUtorisation acées */
 
-
-
         /** ===  Formulaire pour la recherche === */
         $form = $this->getFormFactory()->createBuilder(CdeFrnListType::class, $this->initialisationCdeFrnSearchDto(), [
             'method' => 'GET',

@@ -22,20 +22,25 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf = new TCPDF();
         $dals = $da->getDAL();
         $numDa = $da->getNumeroDemandeAppro();
-        $generator = new PdfTableGeneratorDaAvecDit();
+        $generator = new PdfTableMatriceGenerator();
 
         $pdf->AddPage();
 
+        //=========================================================================================
         $pdf->setFont('helvetica', 'B', 14);
         $pdf->setAbsY(11);
         $logoPath =  $_ENV['BASE_PATH_LONG'] . '/Views/assets/logoHff.jpg';
         $pdf->Image($logoPath, '', '', 45, 12);
         $pdf->setAbsX(55);
-        //$pdf->Cell(45, 12, 'LOGO', 0, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->Cell(110, 6, 'DEMANDE D\'APPROVISIONNEMENT', 0, 0, 'C', false, '', 0, false, 'T', 'M');
 
+        // entête email
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', 'BI', 10);
+        $pdf->SetY(2);
+        $pdf->Cell(0, 6, "email : $userMail", 0, 0, 'R');
 
-        $pdf->setAbsX(170);
+        $pdf->setAbsXY(170, 11);
         $pdf->setFont('helvetica', 'B', 10);
         $pdf->Cell(35, 6, $numDa, 0, 0, 'L', false, '', 0, false, 'T', 'M');
 
@@ -72,6 +77,8 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->Ln(3, true);
         $pdf->setAbsY(83);
 
+        //===================================================================================================
+        /**INTERVENTION */
         $this->renderTextWithLine($pdf, 'Intervention');
 
         $pdf->SetTextColor(0, 0, 0);
@@ -165,7 +172,7 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->SetTextColor(0, 0, 0);
         $pdf->setFont('helvetica', 'B', 10);
 
-        $pdf->MultiCell(25, 6, "Heures :", 0, 'L', false, 0);
+        $pdf->cell(25, 6, "Heures :", 0, 'L', false, 0);
         $pdf->cell(30, 6, $dit->getHeure(), 1, 0, '', false, '', 0, false, 'T', 'M');
         $pdf->setAbsX(135);
         $pdf->cell(25, 6, 'Kilométrage :', 0, 0, '', false, '', 0, false, 'T', 'M');
@@ -179,22 +186,9 @@ class GenererPdfDaAvecDit extends GeneratePdf
         $pdf->Ln(3);
 
         $pdf->SetTextColor(0, 0, 0);
-        $header = [
-            ['key' => 'reference',   'label' => 'Référence',   'width' => 110, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'designation', 'label' => 'Désignation', 'width' => 190, 'style' => 'font-weight: bold; text-align: left;'],
-            ['key' => 'pu1',         'label' => 'PU',          'width' => 80,  'style' => 'font-weight: bold; text-align: right;'],
-            ['key' => 'qte',         'label' => 'Qté',         'width' => 60,  'style' => 'font-weight: bold; text-align: center;'],
-            ['key' => 'mttTotal',    'label' => 'Montant',     'width' => 100, 'style' => 'font-weight: bold; text-align: right;'],
-        ];
-        $html1 = $generator->generateTableForDA($header, $dals);
+        $pdf->setFont('helvetica', '', 10);
+        $html1 = $generator->generer($dals);
         $pdf->writeHTML($html1, true, false, true, false, '');
-
-        //=========================================================================================
-        // entête email
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->SetFont('helvetica', 'BI', 10);
-        $pdf->SetXY(110, 2);
-        $pdf->Cell(35, 6, "email : $userMail", 0, 0, 'L');
 
         // Obtention du chemin absolu du répertoire de travail
         $Dossier = $_ENV['BASE_PATH_FICHIER'] . "/da/$numDa";
@@ -206,6 +200,6 @@ class GenererPdfDaAvecDit extends GeneratePdf
             }
         }
 
-        $pdf->Output("$Dossier/$numDa.pdf", 'F');
+        $pdf->Output("$Dossier/$numDa.pdf", "F");
     }
 }

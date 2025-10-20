@@ -2,12 +2,14 @@
 
 namespace App\Service\da;
 
+use App\Controller\Traits\da\DaTrait;
 use App\Controller\Traits\lienGenerique;
 use App\Entity\da\DemandeAppro;
 use App\Service\EmailService;
 
 class EmailDaService
 {
+    use DaTrait;
     use lienGenerique;
     private $twig;
     private $emailTemplate;
@@ -74,14 +76,17 @@ class EmailDaService
      */
     public function envoyerMailPropositionDaAvecDit(DemandeAppro $demandeAppro, array $tab)
     {
+        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
         $this->envoyerEmail([
             'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId()),
+                'tab'               => $tab,
+                'statut'            => "propositionDa",
+                'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
+                'demandeAppro'      => $demandeAppro,
+                'fournisseurs'      => $fournisseurs,
+                'listeFournisseurs' => array_keys($fournisseurs),
+                'action_url'        => $this->getUrlDetail($demandeAppro->getId()),
             ],
         ]);
     }
@@ -93,14 +98,17 @@ class EmailDaService
      */
     public function envoyerMailPropositionDaDirect(DemandeAppro $demandeAppro, array $tab)
     {
+        $fournisseurs = $this->gererPrixFournisseurs($demandeAppro->getDAL());
         $this->envoyerEmail([
             'to'        => $demandeAppro->getUser()->getMail(),
             'variables' => [
-                'tab'            => $tab,
-                'statut'         => "propositionDa",
-                'subject'        => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créee par l'Appro",
-                'demandeAppro'   => $demandeAppro,
-                'action_url'     => $this->getUrlDetail($demandeAppro->getId(), false),
+                'tab'               => $tab,
+                'statut'            => "propositionDa",
+                'subject'           => "{$demandeAppro->getNumeroDemandeAppro()} - Proposition créée par l'Appro",
+                'demandeAppro'      => $demandeAppro,
+                'fournisseurs'      => $fournisseurs,
+                'listeFournisseurs' => array_keys($fournisseurs),
+                'action_url'        => $this->getUrlDetail($demandeAppro->getId(), false),
             ],
         ]);
     }
