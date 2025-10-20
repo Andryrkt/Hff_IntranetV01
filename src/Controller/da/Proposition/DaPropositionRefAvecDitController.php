@@ -37,6 +37,7 @@ class DaPropositionRefAvecDitController extends Controller
         parent::__construct();
 
         $this->initDaPropositionAvecDitTrait();
+        $this->initDaValidationAvecDitTrait();
     }
 
     /**
