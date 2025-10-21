@@ -98,4 +98,22 @@ class DemandeApproLRepository extends EntityRepository
             ->getQuery()
             ->getArrayResult();
     }
+
+    public function deleteByNumDaAndLineNumbers(string $numDa, array $lines): void
+    {
+        if (!$numDa || !$lines) return; // rien à faire
+
+        try {
+            $this->createQueryBuilder('d')
+                ->delete()
+                ->where('d.numeroDemandeAppro =:numDa')
+                ->andWhere('d.numeroLigne IN (:lines)')
+                ->setParameter('lines', $lines)
+                ->setParameter('numDa', $numDa)
+                ->getQuery()
+                ->execute();
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
+    }
 }
