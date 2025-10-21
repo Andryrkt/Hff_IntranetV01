@@ -1,3 +1,4 @@
+import { API_ENDPOINTS } from "../../api/apiEndpoints";
 import { FetchManager } from "../../api/FetchManager";
 import { displayOverlay } from "../../utils/spinnerUtils";
 
@@ -32,10 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
       let endpoint = "";
 
-      if (this.value === "delete")
-        endpoint = "api/demande-appro/da-list-cde-frn/delete-articles";
-      if (this.value === "create")
-        endpoint = "api/demande-appro/da-list-cde-frn/create-new-articles";
+      if (this.value === "delete") endpoint = API_ENDPOINTS.DELETE_ARTICLES_DA;
+      if (this.value === "create") endpoint = API_ENDPOINTS.CREATE_ARTICLES_DA;
+
+      // Réinitialiser le select après
+      this.value = "";
 
       console.log(selectedIds);
 
@@ -56,8 +58,10 @@ document.addEventListener("DOMContentLoaded", function () {
           htmlContainer: "swal-text-left",
         },
       }).then(() => {
+        console.log("this.value = " + this.value);
+
         // Seulement si c'est suppression de lignes
-        if (this.value === "delete") {
+        if (endpoint === API_ENDPOINTS.DELETE_ARTICLES_DA) {
           const scrollPosition = window.scrollY;
           // Redirection / reload après confirmation de l'alerte
           displayOverlay(true);
@@ -78,9 +82,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
       });
     }
-
-    // Réinitialiser le select après
-    this.value = "";
   });
 
   // Event delegation
